@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<!-- IMPORTANT NOTE FOR AI ASSISTANTS:
+   - This is the HTML for my fashion website called Minara5.
+   - Always add detailed notes to any additions or changes made to this code, explaining what was modified and why.
+   - Do NOT change anything about the website unless explicitly specified by me (this is critical).
+   - The HTML contains detailed notes throughout, so pay close attention to them to understand the structure and intent.
+-->
+<!-- This is the document type declaration, specifying that this is an HTML5 document. It ensures the browser renders the page in standards mode. -->
+<html lang="en">
+<!-- The root element of the HTML page. The 'lang' attribute specifies the language as English, which helps with accessibility and SEO. -->
+
+<head>
+    <!-- The head section contains meta information about the document, such as character encoding, viewport settings, title, and styles. -->
+    <meta charset="UTF-8">
+    <!-- Specifies the character encoding for the document as UTF-8, which supports most characters and symbols. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Makes the page responsive by setting the viewport width to the device's width and initial zoom to 1.0, ensuring it looks good on mobile devices. -->
+    <title>Minara - Fashion Brand</title>
+    <!-- The title of the page, which appears in the browser tab and is used by search engines. "Minara" is the brand name, followed by a descriptor. -->
+
+    <style>
+        /* This is the internal CSS stylesheet. It's embedded in the head for simplicity in this placeholder site. Inspired by brands like Acne Studios, Margiela, Rick Owens, Balenciaga, and Chanel, which often use minimalist, clean designs with monochromatic palettes, sans-serif fonts, and ample white space for a luxurious, avant-garde feel. */
+
+        /* Global body styles: Sets the overall look of the page. */
+        body {
+            margin: 0; /* Removes default margins to allow full control over layout. */
+            padding: 0; /* Removes default padding for the same reason. */
+            font-family: 'Helvetica Neue', Arial, sans-serif; /* Uses clean, modern sans-serif fonts similar to those on high-fashion sites for a sophisticated look. */
+            color: #000; /* Default text color is black for high contrast and readability. */
+            background-color: #fff; /* White background for a minimalist, gallery-like feel. */
+            line-height: 1.6; /* Sets line spacing for better readability of text content. */
+        }
+
+        /* Header styles: The fixed navigation bar at the top, common in fashion sites for easy access to menus while scrolling. */
+        header {
+            position: fixed; /* Keeps the header at the top of the viewport even when scrolling. */
+            top: 0; /* Positions it at the very top. */
+            width: 100%; /* Spans the full width of the page. */
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background for a subtle overlay effect. */
+            padding: 20px 40px; /* Adds space inside the header: 20px top/bottom, 40px left/right. Maintains fixed height. */
+            display: flex; /* Uses flexbox for layout to align logo and nav easily. */
+            justify-content: space-between; /* Spaces the logo and nav apart. */
+            align-items: center; /* Vertically centers items in the header. */
+            z-index: 1000; /* Ensures the header is on top of other elements. */
+            border-bottom: 1px solid #eee; /* Adds a subtle bottom border for separation. */
+            height: 80px; /* Explicitly sets header height to maintain consistency. */
+            box-sizing: border-box; /* Ensures padding is included in the height calculation. */
+        }
+
+        /* Logo styles: Styles for the logo image. */
+        .logo img {
+            height: 60px; /* Increased logo height for better visibility, from 40px to 60px, while staying within header height. */
+            width: auto; /* Maintains aspect ratio. */
+            max-height: 100%; /* Ensures the logo doesn't exceed the header's height. */
+        }
+
+        /* Navigation styles: The menu list. */
+        nav ul {
+            list-style: none; /* Removes default bullet points from the list. */
+            margin: 0; /* No margins to keep it tight. */
+            padding: 0; /* No padding for the same reason. */
+            display: flex; /* Displays list items in a row using flexbox. */
+        }
+
+        /* Navigation list item styles. */
+        nav ul li {
+            margin-left: 30px; /* Spaces menu items apart horizontally. */
+        }
+
+        /* Navigation link styles: Menu items as links. */
+        nav ul li a {
+            text-decoration: none; /* Removes underlines from links. */
+            color: #000; /* Black text color. */
+            font-size: 14px; /* Smaller font for subtlety. */
+            text-transform: uppercase; /* Uppercase for consistency with logo. */
+            letter-spacing: 1px; /* Slight letter spacing. */
+            transition: color 0.3s; /* Smooth color change on hover. */
+        }
+
+        /* Hover effect for nav links: Changes color for interactivity. */
+        nav ul li a:hover {
+            color: #666; /* Darkens to gray on hover. */
+        }
+
+        /* Hero section styles: The full-screen introductory area, often used for a large image or video in fashion sites. */
+        .hero {
+            height: 147vh; /* Slightly taller for scroll visibility */
+            display: flex; /* Flexbox to align images */
+            align-items: center; /* Vertical centering */
+            justify-content: space-between; /* Space images apart */
+            background-color: #f5f5f5; /* Light gray background, Acne Studios-inspired */
+            margin-top: 80px; /* Offsets for the fixed header height */
+            padding: 0 5%; /* Prevent images from touching page edges */
+        }
+
+        /* Hero image styles */
+        .hero img {
+            width: 45%; /* Each image takes roughly half the space */
+            height: auto; /* Maintains aspect ratio */
+            object-fit: cover; /* Ensures images fill space without distortion */
+        }
+
+        /* Hero placeholder: Removed since we're using images now */
+        .hero-placeholder {
+            width: 80%; /* Takes up most of the width for prominence. */
+            height: 80%; /* Most of the height. */
+            background-color: #ddd; /* Gray background to indicate a placeholder. */
+            display: flex; /* Flexbox to center text inside. */
+            align-items: center; /* Vertical center. */
+            justify-content: center; /* Horizontal center. */
+            font-size: 24px; /* Large text for visibility. */
+            color: #888; /* Muted gray text. */
+            text-transform: uppercase; /* Uppercase for style. */
+        }
+
+        /* General section styles: Used for collections, about, contact. Centers content with padding. */
+        .section {
+            padding: 100px 40px; /* Generous padding for white space, top/bottom 100px, left/right 40px. */
+            text-align: center; /* Centers all text and elements inside. */
+        }
+
+        /* Collections grid: A responsive grid for displaying collection items, inspired by gallery layouts on sites like Balenciaga. */
+        .collections-grid {
+            display: grid; /* Uses CSS grid for layout. */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Auto-fits columns, each at least 300px, flexible. */
+            gap: 20px; /* Space between grid items. */
+            margin-top: 40px; /* Space above the grid. */
+        }
+
+        /* Individual collection item: Placeholder for images of collections. */
+        .collection-item {
+            background-color: #f5f5f5; /* Light gray background. */
+            height: 400px; /* Fixed height for uniformity. */
+            display: flex; /* Flexbox to center text. */
+            align-items: center; /* Vertical center. */
+            justify-content: center; /* Horizontal center. */
+            font-size: 18px; /* Medium text size. */
+            color: #888; /* Muted gray. */
+            text-transform: uppercase; /* Uppercase. */
+        }
+
+        /* About text styles: Limits width for readability. */
+        .about-text {
+            max-width: 800px; /* Prevents text from spanning too wide on large screens. */
+            margin: 0 auto; /* Centers the paragraph. */
+            font-size: 16px; /* Standard text size. */
+            color: #333; /* Darker gray for body text. */
+        }
+
+        /* Footer styles: Bottom section with copyright info. */
+        footer {
+            padding: 40px; /* Padding around content. */
+            text-align: center; /* Centers text. */
+            background-color: #f5f5f5; /* Light gray background for contrast. */
+            font-size: 12px; /* Small text. */
+            color: #666; /* Muted color. */
+        }
+
+        /* Media query for responsiveness: Adjusts layout for screens smaller than 768px (e.g., tablets/mobile). */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column; /* Stacks logo and nav vertically on small screens. */
+                padding: 20px; /* Reduces padding. */
+            }
+            nav ul {
+                margin-top: 20px; /* Adds space between logo and nav. */
+            }
+            nav ul li {
+                margin-left: 20px; /* Reduces spacing between menu items. */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- The body contains the visible content of the page. -->
+
+    <!-- Header section: Contains the logo and navigation menu. -->
+    <header>
+        <div class="logo">
+            <img src="minara 5 transparent.png" alt="Minara Logo">
+            <!-- Logo image 'minara 5 transparent.png' located in the same folder as the HTML file. The alt attribute provides accessibility text for screen readers. -->
+        </div>
+        <nav>
+            <!-- Navigation menu with links to sections. Uses anchors for single-page navigation. -->
+            <ul>
+                <li><a href="#home">Home</a></li> <!-- Link to hero/home section. -->
+                <li><a href="#collections">Collections</a></li> <!-- Link to collections section. -->
+                <li><a href="#about">About</a></li> <!-- Link to about section. -->
+                <li><a href="#contact">Contact</a></li> <!-- Link to contact section. -->
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Home/hero section: The main introductory area with two images now. -->
+    <section id="home" class="hero">
+        <img src="hero-image-left.jpg" alt="Hero Image Left Placeholder">
+        <img src="hero-image-right.jpg" alt="Hero Image Right Placeholder">
+        <!-- Two images, left and right aligned, replacing the original placeholder div. -->
+    </section>
+
+    <!-- Collections section: Displays a grid of collection placeholders. -->
+    <section id="collections" class="section">
+        <h2>Collections</h2> <!-- Heading for the section. -->
+        <div class="collections-grid">
+            <div class="collection-item">Collection Image 1 Placeholder</div> <!-- Placeholder for first collection image. -->
+            <div class="collection-item">Collection Image 2 Placeholder</div> <!-- Placeholder for second. -->
+            <div class="collection-item">Collection Image 3 Placeholder</div> <!-- Third. -->
+            <div class="collection-item">Collection Image 4 Placeholder</div> <!-- Fourth. Add more as needed. -->
+        </div>
+    </section>
+
+    <!-- About section: Provides brand information. -->
+    <section id="about" class="section">
+        <h2>About Minara</h2> <!-- Section heading. -->
+        <p class="about-text">
+            Minara is a contemporary fashion brand inspired by avant-garde aesthetics and timeless elegance. Drawing from the essence of minimalist design and bold innovation, we create pieces that redefine modern luxury.
+        </p> <!-- Paragraph with brand description. This can be expanded or modified. -->
+    </section>
+
+    <!-- Contact section: Basic contact info. -->
+    <section id="contact" class="section">
+        <h2>Contact</h2> <!-- Section heading. -->
+        <p>Email: info@minara.com</p> <!-- Email address. Replace with real one. -->
+        <p>Follow us on social media for updates.</p> <!-- Social media prompt. Could add links here. -->
+    </section>
+
+    <!-- Footer: Copyright and legal info at the bottom. -->
+    <footer>
+        &copy; 2025 Minara. All rights reserved. <!-- Copyright notice. Update year as needed. -->
+    </footer>
+</body>
+</html>
