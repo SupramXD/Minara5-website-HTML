@@ -37,27 +37,28 @@
             top: 0; /* Positions it at the very top. */
             width: 100%; /* Spans the full width of the page. */
             background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background for a subtle overlay effect. */
-            padding: 20px 40px; /* Adds space inside the header: 20px top/bottom, 40px left/right. Maintains fixed height. */
+            padding: 5px 40px; /* Reduced top/bottom padding from 10px to 5px to make header shorter and align navigation closer to top, per user request. */
             display: flex; /* Uses flexbox for layout to align logo and nav easily. */
             justify-content: space-between; /* Spaces the logo and nav apart. */
-            align-items: center; /* Vertically centers items in the header. */
+            align-items: flex-start; /* Aligns content to top for navigation, per user request. */
             z-index: 1000; /* Ensures the header is on top of other elements. */
             border-bottom: 1px solid #eee; /* Adds a subtle bottom border for separation. */
-            height: 80px; /* Explicitly sets header height to maintain consistency. */
+            height: 60px; /* Reduced from 80px to 60px to make header shorter, per user request. */
             box-sizing: border-box; /* Ensures padding is included in the height calculation. */
         }
 
         /* Logo styles: Styles for the logo image. */
         .logo img {
-            height: 60px; /* Increased logo height for better visibility, from 40px to 60px, while staying within header height. */
+            height: 50px; /* Reduced from 60px to 50px to fit shorter header while maintaining visibility and centering. */
             width: auto; /* Maintains aspect ratio. */
             max-height: 100%; /* Ensures the logo doesn't exceed the header's height. */
+            margin-top: 5px; /* Added to vertically center logo in shorter header, per user request to keep logo centered. */
         }
 
         /* Navigation styles: The menu list. */
         nav ul {
             list-style: none; /* Removes default bullet points from the list. */
-            margin: 0; /* No margins to keep it tight. */
+            margin: 3px 0 0 20px; /* Adjusted: 3px top for tighter top alignment, 0 bottom, 20px left to shift navigation rightward, per user request. */
             padding: 0; /* No padding for the same reason. */
             display: flex; /* Displays list items in a row using flexbox. */
         }
@@ -71,7 +72,7 @@
         nav ul li a {
             text-decoration: none; /* Removes underlines from links. */
             color: #000; /* Black text color. */
-            font-size: 14px; /* Smaller font for subtlety. */
+            font-size: 11px; /* Reduced from 12px to 11px to make buttons slightly smaller, per user request. */
             text-transform: uppercase; /* Uppercase for consistency with logo. */
             letter-spacing: 1px; /* Slight letter spacing. */
             transition: color 0.3s; /* Smooth color change on hover. */
@@ -84,7 +85,7 @@
 
         /* Hero section styles: The full-screen introductory area, often used for a large image or video in fashion sites. */
         .hero {
-            height: 147vh; /* Slightly taller for scroll visibility */
+            height: 110vh; /* Slightly taller for scroll visibility */
             display: flex; /* Flexbox to align images */
             align-items: center; /* Vertical centering */
             justify-content: space-between; /* Space images apart */
@@ -160,10 +161,10 @@
         @media (max-width: 768px) {
             header {
                 flex-direction: column; /* Stacks logo and nav vertically on small screens. */
-                padding: 20px; /* Reduces padding. */
+                padding: 5px; /* Reduced padding to match main header change for shorter height, per user request. */
             }
             nav ul {
-                margin-top: 20px; /* Adds space between logo and nav. */
+                margin-top: 10px; /* Reduced from 15px to 10px for tighter top alignment on mobile, per user request. */
             }
             nav ul li {
                 margin-left: 20px; /* Reduces spacing between menu items. */
@@ -221,13 +222,13 @@
     <!-- Contact section: Basic contact info. -->
     <section id="contact" class="section">
         <h2>Contact</h2> <!-- Section heading. -->
-        <p>Email: info@minara.com</p> <!-- Email address. Replace with real one. -->
+        <p>Email: minara5.brand@gmail.com</p> <!-- Changed from hyperlink <a href="mailto:minara5.brand@gmail.com"> to plain text, per user request. -->
         <p>Follow us on social media for updates.</p> <!-- Social media prompt. Could add links here. -->
     </section>
 
     <!-- Footer: Copyright and legal info at the bottom. -->
     <footer>
-        &copy; 2025 Minara. All rights reserved. <!-- Copyright notice. Update year as needed. -->
+        &copy; 2025 Minara5 <!-- Changed copyright from "© 2025 Minara. All rights reserved." to "© 2025 Minara5", removing "All rights reserved" per user request. -->
     </footer>
 </body>
 </html>
