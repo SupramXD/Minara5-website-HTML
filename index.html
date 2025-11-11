@@ -24,7 +24,7 @@
   nav ul li a{font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#000; text-decoration:none;}
   nav ul li a:hover{color:#666;}
 
-  /* Small header logo (shows only when big one gone) */
+  /* small header logo */
   .header-logo{
     position:absolute; left:50%; top:50%;
     transform:translate(-50%,-50%);
@@ -32,7 +32,7 @@
   }
   .header-logo.show{opacity:1;}
 
-  /* HERO (desktop default) */
+  /* HERO */
   .hero{
     margin-top:45px; position:relative; width:100vw; height:120vh;
     display:flex; overflow:hidden;
@@ -55,30 +55,19 @@
   .collection-item{background:#f5f5f5; height:400px; display:flex; align-items:center; justify-content:center; font-size:18px; color:#888; text-transform:uppercase;}
   footer{padding:40px; text-align:center; background:#f5f5f5; font-size:12px; color:#666;}
 
-  /* ---------- MOBILE / VERTICAL FIXES ---------- */
-  @media (max-width: 900px){
-    /* Make hero a normal block so children stack and determine height */
-    .hero{
-      display:block;      /* not flex */
-      height:auto;        /* grow to fit both images */
-      overflow:visible;
-    }
-    .hero img{
-      width:100%;
-      height:auto;        /* no cropping */
-      object-fit:contain; /* show whole image */
-      display:block;
-    }
+  /* MOBILE / VERTICAL */
+  @media (max-width:900px){
+    .hero{display:block; height:auto; overflow:visible;}
+    .hero img{width:100%; height:auto; object-fit:contain; display:block;}
 
-    /* Constrain big logo by both width and height so it never clips */
+    /* Bigger logo but still safe */
     #logo{
       width:auto;
-      max-width: 88vw;    /* not wider than screen */
-      max-height: 32vh;   /* not taller than ~1/3 of screen */
+      max-width:88vw;
+      max-height:36vh;     /* was 32vh, gives ~12% more size */
       top:50%;
       transform:translate(-50%,-50%);
     }
-    /* Make the IMG obey the container’s max-height/width */
     #logo img{
       width:100%;
       height:auto;
@@ -127,7 +116,6 @@
   const hero = document.getElementById('hero');
   const headerLogo = document.getElementById('headerLogo');
   const imgs = [document.getElementById('imgL'), document.getElementById('imgR')];
-  const mqMobile = window.matchMedia('(max-width: 900px)');
 
   function heroBottomDoc(){ return hero.offsetTop + hero.offsetHeight; }
 
@@ -135,53 +123,41 @@
     const hbDoc = heroBottomDoc();
     const scrollY = window.scrollY || window.pageYOffset;
     const vh = window.innerHeight;
-
-    // If mobile, logo size is capped by CSS; desktop uses fixed width.
     const logoRect = logo.getBoundingClientRect();
-    const logoH = Math.max(1, Math.round(logoRect.height)); // avoid zero before render
-
+    const logoH = Math.round(logoRect.height);
     const logoCenterDoc = scrollY + (vh / 2);
     const logoBottomDoc = logoCenterDoc + (logoH / 2);
 
-    // Follow center until bottom meets hero bottom; then lock exactly at the bottom.
-    if (logoBottomDoc < hbDoc - 0.5) {
+    /* follow center until just before bottom hits */
+    if (logoBottomDoc < hbDoc - 1) {  // lock 1px higher
       logo.style.position = 'fixed';
       logo.style.top = '50%';
       logo.style.left = '50%';
       logo.style.transform = 'translate(-50%,-50%)';
     } else {
-      const absTop = hbDoc - logoH;                // exact lock
+      const absTop = hbDoc - logoH - 1; // 1px above
       logo.style.position = 'absolute';
       logo.style.top = absTop + 'px';
       logo.style.left = '50%';
       logo.style.transform = 'translateX(-50%)';
     }
 
-    // Show small header logo only when the big one is not visible
     const r = logo.getBoundingClientRect();
-    const bigVisible = !(r.bottom <= 0 || r.top >= window.innerHeight);
-    headerLogo.classList.toggle('show', !bigVisible);
+    const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
+    headerLogo.classList.toggle('show', !visible);
   }
 
-  // Re-run when images finish laying out (esp. on mobile stacking)
   const ro = new ResizeObserver(updateLogo);
   ro.observe(hero);
-  imgs.forEach(img => {
-    if (!img.complete) {
-      img.addEventListener('load', updateLogo);
-      img.addEventListener('error', updateLogo);
-    }
-  });
-
+  imgs.forEach(img => !img.complete && img.addEventListener('load', updateLogo));
   window.addEventListener('scroll', updateLogo, { passive:true });
   window.addEventListener('resize', updateLogo);
   window.addEventListener('orientationchange', updateLogo);
   window.addEventListener('load', updateLogo);
-  setTimeout(updateLogo, 150);
-  setTimeout(updateLogo, 400);
+  setTimeout(updateLogo,150);
+  setTimeout(updateLogo,400);
 })();
 </script>
 
 </body>
 </html>
-
