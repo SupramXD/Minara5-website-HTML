@@ -33,12 +33,11 @@
     position:fixed;
     left:50%;
     top:50%;
-    /* compensation var to cancel URL-bar height change */
-    transform:translate(-50%, calc(-50% + var(--comp, 0px)));
+    transform:translate(-50%, -50%);
     width:1200px;
     z-index:900;
     pointer-events:none;
-    will-change:transform,top;
+    transition:transform .3s ease;
   }
   #logo img{width:100%;height:auto;display:block;}
 
@@ -93,30 +92,40 @@
   const hero = document.getElementById('hero');
   const headerLogo = document.getElementById('headerLogo');
 
-  /* ---------- normal scroll + lock logic (your working code) ---------- */
-  function heroBottom(){return hero.offsetTop + hero.offsetHeight;}
   let ticking = false;
+  let heroBottom = 0;
+  let urlBarHidden = false;
+  let anchorOffset = null;  // visual offset from screen center when URL bar hides
+
+  function measureHero(){
+    heroBottom = hero.offsetTop + hero.offsetHeight;
+  }
 
   function updateLogo(){
     const scrollY = window.scrollY || window.pageYOffset;
-    const hb = heroBottom();
     const vh = window.innerHeight;
     const logoH = logo.getBoundingClientRect().height;
-    const logoBottom = scrollY + vh/2 + logoH/2;
+    const logoBottomDoc = scrollY + vh/2 + logoH/2;
 
-    if(logoBottom < hb - 1){
-      logo.style.position = 'fixed';
-      logo.style.top = '50%';
-      logo.style.transform = 'translate(-50%, calc(-50% + var(--comp,0px)))';
-      logo.style.display = 'block';
+    if(logoBottomDoc < heroBottom - 1){
+      if(!urlBarHidden){
+        // normal centered follow
+        logo.style.position = 'fixed';
+        logo.style.top = '50%';
+        logo.style.transform = 'translate(-50%, -50%)';
+      } else {
+        // url bar hidden → keep the previous visual offset constant
+        logo.style.position = 'fixed';
+        logo.style.top = `calc(50% + ${anchorOffset}px)`;
+        logo.style.transform = 'translate(-50%, -50%)';
+      }
     } else {
-      const absTop = hb - logoH - 1;
+      // lock at bottom of hero
+      const absTop = heroBottom - logoH - 1;
       logo.style.position = 'absolute';
       logo.style.top = absTop + 'px';
+      logo.style.left = '50%';
       logo.style.transform = 'translateX(-50%)';
-      logo.style.display = 'block';
-      // clear compensation when locked
-      document.documentElement.style.setProperty('--comp','0px');
     }
 
     const r = logo.getBoundingClientRect();
@@ -131,40 +140,36 @@
     }
   }
 
-  window.addEventListener('scroll',requestUpdate,{passive:true});
-  window.addEventListener('resize',requestUpdate);
-  window.addEventListener('orientationchange',requestUpdate);
-  window.addEventListener('load',requestUpdate);
-
-  /* ---------- URL-bar height change compensation ---------- */
-  const getComp = () =>
-    parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--comp')) || 0;
-  const setComp = v =>
-    document.documentElement.style.setProperty('--comp', v.toFixed(1) + 'px');
-
-  let easing = false;
-  function easeBack(){
-    if(!easing) return;
-    const cur = getComp();
-    const next = cur * 0.8;
-    if(Math.abs(next) < 0.5){ setComp(0); easing=false; return; }
-    setComp(next);
-    requestAnimationFrame(easeBack);
-  }
-
+  // Detect URL-bar hide/show and anchor current offset
   if(window.visualViewport){
-    let prevH = window.visualViewport.height;
-    window.visualViewport.addEventListener('resize',()=>{
+    let lastH = window.visualViewport.height;
+    window.visualViewport.addEventListener('resize', ()=>{
       const h = window.visualViewport.height;
-      const dh = h - prevH;
-      prevH = h;
-      if(Math.abs(dh) > 40){                 // significant URL-bar change
-        // move logo opposite to viewport center shift
-        setComp(getComp() - dh/2);
-        if(!easing){ easing=true; requestAnimationFrame(easeBack); }
+      const delta = h - lastH;
+      lastH = h;
+
+      // if viewport got significantly taller, URL bar hid
+      if(delta > 40 && !urlBarHidden){
+        urlBarHidden = true;
+        // Capture current on-screen offset between logo center and viewport center
+        const rect = logo.getBoundingClientRect();
+        const logoCenter = rect.top + rect.height/2;
+        const viewportCenter = window.innerHeight/2;
+        anchorOffset = logoCenter - viewportCenter;
       }
-    },{passive:true});
+
+      // if viewport shrinks (URL bar comes back)
+      if(delta < -40 && urlBarHidden){
+        urlBarHidden = false;
+        anchorOffset = null;
+      }
+    });
   }
+
+  window.addEventListener('scroll', requestUpdate, { passive:true });
+  window.addEventListener('resize', ()=>{measureHero();requestUpdate();});
+  window.addEventListener('orientationchange', ()=>{measureHero();requestUpdate();});
+  window.addEventListener('load', ()=>{measureHero();requestUpdate();});
 })();
 </script>
 
