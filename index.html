@@ -8,44 +8,68 @@
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:Helvetica,Arial,sans-serif;background:#fff;overflow-x:hidden;}
 
+  /* HEADER */
   header{
-    position:fixed;top:0;left:0;right:0;height:45px;
-    background:rgba(255,255,255,0.95);
+    position:fixed;top:0;left:0;right:0;
+    height:45px;background:rgba(255,255,255,0.95);
     display:flex;justify-content:space-between;align-items:flex-start;
     padding:4px 30px;z-index:1200;border-bottom:1px solid #eee;
   }
-  .left-nav a{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#000;text-decoration:none;margin-top:2px;}
+  .left-nav a{
+    font-size:11px;text-transform:uppercase;letter-spacing:1px;
+    color:#000;text-decoration:none;margin-top:2px;
+  }
   nav ul{list-style:none;display:flex;margin:2px 0 0 0;padding:0;}
   nav ul li{margin-left:25px;}
   nav ul li a{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#000;text-decoration:none;}
   nav ul li a:hover{color:#666;}
 
-  .header-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-    height:22px;pointer-events:none;opacity:0;transition:opacity .25s ease;}
+  /* small header logo */
+  .header-logo{
+    position:absolute;left:50%;top:50%;
+    transform:translate(-50%,-50%);
+    height:22px;pointer-events:none;opacity:0;transition:opacity .25s ease;
+  }
   .header-logo.show{opacity:1;}
 
-  .hero{margin-top:45px;position:relative;width:100vw;height:120vh;display:flex;overflow:hidden;}
-  .hero img{height:100%;object-fit:cover;object-position:center;display:block;}
+  /* HERO */
+  .hero{
+    margin-top:45px;
+    position:relative;
+    width:100vw;
+    height:120vh;
+    display:flex;
+    overflow:hidden;
+  }
+  .hero img{
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+    display:block;
+  }
   .hero img:first-child{flex:1.3;}
   .hero img:last-child{flex:0.7;}
 
+  /* BIG LOGO */
   #logo{
     position:fixed;
     left:50%;
     top:50%;
-    transform:translate(-50%, -50%);
+    transform:translate(-50%,-50%);
     width:1200px;
     z-index:900;
     pointer-events:none;
-    transition:transform .3s ease;
+    will-change:transform, top;
   }
   #logo img{width:100%;height:auto;display:block;}
 
+  /* CONTENT */
   .section{padding:100px 40px;text-align:center;}
   .collections-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:40px;}
   .collection-item{background:#f5f5f5;height:400px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#888;text-transform:uppercase;}
   footer{padding:40px;text-align:center;background:#f5f5f5;font-size:12px;color:#666;}
 
+  /* MOBILE */
   @media (max-width:900px){
     .hero{display:block;height:auto;overflow:visible;}
     .hero img{width:100%;height:auto;object-fit:contain;display:block;}
@@ -92,84 +116,119 @@
   const hero = document.getElementById('hero');
   const headerLogo = document.getElementById('headerLogo');
 
-  let ticking = false;
-  let heroBottom = 0;
-  let urlBarHidden = false;
-  let anchorOffset = null;  // visual offset from screen center when URL bar hides
+  const isMobile = () => window.matchMedia('(max-width:900px)').matches;
 
+  // State
+  let heroBottom = 0;
+  let mode = 'center';          // 'center' | 'anchored' | 'locked'
+  let lastLogoCenterY = null;   // cached each frame BEFORE any resize
+  let anchorOffsetPx = 0;       // offset from viewport center while anchored
+  let vvLastH = (window.visualViewport && window.visualViewport.height) || 0;
+
+  // Measure hero
   function measureHero(){
     heroBottom = hero.offsetTop + hero.offsetHeight;
   }
 
-  function updateLogo(){
+  // Main updater
+  function update(){
     const scrollY = window.scrollY || window.pageYOffset;
     const vh = window.innerHeight;
-    const logoH = logo.getBoundingClientRect().height;
+    const rect = logo.getBoundingClientRect();
+    const logoH = rect.height || 1;
     const logoBottomDoc = scrollY + vh/2 + logoH/2;
 
-    if(logoBottomDoc < heroBottom - 1){
-      if(!urlBarHidden){
-        // normal centered follow
-        logo.style.position = 'fixed';
-        logo.style.top = '50%';
-        logo.style.transform = 'translate(-50%, -50%)';
-      } else {
-        // url bar hidden → keep the previous visual offset constant
-        logo.style.position = 'fixed';
-        logo.style.top = `calc(50% + ${anchorOffset}px)`;
-        logo.style.transform = 'translate(-50%, -50%)';
-      }
-    } else {
-      // lock at bottom of hero
+    // Decide lock
+    const shouldLock = (logoBottomDoc >= heroBottom - 1);
+
+    if (shouldLock) {
+      // LOCKED at hero bottom (document space)
+      if (mode !== 'locked') mode = 'locked';
       const absTop = heroBottom - logoH - 1;
       logo.style.position = 'absolute';
       logo.style.top = absTop + 'px';
       logo.style.left = '50%';
       logo.style.transform = 'translateX(-50%)';
+    } else {
+      // Not locked — two behaviors:
+      if (mode === 'anchored') {
+        // Keep the logo at the captured visual offset from center
+        logo.style.position = 'fixed';
+        logo.style.top = `calc(50% + ${anchorOffsetPx}px)`;
+        logo.style.left = '50%';
+        logo.style.transform = 'translate(-50%,-50%)';
+      } else {
+        // Centered follow (normal behavior)
+        mode = 'center';
+        logo.style.position = 'fixed';
+        logo.style.top = '50%';
+        logo.style.left = '50%';
+        logo.style.transform = 'translate(-50%,-50%)';
+      }
     }
 
+    // Header mini-logo toggle
     const r = logo.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
+
+    // Cache visual center for next frame (used to prevent teleport on URL-bar hide)
+    const currentCenter = r.top + r.height / 2;
+    lastLogoCenterY = currentCenter;
   }
 
+  // rAF scheduler
+  let ticking = false;
   function requestUpdate(){
-    if(!ticking){
-      requestAnimationFrame(()=>{updateLogo();ticking=false;});
-      ticking=true;
+    if (!ticking) {
+      requestAnimationFrame(() => { update(); ticking = false; });
+      ticking = true;
     }
   }
 
-  // Detect URL-bar hide/show and anchor current offset
-  if(window.visualViewport){
-    let lastH = window.visualViewport.height;
-    window.visualViewport.addEventListener('resize', ()=>{
+  // Detect URL bar hide/show and switch modes WITHOUT teleport
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      if (!isMobile()) { vvLastH = window.visualViewport.height; return; }
       const h = window.visualViewport.height;
-      const delta = h - lastH;
-      lastH = h;
+      const dh = h - vvLastH;
+      vvLastH = h;
 
-      // if viewport got significantly taller, URL bar hid
-      if(delta > 40 && !urlBarHidden){
-        urlBarHidden = true;
-        // Capture current on-screen offset between logo center and viewport center
-        const rect = logo.getBoundingClientRect();
-        const logoCenter = rect.top + rect.height/2;
-        const viewportCenter = window.innerHeight/2;
-        anchorOffset = logoCenter - viewportCenter;
+      // URL bar hides → height jumps UP
+      if (dh > 40 && mode !== 'locked') {
+        // Switch to anchored at the exact visual spot we had LAST FRAME
+        // Use cached lastLogoCenterY (from the frame before this resize)
+        const viewportCenter = window.innerHeight / 2;
+        const offset = (lastLogoCenterY == null ? 0 : (lastLogoCenterY - viewportCenter));
+        anchorOffsetPx = offset;
+        mode = 'anchored';
+        requestUpdate();
       }
 
-      // if viewport shrinks (URL bar comes back)
-      if(delta < -40 && urlBarHidden){
-        urlBarHidden = false;
-        anchorOffset = null;
+      // URL bar shows → height drops
+      if (dh < -40 && mode === 'anchored') {
+        // Return to centered behavior
+        mode = 'center';
+        anchorOffsetPx = 0;
+        requestUpdate();
       }
-    });
+    }, { passive: true });
+
+    // Some browsers also emit pageTop changes; track them to ensure lastLogoCenterY keeps updating
+    window.visualViewport.addEventListener('scroll', () => {
+      // no-op, but ensures we schedule an update during URL-bar motion
+      requestUpdate();
+    }, { passive: true });
   }
 
-  window.addEventListener('scroll', requestUpdate, { passive:true });
-  window.addEventListener('resize', ()=>{measureHero();requestUpdate();});
-  window.addEventListener('orientationchange', ()=>{measureHero();requestUpdate();});
-  window.addEventListener('load', ()=>{measureHero();requestUpdate();});
+  // Standard listeners
+  window.addEventListener('scroll', requestUpdate, { passive: true });
+  window.addEventListener('resize', () => { measureHero(); requestUpdate(); });
+  window.addEventListener('orientationchange', () => { measureHero(); requestUpdate(); });
+  window.addEventListener('load', () => { measureHero(); requestUpdate(); });
+
+  // Kickstart
+  setTimeout(() => { measureHero(); requestUpdate(); }, 60);
 })();
 </script>
 
