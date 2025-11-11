@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Minara - Responsive Brand Site</title>
+<title>Minara - Fashion Brand</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:Helvetica,Arial,sans-serif;background:#fff;overflow-x:hidden;}
@@ -34,36 +34,47 @@
 
   /* HERO */
   .hero{
-    margin-top:45px; position:relative; width:100vw; height:120vh;
-    display:flex; overflow:hidden;
+    margin-top:45px;
+    position:relative;
+    width:100vw;
+    height:120vh;
+    display:flex;
+    overflow:hidden;
   }
-  .hero img{height:100%; object-fit:cover; object-position:center; display:block;}
+  .hero img{
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+    display:block;
+  }
   .hero img:first-child{flex:1.3;}
   .hero img:last-child{flex:0.7;}
 
-  /* BIG LOGO (desktop) */
+  /* BIG LOGO */
   #logo{
-    position:fixed; left:50%; top:50%;
+    position:fixed;
+    left:50%;
+    top:50%;
     transform:translate(-50%,-50%);
-    width:1200px; z-index:1100; pointer-events:none;
-
-    /* 🔧 GPU smoothing */
-    will-change: transform, top;
-    backface-visibility: hidden;
-    transform-style: preserve-3d;
+    width:1200px;
+    z-index:1100;
+    pointer-events:none;
+    will-change:transform,top;
+    backface-visibility:hidden;
+    transform-style:preserve-3d;
   }
-  #logo img{width:100%; height:auto; display:block;}
+  #logo img{width:100%;height:auto;display:block;}
 
   /* CONTENT */
-  .section{padding:100px 40px; text-align:center;}
-  .collections-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px; margin-top:40px;}
-  .collection-item{background:#f5f5f5; height:400px; display:flex; align-items:center; justify-content:center; font-size:18px; color:#888; text-transform:uppercase;}
-  footer{padding:40px; text-align:center; background:#f5f5f5; font-size:12px; color:#666;}
+  .section{padding:100px 40px;text-align:center;}
+  .collections-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:40px;}
+  .collection-item{background:#f5f5f5;height:400px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#888;text-transform:uppercase;}
+  footer{padding:40px;text-align:center;background:#f5f5f5;font-size:12px;color:#666;}
 
-  /* MOBILE / VERTICAL */
+  /* MOBILE FIXES */
   @media (max-width:900px){
-    .hero{display:block; height:auto; overflow:visible;}
-    .hero img{width:100%; height:auto; object-fit:contain; display:block;}
+    .hero{display:block;height:auto;overflow:visible;}
+    .hero img{width:100%;height:auto;object-fit:contain;display:block;}
 
     #logo{
       width:auto;
@@ -71,9 +82,6 @@
       max-height:36vh;
       top:50%;
       transform:translate(-50%,-50%);
-      will-change:transform,top;
-      backface-visibility:hidden;
-      transform-style:preserve-3d;
     }
     #logo img{
       width:100%;
@@ -123,6 +131,7 @@
   const hero = document.getElementById('hero');
   const headerLogo = document.getElementById('headerLogo');
   const imgs = [document.getElementById('imgL'), document.getElementById('imgR')];
+  let ticking = false;
 
   function heroBottomDoc(){ return hero.offsetTop + hero.offsetHeight; }
 
@@ -132,17 +141,16 @@
     const vh = window.innerHeight;
     const logoRect = logo.getBoundingClientRect();
     const logoH = Math.round(logoRect.height);
-    const logoCenterDoc = scrollY + (vh / 2);
-    const logoBottomDoc = logoCenterDoc + (logoH / 2);
+    const logoCenterDoc = scrollY + vh / 2;
+    const logoBottomDoc = logoCenterDoc + logoH / 2;
 
-    /* smoother lock: trigger 0.5px early to avoid visual snap */
-    if (logoBottomDoc < hbDoc - 0.5) {
+    if (logoBottomDoc < hbDoc - 1) {
       logo.style.position = 'fixed';
       logo.style.top = '50%';
       logo.style.left = '50%';
       logo.style.transform = 'translate(-50%,-50%)';
     } else {
-      const absTop = hbDoc - logoH - 0.5;
+      const absTop = hbDoc - logoH - 1;
       logo.style.position = 'absolute';
       logo.style.top = absTop + 'px';
       logo.style.left = '50%';
@@ -154,17 +162,28 @@
     headerLogo.classList.toggle('show', !visible);
   }
 
-  const ro = new ResizeObserver(updateLogo);
+  function requestUpdate(){
+    if(!ticking){
+      requestAnimationFrame(()=>{
+        updateLogo();
+        ticking=false;
+      });
+      ticking=true;
+    }
+  }
+
+  const ro = new ResizeObserver(requestUpdate);
   ro.observe(hero);
-  imgs.forEach(img => !img.complete && img.addEventListener('load', updateLogo));
-  window.addEventListener('scroll', updateLogo, { passive:true });
-  window.addEventListener('resize', updateLogo);
-  window.addEventListener('orientationchange', updateLogo);
-  window.addEventListener('load', updateLogo);
-  setTimeout(updateLogo,150);
-  setTimeout(updateLogo,400);
+  imgs.forEach(img => !img.complete && img.addEventListener('load', requestUpdate));
+  window.addEventListener('scroll', requestUpdate, { passive:true });
+  window.addEventListener('resize', requestUpdate);
+  window.addEventListener('orientationchange', requestUpdate);
+  window.addEventListener('load', requestUpdate);
+  setTimeout(requestUpdate,150);
+  setTimeout(requestUpdate,400);
 })();
 </script>
 
 </body>
 </html>
+
