@@ -24,7 +24,7 @@
   nav ul li a{font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#000; text-decoration:none;}
   nav ul li a:hover{color:#666;}
 
-  /* small header logo */
+  /* small header logo (only when big one off-screen) */
   .header-logo{
     position:absolute; left:50%; top:50%;
     transform:translate(-50%,-50%);
@@ -32,12 +32,12 @@
   }
   .header-logo.show{opacity:1;}
 
-  /* HERO */
+  /* HERO (desktop) */
   .hero{
     margin-top:45px;
     position:relative;
     width:100vw;
-    height:calc(var(--vh,1vh) * 120);  /* <-- stabilized height */
+    height:120vh;              /* desktop height */
     display:flex;
     overflow:hidden;
   }
@@ -47,8 +47,8 @@
     object-position:center;
     display:block;
   }
-  .hero img:first-child{flex:1.3;}
-  .hero img:last-child{flex:0.7;}
+  .hero img:first-child{flex:1.3;}   /* left wider */
+  .hero img:last-child{flex:0.7;}    /* right narrower */
 
   /* BIG LOGO */
   #logo{
@@ -56,7 +56,7 @@
     left:50%;
     top:50%;
     transform:translate(-50%,-50%);
-    width:1200px;
+    width:1200px;               /* desktop size */
     z-index:1100;
     pointer-events:none;
     will-change:transform,top;
@@ -71,15 +71,15 @@
   .collection-item{background:#f5f5f5;height:400px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#888;text-transform:uppercase;}
   footer{padding:40px;text-align:center;background:#f5f5f5;font-size:12px;color:#666;}
 
-  /* MOBILE FIXES */
+  /* MOBILE */
   @media (max-width:900px){
     .hero{display:block;height:auto;overflow:visible;}
     .hero img{width:100%;height:auto;object-fit:contain;display:block;}
 
     #logo{
       width:auto;
-      max-width:88vw;
-      max-height:36vh;
+      max-width:88vw;          /* a bit larger mobile logo */
+      max-height:36vh;         /* bigger than the tiny version, but still safe */
       top:50%;
       transform:translate(-50%,-50%);
     }
@@ -125,21 +125,6 @@
 
 <div id="logo"><img src="minara 5 transparent.svg" alt="Minara"></div>
 
-<!-- 🧠 FIX: dynamic viewport unit calculation -->
-<script>
-function setVH() {
-  const h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
-  document.documentElement.style.setProperty('--vh', `${h * 0.01}px`);
-}
-setVH();
-if (window.visualViewport) {
-  visualViewport.addEventListener('resize', setVH);
-  visualViewport.addEventListener('scroll', setVH);
-}
-window.addEventListener('resize', setVH);
-</script>
-
-<!-- Main logo logic -->
 <script>
 (function(){
   const logo = document.getElementById('logo');
@@ -152,33 +137,30 @@ window.addEventListener('resize', setVH);
 
   function updateLogo(){
     const hbDoc = heroBottomDoc();
-
-    const vv = window.visualViewport || window;
-    // ✅ Use our --vh custom property for stability
-    const cssVH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--vh')) * 100;
-    const vh = cssVH || vv.height || window.innerHeight;
-    const scrollY = (vv.pageTop !== undefined ? vv.pageTop : window.scrollY || window.pageYOffset);
-
+    const scrollY = window.scrollY || window.pageYOffset;
+    const vh = window.innerHeight;  // desktop-safe, simple & stable
     const logoRect = logo.getBoundingClientRect();
     const logoH = Math.round(logoRect.height);
     const logoCenterDoc = scrollY + vh / 2;
     const logoBottomDoc = logoCenterDoc + logoH / 2;
 
+    // Follow until just before bottom; lock 1px early to avoid overlap
     if (logoBottomDoc < hbDoc - 1) {
       logo.style.position = 'fixed';
       logo.style.top = '50%';
       logo.style.left = '50%';
       logo.style.transform = 'translate(-50%,-50%)';
     } else {
-      const absTop = hbDoc - logoH - 1;
+      const absTop = hbDoc - logoH - 1; // 1px higher
       logo.style.position = 'absolute';
       logo.style.top = absTop + 'px';
       logo.style.left = '50%';
       logo.style.transform = 'translateX(-50%)';
     }
 
+    // Small header logo only when big one is off-screen
     const r = logo.getBoundingClientRect();
-    const visible = !(r.bottom <= 0 || r.top >= (vv.height || window.innerHeight));
+    const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
   }
 
@@ -192,17 +174,15 @@ window.addEventListener('resize', setVH);
     }
   }
 
+  // Recalculate when hero size changes (e.g., images load)
   const ro = new ResizeObserver(requestUpdate);
   ro.observe(hero);
   imgs.forEach(img => !img.complete && img.addEventListener('load', requestUpdate));
+
   window.addEventListener('scroll', requestUpdate, { passive:true });
   window.addEventListener('resize', requestUpdate);
   window.addEventListener('orientationchange', requestUpdate);
   window.addEventListener('load', requestUpdate);
-  if (window.visualViewport) {
-    visualViewport.addEventListener('resize', requestUpdate);
-    visualViewport.addEventListener('scroll', requestUpdate);
-  }
   setTimeout(requestUpdate,150);
   setTimeout(requestUpdate,400);
 })();
