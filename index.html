@@ -46,6 +46,11 @@
     position:fixed; left:50%; top:50%;
     transform:translate(-50%,-50%);
     width:1200px; z-index:1100; pointer-events:none;
+
+    /* 🔧 GPU smoothing */
+    will-change: transform, top;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
   }
   #logo img{width:100%; height:auto; display:block;}
 
@@ -60,13 +65,15 @@
     .hero{display:block; height:auto; overflow:visible;}
     .hero img{width:100%; height:auto; object-fit:contain; display:block;}
 
-    /* Bigger logo but still safe */
     #logo{
       width:auto;
       max-width:88vw;
-      max-height:36vh;     /* was 32vh, gives ~12% more size */
+      max-height:36vh;
       top:50%;
       transform:translate(-50%,-50%);
+      will-change:transform,top;
+      backface-visibility:hidden;
+      transform-style:preserve-3d;
     }
     #logo img{
       width:100%;
@@ -128,14 +135,14 @@
     const logoCenterDoc = scrollY + (vh / 2);
     const logoBottomDoc = logoCenterDoc + (logoH / 2);
 
-    /* follow center until just before bottom hits */
-    if (logoBottomDoc < hbDoc - 1) {  // lock 1px higher
+    /* smoother lock: trigger 0.5px early to avoid visual snap */
+    if (logoBottomDoc < hbDoc - 0.5) {
       logo.style.position = 'fixed';
       logo.style.top = '50%';
       logo.style.left = '50%';
       logo.style.transform = 'translate(-50%,-50%)';
     } else {
-      const absTop = hbDoc - logoH - 1; // 1px above
+      const absTop = hbDoc - logoH - 0.5;
       logo.style.position = 'absolute';
       logo.style.top = absTop + 'px';
       logo.style.left = '50%';
