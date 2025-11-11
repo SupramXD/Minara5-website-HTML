@@ -30,14 +30,9 @@
   .hero img:last-child{flex:0.7;}
 
   #logo{
-    position:fixed;
-    left:50%;
-    top:50%;
-    --kick:0px;
-    transform:translate(-50%,calc(-50% + var(--kick)));
-    width:1200px;
-    z-index:900;
-    pointer-events:none;
+    position:fixed;left:50%;top:50%;
+    transform:translate(-50%,-50%);
+    width:1200px;z-index:900;pointer-events:none;
     will-change:transform,top;
   }
   #logo img{width:100%;height:auto;display:block;}
@@ -69,8 +64,8 @@
 </header>
 
 <section id="hero" class="hero">
-  <img src="test3.png" alt="Left">
-  <img src="number23.png" alt="Right">
+  <img src="test3.png" alt="Left" id="imgL">
+  <img src="number23.png" alt="Right" id="imgR">
 </section>
 
 <section class="section">
@@ -93,30 +88,60 @@
   const hero = document.getElementById('hero');
   const headerLogo = document.getElementById('headerLogo');
 
-  function heroBottom(){return hero.offsetTop + hero.offsetHeight;}
   let ticking = false;
+  let urlBarHidden = false;  // current viewport mode
+  let heroTop = 0;
+  let heroBottom = 0;
+
+  function measureHero(){
+    heroTop = hero.offsetTop;
+    heroBottom = heroTop + hero.offsetHeight;
+  }
+
+  measureHero();
+
+  // detect when URL bar hides (visual viewport jump)
+  if(window.visualViewport){
+    let lastH = window.visualViewport.height;
+    window.visualViewport.addEventListener('resize',()=>{
+      const h = window.visualViewport.height;
+      // when it increases by >40px, URL bar likely gone
+      if(h - lastH > 40){ urlBarHidden = true; }
+      if(lastH - h > 40){ urlBarHidden = false; }
+      lastH = h;
+    });
+  }
 
   function updateLogo(){
     const scrollY = window.scrollY || window.pageYOffset;
-    const hb = heroBottom();
     const vh = window.innerHeight;
     const logoH = logo.getBoundingClientRect().height;
-    const logoBottom = scrollY + vh/2 + logoH/2;
+    const logoCenterDoc = scrollY + vh / 2;
+    const logoBottomDoc = logoCenterDoc + logoH / 2;
 
-    if(logoBottom < hb - 1){
-      logo.style.position = 'fixed';
-      logo.style.top = '50%';
-      logo.style.transform = 'translate(-50%,calc(-50% + var(--kick)))';
-      logo.style.display = 'block';
-    } else {
-      const absTop = hb - logoH - 1;
+    // Phase 1 — lock to hero until URL bar hides
+    if(!urlBarHidden && logoBottomDoc < heroBottom){
+      const offsetWithinHero = scrollY - heroTop;
       logo.style.position = 'absolute';
-      logo.style.top = absTop + 'px';
+      logo.style.top = heroTop + offsetWithinHero + vh/2 - logoH/2 + 'px';
+      logo.style.left = '50%';
       logo.style.transform = 'translateX(-50%)';
-      logo.style.display = 'block';
-      logo.style.setProperty('--kick','0px');
+    }
+    // Phase 2 — normal follow/lock behavior (URL bar hidden)
+    else{
+      if(logoBottomDoc < heroBottom - 1){
+        logo.style.position = 'fixed';
+        logo.style.top = '50%';
+        logo.style.transform = 'translate(-50%,-50%)';
+      }else{
+        const absTop = heroBottom - logoH - 1;
+        logo.style.position = 'absolute';
+        logo.style.top = absTop + 'px';
+        logo.style.transform = 'translateX(-50%)';
+      }
     }
 
+    // Header logo visibility
     const r = logo.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
@@ -129,38 +154,10 @@
     }
   }
 
-  /* ---- Only enable URL bar offset fix on mobile ---- */
-  if(window.visualViewport){
-    const isMobile = ()=> window.matchMedia('(max-width:900px)').matches;
-    let prevH = window.visualViewport.height;
-    let kick=0, easing=false;
-
-    function easeKick(){
-      if(!easing) return;
-      kick *= 0.8;
-      if(Math.abs(kick)<0.5){kick=0;easing=false;}
-      logo.style.setProperty('--kick',kick.toFixed(1)+'px');
-      requestAnimationFrame(easeKick);
-    }
-
-    window.visualViewport.addEventListener('resize',()=>{
-      if(!isMobile()) return; // skip desktop completely
-      const h = window.visualViewport.height;
-      const dh = h - prevH;
-      prevH = h;
-      if(dh>40){              // URL bar hiding
-        kick += -(dh/2);
-        logo.style.setProperty('--kick',kick.toFixed(1)+'px');
-        if(!easing){easing=true;requestAnimationFrame(easeKick);}
-        requestUpdate();
-      }
-    },{passive:true});
-  }
-
   window.addEventListener('scroll',requestUpdate,{passive:true});
-  window.addEventListener('resize',requestUpdate);
-  window.addEventListener('orientationchange',requestUpdate);
-  window.addEventListener('load',requestUpdate);
+  window.addEventListener('resize',()=>{measureHero();requestUpdate();});
+  window.addEventListener('orientationchange',()=>{measureHero();requestUpdate();});
+  window.addEventListener('load',()=>{measureHero();requestUpdate();});
 })();
 </script>
 
