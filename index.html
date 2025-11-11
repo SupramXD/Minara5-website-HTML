@@ -37,7 +37,7 @@
     margin-top:45px;
     position:relative;
     width:100vw;
-    height:120vh;
+    height:calc(var(--vh,1vh) * 120);  /* <-- stabilized height */
     display:flex;
     overflow:hidden;
   }
@@ -125,6 +125,21 @@
 
 <div id="logo"><img src="minara 5 transparent.svg" alt="Minara"></div>
 
+<!-- 🧠 FIX: dynamic viewport unit calculation -->
+<script>
+function setVH() {
+  const h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+  document.documentElement.style.setProperty('--vh', `${h * 0.01}px`);
+}
+setVH();
+if (window.visualViewport) {
+  visualViewport.addEventListener('resize', setVH);
+  visualViewport.addEventListener('scroll', setVH);
+}
+window.addEventListener('resize', setVH);
+</script>
+
+<!-- Main logo logic -->
 <script>
 (function(){
   const logo = document.getElementById('logo');
@@ -137,8 +152,13 @@
 
   function updateLogo(){
     const hbDoc = heroBottomDoc();
-    const scrollY = window.scrollY || window.pageYOffset;
-    const vh = window.innerHeight;
+
+    const vv = window.visualViewport || window;
+    // ✅ Use our --vh custom property for stability
+    const cssVH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--vh')) * 100;
+    const vh = cssVH || vv.height || window.innerHeight;
+    const scrollY = (vv.pageTop !== undefined ? vv.pageTop : window.scrollY || window.pageYOffset);
+
     const logoRect = logo.getBoundingClientRect();
     const logoH = Math.round(logoRect.height);
     const logoCenterDoc = scrollY + vh / 2;
@@ -158,7 +178,7 @@
     }
 
     const r = logo.getBoundingClientRect();
-    const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
+    const visible = !(r.bottom <= 0 || r.top >= (vv.height || window.innerHeight));
     headerLogo.classList.toggle('show', !visible);
   }
 
@@ -179,6 +199,10 @@
   window.addEventListener('resize', requestUpdate);
   window.addEventListener('orientationchange', requestUpdate);
   window.addEventListener('load', requestUpdate);
+  if (window.visualViewport) {
+    visualViewport.addEventListener('resize', requestUpdate);
+    visualViewport.addEventListener('scroll', requestUpdate);
+  }
   setTimeout(requestUpdate,150);
   setTimeout(requestUpdate,400);
 })();
@@ -186,4 +210,3 @@
 
 </body>
 </html>
-
