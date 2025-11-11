@@ -130,10 +130,9 @@
   const logo = document.getElementById('logo');
   const hero = document.getElementById('hero');
   const headerLogo = document.getElementById('headerLogo');
-  let ticking = false;
-
-  // Capture base viewport height once (prevents jump when URL bar hides)
   const baseVH = window.innerHeight;
+  const isMobile = window.matchMedia("(max-width: 900px)").matches;
+  let ticking = false;
 
   function updateLogo(){
     const scrollY = window.scrollY || window.pageYOffset;
@@ -143,12 +142,19 @@
     const centerY = baseVH / 2;
     const logoBottom = scrollY + centerY + logoH / 2;
 
-    // Fix: move with any scroll, not only big ones
+    // Fix: smoother natural movement on mobile only
     if (logoBottom < heroBottom - 1) {
-      // Start following immediately from scroll 0
       logo.style.position = 'fixed';
-      logo.style.top = `${50 - (scrollY / baseVH) * 10}%`; 
-      // slight adjustment lets it move early like the rest of the page
+      let topValue = 50;
+
+      if (isMobile) {
+        // let logo move more with page (mimic natural drift)
+        const drift = (scrollY / baseVH) * 18; // increased drift strength
+        topValue = 50 - drift;
+        if (topValue < 40) topValue = 40; // cap drift upward so it doesn't vanish
+      }
+
+      logo.style.top = topValue + '%';
       logo.style.transform = 'translate(-50%,-50%)';
     } else {
       // lock precisely at bottom of hero
@@ -158,7 +164,7 @@
       logo.style.transform = 'translateX(-50%)';
     }
 
-    // Toggle small header logo visibility
+    // toggle small header logo visibility
     const rect = logo.getBoundingClientRect();
     const visible = !(rect.bottom <= 0 || rect.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
