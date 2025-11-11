@@ -33,7 +33,6 @@
     position:fixed;left:50%;top:50%;
     transform:translate(-50%,-50%);
     width:1200px;z-index:900;pointer-events:none;
-    will-change:transform,top;
   }
   #logo img{width:100%;height:auto;display:block;}
 
@@ -83,81 +82,90 @@
 <div id="logo"><img src="minara 5 transparent.svg" alt="Minara"></div>
 
 <script>
-(function(){
+(() => {
   const logo = document.getElementById('logo');
   const hero = document.getElementById('hero');
   const headerLogo = document.getElementById('headerLogo');
 
-  let ticking = false;
-  let urlBarHidden = false;  // current viewport mode
-  let heroTop = 0;
-  let heroBottom = 0;
+  let heroTop = 0, heroBottom = 0;
+  let urlBarHidden = false;
+  let detachScrollY = 0;       // scroll position when URL bar hides
+  let detachLogoTop = 0;       // logo's document Y position at detach
 
-  function measureHero(){
+  function measureHero() {
     heroTop = hero.offsetTop;
     heroBottom = heroTop + hero.offsetHeight;
   }
-
   measureHero();
 
-  // detect when URL bar hides (visual viewport jump)
-  if(window.visualViewport){
+  // detect URL bar hide/show
+  if (window.visualViewport) {
     let lastH = window.visualViewport.height;
-    window.visualViewport.addEventListener('resize',()=>{
+    window.visualViewport.addEventListener('resize', () => {
       const h = window.visualViewport.height;
-      // when it increases by >40px, URL bar likely gone
-      if(h - lastH > 40){ urlBarHidden = true; }
-      if(lastH - h > 40){ urlBarHidden = false; }
+      if (h - lastH > 40 && !urlBarHidden) {
+        // entering hidden state
+        urlBarHidden = true;
+        // record where the logo currently is in document space
+        detachScrollY = window.scrollY;
+        const rect = logo.getBoundingClientRect();
+        detachLogoTop = rect.top + window.scrollY;
+      }
+      if (lastH - h > 40 && urlBarHidden) {
+        // returning to visible
+        urlBarHidden = false;
+      }
       lastH = h;
     });
   }
 
-  function updateLogo(){
+  function updateLogo() {
     const scrollY = window.scrollY || window.pageYOffset;
     const vh = window.innerHeight;
     const logoH = logo.getBoundingClientRect().height;
     const logoCenterDoc = scrollY + vh / 2;
     const logoBottomDoc = logoCenterDoc + logoH / 2;
 
-    // Phase 1 — lock to hero until URL bar hides
-    if(!urlBarHidden && logoBottomDoc < heroBottom){
+    // --- 1. HERO LOCK AND NORMAL BEHAVIOR ---
+    if (!urlBarHidden) {
+      // locked to hero point while URL bar visible
       const offsetWithinHero = scrollY - heroTop;
+      const lockY = heroTop + offsetWithinHero + vh/2 - logoH/2;
       logo.style.position = 'absolute';
-      logo.style.top = heroTop + offsetWithinHero + vh/2 - logoH/2 + 'px';
+      logo.style.top = lockY + 'px';
+      logo.style.left = '50%';
+      logo.style.transform = 'translateX(-50%)';
+    } else {
+      // --- 2. DETACHED FOLLOW BEHAVIOR ---
+      const shift = scrollY - detachScrollY;
+      const newY = detachLogoTop + shift;
+      // stop moving once we reach hero bottom lock
+      const lockLimit = heroBottom - logoH - 1;
+      const finalY = Math.min(newY, lockLimit);
+      logo.style.position = 'absolute';
+      logo.style.top = finalY + 'px';
       logo.style.left = '50%';
       logo.style.transform = 'translateX(-50%)';
     }
-    // Phase 2 — normal follow/lock behavior (URL bar hidden)
-    else{
-      if(logoBottomDoc < heroBottom - 1){
-        logo.style.position = 'fixed';
-        logo.style.top = '50%';
-        logo.style.transform = 'translate(-50%,-50%)';
-      }else{
-        const absTop = heroBottom - logoH - 1;
-        logo.style.position = 'absolute';
-        logo.style.top = absTop + 'px';
-        logo.style.transform = 'translateX(-50%)';
-      }
-    }
 
-    // Header logo visibility
+    // show small header logo when big one off-screen
     const r = logo.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
   }
 
-  function requestUpdate(){
-    if(!ticking){
-      requestAnimationFrame(()=>{updateLogo();ticking=false;});
-      ticking=true;
+  let ticking = false;
+  function requestUpdate() {
+    if (!ticking) {
+      requestAnimationFrame(() => { updateLogo(); ticking = false; });
+      ticking = true;
     }
   }
 
-  window.addEventListener('scroll',requestUpdate,{passive:true});
-  window.addEventListener('resize',()=>{measureHero();requestUpdate();});
-  window.addEventListener('orientationchange',()=>{measureHero();requestUpdate();});
-  window.addEventListener('load',()=>{measureHero();requestUpdate();});
+  window.addEventListener('scroll', requestUpdate, { passive: true });
+  window.addEventListener('resize', () => { measureHero(); requestUpdate(); });
+  window.addEventListener('orientationchange', () => { measureHero(); requestUpdate(); });
+  window.addEventListener('load', () => { measureHero(); requestUpdate(); });
 })();
 </script>
 
