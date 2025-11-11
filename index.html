@@ -92,8 +92,14 @@
   const hero = document.getElementById('hero');
   const headerLogo = document.getElementById('headerLogo');
   let ticking = false;
-
-  function heroBottom(){ return hero.offsetTop + hero.offsetHeight; }
+  let lastKnownViewportHeight = window.innerHeight;
+  
+  // Store initial position for reference
+  const initialLogoTop = '50%';
+  
+  function heroBottom(){ 
+    return hero.offsetTop + hero.offsetHeight; 
+  }
 
   function updateLogo(){
     const scrollY = window.scrollY || window.pageYOffset;
@@ -104,13 +110,13 @@
 
     // If the logo's bottom goes past hero bottom — lock it.
     if (logoBottom < hb - 1) {
-      // following
+      // following - use fixed positioning
       logo.style.position = 'fixed';
-      logo.style.top = '50%';
+      logo.style.top = initialLogoTop;
       logo.style.transform = 'translate(-50%,-50%)';
     } else {
-      // locked (spawn 30px higher to remove visual drop)
-      const absTop = hb - logoH - 31; // 30px higher
+      // locked - switch to absolute positioning relative to document
+      const absTop = hb - logoH - 30; // 30px higher to prevent visual drop
       logo.style.position = 'absolute';
       logo.style.top = absTop + 'px';
       logo.style.transform = 'translateX(-50%)';
@@ -120,6 +126,9 @@
     const rect = logo.getBoundingClientRect();
     const visible = !(rect.bottom <= 0 || rect.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
+    
+    // Update our reference viewport height
+    lastKnownViewportHeight = vh;
   }
 
   function requestUpdate(){
@@ -129,10 +138,20 @@
     }
   }
 
+  // Throttled resize handler to minimize jumps
+  let resizeTimeout;
+  function handleResize() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(requestUpdate, 100);
+  }
+
   window.addEventListener('scroll',requestUpdate,{passive:true});
-  window.addEventListener('resize',requestUpdate);
-  window.addEventListener('orientationchange',requestUpdate);
+  window.addEventListener('resize', handleResize);
+  window.addEventListener('orientationchange', handleResize);
   window.addEventListener('load',requestUpdate);
+  
+  // Initial positioning
+  updateLogo();
 })();
 </script>
 
