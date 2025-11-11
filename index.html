@@ -33,7 +33,8 @@
     position:fixed;
     left:50%;
     top:50%;
-    transform:translate(-50%,-50%);
+    /* compensation var to cancel URL-bar height change */
+    transform:translate(-50%, calc(-50% + var(--comp, 0px)));
     width:1200px;
     z-index:900;
     pointer-events:none;
@@ -68,8 +69,8 @@
 </header>
 
 <section id="hero" class="hero">
-  <img src="test3.png" alt="Left">
-  <img src="number23.png" alt="Right">
+  <img src="test3.png" alt="Left" id="imgL">
+  <img src="number23.png" alt="Right" id="imgR">
 </section>
 
 <section class="section">
@@ -91,15 +92,10 @@
   const logo = document.getElementById('logo');
   const hero = document.getElementById('hero');
   const headerLogo = document.getElementById('headerLogo');
+
+  /* ---------- normal scroll + lock logic (your working code) ---------- */
+  function heroBottom(){return hero.offsetTop + hero.offsetHeight;}
   let ticking = false;
-  let lastKnownViewportHeight = window.innerHeight;
-  
-  // Store initial position for reference
-  const initialLogoTop = '50%';
-  
-  function heroBottom(){ 
-    return hero.offsetTop + hero.offsetHeight; 
-  }
 
   function updateLogo(){
     const scrollY = window.scrollY || window.pageYOffset;
@@ -108,27 +104,24 @@
     const logoH = logo.getBoundingClientRect().height;
     const logoBottom = scrollY + vh/2 + logoH/2;
 
-    // If the logo's bottom goes past hero bottom — lock it.
-    if (logoBottom < hb - 1) {
-      // following - use fixed positioning
+    if(logoBottom < hb - 1){
       logo.style.position = 'fixed';
-      logo.style.top = initialLogoTop;
-      logo.style.transform = 'translate(-50%,-50%)';
+      logo.style.top = '50%';
+      logo.style.transform = 'translate(-50%, calc(-50% + var(--comp,0px)))';
+      logo.style.display = 'block';
     } else {
-      // locked - switch to absolute positioning relative to document
-      const absTop = hb - logoH - 30; // 30px higher to prevent visual drop
+      const absTop = hb - logoH - 1;
       logo.style.position = 'absolute';
       logo.style.top = absTop + 'px';
       logo.style.transform = 'translateX(-50%)';
+      logo.style.display = 'block';
+      // clear compensation when locked
+      document.documentElement.style.setProperty('--comp','0px');
     }
 
-    // Header logo toggling
-    const rect = logo.getBoundingClientRect();
-    const visible = !(rect.bottom <= 0 || rect.top >= window.innerHeight);
+    const r = logo.getBoundingClientRect();
+    const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
-    
-    // Update our reference viewport height
-    lastKnownViewportHeight = vh;
   }
 
   function requestUpdate(){
@@ -138,20 +131,40 @@
     }
   }
 
-  // Throttled resize handler to minimize jumps
-  let resizeTimeout;
-  function handleResize() {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(requestUpdate, 100);
+  window.addEventListener('scroll',requestUpdate,{passive:true});
+  window.addEventListener('resize',requestUpdate);
+  window.addEventListener('orientationchange',requestUpdate);
+  window.addEventListener('load',requestUpdate);
+
+  /* ---------- URL-bar height change compensation ---------- */
+  const getComp = () =>
+    parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--comp')) || 0;
+  const setComp = v =>
+    document.documentElement.style.setProperty('--comp', v.toFixed(1) + 'px');
+
+  let easing = false;
+  function easeBack(){
+    if(!easing) return;
+    const cur = getComp();
+    const next = cur * 0.8;
+    if(Math.abs(next) < 0.5){ setComp(0); easing=false; return; }
+    setComp(next);
+    requestAnimationFrame(easeBack);
   }
 
-  window.addEventListener('scroll',requestUpdate,{passive:true});
-  window.addEventListener('resize', handleResize);
-  window.addEventListener('orientationchange', handleResize);
-  window.addEventListener('load',requestUpdate);
-  
-  // Initial positioning
-  updateLogo();
+  if(window.visualViewport){
+    let prevH = window.visualViewport.height;
+    window.visualViewport.addEventListener('resize',()=>{
+      const h = window.visualViewport.height;
+      const dh = h - prevH;
+      prevH = h;
+      if(Math.abs(dh) > 40){                 // significant URL-bar change
+        // move logo opposite to viewport center shift
+        setComp(getComp() - dh/2);
+        if(!easing){ easing=true; requestAnimationFrame(easeBack); }
+      }
+    },{passive:true});
+  }
 })();
 </script>
 
