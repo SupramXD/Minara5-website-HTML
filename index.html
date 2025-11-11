@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Minara - Fixed logo lock + header swap</title>
+<title>Minara - Responsive Brand Site</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:Helvetica,Arial,sans-serif;background:#fff;overflow-x:hidden;}
@@ -24,42 +24,28 @@
   nav ul li a{font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#000; text-decoration:none;}
   nav ul li a:hover{color:#666;}
 
-  /* small header logo that appears only when main logo is off-screen */
-  .header-logo {
-    position:absolute;
-    left:50%;
-    top:50%;
+  /* Small header logo (shows only when big one gone) */
+  .header-logo{
+    position:absolute; left:50%; top:50%;
     transform:translate(-50%,-50%);
-    height:22px;
-    pointer-events:none;
-    opacity:0;
-    transition:opacity .18s ease;
+    height:22px; pointer-events:none; opacity:0; transition:opacity .2s ease;
   }
-  .header-logo.show { opacity:1; }
+  .header-logo.show{opacity:1;}
 
-  /* HERO */
+  /* HERO (desktop default) */
   .hero{
-    margin-top:45px;
-    position:relative;
-    width:100vw;
-    height:120vh; /* taller */
-    display:flex;
-    overflow:hidden;
+    margin-top:45px; position:relative; width:100vw; height:120vh;
+    display:flex; overflow:hidden;
   }
   .hero img{height:100%; object-fit:cover; object-position:center; display:block;}
-  .hero img:first-child{flex:1.3;}  /* left wider */
-  .hero img:last-child{flex:0.7;}   /* right narrower */
+  .hero img:first-child{flex:1.3;}
+  .hero img:last-child{flex:0.7;}
 
-  /* MAIN LOGO */
+  /* BIG LOGO (desktop) */
   #logo{
-    position:fixed;
-    left:50%;
-    top:50%;
+    position:fixed; left:50%; top:50%;
     transform:translate(-50%,-50%);
-    width:1200px; /* 3x size */
-    z-index:1100;
-    pointer-events:none;
-    will-change:top,transform,position;
+    width:1200px; z-index:1100; pointer-events:none;
   }
   #logo img{width:100%; height:auto; display:block;}
 
@@ -69,23 +55,44 @@
   .collection-item{background:#f5f5f5; height:400px; display:flex; align-items:center; justify-content:center; font-size:18px; color:#888; text-transform:uppercase;}
   footer{padding:40px; text-align:center; background:#f5f5f5; font-size:12px; color:#666;}
 
-  @media (max-width:768px){
-    #logo{width:600px;}
-    .hero{flex-direction:column; height:120vh;}
-    .hero img{width:100%; height:50%;}
+  /* ---------- MOBILE / VERTICAL FIXES ---------- */
+  @media (max-width: 900px){
+    /* Make hero a normal block so children stack and determine height */
+    .hero{
+      display:block;      /* not flex */
+      height:auto;        /* grow to fit both images */
+      overflow:visible;
+    }
+    .hero img{
+      width:100%;
+      height:auto;        /* no cropping */
+      object-fit:contain; /* show whole image */
+      display:block;
+    }
+
+    /* Constrain big logo by both width and height so it never clips */
+    #logo{
+      width:auto;
+      max-width: 88vw;    /* not wider than screen */
+      max-height: 32vh;   /* not taller than ~1/3 of screen */
+      top:50%;
+      transform:translate(-50%,-50%);
+    }
+    /* Make the IMG obey the container’s max-height/width */
+    #logo img{
+      width:100%;
+      height:auto;
+      max-width:inherit;
+      max-height:inherit;
+    }
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="left-nav">
-    <a href="#catalog">Catalog</a>
-  </div>
-
-  <!-- small header logo: hidden until main logo disappears -->
+  <div class="left-nav"><a href="#catalog">Catalog</a></div>
   <img id="headerLogo" class="header-logo" src="minara 5 transparent.svg" alt="Minara small">
-
   <nav>
     <ul>
       <li><a href="#home">Home</a></li>
@@ -96,8 +103,8 @@
 </header>
 
 <section id="hero" class="hero">
-  <img src="test3.png" alt="Left">
-  <img src="number23.png" alt="Right">
+  <img src="test3.png" alt="Left" id="imgL">
+  <img src="number23.png" alt="Right" id="imgR">
 </section>
 
 <section class="section">
@@ -112,85 +119,67 @@
 
 <footer>© 2025 Minara5</footer>
 
-<!-- main big logo (SVG recommended) -->
 <div id="logo"><img src="minara 5 transparent.svg" alt="Minara"></div>
 
 <script>
-  (function(){
-    const logo = document.getElementById('logo');
-    const hero = document.getElementById('hero');
-    const headerLogo = document.getElementById('headerLogo');
+(function(){
+  const logo = document.getElementById('logo');
+  const hero = document.getElementById('hero');
+  const headerLogo = document.getElementById('headerLogo');
+  const imgs = [document.getElementById('imgL'), document.getElementById('imgR')];
+  const mqMobile = window.matchMedia('(max-width: 900px)');
 
-    // helper - returns hero bottom in document coordinates
-    function heroBottomDoc() { return hero.offsetTop + hero.offsetHeight; }
+  function heroBottomDoc(){ return hero.offsetTop + hero.offsetHeight; }
 
-    // update routine
-    function updateLogo(){
-      const hbDoc = heroBottomDoc();
-      const scrollY = window.scrollY || window.pageYOffset;
-      const vw = window.innerHeight;
-      const logoRect = logo.getBoundingClientRect();
-      const logoHeight = Math.round(logoRect.height);
+  function updateLogo(){
+    const hbDoc = heroBottomDoc();
+    const scrollY = window.scrollY || window.pageYOffset;
+    const vh = window.innerHeight;
 
-      // center of logo in document coordinates (when centered in viewport)
-      const logoCenterDocIfCentered = scrollY + (vw / 2);
-      const logoBottomDocIfCentered = logoCenterDocIfCentered + (logoHeight / 2);
+    // If mobile, logo size is capped by CSS; desktop uses fixed width.
+    const logoRect = logo.getBoundingClientRect();
+    const logoH = Math.max(1, Math.round(logoRect.height)); // avoid zero before render
 
-      // CASE A: while logo bottom (if centered) is still above hero bottom -> follow center
-      if (logoBottomDocIfCentered < hbDoc - 0.5) {
-        // fixed centered
-        if (logo.style.position !== 'fixed' || logo.style.top !== '50%') {
-          logo.style.position = 'fixed';
-          logo.style.top = '50%';
-          logo.style.left = '50%';
-          logo.style.transform = 'translate(-50%,-50%)';
-        }
-      }
-      // CASE B: we've reached lock point but haven't scrolled past the hero yet
-      else if (scrollY <= hbDoc) {
-        // lock the logo so its bottom sits exactly on hero bottom and do NOT follow when scrolling down
-        // set to absolute at the exact document coordinate so it won't move while page scrolls down
-        // absolute top (document coord) should be hbDoc - logoHeight
-        const absoluteTop = hbDoc - logoHeight;
-        if (logo.style.position !== 'absolute' || parseFloat(logo.style.top) !== absoluteTop) {
-          logo.style.position = 'absolute';
-          logo.style.top = absoluteTop + 'px';
-          logo.style.left = '50%';
-          // remove vertical translate so it sits flush (keep translateX)
-          logo.style.transform = 'translateX(-50%)';
-        }
-      }
-      // CASE C: we've scrolled past the hero completely
-      else {
-        // keep it absolute at same spot (it will be scrolled out of view naturally)
-        const absoluteTop = hbDoc - logoHeight;
-        if (logo.style.position !== 'absolute' || parseFloat(logo.style.top) !== absoluteTop) {
-          logo.style.position = 'absolute';
-          logo.style.top = absoluteTop + 'px';
-          logo.style.left = '50%';
-          logo.style.transform = 'translateX(-50%)';
-        }
-      }
+    const logoCenterDoc = scrollY + (vh / 2);
+    const logoBottomDoc = logoCenterDoc + (logoH / 2);
 
-      // Show header logo only when the big logo is NOT visible in the viewport.
-      // Compute logo's viewport rect (re-get after possible style changes)
-      const rect = logo.getBoundingClientRect();
-      const isVisible = !(rect.bottom <= 0 || rect.top >= window.innerHeight);
-      if (!isVisible) {
-        headerLogo.classList.add('show');
-      } else {
-        headerLogo.classList.remove('show');
-      }
+    // Follow center until bottom meets hero bottom; then lock exactly at the bottom.
+    if (logoBottomDoc < hbDoc - 0.5) {
+      logo.style.position = 'fixed';
+      logo.style.top = '50%';
+      logo.style.left = '50%';
+      logo.style.transform = 'translate(-50%,-50%)';
+    } else {
+      const absTop = hbDoc - logoH;                // exact lock
+      logo.style.position = 'absolute';
+      logo.style.top = absTop + 'px';
+      logo.style.left = '50%';
+      logo.style.transform = 'translateX(-50%)';
     }
 
-    // run on events
-    window.addEventListener('scroll', updateLogo, { passive: true });
-    window.addEventListener('resize', updateLogo);
-    window.addEventListener('load', updateLogo);
-    // SVGs/images may render after load; run a couple more times
-    setTimeout(updateLogo, 150);
-    setTimeout(updateLogo, 400);
-  })();
+    // Show small header logo only when the big one is not visible
+    const r = logo.getBoundingClientRect();
+    const bigVisible = !(r.bottom <= 0 || r.top >= window.innerHeight);
+    headerLogo.classList.toggle('show', !bigVisible);
+  }
+
+  // Re-run when images finish laying out (esp. on mobile stacking)
+  const ro = new ResizeObserver(updateLogo);
+  ro.observe(hero);
+  imgs.forEach(img => {
+    if (!img.complete) {
+      img.addEventListener('load', updateLogo);
+      img.addEventListener('error', updateLogo);
+    }
+  });
+
+  window.addEventListener('scroll', updateLogo, { passive:true });
+  window.addEventListener('resize', updateLogo);
+  window.addEventListener('orientationchange', updateLogo);
+  window.addEventListener('load', updateLogo);
+  setTimeout(updateLogo, 150);
+  setTimeout(updateLogo, 400);
+})();
 </script>
 
 </body>
