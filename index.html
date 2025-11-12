@@ -104,7 +104,7 @@
   let lastLogoCenterY = null;
   let anchorOffsetPx = 0;
   let vvLastH = (window.visualViewport && window.visualViewport.height) || 0;
-  const TELEPORT_FIX_OFFSET = -40; // <-- visible upward offset when anchored
+  const TELEPORT_FIX_OFFSET = -100; // big visible test offset
 
   function measureHero(){
     heroBottom = hero.offsetTop + hero.offsetHeight;
@@ -127,7 +127,7 @@
       logo.style.transform = 'translateX(-50%)';
     } else {
       if (mode === 'anchored') {
-        // Add 40px offset upward so it doesn't jump down
+        // now visibly offset upward 100px
         logo.style.position = 'fixed';
         logo.style.top = `calc(50% + ${anchorOffsetPx + TELEPORT_FIX_OFFSET}px)`;
         logo.style.left = '50%';
@@ -140,7 +140,6 @@
       }
     }
 
-    // toggle header mini logo
     const r = logo.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
@@ -148,7 +147,7 @@
     lastLogoCenterY = r.top + r.height / 2;
   }
 
-  let ticking = false;
+  let ticking=false;
   function requestUpdate(){
     if(!ticking){
       requestAnimationFrame(()=>{update();ticking=false;});
@@ -163,7 +162,6 @@
       const dh=h-vvLastH;
       vvLastH=h;
 
-      // URL bar hides
       if(dh>40 && mode!=='locked'){
         const viewportCenter=window.innerHeight/2;
         const offset=(lastLogoCenterY==null?0:(lastLogoCenterY-viewportCenter));
@@ -172,14 +170,12 @@
         requestUpdate();
       }
 
-      // URL bar shows
       if(dh<-40 && mode==='anchored'){
         mode='center';
         anchorOffsetPx=0;
         requestUpdate();
       }
     },{passive:true});
-
     window.visualViewport.addEventListener('scroll',requestUpdate,{passive:true});
   }
 
