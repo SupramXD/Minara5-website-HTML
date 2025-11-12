@@ -73,7 +73,12 @@
   @media (max-width:900px){
     .hero{display:block;height:auto;overflow:visible;}
     .hero img{width:100%;height:auto;object-fit:contain;display:block;}
-    #logo{width:auto;max-width:88vw;max-height:36vh;}
+    #logo{width:auto;max-width:88vw;max-height:36vh;transition:top .3s ease;}
+  }
+
+  /* DESKTOP: ensure no transition ever interferes */
+  @media (min-width:901px){
+    #logo{transition:none !important;}
   }
 </style>
 </head>
@@ -120,29 +125,61 @@
 
   // State
   let heroBottom = 0;
-  let mode = 'center';          // 'center' | 'anchored' | 'locked'
-  let lastLogoCenterY = null;   // cached each frame BEFORE any resize
-  let anchorOffsetPx = 0;       // offset from viewport center while anchored
+  let mode = 'center';          // mobile: 'center' | 'anchored' | 'locked' | 'frozen'
+  let lastLogoCenterY = null;   // cached each frame
+  let anchorOffsetPx = 0;       // offset from viewport center while anchored (mobile)
   let vvLastH = (window.visualViewport && window.visualViewport.height) || 0;
+  let freezeTop = null;         // absolute doc-space Y when URL bar hides (mobile)
 
-  // Measure hero
   function measureHero(){
     heroBottom = hero.offsetTop + hero.offsetHeight;
   }
 
-  // Main updater
   function update(){
     const scrollY = window.scrollY || window.pageYOffset;
     const vh = window.innerHeight;
+
+    // --- DESKTOP: ORIGINAL BEHAVIOR EXACTLY ---
+    if (!isMobile()) {
+      const rect = logo.getBoundingClientRect();
+      const logoH = rect.height || 1;
+
+      // original lock condition uses the logo's visual bottom in doc space
+      const logoBottomDoc = scrollY + vh/2 + logoH/2;
+      const shouldLock = (logoBottomDoc >= heroBottom - 1);
+
+      if (shouldLock) {
+        // lock to hero bottom in document space
+        const absTop = heroBottom - logoH - 1;
+        logo.style.position = 'absolute';
+        logo.style.top = absTop + 'px';
+        logo.style.left = '50%';
+        logo.style.transform = 'translateX(-50%)';
+      } else {
+        // fixed centered
+        logo.style.position = 'fixed';
+        logo.style.top = '50%';
+        logo.style.left = '50%';
+        logo.style.transform = 'translate(-50%,-50%)';
+      }
+
+      // Recompute after applying styles for header logo visibility
+      const r = logo.getBoundingClientRect();
+      const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
+      headerLogo.classList.toggle('show', !visible);
+
+      // Cache center for parity (not used on desktop)
+      lastLogoCenterY = r.top + r.height / 2;
+      return; // IMPORTANT: desktop exits here
+    }
+
+    // --- MOBILE: enhanced behavior ---
     const rect = logo.getBoundingClientRect();
     const logoH = rect.height || 1;
-    const logoBottomDoc = scrollY + vh/2 + logoH/2;
-
-    // Decide lock
+    const logoBottomDoc = scrollY + rect.bottom;
     const shouldLock = (logoBottomDoc >= heroBottom - 1);
 
     if (shouldLock) {
-      // LOCKED at hero bottom (document space)
       if (mode !== 'locked') mode = 'locked';
       const absTop = heroBottom - logoH - 1;
       logo.style.position = 'absolute';
@@ -150,15 +187,18 @@
       logo.style.left = '50%';
       logo.style.transform = 'translateX(-50%)';
     } else {
-      // Not locked — two behaviors:
       if (mode === 'anchored') {
-        // Keep the logo at the captured visual offset from center
         logo.style.position = 'fixed';
         logo.style.top = `calc(50% + ${anchorOffsetPx}px)`;
         logo.style.left = '50%';
         logo.style.transform = 'translate(-50%,-50%)';
+      } else if (mode === 'frozen') {
+        logo.style.position = 'absolute';
+        logo.style.top = freezeTop + 'px';
+        logo.style.left = '50%';
+        logo.style.transform = 'translateX(-50%)';
       } else {
-        // Centered follow (normal behavior)
+        // centered follow
         mode = 'center';
         logo.style.position = 'fixed';
         logo.style.top = '50%';
@@ -167,14 +207,12 @@
       }
     }
 
-    // Header mini-logo toggle
+    // Header mini-logo toggle (mobile)
     const r = logo.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
 
-    // Cache visual center for next frame (used to prevent teleport on URL-bar hide)
-    const currentCenter = r.top + r.height / 2;
-    lastLogoCenterY = currentCenter;
+    lastLogoCenterY = r.top + r.height / 2;
   }
 
   // rAF scheduler
@@ -186,7 +224,7 @@
     }
   }
 
-  // Detect URL bar hide/show and switch modes WITHOUT teleport
+  // URL bar hide/show handling (MOBILE ONLY)
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', () => {
       if (!isMobile()) { vvLastH = window.visualViewport.height; return; }
@@ -194,31 +232,26 @@
       const dh = h - vvLastH;
       vvLastH = h;
 
-      // URL bar hides → height jumps UP
+      // URL bar hides → height increases
       if (dh > 40 && mode !== 'locked') {
-        // Switch to anchored at the exact visual spot we had LAST FRAME
-        // Use cached lastLogoCenterY (from the frame before this resize)
+        const rect = logo.getBoundingClientRect();
+        freezeTop = window.scrollY + rect.top; // freeze at exact visual spot
+        mode = 'frozen';
+        requestUpdate();
+      }
+
+      // URL bar shows → height decreases
+      if (dh < -40 && mode === 'frozen') {
         const viewportCenter = window.innerHeight / 2;
         const offset = (lastLogoCenterY == null ? 0 : (lastLogoCenterY - viewportCenter));
-        anchorOffsetPx = offset;
+        anchorOffsetPx = offset;   // resume anchored at same visual offset
         mode = 'anchored';
         requestUpdate();
       }
-
-      // URL bar shows → height drops
-      if (dh < -40 && mode === 'anchored') {
-        // Return to centered behavior
-        mode = 'center';
-        anchorOffsetPx = 0;
-        requestUpdate();
-      }
     }, { passive: true });
 
-    // Some browsers also emit pageTop changes; track them to ensure lastLogoCenterY keeps updating
-    window.visualViewport.addEventListener('scroll', () => {
-      // no-op, but ensures we schedule an update during URL-bar motion
-      requestUpdate();
-    }, { passive: true });
+    // Ensure updates during URL-bar motion
+    window.visualViewport.addEventListener('scroll', requestUpdate, { passive: true });
   }
 
   // Standard listeners
