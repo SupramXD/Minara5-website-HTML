@@ -54,8 +54,7 @@
   #logo{
     position:fixed;
     left:50%;
-    top:50%;
-    transform:translate(-50%,-50%);
+    transform:translate(-50%,0);
     width:1200px;
     z-index:900;
     pointer-events:none;
@@ -79,7 +78,7 @@
 </head>
 <body>
 
-<header>
+<header id="topbar">
   <div class="left-nav"><a href="#catalog">Catalog</a></div>
   <img id="headerLogo" class="header-logo" src="minara 5 transparent.svg" alt="Minara small">
   <nav>
@@ -113,122 +112,74 @@
 <script>
 (function(){
   const logo = document.getElementById('logo');
-  const hero = document.getElementById('hero');
+  const topbar = document.getElementById('topbar');
   const headerLogo = document.getElementById('headerLogo');
+  const hero = document.getElementById('hero');
 
   const isMobile = () => window.matchMedia('(max-width:900px)').matches;
-
-  // State
   let heroBottom = 0;
-  let mode = 'center';          // 'center' | 'anchored' | 'locked'
-  let lastLogoCenterY = null;   // cached each frame BEFORE any resize
-  let anchorOffsetPx = 0;       // offset from viewport center while anchored
-  let vvLastH = (window.visualViewport && window.visualViewport.height) || 0;
 
-  // Measure hero
   function measureHero(){
     heroBottom = hero.offsetTop + hero.offsetHeight;
   }
 
-  // Main updater
   function update(){
     const scrollY = window.scrollY || window.pageYOffset;
-    const vh = window.innerHeight;
-    const rect = logo.getBoundingClientRect();
-    const logoH = rect.height || 1;
-    const logoBottomDoc = scrollY + vh/2 + logoH/2;
 
-    // Decide lock
-    const shouldLock = (logoBottomDoc >= heroBottom - 1);
+    if (!isMobile()) {
+      // keep original desktop logic
+      const vh = window.innerHeight;
+      const rect = logo.getBoundingClientRect();
+      const logoH = rect.height || 1;
+      const logoBottomDoc = scrollY + vh/2 + logoH/2;
+      const shouldLock = (logoBottomDoc >= heroBottom - 1);
 
-    if (shouldLock) {
-      // LOCKED at hero bottom (document space)
-      if (mode !== 'locked') mode = 'locked';
-      const absTop = heroBottom - logoH - 1;
-      logo.style.position = 'absolute';
-      logo.style.top = absTop + 'px';
-      logo.style.left = '50%';
-      logo.style.transform = 'translateX(-50%)';
-    } else {
-      // Not locked — two behaviors:
-      if (mode === 'anchored') {
-        // Keep the logo at the captured visual offset from center
-        logo.style.position = 'fixed';
-        logo.style.top = `calc(50% + ${anchorOffsetPx}px)`;
+      if (shouldLock) {
+        const absTop = heroBottom - logoH - 1;
+        logo.style.position = 'absolute';
+        logo.style.top = absTop + 'px';
         logo.style.left = '50%';
-        logo.style.transform = 'translate(-50%,-50%)';
+        logo.style.transform = 'translateX(-50%)';
       } else {
-        // Centered follow (normal behavior)
-        mode = 'center';
         logo.style.position = 'fixed';
         logo.style.top = '50%';
         logo.style.left = '50%';
         logo.style.transform = 'translate(-50%,-50%)';
       }
+
+      const r = logo.getBoundingClientRect();
+      const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
+      headerLogo.classList.toggle('show', !visible);
+      return;
     }
 
-    // Header mini-logo toggle
+    // ----- MOBILE: lock logo to topbar -----
+    const barRect = topbar.getBoundingClientRect();
+    const offset = 60; // distance from topbar bottom to logo (adjust to taste)
+    logo.style.position = 'fixed';
+    logo.style.top = (barRect.bottom + offset) + 'px';
+    logo.style.left = '50%';
+    logo.style.transform = 'translateX(-50%)';
+
+    // toggle mini header logo same way
     const r = logo.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
-
-    // Cache visual center for next frame (used to prevent teleport on URL-bar hide)
-    const currentCenter = r.top + r.height / 2;
-    lastLogoCenterY = currentCenter;
   }
 
-  // rAF scheduler
-  let ticking = false;
+  let ticking=false;
   function requestUpdate(){
-    if (!ticking) {
-      requestAnimationFrame(() => { update(); ticking = false; });
-      ticking = true;
+    if(!ticking){
+      requestAnimationFrame(()=>{update();ticking=false;});
+      ticking=true;
     }
   }
 
-  // Detect URL bar hide/show and switch modes WITHOUT teleport
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', () => {
-      if (!isMobile()) { vvLastH = window.visualViewport.height; return; }
-      const h = window.visualViewport.height;
-      const dh = h - vvLastH;
-      vvLastH = h;
-
-      // URL bar hides → height jumps UP
-      if (dh > 40 && mode !== 'locked') {
-        // Switch to anchored at the exact visual spot we had LAST FRAME
-        // Use cached lastLogoCenterY (from the frame before this resize)
-        const viewportCenter = window.innerHeight / 2;
-        const offset = (lastLogoCenterY == null ? 0 : (lastLogoCenterY - viewportCenter));
-        anchorOffsetPx = offset;
-        mode = 'anchored';
-        requestUpdate();
-      }
-
-      // URL bar shows → height drops
-      if (dh < -40 && mode === 'anchored') {
-        // Return to centered behavior
-        mode = 'center';
-        anchorOffsetPx = 0;
-        requestUpdate();
-      }
-    }, { passive: true });
-
-    // Some browsers also emit pageTop changes; track them to ensure lastLogoCenterY keeps updating
-    window.visualViewport.addEventListener('scroll', () => {
-      // no-op, but ensures we schedule an update during URL-bar motion
-      requestUpdate();
-    }, { passive: true });
-  }
-
-  // Standard listeners
-  window.addEventListener('scroll', requestUpdate, { passive: true });
-  window.addEventListener('resize', () => { measureHero(); requestUpdate(); });
-  window.addEventListener('orientationchange', () => { measureHero(); requestUpdate(); });
-  window.addEventListener('load', () => { measureHero(); requestUpdate(); });
-
-  // Kickstart
-  setTimeout(() => { measureHero(); requestUpdate(); }, 60);
+  window.addEventListener('scroll',requestUpdate,{passive:true});
+  window.addEventListener('resize',()=>{measureHero();requestUpdate();});
+  window.addEventListener('orientationchange',()=>{measureHero();requestUpdate();});
+  window.addEventListener('load',()=>{measureHero();requestUpdate();});
+  setTimeout(()=>{measureHero();requestUpdate();},60);
 })();
 </script>
 
