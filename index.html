@@ -50,7 +50,7 @@
   .hero img:first-child{flex:1.3;}
   .hero img:last-child{flex:0.7;}
 
-  /* BIG LOGO (base) */
+  /* BIG LOGO */
   #logo{
     position:fixed;
     left:50%;
@@ -59,7 +59,6 @@
     z-index:900;
     pointer-events:none;
     will-change:transform, top;
-    transition:top 0.25s ease, transform 0.25s ease;
   }
   #logo img{width:100%;height:auto;display:block;}
 
@@ -69,18 +68,19 @@
   .collection-item{background:#f5f5f5;height:400px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#888;text-transform:uppercase;}
   footer{padding:40px;text-align:center;background:#f5f5f5;font-size:12px;color:#666;}
 
-  /* MOBILE (unchanged layout) */
+  /* MOBILE */
   @media (max-width:900px){
     .hero{display:block;height:auto;overflow:visible;}
     .hero img{width:100%;height:auto;object-fit:contain;display:block;}
+    #logo img.mobile-logo{display:block;}
+    #logo img.desktop-logo{display:none;}
     #logo{width:auto;max-width:88vw;max-height:36vh;}
   }
 
-  /* DESKTOP ONLY — lift logo much higher (tweak -70% to taste) */
+  /* DESKTOP ONLY */
   @media (min-width:901px){
-    #logo {
-      transform:translate(-50%, -70%); /* higher = more negative */
-    }
+    #logo img.mobile-logo{display:none;}
+    #logo img.desktop-logo{display:block;}
   }
 </style>
 </head>
@@ -115,11 +115,16 @@
 
 <footer>© 2025 Minara5</footer>
 
-<div id="logo"><img src="minara 5 transparent.svg" alt="Minara"></div>
+<!-- Same element, two logo sources -->
+<div id="logo">
+  <img src="minara 5 transparent.svg" alt="Minara Mobile" class="mobile-logo">
+  <img src="minara 5 transparent 2.png" alt="Minara Desktop" class="desktop-logo">
+</div>
 
 <script>
 (function(){
   const logo = document.getElementById('logo');
+  const topbar = document.getElementById('topbar');
   const headerLogo = document.getElementById('headerLogo');
   const hero = document.getElementById('hero');
   const imgR = document.getElementById('imgR'); // last image for lock
@@ -127,9 +132,6 @@
   const isMobile = () => window.matchMedia('(max-width:900px)').matches;
   let heroBottom = 0;
   let imgRBottom = 0;
-
-  // tiny smoothing state (mobile)
-  let smoothTop = null; // null means "not initialized yet"
 
   function measureHero(){
     heroBottom = hero.offsetTop + hero.offsetHeight;
@@ -139,27 +141,25 @@
   function update(){
     const scrollY = window.scrollY || window.pageYOffset;
 
-    /* -------- Desktop (unchanged logic; transform handled by CSS) -------- */
     if (!isMobile()) {
+      // keep original desktop logic
       const vh = window.innerHeight;
       const rect = logo.getBoundingClientRect();
       const logoH = rect.height || 1;
-
-      // same lock math
-      const logoBottomDoc = scrollY + vh/2 + (0 /* because transform is vertical-only and CSS-driven */);
-      const shouldLock = (logoBottomDoc + logoH/2 >= heroBottom - 1);
+      const logoBottomDoc = scrollY + vh/2 + logoH/2;
+      const shouldLock = (logoBottomDoc >= heroBottom - 1);
 
       if (shouldLock) {
         const absTop = heroBottom - logoH - 1;
         logo.style.position = 'absolute';
         logo.style.top = absTop + 'px';
         logo.style.left = '50%';
-        // keep CSS transform translate(-50%, -70%)
+        logo.style.transform = 'translateX(-50%)';
       } else {
         logo.style.position = 'fixed';
         logo.style.top = '50%';
         logo.style.left = '50%';
-        // keep CSS transform translate(-50%, -70%)
+        logo.style.transform = 'translate(-50%,-50%)';
       }
 
       const r = logo.getBoundingClientRect();
@@ -168,30 +168,22 @@
       return;
     }
 
-    /* -------- Mobile (exact same behavior, minuscule smoothing) -------- */
+    // ----- MOBILE: lock logo to topbar -----
+    const barRect = topbar.getBoundingClientRect();
+    const offset = 60; // distance from topbar bottom to logo
     const logoRect = logo.getBoundingClientRect();
     const logoH = logoRect.height || 1;
 
-    const offsetFromMid = window.innerHeight / 2 - logoH / 2;
-    let desiredTop = scrollY + offsetFromMid;
-
+    let desiredTop = barRect.bottom + offset + scrollY;
     const lockPoint = imgRBottom - logoH - 10;
     if (desiredTop > lockPoint) desiredTop = lockPoint;
 
-    // initialize once to avoid drift/landing differences
-    if (smoothTop === null) smoothTop = desiredTop;
-
-    // apply very small smoothing; snap when close
-    const alpha = 0.03; // super subtle
-    smoothTop = smoothTop + (desiredTop - smoothTop) * alpha;
-    if (Math.abs(desiredTop - smoothTop) < 0.5) smoothTop = desiredTop;
-
     logo.style.position = 'absolute';
-    logo.style.top = smoothTop + 'px';
+    logo.style.top = desiredTop + 'px';
     logo.style.left = '50%';
-    logo.style.transform = 'translateX(-50%)'; // mobile keeps pure X centering
+    logo.style.transform = 'translateX(-50%)';
 
-    // toggle mini header logo
+    // toggle mini header logo same way
     const r = logo.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
