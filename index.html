@@ -88,8 +88,8 @@
 </header>
 
 <section id="hero" class="hero">
-  <img src="test3.png" alt="Left" id="imgL">
-  <img src="number23.png" alt="Right" id="imgR">
+  <img src="test3.png" alt="Left">
+  <img src="number23.png" alt="Right">
 </section>
 
 <section class="section">
@@ -117,14 +117,14 @@
 
   function measureHero(){
     heroTop = hero.offsetTop;
-    heroH   = hero.offsetHeight;
+    heroH = hero.offsetHeight;
     heroBottom = heroTop + heroH;
   }
 
   function update(){
     const scrollY = window.scrollY || window.pageYOffset;
 
-    /* ---------- DESKTOP: unchanged from original ---------- */
+    /* ---------- DESKTOP: original behaviour restored ---------- */
     if (!isMobile()) {
       const vh = window.innerHeight;
       const rect = logo.getBoundingClientRect();
@@ -151,37 +151,31 @@
       return;
     }
 
-    /* ---------- MOBILE: logo follows hero scroll ---------- */
+    /* ---------- MOBILE: fake follow effect ---------- */
     const rectHero = hero.getBoundingClientRect();
-    const heroVisible = rectHero.bottom > 0 && rectHero.top < window.innerHeight;
+    const progress = Math.min(1, Math.max(0, (window.innerHeight - rectHero.top) / rectHero.height));
 
-    // Calculate how far through the hero we’ve scrolled (0–1)
-    const progress = Math.min(1, Math.max(0, (window.innerHeight/2 - rectHero.top) / rectHero.height));
-
-    // Place logo along hero path: slightly above center near start, slightly below near end
-    const ratio = 0.35 + progress * 0.3;  // adjust range if needed
-    const desiredY = rectHero.top + rectHero.height * ratio;
-
+    // The logo will move a bit as you scroll: feels attached to hero
+    const offsetY = (progress - 0.5) * rectHero.height * 0.2; // adjust multiplier for stronger follow
     logo.style.position = 'fixed';
     logo.style.left = '50%';
-    logo.style.top = desiredY + 'px';
-    logo.style.transform = 'translate(-50%,-50%)';
+    logo.style.top = '50%';
+    logo.style.transform = `translate(-50%, calc(-50% + ${offsetY}px))`;
 
-    // When hero fully scrolled out, lock to its bottom
-    const rectLogo = logo.getBoundingClientRect();
-    if (rectHero.bottom <= rectLogo.height/2) {
+    // Once hero fully scrolled out, lock to bottom
+    const logoRect = logo.getBoundingClientRect();
+    if (rectHero.bottom <= logoRect.height / 2) {
       logo.style.position = 'absolute';
-      logo.style.top = (heroBottom - rectLogo.height - 1) + 'px';
+      logo.style.top = (heroBottom - logoRect.height - 1) + 'px';
       logo.style.left = '50%';
       logo.style.transform = 'translateX(-50%)';
     }
 
-    // Toggle header logo
-    const visible = !(rectLogo.bottom <= 0 || rectLogo.top >= window.innerHeight);
+    // Toggle small header logo visibility
+    const visible = !(logoRect.bottom <= 0 || logoRect.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
   }
 
-  // RAF throttle
   let ticking=false;
   function requestUpdate(){
     if(!ticking){
@@ -200,4 +194,3 @@
 
 </body>
 </html>
-
