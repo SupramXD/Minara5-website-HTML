@@ -50,7 +50,7 @@
   .hero img:first-child{flex:1.3;}
   .hero img:last-child{flex:0.7;}
 
-  /* BIG LOGO */
+  /* BIG LOGO (base) */
   #logo{
     position:fixed;
     left:50%;
@@ -69,17 +69,17 @@
   .collection-item{background:#f5f5f5;height:400px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#888;text-transform:uppercase;}
   footer{padding:40px;text-align:center;background:#f5f5f5;font-size:12px;color:#666;}
 
-  /* MOBILE (unchanged) */
+  /* MOBILE (unchanged layout) */
   @media (max-width:900px){
     .hero{display:block;height:auto;overflow:visible;}
     .hero img{width:100%;height:auto;object-fit:contain;display:block;}
     #logo{width:auto;max-width:88vw;max-height:36vh;}
   }
 
-  /* DESKTOP ONLY — lift logo higher on the page */
+  /* DESKTOP ONLY — lift logo much higher (tweak -70% to taste) */
   @media (min-width:901px){
     #logo {
-      transform:translate(-50%, -35%); /* move upward by 35% of logo height */
+      transform:translate(-50%, -70%); /* higher = more negative */
     }
   }
 </style>
@@ -120,7 +120,6 @@
 <script>
 (function(){
   const logo = document.getElementById('logo');
-  const topbar = document.getElementById('topbar');
   const headerLogo = document.getElementById('headerLogo');
   const hero = document.getElementById('hero');
   const imgR = document.getElementById('imgR'); // last image for lock
@@ -128,7 +127,9 @@
   const isMobile = () => window.matchMedia('(max-width:900px)').matches;
   let heroBottom = 0;
   let imgRBottom = 0;
-  let smoothTop = 0; // for mobile easing
+
+  // tiny smoothing state (mobile)
+  let smoothTop = null; // null means "not initialized yet"
 
   function measureHero(){
     heroBottom = hero.offsetTop + hero.offsetHeight;
@@ -138,26 +139,27 @@
   function update(){
     const scrollY = window.scrollY || window.pageYOffset;
 
-    /* -------- Desktop -------- */
+    /* -------- Desktop (unchanged logic; transform handled by CSS) -------- */
     if (!isMobile()) {
       const vh = window.innerHeight;
       const rect = logo.getBoundingClientRect();
       const logoH = rect.height || 1;
-      const logoBottomDoc = scrollY + vh/2;
+
+      // same lock math
+      const logoBottomDoc = scrollY + vh/2 + (0 /* because transform is vertical-only and CSS-driven */);
       const shouldLock = (logoBottomDoc + logoH/2 >= heroBottom - 1);
 
       if (shouldLock) {
-        // lock at bottom of hero
         const absTop = heroBottom - logoH - 1;
         logo.style.position = 'absolute';
         logo.style.top = absTop + 'px';
         logo.style.left = '50%';
-        // keep transform from CSS (-35% vertical shift)
+        // keep CSS transform translate(-50%, -70%)
       } else {
         logo.style.position = 'fixed';
         logo.style.top = '50%';
         logo.style.left = '50%';
-        // keep transform from CSS (-35% vertical shift)
+        // keep CSS transform translate(-50%, -70%)
       }
 
       const r = logo.getBoundingClientRect();
@@ -166,23 +168,30 @@
       return;
     }
 
-    /* -------- Mobile (unchanged except smooth easing) -------- */
+    /* -------- Mobile (exact same behavior, minuscule smoothing) -------- */
     const logoRect = logo.getBoundingClientRect();
     const logoH = logoRect.height || 1;
 
     const offsetFromMid = window.innerHeight / 2 - logoH / 2;
     let desiredTop = scrollY + offsetFromMid;
+
     const lockPoint = imgRBottom - logoH - 10;
     if (desiredTop > lockPoint) desiredTop = lockPoint;
 
-    // Apply subtle smoothing
-    smoothTop += (desiredTop - smoothTop) * 0.15;
+    // initialize once to avoid drift/landing differences
+    if (smoothTop === null) smoothTop = desiredTop;
+
+    // apply very small smoothing; snap when close
+    const alpha = 0.03; // super subtle
+    smoothTop = smoothTop + (desiredTop - smoothTop) * alpha;
+    if (Math.abs(desiredTop - smoothTop) < 0.5) smoothTop = desiredTop;
 
     logo.style.position = 'absolute';
     logo.style.top = smoothTop + 'px';
     logo.style.left = '50%';
-    logo.style.transform = 'translateX(-50%)';
+    logo.style.transform = 'translateX(-50%)'; // mobile keeps pure X centering
 
+    // toggle mini header logo
     const r = logo.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
