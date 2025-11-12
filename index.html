@@ -69,11 +69,18 @@
   .collection-item{background:#f5f5f5;height:400px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#888;text-transform:uppercase;}
   footer{padding:40px;text-align:center;background:#f5f5f5;font-size:12px;color:#666;}
 
-  /* MOBILE */
+  /* MOBILE (unchanged) */
   @media (max-width:900px){
     .hero{display:block;height:auto;overflow:visible;}
     .hero img{width:100%;height:auto;object-fit:contain;display:block;}
     #logo{width:auto;max-width:88vw;max-height:36vh;}
+  }
+
+  /* DESKTOP ONLY — lift logo higher on the page */
+  @media (min-width:901px){
+    #logo {
+      transform:translate(-50%, -35%); /* move upward by 35% of logo height */
+    }
   }
 </style>
 </head>
@@ -145,14 +152,12 @@
         logo.style.position = 'absolute';
         logo.style.top = absTop + 'px';
         logo.style.left = '50%';
-        logo.style.transform = 'translateX(-50%)';
+        // keep transform from CSS (-35% vertical shift)
       } else {
-        // center bottom of logo to vertical middle of screen
-        const centerTop = scrollY + vh/2 - logoH; 
-        logo.style.position = 'absolute';
-        logo.style.top = centerTop + 'px';
+        logo.style.position = 'fixed';
+        logo.style.top = '50%';
         logo.style.left = '50%';
-        logo.style.transform = 'translateX(-50%)';
+        // keep transform from CSS (-35% vertical shift)
       }
 
       const r = logo.getBoundingClientRect();
@@ -161,7 +166,7 @@
       return;
     }
 
-    /* -------- Mobile (same as before, plus smoothing) -------- */
+    /* -------- Mobile (unchanged except smooth easing) -------- */
     const logoRect = logo.getBoundingClientRect();
     const logoH = logoRect.height || 1;
 
@@ -170,7 +175,7 @@
     const lockPoint = imgRBottom - logoH - 10;
     if (desiredTop > lockPoint) desiredTop = lockPoint;
 
-    // Apply light smoothing
+    // Apply subtle smoothing
     smoothTop += (desiredTop - smoothTop) * 0.15;
 
     logo.style.position = 'absolute';
@@ -178,7 +183,6 @@
     logo.style.left = '50%';
     logo.style.transform = 'translateX(-50%)';
 
-    // toggle mini header logo
     const r = logo.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
