@@ -115,19 +115,22 @@
   const topbar = document.getElementById('topbar');
   const headerLogo = document.getElementById('headerLogo');
   const hero = document.getElementById('hero');
+  const imgR = document.getElementById('imgR'); // last image to lock at bottom
 
   const isMobile = () => window.matchMedia('(max-width:900px)').matches;
   let heroBottom = 0;
+  let imgRBottom = 0;
 
   function measureHero(){
     heroBottom = hero.offsetTop + hero.offsetHeight;
+    imgRBottom = imgR.offsetTop + imgR.offsetHeight;
   }
 
   function update(){
     const scrollY = window.scrollY || window.pageYOffset;
 
     if (!isMobile()) {
-      // keep original desktop logic
+      // ---- desktop unchanged ----
       const vh = window.innerHeight;
       const rect = logo.getBoundingClientRect();
       const logoH = rect.height || 1;
@@ -153,15 +156,25 @@
       return;
     }
 
-    // ----- MOBILE: lock logo to topbar -----
+    // ----- MOBILE: follow topbar, then lock at bottom of last image -----
     const barRect = topbar.getBoundingClientRect();
-    const offset = 60; // distance from topbar bottom to logo (adjust to taste)
-    logo.style.position = 'fixed';
-    logo.style.top = (barRect.bottom + offset) + 'px';
+    const offset = 60; // distance from topbar bottom
+    const logoRect = logo.getBoundingClientRect();
+    const logoH = logoRect.height || 1;
+
+    // current scroll-based top position
+    let desiredTop = barRect.bottom + offset + scrollY;
+
+    // lock once bottom of logo would pass bottom of image
+    const lockPoint = imgRBottom - logoH - 10;
+    if (desiredTop > lockPoint) desiredTop = lockPoint;
+
+    logo.style.position = 'absolute';
+    logo.style.top = desiredTop + 'px';
     logo.style.left = '50%';
     logo.style.transform = 'translateX(-50%)';
 
-    // toggle mini header logo same way
+    // header mini-logo toggle
     const r = logo.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
