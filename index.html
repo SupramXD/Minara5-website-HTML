@@ -156,16 +156,16 @@
       return;
     }
 
-    // ----- MOBILE: follow topbar, then lock at bottom of last image -----
+    // ----- MOBILE: start centered, follow smoothly, lock at image bottom -----
     const barRect = topbar.getBoundingClientRect();
-    const offset = 60; // distance from topbar bottom
     const logoRect = logo.getBoundingClientRect();
     const logoH = logoRect.height || 1;
 
-    // current scroll-based top position
-    let desiredTop = barRect.bottom + offset + scrollY;
+    // start in middle of viewport rather than below topbar
+    const offsetFromMid = window.innerHeight / 2 - logoH / 2;
+    let desiredTop = scrollY + offsetFromMid;
 
-    // lock once bottom of logo would pass bottom of image
+    // lock once logo bottom passes image bottom
     const lockPoint = imgRBottom - logoH - 10;
     if (desiredTop > lockPoint) desiredTop = lockPoint;
 
