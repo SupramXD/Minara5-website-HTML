@@ -116,7 +116,7 @@
 
 <footer>© 2025 Minara5</footer>
 
-<!-- Two logo versions -->
+<!-- Two logo files: mobile and desktop -->
 <div id="logo">
   <img src="minara 5 transparent.svg" alt="Minara Mobile" class="mobile-logo">
   <img src="minara 5 transparent 2.svg" alt="Minara Desktop" class="desktop-logo">
@@ -133,16 +133,17 @@
   const isMobile = () => window.matchMedia('(max-width:900px)').matches;
   let heroBottom = 0;
   let imgRBottom = 0;
-  let lastY = 0, ticking = false;
 
   function measureHero(){
     heroBottom = hero.offsetTop + hero.offsetHeight;
     imgRBottom = imgR.offsetTop + imgR.offsetHeight;
   }
 
+  let lastY = 0, ticking = false;
+
   function update(scrollY){
     if (!isMobile()) {
-      // ---- Desktop ----
+      // ---- Desktop (unchanged) ----
       const vh = window.innerHeight;
       const rect = logo.getBoundingClientRect();
       const logoH = rect.height || 1;
@@ -167,7 +168,7 @@
       return;
     }
 
-    // ---- Mobile ----
+    // ---- Mobile (GPU-accelerated movement, no smoothing math) ----
     const barRect = topbar.getBoundingClientRect();
     const offset = 60;
     const logoRect = logo.getBoundingClientRect();
@@ -177,10 +178,10 @@
     const lockPoint = imgRBottom - logoH - 10;
     if (desiredTop > lockPoint) desiredTop = lockPoint;
 
-    // Combine GPU-accelerated transform + centering
-    logo.style.transform = `translate(-50%, 0) translate3d(0, ${desiredTop}px, 0)`;
+    // GPU translate instead of changing layout position
+    logo.style.transform = `translate3d(-50%, ${desiredTop}px, 0)`;
 
-    // toggle header mini-logo
+    // toggle mini header logo
     const r = logo.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
