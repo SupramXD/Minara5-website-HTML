@@ -73,10 +73,10 @@
   @media (max-width:900px){
     .hero{display:block;height:auto;overflow:visible;}
     .hero img{width:100%;height:auto;object-fit:contain;display:block;}
-    #logo{width:auto;max-width:88vw;max-height:36vh;transition:top .3s ease;}
+    #logo{width:auto;max-width:88vw;max-height:36vh;transition:top .25s ease;}
   }
 
-  /* DESKTOP: ensure no transition ever interferes */
+  /* DESKTOP: ensure no transition interferes */
   @media (min-width:901px){
     #logo{transition:none !important;}
   }
@@ -125,93 +125,76 @@
 
   // State
   let heroBottom = 0;
-  let mode = 'center';          // mobile: 'center' | 'anchored' | 'locked' | 'frozen'
-  let lastLogoCenterY = null;   // cached each frame
-  let anchorOffsetPx = 0;       // offset from viewport center while anchored (mobile)
+  // mobile uses 'center' | 'anchored' | 'locked'
+  let mode = 'center';
+  // current offset from 50% while in anchored mode (fixed)
+  let anchorOffsetPx = 0;
+  let lastLogoCenterY = null;
   let vvLastH = (window.visualViewport && window.visualViewport.height) || 0;
-  let freezeTop = null;         // absolute doc-space Y when URL bar hides (mobile)
+  let easingBack = false;
 
   function measureHero(){
     heroBottom = hero.offsetTop + hero.offsetHeight;
   }
 
+  function applyFixedAt(offsetPx){
+    logo.style.position = 'fixed';
+    logo.style.top = `calc(50% + ${offsetPx}px)`;
+    logo.style.left = '50%';
+    logo.style.transform = 'translate(-50%,-50%)';
+  }
+
   function update(){
     const scrollY = window.scrollY || window.pageYOffset;
-    const vh = window.innerHeight;
+    const rect = logo.getBoundingClientRect();
+    const logoH = rect.height || 1;
 
-    // --- DESKTOP: ORIGINAL BEHAVIOR EXACTLY ---
+    // DESKTOP — original logic untouched
     if (!isMobile()) {
-      const rect = logo.getBoundingClientRect();
-      const logoH = rect.height || 1;
-
-      // original lock condition uses the logo's visual bottom in doc space
+      const vh = window.innerHeight;
       const logoBottomDoc = scrollY + vh/2 + logoH/2;
       const shouldLock = (logoBottomDoc >= heroBottom - 1);
 
       if (shouldLock) {
-        // lock to hero bottom in document space
         const absTop = heroBottom - logoH - 1;
         logo.style.position = 'absolute';
         logo.style.top = absTop + 'px';
         logo.style.left = '50%';
         logo.style.transform = 'translateX(-50%)';
       } else {
-        // fixed centered
-        logo.style.position = 'fixed';
-        logo.style.top = '50%';
-        logo.style.left = '50%';
-        logo.style.transform = 'translate(-50%,-50%)';
+        applyFixedAt(0); // exactly centered
       }
 
-      // Recompute after applying styles for header logo visibility
       const r = logo.getBoundingClientRect();
-      const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
-      headerLogo.classList.toggle('show', !visible);
-
-      // Cache center for parity (not used on desktop)
+      headerLogo.classList.toggle('show', !(r.bottom <= 0 || r.top >= window.innerHeight));
       lastLogoCenterY = r.top + r.height / 2;
-      return; // IMPORTANT: desktop exits here
+      return;
     }
 
-    // --- MOBILE: enhanced behavior ---
-    const rect = logo.getBoundingClientRect();
-    const logoH = rect.height || 1;
+    // MOBILE
     const logoBottomDoc = scrollY + rect.bottom;
     const shouldLock = (logoBottomDoc >= heroBottom - 1);
 
     if (shouldLock) {
-      if (mode !== 'locked') mode = 'locked';
+      mode = 'locked';
       const absTop = heroBottom - logoH - 1;
       logo.style.position = 'absolute';
       logo.style.top = absTop + 'px';
       logo.style.left = '50%';
       logo.style.transform = 'translateX(-50%)';
     } else {
+      // anchored = fixed at 50% + offset
       if (mode === 'anchored') {
-        logo.style.position = 'fixed';
-        logo.style.top = `calc(50% + ${anchorOffsetPx}px)`;
-        logo.style.left = '50%';
-        logo.style.transform = 'translate(-50%,-50%)';
-      } else if (mode === 'frozen') {
-        logo.style.position = 'absolute';
-        logo.style.top = freezeTop + 'px';
-        logo.style.left = '50%';
-        logo.style.transform = 'translateX(-50%)';
+        applyFixedAt(anchorOffsetPx);
       } else {
-        // centered follow
+        // default centered follow
         mode = 'center';
-        logo.style.position = 'fixed';
-        logo.style.top = '50%';
-        logo.style.left = '50%';
-        logo.style.transform = 'translate(-50%,-50%)';
+        applyFixedAt(0);
       }
     }
 
-    // Header mini-logo toggle (mobile)
     const r = logo.getBoundingClientRect();
-    const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
-    headerLogo.classList.toggle('show', !visible);
-
+    headerLogo.classList.toggle('show', !(r.bottom <= 0 || r.top >= window.innerHeight));
     lastLogoCenterY = r.top + r.height / 2;
   }
 
@@ -224,33 +207,45 @@
     }
   }
 
-  // URL bar hide/show handling (MOBILE ONLY)
+  // Handle URL bar hide/show WITHOUT changing positioning mode
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', () => {
       if (!isMobile()) { vvLastH = window.visualViewport.height; return; }
       const h = window.visualViewport.height;
-      const dh = h - vvLastH;
+      const dh = h - vvLastH;   // + when bar hides (viewport gets taller), - when bar shows
       vvLastH = h;
 
-      // URL bar hides → height increases
-      if (dh > 40 && mode !== 'locked') {
-        const rect = logo.getBoundingClientRect();
-        freezeTop = window.scrollY + rect.top; // freeze at exact visual spot
-        mode = 'frozen';
+      if (Math.abs(dh) > 2 && mode !== 'locked') {
+        // Ensure we're in anchored mode so we can compensate precisely
+        if (mode !== 'anchored') {
+          // set anchor so the current on-screen center stays exactly where it is
+          const viewportCenter = window.innerHeight / 2;
+          anchorOffsetPx = (lastLogoCenterY == null ? 0 : (lastLogoCenterY - viewportCenter));
+          mode = 'anchored';
+        }
+        // Compensate half the height delta so the element's screen position doesn't move
+        anchorOffsetPx -= dh / 2;
         requestUpdate();
-      }
 
-      // URL bar shows → height decreases
-      if (dh < -40 && mode === 'frozen') {
-        const viewportCenter = window.innerHeight / 2;
-        const offset = (lastLogoCenterY == null ? 0 : (lastLogoCenterY - viewportCenter));
-        anchorOffsetPx = offset;   // resume anchored at same visual offset
-        mode = 'anchored';
-        requestUpdate();
+        // If the bar is reappearing (dh < 0), gently ease offset back to 0 afterwards
+        if (dh < 0 && !easingBack) {
+          easingBack = true;
+          const start = performance.now();
+          const startOffset = anchorOffsetPx;
+          const dur = 280;
+          const ease = t => t<.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
+
+          function step(now){
+            const t = Math.min(1, (now - start) / dur);
+            anchorOffsetPx = startOffset * (1 - ease(t));
+            requestUpdate();
+            if (t < 1) requestAnimationFrame(step); else { anchorOffsetPx = 0; easingBack = false; }
+          }
+          requestAnimationFrame(step);
+        }
       }
     }, { passive: true });
 
-    // Ensure updates during URL-bar motion
     window.visualViewport.addEventListener('scroll', requestUpdate, { passive: true });
   }
 
