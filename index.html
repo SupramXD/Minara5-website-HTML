@@ -50,7 +50,7 @@
   .hero img:first-child{flex:1.3;}
   .hero img:last-child{flex:0.7;}
 
-  /* BIG LOGO (desktop uses fixed; mobile we switch to absolute via JS) */
+  /* BIG LOGO */
   #logo{
     position:fixed;
     left:50%;
@@ -72,7 +72,7 @@
   /* MOBILE */
   @media (max-width:900px){
     .hero{display:block;height:auto;overflow:visible;}
-    .hero img{width:100%;height:auto;object-fit:cover;display:block;}
+    .hero img{width:100%;height:auto;object-fit:contain;display:block;}
     #logo{width:auto;max-width:88vw;max-height:36vh;}
   }
 </style>
@@ -114,101 +114,121 @@
 (function(){
   const logo = document.getElementById('logo');
   const hero = document.getElementById('hero');
-  const imgL = document.getElementById('imgL'); // first (left) image
   const headerLogo = document.getElementById('headerLogo');
 
   const isMobile = () => window.matchMedia('(max-width:900px)').matches;
 
-  // Desktop measurements (whole hero)
+  // State
   let heroBottom = 0;
+  let mode = 'center';          // 'center' | 'anchored' | 'locked'
+  let lastLogoCenterY = null;   // cached each frame BEFORE any resize
+  let anchorOffsetPx = 0;       // offset from viewport center while anchored
+  let vvLastH = (window.visualViewport && window.visualViewport.height) || 0;
 
-  // Mobile anchor measurements (first image only)
-  let imgLTop = 0, imgLH = 0, imgLBottom = 0;
-
-  function measure(){
+  // Measure hero
+  function measureHero(){
     heroBottom = hero.offsetTop + hero.offsetHeight;
-
-    // use first image as the mobile anchor
-    imgLTop    = imgL.offsetTop;
-    imgLH      = imgL.offsetHeight;
-    imgLBottom = imgLTop + imgLH;
   }
 
+  // Main updater
   function update(){
     const scrollY = window.scrollY || window.pageYOffset;
+    const vh = window.innerHeight;
+    const rect = logo.getBoundingClientRect();
+    const logoH = rect.height || 1;
+    const logoBottomDoc = scrollY + vh/2 + logoH/2;
 
-    /* ---------- DESKTOP: unchanged from your file ---------- */
-    if (!isMobile()) {
-      const vh = window.innerHeight;
-      // fixed center until the logo bottom would pass hero bottom
-      logo.style.position = 'fixed';
+    // Decide lock
+    const shouldLock = (logoBottomDoc >= heroBottom - 1);
+
+    if (shouldLock) {
+      // LOCKED at hero bottom (document space)
+      if (mode !== 'locked') mode = 'locked';
+      const absTop = heroBottom - logoH - 1;
+      logo.style.position = 'absolute';
+      logo.style.top = absTop + 'px';
       logo.style.left = '50%';
-      logo.style.top = '50%';
-      logo.style.transform = 'translate(-50%,-50%)';
-
-      const rect = logo.getBoundingClientRect();
-      const logoH = rect.height || 1;
-      const logoBottomDoc = scrollY + vh/2 + logoH/2;
-      const shouldLock = (logoBottomDoc >= heroBottom - 1);
-
-      if (shouldLock) {
-        const absTop = heroBottom - logoH - 1;
-        logo.style.position = 'absolute';
-        logo.style.top = absTop + 'px';
+      logo.style.transform = 'translateX(-50%)';
+    } else {
+      // Not locked — two behaviors:
+      if (mode === 'anchored') {
+        // Keep the logo at the captured visual offset from center
+        logo.style.position = 'fixed';
+        logo.style.top = `calc(50% + ${anchorOffsetPx}px)`;
         logo.style.left = '50%';
-        logo.style.transform = 'translateX(-50%)';
+        logo.style.transform = 'translate(-50%,-50%)';
+      } else {
+        // Centered follow (normal behavior)
+        mode = 'center';
+        logo.style.position = 'fixed';
+        logo.style.top = '50%';
+        logo.style.left = '50%';
+        logo.style.transform = 'translate(-50%,-50%)';
       }
-
-      const r = logo.getBoundingClientRect();
-      const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
-      headerLogo.classList.toggle('show', !visible);
-      return;
     }
 
-    /* ---------- MOBILE: document-anchored to the FIRST image (no teleport) ---------- */
-    const anchor = 0.40; // place the logo ~40% down the first image
-
-    // Desired logo center in document space
-    const targetCenterDoc = imgLTop + imgLH * anchor;
-
-    // Current logo height
-    const rNow = logo.getBoundingClientRect();
-    const logoH = rNow.height || 1;
-
-    // Compute desired top in doc space and clamp to bottom of first image
-    let desiredTop = targetCenterDoc - logoH/2;
-    if (desiredTop > (imgLBottom - logoH - 1)) desiredTop = imgLBottom - logoH - 1;
-    if (desiredTop < imgLTop) desiredTop = imgLTop;
-
-    // Put the logo at the exact document pixel — no viewport math involved
-    logo.style.position = 'absolute';
-    logo.style.left = '50%';
-    logo.style.top = desiredTop + 'px';
-    logo.style.transform = 'translateX(-50%)';
-
-    // Small header logo toggling (same rule)
+    // Header mini-logo toggle
     const r = logo.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
+
+    // Cache visual center for next frame (used to prevent teleport on URL-bar hide)
+    const currentCenter = r.top + r.height / 2;
+    lastLogoCenterY = currentCenter;
   }
 
-  // rAF throttle
+  // rAF scheduler
   let ticking = false;
   function requestUpdate(){
     if (!ticking) {
-      requestAnimationFrame(() => { measure(); update(); ticking = false; });
+      requestAnimationFrame(() => { update(); ticking = false; });
       ticking = true;
     }
   }
 
-  // Events
-  window.addEventListener('scroll', requestUpdate, { passive:true });
-  window.addEventListener('resize', requestUpdate, { passive:true });
-  window.addEventListener('orientationchange', requestUpdate, { passive:true });
-  window.addEventListener('load', requestUpdate);
+  // Detect URL bar hide/show and switch modes WITHOUT teleport
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      if (!isMobile()) { vvLastH = window.visualViewport.height; return; }
+      const h = window.visualViewport.height;
+      const dh = h - vvLastH;
+      vvLastH = h;
 
-  // Kick
-  setTimeout(requestUpdate, 60);
+      // URL bar hides → height jumps UP
+      if (dh > 40 && mode !== 'locked') {
+        // Switch to anchored at the exact visual spot we had LAST FRAME
+        // Use cached lastLogoCenterY (from the frame before this resize)
+        const viewportCenter = window.innerHeight / 2;
+        const offset = (lastLogoCenterY == null ? 0 : (lastLogoCenterY - viewportCenter));
+        anchorOffsetPx = offset;
+        mode = 'anchored';
+        requestUpdate();
+      }
+
+      // URL bar shows → height drops
+      if (dh < -40 && mode === 'anchored') {
+        // Return to centered behavior
+        mode = 'center';
+        anchorOffsetPx = 0;
+        requestUpdate();
+      }
+    }, { passive: true });
+
+    // Some browsers also emit pageTop changes; track them to ensure lastLogoCenterY keeps updating
+    window.visualViewport.addEventListener('scroll', () => {
+      // no-op, but ensures we schedule an update during URL-bar motion
+      requestUpdate();
+    }, { passive: true });
+  }
+
+  // Standard listeners
+  window.addEventListener('scroll', requestUpdate, { passive: true });
+  window.addEventListener('resize', () => { measureHero(); requestUpdate(); });
+  window.addEventListener('orientationchange', () => { measureHero(); requestUpdate(); });
+  window.addEventListener('load', () => { measureHero(); requestUpdate(); });
+
+  // Kickstart
+  setTimeout(() => { measureHero(); requestUpdate(); }, 60);
 })();
 </script>
 
