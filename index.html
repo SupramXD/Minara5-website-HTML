@@ -72,7 +72,11 @@
   @media (max-width:900px){
     .hero{display:block;height:auto;overflow:visible;}
     .hero img{width:100%;height:auto;object-fit:contain;display:block;}
-    #logo{width:auto;max-width:88vw;max-height:36vh;}
+    #logo{
+      width:auto;
+      max-width:114vw; /* 30% bigger than previous 88vw (88 * 1.3 ≈ 114) */
+      max-height:46.8vh; /* 30% bigger vertically too */
+    }
   }
 </style>
 </head>
@@ -115,19 +119,24 @@
   const topbar = document.getElementById('topbar');
   const headerLogo = document.getElementById('headerLogo');
   const hero = document.getElementById('hero');
+  const imgL = document.getElementById('imgL');
 
   const isMobile = () => window.matchMedia('(max-width:900px)').matches;
   let heroBottom = 0;
+  let imgLTop = 0;
+  let imgLBottom = 0;
 
-  function measureHero(){
+  function measure(){
     heroBottom = hero.offsetTop + hero.offsetHeight;
+    imgLTop = imgL.offsetTop;
+    imgLBottom = imgLTop + imgL.offsetHeight;
   }
 
   function update(){
     const scrollY = window.scrollY || window.pageYOffset;
 
     if (!isMobile()) {
-      // keep original desktop logic
+      // --- desktop unchanged ---
       const vh = window.innerHeight;
       const rect = logo.getBoundingClientRect();
       const logoH = rect.height || 1;
@@ -153,15 +162,25 @@
       return;
     }
 
-    // ----- MOBILE: lock logo to topbar -----
+    // --- MOBILE: follow top bar until bottom of first image ---
     const barRect = topbar.getBoundingClientRect();
-    const offset = 60; // distance from topbar bottom to logo (adjust to taste)
-    logo.style.position = 'fixed';
-    logo.style.top = (barRect.bottom + offset) + 'px';
+    const offset = 60; // distance from top bar bottom to logo
+    const logoRect = logo.getBoundingClientRect();
+    const logoH = logoRect.height || 1;
+
+    // base position following topbar
+    let desiredTop = barRect.bottom + offset + window.scrollY;
+
+    // clamp to hero bottom (stop following after image ends)
+    const maxTop = imgLBottom - logoH - 10; // small buffer
+    if (desiredTop > maxTop) desiredTop = maxTop;
+
+    logo.style.position = 'absolute';
+    logo.style.top = desiredTop + 'px';
     logo.style.left = '50%';
     logo.style.transform = 'translateX(-50%)';
 
-    // toggle mini header logo same way
+    // toggle mini header logo
     const r = logo.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
@@ -176,10 +195,10 @@
   }
 
   window.addEventListener('scroll',requestUpdate,{passive:true});
-  window.addEventListener('resize',()=>{measureHero();requestUpdate();});
-  window.addEventListener('orientationchange',()=>{measureHero();requestUpdate();});
-  window.addEventListener('load',()=>{measureHero();requestUpdate();});
-  setTimeout(()=>{measureHero();requestUpdate();},60);
+  window.addEventListener('resize',()=>{measure();requestUpdate();});
+  window.addEventListener('orientationchange',()=>{measure();requestUpdate();});
+  window.addEventListener('load',()=>{measure();requestUpdate();});
+  setTimeout(()=>{measure();requestUpdate();},60);
 })();
 </script>
 
