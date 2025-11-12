@@ -54,11 +54,12 @@
   #logo{
     position:fixed;
     left:50%;
-    transform:translate(-50%,0);
+    transform:translate(-50%,0) translateZ(0);
     width:1200px;
     z-index:900;
     pointer-events:none;
     will-change:transform, top;
+    backface-visibility:hidden;
   }
   #logo img{width:100%;height:auto;display:block;}
 
@@ -115,7 +116,7 @@
 
 <footer>© 2025 Minara5</footer>
 
-<!-- Two logo files: mobile SVG and desktop SVG -->
+<!-- Two logo files: mobile and desktop -->
 <div id="logo">
   <img src="minara 5 transparent.svg" alt="Minara Mobile" class="mobile-logo">
   <img src="minara 5 transparent 2.svg" alt="Minara Desktop" class="desktop-logo">
@@ -127,7 +128,7 @@
   const topbar = document.getElementById('topbar');
   const headerLogo = document.getElementById('headerLogo');
   const hero = document.getElementById('hero');
-  const imgR = document.getElementById('imgR'); // last image for lock
+  const imgR = document.getElementById('imgR');
 
   const isMobile = () => window.matchMedia('(max-width:900px)').matches;
   let heroBottom = 0;
@@ -138,11 +139,11 @@
     imgRBottom = imgR.offsetTop + imgR.offsetHeight;
   }
 
-  function update(){
-    const scrollY = window.scrollY || window.pageYOffset;
+  let lastY = 0, ticking = false;
 
+  function update(scrollY){
     if (!isMobile()) {
-      // keep original desktop logic
+      // ---- Desktop (unchanged) ----
       const vh = window.innerHeight;
       const rect = logo.getBoundingClientRect();
       const logoH = rect.height || 1;
@@ -161,16 +162,15 @@
         logo.style.left = '50%';
         logo.style.transform = 'translate(-50%,-50%)';
       }
-
       const r = logo.getBoundingClientRect();
       const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
       headerLogo.classList.toggle('show', !visible);
       return;
     }
 
-    // ----- MOBILE: lock logo to topbar -----
+    // ---- Mobile (GPU-accelerated movement, no smoothing math) ----
     const barRect = topbar.getBoundingClientRect();
-    const offset = 60; // distance from topbar bottom to logo
+    const offset = 60;
     const logoRect = logo.getBoundingClientRect();
     const logoH = logoRect.height || 1;
 
@@ -178,30 +178,30 @@
     const lockPoint = imgRBottom - logoH - 10;
     if (desiredTop > lockPoint) desiredTop = lockPoint;
 
-    logo.style.position = 'absolute';
-    logo.style.top = desiredTop + 'px';
-    logo.style.left = '50%';
-    logo.style.transform = 'translateX(-50%)';
+    // GPU translate instead of changing layout position
+    logo.style.transform = `translate3d(-50%, ${desiredTop}px, 0)`;
 
-    // toggle mini header logo same way
+    // toggle mini header logo
     const r = logo.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
   }
 
-  let ticking=false;
-  function requestUpdate(){
-    if(!ticking){
-      requestAnimationFrame(()=>{update();ticking=false;});
-      ticking=true;
+  window.addEventListener('scroll', () => {
+    lastY = window.scrollY || window.pageYOffset;
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        update(lastY);
+        ticking = false;
+      });
+      ticking = true;
     }
-  }
+  }, {passive:true});
 
-  window.addEventListener('scroll',requestUpdate,{passive:true});
-  window.addEventListener('resize',()=>{measureHero();requestUpdate();});
-  window.addEventListener('orientationchange',()=>{measureHero();requestUpdate();});
-  window.addEventListener('load',()=>{measureHero();requestUpdate();});
-  setTimeout(()=>{measureHero();requestUpdate();},60);
+  window.addEventListener('resize', ()=>{measureHero();update(lastY);});
+  window.addEventListener('orientationchange',()=>{measureHero();update(lastY);});
+  window.addEventListener('load',()=>{measureHero();update(lastY);});
+  setTimeout(()=>{measureHero();update(lastY);},60);
 })();
 </script>
 
