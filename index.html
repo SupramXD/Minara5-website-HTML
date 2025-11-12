@@ -74,8 +74,8 @@
     .hero img{width:100%;height:auto;object-fit:contain;display:block;}
     #logo{
       width:auto;
-      max-width:114vw; /* 30% bigger than previous 88vw (88 * 1.3 ≈ 114) */
-      max-height:46.8vh; /* 30% bigger vertically too */
+      max-width:114vw;  /* 30% bigger */
+      max-height:46.8vh;
     }
   }
 </style>
@@ -119,24 +119,25 @@
   const topbar = document.getElementById('topbar');
   const headerLogo = document.getElementById('headerLogo');
   const hero = document.getElementById('hero');
-  const imgL = document.getElementById('imgL');
+  const imgR = document.getElementById('imgR'); // last hero image
 
   const isMobile = () => window.matchMedia('(max-width:900px)').matches;
+
   let heroBottom = 0;
-  let imgLTop = 0;
-  let imgLBottom = 0;
+  let imgRTop = 0;
+  let imgRBottom = 0;
 
   function measure(){
     heroBottom = hero.offsetTop + hero.offsetHeight;
-    imgLTop = imgL.offsetTop;
-    imgLBottom = imgLTop + imgL.offsetHeight;
+    imgRTop = imgR.offsetTop;
+    imgRBottom = imgRTop + imgR.offsetHeight;
   }
 
   function update(){
     const scrollY = window.scrollY || window.pageYOffset;
 
+    /* -------- Desktop: unchanged -------- */
     if (!isMobile()) {
-      // --- desktop unchanged ---
       const vh = window.innerHeight;
       const rect = logo.getBoundingClientRect();
       const logoH = rect.height || 1;
@@ -162,17 +163,17 @@
       return;
     }
 
-    // --- MOBILE: follow top bar until bottom of first image ---
+    /* -------- Mobile: follow top bar, start mid, lock at bottom of LAST image -------- */
     const barRect = topbar.getBoundingClientRect();
-    const offset = 60; // distance from top bar bottom to logo
+    const offset = window.innerHeight * 0.25; // start lower (~middle of screen)
     const logoRect = logo.getBoundingClientRect();
     const logoH = logoRect.height || 1;
 
-    // base position following topbar
+    // Follow top bar position while scrolling
     let desiredTop = barRect.bottom + offset + window.scrollY;
 
-    // clamp to hero bottom (stop following after image ends)
-    const maxTop = imgLBottom - logoH - 10; // small buffer
+    // Clamp when bottom of logo would go past bottom of last image
+    const maxTop = imgRBottom - logoH - 10;
     if (desiredTop > maxTop) desiredTop = maxTop;
 
     logo.style.position = 'absolute';
@@ -180,7 +181,7 @@
     logo.style.left = '50%';
     logo.style.transform = 'translateX(-50%)';
 
-    // toggle mini header logo
+    // Toggle header logo visibility
     const r = logo.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
