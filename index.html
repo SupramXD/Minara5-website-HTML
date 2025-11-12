@@ -8,6 +8,7 @@
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:Helvetica,Arial,sans-serif;background:#fff;overflow-x:hidden;}
 
+  /* HEADER */
   header{
     position:fixed;top:0;left:0;right:0;
     height:45px;background:rgba(255,255,255,0.95);
@@ -23,6 +24,7 @@
   nav ul li a{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#000;text-decoration:none;}
   nav ul li a:hover{color:#666;}
 
+  /* small header logo */
   .header-logo{
     position:absolute;left:50%;top:50%;
     transform:translate(-50%,-50%);
@@ -30,32 +32,66 @@
   }
   .header-logo.show{opacity:1;}
 
+  /* HERO */
   .hero{
-    margin-top:45px;position:relative;width:100vw;height:120vh;
-    display:flex;overflow:hidden;
+    margin-top:45px;
+    position:relative;
+    width:100vw;
+    height:120vh;
+    display:flex;
+    overflow:hidden;
   }
   .hero img{
-    height:100%;object-fit:cover;object-position:center;display:block;
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+    display:block;
   }
   .hero img:first-child{flex:1.3;}
   .hero img:last-child{flex:0.7;}
 
-  #logo{
-    position:fixed;left:50%;top:50%;
+  /* BIG LOGOS */
+  /* Desktop + default mobile starts with this one (fixed, centered) */
+  #logoFixed{
+    position:fixed;
+    left:50%;
+    top:50%;
     transform:translate(-50%,-50%);
-    width:1200px;z-index:900;pointer-events:none;will-change:transform,top;
+    width:1200px;
+    z-index:900;
+    pointer-events:none;
+    will-change:transform, top;
   }
-  #logo img{width:100%;height:auto;display:block;}
+  #logoFixed img{width:100%;height:auto;display:block;}
 
+  /* The doc-space twin used only on mobile during URL bar hide */
+  #logoDoc{
+    position:absolute;        /* in document space */
+    left:50%;
+    transform:translateX(-50%);
+    width:1200px;             /* same visual size */
+    z-index:900;
+    pointer-events:none;
+    display:none;             /* hidden until we swap */
+  }
+  #logoDoc img{width:100%;height:auto;display:block;}
+
+  /* CONTENT */
   .section{padding:100px 40px;text-align:center;}
   .collections-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:40px;}
   .collection-item{background:#f5f5f5;height:400px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#888;text-transform:uppercase;}
   footer{padding:40px;text-align:center;background:#f5f5f5;font-size:12px;color:#666;}
 
+  /* MOBILE sizing */
   @media (max-width:900px){
     .hero{display:block;height:auto;overflow:visible;}
     .hero img{width:100%;height:auto;object-fit:contain;display:block;}
-    #logo{width:auto;max-width:88vw;max-height:36vh;}
+    #logoFixed, #logoDoc{width:auto;max-width:88vw;max-height:36vh;}
+  }
+
+  /* Ensure no transitions surprise desktop */
+  @media (min-width:901px){
+    #logoFixed{transition:none !important;}
   }
 </style>
 </head>
@@ -90,100 +126,204 @@
 
 <footer>© 2025 Minara5</footer>
 
-<div id="logo"><img src="minara 5 transparent.svg" alt="Minara"></div>
+<!-- Two big logos -->
+<div id="logoFixed"><img src="minara 5 transparent.svg" alt="Minara"></div>
+<div id="logoDoc"><img src="minara 5 transparent.svg" alt="Minara"></div>
 
 <script>
 (function(){
-  const logo = document.getElementById('logo');
+  const logoFixed = document.getElementById('logoFixed'); // used on desktop + mobile default
+  const logoDoc   = document.getElementById('logoDoc');   // used on mobile during URL bar hide
   const hero = document.getElementById('hero');
   const headerLogo = document.getElementById('headerLogo');
+
   const isMobile = () => window.matchMedia('(max-width:900px)').matches;
 
+  // Desktop uses only the fixed logo
   let heroBottom = 0;
-  let mode = 'center';
-  let lastLogoCenterY = null;
+
+  // Mobile state
+  let active = 'fixed'; // 'fixed' | 'doc'
+  let mode = 'center';  // 'center' | 'anchored' | 'locked' (applies to fixed path)
   let anchorOffsetPx = 0;
+  let lastFixedCenterY = null;
   let vvLastH = (window.visualViewport && window.visualViewport.height) || 0;
-  const TELEPORT_FIX_OFFSET = -100; // big visible test offset
 
   function measureHero(){
     heroBottom = hero.offsetTop + hero.offsetHeight;
   }
 
-  function update(){
+  function showFixed(){
+    logoFixed.style.display = 'block';
+    logoDoc.style.display = 'none';
+    active = 'fixed';
+  }
+  function showDoc(){
+    logoFixed.style.display = 'none';
+    logoDoc.style.display = 'block';
+    active = 'doc';
+  }
+
+  function updateDesktop(){
     const scrollY = window.scrollY || window.pageYOffset;
     const vh = window.innerHeight;
-    const rect = logo.getBoundingClientRect();
+    const rect = logoFixed.getBoundingClientRect();
     const logoH = rect.height || 1;
     const logoBottomDoc = scrollY + vh/2 + logoH/2;
     const shouldLock = (logoBottomDoc >= heroBottom - 1);
 
     if (shouldLock) {
-      if (mode !== 'locked') mode = 'locked';
       const absTop = heroBottom - logoH - 1;
-      logo.style.position = 'absolute';
-      logo.style.top = absTop + 'px';
-      logo.style.left = '50%';
-      logo.style.transform = 'translateX(-50%)';
+      logoFixed.style.position = 'absolute';
+      logoFixed.style.top = absTop + 'px';
+      logoFixed.style.left = '50%';
+      logoFixed.style.transform = 'translateX(-50%)';
     } else {
-      if (mode === 'anchored') {
-        // now visibly offset upward 100px
-        logo.style.position = 'fixed';
-        logo.style.top = `calc(50% + ${anchorOffsetPx + TELEPORT_FIX_OFFSET}px)`;
-        logo.style.left = '50%';
-        logo.style.transform = 'translate(-50%,-50%)';
-      } else {
-        logo.style.position = 'fixed';
-        logo.style.top = '50%';
-        logo.style.left = '50%';
-        logo.style.transform = 'translate(-50%,-50%)';
-      }
+      logoFixed.style.position = 'fixed';
+      logoFixed.style.top = '50%';
+      logoFixed.style.left = '50%';
+      logoFixed.style.transform = 'translate(-50%,-50%)';
     }
 
-    const r = logo.getBoundingClientRect();
+    const r = logoFixed.getBoundingClientRect();
     const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
     headerLogo.classList.toggle('show', !visible);
-
-    lastLogoCenterY = r.top + r.height / 2;
   }
 
-  let ticking=false;
-  function requestUpdate(){
-    if(!ticking){
-      requestAnimationFrame(()=>{update();ticking=false;});
-      ticking=true;
+  function updateMobile(){
+    const scrollY = window.scrollY || window.pageYOffset;
+
+    if (active === 'fixed') {
+      // Normal fixed behaviour (centered or anchored) until lock
+      const vh = window.innerHeight;
+      const rect = logoFixed.getBoundingClientRect();
+      const logoH = rect.height || 1;
+      const baseTop = (mode === 'anchored') ? `calc(50% + ${anchorOffsetPx}px)` : '50%';
+      logoFixed.style.position = 'fixed';
+      logoFixed.style.top = baseTop;
+      logoFixed.style.left = '50%';
+      logoFixed.style.transform = 'translate(-50%,-50%)';
+
+      // lock detection based on current visual position
+      const centerY = rect.top + rect.height/2;
+      const logoBottomDoc = scrollY + centerY + logoH/2;
+      const shouldLock = (logoBottomDoc >= heroBottom - 1);
+
+      if (shouldLock) {
+        // lock onto hero bottom in doc space
+        const absTop = heroBottom - logoH - 1;
+        logoFixed.style.position = 'absolute';
+        logoFixed.style.top = absTop + 'px';
+        logoFixed.style.left = '50%';
+        logoFixed.style.transform = 'translateX(-50%)';
+        mode = 'locked';
+      }
+
+      // cache for seamless swap
+      lastFixedCenterY = centerY;
+
+      // header mini-logo
+      const visible = !(rect.bottom <= 0 || rect.top >= window.innerHeight);
+      headerLogo.classList.toggle('show', !visible);
+    } else {
+      // active === 'doc' → keep the doc logo glued to the hero in *document* space
+      const rDoc = logoDoc.getBoundingClientRect();
+      const logoH = rDoc.height || 1;
+
+      // desired document Y for the logo's center (anchor inside hero)
+      const desiredCenterDoc = hero.offsetTop + hero.offsetHeight * 0.4;
+      let absTop = desiredCenterDoc - logoH/2;
+
+      // clamp to hero bottom
+      const heroBottomLocal = hero.offsetTop + hero.offsetHeight;
+      if (absTop + logoH > heroBottomLocal - 1) {
+        absTop = heroBottomLocal - logoH - 1;
+      }
+
+      logoDoc.style.position = 'absolute';
+      logoDoc.style.top = absTop + 'px';
+      logoDoc.style.left = '50%';
+      logoDoc.style.transform = 'translateX(-50%)';
+
+      // header mini-logo visibility (based on whichever logo is active)
+      const r = logoDoc.getBoundingClientRect();
+      const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
+      headerLogo.classList.toggle('show', !visible);
     }
   }
 
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize',()=>{
-      if(!isMobile()){vvLastH=window.visualViewport.height;return;}
-      const h=window.visualViewport.height;
-      const dh=h-vvLastH;
-      vvLastH=h;
-
-      if(dh>40 && mode!=='locked'){
-        const viewportCenter=window.innerHeight/2;
-        const offset=(lastLogoCenterY==null?0:(lastLogoCenterY-viewportCenter));
-        anchorOffsetPx=offset;
-        mode='anchored';
-        requestUpdate();
-      }
-
-      if(dh<-40 && mode==='anchored'){
-        mode='center';
-        anchorOffsetPx=0;
-        requestUpdate();
-      }
-    },{passive:true});
-    window.visualViewport.addEventListener('scroll',requestUpdate,{passive:true});
+  function update(){
+    if (!isMobile()) {
+      // Desktop: only fixed logo is used; ensure doc logo is hidden
+      showFixed();
+      updateDesktop();
+      return;
+    }
+    updateMobile();
   }
 
-  window.addEventListener('scroll',requestUpdate,{passive:true});
-  window.addEventListener('resize',()=>{measureHero();requestUpdate();});
-  window.addEventListener('orientationchange',()=>{measureHero();requestUpdate();});
-  window.addEventListener('load',()=>{measureHero();requestUpdate();});
-  setTimeout(()=>{measureHero();requestUpdate();},60);
+  // Swap handlers (mobile only)
+  function swapToDocExact(){
+    // Place doc logo at the exact same screen spot as fixed, then hide fixed
+    const rF = logoFixed.getBoundingClientRect();
+    const docTop = window.scrollY + rF.top; // doc-space top
+    logoDoc.style.top = docTop + 'px';
+    logoDoc.style.left = '50%';
+    logoDoc.style.transform = 'translateX(-50%)';
+    showDoc();
+  }
+
+  function swapToFixedExact(){
+    // Place fixed logo so its center equals current doc logo center on screen
+    const rD = logoDoc.getBoundingClientRect();
+    const currentCenter = rD.top + rD.height/2;
+    const viewportCenter = window.innerHeight / 2;
+    anchorOffsetPx = currentCenter - viewportCenter; // so fixed is visually identical
+    mode = 'anchored';
+    showFixed();
+  }
+
+  // rAF throttle
+  let ticking = false;
+  function requestUpdate(){
+    if (!ticking) {
+      requestAnimationFrame(() => { update(); ticking = false; });
+      ticking = true;
+    }
+  }
+
+  // VisualViewport events to detect URL bar hide/show and swap precisely
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      if (!isMobile()) return;
+      const h = window.visualViewport.height;
+      const dh = h - vvLastH;
+      vvLastH = h;
+
+      // URL bar hides → swap from fixed → doc at identical pixel
+      if (dh > 40 && active === 'fixed' && mode !== 'locked') {
+        swapToDocExact();
+        requestUpdate();
+      }
+
+      // URL bar shows again → swap doc → fixed at identical pixel
+      if (dh < -40 && active === 'doc') {
+        swapToFixedExact();
+        requestUpdate();
+      }
+    }, { passive:true });
+
+    // keep updating while the bar animates
+    window.visualViewport.addEventListener('scroll', requestUpdate, { passive:true });
+  }
+
+  window.addEventListener('scroll', requestUpdate, { passive:true });
+  window.addEventListener('resize', () => { measureHero(); requestUpdate(); });
+  window.addEventListener('orientationchange', () => { measureHero(); requestUpdate(); });
+  window.addEventListener('load', () => { measureHero(); requestUpdate(); });
+
+  // Kickstart
+  setTimeout(() => { measureHero(); requestUpdate(); }, 60);
 })();
 </script>
 
