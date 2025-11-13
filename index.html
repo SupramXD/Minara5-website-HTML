@@ -4,12 +4,11 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Minara - Fashion Brand</title>
-
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:Helvetica,Arial,sans-serif;background:#fff;overflow-x:hidden;}
 
-  /* HEADER – DESKTOP STAYS EXACTLY THE SAME */
+  /* HEADER */
   header{
     position:fixed;top:0;left:0;right:0;
     height:45px;background:rgba(255,255,255,0.95);
@@ -18,47 +17,22 @@
     z-index:1200;
     border-bottom:1px solid #eee;
   }
-
   .left-nav a{
     font-size:11px;text-transform:uppercase;letter-spacing:1px;
     color:#000;text-decoration:none;margin-top:2px;
   }
-
-  /* DESKTOP BAGS (unchanged) */
-  #bagsContainer { position: relative; width: 100%; height: 0; }
-
-  #bagsBtn {
-    position: fixed;
-    top: calc(45px + 3px);
-    left: 30px;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #000;
-    text-decoration: none;
-    z-index: 900;
-  }
-
-  #bagsText { position: relative; display: inline-block; }
-
-  #shopNow {
-    opacity:0;
-    margin-left:4px;
-    left:6px;
-    position:relative;
-    transition:opacity .3s ease, left .3s ease;
-  }
-
-  #bagsBtn:hover #shopNow { opacity:1; left:0; }
-
   nav ul{list-style:none;display:flex;margin:2px 0 0 0;padding:0;}
   nav ul li{margin-left:25px;}
   nav ul li a{
-    font-size:11px;text-transform:uppercase;letter-spacing:1px;
-    color:#000;text-decoration:none;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:#000;
+    text-decoration:none;
   }
   nav ul li a:hover{color:#666;}
 
+  /* small header logo */
   .header-logo{
     position:absolute;left:50%;top:50%;
     transform:translate(-50%,-50%);
@@ -84,7 +58,7 @@
   .hero img:first-child{flex:1.3;}
   .hero img:last-child{flex:0.7;}
 
-  /* MAIN LOGO (desktop behavior untouched) */
+  /* MAIN BIG LOGO (desktop behavior unchanged) */
   #logo{
     position:fixed;
     left:50%;
@@ -94,6 +68,73 @@
     pointer-events:none;
   }
   #logo img{width:100%;height:auto;display:block;}
+
+  /* DESKTOP BAGS – unchanged */
+  #bagsBtn {
+    position: fixed;
+    top: calc(45px + 3px);
+    left: 30px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #000;
+    text-decoration: none;
+    z-index:900;
+  }
+  #bagsText { position: relative; display: inline-block; }
+  #shopNow {
+    opacity:0;
+    margin-left:4px;
+    left:6px;
+    position:relative;
+    transition:opacity .3s ease, left .3s ease;
+  }
+  #bagsBtn:hover #shopNow { opacity:1; left:0; }
+
+  /* MOBILE ONLY: HIDE DESKTOP BAGS BUTTON */
+  @media (max-width:900px){
+    #bagsBtn { display:none !important; }
+  }
+
+  /* MOBILE STATIC BAGS TEXT */
+  .mobile-bags {
+    display:none;
+    position:absolute;
+    top:20px;
+    left:20px;
+    font-size:11px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:#000;
+    background:rgba(255,255,255,0);
+    padding:0;
+    z-index:900;
+  }
+
+  @media (max-width:900px){
+    .mobile-bags { display:block; }
+  }
+
+  /* ORIGINAL MOBILE CSS (from 12 NOV) */
+  @media (max-width:900px){
+    .hero{display:block;height:auto;overflow:visible;}
+    .hero img{width:100%;height:auto;object-fit:contain;display:block;}
+
+    #logo img.mobile-logo{display:block;}
+    #logo img.desktop-logo{display:none;}
+
+    #logo{
+      width:auto;
+      max-width:88vw;
+      max-height:36vh;
+      /* Position controlled by JS on mobile */
+    }
+  }
+
+  @media (min-width:901px){
+    #logo img.mobile-logo{display:none;}
+    #logo img.desktop-logo{display:block;}
+  }
 
   .section{padding:100px 40px;text-align:center;}
   .collections-grid{
@@ -111,66 +152,6 @@
     padding:40px;text-align:center;background:#f5f5f5;
     font-size:12px;color:#666;
   }
-
-  /* --------------------------------------------------
-     MOBILE CHANGES ONLY START HERE
-     -------------------------------------------------- */
-  @media (max-width:900px){
-
-    /* Hide desktop BAGS on mobile */
-    #bagsBtn{ display:none !important; }
-
-    /* Restore your old mobile hero behavior */
-    .hero{
-      display:block;
-      height:auto;
-      overflow:visible;
-    }
-    .hero img{
-      width:100%;
-      height:auto;
-      object-fit:contain;
-      display:block;
-    }
-
-    /* MOBILE: Use your original mobile logo */
-    #logo img.mobile-logo{ display:block; }
-    #logo img.desktop-logo{ display:none; }
-
-    #logo{
-      width:auto;
-      max-width:88vw;
-      max-height:36vh;
-      position:absolute;
-      top:120px;
-      left:50%;
-      transform:translateX(-50%);
-      z-index:900;
-    }
-
-    /* MOBILE BAGS: NEW STATIC POSITION */
-    .mobile-bags{
-      display:block;
-      position:absolute;
-      top:20px;
-      left:20px;
-      font-size:11px;
-      letter-spacing:1px;
-      text-transform:uppercase;
-      color:#000;
-      background:rgba(255,255,255,0); /* Transparent like navbar text */
-      padding:0;
-      z-index:900;
-    }
-  }
-
-  /* DESKTOP (unchanged) */
-  @media (min-width:901px){
-    #logo img.mobile-logo{display:none;}
-    #logo img.desktop-logo{display:block;}
-    .mobile-bags{display:none;}
-  }
-
 </style>
 </head>
 
@@ -178,9 +159,7 @@
 
 <header id="topbar">
   <div class="left-nav"><a href="#catalog">Catalog</a></div>
-
   <img id="headerLogo" class="header-logo" src="minara 5 transparent.svg">
-
   <nav>
     <ul>
       <li><a href="#home">Home</a></li>
@@ -203,11 +182,10 @@
 
   <img src="test3.png" alt="Left">
 
-  <!-- RIGHT IMAGE with MOBILE BAGS STATIC TEXT -->
   <div style="position:relative;flex:0.7;">
     <img src="number23.png" alt="Right" style="width:100%;height:100%;object-fit:cover;">
 
-    <!-- MOBILE ONLY BAGS -->
+    <!-- MOBILE BAGS TEXT -->
     <div class="mobile-bags">BAGS 'SHOP NOW</div>
   </div>
 
@@ -231,63 +209,78 @@
 </div>
 
 <script>
-/* DESKTOP LOGIC: completely untouched */
+/* EXACT MOBILE LOGIC FROM 12 NOV — fully restored */
 (function(){
-  const hero = document.getElementById('hero');
-  const bagsBtn = document.getElementById('bagsBtn');
   const logo = document.getElementById('logo');
+  const topbar = document.getElementById('topbar');
   const headerLogo = document.getElementById('headerLogo');
+  const hero = document.getElementById('hero');
+  const imgR = document.getElementById('imgR'); // image for lock
 
   const isMobile = () => window.matchMedia('(max-width:900px)').matches;
-
   let heroBottom = 0;
+  let imgRBottom = 0;
 
-  function measurePositions(){
-    heroBottom = hero.offsetTop + hero.offsetHeight - 45;
+  function measureHero(){
+    heroBottom = hero.offsetTop + hero.offsetHeight;
+    imgRBottom = imgR.offsetTop + imgR.offsetHeight;
   }
 
   function update(){
-    const scrollY = window.scrollY;
+    const scrollY = window.scrollY || window.pageYOffset;
 
-    if (!isMobile()) {
-
-      const fixedPos = 45 + 3;
-      const bagsHeight = bagsBtn.offsetHeight;
-      const bagsBottomFixed = scrollY + fixedPos + bagsHeight;
-
-      if (bagsBottomFixed >= heroBottom + 45) {
-        bagsBtn.style.position = "absolute";
-        bagsBtn.style.top = (heroBottom - bagsHeight) + "px";
-      } else {
-        bagsBtn.style.position = "fixed";
-        bagsBtn.style.top = fixedPos + "px";
-      }
-
-      const logoRect = logo.getBoundingClientRect();
-      const logoH = logoRect.height;
+    if (!isMobile()){
+      /* Desktop logic unchanged */
       const vh = window.innerHeight;
-      const logoBottomDoc = scrollY + (vh/2) + (logoH/2);
-      const lockLogo = logoBottomDoc >= heroBottom;
+      const rect = logo.getBoundingClientRect();
+      const logoH = rect.height || 1;
+      const logoBottomDoc = scrollY + vh/2 + logoH/2;
+      const shouldLock = (logoBottomDoc >= heroBottom - 1);
 
-      if (lockLogo) {
-        logo.style.position='absolute';
-        logo.style.top = (heroBottom - logoH)+'px';
-        logo.style.transform='translateX(-50%)';
+      if (shouldLock) {
+        const absTop = heroBottom - logoH - 1;
+        logo.style.position = 'absolute';
+        logo.style.top = absTop + 'px';
+        logo.style.left = '50%';
+        logo.style.transform = 'translateX(-50%)';
       } else {
-        logo.style.position='fixed';
-        logo.style.top='50%';
-        logo.style.transform='translate(-50%, -50%)';
+        logo.style.position = 'fixed';
+        logo.style.top = '50%';
+        logo.style.left = '50%';
+        logo.style.transform = 'translate(-50%,-50%)';
       }
 
-      const visible = !(logoRect.bottom <= 0 || logoRect.top >= window.innerHeight);
+      const r = logo.getBoundingClientRect();
+      const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
       headerLogo.classList.toggle('show', !visible);
+      return;
     }
+
+    /* RESTORED MOBILE LOGIC */
+    const barRect = topbar.getBoundingClientRect();
+    const offset = 60;
+    const logoRect = logo.getBoundingClientRect();
+    const logoH = logoRect.height || 1;
+
+    let desiredTop = scrollY + barRect.bottom + offset;
+    const lockPoint = imgRBottom - logoH - 10;
+    if (desiredTop > lockPoint) desiredTop = lockPoint;
+
+    logo.style.position = 'absolute';
+    logo.style.top = desiredTop + 'px';
+    logo.style.left = '50%';
+    logo.style.transform = 'translateX(-50%)';
+
+    const r = logo.getBoundingClientRect();
+    const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
+    headerLogo.classList.toggle('show', !visible);
   }
 
-  window.addEventListener('scroll',update);
-  window.addEventListener('resize',()=>{measurePositions();update();});
-  window.addEventListener('load',()=>{measurePositions();update();});
-  setTimeout(()=>{measurePositions();update();},80);
+  window.addEventListener('scroll',update,{passive:true});
+  window.addEventListener('resize',()=>{measureHero();update();});
+  window.addEventListener('orientationchange',()=>{measureHero();update();});
+  window.addEventListener('load',()=>{measureHero();update();});
+  setTimeout(()=>{measureHero();update();},60);
 
 })();
 </script>
