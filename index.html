@@ -4,27 +4,68 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Minara - Fashion Brand</title>
+
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:Helvetica,Arial,sans-serif;background:#fff;overflow-x:hidden;}
 
-  /* HEADER */
   header{
     position:fixed;top:0;left:0;right:0;
     height:45px;background:rgba(255,255,255,0.95);
     display:flex;justify-content:space-between;align-items:flex-start;
-    padding:4px 30px;z-index:1200;border-bottom:1px solid #eee;
+    padding:4px 30px;
+    z-index:1200; /* header stays highest */
+    border-bottom:1px solid #eee;
   }
+
   .left-nav a{
     font-size:11px;text-transform:uppercase;letter-spacing:1px;
     color:#000;text-decoration:none;margin-top:2px;
   }
+
+  #bagsContainer {
+    position: relative;
+    width: 100%;
+    height: 0;
+  }
+
+  /* BAGS NOW MATCHES MAIN LOGO (z-index 900) */
+  #bagsBtn {
+    position: fixed;
+    top: calc(45px + 3px);
+    left: 30px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #000;
+    text-decoration: none;
+    z-index: 900; /* <-- FIXED: SAME LAYER AS MAIN LOGO */
+  }
+
+  #bagsText { position: relative; display: inline-block; }
+
+  #shopNow {
+    opacity:0;
+    margin-left:4px;
+    left:6px;
+    position:relative;
+    transition:opacity .3s ease, left .3s ease;
+  }
+
+  #bagsBtn:hover #shopNow {
+    opacity:1;
+    left:0;
+  }
+
+  @media(max-width:900px){
+    #bagsBtn{display:none;}
+  }
+
   nav ul{list-style:none;display:flex;margin:2px 0 0 0;padding:0;}
   nav ul li{margin-left:25px;}
   nav ul li a{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#000;text-decoration:none;}
   nav ul li a:hover{color:#666;}
 
-  /* small header logo */
   .header-logo{
     position:absolute;left:50%;top:50%;
     transform:translate(-50%,-50%);
@@ -32,7 +73,6 @@
   }
   .header-logo.show{opacity:1;}
 
-  /* HERO */
   .hero{
     margin-top:45px;
     position:relative;
@@ -50,45 +90,42 @@
   .hero img:first-child{flex:1.3;}
   .hero img:last-child{flex:0.7;}
 
-  /* BIG LOGO */
   #logo{
     position:fixed;
     left:50%;
     transform:translate(-50%,0);
     width:1200px;
-    z-index:900;
+    z-index:900; /* main logo */
     pointer-events:none;
-    will-change:transform, top;
   }
+
   #logo img{width:100%;height:auto;display:block;}
 
-  /* CONTENT */
   .section{padding:100px 40px;text-align:center;}
   .collections-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:40px;}
   .collection-item{background:#f5f5f5;height:400px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#888;text-transform:uppercase;}
   footer{padding:40px;text-align:center;background:#f5f5f5;font-size:12px;color:#666;}
 
-  /* MOBILE */
   @media (max-width:900px){
     .hero{display:block;height:auto;overflow:visible;}
     .hero img{width:100%;height:auto;object-fit:contain;display:block;}
     #logo img.mobile-logo{display:block;}
     #logo img.desktop-logo{display:none;}
-    #logo{width:auto;max-width:88vw;max-height:36vh;}
   }
 
-  /* DESKTOP ONLY */
   @media (min-width:901px){
     #logo img.mobile-logo{display:none;}
     #logo img.desktop-logo{display:block;}
   }
+
 </style>
 </head>
 <body>
 
 <header id="topbar">
   <div class="left-nav"><a href="#catalog">Catalog</a></div>
-  <img id="headerLogo" class="header-logo" src="minara 5 transparent.svg" alt="Minara small">
+
+  <img id="headerLogo" class="header-logo" src="minara 5 transparent.svg">
   <nav>
     <ul>
       <li><a href="#home">Home</a></li>
@@ -97,6 +134,14 @@
     </ul>
   </nav>
 </header>
+
+<div id="bagsContainer">
+  <a id="bagsBtn" href="bags.html">
+    <span id="bagsText">
+      BAGS <span id="shopNow">'SHOP NOW</span>
+    </span>
+  </a>
+</div>
 
 <section id="hero" class="hero">
   <img src="test3.png" alt="Left" id="imgL">
@@ -115,93 +160,69 @@
 
 <footer>© 2025 Minara5</footer>
 
-<!-- Two logo files: mobile SVG and desktop SVG -->
 <div id="logo">
-  <img src="minara 5 transparent.svg" alt="Minara Mobile" class="mobile-logo">
-  <img src="minara 5 transparent 2.svg" alt="Minara Desktop" class="desktop-logo">
+  <img src="minara 5 transparent.svg" class="mobile-logo">
+  <img src="minara 5 transparent 2.svg" class="desktop-logo">
 </div>
 
 <script>
 (function(){
-  const logo = document.getElementById('logo');
-  const topbar = document.getElementById('topbar');
-  const headerLogo = document.getElementById('headerLogo');
   const hero = document.getElementById('hero');
-  const imgR = document.getElementById('imgR'); // last image for lock
+  const bagsBtn = document.getElementById('bagsBtn');
+  const logo = document.getElementById('logo');
+  const headerLogo = document.getElementById('headerLogo');
 
   const isMobile = () => window.matchMedia('(max-width:900px)').matches;
-  let heroBottom = 0;
-  let imgRBottom = 0;
 
-  function measureHero(){
-    heroBottom = hero.offsetTop + hero.offsetHeight;
-    imgRBottom = imgR.offsetTop + imgR.offsetHeight;
+  let heroBottom = 0;
+
+  function measurePositions(){
+    heroBottom = hero.offsetTop + hero.offsetHeight - 45;
   }
 
   function update(){
-    const scrollY = window.scrollY || window.pageYOffset;
+    const scrollY = window.scrollY;
 
     if (!isMobile()) {
-      // keep original desktop logic
-      const vh = window.innerHeight;
-      const rect = logo.getBoundingClientRect();
-      const logoH = rect.height || 1;
-      const logoBottomDoc = scrollY + vh/2 + logoH/2;
-      const shouldLock = (logoBottomDoc >= heroBottom - 1);
 
-      if (shouldLock) {
-        const absTop = heroBottom - logoH - 1;
-        logo.style.position = 'absolute';
-        logo.style.top = absTop + 'px';
-        logo.style.left = '50%';
-        logo.style.transform = 'translateX(-50%)';
+      const fixedPos = 45 + 3;
+      const bagsHeight = bagsBtn.offsetHeight;
+      const bagsBottomFixed = scrollY + fixedPos + bagsHeight;
+
+      if (bagsBottomFixed >= heroBottom + 45) {
+        bagsBtn.style.position = "absolute";
+        bagsBtn.style.top = (heroBottom - bagsHeight) + "px";
       } else {
-        logo.style.position = 'fixed';
-        logo.style.top = '50%';
-        logo.style.left = '50%';
-        logo.style.transform = 'translate(-50%,-50%)';
+        bagsBtn.style.position = "fixed";
+        bagsBtn.style.top = fixedPos + "px";
       }
 
-      const r = logo.getBoundingClientRect();
-      const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
+      const logoRect = logo.getBoundingClientRect();
+      const logoH = logoRect.height;
+      const vh = window.innerHeight;
+      const logoBottomDoc = scrollY + (vh/2) + (logoH/2);
+      const lockLogo = logoBottomDoc >= heroBottom;
+
+      if (lockLogo) {
+        logo.style.position='absolute';
+        logo.style.top = (heroBottom - logoH)+'px';
+        logo.style.transform='translateX(-50%)';
+      } else {
+        logo.style.position='fixed';
+        logo.style.top='50%';
+        logo.style.transform='translate(-50%, -50%)';
+      }
+
+      const visible = !(logoRect.bottom <= 0 || logoRect.top >= window.innerHeight);
       headerLogo.classList.toggle('show', !visible);
-      return;
-    }
-
-    // ----- MOBILE: lock logo to topbar -----
-    const barRect = topbar.getBoundingClientRect();
-    const offset = 60; // distance from topbar bottom to logo
-    const logoRect = logo.getBoundingClientRect();
-    const logoH = logoRect.height || 1;
-
-    let desiredTop = barRect.bottom + offset + scrollY;
-    const lockPoint = imgRBottom - logoH - 10;
-    if (desiredTop > lockPoint) desiredTop = lockPoint;
-
-    logo.style.position = 'absolute';
-    logo.style.top = desiredTop + 'px';
-    logo.style.left = '50%';
-    logo.style.transform = 'translateX(-50%)';
-
-    // toggle mini header logo same way
-    const r = logo.getBoundingClientRect();
-    const visible = !(r.bottom <= 0 || r.top >= window.innerHeight);
-    headerLogo.classList.toggle('show', !visible);
-  }
-
-  let ticking=false;
-  function requestUpdate(){
-    if(!ticking){
-      requestAnimationFrame(()=>{update();ticking=false;});
-      ticking=true;
     }
   }
 
-  window.addEventListener('scroll',requestUpdate,{passive:true});
-  window.addEventListener('resize',()=>{measureHero();requestUpdate();});
-  window.addEventListener('orientationchange',()=>{measureHero();requestUpdate();});
-  window.addEventListener('load',()=>{measureHero();requestUpdate();});
-  setTimeout(()=>{measureHero();requestUpdate();},60);
+  window.addEventListener('scroll', update);
+  window.addEventListener('resize', ()=>{measurePositions();update();});
+  window.addEventListener('load', ()=>{measurePositions();update();});
+  setTimeout(()=>{measurePositions();update();},80);
+
 })();
 </script>
 
