@@ -11,7 +11,7 @@
 body{font-family:Helvetica,Arial,sans-serif;background:#fff;overflow-x:hidden;}
 
 /* =====================
-   DESKTOP HEADER (13 NOV)
+   DESKTOP HEADER (unchanged)
    ===================== */
 header{
   position:fixed;top:0;left:0;right:0;
@@ -30,6 +30,7 @@ nav ul li{margin-left:25px;}
 nav ul li a{
   font-size:11px;text-transform:uppercase;letter-spacing:1px;
   color:#000;text-decoration:none;
+  display:flex;align-items:center;gap:6px;
 }
 nav ul li a:hover{color:#666;}
 
@@ -40,7 +41,14 @@ nav ul li a:hover{color:#666;}
 }
 .header-logo.show{opacity:1;}
 
-/* HERO (shared) */
+/* ICONS (desktop only) */
+.desktop-icon{
+  height:12px;
+  width:auto;
+  display:inline-block;
+}
+
+/* HERO */
 .hero{
   margin-top:45px;
   position:relative;
@@ -55,7 +63,7 @@ nav ul li a:hover{color:#666;}
 .hero img:first-child{flex:1.3;}
 .hero img:last-child{flex:0.7;}
 
-/* DESKTOP BIG LOGO (13 NOV) */
+/* DESKTOP BIG LOGO */
 #logo{
   position:fixed;
   left:50%;
@@ -66,7 +74,7 @@ nav ul li a:hover{color:#666;}
 }
 #logo img{width:100%;display:block;}
 
-/* DESKTOP BAGS BUTTON (13 NOV) */
+/* DESKTOP BAGS BUTTON */
 #bagsContainer{position:relative;width:100%;height:0;}
 #bagsBtn{
   position:fixed;
@@ -83,18 +91,51 @@ nav ul li a:hover{color:#666;}
 }
 #bagsBtn:hover #shopNow{opacity:1;left:0;}
 
-/* MOBILE STATIC BAGS TEXT */
+/* MOBILE STATIC BAGS TEXT (NOW CLICKABLE) */
 .mobile-bags{
   display:none;
   position:absolute;
   top:20px;left:20px;
   font-size:11px;text-transform:uppercase;letter-spacing:1px;
-  color:#000;background:transparent;
   z-index:900;
+}
+
+.mobile-bags a{
+  color:#000;
+  text-decoration:none;
+}
+
+/* MOBILE NAV ICONS */
+.mobile-nav-icons{
+  display:none;
+  font-size:11px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:#000;
+  align-items:center;
+  gap:6px;
+}
+
+.mobile-nav-icons img{
+  height:14px;
+  width:auto;
 }
 
 /* MOBILE CSS (12 NOV) */
 @media(max-width:900px){
+
+  /* hide desktop links */
+  nav ul li a{
+    display:none !important;
+  }
+
+  /* show mobile nav icons */
+  .mobile-nav-icons{
+    display:flex !important;
+    position:absolute;
+    right:30px;
+    top:12px;
+  }
 
   /* hide desktop BAGS */
   #bagsBtn{display:none !important;}
@@ -115,7 +156,6 @@ nav ul li a:hover{color:#666;}
     max-width:88vw;
     max-height:36vh;
     z-index:900;
-    /* POSITION HANDLED BY JS */
   }
 
   .mobile-bags{display:block;}
@@ -126,6 +166,8 @@ nav ul li a:hover{color:#666;}
   #logo img.mobile-logo{display:none;}
   #logo img.desktop-logo{display:block;}
   .mobile-bags{display:none;}
+
+  .mobile-nav-icons{display:none !important;}
 }
 
 /* CONTENT */
@@ -150,19 +192,40 @@ footer{
 <body>
 
 <header id="topbar">
+
   <div class="left-nav"><a href="#catalog">Catalog</a></div>
+
   <img id="headerLogo" class="header-logo" src="minara 5 transparent.svg">
+
+  <!-- DESKTOP NAV WITH ICONS -->
   <nav>
     <ul>
-      <li><a href="#home">Home</a></li>
-      <li><a href="#contact">Contact</a></li>
-      <li><a href="auth.html">Account</a></li>
+      <li>
+        <a href="#contact">
+          <img src="spy glass.svg" class="desktop-icon">
+          Contact
+        </a>
+      </li>
+      <li>
+        <a href="auth.html">
+          <img src="head shoulder.svg" class="desktop-icon">
+          Account
+        </a>
+      </li>
     </ul>
   </nav>
+
+  <!-- MOBILE NAV ICONS -->
+  <div class="mobile-nav-icons">
+      <img src="spy glass.svg">
+      <span>|</span>
+      <img src="head shoulder.svg">
+  </div>
+
 </header>
 
+<!-- DESKTOP BAGS -->
 <div id="bagsContainer">
-  <!-- Desktop BAGS -->
   <a id="bagsBtn" href="bags.html">
     <span id="bagsText">BAGS <span id="shopNow">'SHOP NOW</span></span>
   </a>
@@ -175,8 +238,10 @@ footer{
   <div style="position:relative;flex:0.7;">
     <img src="number23.webp" id="imgR" style="width:100%;height:100%;object-fit:cover;">
 
-    <!-- MOBILE STATIC BAGS TEXT -->
-    <div class="mobile-bags">BAGS 'SHOP NOW</div>
+    <!-- CLICKABLE MOBILE BAGS -->
+    <div class="mobile-bags">
+      <a href="bags.html">BAGS 'SHOP NOW</a>
+    </div>
   </div>
 
 </section>
@@ -193,17 +258,13 @@ footer{
 
 <footer>© 2025 Minara 5</footer>
 
-<!-- MAIN LOGO -->
 <div id="logo">
   <img src="minara 5 transparent.svg" class="mobile-logo">
   <img src="minara 5 transparent 2.svg" class="desktop-logo">
 </div>
 
 <script>
-/* ===========================================================
-   FINAL JS MERGE (13 NOV DESKTOP + 12 NOV MOBILE)
-   WITH CORRECT MOBILE LOCK POINT FIX
-   =========================================================== */
+/* MERGED DESKTOP + MOBILE LOGIC (unchanged from NOV13 V2 except lock fix) */
 (function(){
   const hero = document.getElementById('hero');
   const imgR = document.getElementById('imgR');
@@ -220,7 +281,6 @@ footer{
   function measure(){
     heroBottom = hero.offsetTop + hero.offsetHeight - 45;
 
-    /* FIX: accurate real bottom of second image */
     const rRect = imgR.getBoundingClientRect();
     imgRBottom = window.scrollY + rRect.bottom;
   }
@@ -228,10 +288,8 @@ footer{
   function update(){
     const scrollY = window.scrollY;
 
-    /* ========================= DESKTOP ========================= */
     if (!isMobile()){
 
-      /* BAGS follow logic (unchanged) */
       const fixedPos = 45 + 3;
       const bagsHeight = bagsBtn.offsetHeight;
       const bagsBottomFixed = scrollY + fixedPos + bagsHeight;
@@ -244,7 +302,6 @@ footer{
         bagsBtn.style.top=fixedPos+"px";
       }
 
-      /* Desktop logo follow logic (unchanged) */
       const rect = logo.getBoundingClientRect();
       const logoH = rect.height;
       const vh = window.innerHeight;
@@ -258,7 +315,7 @@ footer{
       } else {
         logo.style.position="fixed";
         logo.style.top="50%";
-        logo.style.transform="translate(-50%, -50%)";
+        logo.style.transform="translate(-50%,-50%)";
       }
 
       const vis = !(rect.bottom<=0 || rect.top>=window.innerHeight);
@@ -267,15 +324,12 @@ footer{
       return;
     }
 
-    /* ========================= MOBILE ========================= */
-
+    /* MOBILE LOGIC */
     const barRect = topbar.getBoundingClientRect();
     const offset = 60;
 
-    /* desired top under header */
     let desiredTop = scrollY + barRect.bottom + offset;
 
-    /* FIXED: lock exactly at imgRBottom */
     const logoRect = logo.getBoundingClientRect();
     const logoH = logoRect.height;
     const lockPoint = imgRBottom - logoH - 10;
