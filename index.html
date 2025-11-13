@@ -42,8 +42,9 @@
     color: #000;
     text-decoration: none;
 
-    z-index: 900; /* SAME layer as Minara logo (desktop) */
+    z-index: 900; /* SAME layer as Minara logo */
     pointer-events: auto;
+    transition: opacity .25s ease;
   }
 
   #bagsText { position: relative; display: inline-block; }
@@ -97,7 +98,7 @@
     left:50%;
     transform:translate(-50%,0);
     width:1200px;
-    z-index:900; /* SAME as BAGS */
+    z-index:900; /* SAME as bagsBtn */
     pointer-events:none;
   }
   #logo img{width:100%;height:auto;display:block;}
@@ -119,7 +120,7 @@
     font-size:12px;color:#666;
   }
 
-  /* MOBILE ONLY FIXES */
+  /* ---------------- MOBILE FIXES ---------------- */
   @media (max-width:900px){
 
     .hero{
@@ -143,21 +144,28 @@
       display:none;
     }
 
-    /* FIX: logo must appear above hero images */
+    /* FIX: mobile logo above everything (except header) */
     #logo{
       width:auto;
       max-width:88vw;
       max-height:36vh;
-      z-index:2000 !important; /* FIXED */
+      z-index:3000 !important; /* FIX #1 */
       position:fixed;
+      top:55px;
       left:50%;
-      transform:translate(-50%,0);
+      transform:translateX(-50%);
     }
 
-    /* FIX: show BAGS on mobile */
+    /* FIX: BAGS ALWAYS show "SHOP NOW" on mobile */
+    #shopNow{
+      opacity:1 !important;
+      left:0 !important;
+    }
+
+    /* allow BAGS to be visible on mobile */
     #bagsBtn{
       display:block !important;
-      z-index:2000 !important; /* ensure visible above hero */
+      z-index:3000 !important; /* FIX #2 */
     }
   }
 
@@ -231,39 +239,54 @@
   function update(){
     const scrollY = window.scrollY;
 
-    if (!isMobile()) {
+    /* ---------- MOBILE LOGIC (NEW) ---------- */
+    if (isMobile()) {
 
-      const fixedPos = 45 + 3;
-      const bagsHeight = bagsBtn.offsetHeight;
-      const bagsBottomFixed = scrollY + fixedPos + bagsHeight;
-
-      if (bagsBottomFixed >= heroBottom + 45) {
-        bagsBtn.style.position = "absolute";
-        bagsBtn.style.top = (heroBottom - bagsHeight) + "px";
-      } else {
+      if (scrollY < 50) {
+        /* follow header */
         bagsBtn.style.position = "fixed";
-        bagsBtn.style.top = fixedPos + "px";
+        bagsBtn.style.top = "48px";
+      } else {
+        /* lock 50px below header */
+        bagsBtn.style.position = "absolute";
+        bagsBtn.style.top = (45 + 50) + "px"; // = 95px
       }
 
-      const logoRect = logo.getBoundingClientRect();
-      const logoH = logoRect.height;
-      const vh = window.innerHeight;
-      const logoBottomDoc = scrollY + (vh/2) + (logoH/2);
-      const lockLogo = logoBottomDoc >= heroBottom;
+      return; /* skip desktop logic */
+    }
 
-      if (lockLogo) {
+    /* ---------- DESKTOP LOGIC (UNCHANGED) ---------- */
+    const fixedPos = 45 + 3;
+    const bagsHeight = bagsBtn.offsetHeight;
+    const bagsBottomFixed = scrollY + fixedPos + bagsHeight;
+
+    if (bagsBottomFixed >= heroBottom + 45) {
+        bagsBtn.style.position = "absolute";
+        bagsBtn.style.top = (heroBottom - bagsHeight) + "px";
+    } else {
+        bagsBtn.style.position = "fixed";
+        bagsBtn.style.top = fixedPos + "px";
+    }
+
+    /* MAIN LOGO */
+    const logoRect = logo.getBoundingClientRect();
+    const logoH = logoRect.height;
+    const vh = window.innerHeight;
+    const logoBottomDoc = scrollY + (vh/2) + (logoH/2);
+    const lockLogo = logoBottomDoc >= heroBottom;
+
+    if (lockLogo) {
         logo.style.position='absolute';
         logo.style.top = (heroBottom - logoH)+'px';
         logo.style.transform='translateX(-50%)';
-      } else {
+    } else {
         logo.style.position='fixed';
         logo.style.top='50%';
         logo.style.transform='translate(-50%, -50%)';
-      }
-
-      const visible = !(logoRect.bottom <= 0 || logoRect.top >= window.innerHeight);
-      headerLogo.classList.toggle('show', !visible);
     }
+
+    const visible = !(logoRect.bottom <= 0 || logoRect.top >= window.innerHeight);
+    headerLogo.classList.toggle('show', !visible);
   }
 
   window.addEventListener('scroll', update);
