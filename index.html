@@ -11,7 +11,7 @@
 body{font-family:Helvetica,Arial,sans-serif;background:#fff;overflow-x:hidden;}
 
 /* =====================
-   DESKTOP HEADER (unchanged)
+   DESKTOP HEADER (unchanged logic)
    ===================== */
 header{
   position:fixed;top:0;left:0;right:0;
@@ -31,8 +31,12 @@ nav ul li a{
   font-size:11px;text-transform:uppercase;letter-spacing:1px;
   color:#000;text-decoration:none;
   display:flex;align-items:center;gap:6px;
+  transition:opacity .25s ease;
 }
-nav ul li a:hover{color:#666;}
+nav ul li a:hover{color:#666;opacity:0.6;}
+nav ul li a:hover img.desktop-icon{
+  opacity:0.6;
+}
 
 .header-logo{
   position:absolute;left:50%;top:50%;
@@ -41,11 +45,12 @@ nav ul li a:hover{color:#666;}
 }
 .header-logo.show{opacity:1;}
 
-/* ICONS (desktop only) */
+/* DESKTOP NAV ICONS */
 .desktop-icon{
   height:12px;
   width:auto;
   display:inline-block;
+  transition:opacity .25s ease;
 }
 
 /* HERO */
@@ -91,7 +96,7 @@ nav ul li a:hover{color:#666;}
 }
 #bagsBtn:hover #shopNow{opacity:1;left:0;}
 
-/* MOBILE STATIC BAGS TEXT (NOW CLICKABLE) */
+/* MOBILE STATIC BAGS TEXT (clickable) */
 .mobile-bags{
   display:none;
   position:absolute;
@@ -99,10 +104,8 @@ nav ul li a:hover{color:#666;}
   font-size:11px;text-transform:uppercase;letter-spacing:1px;
   z-index:900;
 }
-
 .mobile-bags a{
-  color:#000;
-  text-decoration:none;
+  color:#000;text-decoration:none;
 }
 
 /* MOBILE NAV ICONS */
@@ -110,26 +113,31 @@ nav ul li a:hover{color:#666;}
   display:none;
   font-size:11px;
   letter-spacing:1px;
-  text-transform:uppercase;
   color:#000;
   align-items:center;
-  gap:6px;
+  gap:8px;
 }
 
 .mobile-nav-icons img{
-  height:14px;
-  width:auto;
+  height:20px;
+  width:20px;
+  object-fit:contain;
 }
 
-/* MOBILE CSS (12 NOV) */
+.mobile-nav-icons span {
+  font-size:16px;
+  margin:0 6px;
+  color:#000;
+}
+
+/* MOBILE CSS (kept from NOV13 V2) */
 @media(max-width:900px){
 
-  /* hide desktop links */
+  /* hide desktop Contact/Account links */
   nav ul li a{
     display:none !important;
   }
 
-  /* show mobile nav icons */
   .mobile-nav-icons{
     display:flex !important;
     position:absolute;
@@ -143,11 +151,11 @@ nav ul li a:hover{color:#666;}
   .hero{
     display:block;height:auto;overflow:visible;
   }
+
   .hero img{
     width:100%;height:auto;object-fit:contain;display:block;
   }
 
-  /* mobile logos */
   #logo img.mobile-logo{display:block;}
   #logo img.desktop-logo{display:none;}
 
@@ -156,6 +164,7 @@ nav ul li a:hover{color:#666;}
     max-width:88vw;
     max-height:36vh;
     z-index:900;
+    /* position set by JS */
   }
 
   .mobile-bags{display:block;}
@@ -166,7 +175,6 @@ nav ul li a:hover{color:#666;}
   #logo img.mobile-logo{display:none;}
   #logo img.desktop-logo{display:block;}
   .mobile-bags{display:none;}
-
   .mobile-nav-icons{display:none !important;}
 }
 
@@ -264,7 +272,7 @@ footer{
 </div>
 
 <script>
-/* MERGED DESKTOP + MOBILE LOGIC (unchanged from NOV13 V2 except lock fix) */
+/* FULL LOGIC (unchanged, includes mobile lock fix) */
 (function(){
   const hero = document.getElementById('hero');
   const imgR = document.getElementById('imgR');
@@ -315,7 +323,7 @@ footer{
       } else {
         logo.style.position="fixed";
         logo.style.top="50%";
-        logo.style.transform="translate(-50%,-50%)";
+        logo.style.transform="translate(-50%, -50%)";
       }
 
       const vis = !(rect.bottom<=0 || rect.top>=window.innerHeight);
@@ -324,7 +332,7 @@ footer{
       return;
     }
 
-    /* MOBILE LOGIC */
+    /* MOBILE */
     const barRect = topbar.getBoundingClientRect();
     const offset = 60;
 
