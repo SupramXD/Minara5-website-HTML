@@ -28,7 +28,7 @@ header{
   border-bottom:1px solid #eee;
 }
 
-/* LEFT NAV (CATALOG desktop) */
+/* DESKTOP CATALOG BUTTON */
 .left-nav a{
   font-size:12px;
   text-transform:uppercase;
@@ -44,24 +44,13 @@ header{
 nav ul{list-style:none;display:flex;margin:2px 0 0 0;}
 nav ul li{margin-left:25px;}
 nav ul li a{
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:1px;
-  color:#000;
-  text-decoration:none;
-  display:flex;
-  align-items:center;
-  gap:6px;
+  font-size:11px;text-transform:uppercase;letter-spacing:1px;
+  color:#000;text-decoration:none;display:flex;align-items:center;gap:6px;
   transition:opacity .25s ease;
 }
 nav ul li a:hover{color:#666;opacity:0.65;}
 nav ul li a:hover img.desktop-icon{opacity:0.65;}
-
-.desktop-icon{
-  height:12px;
-  width:auto;
-  transition:opacity .25s ease;
-}
+.desktop-icon{height:12px;width:auto;}
 
 /* HERO */
 .hero{
@@ -91,11 +80,11 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
 }
 #logo img{width:100%;display:block;}
 
-/* DESKTOP BAGS BUTTON */
+/* DESKTOP BAGS */
 #bagsContainer{position:relative;width:100%;height:0;}
 #bagsBtn{
   position:fixed;
-  top:calc(45px + 3px);
+  top:48px;
   left:30px;
   font-size:11px;
   text-transform:uppercase;
@@ -105,9 +94,7 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
   z-index:900;
   transition:opacity .25s ease;
 }
-#bagsBtn:hover{
-  opacity:0.6;   /* full fade effect */
-}
+#bagsBtn:hover{opacity:0.6;}
 #shopNow{
   opacity:0;
   margin-left:4px;
@@ -119,91 +106,126 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
 
 /* MOBILE BAGS */
 .mobile-bags{
-  display:none;position:absolute;top:20px;left:20px;
-  font-size:11px;text-transform:uppercase;letter-spacing:1px;
+  display:none;
+  position:absolute;
+  top:20px;
+  left:20px;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:1px;
   z-index:900;
 }
 .mobile-bags a{color:#000;text-decoration:none;}
 
 /* ===========================
-   MOBILE BOXED NAV
+   MOBILE HEADER BOXES
    =========================== */
 .mobile-nav{
   display:none;
-  height:45px;
   position:absolute;
-  right:0;
   top:0;
+  right:0;
+  height:45px;
   display:flex;
   align-items:center;
 }
 
-.mobile-box{
+/* CATALOG stays far left */
+.mobile-catalog{
+  position:absolute;
+  left:0;
+  top:0;
+  height:45px;
   display:flex;
   align-items:center;
-  justify-content:center;
-  height:45px;
   padding:0 18px;
-  position:relative;
+  color:#000;
+  font-size:12px;
+  letter-spacing:1px;
   text-decoration:none;
 }
 
-/* Light divider lines – now thinner + 40% opacity */
-.mobile-box:before,
-.mobile-box:after{
+/* Catalog → right divider only */
+.mobile-catalog:after{
+  content:"";
+  position:absolute;
+  right:0;
+  top:0;
+  bottom:0;
+  width:0.5px;
+  background:rgba(0,0,0,0.40);
+}
+
+/* Icon boxes */
+.mobile-box{
+  height:45px;
+  padding:0 20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+
+/* SEARCH = both lines */
+.mobile-box.search:before,
+.mobile-box.search:after{
   content:"";
   position:absolute;
   top:0;
   bottom:0;
   width:0.5px;
-  background:rgba(0,0,0,0.40); /* thinner & 40% opacity */
+  background:rgba(0,0,0,0.40);
 }
-
-/* Catalog: right line only */
-.mobile-box.catalog:after{ right:0; }
-.mobile-box.catalog:before{ display:none; }
-
-/* Search: both lines */
 .mobile-box.search:before{ left:0; }
 .mobile-box.search:after{ right:0; }
 
-/* Account: left line only */
-.mobile-box.account:before{ left:0; }
-.mobile-box.account:after{ display:none; }
+/* ACCOUNT = left line only */
+.mobile-box.account:before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:0.5px;
+  background:rgba(0,0,0,0.40);
+}
 
-/* Icon sizes – smaller + aligned slightly toward top */
+/* ICON STYLE — small & slightly upward */
 .mobile-box img{
   height:12px;
   width:12px;
-  object-fit:contain;
   margin-top:-2px;
+  object-fit:contain;
 }
 
 /* MOBILE */
 @media(max-width:900px){
 
+  /* Hide desktop nav */
   nav ul li a{display:none !important;}
+
+  /* Activate mobile layout */
   .mobile-nav{display:flex;}
+
+  /* Hide desktop catalog */
+  .left-nav{display:none;}
 
   #bagsBtn{display:none !important;}
 
   .hero{
-    display:block;
-    height:auto;
-    overflow:visible;
+    display:block;height:auto;overflow:visible;
   }
   .hero img{
     width:100%;
     height:auto;
     object-fit:contain;
-    display:block;
   }
 
   #logo img.mobile-logo{display:block;}
   #logo img.desktop-logo{display:none;}
 
   #logo{
-    width:auto;max-width:88vw;max-height:36vh;z-index:900;
+    width:auto;max-width:88vw;max-height:36vh;
   }
 
   .mobile-bags{display:block;}
@@ -212,25 +234,23 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
 /* DESKTOP */
 @media(min-width:901px){
   .mobile-nav{display:none;}
-  .mobile-bags{display:none;}
   #logo img.mobile-logo{display:none;}
   #logo img.desktop-logo{display:block;}
+  .mobile-bags{display:none;}
 }
 
-/* BRAND SECTION (unchanged from your gold version) */
+/* BRAND SECTION (unchanged) */
 .brand-section{
   padding:80px 40px 110px;
   max-width:900px;
   margin:0 auto;
 }
-
 .brand-title{
   font-size:11px;
   text-transform:uppercase;
   letter-spacing:0.28em;
   margin-bottom:22px;
 }
-
 .brand-body{
   max-width:620px;
   font-size:12.8px;
@@ -239,10 +259,7 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
   opacity:0.92;
   white-space:pre-line;
 }
-
-.brand-body p{
-  margin:0 0 16px 0;
-}
+.brand-body p{margin-bottom:16px;}
 
 footer{
   padding:40px;text-align:center;background:#f5f5f5;
@@ -255,6 +272,7 @@ footer{
 
 <header id="topbar">
 
+  <!-- ORIGINAL CATALOG (for desktop) -->
   <div class="left-nav"><a href="catalog.html">Catalog</a></div>
 
   <!-- DESKTOP NAV -->
@@ -262,33 +280,29 @@ footer{
     <ul>
       <li>
         <a href="contact.html">
-          <img src="spy glass.svg" class="desktop-icon">
-          Contact
+          <img src="spy glass.svg" class="desktop-icon"> Contact
         </a>
       </li>
       <li>
         <a href="auth.html">
-          <img src="head shoulder.svg" class="desktop-icon">
-          Account
+          <img src="head shoulder.svg" class="desktop-icon"> Account
         </a>
       </li>
     </ul>
   </nav>
 
-  <!-- MOBILE NAV -->
+  <!-- MOBILE NAV (correct final version) -->
   <div class="mobile-nav">
 
-    <!-- Catalog box -->
-    <a class="mobile-box catalog" href="catalog.html">
-      <span style="font-size:12px;letter-spacing:1px;">CATALOG</span>
-    </a>
+    <!-- CATALOG stays left -->
+    <a class="mobile-catalog" href="catalog.html">CATALOG</a>
 
-    <!-- Search box -->
+    <!-- SEARCH -->
     <a class="mobile-box search" href="contact.html">
       <img src="spy glass.svg">
     </a>
 
-    <!-- Account box -->
+    <!-- ACCOUNT -->
     <a class="mobile-box account" href="auth.php">
       <img src="head shoulder.svg">
     </a>
@@ -305,16 +319,19 @@ footer{
 </div>
 
 <section id="hero" class="hero">
+
   <img src="test3.webp" id="imgL">
+
   <div style="position:relative;flex:0.7;">
     <img src="number23.webp" id="imgR" style="width:100%;height:100%;object-fit:cover;">
     <div class="mobile-bags">
       <a href="bags.html">BAGS 'SHOP NOW</a>
     </div>
   </div>
+
 </section>
 
-<!-- BRAND SECTION (unchanged) -->
+<!-- BRAND SECTION -->
 <section class="brand-section">
   <h2 class="brand-title">MINARA5</h2>
 
@@ -344,7 +361,7 @@ that  ever  made  sense.
 </div>
 
 <script>
-/* same NOV13 V2 scroll logic */
+/* ORIGINAL NOV13 SCROLL LOGIC – UNTOUCHED */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
@@ -358,8 +375,7 @@ that  ever  made  sense.
 
   function measure(){
     heroBottom=hero.offsetTop+hero.offsetHeight-45;
-    const r=imgR.getBoundingClientRect();
-    imgRBottom=window.scrollY+r.bottom;
+    imgRBottom=window.scrollY+imgR.getBoundingClientRect().bottom;
   }
 
   function update(){
@@ -369,6 +385,7 @@ that  ever  made  sense.
       const fixed=48;
       const h=bagsBtn.offsetHeight;
       const bottom=y+fixed+h;
+
       if(bottom>=heroBottom+45){
         bagsBtn.style.position='absolute';
         bagsBtn.style.top=(heroBottom-h)+'px';
@@ -377,8 +394,8 @@ that  ever  made  sense.
         bagsBtn.style.top=fixed+'px';
       }
 
-      const rect=logo.getBoundingClientRect();
-      const H=rect.height;
+      const r=logo.getBoundingClientRect();
+      const H=r.height;
       const vh=window.innerHeight;
       const lock=y+vh/2+H/2>=heroBottom;
 
@@ -398,8 +415,8 @@ that  ever  made  sense.
     const br=topbar.getBoundingClientRect();
     let top=y+br.bottom+60;
 
-    const rect2=logo.getBoundingClientRect();
-    const lockPt=imgRBottom-rect2.height-10;
+    const r2=logo.getBoundingClientRect();
+    const lockPt=imgRBottom-r2.height-10;
 
     if(top>lockPt) top=lockPt;
 
@@ -418,4 +435,3 @@ that  ever  made  sense.
 
 </body>
 </html>
-
