@@ -17,7 +17,7 @@ body{
 
 /* =====================
    DESKTOP HEADER
-   ===================== */
+===================== */
 header{
   position:fixed;top:0;left:0;right:0;
   height:45px;
@@ -28,7 +28,7 @@ header{
   border-bottom:1px solid #eee;
 }
 
-/* DESKTOP CATALOG BUTTON */
+/* DESKTOP CATALOG */
 .left-nav a{
   font-size:12px;
   text-transform:uppercase;
@@ -121,10 +121,9 @@ nav ul li a:hover{opacity:0.65;}
   color:#000 !important;text-decoration:none !important;outline:none !important;
 }
 
-/* ======================================
-   MOBILE HEADER — CLEAN DIVIDER SYSTEM
-   ====================================== */
-
+/* ============================
+   MOBILE HEADER — NO DIVIDERS
+============================ */
 .mobile-nav{
   display:none;
   position:absolute;
@@ -142,39 +141,18 @@ nav ul li a:hover{opacity:0.65;}
   display:flex;
   justify-content:center;
   align-items:flex-start;
-  padding-top:8px; /* align icons with CATALOG baseline */
+  padding-top:8px;
 }
 
-/* RESET ANY OLD DIVIDERS */
+/* REMOVE ALL DIVIDERS COMPLETELY */
 .mobile-box::before,
-.mobile-box::after{
-  content:none;
-}
-
-/* NEW CLEAN DIVIDERS (ALL IDENTICAL) */
-.mobile-box.search::before{
-  content:"";
-  position:absolute;
-  top:0; bottom:0;
-  left:0;
-  width:0.5px;
-  background:rgba(0,0,0,0.40);
-}
-.mobile-box.search::after{
-  content:"";
-  position:absolute;
-  top:0; bottom:0;
-  right:0;
-  width:0.5px;
-  background:rgba(0,0,0,0.40);
-}
-.mobile-box.account::before{
-  content:"";
-  position:absolute;
-  top:0; bottom:0;
-  left:0;
-  width:0.5px;
-  background:rgba(0,0,0,0.40);
+.mobile-box::after,
+.mobile-box.search::before,
+.mobile-box.search::after,
+.mobile-box.account::before,
+.mobile-box.account::after,
+.left-nav a::after{
+  content:none !important;
 }
 
 /* ICON SIZING */
@@ -182,38 +160,6 @@ nav ul li a:hover{opacity:0.65;}
   height:11px;
   width:11px;
   object-fit:contain;
-}
-
-/* CATALOG DIVIDER (MOBILE) */
-@media(max-width:900px){
-  .left-nav{
-    display:flex;
-    position:absolute;
-    left:0;
-    top:4px;
-    height:45px;
-    padding-left:8px;
-    align-items:flex-start;
-  }
-
-  .left-nav a{
-    margin-top:2px;
-    font-size:12px;
-    letter-spacing:1px;
-    padding-right:18px;
-    position:relative;
-    display:flex;
-    align-items:center;
-  }
-
-  .left-nav a:after{
-    content:"";
-    position:absolute;
-    top:0; bottom:0;
-    right:-6px;
-    width:0.5px;
-    background:rgba(0,0,0,0.40);
-  }
 }
 
 /* MOBILE */
@@ -224,9 +170,7 @@ nav ul li a:hover{opacity:0.65;}
 
   #bagsBtn{display:none !important;}
 
-  .hero{
-    display:block;height:auto;
-  }
+  .hero{display:block;height:auto;}
   .hero img{
     width:100%;
     height:auto;
@@ -235,7 +179,9 @@ nav ul li a:hover{opacity:0.65;}
   #logo img.mobile-logo{display:block;}
   #logo img.desktop-logo{display:none;}
 
-  #logo{width:auto;max-width:88vw;max-height:36vh;}
+  #logo{
+    width:auto;max-width:88vw;max-height:36vh;
+  }
 
   .mobile-bags{display:block;}
 }
@@ -248,12 +194,15 @@ nav ul li a:hover{opacity:0.65;}
   #logo img.desktop-logo{display:block;}
 }
 
-/* BRAND SECTION */
+/* ============================
+      BRAND SECTION
+============================ */
 .brand-section{
   padding:80px 40px 110px;
   max-width:900px;
   margin:0 auto;
 }
+
 .brand-title{
   font-size:11px;
   text-transform:uppercase;
@@ -261,17 +210,20 @@ nav ul li a:hover{opacity:0.65;}
   margin-bottom:22px;
 }
 
-/* Paragraph styling (normal case, using minara3 text) */
+/* EXACT MINARA3 PARAGRAPH STYLE */
 .brand-body{
   max-width:620px;
   font-size:12.8px;
   line-height:1.7;
   opacity:0.92;
   white-space:pre-line;
+
+  /* THE KEY FASHION-LOOK SPACING */
+  letter-spacing:0.18em;
   text-transform:none;
-  letter-spacing:normal;
 }
-.brand-body p{margin-bottom:16px;}
+
+.brand-body p{margin-bottom:28px;}
 
 footer{
   padding:40px;text-align:center;background:#f5f5f5;
@@ -284,7 +236,7 @@ footer{
 
 <header id="topbar">
 
-  <!-- REAL CATALOG (stays on far left) -->
+  <!-- CATALOG stays exactly here -->
   <div class="left-nav"><a href="catalog.html">CATALOG</a></div>
 
   <!-- DESKTOP NAV -->
@@ -295,7 +247,7 @@ footer{
     </ul>
   </nav>
 
-  <!-- MOBILE NAV (icons only, right side) -->
+  <!-- MOBILE NAV (NO DIVIDERS NOW) -->
   <div class="mobile-nav">
     <a class="mobile-box search" href="contact.html"><img src="spy glass.svg"></a>
     <a class="mobile-box account" href="auth.php"><img src="head shoulder.svg"></a>
@@ -321,7 +273,10 @@ footer{
   </div>
 </section>
 
-<!-- BRAND SECTION -->
+<!-- ============================
+      BRAND SECTION PARAGRAPH
+      EXACT FROM MINARA3
+============================ -->
 <section class="brand-section">
   <h2 class="brand-title">MINARA5</h2>
 
