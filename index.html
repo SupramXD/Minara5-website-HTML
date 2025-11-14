@@ -16,85 +16,207 @@ body{
 }
 
 /* =====================
-   DESKTOP HEADER (unchanged)
+   DESKTOP HEADER
    ===================== */
 header{
   position:fixed;top:0;left:0;right:0;
-  height:45px;background:rgba(255,255,255,0.95);
+  height:45px;
+  background:rgba(255,255,255,0.95);
   display:flex;justify-content:space-between;align-items:flex-start;
-  padding:4px 30px;z-index:1200;border-bottom:1px solid #eee;
+  padding:4px 30px;
+  z-index:1200;
+  border-bottom:1px solid #eee;
 }
 
+/* LEFT NAV (CATALOG desktop) */
 .left-nav a{
-  font-size:12px;text-transform:uppercase;letter-spacing:1px;
-  color:#000;text-decoration:none;margin-top:4px;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#000;
+  text-decoration:none;
+  margin-top:4px;
   transition:opacity .25s ease;
 }
 .left-nav a:hover{opacity:0.6;}
 
+/* DESKTOP NAV */
 nav ul{list-style:none;display:flex;margin:2px 0 0 0;}
 nav ul li{margin-left:25px;}
 nav ul li a{
-  font-size:11px;text-transform:uppercase;letter-spacing:1px;
-  color:#000;text-decoration:none;display:flex;align-items:center;gap:6px;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#000;
+  text-decoration:none;
+  display:flex;
+  align-items:center;
+  gap:6px;
   transition:opacity .25s ease;
 }
 nav ul li a:hover{color:#666;opacity:0.65;}
 nav ul li a:hover img.desktop-icon{opacity:0.65;}
 
 .desktop-icon{
-  height:12px;width:auto;transition:opacity .25s ease;
+  height:12px;
+  width:auto;
+  transition:opacity .25s ease;
 }
 
-/* HERO (unchanged) */
+/* HERO */
 .hero{
-  margin-top:45px;position:relative;width:100vw;height:120vh;
-  display:flex;overflow:hidden;
+  margin-top:45px;
+  position:relative;
+  width:100vw;
+  height:120vh;
+  display:flex;
+  overflow:hidden;
 }
-.hero img{height:100%;object-fit:cover;display:block;}
+.hero img{
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
 .hero img:first-child{flex:1.3;}
 .hero img:last-child{flex:0.7;}
 
-/* LOGO (unchanged) */
+/* BIG LOGO */
 #logo{
-  position:fixed;left:50%;transform:translate(-50%,0);
-  width:1200px;z-index:900;pointer-events:none;
+  position:fixed;
+  left:50%;
+  transform:translate(-50%,0);
+  width:1200px;
+  z-index:900;
+  pointer-events:none;
 }
 #logo img{width:100%;display:block;}
 
-/* DESKTOP BAGS BUTTON (unchanged) */
+/* DESKTOP BAGS BUTTON */
 #bagsContainer{position:relative;width:100%;height:0;}
 #bagsBtn{
-  position:fixed;top:calc(45px + 3px);left:30px;
-  font-size:11px;text-transform:uppercase;letter-spacing:1px;
-  color:#000;text-decoration:none;z-index:900;
+  position:fixed;
+  top:calc(45px + 3px);
+  left:30px;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#000;
+  text-decoration:none;
+  z-index:900;
+  transition:opacity .25s ease;
+}
+#bagsBtn:hover{
+  opacity:0.6;   /* ← NEW: full fade effect */
 }
 #shopNow{
-  opacity:0;margin-left:4px;left:6px;position:relative;
+  opacity:0;
+  margin-left:4px;
+  left:6px;
+  position:relative;
   transition:opacity .3s ease,left .3s ease;
 }
 #bagsBtn:hover #shopNow{opacity:1;left:0;}
 
-/* MOBILE BAGS (unchanged) */
+/* MOBILE BAGS */
 .mobile-bags{
   display:none;position:absolute;top:20px;left:20px;
-  font-size:11px;text-transform:uppercase;letter-spacing:1px;z-index:900;
+  font-size:11px;text-transform:uppercase;letter-spacing:1px;
+  z-index:900;
 }
 .mobile-bags a{color:#000;text-decoration:none;}
 
-/* MOBILE NAV ICONS (unchanged) */
-.mobile-nav-icons{
-  display:none;align-items:center;gap:20px;
-  position:absolute;right:30px;top:6px;
-}
-.mobile-nav-icons img{
-  height:14px;width:14px;object-fit:contain;
-}
-
 /* ===========================
-   FINAL LUXURY BRAND BLOCK
+   NEW MOBILE BOXED NAV
    =========================== */
+.mobile-nav{
+  display:none;
+  height:45px;
+  position:absolute;
+  right:0;
+  top:0;
+  display:flex;
+  align-items:center;
+}
 
+.mobile-box{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:45px;
+  padding:0 18px;
+  position:relative;
+  text-decoration:none;
+}
+
+/* Light divider lines */
+.mobile-box:before,
+.mobile-box:after{
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:1px;
+  background:rgba(0,0,0,0.12); /* thin translucent */
+}
+
+/* Catalog: right line only */
+.mobile-box.catalog:after{ right:0; }
+.mobile-box.catalog:before{ display:none; }
+
+/* Search: both lines */
+.mobile-box.search:before{ left:0; }
+.mobile-box.search:after{ right:0; }
+
+/* Account: left line only */
+.mobile-box.account:before{ left:0; }
+.mobile-box.account:after{ display:none; }
+
+/* Icon sizes */
+.mobile-box img{
+  height:14px;
+  width:14px;
+  object-fit:contain;
+}
+
+/* MOBILE */
+@media(max-width:900px){
+
+  nav ul li a{display:none !important;}
+  .mobile-nav{display:flex;}
+
+  #bagsBtn{display:none !important;}
+
+  .hero{
+    display:block;
+    height:auto;
+    overflow:visible;
+  }
+  .hero img{
+    width:100%;
+    height:auto;
+    object-fit:contain;
+    display:block;
+  }
+
+  #logo img.mobile-logo{display:block;}
+  #logo img.desktop-logo{display:none;}
+
+  #logo{
+    width:auto;max-width:88vw;max-height:36vh;z-index:900;
+  }
+
+  .mobile-bags{display:block;}
+}
+
+/* DESKTOP */
+@media(min-width:901px){
+  .mobile-nav{display:none;}
+  .mobile-bags{display:none;}
+  #logo img.mobile-logo{display:none;}
+  #logo img.desktop-logo{display:block;}
+}
+
+/* BRAND SECTION (unchanged from your gold version) */
 .brand-section{
   padding:80px 40px 110px;
   max-width:900px;
@@ -108,62 +230,19 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
   margin-bottom:22px;
 }
 
-/* Premium spacing block */
 .brand-body{
   max-width:620px;
   font-size:12.8px;
   line-height:1.7;
-  letter-spacing:0.18em;   /* ← slightly bigger gap between letters */
-  text-align:left;
+  letter-spacing:0.18em;
   opacity:0.92;
-  white-space:pre-line;    /* preserves your spacing EXACTLY */
+  white-space:pre-line;
 }
 
 .brand-body p{
   margin:0 0 16px 0;
 }
 
-/* MOBILE */
-@media(max-width:900px){
-
-  nav ul li a{display:none !important;}
-  .mobile-nav-icons{display:flex !important;}
-
-  #bagsBtn{display:none !important;}
-
-  .hero{display:block;height:auto;overflow:visible;}
-  .hero img{
-    width:100%;height:auto;object-fit:contain;
-  }
-
-  #logo img.mobile-logo{display:block;}
-  #logo img.desktop-logo{display:none;}
-
-  #logo{
-    width:auto;max-width:88vw;max-height:36vh;
-  }
-
-  .mobile-bags{display:block;}
-
-  .brand-section{
-    padding:60px 24px 90px;
-  }
-  .brand-body{
-    max-width:100%;
-    font-size:11.5px;
-    letter-spacing:0.16em;  /* slightly toned down for mobile */
-  }
-}
-
-/* DESKTOP */
-@media(min-width:901px){
-  #logo img.mobile-logo{display:none;}
-  #logo img.desktop-logo{display:block;}
-  .mobile-bags{display:none;}
-  .mobile-nav-icons{display:none !important;}
-}
-
-/* FOOTER (unchanged) */
 footer{
   padding:40px;text-align:center;background:#f5f5f5;
   font-size:12px;color:#666;
@@ -175,12 +254,13 @@ footer{
 
 <header id="topbar">
 
-  <div class="left-nav"><a href="#catalog">Catalog</a></div>
+  <div class="left-nav"><a href="catalog.html">Catalog</a></div>
 
+  <!-- DESKTOP NAV -->
   <nav>
     <ul>
       <li>
-        <a href="#contact">
+        <a href="contact.html">
           <img src="spy glass.svg" class="desktop-icon">
           Contact
         </a>
@@ -194,13 +274,29 @@ footer{
     </ul>
   </nav>
 
-  <div class="mobile-nav-icons">
+  <!-- NEW MOBILE NAV -->
+  <div class="mobile-nav">
+
+    <!-- Catalog box -->
+    <a class="mobile-box catalog" href="catalog.html">
+      <span style="font-size:12px;letter-spacing:1px;">CATALOG</span>
+    </a>
+
+    <!-- Search box -->
+    <a class="mobile-box search" href="contact.html">
       <img src="spy glass.svg">
+    </a>
+
+    <!-- Account box -->
+    <a class="mobile-box account" href="auth.php">
       <img src="head shoulder.svg">
+    </a>
+
   </div>
 
 </header>
 
+<!-- BAGS -->
 <div id="bagsContainer">
   <a id="bagsBtn" href="bags.html">
     BAGS <span id="shopNow">'SHOP NOW</span>
@@ -208,23 +304,16 @@ footer{
 </div>
 
 <section id="hero" class="hero">
-
   <img src="test3.webp" id="imgL">
-
   <div style="position:relative;flex:0.7;">
     <img src="number23.webp" id="imgR" style="width:100%;height:100%;object-fit:cover;">
-
     <div class="mobile-bags">
       <a href="bags.html">BAGS 'SHOP NOW</a>
     </div>
   </div>
-
 </section>
 
-<!-- ===========================
-     YOUR ARTISTIC TEXT EXACTLY
-     =========================== -->
-
+<!-- BRAND SECTION (unchanged) -->
 <section class="brand-section">
   <h2 class="brand-title">MINARA5</h2>
 
@@ -233,11 +322,12 @@ footer{
 Nonconformity,  is  a  desire  rooted  in  the  heart  
 of  this   south  african   generation.
     </p>
+
+    <p>
 Minara  is  the  hearts   quiet   awakening,  
 whilst  others  line  up  for  the  approved  path,  
 she  minara  -   simply  refuses  the  script.  
-<p>
-</p>
+
 To  the  world  she's  a  question  without  an  answer..  
 To  herself  she  is  the  only  version  
 that  ever  made  sense.
@@ -245,7 +335,7 @@ that  ever  made  sense.
   </div>
 </section>
 
-<footer>© 2025 Minara5</footer>
+<footer>© 2025 Minara 5</footer>
 
 <div id="logo">
   <img src="minara 5 transparent.svg" class="mobile-logo">
@@ -253,7 +343,7 @@ that  ever  made  sense.
 </div>
 
 <script>
-/* Same scroll logic */
+/* same NOV13 V2 scroll logic */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
@@ -273,11 +363,11 @@ that  ever  made  sense.
 
   function update(){
     const y=window.scrollY;
+
     if(!isMobile()){
       const fixed=48;
       const h=bagsBtn.offsetHeight;
       const bottom=y+fixed+h;
-
       if(bottom>=heroBottom+45){
         bagsBtn.style.position='absolute';
         bagsBtn.style.top=(heroBottom-h)+'px';
@@ -307,8 +397,8 @@ that  ever  made  sense.
     const br=topbar.getBoundingClientRect();
     let top=y+br.bottom+60;
 
-    const rect=logo.getBoundingClientRect();
-    const lockPt=imgRBottom-rect.height-10;
+    const rect2=logo.getBoundingClientRect();
+    const lockPt=imgRBottom-rect2.height-10;
 
     if(top>lockPt) top=lockPt;
 
