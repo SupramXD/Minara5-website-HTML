@@ -50,7 +50,7 @@ nav ul li a{
   transition:opacity .25s ease;
 }
 nav ul li a:hover{opacity:0.65;}
-.desktop-icon{height:12px;}
+.desktop-icon{height:12px;width:auto;}
 
 /* HERO */
 .hero{
@@ -76,13 +76,9 @@ nav ul li a:hover{opacity:0.65;}
   width:1200px;
   z-index:900;
 }
-#logo img{
-  width:100%;display:block;
-}
+#logo img{width:100%;display:block;}
 
-/* ================
-   DESKTOP BAGS
-   ================ */
+/* DESKTOP BAGS */
 #bagsContainer{position:relative;width:100%;height:0;}
 #bagsBtn{
   position:fixed;
@@ -103,9 +99,26 @@ nav ul li a:hover{opacity:0.65;}
 }
 #bagsBtn:hover #shopNow{opacity:1;left:0;}
 
-/* =======================
-   MOBILE HEADER (CLEAN)
-   ======================= */
+/* MOBILE BAGS */
+.mobile-bags{
+  display:none;
+  position:absolute;
+  top:20px;
+  left:20px;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  z-index:900;
+}
+.mobile-bags a{
+  color:#000 !important;
+  text-decoration:none !important;
+  outline:none !important;
+}
+
+/* ===========================
+   MOBILE HEADER (FINAL FIXED)
+   =========================== */
 
 .mobile-nav{
   display:none;
@@ -117,18 +130,17 @@ nav ul li a:hover{opacity:0.65;}
   align-items:center;
 }
 
-/* MOBILE REAL CATALOG */
+/* Real catalog becomes mobile catalog */
 @media(max-width:900px){
   .left-nav{
     display:flex;
     align-items:flex-start;
     position:absolute;
     left:0;
-    top:4px;  /* slight downward shift as you requested */
+    top:4px; /* SLIGHTLY LOWER than before */
     height:45px;
     padding-left:6px;
   }
-
   .left-nav a{
     margin-top:0;
     padding-right:16px;
@@ -137,11 +149,11 @@ nav ul li a:hover{opacity:0.65;}
     position:relative;
   }
 
-  /* CATALOG DIVIDER — universal divider */
+  /* CATALOG divider — full height matching icons */
   .left-nav a:after{
     content:"";
     position:absolute;
-    right:-6px;
+    right:-1px;
     top:0;
     height:45px;
     width:0.5px;
@@ -149,20 +161,21 @@ nav ul li a:hover{opacity:0.65;}
   }
 }
 
-/* MOBILE BOXES */
-
+/* ICON BOXES */
 .mobile-box{
   height:45px;
   padding:0 18px;
   display:flex;
-  align-items:flex-start;
+  align-items:flex-start; /* move box content upward */
   justify-content:center;
   position:relative;
-  padding-top:6px; /* raises icons upward */
+  padding-top:6px; /* puts icons higher up */
 }
 
-/* UNIVERSAL DIVIDER — reused for ALL dividers */
-.divider{
+/* FULL unified divider style */
+.mobile-box.search:before,
+.mobile-box.search:after,
+.mobile-box.account:before{
   content:"";
   position:absolute;
   top:0;
@@ -171,52 +184,37 @@ nav ul li a:hover{opacity:0.65;}
   background:rgba(0,0,0,0.40);
 }
 
-/* SEARCH */
-.mobile-box.search:before{
-  content:"";
-  left:0;
-  top:0;
-  height:45px;
-  width:0.5px;
-  background:rgba(0,0,0,0.40);
-}
-.mobile-box.search:after{
-  content:"";
-  right:0;
-  top:0;
-  height:45px;
-  width:0.5px;
-  background:rgba(0,0,0,0.40);
-}
+/* SEARCH has both sides */
+.mobile-box.search:before{left:0;}
+.mobile-box.search:after{right:0;}
 
-/* ACCOUNT */
-.mobile-box.account:before{
-  content:"";
-  left:0;
-  top:0;
-  height:45px;
-  width:0.5px;
-  background:rgba(0,0,0,0.40);
-}
+/* ACCOUNT has only left */
+.mobile-box.account:before{left:0;}
 
-/* ICON IMAGE — top aligned */
+/* ICONS — more top aligned */
 .mobile-box img{
   height:10px;
   width:10px;
-  margin-top:-4px; /* MORE top aligned */
+  margin-top:-3px;
+  object-fit:contain;
 }
 
-/* MOBILE LOGIC */
+/* MOBILE RULES */
 @media(max-width:900px){
+
   nav ul li a{display:none !important;}
+
   .mobile-nav{display:flex;}
+
   #bagsBtn{display:none !important;}
 
   .hero{
-    display:block;height:auto;
+    display:block;height:auto;overflow:visible;
   }
   .hero img{
-    width:100%;height:auto;
+    width:100%;
+    height:auto;
+    object-fit:contain;
   }
 
   #logo img.mobile-logo{display:block;}
@@ -226,9 +224,7 @@ nav ul li a:hover{opacity:0.65;}
     width:auto;max-width:88vw;max-height:36vh;
   }
 
-  .mobile-bags{
-    display:block;
-  }
+  .mobile-bags{display:block;}
 }
 
 /* DESKTOP */
@@ -341,7 +337,7 @@ that  ever  made  sense.
 </div>
 
 <script>
-/* Original scroll logic — untouched */
+/* Original scroll logic */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
@@ -377,41 +373,4 @@ that  ever  made  sense.
       const rect=logo.getBoundingClientRect();
       const H=rect.height;
       const vh=window.innerHeight;
-      const lock=y+vh/2+H/2>=heroBottom;
-
-      if(lock){
-        logo.style.position='absolute';
-        logo.style.top=(heroBottom-H)+'px';
-        logo.style.transform='translateX(-50%)';
-      } else {
-        logo.style.position='fixed';
-        logo.style.top='50%';
-        logo.style.transform='translate(-50%,-50%)';
-      }
-
-      return;
-    }
-
-    const br=topbar.getBoundingClientRect();
-    let top=y+br.bottom+60;
-
-    const r2=logo.getBoundingClientRect();
-    const lockPt=imgRBottom-r2.height-10;
-
-    if(top>lockPt) top=lockPt;
-
-    logo.style.position='absolute';
-    logo.style.top=top+'px';
-    logo.style.left='50%';
-    logo.style.transform='translateX(-50%)';
-  }
-
-  window.addEventListener('scroll',update);
-  window.addEventListener('resize',()=>{measure();update();});
-  window.addEventListener('load',()=>{measure();update();});
-  setTimeout(()=>{measure();update();},80);
-})();
-</script>
-
-</body>
-</html>
+      const lock=y+vh/2+
