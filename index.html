@@ -118,7 +118,7 @@ nav ul li a:hover{opacity:0.65;}
 }
 
 /* ======================================
-   MOBILE HEADER — PERFECTED VERSION
+   MOBILE HEADER — FIXED VERSION
    ====================================== */
 
 .mobile-nav{
@@ -131,32 +131,32 @@ nav ul li a:hover{opacity:0.65;}
   align-items:flex-start;
 }
 
-/* REAL catalog used as mobile catalog */
+/* REAL CATALOG used as mobile catalog */
 @media(max-width:900px){
 
   .left-nav{
     display:flex;
     position:absolute;
     left:0;
-    top:4px;    /* SLIGHT top-bias but still centered */
+    top:3px; /* slight upward shift */
     height:45px;
-    padding-left:8px;
+    padding-left:10px;
     align-items:flex-start;
   }
 
   .left-nav a{
-    margin-top:2px;
+    margin-top:4px; /* centered between wall + divider */
+    padding-right:20px;
     font-size:12px;
     letter-spacing:1px;
-    padding-right:18px;
     position:relative;
   }
 
-  /* UNIVERSAL DIVIDER FOR CATALOG */
+  /* CATALOG DIVIDER — and the template for ALL dividers (40% opacity, thin, full height) */
   .left-nav a:after{
     content:"";
     position:absolute;
-    right:-6px;
+    right:-8px;
     top:0;
     height:45px;
     width:0.5px;
@@ -164,37 +164,49 @@ nav ul li a:hover{opacity:0.65;}
   }
 }
 
-/* ICON BOXES */
+/* ICON DIVIDERS USE SAME STYLE */
 .mobile-box{
   height:45px;
-  padding:0 18px;
+  padding:0 22px;
   display:flex;
   align-items:flex-start;
   justify-content:center;
   position:relative;
-  padding-top:6px; /* slight upward bias */
+  padding-top:6px;
 }
 
-/* ALL DIVIDERS UNIFIED */
-.mobile-box.search:before,
-.mobile-box.search:after,
-.mobile-box.account:before{
+/* SEARCH dividers */
+.mobile-box.search:before{
   content:"";
   position:absolute;
+  left:0;
+  top:0;
+  height:45px;
+  width:0.5px;
+  background:rgba(0,0,0,0.40);
+}
+.mobile-box.search:after{
+  content:"";
+  position:absolute;
+  right:0;
   top:0;
   height:45px;
   width:0.5px;
   background:rgba(0,0,0,0.40);
 }
 
-/* SEARCH HAS BOTH DIVIDERS */
-.mobile-box.search:before{left:0;}
-.mobile-box.search:after{right:0;}
+/* ACCOUNT divider */
+.mobile-box.account:before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  height:45px;
+  width:0.5px;
+  background:rgba(0,0,0,0.40);
+}
 
-/* ACCOUNT HAS LEFT DIVIDER */
-.mobile-box.account:before{left:0;}
-
-/* ICONS — 11px & slightly top aligned */
+/* ICON SIZING */
 .mobile-box img{
   height:11px;
   width:11px;
@@ -332,7 +344,7 @@ that  ever  made  sense.
 </div>
 
 <script>
-/* Original scroll logic (untouched) */
+/* Original scroll logic — untouched */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
@@ -387,22 +399,4 @@ that  ever  made  sense.
     let top=y+br.bottom+60;
 
     const r2=logo.getBoundingClientRect();
-    const lockPt=imgRBottom-r2.height-10;
-
-    if(top>lockPt) top=lockPt;
-
-    logo.style.position='absolute';
-    logo.style.top=top+'px';
-    logo.style.left='50%';
-    logo.style.transform='translateX(-50%)';
-  }
-
-  window.addEventListener('scroll',update);
-  window.addEventListener('resize',()=>{measure();update();});
-  window.addEventListener('load',()=>{measure();update();});
-  setTimeout(()=>{measure();update();},80);
-})();
-</script>
-
-</body>
-</html>
+    const lockPt=imgRBottom-r2.height-
