@@ -16,41 +16,47 @@ body{
 }
 
 /* =====================
-   DESKTOP HEADER
+   HEADER (DESKTOP + MOBILE)
    ===================== */
 header{
   position:fixed;top:0;left:0;right:0;
   height:45px;
   background:rgba(255,255,255,0.95);
-  display:flex;justify-content:space-between;align-items:flex-start;
-  padding:4px 30px;
+  display:flex;
+  align-items:center;
+  padding:0 30px;
   z-index:1200;
   border-bottom:1px solid #eee;
 }
 
-/* DESKTOP CATALOG BUTTON */
+/* LEFT NAV (DESKTOP) */
 .left-nav a{
   font-size:12px;
   text-transform:uppercase;
   letter-spacing:1px;
   color:#000;
   text-decoration:none;
-  margin-top:4px;
   transition:opacity .25s ease;
 }
 .left-nav a:hover{opacity:0.6;}
 
-/* DESKTOP NAV */
-nav ul{list-style:none;display:flex;margin:2px 0 0 0;}
+/* DESKTOP NAV (RIGHT SIDE) */
+nav{margin-left:auto;}
+nav ul{display:flex;list-style:none;}
 nav ul li{margin-left:25px;}
 nav ul li a{
-  font-size:11px;text-transform:uppercase;letter-spacing:1px;
-  color:#000;text-decoration:none;display:flex;align-items:center;gap:6px;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#000;
+  text-decoration:none;
+  display:flex;
+  align-items:center;
+  gap:6px;
   transition:opacity .25s ease;
 }
-nav ul li a:hover{color:#666;opacity:0.65;}
-nav ul li a:hover img.desktop-icon{opacity:0.65;}
-.desktop-icon{height:12px;width:auto;}
+nav ul li a:hover{opacity:0.6;}
+.desktop-icon{height:12px;}
 
 /* HERO */
 .hero{
@@ -64,7 +70,6 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
 .hero img{
   height:100%;
   object-fit:cover;
-  display:block;
 }
 .hero img:first-child{flex:1.3;}
 .hero img:last-child{flex:0.7;}
@@ -76,7 +81,6 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
   transform:translate(-50%,0);
   width:1200px;
   z-index:900;
-  pointer-events:none;
 }
 #logo img{width:100%;display:block;}
 
@@ -96,10 +100,7 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
 }
 #bagsBtn:hover{opacity:0.6;}
 #shopNow{
-  opacity:0;
-  margin-left:4px;
-  left:6px;
-  position:relative;
+  opacity:0;margin-left:4px;left:6px;position:relative;
   transition:opacity .3s ease,left .3s ease;
 }
 #bagsBtn:hover #shopNow{opacity:1;left:0;}
@@ -115,118 +116,114 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
   letter-spacing:1px;
   z-index:900;
 }
-.mobile-bags a{color:#000;text-decoration:none;}
 
-/* ===========================
-   MOBILE HEADER BOXES
-   =========================== */
+/* ========================
+   MOBILE HEADER NAV (FIXED)
+   ======================== */
 .mobile-nav{
   display:none;
-  position:absolute;
-  top:0;
-  right:0;
   height:45px;
+  margin-left:auto;
   display:flex;
   align-items:center;
 }
 
-/* CATALOG stays far left */
+/* CATALOG becomes a normal flex item on mobile */
 .mobile-catalog{
-  position:absolute;
-  left:0;
-  top:0;
-  height:45px;
-  display:flex;
-  align-items:center;
-  padding:0 18px;
-  color:#000;
   font-size:12px;
   letter-spacing:1px;
   text-decoration:none;
+  color:#000;
+  height:45px;
+  padding:0 16px 0 0;
+  display:flex;
+  align-items:center;
+  position:relative;
 }
 
-/* Catalog → right divider only */
+/* CATALOG right divider */
 .mobile-catalog:after{
   content:"";
   position:absolute;
-  right:0;
+  right:-1px;
   top:0;
   bottom:0;
   width:0.5px;
   background:rgba(0,0,0,0.40);
 }
 
-/* Icon boxes */
+/* MOBILE ICON BOXES */
 .mobile-box{
   height:45px;
-  padding:0 20px;
+  padding:0 18px;
   display:flex;
   align-items:center;
   justify-content:center;
   position:relative;
 }
 
-/* SEARCH = both lines */
+/* SEARCH → left + right border */
 .mobile-box.search:before,
 .mobile-box.search:after{
   content:"";
   position:absolute;
-  top:0;
-  bottom:0;
+  top:0;bottom:0;
   width:0.5px;
   background:rgba(0,0,0,0.40);
 }
-.mobile-box.search:before{ left:0; }
-.mobile-box.search:after{ right:0; }
+.mobile-box.search:before{left:0;}
+.mobile-box.search:after{right:0;}
 
-/* ACCOUNT = left line only */
+/* ACCOUNT → left border only */
 .mobile-box.account:before{
   content:"";
   position:absolute;
   left:0;
-  top:0;
-  bottom:0;
+  top:0;bottom:0;
   width:0.5px;
   background:rgba(0,0,0,0.40);
 }
 
-/* ICON STYLE — small & slightly upward */
 .mobile-box img{
-  height:12px;
-  width:12px;
+  height:12px;width:12px;
   margin-top:-2px;
-  object-fit:contain;
 }
 
-/* MOBILE */
+/* =====================
+   MOBILE RULES
+   ===================== */
 @media(max-width:900px){
 
   /* Hide desktop nav */
-  nav ul li a{display:none !important;}
+  nav{display:none;}
 
-  /* Activate mobile layout */
+  /* Show mobile nav */
   .mobile-nav{display:flex;}
 
-  /* Hide desktop catalog */
-  .left-nav{display:none;}
+  /* Show mobile catalog (converted left-nav) */
+  .left-nav{display:flex;}
+  .left-nav a{
+    display:flex;
+    align-items:center;
+    padding-right:16px;
+    font-size:12px;
+    letter-spacing:1px;
+  }
 
+  /* Hide desktop bags */
   #bagsBtn{display:none !important;}
 
   .hero{
-    display:block;height:auto;overflow:visible;
+    display:block;
+    height:auto;
   }
   .hero img{
     width:100%;
     height:auto;
-    object-fit:contain;
   }
 
   #logo img.mobile-logo{display:block;}
   #logo img.desktop-logo{display:none;}
-
-  #logo{
-    width:auto;max-width:88vw;max-height:36vh;
-  }
 
   .mobile-bags{display:block;}
 }
@@ -238,33 +235,6 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
   #logo img.desktop-logo{display:block;}
   .mobile-bags{display:none;}
 }
-
-/* BRAND SECTION (unchanged) */
-.brand-section{
-  padding:80px 40px 110px;
-  max-width:900px;
-  margin:0 auto;
-}
-.brand-title{
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:0.28em;
-  margin-bottom:22px;
-}
-.brand-body{
-  max-width:620px;
-  font-size:12.8px;
-  line-height:1.7;
-  letter-spacing:0.18em;
-  opacity:0.92;
-  white-space:pre-line;
-}
-.brand-body p{margin-bottom:16px;}
-
-footer{
-  padding:40px;text-align:center;background:#f5f5f5;
-  font-size:12px;color:#666;
-}
 </style>
 </head>
 
@@ -272,37 +242,26 @@ footer{
 
 <header id="topbar">
 
-  <!-- ORIGINAL CATALOG (for desktop) -->
-  <div class="left-nav"><a href="catalog.html">Catalog</a></div>
+  <!-- REAL CATALOG BUTTON (works for desktop + mobile) -->
+  <div class="left-nav">
+    <a class="mobile-catalog" href="catalog.html">CATALOG</a>
+  </div>
 
   <!-- DESKTOP NAV -->
   <nav>
     <ul>
-      <li>
-        <a href="contact.html">
-          <img src="spy glass.svg" class="desktop-icon"> Contact
-        </a>
-      </li>
-      <li>
-        <a href="auth.html">
-          <img src="head shoulder.svg" class="desktop-icon"> Account
-        </a>
-      </li>
+      <li><a href="contact.html"><img class="desktop-icon" src="spy glass.svg"> Contact</a></li>
+      <li><a href="auth.html"><img class="desktop-icon" src="head shoulder.svg"> Account</a></li>
     </ul>
   </nav>
 
-  <!-- MOBILE NAV (correct final version) -->
+  <!-- MOBILE ICONS -->
   <div class="mobile-nav">
 
-    <!-- CATALOG stays left -->
-    <a class="mobile-catalog" href="catalog.html">CATALOG</a>
-
-    <!-- SEARCH -->
     <a class="mobile-box search" href="contact.html">
       <img src="spy glass.svg">
     </a>
 
-    <!-- ACCOUNT -->
     <a class="mobile-box account" href="auth.php">
       <img src="head shoulder.svg">
     </a>
@@ -319,37 +278,29 @@ footer{
 </div>
 
 <section id="hero" class="hero">
-
   <img src="test3.webp" id="imgL">
-
   <div style="position:relative;flex:0.7;">
     <img src="number23.webp" id="imgR" style="width:100%;height:100%;object-fit:cover;">
     <div class="mobile-bags">
       <a href="bags.html">BAGS 'SHOP NOW</a>
     </div>
   </div>
-
 </section>
 
 <!-- BRAND SECTION -->
 <section class="brand-section">
   <h2 class="brand-title">MINARA5</h2>
-
   <div class="brand-body">
-    <p>
-Nonconformity,  is  a  desire  rooted  in  the  heart  
-of  this   south  african   generation.
-    </p>
+    <p>Nonconformity,  is  a  desire  rooted  in  the  heart  
+of  this   south  african   generation.</p>
 
-    <p>
-Minara  is  the  hearts   quiet   awakening,  
+    <p>Minara  is  the  hearts   quiet   awakening,  
 whilst  others  line  up  for  the  approved  path,  
-she  minara  -   simply  refuses  the  script.  
+she  minara  -   simply  refuses  the  script.
 
-To  the  world  she's  a  question  without  an  answer..  
+To  the  world  she's  a  question  without  an  answer..
 To  herself  she  is  the  only  version  
-that  ever  made  sense.
-    </p>
+that  ever  made  sense.</p>
   </div>
 </section>
 
@@ -361,7 +312,7 @@ that  ever  made  sense.
 </div>
 
 <script>
-/* ORIGINAL NOV13 SCROLL LOGIC – UNTOUCHED */
+/* YOUR ORIGINAL LOGIC (unchanged) */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
