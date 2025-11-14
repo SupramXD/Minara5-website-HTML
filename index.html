@@ -118,7 +118,7 @@ nav ul li a:hover{opacity:0.65;}
 }
 
 /* ======================================
-   MOBILE HEADER — FIXED VERSION
+   MOBILE HEADER — FIXED & CLEANED
    ====================================== */
 
 .mobile-nav{
@@ -131,32 +131,36 @@ nav ul li a:hover{opacity:0.65;}
   align-items:flex-start;
 }
 
-/* REAL CATALOG used as mobile catalog */
+/* REAL catalog used as mobile catalog */
 @media(max-width:900px){
 
   .left-nav{
     display:flex;
     position:absolute;
     left:0;
-    top:3px; /* slight upward shift */
+    top:4px;          /* KEEP original vertical alignment */
     height:45px;
-    padding-left:10px;
+    padding-left:8px;
     align-items:flex-start;
   }
 
   .left-nav a{
-    margin-top:4px; /* centered between wall + divider */
-    padding-right:20px;
+    margin-top:2px;   /* KEEP original vertical alignment */
     font-size:12px;
     letter-spacing:1px;
+    padding-right:18px;
     position:relative;
+
+    /* HORIZONTAL CENTER BETWEEN WALL & DIVIDER */
+    display:flex;
+    align-items:center;
   }
 
-  /* CATALOG DIVIDER — and the template for ALL dividers (40% opacity, thin, full height) */
+  /* CATALOG DIVIDER — full height & centered properly */
   .left-nav a:after{
     content:"";
     position:absolute;
-    right:-8px;
+    right:-6px;
     top:0;
     height:45px;
     width:0.5px;
@@ -164,53 +168,42 @@ nav ul li a:hover{opacity:0.65;}
   }
 }
 
-/* ICON DIVIDERS USE SAME STYLE */
+/* ICON BOXES */
 .mobile-box{
   height:45px;
-  padding:0 22px;
+  padding:0 18px;
   display:flex;
   align-items:flex-start;
   justify-content:center;
   position:relative;
-  padding-top:6px;
+
+  /* LOWER ICONS TO MATCH CATALOG */
+  padding-top:8px;
 }
 
-/* SEARCH dividers */
-.mobile-box.search:before{
-  content:"";
-  position:absolute;
-  left:0;
-  top:0;
-  height:45px;
-  width:0.5px;
-  background:rgba(0,0,0,0.40);
-}
-.mobile-box.search:after{
-  content:"";
-  position:absolute;
-  right:0;
-  top:0;
-  height:45px;
-  width:0.5px;
-  background:rgba(0,0,0,0.40);
-}
-
-/* ACCOUNT divider */
+/* DIVIDERS — IDENTICAL TO CATALOG */
+.mobile-box.search:before,
+.mobile-box.search:after,
 .mobile-box.account:before{
   content:"";
   position:absolute;
-  left:0;
   top:0;
   height:45px;
   width:0.5px;
   background:rgba(0,0,0,0.40);
 }
 
-/* ICON SIZING */
+/* SEARCH HAS BOTH DIVIDERS */
+.mobile-box.search:before{left:0;}
+.mobile-box.search:after{right:0;}
+
+/* ACCOUNT HAS LEFT DIVIDER */
+.mobile-box.account:before{left:0;}
+
+/* ICONS — 11px & aligned */
 .mobile-box img{
   height:11px;
   width:11px;
-  margin-top:-3px;
   object-fit:contain;
 }
 
@@ -344,7 +337,7 @@ that  ever  made  sense.
 </div>
 
 <script>
-/* Original scroll logic — untouched */
+/* Original scroll logic (untouched) */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
@@ -399,4 +392,22 @@ that  ever  made  sense.
     let top=y+br.bottom+60;
 
     const r2=logo.getBoundingClientRect();
-    const lockPt=imgRBottom-r2.height-
+    const lockPt=imgRBottom-r2.height-10;
+
+    if(top>lockPt) top=lockPt;
+
+    logo.style.position='absolute';
+    logo.style.top=top+'px';
+    logo.style.left='50%';
+    logo.style.transform='translateX(-50%)';
+  }
+
+  window.addEventListener('scroll',update);
+  window.addEventListener('resize',()=>{measure();update();});
+  window.addEventListener('load',()=>{measure();update();});
+  setTimeout(()=>{measure();update();},80);
+})();
+</script>
+
+</body>
+</html>
