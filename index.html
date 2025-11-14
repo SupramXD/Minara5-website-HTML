@@ -16,19 +16,21 @@ body{
 }
 
 /* =====================
-   DESKTOP HEADER
+   HEADER (DESKTOP & MOBILE)
    ===================== */
 header{
   position:fixed;top:0;left:0;right:0;
   height:45px;
   background:rgba(255,255,255,0.95);
-  display:flex;justify-content:space-between;align-items:flex-start;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
   padding:4px 30px;
   z-index:1200;
   border-bottom:1px solid #eee;
 }
 
-/* LEFT NAV (CATALOG desktop) */
+/* DESKTOP CATALOG BUTTON */
 .left-nav a{
   font-size:12px;
   text-transform:uppercase;
@@ -44,26 +46,74 @@ header{
 nav ul{list-style:none;display:flex;margin:2px 0 0 0;}
 nav ul li{margin-left:25px;}
 nav ul li a{
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:1px;
-  color:#000;
-  text-decoration:none;
-  display:flex;
-  align-items:center;
-  gap:6px;
+  font-size:11px;text-transform:uppercase;letter-spacing:1px;
+  color:#000;text-decoration:none;display:flex;align-items:center;gap:6px;
   transition:opacity .25s ease;
 }
 nav ul li a:hover{color:#666;opacity:0.65;}
 nav ul li a:hover img.desktop-icon{opacity:0.65;}
 
-.desktop-icon{
-  height:12px;
-  width:auto;
-  transition:opacity .25s ease;
+.desktop-icon{height:12px;width:auto;}
+
+/* =====================
+   MOBILE BOX NAV (fixed)
+   ===================== */
+
+.mobile-nav{
+  display:none;
+  position:absolute;
+  top:0;
+  right:0;
+  height:45px;
+  display:flex;
+  align-items:center;
 }
 
-/* HERO */
+/* Base style for each box */
+.mobile-box{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 20px;
+  height:45px;
+  position:relative;
+  text-decoration:none;
+  color:#000;
+}
+
+/* Divider lines (thin, 40% opacity, full height) */
+.mobile-box:before,
+.mobile-box:after{
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:0.5px;
+  background:rgba(0,0,0,0.40);
+}
+
+/* CATALOG: right divider only */
+.mobile-box.catalog:after{ right:0; }
+.mobile-box.catalog:before{ display:none; }
+
+/* SEARCH: both dividers */
+.mobile-box.search:before{ left:0; }
+.mobile-box.search:after{ right:0; }
+
+/* ACCOUNT: left divider only */
+.mobile-box.account:before{ left:0; }
+.mobile-box.account:after{ display:none; }
+
+/* Mobile icons: smaller + aligned higher */
+.mobile-box img{
+  height:12px;
+  width:12px;
+  margin-top:-2px; /* aligns icon slightly upward */
+  display:block;
+  object-fit:contain;
+}
+
+/* HERO (unchanged) */
 .hero{
   margin-top:45px;
   position:relative;
@@ -80,18 +130,7 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
 .hero img:first-child{flex:1.3;}
 .hero img:last-child{flex:0.7;}
 
-/* BIG LOGO */
-#logo{
-  position:fixed;
-  left:50%;
-  transform:translate(-50%,0);
-  width:1200px;
-  z-index:900;
-  pointer-events:none;
-}
-#logo img{width:100%;display:block;}
-
-/* DESKTOP BAGS BUTTON */
+/* BAGS BUTTON (now fades on hover) */
 #bagsContainer{position:relative;width:100%;height:0;}
 #bagsBtn{
   position:fixed;
@@ -106,14 +145,14 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
   transition:opacity .25s ease;
 }
 #bagsBtn:hover{
-  opacity:0.6;   /* ← NEW: full fade effect */
+  opacity:0.6;  /* full fade */
 }
 #shopNow{
   opacity:0;
-  margin-left:4px;
-  left:6px;
-  position:relative;
   transition:opacity .3s ease,left .3s ease;
+  margin-left:4px;
+  position:relative;
+  left:6px;
 }
 #bagsBtn:hover #shopNow{opacity:1;left:0;}
 
@@ -121,67 +160,42 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
 .mobile-bags{
   display:none;position:absolute;top:20px;left:20px;
   font-size:11px;text-transform:uppercase;letter-spacing:1px;
-  z-index:900;
 }
 .mobile-bags a{color:#000;text-decoration:none;}
 
-/* ===========================
-   NEW MOBILE BOXED NAV
-   =========================== */
-.mobile-nav{
-  display:none;
-  height:45px;
-  position:absolute;
-  right:0;
-  top:0;
-  display:flex;
-  align-items:center;
+/* BRAND SECTION (untouched from your gold version) */
+.brand-section{
+  padding:80px 40px 110px;
+  max-width:900px;
+  margin:0 auto;
+}
+.brand-title{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.28em;
+  margin-bottom:22px;
+}
+.brand-body{
+  max-width:620px;
+  font-size:12.8px;
+  line-height:1.7;
+  letter-spacing:0.18em;
+  opacity:0.92;
+  white-space:pre-line;
+}
+.brand-body p{margin-bottom:16px;}
+
+footer{
+  padding:40px;text-align:center;background:#f5f5f5;
+  font-size:12px;color:#666;
 }
 
-.mobile-box{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  height:45px;
-  padding:0 18px;
-  position:relative;
-  text-decoration:none;
-}
-
-/* Light divider lines */
-.mobile-box:before,
-.mobile-box:after{
-  content:"";
-  position:absolute;
-  top:0;
-  bottom:0;
-  width:1px;
-  background:rgba(0,0,0,0.12); /* thin translucent */
-}
-
-/* Catalog: right line only */
-.mobile-box.catalog:after{ right:0; }
-.mobile-box.catalog:before{ display:none; }
-
-/* Search: both lines */
-.mobile-box.search:before{ left:0; }
-.mobile-box.search:after{ right:0; }
-
-/* Account: left line only */
-.mobile-box.account:before{ left:0; }
-.mobile-box.account:after{ display:none; }
-
-/* Icon sizes */
-.mobile-box img{
-  height:14px;
-  width:14px;
-  object-fit:contain;
-}
-
-/* MOBILE */
+/* MOBILE OVERRIDES */
 @media(max-width:900px){
 
   nav ul li a{display:none !important;}
+
+  /* Show mobile boxed nav */
   .mobile-nav{display:flex;}
 
   #bagsBtn{display:none !important;}
@@ -195,17 +209,28 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
     width:100%;
     height:auto;
     object-fit:contain;
-    display:block;
   }
+
+  /* Hide desktop catalog */
+  .left-nav{display:none;}
 
   #logo img.mobile-logo{display:block;}
   #logo img.desktop-logo{display:none;}
 
   #logo{
-    width:auto;max-width:88vw;max-height:36vh;z-index:900;
+    width:auto;max-width:88vw;max-height:36vh;
   }
 
   .mobile-bags{display:block;}
+
+  .brand-section{
+    padding:60px 24px 90px;
+  }
+  .brand-body{
+    max-width:100%;
+    font-size:11.5px;
+    letter-spacing:0.16em;
+  }
 }
 
 /* DESKTOP */
@@ -215,38 +240,6 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
   #logo img.mobile-logo{display:none;}
   #logo img.desktop-logo{display:block;}
 }
-
-/* BRAND SECTION (unchanged from your gold version) */
-.brand-section{
-  padding:80px 40px 110px;
-  max-width:900px;
-  margin:0 auto;
-}
-
-.brand-title{
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:0.28em;
-  margin-bottom:22px;
-}
-
-.brand-body{
-  max-width:620px;
-  font-size:12.8px;
-  line-height:1.7;
-  letter-spacing:0.18em;
-  opacity:0.92;
-  white-space:pre-line;
-}
-
-.brand-body p{
-  margin:0 0 16px 0;
-}
-
-footer{
-  padding:40px;text-align:center;background:#f5f5f5;
-  font-size:12px;color:#666;
-}
 </style>
 </head>
 
@@ -254,6 +247,7 @@ footer{
 
 <header id="topbar">
 
+  <!-- DESKTOP CATALOG stays the same -->
   <div class="left-nav"><a href="catalog.html">Catalog</a></div>
 
   <!-- DESKTOP NAV -->
@@ -274,20 +268,20 @@ footer{
     </ul>
   </nav>
 
-  <!-- NEW MOBILE NAV -->
+  <!-- MOBILE BOX NAV (your requested design) -->
   <div class="mobile-nav">
 
-    <!-- Catalog box -->
+    <!-- Catalog box (right divider only) -->
     <a class="mobile-box catalog" href="catalog.html">
-      <span style="font-size:12px;letter-spacing:1px;">CATALOG</span>
+      <span style="font-size:11px;letter-spacing:1px;">CATALOG</span>
     </a>
 
-    <!-- Search box -->
+    <!-- Search box (both dividers) -->
     <a class="mobile-box search" href="contact.html">
       <img src="spy glass.svg">
     </a>
 
-    <!-- Account box -->
+    <!-- Account box (left divider only) -->
     <a class="mobile-box account" href="auth.php">
       <img src="head shoulder.svg">
     </a>
@@ -296,7 +290,7 @@ footer{
 
 </header>
 
-<!-- BAGS -->
+<!-- BAGS desktop -->
 <div id="bagsContainer">
   <a id="bagsBtn" href="bags.html">
     BAGS <span id="shopNow">'SHOP NOW</span>
@@ -304,16 +298,21 @@ footer{
 </div>
 
 <section id="hero" class="hero">
+
   <img src="test3.webp" id="imgL">
+
   <div style="position:relative;flex:0.7;">
     <img src="number23.webp" id="imgR" style="width:100%;height:100%;object-fit:cover;">
+
+    <!-- Mobile BAGS -->
     <div class="mobile-bags">
       <a href="bags.html">BAGS 'SHOP NOW</a>
     </div>
   </div>
+
 </section>
 
-<!-- BRAND SECTION (unchanged) -->
+<!-- BRAND STATEMENT (unchanged) -->
 <section class="brand-section">
   <h2 class="brand-title">MINARA5</h2>
 
@@ -343,7 +342,7 @@ that  ever  made  sense.
 </div>
 
 <script>
-/* same NOV13 V2 scroll logic */
+/* SAME NOV13 SCROLL LOGIC — unchanged */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
@@ -357,8 +356,7 @@ that  ever  made  sense.
 
   function measure(){
     heroBottom=hero.offsetTop+hero.offsetHeight-45;
-    const r=imgR.getBoundingClientRect();
-    imgRBottom=window.scrollY+r.bottom;
+    imgRBottom=window.scrollY+imgR.getBoundingClientRect().bottom;
   }
 
   function update(){
@@ -368,6 +366,7 @@ that  ever  made  sense.
       const fixed=48;
       const h=bagsBtn.offsetHeight;
       const bottom=y+fixed+h;
+
       if(bottom>=heroBottom+45){
         bagsBtn.style.position='absolute';
         bagsBtn.style.top=(heroBottom-h)+'px';
@@ -376,8 +375,8 @@ that  ever  made  sense.
         bagsBtn.style.top=fixed+'px';
       }
 
-      const rect=logo.getBoundingClientRect();
-      const H=rect.height;
+      const r=logo.getBoundingClientRect();
+      const H=r.height;
       const vh=window.innerHeight;
       const lock=y+vh/2+H/2>=heroBottom;
 
@@ -394,11 +393,11 @@ that  ever  made  sense.
       return;
     }
 
-    const br=topbar.getBoundingClientRect();
-    let top=y+br.bottom+60;
+    const bar=topbar.getBoundingClientRect();
+    let top=y+bar.bottom+60;
 
-    const rect2=logo.getBoundingClientRect();
-    const lockPt=imgRBottom-rect2.height-10;
+    const r2=logo.getBoundingClientRect();
+    const lockPt=imgRBottom-r2.height-10;
 
     if(top>lockPt) top=lockPt;
 
@@ -412,6 +411,7 @@ that  ever  made  sense.
   window.addEventListener('resize',()=>{measure();update();});
   window.addEventListener('load',()=>{measure();update();});
   setTimeout(()=>{measure();update();},80);
+
 })();
 </script>
 
