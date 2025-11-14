@@ -28,10 +28,7 @@ header{
   border-bottom:1px solid #eee;
 }
 
-/* REAL DESKTOP CATALOG */
-.left-nav{
-  position:relative;
-}
+/* DESKTOP CATALOG BUTTON */
 .left-nav a{
   font-size:12px;
   text-transform:uppercase;
@@ -48,11 +45,10 @@ nav ul{list-style:none;display:flex;margin:2px 0 0 0;}
 nav ul li{margin-left:25px;}
 nav ul li a{
   font-size:11px;text-transform:uppercase;letter-spacing:1px;
-  color:#000;text-decoration:none;
-  display:flex;align-items:center;gap:6px;
+  color:#000;text-decoration:none;display:flex;align-items:center;gap:6px;
   transition:opacity .25s ease;
 }
-nav ul li a:hover{opacity:0.65;}
+nav ul li a:hover{color:#666;opacity:0.65;}
 .desktop-icon{height:12px;width:auto;}
 
 /* HERO */
@@ -65,7 +61,9 @@ nav ul li a:hover{opacity:0.65;}
   overflow:hidden;
 }
 .hero img{
-  height:100%;object-fit:cover;
+  height:100%;
+  object-fit:cover;
+  display:block;
 }
 .hero img:first-child{flex:1.3;}
 .hero img:last-child{flex:0.7;}
@@ -77,6 +75,7 @@ nav ul li a:hover{opacity:0.65;}
   transform:translate(-50%,0);
   width:1200px;
   z-index:900;
+  pointer-events:none;
 }
 #logo img{width:100%;display:block;}
 
@@ -87,6 +86,7 @@ nav ul li a:hover{opacity:0.65;}
   top:48px;
   left:30px;
   font-size:11px;
+  text-transform:uppercase;
   letter-spacing:1px;
   color:#000;
   text-decoration:none;
@@ -95,7 +95,10 @@ nav ul li a:hover{opacity:0.65;}
 }
 #bagsBtn:hover{opacity:0.6;}
 #shopNow{
-  opacity:0;margin-left:4px;left:6px;position:relative;
+  opacity:0;
+  margin-left:4px;
+  left:6px;
+  position:relative;
   transition:opacity .3s ease,left .3s ease;
 }
 #bagsBtn:hover #shopNow{opacity:1;left:0;}
@@ -104,57 +107,64 @@ nav ul li a:hover{opacity:0.65;}
 .mobile-bags{
   display:none;
   position:absolute;
-  top:20px;left:20px;
-  font-size:11px;text-transform:uppercase;
-  letter-spacing:1px;z-index:900;
+  top:20px;
+  left:20px;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  z-index:900;
+}
+.mobile-bags a{
+  color:#000 !important;
+  text-decoration:none !important;
+  outline:none !important;
 }
 
 /* ===========================
-   MOBILE NAVIGATION (FIXED)
+   MOBILE HEADER (FIXED)
    =========================== */
 .mobile-nav{
   display:none;
   position:absolute;
-  right:0;top:0;
+  right:0;
+  top:0;
   height:45px;
   display:flex;
   align-items:center;
 }
 
-/* Remove the duplicate catalog box completely */
-.mobile-nav .catalog{display:none !important;}
-
-/* Mobile: make the REAL catalog act as mobile header text */
+/* REAL catalog (left-nav) becomes mobile catalog */
 @media(max-width:900px){
   .left-nav{
     display:flex;
-    align-items:center;
+    align-items:flex-start;       /* move upward */
     position:absolute;
     left:0;
-    top:0;
+    top:2px;                      /* higher alignment */
     height:45px;
-    padding-left:6px;  /* move slightly more left */
+    padding-left:6px;
   }
   .left-nav a{
     margin-top:0;
+    padding-right:16px;
     font-size:12px;
     letter-spacing:1px;
-    padding-right:16px;
     position:relative;
   }
 
-  /* Add right divider to real catalog */
+  /* CATALOG divider full height */
   .left-nav a:after{
     content:"";
     position:absolute;
     right:-1px;
-    top:0;bottom:0;
+    top:0;
+    bottom:0;
     width:0.5px;
     background:rgba(0,0,0,0.40);
   }
 }
 
-/* MOBILE ICON BOXES */
+/* ICON BOXES */
 .mobile-box{
   height:45px;
   padding:0 18px;
@@ -164,7 +174,7 @@ nav ul li a:hover{opacity:0.65;}
   position:relative;
 }
 
-/* SEARCH: left & right divider */
+/* SEARCH - both dividers */
 .mobile-box.search:before,
 .mobile-box.search:after{
   content:"";
@@ -176,7 +186,7 @@ nav ul li a:hover{opacity:0.65;}
 .mobile-box.search:before{left:0;}
 .mobile-box.search:after{right:0;}
 
-/* ACCOUNT: left divider only */
+/* ACCOUNT - left divider only */
 .mobile-box.account:before{
   content:"";
   position:absolute;
@@ -186,28 +196,39 @@ nav ul li a:hover{opacity:0.65;}
   background:rgba(0,0,0,0.40);
 }
 
-/* ICONS: smaller + top aligned */
+/* MOBILE ICON STYLE */
 .mobile-box img{
   height:11px;
   width:11px;
-  margin-top:-3px;
+  margin-top:-6px; /* top aligned */
   object-fit:contain;
 }
 
-/* MOBILE BEHAVIOR */
+/* MOBILE */
 @media(max-width:900px){
+
   nav ul li a{display:none !important;}
 
   .mobile-nav{display:flex;}
+
   #bagsBtn{display:none !important;}
 
-  .hero{display:block;height:auto;}
-  .hero img{width:100%;height:auto;}
+  .hero{
+    display:block;height:auto;overflow:visible;
+  }
+  .hero img{
+    width:100%;
+    height:auto;
+    object-fit:contain;
+  }
 
   #logo img.mobile-logo{display:block;}
   #logo img.desktop-logo{display:none;}
 
-  #logo{width:auto;max-width:88vw;max-height:36vh;}
+  #logo{
+    width:auto;max-width:88vw;max-height:36vh;
+  }
+
   .mobile-bags{display:block;}
 }
 
@@ -263,7 +284,7 @@ footer{
     </ul>
   </nav>
 
-  <!-- MOBILE ICONS ONLY (NO CATALOG HERE) -->
+  <!-- MOBILE ICONS -->
   <div class="mobile-nav">
     <a class="mobile-box search" href="contact.html"><img src="spy glass.svg"></a>
     <a class="mobile-box account" href="auth.php"><img src="head shoulder.svg"></a>
@@ -279,26 +300,33 @@ footer{
 </div>
 
 <section id="hero" class="hero">
+
   <img src="test3.webp" id="imgL">
+
   <div style="position:relative;flex:0.7;">
     <img src="number23.webp" id="imgR" style="width:100%;height:100%;object-fit:cover;">
     <div class="mobile-bags">
       <a href="bags.html">BAGS 'SHOP NOW</a>
     </div>
   </div>
+
 </section>
 
+<!-- BRAND SECTION -->
 <section class="brand-section">
   <h2 class="brand-title">MINARA5</h2>
+
   <div class="brand-body">
     <p>
 Nonconformity,  is  a  desire  rooted  in  the  heart  
 of  this   south  african   generation.
     </p>
+
     <p>
 Minara  is  the  hearts   quiet   awakening,  
 whilst  others  line  up  for  the  approved  path,  
 she  minara  -   simply  refuses  the  script.  
+
 To  the  world  she's  a  question  without  an  answer..  
 To  herself  she  is  the  only  version  
 that  ever  made  sense.
@@ -314,7 +342,7 @@ that  ever  made  sense.
 </div>
 
 <script>
-/* Original logic untouched */
+/* Original scroll logic (unchanged) */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
