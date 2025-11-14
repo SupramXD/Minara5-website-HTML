@@ -91,17 +91,21 @@ nav ul li a:hover{opacity:0.65;}
   color:#000;
   text-decoration:none;
   z-index:900;
-  transition:opacity .25s ease;
+  transition:left .25s ease; /* removed opacity fade */
 }
-#bagsBtn:hover{opacity:0.6;}
+#bagsBtn:hover{opacity:1;} /* FULLY OPAQUE NOW */
+
 #shopNow{
-  opacity:0;
+  opacity:1;              /* always visible */
   margin-left:4px;
   left:6px;
   position:relative;
-  transition:opacity .3s ease,left .3s ease;
+  transition:left .3s ease;
 }
-#bagsBtn:hover #shopNow{opacity:1;left:0;}
+#bagsBtn:hover #shopNow{
+  opacity:1;              /* stays visible */
+  left:0;                /* only slide in */
+}
 
 /* MOBILE BAGS */
 .mobile-bags{
@@ -118,7 +122,7 @@ nav ul li a:hover{opacity:0.65;}
 }
 
 /* ======================================
-   MOBILE HEADER — FIXED & CLEANED
+   MOBILE HEADER — FIXED DIVIDERS
    ====================================== */
 
 .mobile-nav{
@@ -138,30 +142,28 @@ nav ul li a:hover{opacity:0.65;}
     display:flex;
     position:absolute;
     left:0;
-    top:4px;          /* KEEP original vertical alignment */
+    top:4px;
     height:45px;
     padding-left:8px;
     align-items:flex-start;
   }
 
   .left-nav a{
-    margin-top:2px;   /* KEEP original vertical alignment */
+    margin-top:2px; /* KEEP original vertical alignment */
     font-size:12px;
     letter-spacing:1px;
     padding-right:18px;
     position:relative;
-
-    /* HORIZONTAL CENTER BETWEEN WALL & DIVIDER */
     display:flex;
     align-items:center;
   }
 
-  /* CATALOG DIVIDER — full height & centered properly */
+  /* FIXED CATALOG DIVIDER — perfectly aligned to header top */
   .left-nav a:after{
     content:"";
     position:absolute;
     right:-6px;
-    top:0;
+    top:-4px;   /* cancels the left-nav top offset */
     height:45px;
     width:0.5px;
     background:rgba(0,0,0,0.40);
@@ -177,11 +179,10 @@ nav ul li a:hover{opacity:0.65;}
   justify-content:center;
   position:relative;
 
-  /* LOWER ICONS TO MATCH CATALOG */
-  padding-top:8px;
+  padding-top:8px; /* align icons with catalog */
 }
 
-/* DIVIDERS — IDENTICAL TO CATALOG */
+/* IDENTICAL DIVIDERS FOR ICONS */
 .mobile-box.search:before,
 .mobile-box.search:after,
 .mobile-box.account:before{
@@ -197,10 +198,10 @@ nav ul li a:hover{opacity:0.65;}
 .mobile-box.search:before{left:0;}
 .mobile-box.search:after{right:0;}
 
-/* ACCOUNT HAS LEFT DIVIDER */
+/* ACCOUNT HAS ONLY LEFT DIVIDER */
 .mobile-box.account:before{left:0;}
 
-/* ICONS — 11px & aligned */
+/* ICONS — align with catalog */
 .mobile-box img{
   height:11px;
   width:11px;
@@ -312,7 +313,7 @@ footer{
 
 <!-- BRAND SECTION -->
 <section class="brand-section">
-  <h2 class="brand-title">MINARA5</h2>
+  <h2 class="brand-title">MINARA5</hh2>
   <div class="brand-body">
     <p>
 Nonconformity,  is  a  desire  rooted  in  the  heart  
