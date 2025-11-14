@@ -91,20 +91,23 @@ nav ul li a:hover{opacity:0.65;}
   color:#000;
   text-decoration:none;
   z-index:900;
-  transition:left .25s ease; /* removed opacity fade */
+  transition:left .25s ease;
 }
-#bagsBtn:hover{opacity:1;} /* FULLY OPAQUE NOW */
 
+/* KEEP BAGS FULLY OPAQUE */
+#bagsBtn:hover{opacity:1;}
+
+/* ‘SHOP NOW’ — FADE + SLIDE ON HOVER */
 #shopNow{
-  opacity:1;              /* always visible */
+  opacity:0;               
   margin-left:4px;
   left:6px;
   position:relative;
-  transition:left .3s ease;
+  transition:opacity .3s ease,left .3s ease;
 }
 #bagsBtn:hover #shopNow{
-  opacity:1;              /* stays visible */
-  left:0;                /* only slide in */
+  opacity:1;
+  left:0;
 }
 
 /* MOBILE BAGS */
@@ -122,7 +125,7 @@ nav ul li a:hover{opacity:0.65;}
 }
 
 /* ======================================
-   MOBILE HEADER — FIXED DIVIDERS
+   MOBILE HEADER — FULL DIVIDER REBUILD
    ====================================== */
 
 .mobile-nav{
@@ -132,24 +135,23 @@ nav ul li a:hover{opacity:0.65;}
   top:0;
   height:45px;
   display:flex;
-  align-items:flex-start;
 }
 
-/* REAL catalog used as mobile catalog */
+/* REAL CATALOG (mobile) */
 @media(max-width:900px){
 
   .left-nav{
     display:flex;
     position:absolute;
     left:0;
-    top:4px;
+    top:4px;          
     height:45px;
     padding-left:8px;
     align-items:flex-start;
   }
 
   .left-nav a{
-    margin-top:2px; /* KEEP original vertical alignment */
+    margin-top:2px;
     font-size:12px;
     letter-spacing:1px;
     padding-right:18px;
@@ -158,31 +160,33 @@ nav ul li a:hover{opacity:0.65;}
     align-items:center;
   }
 
-  /* FIXED CATALOG DIVIDER — perfectly aligned to header top */
+  /* PERFECT CATALOG DIVIDER */
   .left-nav a:after{
     content:"";
     position:absolute;
     right:-6px;
-    top:-4px;   /* cancels the left-nav top offset */
+    top:-4px; /* compensates for .left-nav top offset */
     height:45px;
     width:0.5px;
     background:rgba(0,0,0,0.40);
   }
 }
 
-/* ICON BOXES */
+/* ICON BOXES — CLEAN ALIGNMENT */
 .mobile-box{
+  position:relative;
   height:45px;
   padding:0 18px;
   display:flex;
-  align-items:flex-start;
   justify-content:center;
-  position:relative;
-
-  padding-top:8px; /* align icons with catalog */
+  align-items:flex-start;
+  padding-top:8px; /* aligns icons with catalog */
 }
 
-/* IDENTICAL DIVIDERS FOR ICONS */
+/* =======================
+   REBUILT ICON DIVIDERS
+   ======================= */
+
 .mobile-box.search:before,
 .mobile-box.search:after,
 .mobile-box.account:before{
@@ -194,14 +198,14 @@ nav ul li a:hover{opacity:0.65;}
   background:rgba(0,0,0,0.40);
 }
 
-/* SEARCH HAS BOTH DIVIDERS */
+/* SEARCH — left + right divider */
 .mobile-box.search:before{left:0;}
 .mobile-box.search:after{right:0;}
 
-/* ACCOUNT HAS ONLY LEFT DIVIDER */
+/* ACCOUNT — left divider only */
 .mobile-box.account:before{left:0;}
 
-/* ICONS — align with catalog */
+/* ICON SIZING */
 .mobile-box img{
   height:11px;
   width:11px;
@@ -212,9 +216,7 @@ nav ul li a:hover{opacity:0.65;}
 @media(max-width:900px){
 
   nav ul li a{display:none !important;}
-
   .mobile-nav{display:flex;}
-
   #bagsBtn{display:none !important;}
 
   .hero{
@@ -253,14 +255,19 @@ nav ul li a:hover{opacity:0.65;}
   letter-spacing:0.28em;
   margin-bottom:22px;
 }
+
+/* FIXED PARAGRAPHS — normal casing ONLY here */
 .brand-body{
   max-width:620px;
   font-size:12.8px;
   line-height:1.7;
-  letter-spacing:0.18em;
   opacity:0.92;
   white-space:pre-line;
+
+  text-transform:none;   /* <-- FIXED */
+  letter-spacing:normal; /* <-- FIXED */
 }
+
 .brand-body p{margin-bottom:16px;}
 
 footer{
@@ -313,7 +320,7 @@ footer{
 
 <!-- BRAND SECTION -->
 <section class="brand-section">
-  <h2 class="brand-title">MINARA5</hh2>
+  <h2 class="brand-title">MINARA5</h2>
   <div class="brand-body">
     <p>
 Nonconformity,  is  a  desire  rooted  in  the  heart  
