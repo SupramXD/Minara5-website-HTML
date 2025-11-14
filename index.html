@@ -106,7 +106,7 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
   transition:opacity .25s ease;
 }
 #bagsBtn:hover{
-  opacity:0.6;   /* ← NEW: full fade effect */
+  opacity:0.6;   /* full fade effect */
 }
 #shopNow{
   opacity:0;
@@ -126,7 +126,7 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
 .mobile-bags a{color:#000;text-decoration:none;}
 
 /* ===========================
-   NEW MOBILE BOXED NAV
+   MOBILE BOXED NAV
    =========================== */
 .mobile-nav{
   display:none;
@@ -148,15 +148,15 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
   text-decoration:none;
 }
 
-/* Light divider lines */
+/* Light divider lines – now thinner + 40% opacity */
 .mobile-box:before,
 .mobile-box:after{
   content:"";
   position:absolute;
   top:0;
   bottom:0;
-  width:1px;
-  background:rgba(0,0,0,0.12); /* thin translucent */
+  width:0.5px;
+  background:rgba(0,0,0,0.40); /* thinner & 40% opacity */
 }
 
 /* Catalog: right line only */
@@ -171,11 +171,12 @@ nav ul li a:hover img.desktop-icon{opacity:0.65;}
 .mobile-box.account:before{ left:0; }
 .mobile-box.account:after{ display:none; }
 
-/* Icon sizes */
+/* Icon sizes – smaller + aligned slightly toward top */
 .mobile-box img{
-  height:14px;
-  width:14px;
+  height:12px;
+  width:12px;
   object-fit:contain;
+  margin-top:-2px;
 }
 
 /* MOBILE */
@@ -274,7 +275,7 @@ footer{
     </ul>
   </nav>
 
-  <!-- NEW MOBILE NAV -->
+  <!-- MOBILE NAV -->
   <div class="mobile-nav">
 
     <!-- Catalog box -->
@@ -417,3 +418,4 @@ that  ever  made  sense.
 
 </body>
 </html>
+
