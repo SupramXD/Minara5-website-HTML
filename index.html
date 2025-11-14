@@ -45,8 +45,7 @@ nav ul{list-style:none;display:flex;margin:2px 0 0 0;}
 nav ul li{margin-left:25px;}
 nav ul li a{
   font-size:11px;text-transform:uppercase;letter-spacing:1px;
-  color:#000;text-decoration:none;
-  display:flex;align-items:center;gap:6px;
+  color:#000;text-decoration:none;display:flex;align-items:center;gap:6px;
   transition:opacity .25s ease;
 }
 nav ul li a:hover{opacity:0.65;}
@@ -64,6 +63,7 @@ nav ul li a:hover{opacity:0.65;}
 .hero img{
   height:100%;
   object-fit:cover;
+  display:block;
 }
 .hero img:first-child{flex:1.3;}
 .hero img:last-child{flex:0.7;}
@@ -75,8 +75,9 @@ nav ul li a:hover{opacity:0.65;}
   transform:translate(-50%,0);
   width:1200px;
   z-index:900;
+  pointer-events:none;
 }
-#logo img{width:100%;display:block;}
+#logo img{width:100%;}
 
 /* DESKTOP BAGS */
 #bagsContainer{position:relative;width:100%;height:0;}
@@ -94,7 +95,10 @@ nav ul li a:hover{opacity:0.65;}
 }
 #bagsBtn:hover{opacity:0.6;}
 #shopNow{
-  opacity:0;margin-left:4px;left:6px;position:relative;
+  opacity:0;
+  margin-left:4px;
+  left:6px;
+  position:relative;
   transition:opacity .3s ease,left .3s ease;
 }
 #bagsBtn:hover #shopNow{opacity:1;left:0;}
@@ -103,22 +107,19 @@ nav ul li a:hover{opacity:0.65;}
 .mobile-bags{
   display:none;
   position:absolute;
-  top:20px;
-  left:20px;
+  top:20px;left:20px;
   font-size:11px;
   text-transform:uppercase;
   letter-spacing:1px;
   z-index:900;
 }
 .mobile-bags a{
-  color:#000 !important;
-  text-decoration:none !important;
-  outline:none !important;
+  color:#000 !important;text-decoration:none !important;outline:none !important;
 }
 
-/* ===========================
-   MOBILE HEADER (FINAL FIXED)
-   =========================== */
+/* ======================================
+   MOBILE HEADER — PERFECTED VERSION
+   ====================================== */
 
 .mobile-nav{
   display:none;
@@ -127,33 +128,35 @@ nav ul li a:hover{opacity:0.65;}
   top:0;
   height:45px;
   display:flex;
-  align-items:center;
+  align-items:flex-start;
 }
 
-/* Real catalog becomes mobile catalog */
+/* REAL catalog used as mobile catalog */
 @media(max-width:900px){
+
   .left-nav{
     display:flex;
-    align-items:flex-start;
     position:absolute;
     left:0;
-    top:4px; /* SLIGHTLY LOWER than before */
+    top:4px;    /* SLIGHT top-bias but still centered */
     height:45px;
-    padding-left:6px;
+    padding-left:8px;
+    align-items:flex-start;
   }
+
   .left-nav a{
-    margin-top:0;
-    padding-right:16px;
+    margin-top:2px;
     font-size:12px;
     letter-spacing:1px;
+    padding-right:18px;
     position:relative;
   }
 
-  /* CATALOG divider — full height matching icons */
+  /* UNIVERSAL DIVIDER FOR CATALOG */
   .left-nav a:after{
     content:"";
     position:absolute;
-    right:-1px;
+    right:-6px;
     top:0;
     height:45px;
     width:0.5px;
@@ -166,13 +169,13 @@ nav ul li a:hover{opacity:0.65;}
   height:45px;
   padding:0 18px;
   display:flex;
-  align-items:flex-start; /* move box content upward */
+  align-items:flex-start;
   justify-content:center;
   position:relative;
-  padding-top:6px; /* puts icons higher up */
+  padding-top:6px; /* slight upward bias */
 }
 
-/* FULL unified divider style */
+/* ALL DIVIDERS UNIFIED */
 .mobile-box.search:before,
 .mobile-box.search:after,
 .mobile-box.account:before{
@@ -184,22 +187,22 @@ nav ul li a:hover{opacity:0.65;}
   background:rgba(0,0,0,0.40);
 }
 
-/* SEARCH has both sides */
+/* SEARCH HAS BOTH DIVIDERS */
 .mobile-box.search:before{left:0;}
 .mobile-box.search:after{right:0;}
 
-/* ACCOUNT has only left */
+/* ACCOUNT HAS LEFT DIVIDER */
 .mobile-box.account:before{left:0;}
 
-/* ICONS — more top aligned */
+/* ICONS — 11px & slightly top aligned */
 .mobile-box img{
-  height:10px;
-  width:10px;
+  height:11px;
+  width:11px;
   margin-top:-3px;
   object-fit:contain;
 }
 
-/* MOBILE RULES */
+/* MOBILE */
 @media(max-width:900px){
 
   nav ul li a{display:none !important;}
@@ -209,20 +212,17 @@ nav ul li a:hover{opacity:0.65;}
   #bagsBtn{display:none !important;}
 
   .hero{
-    display:block;height:auto;overflow:visible;
+    display:block;height:auto;
   }
   .hero img{
     width:100%;
     height:auto;
-    object-fit:contain;
   }
 
   #logo img.mobile-logo{display:block;}
   #logo img.desktop-logo{display:none;}
 
-  #logo{
-    width:auto;max-width:88vw;max-height:36vh;
-  }
+  #logo{width:auto;max-width:88vw;max-height:36vh;}
 
   .mobile-bags{display:block;}
 }
@@ -279,7 +279,7 @@ footer{
     </ul>
   </nav>
 
-  <!-- MOBILE ICONS -->
+  <!-- MOBILE NAV -->
   <div class="mobile-nav">
     <a class="mobile-box search" href="contact.html"><img src="spy glass.svg"></a>
     <a class="mobile-box account" href="auth.php"><img src="head shoulder.svg"></a>
@@ -295,7 +295,6 @@ footer{
 </div>
 
 <section id="hero" class="hero">
-
   <img src="test3.webp" id="imgL">
 
   <div style="position:relative;flex:0.7;">
@@ -304,24 +303,20 @@ footer{
       <a href="bags.html">BAGS 'SHOP NOW</a>
     </div>
   </div>
-
 </section>
 
 <!-- BRAND SECTION -->
 <section class="brand-section">
   <h2 class="brand-title">MINARA5</h2>
-
   <div class="brand-body">
     <p>
 Nonconformity,  is  a  desire  rooted  in  the  heart  
 of  this   south  african   generation.
     </p>
-
     <p>
 Minara  is  the  hearts   quiet   awakening,  
 whilst  others  line  up  for  the  approved  path,  
 she  minara  -   simply  refuses  the  script.  
-
 To  the  world  she's  a  question  without  an  answer..  
 To  herself  she  is  the  only  version  
 that  ever  made  sense.
@@ -337,7 +332,7 @@ that  ever  made  sense.
 </div>
 
 <script>
-/* Original scroll logic */
+/* Original scroll logic (untouched) */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
@@ -373,4 +368,41 @@ that  ever  made  sense.
       const rect=logo.getBoundingClientRect();
       const H=rect.height;
       const vh=window.innerHeight;
-      const lock=y+vh/2+
+      const lock=y+vh/2+H/2>=heroBottom;
+
+      if(lock){
+        logo.style.position='absolute';
+        logo.style.top=(heroBottom-H)+'px';
+        logo.style.transform='translateX(-50%)';
+      } else {
+        logo.style.position='fixed';
+        logo.style.top='50%';
+        logo.style.transform='translate(-50%,-50%)';
+      }
+
+      return;
+    }
+
+    const br=topbar.getBoundingClientRect();
+    let top=y+br.bottom+60;
+
+    const r2=logo.getBoundingClientRect();
+    const lockPt=imgRBottom-r2.height-10;
+
+    if(top>lockPt) top=lockPt;
+
+    logo.style.position='absolute';
+    logo.style.top=top+'px';
+    logo.style.left='50%';
+    logo.style.transform='translateX(-50%)';
+  }
+
+  window.addEventListener('scroll',update);
+  window.addEventListener('resize',()=>{measure();update();});
+  window.addEventListener('load',()=>{measure();update();});
+  setTimeout(()=>{measure();update();},80);
+})();
+</script>
+
+</body>
+</html>
