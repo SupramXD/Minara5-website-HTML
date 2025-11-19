@@ -30,7 +30,7 @@ header{
   border-bottom:1px solid #eee;
 }
 
-/* ⭐ Minara logo slightly bigger (27px → 29px) */
+/* MINARA LOGO */
 .center-logo {
   position:absolute;
   left:50%;
@@ -95,32 +95,32 @@ nav ul li a{
     object-fit:contain;
 }
 
-/* RIGHT SIDE — catalog moved up/down previously */
+/* RIGHT SIDE */
 .right-side{
     width:50%;
     background:#f5f5f5;
-    padding:70px 40px 80px; /* current adjusted padding */
+    padding:70px 40px 80px;
     position:relative;
 }
 
-/* ⭐ STICKY CONTAINER (unchanged) */
+/* STICKY */
 .catalog-container{
     position:sticky;
     top:45px;
 }
 
-/* ⭐ HIGH-FASHION OPTION 3 TITLE */
+/* FASHION CATALOG TITLE */
 .catalog-title{
-    font-size:25px;                 /* more luxury presence */
+    font-size:25px;
     text-transform:uppercase;
-    letter-spacing:0.55em;          /* huge editorial spacing */
-    font-weight:600;                /* luxury bold */
-    margin-bottom:45px;             /* more breathing room */
+    letter-spacing:0.55em;
+    font-weight:600;
+    margin-bottom:45px;
     text-rendering:optimizeLegibility;
     -webkit-font-smoothing:antialiased;
 }
 
-/* PRODUCT GRID */
+/* PRODUCT GRID (DESKTOP) */
 .grid{
     display:grid;
     grid-template-columns:repeat(2,150px);
@@ -160,6 +160,66 @@ nav ul li a{
     margin-top:3px;
 }
 
+/* ========================================
+   MOBILE-ONLY LAYOUT (DESKTOP UNTOUCHED)
+   ======================================== */
+
+@media(max-width:900px){
+
+    /* stack columns */
+    .catalog-wrap{
+        flex-direction:column;
+    }
+
+    .left-image{
+        width:100%;
+        order:1;
+    }
+
+    .right-side{
+        width:100%;
+        padding:55px 22px 70px;
+        order:2;
+    }
+
+    /* insert mobile paragraph */
+    .mobile-paragraph{
+        display:block;
+        font-size:13px;
+        line-height:1.55;
+        opacity:0.72;
+        margin-top:15px;
+        margin-bottom:20px;
+        letter-spacing:0.02em;
+    }
+
+    /* divider */
+    .mobile-divider{
+        width:100%;
+        height:1px;
+        background:rgba(0,0,0,0.15);
+        margin-bottom:22px;
+    }
+
+    /* shrink grid */
+    .grid{
+        grid-template-columns:repeat(2,120px);
+        gap:24px;
+        justify-content:center;
+    }
+
+    .product-box{
+        width:120px;
+        height:120px;
+    }
+}
+
+/* Hide mobile text on desktop */
+.mobile-paragraph,
+.mobile-divider{
+    display:none;
+}
+
 </style>
 </head>
 <body>
@@ -177,6 +237,7 @@ nav ul li a{
 
 <div class="catalog-wrap">
 
+    <!-- MOBILE-FIRST: IMAGE ALWAYS ON TOP -->
     <div class="left-image">
         <div class="left-image-inner" id="imgInner">
             <img src="test3.webp" id="leopardImg">
@@ -185,7 +246,16 @@ nav ul li a{
 
     <div class="right-side">
         <div class="catalog-container">
+
             <div class="catalog-title">Catalog</div>
+
+            <!-- MOBILE ONLY PARAGRAPH -->
+            <p class="mobile-paragraph">
+                This is sample mobile-only text introducing the catalog section.
+            </p>
+
+            <!-- MOBILE ONLY DIVIDER -->
+            <div class="mobile-divider"></div>
 
             <div class="grid">
                 <div>
@@ -193,9 +263,11 @@ nav ul li a{
                     <div class="product-name">Placeholder Product</div>
                     <div class="price">$000</div>
                 </div>
+
                 <div><div class="product-box coming-soon"></div></div>
                 <div><div class="product-box coming-soon"></div></div>
                 <div><div class="product-box coming-soon"></div></div>
+
             </div>
         </div>
     </div>
@@ -203,7 +275,7 @@ nav ul li a{
 </div>
 
 <script>
-/* LEFT IMAGE DRIFT (unchanged) */
+/* LEFT IMAGE DRIFT */
 const imgInner = document.getElementById("imgInner");
 window.addEventListener("scroll", () => {
     imgInner.style.transform = `translateY(${window.scrollY * 0.08}px)`;
