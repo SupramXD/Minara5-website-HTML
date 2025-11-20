@@ -15,9 +15,7 @@ body{
     color:#000;
 }
 
-/* ============================
-   HEADER (DESKTOP ORIGINAL)
-   ============================ */
+/* HEADER (DESKTOP – ORIGINAL) */
 header{
   position:fixed;
   top:0; left:0; right:0;
@@ -32,7 +30,7 @@ header{
   border-bottom:1px solid #eee;
 }
 
-/* left desktop nav */
+/* Desktop left nav */
 .left-nav a{
   font-size:12px;
   text-transform:uppercase;
@@ -44,7 +42,7 @@ header{
 }
 .left-nav a:hover { opacity:0.6; }
 
-/* center logo (desktop) */
+/* CLICKABLE MINARA LOGO */
 .center-logo-link {
   position:absolute;
   left:50%;
@@ -57,7 +55,7 @@ header{
   pointer-events:none;
 }
 
-/* right desktop nav */
+/* Desktop right nav */
 nav ul{
   list-style:none;
   display:flex;
@@ -69,30 +67,100 @@ nav ul li a{
   text-transform:uppercase;
   letter-spacing:1px;
   color:#000;
-  text-decoration:none;
   display:flex;
   align-items:center;
   gap:6px;
+  text-decoration:none;
   transition:opacity .25s;
 }
 nav ul li a:hover { opacity:0.6; }
 
-.question-icon{height:14px;}
+.question-icon{height:14px;transform:translate(2px,0px);}
 .desktop-icon{height:12px;}
 
+/* MOBILE MENU ICON (hidden on desktop) */
+.menu-icon{
+  display:none;
+  cursor:pointer;
+}
+.menu-icon img{
+  height:14px; /* 50% smaller look */
+}
 
-/* ========================
-   MAIN LAYOUT (UNCHANGED)
-   ======================== */
+/* SLIDEOUT MENU */
+.slideout{
+  position:fixed;
+  top:0;
+  right:-100%;          /* start off-screen on the RIGHT */
+  width:100%;
+  height:100vh;
+  background:#fff;
+  z-index:2000;
+  transition:right .35s ease;
+  padding:50px 40px 40px;
+}
+.slideout.open{
+  right:0;              /* slide IN from the right */
+}
+.close-btn{
+  position:absolute;
+  top:18px;
+  right:24px;
+  font-size:30px;
+  cursor:pointer;
+}
+
+/* Rick Owens–style menu text (Option A) */
+.slideout a{
+  display:block;
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:0.28em;
+  text-decoration:none;
+  color:#000;
+  margin:26px 0;
+}
+
+/* MAIN LAYOUT */
 .catalog-wrap{
     margin-top:45px;
     display:flex;
     width:100%;
 }
-.left-image{width:50%;overflow:hidden;background:#000;}
-.left-image img{width:100%;object-fit:contain;display:block;}
-.right-side{width:50%;background:#f5f5f5;padding:70px 40px 80px;}
-.catalog-container{position:sticky;top:45px;}
+
+/* LEFT IMAGE */
+.left-image{
+    width:50%;
+    position:relative;
+    overflow:hidden;
+    background:#000;
+}
+.left-image-inner{
+    width:100%;
+    position:relative;
+}
+.left-image img{
+    width:100%;
+    height:auto;
+    display:block;
+    object-fit:contain;
+}
+
+/* RIGHT PANEL */
+.right-side{
+    width:50%;
+    background:#f5f5f5;
+    padding:70px 40px 80px;
+    position:relative;
+}
+
+/* Sticky block */
+.catalog-container{
+    position:sticky;
+    top:45px;
+}
+
+/* DESKTOP — Catalog title */
 .catalog-title{
     font-size:25px;
     text-transform:uppercase;
@@ -100,6 +168,8 @@ nav ul li a:hover { opacity:0.6; }
     font-weight:600;
     margin-top:15px;
     margin-bottom:45px;
+    text-rendering:optimizeLegibility;
+    -webkit-font-smoothing:antialiased;
 }
 
 /* PRODUCT GRID */
@@ -108,6 +178,7 @@ nav ul li a:hover { opacity:0.6; }
     grid-template-columns:repeat(2,150px);
     gap:32px 42px;
 }
+
 .product-box{
     width:150px;
     height:150px;
@@ -116,6 +187,7 @@ nav ul li a:hover { opacity:0.6; }
     position:relative;
 }
 .product-box:hover{background:#c8c8c8;}
+
 .coming-soon::after{
     content:"COMING SOON";
     position:absolute;
@@ -126,16 +198,12 @@ nav ul li a:hover { opacity:0.6; }
     opacity:0.55;
     text-transform:uppercase;
 }
-
-/* RESTORE HIGH-FASHION TEXT FOR PRODUCT NAME */
 .product-name{
     margin-top:15px;
     font-size:12px;
     text-transform:uppercase;
     letter-spacing:0.18em;
 }
-
-/* price */
 .price{
     opacity:0.5;
     font-size:11px;
@@ -143,103 +211,69 @@ nav ul li a:hover { opacity:0.6; }
     margin-top:3px;
 }
 
-/* ============================
-   MOBILE MENU SLIDEOUT
-   ============================ */
-.menu-icon{
-  display:none;
-  cursor:pointer;
-}
-.menu-icon img{
-  height:14px; /* 50% smaller than before */
-}
-
-.slideout{
-  position:fixed;
-  top:0;
-  right:-100%;
-  width:100%;
-  height:100vh;
-  background:#fff;
-  z-index:9999;
-  transition:right .33s ease;
-  padding:50px 35px;
-}
-.slideout.open{right:0;}
-
-.close-btn{
-  position:absolute;
-  top:20px;
-  right:25px;
-  font-size:35px;
-  cursor:pointer;
-}
-
-.slideout a{
-  display:block;
-  font-size:23px;
-  margin:30px 0;
-  text-decoration:none;
-  color:#000;
-  text-transform:uppercase;
-  letter-spacing:0.18em;
-}
-
-
-
-/* ============================
-   MOBILE ONLY (DESKTOP PERFECT)
-   ============================ */
+/* ============================================================
+   MOBILE ONLY — DESKTOP UNTOUCHED
+============================================================ */
 @media(max-width:900px){
 
-  /* remove original HOME left nav */
-  .left-nav { display:none; }
+    /* Layout stack */
+    .catalog-wrap{
+        flex-direction:column;
+    }
+    .left-image{ width:100%; }
+    .right-side{
+        width:100%;
+        padding:30px 22px 60px;
+        margin-top:30px;
+    }
 
-  /* remove desktop right icons */
-  nav ul { display:none; }
+    /* Remove catalog title on mobile */
+    .catalog-title{
+        display:none;
+    }
 
-  /* move logo to the RIGHT */
-  .center-logo-link{
-    position:static;
-    transform:none;
-    order:2;
-  }
-  .center-logo{
-    height:24px;
-  }
+    /* Smaller product grid */
+    .grid{
+        grid-template-columns:repeat(2,120px);
+        gap:24px;
+        justify-content:center;
+    }
+    .product-box{
+        width:120px;
+        height:120px;
+    }
 
-  /* menu icon appears on LEFT */
-  .menu-icon{
-    display:block;
-    order:1;
-  }
+    /* Hide original HOME text */
+    .left-nav{
+        display:none;
+    }
 
-  header{
-    padding:6px 18px;
-    align-items:center;
-    justify-content:space-between;
-  }
+    /* Hide desktop contact/account icons */
+    nav{
+        display:none;
+    }
 
-  .catalog-wrap{flex-direction:column;}
-  .left-image{width:100%;}
-  .right-side{
-      width:100%;
-      padding:30px 22px 60px;
-      margin-top:30px;
-  }
+    /* Make logo sit on the RIGHT instead of centered */
+    .center-logo-link{
+        position:static;
+        transform:none;
+        margin-left:auto;
+    }
+    .center-logo{
+        height:20px;
+    }
 
-  .catalog-title{display:none;}
+    /* Show MENU ICON on the LEFT */
+    .menu-icon{
+        display:block;
+        margin-right:auto;
+    }
 
-  .grid{
-      grid-template-columns:repeat(2,120px);
-      gap:24px;
-      justify-content:center;
-  }
-  .product-box{
-      width:120px;
-      height:120px;
-  }
-
+    header{
+      justify-content:space-between;
+      align-items:center;
+      padding:6px 18px;
+    }
 }
 </style>
 </head>
@@ -247,30 +281,35 @@ nav ul li a:hover { opacity:0.6; }
 
 <header>
 
-  <!-- MOBILE MENU (left on mobile) -->
+  <!-- MENU ICON (mobile only, left aligned) -->
   <div class="menu-icon" onclick="openMenu()">
-      <img src="menu.svg">
+      <img src="menu.svg" alt="Menu">
   </div>
 
-  <!-- LOGO (right on mobile, centered on desktop) -->
+  <!-- DESKTOP HOME (hidden on mobile) -->
+  <div class="left-nav">
+    <a href="index.html">HOME</a>
+  </div>
+
+  <!-- CLICKABLE MINARA LOGO (center on desktop, right on mobile) -->
   <a href="index.html" class="center-logo-link">
-      <img src="minara 5 transparent 2.svg" class="center-logo">
+      <img src="minara 5 transparent 2.svg" class="center-logo" alt="Minara">
   </a>
 
-  <!-- DESKTOP RIGHT NAV (restored) -->
+  <!-- RIGHT NAV (desktop only) -->
   <nav>
     <ul>
       <li>
         <a href="contact.html">
-          <img src="question mark.svg" class="question-icon">
-          <span>Contact</span>
+          <img src="question mark.svg" class="question-icon" alt="">
+          <span class="contact-text">Contact</span>
         </a>
       </li>
 
       <li>
         <a href="auth.html">
-          <img src="head shoulder.svg" class="desktop-icon">
-          <span>Account</span>
+          <img src="head shoulder.svg" class="desktop-icon" alt="">
+          <span class="account-text">Account</span>
         </a>
       </li>
     </ul>
@@ -278,7 +317,7 @@ nav ul li a:hover { opacity:0.6; }
 
 </header>
 
-<!-- MOBILE SLIDEOUT MENU -->
+<!-- SLIDEOUT MENU (mobile) -->
 <div class="slideout" id="menuPanel">
   <div class="close-btn" onclick="closeMenu()">×</div>
 
@@ -288,36 +327,49 @@ nav ul li a:hover { opacity:0.6; }
   <a href="auth.php">Login</a>
 </div>
 
-
 <div class="catalog-wrap">
 
-  <div class="left-image">
-      <img src="test3.webp">
-  </div>
+    <!-- LEFT IMAGE -->
+    <div class="left-image">
+        <div class="left-image-inner" id="imgInner">
+            <img src="test3.webp" id="leopardImg" alt="Catalog Image">
+        </div>
+    </div>
 
-  <div class="right-side">
-      <div class="catalog-container">
+    <!-- RIGHT SIDE -->
+    <div class="right-side">
+        <div class="catalog-container">
 
-          <div class="catalog-title">Catalog</div>
+            <!-- DESKTOP CATALOG TITLE -->
+            <div class="catalog-title">Catalog</div>
 
-          <div class="grid">
-              <div>
-                  <div class="product-box"></div>
-                  <div class="product-name">Placeholder Product</div>
-                  <div class="price">$000</div>
-              </div>
+            <div class="grid">
 
-              <div><div class="product-box coming-soon"></div></div>
-              <div><div class="product-box coming-soon"></div></div>
-              <div><div class="product-box coming-soon"></div></div>
-          </div>
+                <div>
+                    <div class="product-box"></div>
+                    <div class="product-name">Placeholder Product</div>
+                    <div class="price">$000</div>
+                </div>
 
-      </div>
-  </div>
+                <div><div class="product-box coming-soon"></div></div>
+                <div><div class="product-box coming-soon"></div></div>
+                <div><div class="product-box coming-soon"></div></div>
+
+            </div>
+
+        </div>
+    </div>
 
 </div>
 
 <script>
+/* LEFT IMAGE DRIFT */
+const imgInner = document.getElementById("imgInner");
+window.addEventListener("scroll", () => {
+    imgInner.style.transform = `translateY(${window.scrollY * 0.08}px)`;
+});
+
+/* MOBILE MENU OPEN/CLOSE */
 function openMenu(){
     document.getElementById("menuPanel").classList.add("open");
 }
