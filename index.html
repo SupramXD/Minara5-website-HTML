@@ -40,9 +40,7 @@ header{
 }
 .left-nav a:hover{opacity:0.6;}
 
-/* ==============
-   MOBILE SHOP NOW (TOP RIGHT)
-   ============== */
+/* MOBILE SHOP NOW BUTTON */
 .mobile-shopnow {
   display:none;
 }
@@ -52,7 +50,7 @@ header{
     display:block;
     position:absolute;
     top:10px;
-    right:16px; /* stays top-right */
+    right:16px;
     font-size:11px;
     text-transform:uppercase;
     letter-spacing:1px;
@@ -73,24 +71,30 @@ nav ul li a{
   transition:opacity .25s ease;
 }
 nav ul li a:hover{opacity:0.65;}
-.desktop-icon{height:12px;width:auto;}
 
-/* MENU ICON (mobile only) */
+/* USE EXACT SIZES FROM CATALOG.HTML */
+.question-icon{height:14px;}
+.desktop-icon{height:12px;}
+
+/* MOBILE MENU ICON — EXACT POSITION AS CATALOG.HTML */
 .menu-icon{
   display:none;
   cursor:pointer;
 }
-
-/* MOVED: 5px down + more left */
 .menu-icon img{
   height:14px;
 }
 
 @media(max-width:900px){
+  header{
+    justify-content:space-between;
+    align-items:center;
+    padding:6px 16px; /* exact from catalog */
+  }
   .menu-icon{
     display:block;
-    margin-top:11px;   /* was 6px — now 5px lower */
-    margin-left:4px;   /* moved more left */
+    position:relative;
+    margin:0; /* let header padding control placement */
   }
 }
 
@@ -160,9 +164,7 @@ nav ul li a:hover{opacity:0.65;}
 }
 .mobile-bags a{color:#000;text-decoration:none;}
 
-/* ============================
-   SLIDEOUT MENU
-============================ */
+/* SLIDEOUT MENU */
 .slideout{
   position:fixed;
   top:0;
@@ -200,11 +202,8 @@ nav ul li a:hover{opacity:0.65;}
 @media(max-width:900px){
 
   .mobile-nav{display:none !important;}
-
   .desktop-only{display:none !important;}
-
   nav ul li a{display:none !important;}
-
   #bagsBtn{display:none;}
 
   .hero{display:block;height:auto;}
@@ -218,9 +217,7 @@ nav ul li a:hover{opacity:0.65;}
   .mobile-bags{display:block;}
 }
 
-/* ============================
-   DESKTOP ONLY
-============================ */
+/* DESKTOP ONLY */
 @media(min-width:901px){
   .menu-icon{display:none;}
   #logo img.mobile-logo{display:none;}
@@ -262,7 +259,7 @@ footer{
 
   <div class="left-nav">
 
-      <!-- MOBILE SHOP NOW BUTTON (UPDATED TEXT) -->
+      <!-- MOBILE SHOP NOW BUTTON -->
       <div class="mobile-shopnow">
           <a href="catalog.html">SHOP NOW</a>
       </div>
@@ -270,6 +267,7 @@ footer{
       <a href="catalog.html" class="desktop-only">CATALOG</a>
       <a href="social media.html" class="desktop-only" style="margin-left:22px;">SOCIALS</a>
 
+      <!-- MENU ICON EXACTLY LIKE CATALOG.HTML -->
       <div class="menu-icon" onclick="openMenu()">
           <img src="menu.svg">
       </div>
@@ -278,7 +276,7 @@ footer{
   <!-- DESKTOP RIGHT NAV -->
   <nav>
     <ul>
-      <li><a href="contact.html"><img src="question mark.svg" class="desktop-icon"> Contact</a></li>
+      <li><a href="contact.html"><img src="question mark.svg" class="question-icon"> Contact</a></li>
       <li><a href="auth.html"><img src="head shoulder.svg" class="desktop-icon"> Account</a></li>
     </ul>
   </nav>
