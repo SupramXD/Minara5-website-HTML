@@ -15,7 +15,9 @@ body{
     color:#000;
 }
 
-/* HEADER (DESKTOP – ORIGINAL) */
+/* ============================
+   HEADER (DESKTOP – ORIGINAL)
+   ============================ */
 header{
   position:fixed;
   top:0; left:0; right:0;
@@ -40,22 +42,22 @@ header{
   text-decoration:none;
   transition:opacity .25s;
 }
-.left-nav a:hover { opacity:0.6; }
+.left-nav a:hover{opacity:0.6;}
 
-/* CLICKABLE MINARA LOGO */
-.center-logo-link {
+/* Center logo (desktop) */
+.center-logo-link{
   position:absolute;
   left:50%;
   top:50%;
-  transform:translate(-50%, -50%);
+  transform:translate(-50%,-50%);
 }
-.center-logo {
+.center-logo{
   height:29px;
   opacity:0.92;
   pointer-events:none;
 }
 
-/* Desktop right nav */
+/* Right-side desktop icons (restored) */
 nav ul{
   list-style:none;
   display:flex;
@@ -73,25 +75,27 @@ nav ul li a{
   text-decoration:none;
   transition:opacity .25s;
 }
-nav ul li a:hover { opacity:0.6; }
+nav ul li a:hover{opacity:0.6;}
 
 .question-icon{height:14px;}
 .desktop-icon{height:12px;}
 
-/* MOBILE MENU ICON */
+
+/* ============================
+   MOBILE MENU ICON + SLIDEOUT
+   ============================ */
 .menu-icon{
   display:none;
   cursor:pointer;
 }
 .menu-icon img{
-  height:14px; /* 50% smaller */
+  height:14px;
 }
 
-/* SLIDEOUT MENU (slides from LEFT now) */
 .slideout{
   position:fixed;
   top:0;
-  left:-100%;          /* start off-screen on the LEFT */
+  left:-100%;
   width:100%;
   height:100vh;
   background:#fff;
@@ -99,9 +103,8 @@ nav ul li a:hover { opacity:0.6; }
   transition:left .35s ease;
   padding:50px 40px 40px;
 }
-.slideout.open{
-  left:0;              /* slide IN from the left */
-}
+.slideout.open{left:0;}
+
 .close-btn{
   position:absolute;
   top:18px;
@@ -110,7 +113,7 @@ nav ul li a:hover { opacity:0.6; }
   cursor:pointer;
 }
 
-/* Rick Owens–style menu text */
+/* Rick Owens menu text */
 .slideout a{
   display:block;
   font-size:14px;
@@ -121,17 +124,20 @@ nav ul li a:hover { opacity:0.6; }
   margin:26px 0;
 }
 
-/* MAIN LAYOUT */
+
+/* ============================
+   MAIN LAYOUT
+   ============================ */
 .catalog-wrap{
     margin-top:45px;
     display:flex;
     width:100%;
 }
+
 .left-image{
     width:50%;
-    padding:0;
-    margin:0;
     background:#000;
+    overflow:hidden;
 }
 .left-image img{
     width:100%;
@@ -148,7 +154,8 @@ nav ul li a:hover { opacity:0.6; }
     position:sticky;
     top:45px;
 }
-/* DESKTOP CATALOG TITLE */
+
+/* DESKTOP title */
 .catalog-title{
     font-size:25px;
     text-transform:uppercase;
@@ -168,36 +175,32 @@ nav ul li a:hover { opacity:0.6; }
 .product-box{
     width:150px;
     height:150px;
-    background:#dcdcdc;
+    background:#efefef; /* lighter */
 }
 
-/* COMING SOON UNDER THE BOX (desktop + mobile) */
-.product-name{
+/* COMING SOON now looks like product name */
+.product-name,
+.coming-soon-label{
     margin-top:12px;
     font-size:12px;
     text-transform:uppercase;
     letter-spacing:0.18em;
 }
+
 .price{
     opacity:0.5;
     font-size:11px;
     letter-spacing:0.12em;
     margin-top:3px;
 }
-.coming-soon-label{
-    opacity:0.55;
-    font-size:11px;
-    letter-spacing:0.28em;
-    text-transform:uppercase;
-    margin-top:8px;
-}
 
-/* ========================
-   MOBILE REBUILD (2 per row full bleed)
-   ======================== */
+
+/* ============================
+   MOBILE FULL REBUILD
+   ============================ */
 @media(max-width:900px){
 
-    /* remove desktop navs */
+    /* Remove desktop navs */
     .left-nav{display:none;}
     nav{display:none;}
 
@@ -216,23 +219,36 @@ nav ul li a:hover { opacity:0.6; }
     }
     .center-logo{height:22px;}
 
-    /* layout stack */
-    .catalog-wrap{flex-direction:column;}
+    /* Stack layout */
+    .catalog-wrap{
+        flex-direction:column;
+        margin-top:45px;
+    }
 
+    /* Full-screen image at top */
     .left-image{
         width:100%;
+        height:auto;
+        position:relative;
+    }
+    .left-image img{
+        width:100%;
+        display:block;
     }
 
+    /* Rick Owens parallax scroll-over effect */
     .right-side{
         width:100%;
-        padding:0; /* remove padding so products touch edges */
-        margin:0;
+        position:relative;
         background:#fff;
+        padding:0;
+        margin:0;
+        z-index:5;
+        transform:translateY(0);
+        will-change:transform;
     }
 
-    .catalog-title{display:none;}
-
-    /* GRID — 2 per row FULL WIDTH NO GAPS */
+    /* MOBILE GRID — 2 per row, no gaps */
     .grid{
         display:grid;
         grid-template-columns:repeat(2,1fr);
@@ -240,38 +256,20 @@ nav ul li a:hover { opacity:0.6; }
         width:100%;
     }
 
+    /* Square image boxes, full bleed */
     .product-box{
         width:100%;
-        height:auto;
-        aspect-ratio:1/1; /* makes it a proper square image box */
-        background:#dcdcdc;
+        aspect-ratio:1/1;
+        background:#efefef;
         margin:0;
     }
 
-    /* TEXT BOX under each product */
+    /* White text box under image */
     .product-info{
         background:#fff;
         padding:14px 10px 20px;
         border-top:1px solid #e5e5e5;
         text-align:left;
-    }
-
-    .product-name{
-        margin:0 0 4px 0;
-        font-size:12px;
-        letter-spacing:0.18em;
-    }
-
-    .price{
-        font-size:11px;
-        opacity:0.6;
-        margin-bottom:6px;
-    }
-
-    .coming-soon-label{
-        font-size:11px;
-        letter-spacing:0.28em;
-        opacity:0.55;
     }
 }
 </style>
@@ -279,7 +277,6 @@ nav ul li a:hover { opacity:0.6; }
 <body>
 
 <header>
-
   <div class="menu-icon" onclick="openMenu()">
       <img src="menu.svg">
   </div>
@@ -296,7 +293,6 @@ nav ul li a:hover { opacity:0.6; }
           <span>Contact</span>
         </a>
       </li>
-
       <li>
         <a href="auth.html">
           <img src="head shoulder.svg" class="desktop-icon">
@@ -305,10 +301,9 @@ nav ul li a:hover { opacity:0.6; }
       </li>
     </ul>
   </nav>
-
 </header>
 
-<!-- SLIDEOUT MENU LEFT -->
+<!-- SLIDEOUT MENU -->
 <div class="slideout" id="menuPanel">
   <div class="close-btn" onclick="closeMenu()">×</div>
 
@@ -324,7 +319,7 @@ nav ul li a:hover { opacity:0.6; }
         <img src="test3.webp">
     </div>
 
-    <div class="right-side">
+    <div class="right-side" id="rightSide">
         <div class="catalog-container">
 
             <div class="catalog-title">Catalog</div>
@@ -344,7 +339,7 @@ nav ul li a:hover { opacity:0.6; }
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
-                      <div class="coming-soon-label">COMING SOON</div>
+                      <div class="coming-soon-label">Coming Soon</div>
                     </div>
                 </div>
 
@@ -352,7 +347,7 @@ nav ul li a:hover { opacity:0.6; }
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
-                      <div class="coming-soon-label">COMING SOON</div>
+                      <div class="coming-soon-label">Coming Soon</div>
                     </div>
                 </div>
 
@@ -360,7 +355,7 @@ nav ul li a:hover { opacity:0.6; }
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
-                      <div class="coming-soon-label">COMING SOON</div>
+                      <div class="coming-soon-label">Coming Soon</div>
                     </div>
                 </div>
 
@@ -372,8 +367,19 @@ nav ul li a:hover { opacity:0.6; }
 </div>
 
 <script>
+/* Slideout menu */
 function openMenu(){ document.getElementById("menuPanel").classList.add("open"); }
 function closeMenu(){ document.getElementById("menuPanel").classList.remove("open"); }
+
+/* MOBILE RICK OWENS PARALLAX REVEAL */
+window.addEventListener("scroll", ()=>{
+    const y = window.scrollY;
+    const right = document.getElementById("rightSide");
+
+    if(window.innerWidth < 900){
+        right.style.transform = `translateY(${ -y * 0.28 }px)`;  
+    }
+});
 </script>
 
 </body>
