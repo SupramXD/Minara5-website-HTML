@@ -15,9 +15,7 @@ body{
     color:#000;
 }
 
-/* ============================
-   HEADER (same as original)
-   ============================ */
+/* HEADER */
 header{
   position:fixed;
   top:0; left:0; right:0;
@@ -32,7 +30,7 @@ header{
   border-bottom:1px solid #eee;
 }
 
-/* Left nav (now contains CATALOG) */
+/* Left nav — desktop only CATALOG */
 .left-nav a{
   font-size:12px;
   text-transform:uppercase;
@@ -44,7 +42,7 @@ header{
 }
 .left-nav a:hover{opacity:0.6;}
 
-/* Centered logo */
+/* Center logo */
 .center-logo-link{
   position:absolute;
   left:50%;
@@ -57,7 +55,7 @@ header{
   pointer-events:none;
 }
 
-/* Right icons */
+/* Right nav */
 nav{
   margin-left:auto;
 }
@@ -80,12 +78,9 @@ nav ul li a{
 }
 nav ul li a:hover{opacity:0.6;}
 
-.question-icon{height:14px;}
 .desktop-icon{height:12px;}
 
-/* ============================
-   MOBILE MENU ICON + SLIDEOUT
-   ============================ */
+/* MOBILE MENU */
 .menu-icon{
   display:none;
   cursor:pointer;
@@ -125,9 +120,7 @@ nav ul li a:hover{opacity:0.6;}
   margin:26px 0;
 }
 
-/* ============================
-   CONTACT PAGE LAYOUT
-   ============================ */
+/* CONTACT PAGE */
 .contact-wrap{
   margin-top:90px;
   padding:90px 60px;
@@ -142,15 +135,24 @@ nav ul li a:hover{opacity:0.6;}
   margin-bottom:60px;
 }
 
+/* NEW MINARA5 BOLD LINE */
+.brand-header{
+  font-weight:600;
+  letter-spacing:0.22em;
+  font-size:15px;
+  margin-bottom:25px;
+}
+
+/* Normal-case paragraph */
 .contact-text{
   font-size:14px;
   letter-spacing:0.18em;
   line-height:2.2;
   max-width:600px;
   opacity:0.85;
-  text-transform:uppercase;
 }
 
+/* EMAIL */
 .contact-email{
   margin-top:45px;
   font-size:15px;
@@ -166,9 +168,7 @@ nav ul li a:hover{opacity:0.6;}
   padding-bottom:2px;
 }
 
-/* ============================
-   MOBILE
-   ============================ */
+/* MOBILE */
 @media(max-width:900px){
 
     nav{display:none;}
@@ -181,9 +181,9 @@ nav ul li a:hover{opacity:0.6;}
 
     .menu-icon{display:block;}
 
+    /* Hide catalog on mobile */
     .left-nav{
-      display:block;
-      margin-top:4px;
+      display:none;
     }
 
     .center-logo-link{
@@ -203,9 +203,15 @@ nav ul li a:hover{opacity:0.6;}
       letter-spacing:0.45em;
     }
 
+    .brand-header{
+      font-size:14px;
+      letter-spacing:0.20em;
+    }
+
     .contact-text{
       font-size:13px;
       line-height:2.1;
+      letter-spacing:0.16em;
     }
 
     .contact-email{
@@ -222,7 +228,7 @@ nav ul li a:hover{opacity:0.6;}
       <img src="menu.svg">
   </div>
 
-  <!-- LEFT: CATALOG BUTTON -->
+  <!-- LEFT (desktop only): CATALOG -->
   <div class="left-nav">
       <a href="catalog.html">Catalog</a>
   </div>
@@ -232,7 +238,7 @@ nav ul li a:hover{opacity:0.6;}
       <img src="minara 5 transparent 2.svg" class="center-logo">
   </a>
 
-  <!-- RIGHT ICONS (Contact removed on this page) -->
+  <!-- RIGHT ICONS -->
   <nav>
     <ul>
       <li>
@@ -257,18 +263,21 @@ nav ul li a:hover{opacity:0.6;}
   <a href="auth.php">Login</a>
 </div>
 
-<!-- CONTACT PAGE CONTENT -->
+<!-- CONTENT -->
 <div class="contact-wrap">
 
   <div class="contact-title">Contact</div>
 
+  <!-- NEW BOLD MINARA5 LINE -->
+  <div class="brand-header">MINARA5</div>
+
   <div class="contact-text">
-    MINARA5 is an emerging label.  
+    is an emerging label.  
     To maintain quality and transparency, all customer service is managed  
     directly through our team.  
     If you have any concerns regarding orders or process, we are here  
     to assist you personally.  
-    Feel free to reach out with any questions.
+    Feel free to reach out with any questions, or bussines inquiries.
   </div>
 
   <div class="contact-email">
