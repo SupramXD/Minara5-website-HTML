@@ -28,7 +28,7 @@ header{
   border-bottom:1px solid #eee;
 }
 
-/* DESKTOP CATALOG */
+/* DESKTOP LEFT NAV BUTTONS */
 .left-nav a{
   font-size:12px;
   text-transform:uppercase;
@@ -40,7 +40,7 @@ header{
 }
 .left-nav a:hover{opacity:0.6;}
 
-/* DESKTOP NAV */
+/* DESKTOP RIGHT NAV */
 nav ul{list-style:none;display:flex;margin:2px 0 0 0;}
 nav ul li{margin-left:25px;}
 nav ul li a{
@@ -50,6 +50,15 @@ nav ul li a{
 }
 nav ul li a:hover{opacity:0.65;}
 .desktop-icon{height:12px;width:auto;}
+
+/* MENU ICON (mobile only) */
+.menu-icon{
+  display:none;
+  cursor:pointer;
+}
+.menu-icon img{
+  height:14px;
+}
 
 /* HERO */
 .hero{
@@ -91,7 +100,6 @@ nav ul li a:hover{opacity:0.65;}
   color:#000;
   text-decoration:none;
   z-index:900;
-  transition:left .25s ease;
 }
 #bagsBtn:hover{opacity:1;}
 #shopNow{
@@ -116,22 +124,11 @@ nav ul li a:hover{opacity:0.65;}
   letter-spacing:1px;
   z-index:900;
 }
-.mobile-bags a{
-  color:#000 !important;text-decoration:none !important;outline:none !important;
-}
+.mobile-bags a{color:#000;text-decoration:none;}
 
 /* ============================
-   MOBILE HEADER
+   SLIDEOUT MENU
 ============================ */
-.menu-icon{
-  display:none;
-  cursor:pointer;
-}
-.menu-icon img{
-  height:14px;
-}
-
-/* Slideout menu */
 .slideout{
   position:fixed;
   top:0;
@@ -158,50 +155,46 @@ nav ul li a:hover{opacity:0.65;}
   font-size:14px;
   text-transform:uppercase;
   letter-spacing:0.28em;
-  text-decoration:none;
-  color:#000;
   margin:26px 0;
+  color:#000;
+  text-decoration:none;
 }
 
-/* MOBILE */
+/* ============================
+   MOBILE HEADER CLEANUP
+============================ */
 @media(max-width:900px){
 
-  /* Remove original mobile icons */
+  /* Remove old mobile icons */
   .mobile-nav{display:none !important;}
 
-  /* Hide desktop nav on mobile */
+  /* hide desktop nav text */
+  .desktop-only{display:none !important;}
+
+  /* show menu icon */
+  .menu-icon{display:block;margin-top:6px;}
+
+  /* hide desktop right nav on mobile */
   nav ul li a{display:none !important;}
 
-  /* Hide CATALOG text on mobile, show menu icon instead */
-  .left-nav a{display:none;}
-
-  .menu-icon{
-    display:block;
-    margin-top:6px;
-  }
-
-  #bagsBtn{display:none !important;}
+  #bagsBtn{display:none;}
 
   .hero{display:block;height:auto;}
-  .hero img{
-    width:100%;
-    height:auto;
-  }
+  .hero img{width:100%;height:auto;}
 
   #logo img.mobile-logo{display:block;}
   #logo img.desktop-logo{display:none;}
 
-  #logo{
-    width:auto;max-width:88vw;max-height:36vh;
-  }
+  #logo{width:auto;max-width:88vw;max-height:36vh;}
 
   .mobile-bags{display:block;}
 }
 
-/* DESKTOP */
+/* ============================
+   DESKTOP ONLY
+============================ */
 @media(min-width:901px){
-  .mobile-nav{display:none;}
-  .mobile-bags{display:none;}
+  .menu-icon{display:none;}
   #logo img.mobile-logo{display:none;}
   #logo img.desktop-logo{display:block;}
 }
@@ -214,27 +207,20 @@ nav ul li a:hover{opacity:0.65;}
   max-width:900px;
   margin:0 auto;
 }
-
 .brand-title{
   font-size:11px;
   text-transform:uppercase;
   letter-spacing:0.28em;
   margin-bottom:22px;
 }
-
-/* EXACT MINARA3 PARAGRAPH STYLE */
 .brand-body{
   max-width:620px;
   font-size:12.8px;
   line-height:1.7;
   opacity:0.92;
   white-space:pre-line;
-
-  /* THE KEY FASHION-LOOK SPACING */
   letter-spacing:0.18em;
-  text-transform:none;
 }
-
 .brand-body p{margin-bottom:28px;}
 
 footer{
@@ -248,14 +234,17 @@ footer{
 
 <header id="topbar">
 
-  <!-- LEFT: replace CATALOG with clickable menu icon -->
+  <!-- LEFT NAV: desktop sees text, mobile sees menu icon -->
   <div class="left-nav">
+      <a href="catalog.html" class="desktop-only">CATALOG</a>
+      <a href="social media.html" class="desktop-only" style="margin-left:22px;">SOCIALS</a>
+
       <div class="menu-icon" onclick="openMenu()">
           <img src="menu.svg">
       </div>
   </div>
 
-  <!-- DESKTOP NAV (unchanged) -->
+  <!-- DESKTOP RIGHT NAV -->
   <nav>
     <ul>
       <li><a href="contact.html"><img src="question mark.svg" class="desktop-icon"> Contact</a></li>
@@ -263,7 +252,6 @@ footer{
     </ul>
   </nav>
 
-  <!-- MOBILE NAV REMOVED -->
 </header>
 
 <!-- SLIDEOUT MENU -->
@@ -294,7 +282,6 @@ footer{
   </div>
 </section>
 
-<!-- BRAND SECTION -->
 <section class="brand-section">
   <h2 class="brand-title">MINARA5</h2>
 
@@ -302,8 +289,6 @@ footer{
     <p>
 Nonconformity,  is  a  desire  rooted  in  the  heart  
 of  this   south  african   generation.
-    
-
     
 Minara  is  the  hearts   quiet   awakening,  
 whilst  others  line  up  for  the  approved  path,  
@@ -325,7 +310,7 @@ that  ever  made  sense.
 </div>
 
 <script>
-/* Original scroll logic (untouched) */
+/* ORIGINAL SCROLL LOGIC (UNTOUCHED) */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
@@ -397,7 +382,6 @@ that  ever  made  sense.
 })();
 </script>
 
-<!-- SLIDEOUT SCRIPT -->
 <script>
 function openMenu(){
   document.getElementById("menuPanel").classList.add("open");
