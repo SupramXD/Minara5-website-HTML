@@ -30,20 +30,17 @@ header{
   border-bottom:1px solid #eee;
 }
 
-/* CLICKABLE MINARA LOGO */
-.center-logo-link {
+/* Center logo (desktop default) */
+.center-logo {
   position:absolute;
   left:50%;
   top:50%;
   transform:translate(-50%, -50%);
-}
-.center-logo {
-  height:29px;
+  height:28px;
   opacity:0.92;
-  pointer-events:none;
 }
 
-/* Desktop left nav */
+/* LEFT NAV */
 .left-nav a{
   font-size:12px;
   text-transform:uppercase;
@@ -51,11 +48,11 @@ header{
   color:#000;
   margin-top:4px;
   text-decoration:none;
-  transition:opacity .25s;
+  transition:opacity .25s ease;
 }
-.left-nav a:hover { opacity:0.6; }
+.left-nav a:hover{opacity:0.6;}
 
-/* Desktop right nav */
+/* RIGHT NAV */
 nav ul{
   list-style:none;
   display:flex;
@@ -71,12 +68,17 @@ nav ul li a{
   align-items:center;
   gap:6px;
   text-decoration:none;
-  transition:opacity .25s;
+  transition:opacity .25s ease;
 }
-nav ul li a:hover { opacity:0.6; }
+nav ul li a:hover{opacity:0.65;}
 
-.question-icon{height:14px;transform:translate(2px,0px);}
-.desktop-icon{height:12px;}
+.question-icon{
+  height:14px;
+  transform:translate(2px,0px);
+}
+.desktop-icon{
+  height:12px;
+}
 
 /* MAIN LAYOUT */
 .catalog-wrap{
@@ -103,36 +105,28 @@ nav ul li a:hover { opacity:0.6; }
     object-fit:contain;
 }
 
-/* RIGHT PANEL */
+/* RIGHT SIDE (PARALLAX PANEL) */
 .right-side{
     width:50%;
     background:#f5f5f5;
-    padding:70px 40px 80px;
+    padding:40px 40px 80px;
     position:relative;
+    will-change:transform;
 }
 
-/* Sticky block */
-.catalog-container{
-    position:sticky;
-    top:45px;
-}
-
-/* DESKTOP — move Catalog title DOWN by 15px */
+/* CATALOG TITLE */
 .catalog-title{
-    font-size:25px;
+    font-size:22px;
     text-transform:uppercase;
-    letter-spacing:0.55em;
-    font-weight:600;
-    margin-top:15px;   /* ADDED — moves catalog title DOWN */
-    margin-bottom:45px;
-    text-rendering:optimizeLegibility;
-    -webkit-font-smoothing:antialiased;
+    letter-spacing:0.35em;
+    margin-bottom:30px;
+    font-weight:300;
 }
 
 /* PRODUCT GRID */
 .grid{
     display:grid;
-    grid-template-columns:repeat(2,150px);
+    grid-template-columns:repeat(2, 150px);
     gap:32px 42px;
 }
 
@@ -143,6 +137,7 @@ nav ul li a:hover { opacity:0.6; }
     border-radius:4px;
     position:relative;
 }
+
 .product-box:hover{background:#c8c8c8;}
 
 .coming-soon::after{
@@ -155,6 +150,7 @@ nav ul li a:hover { opacity:0.6; }
     opacity:0.55;
     text-transform:uppercase;
 }
+
 .product-name{
     margin-top:15px;
     font-size:12px;
@@ -168,132 +164,176 @@ nav ul li a:hover { opacity:0.6; }
     margin-top:3px;
 }
 
-/* ============================================================
-   MOBILE ONLY — DESKTOP UNTOUCHED
-============================================================ */
-@media(max-width:900px){
+/* ================================
+   MOBILE HEADER + INFO OVERLAY
+   ================================ */
 
-    /* Stack vertically */
-    .catalog-wrap{
-        flex-direction:column;
-    }
-    .left-image{ width:100%; }
-    .right-side{
-        width:100%;
-        padding:30px 22px 60px;
-        margin-top:30px;
-    }
-
-    /* Remove catalog title on mobile */
-    .catalog-title{
-        display:none;
-    }
-
-    /* Smaller product grid */
-    .grid{
-        grid-template-columns:repeat(2,120px);
-        gap:24px;
-        justify-content:center;
-    }
-    .product-box{
-        width:120px;
-        height:120px;
-    }
-
-    /* Smaller minara logo (40% smaller) */
-    .center-logo{
-        height:17px;
-    }
-
-    /* Icons only on mobile */
-    nav ul li a{
-        font-size:0;
-        letter-spacing:0;
-    }
-
-    nav ul{
-        gap:18px;
-        margin-top:6px;
-    }
-    nav ul li{
-        margin-left:0;
-    }
-
-    .question-icon{
-        height:20px;
-        transform:none;
-    }
-    .desktop-icon{
-        height:20px;
-    }
+/* base overlay (only active on mobile via media query below) */
+.info-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:#fff;
+  z-index:1400;
+  transform:translateX(-100%);
+  transition:transform 0.35s ease;
+  pointer-events:none;
 }
 
+/* inner content */
+.info-inner{
+  position:relative;
+  padding:80px 40px 40px;
+}
+
+/* X close button */
+.info-close{
+  position:absolute;
+  top:24px;
+  left:24px;   /* top-left, like you asked */
+  border:none;
+  background:none;
+  font-size:24px;
+  line-height:1;
+  cursor:pointer;
+}
+
+/* menu links inside overlay */
+.info-inner a{
+  display:block;
+  margin-bottom:26px;
+  text-decoration:none;
+  color:#000;
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:0.28em; /* Rick Owens style spacing */
+}
+
+/* open state */
+.info-overlay.open{
+  transform:translateX(0);
+  pointer-events:auto;
+}
+
+/* MOBILE */
+@media(max-width:900px){
+
+  /* move header items for mobile */
+  header{
+    align-items:center;
+    padding:4px 20px;
+  }
+
+  /* hide desktop nav (Contact/Account) */
+  header nav{
+    display:none;
+  }
+
+  /* Minara logo on the right, smaller, inline */
+  .center-logo{
+    position:static;
+    transform:none;
+    margin-top:4px;
+    margin-left:auto;
+    height:18px; /* ~40% smaller */
+  }
+
+  /* INFO text on left */
+  .left-nav a{
+    margin-top:0;
+    font-size:12px;
+    letter-spacing:0.16em;
+  }
+
+  /* enable overlay only on mobile */
+  .info-overlay{
+    display:block;
+  }
+
+  /* stack columns: image on top, then products */
+  .catalog-wrap{
+      flex-direction:column;
+  }
+  .left-image{
+      width:100%;
+  }
+  .right-side{
+      width:100%;
+      padding:30px 24px 60px;
+  }
+  .grid{
+      grid-template-columns:1fr;
+      gap:28px;
+  }
+}
+
+/* DESKTOP ONLY: hide overlay completely */
+@media(min-width:901px){
+  .info-overlay{
+    display:none;
+  }
+}
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header>
+  <!-- INFO trigger (used especially on mobile) -->
+  <div class="left-nav">
+    <a href="#" id="infoToggle">INFO</a>
+  </div>
 
-  <div class="left-nav"><a href="index.html">HOME</a></div>
+  <!-- Minara logo (center on desktop, right on mobile) -->
+  <img src="minara 5 transparent 2.svg" class="center-logo" alt="Minara">
 
-  <!-- CLICKABLE MINARA LOGO -->
-  <a href="index.html" class="center-logo-link">
-      <img src="minara 5 transparent 2.svg" class="center-logo">
-  </a>
-
-  <!-- RIGHT NAV -->
+  <!-- Desktop nav (kept exactly as before) -->
   <nav>
     <ul>
-
-      <li>
-        <a href="contact.html">
-          <img src="question mark.svg" class="question-icon">
-          <span class="contact-text">Contact</span>
-        </a>
-      </li>
-
-      <li>
-        <a href="auth.html">
-          <img src="head shoulder.svg" class="desktop-icon">
-          <span class="account-text">Account</span>
-        </a>
-      </li>
-
+      <li><a href="contact.html"><img src="question mark.svg" class="question-icon" alt=""> Contact</a></li>
+      <li><a href="auth.html"><img src="head shoulder.svg" class="desktop-icon" alt=""> Account</a></li>
     </ul>
   </nav>
-
 </header>
 
+<!-- MOBILE INFO OVERLAY -->
+<div class="info-overlay" id="infoOverlay">
+  <div class="info-inner">
+    <button class="info-close" id="infoClose">×</button>
+
+    <a href="index.html">HOME</a>
+    <a href="social media.html">SOCIAL MEDIA</a>
+    <a href="contact.html">CONTACT</a>
+    <a href="auth.php">LOGIN</a>
+  </div>
+</div>
+
+<!-- PAGE CONTENT -->
 <div class="catalog-wrap">
 
     <!-- LEFT IMAGE -->
     <div class="left-image">
         <div class="left-image-inner" id="imgInner">
-            <img src="test3.webp" id="leopardImg">
+            <img src="test3.webp" id="leopardImg" alt="">
         </div>
     </div>
 
-    <!-- RIGHT SIDE -->
-    <div class="right-side">
-        <div class="catalog-container">
+    <!-- RIGHT PANEL -->
+    <div class="right-side" id="rightPanel">
+        <div class="catalog-title" id="catalogTitle">Catalog</div>
 
-            <!-- DESKTOP CATALOG TITLE -->
-            <div class="catalog-title">Catalog</div>
-
-            <div class="grid">
-
-                <div>
-                    <div class="product-box"></div>
-                    <div class="product-name">Placeholder Product</div>
-                    <div class="price">$000</div>
-                </div>
-
-                <div><div class="product-box coming-soon"></div></div>
-                <div><div class="product-box coming-soon"></div></div>
-                <div><div class="product-box coming-soon"></div></div>
-
+        <div class="grid">
+            <div>
+                <div class="product-box"></div>
+                <div class="product-name">Placeholder Product</div>
+                <div class="price">$000</div>
             </div>
 
+            <div><div class="product-box coming-soon"></div></div>
+            <div><div class="product-box coming-soon"></div></div>
+            <div><div class="product-box coming-soon"></div></div>
         </div>
     </div>
 
@@ -305,6 +345,56 @@ const imgInner = document.getElementById("imgInner");
 window.addEventListener("scroll", () => {
     imgInner.style.transform = `translateY(${window.scrollY * 0.08}px)`;
 });
+
+/* RIGHT PANEL PARALLAX — fake sticky */
+const rightPanel   = document.getElementById("rightPanel");
+const catalogTitle = document.getElementById("catalogTitle");
+const headerHeight = 45;
+
+let triggerPoint;
+
+function computeTriggerPoint(){
+    const rect    = catalogTitle.getBoundingClientRect();
+    const scrollY = window.scrollY;
+    triggerPoint  = rect.top + scrollY - headerHeight;
+}
+
+computeTriggerPoint();
+window.addEventListener("resize", computeTriggerPoint);
+
+window.addEventListener("scroll", () => {
+    const scrollY = window.scrollY;
+    let offset = scrollY - triggerPoint;
+    if(offset < 0) offset = 0;
+    rightPanel.style.transform = `translateY(${offset}px)`;
+});
+
+/* MOBILE INFO OVERLAY TOGGLE */
+const infoToggle  = document.getElementById('infoToggle');
+const infoOverlay = document.getElementById('infoOverlay');
+const infoClose   = document.getElementById('infoClose');
+
+function isMobile(){
+  return window.matchMedia('(max-width:900px)').matches;
+}
+
+if(infoToggle){
+  infoToggle.addEventListener('click', (e)=>{
+    if(isMobile()){
+      e.preventDefault();
+      infoOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+  });
+}
+
+if(infoClose){
+  infoClose.addEventListener('click', (e)=>{
+    e.preventDefault();
+    infoOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+}
 </script>
 
 </body>
