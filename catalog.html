@@ -44,7 +44,7 @@ header{
 }
 .left-nav a:hover{opacity:0.6;}
 
-/* Center logo (desktop) */
+/* Centered logo */
 .center-logo-link{
   position:absolute;
   left:50%;
@@ -57,7 +57,10 @@ header{
   pointer-events:none;
 }
 
-/* Right-side desktop icons (restored) */
+/* Desktop right icons (restored to right side) */
+nav{
+  margin-left:auto;
+}
 nav ul{
   list-style:none;
   display:flex;
@@ -80,7 +83,6 @@ nav ul li a:hover{opacity:0.6;}
 .question-icon{height:14px;}
 .desktop-icon{height:12px;}
 
-
 /* ============================
    MOBILE MENU ICON + SLIDEOUT
    ============================ */
@@ -92,6 +94,7 @@ nav ul li a:hover{opacity:0.6;}
   height:14px;
 }
 
+/* Slideout — left side */
 .slideout{
   position:fixed;
   top:0;
@@ -113,7 +116,7 @@ nav ul li a:hover{opacity:0.6;}
   cursor:pointer;
 }
 
-/* Rick Owens menu text */
+/* Rick Owens drawer text */
 .slideout a{
   display:block;
   font-size:14px;
@@ -123,7 +126,6 @@ nav ul li a:hover{opacity:0.6;}
   color:#000;
   margin:26px 0;
 }
-
 
 /* ============================
    MAIN LAYOUT
@@ -139,23 +141,15 @@ nav ul li a:hover{opacity:0.6;}
     background:#000;
     overflow:hidden;
 }
-.left-image img{
-    width:100%;
-    display:block;
-}
+.left-image img{width:100%;display:block;}
 
-/* RIGHT SIDE */
 .right-side{
     width:50%;
     background:#f5f5f5;
     padding:70px 40px 80px;
 }
-.catalog-container{
-    position:sticky;
-    top:45px;
-}
+.catalog-container{position:sticky;top:45px;}
 
-/* DESKTOP title */
 .catalog-title{
     font-size:25px;
     text-transform:uppercase;
@@ -178,15 +172,13 @@ nav ul li a:hover{opacity:0.6;}
     background:#efefef; /* lighter */
 }
 
-/* COMING SOON now looks like product name */
-.product-name,
-.coming-soon-label{
+/* Product text (Placeholder Product + $000) */
+.product-name{
     margin-top:12px;
     font-size:12px;
     text-transform:uppercase;
     letter-spacing:0.18em;
 }
-
 .price{
     opacity:0.5;
     font-size:11px;
@@ -194,13 +186,12 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:3px;
 }
 
-
 /* ============================
-   MOBILE FULL REBUILD
+   MOBILE SECTION
    ============================ */
 @media(max-width:900px){
 
-    /* Remove desktop navs */
+    /* Remove desktop elements */
     .left-nav{display:none;}
     nav{display:none;}
 
@@ -210,7 +201,7 @@ nav ul li a:hover{opacity:0.6;}
       padding:6px 16px;
     }
 
-    /* menu left, logo right */
+    /* mobile: menu left, logo right */
     .menu-icon{display:block;}
     .center-logo-link{
         position:static;
@@ -219,24 +210,21 @@ nav ul li a:hover{opacity:0.6;}
     }
     .center-logo{height:22px;}
 
-    /* Stack layout */
-    .catalog-wrap{
-        flex-direction:column;
-        margin-top:45px;
-    }
+    /* stack layout */
+    .catalog-wrap{flex-direction:column;}
 
-    /* Full-screen image at top */
+    /* image full width */
     .left-image{
-        width:100%;
-        height:auto;
-        position:relative;
+      width:100%;
+      margin-bottom:0;
+      padding-bottom:0;
     }
     .left-image img{
-        width:100%;
-        display:block;
+      width:100%;
+      display:block;
     }
 
-    /* Rick Owens parallax scroll-over effect */
+    /* Parallax overlapping scroll */
     .right-side{
         width:100%;
         position:relative;
@@ -248,15 +236,18 @@ nav ul li a:hover{opacity:0.6;}
         will-change:transform;
     }
 
-    /* MOBILE GRID — 2 per row, no gaps */
+    /* REMOVE catalog title on mobile */
+    .catalog-title{display:none;}
+
+    /* FULL BLEED 2x2 GRID TOUCHING IMAGE */
     .grid{
         display:grid;
         grid-template-columns:repeat(2,1fr);
         gap:0;
         width:100%;
+        margin-top:0;
     }
 
-    /* Square image boxes, full bleed */
     .product-box{
         width:100%;
         aspect-ratio:1/1;
@@ -264,12 +255,12 @@ nav ul li a:hover{opacity:0.6;}
         margin:0;
     }
 
-    /* White text box under image */
     .product-info{
         background:#fff;
         padding:14px 10px 20px;
         border-top:1px solid #e5e5e5;
         text-align:left;
+        margin:0;
     }
 }
 </style>
@@ -277,6 +268,7 @@ nav ul li a:hover{opacity:0.6;}
 <body>
 
 <header>
+
   <div class="menu-icon" onclick="openMenu()">
       <img src="menu.svg">
   </div>
@@ -301,6 +293,7 @@ nav ul li a:hover{opacity:0.6;}
       </li>
     </ul>
   </nav>
+
 </header>
 
 <!-- SLIDEOUT MENU -->
@@ -339,7 +332,8 @@ nav ul li a:hover{opacity:0.6;}
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
-                      <div class="coming-soon-label">Coming Soon</div>
+                      <div class="product-name">Placeholder Product</div>
+                      <div class="price">$000</div>
                     </div>
                 </div>
 
@@ -347,7 +341,8 @@ nav ul li a:hover{opacity:0.6;}
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
-                      <div class="coming-soon-label">Coming Soon</div>
+                      <div class="product-name">Placeholder Product</div>
+                      <div class="price">$000</div>
                     </div>
                 </div>
 
@@ -355,15 +350,14 @@ nav ul li a:hover{opacity:0.6;}
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
-                      <div class="coming-soon-label">Coming Soon</div>
+                      <div class="product-name">Placeholder Product</div>
+                      <div class="price">$000</div>
                     </div>
                 </div>
 
             </div>
-
         </div>
     </div>
-
 </div>
 
 <script>
@@ -371,13 +365,12 @@ nav ul li a:hover{opacity:0.6;}
 function openMenu(){ document.getElementById("menuPanel").classList.add("open"); }
 function closeMenu(){ document.getElementById("menuPanel").classList.remove("open"); }
 
-/* MOBILE RICK OWENS PARALLAX REVEAL */
+/* Mobile parallax-over effect */
 window.addEventListener("scroll", ()=>{
     const y = window.scrollY;
-    const right = document.getElementById("rightSide");
-
+    const rs = document.getElementById("rightSide");
     if(window.innerWidth < 900){
-        right.style.transform = `translateY(${ -y * 0.28 }px)`;  
+        rs.style.transform = `translateY(${-y * 0.28}px)`;
     }
 });
 </script>
