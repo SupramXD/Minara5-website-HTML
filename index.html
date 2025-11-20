@@ -41,7 +41,11 @@ header{
 .left-nav a:hover{opacity:0.6;}
 
 /* DESKTOP NAV */
-nav ul{list-style:none;display:flex;margin:2px 0 0 0;}
+nav ul{
+  list-style:none;
+  display:flex;
+  margin:2px 0 0 0;
+}
 nav ul li{margin-left:25px;}
 nav ul li a{
   font-size:11px;text-transform:uppercase;letter-spacing:1px;
@@ -49,18 +53,17 @@ nav ul li a{
   transition:opacity .25s ease;
 }
 nav ul li a:hover{opacity:0.65;}
-.desktop-icon{height:12px;width:auto;}
 
-/* LOGO (desktop) */
-#logo{
-  position:fixed;
-  left:50%;
-  transform:translate(-50%,0);
-  width:1200px;
-  z-index:900;
-  pointer-events:none;
+/* Replace desktop question mark icon with catalog version */
+.question-icon{
+  height:14px;                /* Same as catalog */
+  transform:translate(2px,0); /* Same alignment as catalog */
 }
-#logo img{width:100%;}
+
+.desktop-icon{
+  height:12px;
+  width:auto;
+}
 
 /* HERO */
 .hero{
@@ -79,7 +82,18 @@ nav ul li a:hover{opacity:0.65;}
 .hero img:first-child{flex:1.3;}
 .hero img:last-child{flex:0.7;}
 
-/* BAGS DESKTOP */
+/* BIG LOGO */
+#logo{
+  position:fixed;
+  left:50%;
+  transform:translate(-50%,0);
+  width:1200px;
+  z-index:900;
+  pointer-events:none;
+}
+#logo img{width:100%;}
+
+/* DESKTOP BAGS */
 #bagsContainer{position:relative;width:100%;height:0;}
 #bagsBtn{
   position:fixed;
@@ -120,16 +134,17 @@ nav ul li a:hover{opacity:0.65;}
 }
 
 /* ============================
-   MOBILE HEADER (NEW)
+      MOBILE HEADER (NEW)
 ============================ */
 .menu-icon{
   display:none;
+  cursor:pointer;
 }
 .menu-icon img{
-  height:14px;
+  height:14px; /* same as catalog */
 }
 
-/* MOBILE SLIDEOUT MENU */
+/* Slideout menu (copied from catalog version) */
 .slideout{
   position:fixed;
   top:0;
@@ -152,7 +167,7 @@ nav ul li a:hover{opacity:0.65;}
   cursor:pointer;
 }
 
-/* Rick Owens style drawer text */
+/* Rick Owens menu text */
 .slideout a{
   display:block;
   font-size:14px;
@@ -163,20 +178,16 @@ nav ul li a:hover{opacity:0.65;}
   margin:26px 0;
 }
 
-/* MOBILE */
+/* ============================
+      MOBILE
+============================ */
 @media(max-width:900px){
 
-  /* remove old mobile icons */
+  /* Remove old mobile icons */
   .mobile-nav{display:none !important;}
 
-  /* hide desktop right nav */
+  /* Hide desktop nav on mobile */
   nav{display:none;}
-
-  /* mobile header: menu left, logo right */
-  .menu-icon{
-    display:block;
-    margin-top:6px;
-  }
 
   header{
     padding:6px 16px;
@@ -184,7 +195,13 @@ nav ul li a:hover{opacity:0.65;}
     align-items:center;
   }
 
-  /* move the logo to the right on mobile */
+  /* mobile header elements */
+  .menu-icon{
+    display:block;
+    margin-top:4px;
+  }
+
+  /* move logo to right */
   #logo{
     width:auto;
     max-width:88vw;
@@ -196,26 +213,33 @@ nav ul li a:hover{opacity:0.65;}
 
   #logo img.mobile-logo{display:block;}
   #logo img.desktop-logo{display:none;}
+
 }
 
 /* DESKTOP */
 @media(min-width:901px){
+  .mobile-nav{display:none;}
   #logo img.mobile-logo{display:none;}
   #logo img.desktop-logo{display:block;}
 }
 
-/* BRAND SECTION */
+/* ============================
+      BRAND SECTION
+============================ */
 .brand-section{
   padding:80px 40px 110px;
   max-width:900px;
   margin:0 auto;
 }
+
 .brand-title{
   font-size:11px;
   text-transform:uppercase;
   letter-spacing:0.28em;
   margin-bottom:22px;
 }
+
+/* EXACT MINARA3 PARAGRAPH STYLE */
 .brand-body{
   max-width:620px;
   font-size:12.8px;
@@ -224,6 +248,7 @@ nav ul li a:hover{opacity:0.65;}
   white-space:pre-line;
   letter-spacing:0.18em;
 }
+
 .brand-body p{margin-bottom:28px;}
 
 footer{
@@ -237,31 +262,33 @@ footer{
 
 <header id="topbar">
 
-  <!-- CATALOG left (desktop only) -->
-  <div class="left-nav"><a href="catalog.html">CATALOG</a></div>
+  <!-- LEFT: Replace CATALOG with menu icon on mobile -->
+  <div class="left-nav">
+    <a href="catalog.html">CATALOG</a>
+  </div>
 
   <!-- MOBILE MENU ICON -->
   <div class="menu-icon" onclick="openMenu()">
       <img src="menu.svg">
   </div>
 
-  <!-- LOGO -->
+  <!-- BIG LOGO -->
   <div id="logo">
     <img src="minara 5 transparent.svg" class="mobile-logo">
     <img src="minara 5 transparent 2.svg" class="desktop-logo">
   </div>
 
-  <!-- DESKTOP NAV (unchanged) -->
+  <!-- DESKTOP NAV (unchanged except corrected question icon) -->
   <nav>
     <ul>
-      <li><a href="contact.html"><img src="question mark.svg" class="desktop-icon"> Contact</a></li>
+      <li><a href="contact.html"><img src="question mark.svg" class="question-icon"> Contact</a></li>
       <li><a href="auth.html"><img src="head shoulder.svg" class="desktop-icon"> Account</a></li>
     </ul>
   </nav>
 
 </header>
 
-<!-- MOBILE SLIDEOUT -->
+<!-- MOBILE SLIDEOUT MENU -->
 <div class="slideout" id="menuPanel">
   <div class="close-btn" onclick="closeMenu()">×</div>
 
@@ -289,7 +316,6 @@ footer{
   </div>
 </section>
 
-<!-- BRAND SECTION -->
 <section class="brand-section">
   <h2 class="brand-title">MINARA5</h2>
 
@@ -297,6 +323,8 @@ footer{
     <p>
 Nonconformity,  is  a  desire  rooted  in  the  heart  
 of  this   south  african   generation.
+    
+
     
 Minara  is  the  hearts   quiet   awakening,  
 whilst  others  line  up  for  the  approved  path,  
@@ -316,7 +344,7 @@ that  ever  made  sense.
 function openMenu(){ document.getElementById("menuPanel").classList.add("open"); }
 function closeMenu(){ document.getElementById("menuPanel").classList.remove("open"); }
 
-/* keep your original sticky logic exactly as-is */
+/* ORIGINAL SCROLL LOGIC (untouched) */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
