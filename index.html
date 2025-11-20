@@ -40,7 +40,9 @@ header{
 }
 .left-nav a:hover{opacity:0.6;}
 
-/* MOBILE SHOP NOW BUTTON */
+/* ==============
+   MOBILE SHOP NOW (TOP RIGHT)
+   ============== */
 .mobile-shopnow {
   display:none;
 }
@@ -50,7 +52,7 @@ header{
     display:block;
     position:absolute;
     top:10px;
-    left:16px;
+    right:16px; /* moved to TOP RIGHT */
     font-size:11px;
     text-transform:uppercase;
     letter-spacing:1px;
@@ -187,16 +189,12 @@ nav ul li a:hover{opacity:0.65;}
 ============================ */
 @media(max-width:900px){
 
-  /* Remove old mobile icons */
   .mobile-nav{display:none !important;}
 
-  /* hide desktop nav text */
   .desktop-only{display:none !important;}
 
-  /* show menu icon */
   .menu-icon{display:block;margin-top:6px;}
 
-  /* hide desktop right nav on mobile */
   nav ul li a{display:none !important;}
 
   #bagsBtn{display:none;}
@@ -221,9 +219,7 @@ nav ul li a:hover{opacity:0.65;}
   #logo img.desktop-logo{display:block;}
 }
 
-/* ============================
-      BRAND SECTION
-============================ */
+/* BRAND SECTION */
 .brand-section{
   padding:80px 40px 110px;
   max-width:900px;
@@ -256,12 +252,11 @@ footer{
 
 <header id="topbar">
 
-  <!-- LEFT NAV -->
   <div class="left-nav">
 
-      <!-- MOBILE SHOP NOW BUTTON (NEW) -->
+      <!-- MOBILE SHOP NOW BUTTON (TOP RIGHT, EXACT TEXT) -->
       <div class="mobile-shopnow">
-          <a href="catalog.html">SHOP NOW</a>
+          <a href="catalog.html">'SHOP NOW</a>
       </div>
 
       <a href="catalog.html" class="desktop-only">CATALOG</a>
@@ -408,8 +403,6 @@ that  ever  made  sense.
   window.addEventListener('load',()=>{measure();update();});
   setTimeout(()=>{measure();update();},80);
 })();
-
-
 
 function openMenu(){
   document.getElementById("menuPanel").classList.add("open");
