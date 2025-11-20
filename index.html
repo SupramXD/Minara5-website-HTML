@@ -28,7 +28,7 @@ header{
   border-bottom:1px solid #eee;
 }
 
-/* DESKTOP CATALOG */
+/* Desktop left nav */
 .left-nav a{
   font-size:12px;
   text-transform:uppercase;
@@ -51,6 +51,17 @@ nav ul li a{
 nav ul li a:hover{opacity:0.65;}
 .desktop-icon{height:12px;width:auto;}
 
+/* LOGO (desktop) */
+#logo{
+  position:fixed;
+  left:50%;
+  transform:translate(-50%,0);
+  width:1200px;
+  z-index:900;
+  pointer-events:none;
+}
+#logo img{width:100%;}
+
 /* HERO */
 .hero{
   margin-top:45px;
@@ -68,18 +79,7 @@ nav ul li a:hover{opacity:0.65;}
 .hero img:first-child{flex:1.3;}
 .hero img:last-child{flex:0.7;}
 
-/* BIG LOGO */
-#logo{
-  position:fixed;
-  left:50%;
-  transform:translate(-50%,0);
-  width:1200px;
-  z-index:900;
-  pointer-events:none;
-}
-#logo img{width:100%;}
-
-/* DESKTOP BAGS */
+/* BAGS DESKTOP */
 #bagsContainer{position:relative;width:100%;height:0;}
 #bagsBtn{
   position:fixed;
@@ -91,10 +91,8 @@ nav ul li a:hover{opacity:0.65;}
   color:#000;
   text-decoration:none;
   z-index:900;
-  transition:left .25s ease;
 }
 #bagsBtn:hover{opacity:1;}
-
 #shopNow{
   opacity:0;
   margin-left:4px;
@@ -118,111 +116,114 @@ nav ul li a:hover{opacity:0.65;}
   z-index:900;
 }
 .mobile-bags a{
-  color:#000 !important;text-decoration:none !important;outline:none !important;
+  color:#000 !important;text-decoration:none !important;
 }
 
 /* ============================
-   MOBILE HEADER — NO DIVIDERS
+   MOBILE HEADER (NEW)
 ============================ */
-.mobile-nav{
+.menu-icon{
   display:none;
-  position:absolute;
-  right:0;
+}
+.menu-icon img{
+  height:14px;
+}
+
+/* MOBILE SLIDEOUT MENU */
+.slideout{
+  position:fixed;
   top:0;
-  height:45px;
-  display:flex;
+  left:-100%;
+  width:100%;
+  height:100vh;
+  background:#fff;
+  z-index:3000;
+  transition:left .35s ease;
+  padding:50px 40px 40px;
+}
+.slideout.open{
+  left:0;
+}
+.close-btn{
+  position:absolute;
+  top:18px;
+  right:24px;
+  font-size:30px;
+  cursor:pointer;
 }
 
-/* ICON BOXES */
-.mobile-box{
-  position:relative;
-  height:45px;
-  padding:0 18px;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  padding-top:8px;
-}
-
-/* REMOVE ALL DIVIDERS COMPLETELY */
-.mobile-box::before,
-.mobile-box::after,
-.mobile-box.search::before,
-.mobile-box.search::after,
-.mobile-box.account::before,
-.mobile-box.account::after,
-.left-nav a::after{
-  content:none !important;
-}
-
-/* ICON SIZING */
-.mobile-box img{
-  height:11px;
-  width:11px;
-  object-fit:contain;
+/* Rick Owens style drawer text */
+.slideout a{
+  display:block;
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:0.28em;
+  text-decoration:none;
+  color:#000;
+  margin:26px 0;
 }
 
 /* MOBILE */
 @media(max-width:900px){
 
-  nav ul li a{display:none !important;}
-  .mobile-nav{display:flex;}
+  /* remove old mobile icons */
+  .mobile-nav{display:none !important;}
 
-  #bagsBtn{display:none !important;}
+  /* hide desktop right nav */
+  nav{display:none;}
 
-  .hero{display:block;height:auto;}
-  .hero img{
-    width:100%;
-    height:auto;
+  /* mobile header: menu left, logo right */
+  .menu-icon{
+    display:block;
+    margin-top:6px;
+  }
+
+  header{
+    padding:6px 16px;
+    justify-content:space-between;
+    align-items:center;
+  }
+
+  /* move the logo to the right on mobile */
+  #logo{
+    width:auto;
+    max-width:88vw;
+    max-height:36vh;
+    left:auto;
+    right:16px;
+    transform:none;
   }
 
   #logo img.mobile-logo{display:block;}
   #logo img.desktop-logo{display:none;}
-
-  #logo{
-    width:auto;max-width:88vw;max-height:36vh;
-  }
-
-  .mobile-bags{display:block;}
 }
 
 /* DESKTOP */
 @media(min-width:901px){
-  .mobile-nav{display:none;}
-  .mobile-bags{display:none;}
   #logo img.mobile-logo{display:none;}
   #logo img.desktop-logo{display:block;}
 }
 
-/* ============================
-      BRAND SECTION
-============================ */
+/* BRAND SECTION */
 .brand-section{
   padding:80px 40px 110px;
   max-width:900px;
   margin:0 auto;
 }
-
 .brand-title{
   font-size:11px;
   text-transform:uppercase;
   letter-spacing:0.28em;
   margin-bottom:22px;
 }
-
-/* EXACT MINARA3 PARAGRAPH STYLE */
 .brand-body{
   max-width:620px;
   font-size:12.8px;
   line-height:1.7;
   opacity:0.92;
   white-space:pre-line;
-
-  /* THE KEY FASHION-LOOK SPACING */
   letter-spacing:0.18em;
-  text-transform:none;
 }
-
 .brand-body p{margin-bottom:28px;}
 
 footer{
@@ -236,10 +237,21 @@ footer{
 
 <header id="topbar">
 
-  <!-- CATALOG stays exactly here -->
+  <!-- CATALOG left (desktop only) -->
   <div class="left-nav"><a href="catalog.html">CATALOG</a></div>
 
-  <!-- DESKTOP NAV -->
+  <!-- MOBILE MENU ICON -->
+  <div class="menu-icon" onclick="openMenu()">
+      <img src="menu.svg">
+  </div>
+
+  <!-- LOGO -->
+  <div id="logo">
+    <img src="minara 5 transparent.svg" class="mobile-logo">
+    <img src="minara 5 transparent 2.svg" class="desktop-logo">
+  </div>
+
+  <!-- DESKTOP NAV (unchanged) -->
   <nav>
     <ul>
       <li><a href="contact.html"><img src="question mark.svg" class="desktop-icon"> Contact</a></li>
@@ -247,13 +259,17 @@ footer{
     </ul>
   </nav>
 
-  <!-- MOBILE NAV (NO DIVIDERS NOW) -->
-  <div class="mobile-nav">
-    <a class="mobile-box search" href="contact.html"><img src="question mark.svg"></a>
-    <a class="mobile-box account" href="auth.php"><img src="head shoulder.svg"></a>
-  </div>
-
 </header>
+
+<!-- MOBILE SLIDEOUT -->
+<div class="slideout" id="menuPanel">
+  <div class="close-btn" onclick="closeMenu()">×</div>
+
+  <a href="catalog.html">Catalog</a>
+  <a href="social media.html">Social Media</a>
+  <a href="contact.html">Contact</a>
+  <a href="auth.php">Login</a>
+</div>
 
 <!-- BAGS -->
 <div id="bagsContainer">
@@ -273,10 +289,7 @@ footer{
   </div>
 </section>
 
-<!-- ============================
-      BRAND SECTION PARAGRAPH
-      EXACT FROM MINARA3
-============================ -->
+<!-- BRAND SECTION -->
 <section class="brand-section">
   <h2 class="brand-title">MINARA5</h2>
 
@@ -284,8 +297,6 @@ footer{
     <p>
 Nonconformity,  is  a  desire  rooted  in  the  heart  
 of  this   south  african   generation.
-    
-
     
 Minara  is  the  hearts   quiet   awakening,  
 whilst  others  line  up  for  the  approved  path,  
@@ -301,13 +312,11 @@ that  ever  made  sense.
 
 <footer>© 2025 Minara 5</footer>
 
-<div id="logo">
-  <img src="minara 5 transparent.svg" class="mobile-logo">
-  <img src="minara 5 transparent 2.svg" class="desktop-logo">
-</div>
-
 <script>
-/* Original scroll logic (untouched) */
+function openMenu(){ document.getElementById("menuPanel").classList.add("open"); }
+function closeMenu(){ document.getElementById("menuPanel").classList.remove("open"); }
+
+/* keep your original sticky logic exactly as-is */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
@@ -381,4 +390,3 @@ that  ever  made  sense.
 
 </body>
 </html>
-
