@@ -40,6 +40,28 @@ header{
 }
 .left-nav a:hover{opacity:0.6;}
 
+/* MOBILE SHOP NOW BUTTON */
+.mobile-shopnow {
+  display:none;
+}
+
+@media(max-width:900px){
+  .mobile-shopnow {
+    display:block;
+    position:absolute;
+    top:10px;
+    left:16px;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    z-index:2000;
+  }
+  .mobile-shopnow a{
+    color:#000;
+    text-decoration:none;
+  }
+}
+
 /* DESKTOP RIGHT NAV */
 nav ul{list-style:none;display:flex;margin:2px 0 0 0;}
 nav ul li{margin-left:25px;}
@@ -234,8 +256,14 @@ footer{
 
 <header id="topbar">
 
-  <!-- LEFT NAV: desktop sees text, mobile sees menu icon -->
+  <!-- LEFT NAV -->
   <div class="left-nav">
+
+      <!-- MOBILE SHOP NOW BUTTON (NEW) -->
+      <div class="mobile-shopnow">
+          <a href="catalog.html">SHOP NOW</a>
+      </div>
+
       <a href="catalog.html" class="desktop-only">CATALOG</a>
       <a href="social media.html" class="desktop-only" style="margin-left:22px;">SOCIALS</a>
 
@@ -380,9 +408,9 @@ that  ever  made  sense.
   window.addEventListener('load',()=>{measure();update();});
   setTimeout(()=>{measure();update();},80);
 })();
-</script>
 
-<script>
+
+
 function openMenu(){
   document.getElementById("menuPanel").classList.add("open");
 }
