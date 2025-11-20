@@ -28,7 +28,7 @@ header{
   border-bottom:1px solid #eee;
 }
 
-/* Desktop left nav */
+/* DESKTOP CATALOG */
 .left-nav a{
   font-size:12px;
   text-transform:uppercase;
@@ -41,11 +41,7 @@ header{
 .left-nav a:hover{opacity:0.6;}
 
 /* DESKTOP NAV */
-nav ul{
-  list-style:none;
-  display:flex;
-  margin:2px 0 0 0;
-}
+nav ul{list-style:none;display:flex;margin:2px 0 0 0;}
 nav ul li{margin-left:25px;}
 nav ul li a{
   font-size:11px;text-transform:uppercase;letter-spacing:1px;
@@ -53,17 +49,7 @@ nav ul li a{
   transition:opacity .25s ease;
 }
 nav ul li a:hover{opacity:0.65;}
-
-/* Replace desktop question mark icon with catalog version */
-.question-icon{
-  height:14px;                /* Same as catalog */
-  transform:translate(2px,0); /* Same alignment as catalog */
-}
-
-.desktop-icon{
-  height:12px;
-  width:auto;
-}
+.desktop-icon{height:12px;width:auto;}
 
 /* HERO */
 .hero{
@@ -105,6 +91,7 @@ nav ul li a:hover{opacity:0.65;}
   color:#000;
   text-decoration:none;
   z-index:900;
+  transition:left .25s ease;
 }
 #bagsBtn:hover{opacity:1;}
 #shopNow{
@@ -130,21 +117,21 @@ nav ul li a:hover{opacity:0.65;}
   z-index:900;
 }
 .mobile-bags a{
-  color:#000 !important;text-decoration:none !important;
+  color:#000 !important;text-decoration:none !important;outline:none !important;
 }
 
 /* ============================
-      MOBILE HEADER (NEW)
+   MOBILE HEADER
 ============================ */
 .menu-icon{
   display:none;
   cursor:pointer;
 }
 .menu-icon img{
-  height:14px; /* same as catalog */
+  height:14px;
 }
 
-/* Slideout menu (copied from catalog version) */
+/* Slideout menu */
 .slideout{
   position:fixed;
   top:0;
@@ -156,9 +143,8 @@ nav ul li a:hover{opacity:0.65;}
   transition:left .35s ease;
   padding:50px 40px 40px;
 }
-.slideout.open{
-  left:0;
-}
+.slideout.open{left:0;}
+
 .close-btn{
   position:absolute;
   top:18px;
@@ -167,7 +153,6 @@ nav ul li a:hover{opacity:0.65;}
   cursor:pointer;
 }
 
-/* Rick Owens menu text */
 .slideout a{
   display:block;
   font-size:14px;
@@ -178,47 +163,45 @@ nav ul li a:hover{opacity:0.65;}
   margin:26px 0;
 }
 
-/* ============================
-      MOBILE
-============================ */
+/* MOBILE */
 @media(max-width:900px){
 
-  /* Remove old mobile icons */
+  /* Remove original mobile icons */
   .mobile-nav{display:none !important;}
 
   /* Hide desktop nav on mobile */
-  nav{display:none;}
+  nav ul li a{display:none !important;}
 
-  header{
-    padding:6px 16px;
-    justify-content:space-between;
-    align-items:center;
-  }
+  /* Hide CATALOG text on mobile, show menu icon instead */
+  .left-nav a{display:none;}
 
-  /* mobile header elements */
   .menu-icon{
     display:block;
-    margin-top:4px;
+    margin-top:6px;
   }
 
-  /* move logo to right */
-  #logo{
-    width:auto;
-    max-width:88vw;
-    max-height:36vh;
-    left:auto;
-    right:16px;
-    transform:none;
+  #bagsBtn{display:none !important;}
+
+  .hero{display:block;height:auto;}
+  .hero img{
+    width:100%;
+    height:auto;
   }
 
   #logo img.mobile-logo{display:block;}
   #logo img.desktop-logo{display:none;}
 
+  #logo{
+    width:auto;max-width:88vw;max-height:36vh;
+  }
+
+  .mobile-bags{display:block;}
 }
 
 /* DESKTOP */
 @media(min-width:901px){
   .mobile-nav{display:none;}
+  .mobile-bags{display:none;}
   #logo img.mobile-logo{display:none;}
   #logo img.desktop-logo{display:block;}
 }
@@ -246,7 +229,10 @@ nav ul li a:hover{opacity:0.65;}
   line-height:1.7;
   opacity:0.92;
   white-space:pre-line;
+
+  /* THE KEY FASHION-LOOK SPACING */
   letter-spacing:0.18em;
+  text-transform:none;
 }
 
 .brand-body p{margin-bottom:28px;}
@@ -262,33 +248,25 @@ footer{
 
 <header id="topbar">
 
-  <!-- LEFT: Replace CATALOG with menu icon on mobile -->
+  <!-- LEFT: replace CATALOG with clickable menu icon -->
   <div class="left-nav">
-    <a href="catalog.html">CATALOG</a>
+      <div class="menu-icon" onclick="openMenu()">
+          <img src="menu.svg">
+      </div>
   </div>
 
-  <!-- MOBILE MENU ICON -->
-  <div class="menu-icon" onclick="openMenu()">
-      <img src="menu.svg">
-  </div>
-
-  <!-- BIG LOGO -->
-  <div id="logo">
-    <img src="minara 5 transparent.svg" class="mobile-logo">
-    <img src="minara 5 transparent 2.svg" class="desktop-logo">
-  </div>
-
-  <!-- DESKTOP NAV (unchanged except corrected question icon) -->
+  <!-- DESKTOP NAV (unchanged) -->
   <nav>
     <ul>
-      <li><a href="contact.html"><img src="question mark.svg" class="question-icon"> Contact</a></li>
+      <li><a href="contact.html"><img src="question mark.svg" class="desktop-icon"> Contact</a></li>
       <li><a href="auth.html"><img src="head shoulder.svg" class="desktop-icon"> Account</a></li>
     </ul>
   </nav>
 
+  <!-- MOBILE NAV REMOVED -->
 </header>
 
-<!-- MOBILE SLIDEOUT MENU -->
+<!-- SLIDEOUT MENU -->
 <div class="slideout" id="menuPanel">
   <div class="close-btn" onclick="closeMenu()">×</div>
 
@@ -316,6 +294,7 @@ footer{
   </div>
 </section>
 
+<!-- BRAND SECTION -->
 <section class="brand-section">
   <h2 class="brand-title">MINARA5</h2>
 
@@ -340,11 +319,13 @@ that  ever  made  sense.
 
 <footer>© 2025 Minara 5</footer>
 
-<script>
-function openMenu(){ document.getElementById("menuPanel").classList.add("open"); }
-function closeMenu(){ document.getElementById("menuPanel").classList.remove("open"); }
+<div id="logo">
+  <img src="minara 5 transparent.svg" class="mobile-logo">
+  <img src="minara 5 transparent 2.svg" class="desktop-logo">
+</div>
 
-/* ORIGINAL SCROLL LOGIC (untouched) */
+<script>
+/* Original scroll logic (untouched) */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
@@ -414,6 +395,16 @@ function closeMenu(){ document.getElementById("menuPanel").classList.remove("ope
   window.addEventListener('load',()=>{measure();update();});
   setTimeout(()=>{measure();update();},80);
 })();
+</script>
+
+<!-- SLIDEOUT SCRIPT -->
+<script>
+function openMenu(){
+  document.getElementById("menuPanel").classList.add("open");
+}
+function closeMenu(){
+  document.getElementById("menuPanel").classList.remove("open");
+}
 </script>
 
 </body>
