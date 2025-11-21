@@ -172,7 +172,7 @@ nav ul li a:hover{opacity:0.6;}
     background:#efefef; /* lighter */
 }
 
-/* Product text (Placeholder Product + $000) */
+/* Product text */
 .product-name{
     margin-top:12px;
     font-size:12px;
@@ -191,7 +191,6 @@ nav ul li a:hover{opacity:0.6;}
    ============================ */
 @media(max-width:900px){
 
-    /* Remove desktop elements */
     .left-nav{display:none;}
     nav{display:none;}
 
@@ -201,7 +200,6 @@ nav ul li a:hover{opacity:0.6;}
       padding:6px 16px;
     }
 
-    /* mobile: menu left, logo right */
     .menu-icon{display:block;}
     .center-logo-link{
         position:static;
@@ -210,10 +208,8 @@ nav ul li a:hover{opacity:0.6;}
     }
     .center-logo{height:22px;}
 
-    /* stack layout */
     .catalog-wrap{flex-direction:column;}
 
-    /* image full width */
     .left-image{
       width:100%;
       margin-bottom:0;
@@ -224,7 +220,6 @@ nav ul li a:hover{opacity:0.6;}
       display:block;
     }
 
-    /* Parallax overlapping scroll */
     .right-side{
         width:100%;
         position:relative;
@@ -236,10 +231,8 @@ nav ul li a:hover{opacity:0.6;}
         will-change:transform;
     }
 
-    /* REMOVE catalog title on mobile */
     .catalog-title{display:none;}
 
-    /* FULL BLEED 2x2 GRID TOUCHING IMAGE */
     .grid{
         display:grid;
         grid-template-columns:repeat(2,1fr);
@@ -321,10 +314,12 @@ nav ul li a:hover{opacity:0.6;}
 
                 <!-- PRODUCT 1 -->
                 <div>
-                    <div class="product-box"></div>
+                    <div class="product-box">
+                        <img src="cheetahproduct.webp" style="width:100%;height:100%;object-fit:cover;">
+                    </div>
                     <div class="product-info">
-                      <div class="product-name">Placeholder Product</div>
-                      <div class="price">$000</div>
+                      <div class="product-name">FELINE01 BACKPACK</div>
+                      <div class="price">R749</div>
                     </div>
                 </div>
 
@@ -361,11 +356,9 @@ nav ul li a:hover{opacity:0.6;}
 </div>
 
 <script>
-/* Slideout menu */
 function openMenu(){ document.getElementById("menuPanel").classList.add("open"); }
 function closeMenu(){ document.getElementById("menuPanel").classList.remove("open"); }
 
-/* Mobile parallax-over effect */
 window.addEventListener("scroll", ()=>{
     const y = window.scrollY;
     const rs = document.getElementById("rightSide");
