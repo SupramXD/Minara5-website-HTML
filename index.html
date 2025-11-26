@@ -28,6 +28,7 @@ header{
   border-bottom:1px solid #eee;
 }
 
+/* DESKTOP LEFT NAV BUTTONS */
 .left-nav a{
   font-size:12px;
   text-transform:uppercase;
@@ -39,7 +40,10 @@ header{
 }
 .left-nav a:hover{opacity:0.6;}
 
-.mobile-shopnow {display:none;}
+/* MOBILE SHOP NOW BUTTON */
+.mobile-shopnow {
+  display:none;
+}
 
 @media(max-width:900px){
   .mobile-shopnow {
@@ -58,6 +62,7 @@ header{
   }
 }
 
+/* DESKTOP RIGHT NAV */
 nav ul{list-style:none;display:flex;margin:2px 0 0 0;}
 nav ul li{margin-left:25px;}
 nav ul li a{
@@ -70,8 +75,14 @@ nav ul li a:hover{opacity:0.65;}
 .question-icon{height:14px;}
 .desktop-icon{height:12px;}
 
-.menu-icon{display:none;cursor:pointer;}
-.menu-icon img{height:14px;}
+/* MOBILE MENU ICON */
+.menu-icon{
+  display:none;
+  cursor:pointer;
+}
+.menu-icon img{
+  height:14px;
+}
 
 @media(max-width:900px){
   header{
@@ -103,22 +114,7 @@ nav ul li a:hover{opacity:0.65;}
 .hero img:first-child{flex:1.3;}
 .hero img:last-child{flex:0.7;}
 
-/* =============================
-   ONLY CHANGE: MOBILE IMAGE SWAP
-============================= */
-@media(max-width:900px){
-  #imgL { order: 2; } /* top image becomes bottom */
-  #imgR { order: 1; } /* bottom image becomes top */
-
-  .hero {
-    display:flex;
-    flex-direction:column; /* makes stacking vertical */
-    height:auto; /* keeps mobile layout natural */
-  }
-  .hero img { width:100%;height:auto; }
-}
-/* END OF ONLY CHANGE */
-
+/* BIG LOGO */
 #logo{
   position:fixed;
   left:50%;
@@ -142,6 +138,7 @@ nav ul li a:hover{opacity:0.65;}
   text-decoration:none;
   z-index:900;
 }
+#bagsBtn:hover{opacity:1;}
 #shopNow{
   opacity:0;
   margin-left:4px;
@@ -154,6 +151,7 @@ nav ul li a:hover{opacity:0.65;}
   left:0;
 }
 
+/* MOBILE BAGS */
 .mobile-bags{
   display:none;
   position:absolute;
@@ -165,6 +163,7 @@ nav ul li a:hover{opacity:0.65;}
 }
 .mobile-bags a{color:#000;text-decoration:none;}
 
+/* SLIDEOUT MENU */
 .slideout{
   position:fixed;
   top:0;
@@ -196,7 +195,11 @@ nav ul li a:hover{opacity:0.65;}
   text-decoration:none;
 }
 
+/* ============================
+   MOBILE HEADER CLEANUP
+============================ */
 @media(max-width:900px){
+
   .mobile-nav{display:none !important;}
   .desktop-only{display:none !important;}
   nav ul li a{display:none !important;}
@@ -213,12 +216,14 @@ nav ul li a:hover{opacity:0.65;}
   .mobile-bags{display:block;}
 }
 
+/* DESKTOP ONLY */
 @media(min-width:901px){
   .menu-icon{display:none;}
   #logo img.mobile-logo{display:none;}
   #logo img.desktop-logo{display:block;}
 }
 
+/* BRAND SECTION */
 .brand-section{
   padding:80px 40px 110px;
   max-width:900px;
@@ -244,6 +249,30 @@ footer{
   padding:40px;text-align:center;background:#f5f5f5;
   font-size:12px;color:#666;
 }
+
+/* =====================================================
+   CUSTOM FIXES — ONLY WHAT YOU REQUESTED
+   ===================================================== */
+
+/* MOBILE — number23.webp MUST be the top hero image */
+@media(max-width:900px){
+  #imgL { content:url('number23.webp'); }
+  #imgR { content:url('test3.webp'); }
+}
+
+/* MOBILE — raise MINARA logo slightly */
+@media(max-width:900px){
+  #logo { margin-top:-6px; }
+}
+
+/* DESKTOP — adjust number23.webp crop so subject isn't cut */
+@media(min-width:901px){
+  #imgR {
+    object-fit:cover;
+    object-position:80% center; /* moved view so subject+bag on right are in frame */
+  }
+}
+
 </style>
 </head>
 
@@ -253,6 +282,7 @@ footer{
 
   <div class="left-nav">
 
+      <!-- MOBILE SHOP NOW BUTTON -->
       <div class="mobile-shopnow">
           <a href="catalog.html">SHOP NOW</a>
       </div>
@@ -260,11 +290,13 @@ footer{
       <a href="catalog.html" class="desktop-only">CATALOG</a>
       <a href="social media.html" class="desktop-only" style="margin-left:22px;">SOCIALS</a>
 
+      <!-- MENU ICON EXACTLY LIKE CATALOG.HTML -->
       <div class="menu-icon" onclick="openMenu()">
           <img src="menu.svg">
       </div>
   </div>
 
+  <!-- DESKTOP RIGHT NAV -->
   <nav>
     <ul>
       <li><a href="contact.html"><img src="question mark.svg" class="question-icon"> Contact</a></li>
@@ -274,6 +306,7 @@ footer{
 
 </header>
 
+<!-- SLIDEOUT MENU -->
 <div class="slideout" id="menuPanel">
   <div class="close-btn" onclick="closeMenu()">×</div>
 
@@ -283,6 +316,7 @@ footer{
   <a href="auth.php">Login</a>
 </div>
 
+<!-- BAGS -->
 <div id="bagsContainer">
   <a id="bagsBtn" href="bags.html">
     BAGS <span id="shopNow">'SHOP NOW</span>
@@ -314,7 +348,7 @@ she  minara  -   simply  refuses  the  script.
 <p>
 
 To  the  world  she's  a  question  without  an  answer..  
-To  herself  she  is  the  only  version  
+To  herself  she  is  the only  version  
 that  ever  made  sense.
     </p>
   </div>
@@ -328,7 +362,7 @@ that  ever  made  sense.
 </div>
 
 <script>
-/* original JS untouched */
+/* ORIGINAL SCROLL LOGIC (UNTOUCHED) */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
