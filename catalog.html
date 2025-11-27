@@ -10,7 +10,7 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
     font-family:Helvetica,Arial,sans-serif;
-    background:#f6f5f2; /* ⭐ egg color background */
+    background:#ffffff; /* pure white, Rick Owens */
     overflow-x:hidden;
     color:#000;
 }
@@ -60,20 +60,20 @@ nav ul li a{
   transition:opacity .25s ease;
 }
 nav ul li a:hover{opacity:0.6;}
+
+.menu-icon{display:none;}
+.menu-icon img{height:14px;}
 .question-icon{height:14px;}
 .desktop-icon{height:12px;}
 
-.menu-icon{display:none;cursor:pointer;}
-.menu-icon img{height:14px;}
-
-/* SLIDEOUT */
+/* SLIDEOUT MENU */
 .slideout{
   position:fixed;
   top:0;
   left:-100%;
   width:100%;
   height:100vh;
-  background:#fff;
+  background:#ffffff;
   z-index:2000;
   transition:left .35s ease;
   padding:50px 40px 40px;
@@ -93,10 +93,9 @@ nav ul li a:hover{opacity:0.6;}
   letter-spacing:0.28em;
   color:#000;
   margin:26px 0;
-  text-decoration:none;
 }
 
-/* MAIN */
+/* MAIN WRAP */
 .catalog-wrap{
     margin-top:45px;
     display:flex;
@@ -106,7 +105,7 @@ nav ul li a:hover{opacity:0.6;}
 /* LEFT IMAGE */
 .left-image{
     width:50%;
-    background:#fff;
+    background:#ffffff;
     overflow:hidden;
 }
 .left-image img{
@@ -118,9 +117,9 @@ nav ul li a:hover{opacity:0.6;}
 /* RIGHT SIDE */
 .right-side{
     width:50%;
-    background:#f6f5f2; /* ⭐ egg */
+    background:#ffffff;
     padding:70px 40px 0px;
-    transition:transform 0.15s ease-out;
+    transition:transform 0.12s ease-out; /* faster Rick movement */
 }
 .catalog-container{
     position:sticky;
@@ -137,48 +136,48 @@ nav ul li a:hover{opacity:0.6;}
     margin-bottom:45px;
 }
 
-/* GRID */
+/* GRID - UBER MINIMAL */
 .grid{
     display:grid;
     grid-template-columns:repeat(2,150px);
     gap:32px 42px;
 }
 
-/* ⭐ PRODUCT BOXES NOW DARKER TONE */
 .product-box{
     width:150px;
     height:220px;
-    background:#e9e8e4; /* ⭐ darker tone */
+    background:#ffffff !important; /* pure white */
     overflow:hidden;
-    border-radius:2px;
 }
 
-/* THIN-LINE LUXURY TEXT BOX */
+/* PRODUCT TEXT AREA */
 .product-info{
     text-align:left;
-    border-top:1px solid #dcdcdc;
+    border:none !important; /* remove lines */
     padding-top:12px;
 }
 
+/* SPLIT PRODUCT NAME LIKE RICK OWENS */
 .product-name{
     margin-top:6px;
     font-size:12px;
     text-transform:uppercase;
     letter-spacing:0.18em;
+    line-height:1.25;
 }
+
 .price{
     opacity:0.5;
     font-size:11px;
     margin-top:3px;
 }
 
-/* PLACEHOLDER TEXT */
+/* PLACEHOLDER TEXT MINIMAL */
 .placeholder-name{
     margin-top:6px;
     font-size:12px;
     text-transform:uppercase;
     letter-spacing:0.18em;
-    line-height:1.35;
 }
 .placeholder-price{
     opacity:0.5;
@@ -187,17 +186,17 @@ nav ul li a:hover{opacity:0.6;}
 }
 
 /* ============================
-   MOBILE
+   MOBILE (Rick Owens minimal)
    ============================ */
 @media(max-width:900px){
 
     nav{display:none;}
-
     header{
       justify-content:space-between;
       padding:6px 16px;
       align-items:center;
     }
+
     .menu-icon{display:block;}
     .center-logo-link{
         position:static;
@@ -222,46 +221,40 @@ nav ul li a:hover{opacity:0.6;}
     .right-side{
         width:100%;
         padding:0;
-        background:#f6f5f2; /* ⭐ egg */
-        position:relative;
-        will-change:transform;
+        background:#ffffff;
     }
 
     .catalog-container{position:static;}
     .catalog-title{display:none;}
 
-    /* mobile grid */
     .grid{
         grid-template-columns:repeat(2,1fr);
         gap:0;
         width:100%;
-        background:#f6f5f2; /* ⭐ egg */
+        background:#ffffff;
     }
 
     .product-box{
         width:100%;
         height:220px;
-        background:#e9e8e4; /* ⭐ darker tone */
-        border-radius:0;
+        background:#ffffff !important;
     }
 
     .product-info{
-        background:#fff;
+        background:#ffffff;
         padding:14px 10px 18px;
-        border-top:1px solid #dcdcdc;
-        margin:0;
-        text-align:left;
+        border:none !important;
     }
 
     footer{
         margin-top:40px;
-        background:#eeeeee; /* ⭐ KEEP FOOTER THIS COLOR */
+        background:#eeeeee; /* keep footer color */
     }
 }
 
-/* ⭐ FOOTER */
+/* FOOTER */
 footer{
-  background:#eeeeee; /* requested */
+  background:#eeeeee;
   padding:30px 0;
   text-align:center;
   font-size:11px;
@@ -295,8 +288,10 @@ footer{
 <div class="catalog-wrap">
 
     <div class="left-image">
+        <!-- DESKTOP -->
         <img src="number23.webp" class="desktop-only">
         <img src="test3.webp" class="desktop-only">
+        <!-- MOBILE -->
         <img src="test3.webp" class="mobile-only" style="display:none;">
     </div>
 
@@ -307,19 +302,26 @@ footer{
 
             <div class="grid">
 
+                <!-- PRODUCT 1 -->
                 <div>
                     <a href="FELINE01.html" style="color:inherit;text-decoration:none;">
                         <div class="product-box">
                             <img src="cheetahproduct.webp" style="width:100%;height:100%;object-fit:cover;">
                         </div>
                         <div class="product-info">
-                            <div class="product-name">FELINE01 BACKPACK</div>
+
+                            <!-- ⭐ SPLIT NAME LIKE RICK OWENS -->
+                            <div class="product-name">
+                                FELINE01<br>
+                                BACKPACK
+                            </div>
+
                             <div class="price">R749</div>
                         </div>
                     </a>
                 </div>
 
-                <!-- placehold -->
+                <!-- PLACEHOLDER -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
@@ -355,7 +357,7 @@ footer{
 function openMenu(){document.getElementById("menuPanel").classList.add("open");}
 function closeMenu(){document.getElementById("menuPanel").classList.remove("open");}
 
-/* upward scroll movement */
+/* Rick Owens scroll effect: subtle + fast */
 window.addEventListener("scroll", ()=>{
     const y = window.scrollY;
     document.getElementById("rightSide").style.transform = `translateY(${-y * 0.12}px)`;
