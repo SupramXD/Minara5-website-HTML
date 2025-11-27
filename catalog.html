@@ -1,4 +1,4 @@
-<!DOCTYPE html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -10,7 +10,7 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
     font-family:Helvetica,Arial,sans-serif;
-    background:#fff;
+    background:#f6f5f2; /* ⭐ egg color background */
     overflow-x:hidden;
     color:#000;
 }
@@ -29,15 +29,17 @@ header{
   z-index:1200;
   border-bottom:1px solid #eee;
 }
-
-/* Center Logo */
 .center-logo-link{
   position:absolute;
   left:50%;
   top:50%;
   transform:translate(-50%,-50%);
 }
-.center-logo{height:29px;opacity:0.92;pointer-events:none;}
+.center-logo{
+  height:29px;
+  opacity:0.92;
+  pointer-events:none;
+}
 
 nav{margin-left:auto;}
 nav ul{
@@ -64,7 +66,7 @@ nav ul li a:hover{opacity:0.6;}
 .menu-icon{display:none;cursor:pointer;}
 .menu-icon img{height:14px;}
 
-/* SLIDEOUT MENU */
+/* SLIDEOUT */
 .slideout{
   position:fixed;
   top:0;
@@ -116,11 +118,10 @@ nav ul li a:hover{opacity:0.6;}
 /* RIGHT SIDE */
 .right-side{
     width:50%;
-    background:#fff;
+    background:#f6f5f2; /* ⭐ egg */
     padding:70px 40px 0px;
     transition:transform 0.15s ease-out;
 }
-
 .catalog-container{
     position:sticky;
     top:45px;
@@ -136,30 +137,29 @@ nav ul li a:hover{opacity:0.6;}
     margin-bottom:45px;
 }
 
-/* GRID (DESKTOP) */
+/* GRID */
 .grid{
     display:grid;
     grid-template-columns:repeat(2,150px);
     gap:32px 42px;
 }
 
-/* PRODUCT BOX */
+/* ⭐ PRODUCT BOXES NOW DARKER TONE */
 .product-box{
     width:150px;
     height:220px;
-    background:#f8f8f8;
+    background:#e9e8e4; /* ⭐ darker tone */
     overflow:hidden;
     border-radius:2px;
 }
 
-/* TEXT AREA WITH THIN LINE */
+/* THIN-LINE LUXURY TEXT BOX */
 .product-info{
     text-align:left;
-    border-top:1px solid #eaeaea; /* thin luxury line */
+    border-top:1px solid #dcdcdc;
     padding-top:12px;
 }
 
-/* PRODUCT TEXT */
 .product-name{
     margin-top:6px;
     font-size:12px;
@@ -187,7 +187,7 @@ nav ul li a:hover{opacity:0.6;}
 }
 
 /* ============================
-   MOBILE LAYOUT
+   MOBILE
    ============================ */
 @media(max-width:900px){
 
@@ -198,7 +198,6 @@ nav ul li a:hover{opacity:0.6;}
       padding:6px 16px;
       align-items:center;
     }
-
     .menu-icon{display:block;}
     .center-logo-link{
         position:static;
@@ -209,24 +208,21 @@ nav ul li a:hover{opacity:0.6;}
 
     .catalog-wrap{flex-direction:column;}
 
-    /* hero images */
+    /* mobile hero */
     .left-image{
         width:100%;
     }
-    .left-image img.desktop-only{
-        display:none !important;
-    }
+    .left-image img.desktop-only{display:none !important;}
     .left-image img.mobile-only{
         display:block !important;
         width:100%;
         height:auto;
     }
 
-    /* RIGHT SIDE MOBILE */
     .right-side{
         width:100%;
         padding:0;
-        background:#fff;
+        background:#f6f5f2; /* ⭐ egg */
         position:relative;
         will-change:transform;
     }
@@ -234,38 +230,38 @@ nav ul li a:hover{opacity:0.6;}
     .catalog-container{position:static;}
     .catalog-title{display:none;}
 
-    /* MOBILE GRID (no gaps between tiles) */
+    /* mobile grid */
     .grid{
         grid-template-columns:repeat(2,1fr);
         gap:0;
         width:100%;
-        background:#fff;
+        background:#f6f5f2; /* ⭐ egg */
     }
 
     .product-box{
         width:100%;
         height:220px;
-        background:#f8f8f8;
+        background:#e9e8e4; /* ⭐ darker tone */
         border-radius:0;
     }
 
     .product-info{
         background:#fff;
         padding:14px 10px 18px;
-        border-top:1px solid #eaeaea;
+        border-top:1px solid #dcdcdc;
         margin:0;
         text-align:left;
     }
 
     footer{
         margin-top:40px;
-        background:#eeeeee; /* mobile footer bg */
+        background:#eeeeee; /* ⭐ KEEP FOOTER THIS COLOR */
     }
 }
 
-/* FOOTER */
+/* ⭐ FOOTER */
 footer{
-  background:#eeeeee;   /* ⭐ requested color */
+  background:#eeeeee; /* requested */
   padding:30px 0;
   text-align:center;
   font-size:11px;
@@ -299,10 +295,8 @@ footer{
 <div class="catalog-wrap">
 
     <div class="left-image">
-        <!-- DESKTOP: two stacked images -->
         <img src="number23.webp" class="desktop-only">
         <img src="test3.webp" class="desktop-only">
-        <!-- MOBILE: only test3 -->
         <img src="test3.webp" class="mobile-only" style="display:none;">
     </div>
 
@@ -313,7 +307,6 @@ footer{
 
             <div class="grid">
 
-                <!-- PRODUCT 1 -->
                 <div>
                     <a href="FELINE01.html" style="color:inherit;text-decoration:none;">
                         <div class="product-box">
@@ -326,7 +319,7 @@ footer{
                     </a>
                 </div>
 
-                <!-- PLACEHOLDERS -->
+                <!-- placehold -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
@@ -352,7 +345,6 @@ footer{
                 </div>
 
             </div>
-
         </div>
     </div>
 </div>
@@ -363,14 +355,12 @@ footer{
 function openMenu(){document.getElementById("menuPanel").classList.add("open");}
 function closeMenu(){document.getElementById("menuPanel").classList.remove("open");}
 
-/* subtle upward scroll effect still here */
+/* upward scroll movement */
 window.addEventListener("scroll", ()=>{
     const y = window.scrollY;
-    const rs = document.getElementById("rightSide");
-    rs.style.transform = `translateY(${-y * 0.12}px)`;
+    document.getElementById("rightSide").style.transform = `translateY(${-y * 0.12}px)`;
 });
 </script>
 
 </body>
 </html>
-
