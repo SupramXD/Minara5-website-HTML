@@ -36,10 +36,19 @@ header{
   top:50%;
   transform:translate(-50%,-50%);
 }
-.center-logo{height:29px;opacity:0.92;pointer-events:none;}
+.center-logo{
+  height:29px;
+  opacity:0.92;
+  pointer-events:none;
+}
 
+/* NAV */
 nav{margin-left:auto;}
-nav ul{list-style:none;display:flex;margin-top:2px;}
+nav ul{
+  list-style:none;
+  display:flex;
+  margin-top:2px;
+}
 nav ul li{margin-left:25px;}
 nav ul li a{
   font-size:11px;
@@ -50,13 +59,16 @@ nav ul li a{
   align-items:center;
   gap:6px;
   text-decoration:none;
+  transition:opacity .25s ease;
 }
+nav ul li a:hover{opacity:0.6;}
 .question-icon{height:14px;}
 .desktop-icon{height:12px;}
 
 .menu-icon{display:none;cursor:pointer;}
 .menu-icon img{height:14px;}
 
+/* SLIDEOUT */
 .slideout{
   position:fixed;
   top:0;
@@ -71,8 +83,13 @@ nav ul li a{
 .slideout.open{left:0;}
 .close-btn{position:absolute;top:18px;right:24px;font-size:30px;cursor:pointer;}
 .slideout a{
-  display:block;font-size:14px;text-transform:uppercase;
-  letter-spacing:0.28em;text-decoration:none;color:#000;margin:26px 0;
+  display:block;
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:0.28em;
+  color:#000;
+  margin:26px 0;
+  text-decoration:none;
 }
 
 /* MAIN */
@@ -89,13 +106,15 @@ nav ul li a{
     display:flex;
     flex-direction:column;
 }
-.left-image img{width:100%;display:block;}
+.left-image img{
+    width:100%;
+    display:block;
+}
 
-/* RIGHT SIDE */
 .right-side{
     width:50%;
     background:#f5f5f5;
-    padding:70px 40px 0px; /* removed gap */
+    padding:70px 40px 0px;
 }
 .catalog-container{position:sticky;top:45px;}
 
@@ -122,7 +141,8 @@ nav ul li a{
     overflow:hidden;
 }
 
-/* REAL PRODUCT TEXT */
+.product-info{text-align:left;}
+
 .product-name{
     margin-top:12px;
     font-size:12px;
@@ -136,13 +156,12 @@ nav ul li a{
     margin-top:3px;
 }
 
-/* PLACEHOLDER TEXT – MATCH EXACT STYLE */
+/* PLACEHOLDER */
 .placeholder-name{
     margin-top:12px;
     font-size:12px;
     text-transform:uppercase;
     letter-spacing:0.18em;
-    color:#000;        /* match real product */
     line-height:1.35;
 }
 .placeholder-price{
@@ -164,12 +183,20 @@ nav ul li a{
     }
 
     .menu-icon{display:block;}
-    .center-logo-link{position:static;transform:none;margin-left:auto;}
+    .center-logo-link{
+        position:static;
+        transform:none;
+        margin-left:auto;
+    }
     .center-logo{height:22px;}
 
-    .catalog-wrap{flex-direction:column;}
+    .catalog-wrap{
+        flex-direction:column;
+    }
 
-    .left-image{width:100%;}
+    .left-image{
+        width:100%;
+    }
     .left-image img{
         display:none !important;
     }
@@ -180,11 +207,15 @@ nav ul li a{
         margin:0;
     }
 
-    .catalog-container{position:static !important;}
+    .catalog-container{
+        position:static !important;
+    }
+
     .right-side{
         width:100%;
         padding:0;
         margin:0;
+        background:#fff;
     }
 
     .catalog-title{display:none;}
@@ -204,24 +235,24 @@ nav ul li a{
         background:#fff;
         padding:14px 10px 20px;
         border-top:1px solid #e5e5e5;
-        text-align:left;
         margin:0;
     }
 
-    .footer-copy{
+    footer{
         margin-top:40px !important;
         display:block;
     }
 }
 
-/* COPYRIGHT */
-.footer-copy{
-    width:100%;
-    background:#e5e5e5;
-    text-align:center;
-    padding:22px 0;
-    font-size:11.5px;
-    letter-spacing:0.28em;
+/* FOOTER (from index.html) */
+footer{
+  background:#f5f5f5;
+  padding:30px 0;
+  text-align:center;
+  font-size:11px;
+  color:#000;
+  text-transform:uppercase;
+  letter-spacing:0.20em;
 }
 </style>
 </head>
@@ -261,8 +292,9 @@ nav ul li a{
 
             <div class="grid">
 
-                <!-- PRODUCT 1 -->
+                <!-- PRODUCT 1 (NOW CLICKABLE) -->
                 <div>
+                  <a href="FELINE01.html" style="color:inherit;text-decoration:none;">
                     <div class="product-box">
                         <img src="cheetahproduct.webp" style="width:100%;height:100%;object-fit:cover;">
                     </div>
@@ -270,32 +302,33 @@ nav ul li a{
                       <div class="product-name">FELINE01 BACKPACK</div>
                       <div class="price">R749</div>
                     </div>
+                  </a>
                 </div>
 
-                <!-- PRODUCT 2 PLACEHOLDER -->
+                <!-- PLACEHOLDER 1 -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
-                      <div class="placeholder-name">AWAITING<br>REVEAL</div>
-                      <div class="placeholder-price">R000</div>
+                        <div class="placeholder-name">AWAITING<br>REVEAL</div>
+                        <div class="placeholder-price">R000</div>
                     </div>
                 </div>
 
-                <!-- PRODUCT 3 PLACEHOLDER -->
+                <!-- PLACEHOLDER 2 -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
-                      <div class="placeholder-name">AWAITING<br>REVEAL</div>
-                      <div class="placeholder-price">R000</div>
+                        <div class="placeholder-name">AWAITING<br>REVEAL</div>
+                        <div class="placeholder-price">R000</div>
                     </div>
                 </div>
 
-                <!-- PRODUCT 4 PLACEHOLDER -->
+                <!-- PLACEHOLDER 3 -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
-                      <div class="placeholder-name">AWAITING<br>REVEAL</div>
-                      <div class="placeholder-price">R000</div>
+                        <div class="placeholder-name">AWAITING<br>REVEAL</div>
+                        <div class="placeholder-price">R000</div>
                     </div>
                 </div>
 
@@ -304,8 +337,7 @@ nav ul li a{
     </div>
 </div>
 
-<!-- COPYRIGHT -->
-<div class="footer-copy">© 2025 MINARA5</div>
+<footer>© 2025 MINARA5</footer>
 
 <script>
 function openMenu(){document.getElementById("menuPanel").classList.add("open");}
