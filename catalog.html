@@ -15,9 +15,7 @@ body{
     color:#000;
 }
 
-/* ============================
-   HEADER (DESKTOP – ORIGINAL)
-   ============================ */
+/* HEADER */
 header{
   position:fixed;
   top:0; left:0; right:0;
@@ -32,40 +30,16 @@ header{
   border-bottom:1px solid #eee;
 }
 
-/* Desktop left nav */
-.left-nav a{
-  font-size:12px;
-  text-transform:uppercase;
-  letter-spacing:1px;
-  color:#000;
-  margin-top:4px;
-  text-decoration:none;
-  transition:opacity .25s;
-}
-.left-nav a:hover{opacity:0.6;}
-
-/* Centered logo */
 .center-logo-link{
   position:absolute;
   left:50%;
   top:50%;
   transform:translate(-50%,-50%);
 }
-.center-logo{
-  height:29px;
-  opacity:0.92;
-  pointer-events:none;
-}
+.center-logo{height:29px;opacity:0.92;pointer-events:none;}
 
-/* Desktop right icons */
-nav{
-  margin-left:auto;
-}
-nav ul{
-  list-style:none;
-  display:flex;
-  margin-top:2px;
-}
+nav{margin-left:auto;}
+nav ul{list-style:none;display:flex;margin-top:2px;}
 nav ul li{margin-left:25px;}
 nav ul li a{
   font-size:11px;
@@ -76,23 +50,12 @@ nav ul li a{
   align-items:center;
   gap:6px;
   text-decoration:none;
-  transition:opacity .25s;
 }
-nav ul li a:hover{opacity:0.6;}
-
 .question-icon{height:14px;}
 .desktop-icon{height:12px;}
 
-/* ============================
-   MOBILE MENU ICON + SLIDEOUT
-   ============================ */
-.menu-icon{
-  display:none;
-  cursor:pointer;
-}
-.menu-icon img{
-  height:14px;
-}
+.menu-icon{display:none;cursor:pointer;}
+.menu-icon img{height:14px;}
 
 .slideout{
   position:fixed;
@@ -106,28 +69,13 @@ nav ul li a:hover{opacity:0.6;}
   padding:50px 40px 40px;
 }
 .slideout.open{left:0;}
-
-.close-btn{
-  position:absolute;
-  top:18px;
-  right:24px;
-  font-size:30px;
-  cursor:pointer;
-}
-
+.close-btn{position:absolute;top:18px;right:24px;font-size:30px;cursor:pointer;}
 .slideout a{
-  display:block;
-  font-size:14px;
-  text-transform:uppercase;
-  letter-spacing:0.28em;
-  text-decoration:none;
-  color:#000;
-  margin:26px 0;
+  display:block;font-size:14px;text-transform:uppercase;
+  letter-spacing:0.28em;text-decoration:none;color:#000;margin:26px 0;
 }
 
-/* ============================
-   MAIN LAYOUT
-   ============================ */
+/* MAIN */
 .catalog-wrap{
     margin-top:45px;
     display:flex;
@@ -138,13 +86,16 @@ nav ul li a:hover{opacity:0.6;}
     width:50%;
     background:#000;
     overflow:hidden;
+    display:flex;
+    flex-direction:column;
 }
 .left-image img{width:100%;display:block;}
 
+/* RIGHT SIDE */
 .right-side{
     width:50%;
     background:#f5f5f5;
-    padding:70px 40px 80px;
+    padding:70px 40px 0px; /* removed gap */
 }
 .catalog-container{position:sticky;top:45px;}
 
@@ -157,7 +108,7 @@ nav ul li a:hover{opacity:0.6;}
     margin-bottom:45px;
 }
 
-/* DESKTOP GRID */
+/* GRID */
 .grid{
     display:grid;
     grid-template-columns:repeat(2,150px);
@@ -166,12 +117,12 @@ nav ul li a:hover{opacity:0.6;}
 
 .product-box{
     width:150px;
-    height:220px; /* rectangle shape kept */
+    height:220px;
     background:#efefef;
     overflow:hidden;
 }
 
-/* Product text */
+/* REAL PRODUCT TEXT */
 .product-name{
     margin-top:12px;
     font-size:12px;
@@ -185,67 +136,68 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:3px;
 }
 
-/* ============================
-   MOBILE SECTION
-   ============================ */
+/* PLACEHOLDER TEXT – MATCH EXACT STYLE */
+.placeholder-name{
+    margin-top:12px;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.18em;
+    color:#000;        /* match real product */
+    line-height:1.35;
+}
+.placeholder-price{
+    opacity:0.5;
+    font-size:11px;
+    letter-spacing:0.12em;
+    margin-top:3px;
+}
+
+/* MOBILE */
 @media(max-width:900px){
 
-    .left-nav{display:none;}
     nav{display:none;}
 
     header{
       justify-content:space-between;
-      align-items:center;
       padding:6px 16px;
+      align-items:center;
     }
 
     .menu-icon{display:block;}
-    .center-logo-link{
-        position:static;
-        transform:none;
-        margin-left:auto;
-    }
+    .center-logo-link{position:static;transform:none;margin-left:auto;}
     .center-logo{height:22px;}
 
     .catalog-wrap{flex-direction:column;}
 
-    .left-image{
-      width:100%;
-      margin-bottom:0;
-      padding-bottom:0;
-    }
+    .left-image{width:100%;}
     .left-image img{
-      width:100%;
-      display:block;
+        display:none !important;
+    }
+    .left-image img.mobile-only{
+        display:block !important;
+        width:100%;
+        height:auto;
+        margin:0;
     }
 
+    .catalog-container{position:static !important;}
     .right-side{
         width:100%;
-        position:relative;
-        background:#fff;
         padding:0;
         margin:0;
-        z-index:5;
-        transform:translateY(0);
-        will-change:transform;
     }
 
     .catalog-title{display:none;}
 
     .grid{
-        display:grid;
         grid-template-columns:repeat(2,1fr);
         gap:0;
         width:100%;
-        margin-top:0;
     }
 
     .product-box{
         width:100%;
         height:220px;
-        background:#efefef;
-        margin:0;
-        overflow:hidden;
     }
 
     .product-info{
@@ -255,44 +207,39 @@ nav ul li a:hover{opacity:0.6;}
         text-align:left;
         margin:0;
     }
+
+    .footer-copy{
+        margin-top:40px !important;
+        display:block;
+    }
+}
+
+/* COPYRIGHT */
+.footer-copy{
+    width:100%;
+    background:#e5e5e5;
+    text-align:center;
+    padding:22px 0;
+    font-size:11.5px;
+    letter-spacing:0.28em;
 }
 </style>
 </head>
 <body>
 
 <header>
-
-  <div class="menu-icon" onclick="openMenu()">
-      <img src="menu.svg">
-  </div>
-
-  <a href="index.html" class="center-logo-link">
-      <img src="minara 5 transparent 2.svg" class="center-logo">
-  </a>
-
+  <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
+  <a href="index.html" class="center-logo-link"><img src="minara 5 transparent 2.svg" class="center-logo"></a>
   <nav>
     <ul>
-      <li>
-        <a href="contact.html">
-          <img src="question mark.svg" class="question-icon">
-          <span>Contact</span>
-        </a>
-      </li>
-      <li>
-        <a href="auth.html">
-          <img src="head shoulder.svg" class="desktop-icon">
-          <span>Account</span>
-        </a>
-      </li>
+      <li><a href="contact.html"><img src="question mark.svg" class="question-icon"><span>Contact</span></a></li>
+      <li><a href="auth.html"><img src="head shoulder.svg" class="desktop-icon"><span>Account</span></a></li>
     </ul>
   </nav>
-
 </header>
 
-<!-- SLIDEOUT MENU -->
 <div class="slideout" id="menuPanel">
   <div class="close-btn" onclick="closeMenu()">×</div>
-
   <a href="index.html">Home</a>
   <a href="social media.html">Social Media</a>
   <a href="contact.html">Contact</a>
@@ -302,10 +249,12 @@ nav ul li a:hover{opacity:0.6;}
 <div class="catalog-wrap">
 
     <div class="left-image">
-        <img src="number23.webp">
+        <img src="number23.webp" class="desktop-only">
+        <img src="test3.webp" class="desktop-only">
+        <img src="test3.webp" class="mobile-only" style="display:none;">
     </div>
 
-    <div class="right-side" id="rightSide">
+    <div class="right-side">
         <div class="catalog-container">
 
             <div class="catalog-title">Catalog</div>
@@ -323,30 +272,30 @@ nav ul li a:hover{opacity:0.6;}
                     </div>
                 </div>
 
-                <!-- PRODUCT 2 -->
+                <!-- PRODUCT 2 PLACEHOLDER -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
-                      <div class="product-name">Placeholder Product</div>
-                      <div class="price">$000</div>
+                      <div class="placeholder-name">AWAITING<br>REVEAL</div>
+                      <div class="placeholder-price">R000</div>
                     </div>
                 </div>
 
-                <!-- PRODUCT 3 -->
+                <!-- PRODUCT 3 PLACEHOLDER -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
-                      <div class="product-name">Placeholder Product</div>
-                      <div class="price">$000</div>
+                      <div class="placeholder-name">AWAITING<br>REVEAL</div>
+                      <div class="placeholder-price">R000</div>
                     </div>
                 </div>
 
-                <!-- PRODUCT 4 -->
+                <!-- PRODUCT 4 PLACEHOLDER -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
-                      <div class="product-name">Placeholder Product</div>
-                      <div class="price">$000</div>
+                      <div class="placeholder-name">AWAITING<br>REVEAL</div>
+                      <div class="placeholder-price">R000</div>
                     </div>
                 </div>
 
@@ -355,17 +304,12 @@ nav ul li a:hover{opacity:0.6;}
     </div>
 </div>
 
-<script>
-function openMenu(){ document.getElementById("menuPanel").classList.add("open"); }
-function closeMenu(){ document.getElementById("menuPanel").classList.remove("open"); }
+<!-- COPYRIGHT -->
+<div class="footer-copy">© 2025 MINARA5</div>
 
-window.addEventListener("scroll", ()=>{
-    const y = window.scrollY;
-    const rs = document.getElementById("rightSide");
-    if(window.innerWidth < 900){
-        rs.style.transform = `translateY(${-y * 0.28}px)`;
-    }
-});
+<script>
+function openMenu(){document.getElementById("menuPanel").classList.add("open");}
+function closeMenu(){document.getElementById("menuPanel").classList.remove("open");}
 </script>
 
 </body>
