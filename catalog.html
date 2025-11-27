@@ -10,7 +10,7 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
     font-family:Helvetica,Arial,sans-serif;
-    background:#fff;
+    background:#f6f5f2; /* ⭐ MADE WHOLE PAGE THIS EGG COLOR */
     overflow-x:hidden;
     color:#000;
 }
@@ -36,11 +36,7 @@ header{
   top:50%;
   transform:translate(-50%,-50%);
 }
-.center-logo{
-  height:29px;
-  opacity:0.92;
-  pointer-events:none;
-}
+.center-logo{height:29px;opacity:0.92;pointer-events:none;}
 
 nav{margin-left:auto;}
 nav ul{
@@ -67,7 +63,7 @@ nav ul li a:hover{opacity:0.6;}
 .menu-icon{display:none;cursor:pointer;}
 .menu-icon img{height:14px;}
 
-/* SLIDEOUT */
+/* SLIDEOUT MENU */
 .slideout{
   position:fixed;
   top:0;
@@ -104,6 +100,7 @@ nav ul li a:hover{opacity:0.6;}
     width:100%;
 }
 
+/* LEFT IMAGE (DESKTOP) */
 .left-image{
     width:50%;
     background:#000;
@@ -111,15 +108,19 @@ nav ul li a:hover{opacity:0.6;}
     display:flex;
     flex-direction:column;
 }
-.left-image img{width:100%;display:block;}
+.left-image img{
+    width:100%;
+    display:block;
+}
 
-/* RIGHT SIDE */
+/* RIGHT SIDE (DESKTOP) */
 .right-side{
     width:50%;
-    background:#f5f5f5;
+    background:#f6f5f2; /* ⭐ MATCHED CREAM COLOR */
     padding:70px 40px 0px;
-    transition:transform 0.3s ease-out;
+    transition:transform 0.15s ease-out; /* ⭐ FASTER, MORE RESPONSIVE */
 }
+
 .catalog-container{position:sticky;top:45px;}
 
 .catalog-title{
@@ -131,7 +132,7 @@ nav ul li a:hover{opacity:0.6;}
     margin-bottom:45px;
 }
 
-/* GRID */
+/* GRID (DESKTOP) */
 .grid{
     display:grid;
     grid-template-columns:repeat(2,150px);
@@ -160,7 +161,7 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:3px;
 }
 
-/* PLACEHOLDER */
+/* PLACEHOLDER TEXT */
 .placeholder-name{
     margin-top:12px;
     font-size:12px;
@@ -176,7 +177,7 @@ nav ul li a:hover{opacity:0.6;}
 }
 
 /* ============================
-   MOBILE REWORK (HIGH FASHION)
+   MOBILE HIGH-FASHION SECTION
    ============================ */
 @media(max-width:900px){
 
@@ -199,9 +200,7 @@ nav ul li a:hover{opacity:0.6;}
     .catalog-wrap{flex-direction:column;}
 
     .left-image{width:100%;}
-    .left-image img{
-        display:none !important;
-    }
+    .left-image img{display:none !important;}
     .left-image img.mobile-only{
         display:block !important;
         width:100%;
@@ -209,52 +208,80 @@ nav ul li a:hover{opacity:0.6;}
         margin:0;
     }
 
-    /* restore over-image scroll effect */
     .right-side{
         width:100%;
         padding:0;
         margin:0;
-        background:#fff;
+        background:#f6f5f2; /* ⭐ MOBILE BOTTOM FIXED */
         position:relative;
         will-change:transform;
     }
 
     .catalog-container{position:static;}
-
     .catalog-title{display:none;}
 
-    /* ⭐ NEW HIGH-FASHION MOBILE BOXES */
+    /* MOBILE PRODUCT GRID */
     .grid{
         grid-template-columns:repeat(2,1fr);
-        gap:12px; /* nice spacing */
-        padding:12px;
-        background:#fdfbf7; /* very light cream Dior style */
+        gap:16px;
+        padding:18px;
+        background:#f6f5f2; /* ⭐ FULL WIDTH CREAM COLOR */
     }
 
     .product-box{
         width:100%;
-        height:210px;
-        background:#f5f2eb; /* premium cream tone */
-        border-radius:3px;
+        height:250px;
+        background:#f3f2ef;
+        border-radius:4px;
         overflow:hidden;
+
+        opacity:0;
+        transform:translateY(28px);
+        transition:opacity .55s ease, transform .55s ease;
+    }
+
+    .product-box img{
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        box-shadow:0 18px 40px rgba(0,0,0,0.07);
     }
 
     .product-info{
         background:#fff;
-        padding:14px 10px 20px;
+        padding:18px 10px 26px;
         border-top:1px solid #eee;
         margin:0;
+
+        opacity:0;
+        transform:translateY(22px);
+        transition:opacity .55s ease, transform .55s ease;
+    }
+
+    .product-name,
+    .placeholder-name{
+        font-size:11.3px;
+        letter-spacing:0.22em;
+        opacity:0.85;
+    }
+
+    .price,
+    .placeholder-price{
+        font-size:10.5px;
+        opacity:0.45;
+        letter-spacing:0.12em;
     }
 
     footer{
         margin-top:40px !important;
         display:block;
+        background:#f6f5f2; /* ⭐ FOOTER ALSO CREAM */
     }
 }
 
-/* FOOTER (from index.html) */
+/* FOOTER */
 footer{
-  background:#f5f5f5;
+  background:#f6f5f2; /* ⭐ MATCHED CREAM */
   padding:30px 0;
   text-align:center;
   font-size:11px;
@@ -268,9 +295,7 @@ footer{
 
 <header>
   <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
-  <a href="index.html" class="center-logo-link">
-    <img src="minara 5 transparent 2.svg" class="center-logo">
-  </a>
+  <a href="index.html" class="center-logo-link"><img src="minara 5 transparent 2.svg" class="center-logo"></a>
   <nav>
     <ul>
       <li><a href="contact.html"><img src="question mark.svg" class="question-icon"><span>Contact</span></a></li>
@@ -305,10 +330,10 @@ footer{
                 <!-- PRODUCT 1 CLICKABLE -->
                 <div>
                   <a href="FELINE01.html" style="color:inherit;text-decoration:none;">
-                    <div class="product-box">
-                        <img src="cheetahproduct.webp" style="width:100%;height:100%;object-fit:cover;">
+                    <div class="product-box fade-item">
+                        <img src="cheetahproduct.webp">
                     </div>
-                    <div class="product-info">
+                    <div class="product-info fade-item">
                       <div class="product-name">FELINE01 BACKPACK</div>
                       <div class="price">R749</div>
                     </div>
@@ -317,24 +342,24 @@ footer{
 
                 <!-- PLACEHOLDERS -->
                 <div>
-                    <div class="product-box"></div>
-                    <div class="product-info">
+                    <div class="product-box fade-item"></div>
+                    <div class="product-info fade-item">
                       <div class="placeholder-name">AWAITING<br>REVEAL</div>
                       <div class="placeholder-price">R000</div>
                     </div>
                 </div>
 
                 <div>
-                    <div class="product-box"></div>
-                    <div class="product-info">
+                    <div class="product-box fade-item"></div>
+                    <div class="product-info fade-item">
                       <div class="placeholder-name">AWAITING<br>REVEAL</div>
                       <div class="placeholder-price">R000</div>
                     </div>
                 </div>
 
                 <div>
-                    <div class="product-box"></div>
-                    <div class="product-info">
+                    <div class="product-box fade-item"></div>
+                    <div class="product-info fade-item">
                       <div class="placeholder-name">AWAITING<br>REVEAL</div>
                       <div class="placeholder-price">R000</div>
                     </div>
@@ -351,14 +376,28 @@ footer{
 function openMenu(){document.getElementById("menuPanel").classList.add("open");}
 function closeMenu(){document.getElementById("menuPanel").classList.remove("open");}
 
-/* ⭐ RICK OWENS STYLE UPWARD SCROLL EFFECT */
+/* ⭐ More responsive Rick Owens upward movement */
 window.addEventListener("scroll", ()=>{
     const y = window.scrollY;
     const rs = document.getElementById("rightSide");
 
-    /* subtle parallax upward movement */
-    rs.style.transform = `translateY(${-y * 0.18}px)`;
+    /* faster response */
+    rs.style.transform = `translateY(${-y * 0.12}px)`;
 });
+
+/* Fade-in animation */
+const fadeItems=document.querySelectorAll(".fade-item");
+
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.style.opacity="1";
+      e.target.style.transform="translateY(0)";
+    }
+  });
+},{threshold:0.1});
+
+fadeItems.forEach(i=>obs.observe(i));
 </script>
 
 </body>
