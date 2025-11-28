@@ -48,7 +48,10 @@ nav ul li a{
   font-size:11px;
   text-transform:uppercase;
   letter-spacing:1px;
-  color:#000; display:flex; align-items:center; gap:6px;
+  color:#000; 
+  display:flex; 
+  align-items:center; 
+  gap:6px;
   text-decoration:none;
   transition:opacity .25s ease;
 }
@@ -61,29 +64,39 @@ nav ul li a:hover{opacity:0.6;}
 
 /* SLIDEOUT */
 .slideout{
-  position:fixed; top:0; left:-100%;
-  width:100%; height:100vh;
-  background:#fff; z-index:2000;
+  position:fixed; 
+  top:0; 
+  left:-100%;
+  width:100%; 
+  height:100vh;
+  background:#fff; 
+  z-index:2000;
   transition:left .35s ease;
   padding:50px 40px;
 }
 .slideout.open{left:0;}
 .close-btn{
-  position:absolute; top:18px; right:24px;
-  font-size:30px; cursor:pointer;
+  position:absolute; 
+  top:18px; 
+  right:24px;
+  font-size:30px; 
+  cursor:pointer;
 }
 .slideout a{
-  display:block; margin:26px 0;
+  display:block; 
+  margin:26px 0;
   font-size:14px;
   text-transform:uppercase;
   letter-spacing:0.28em;
-  text-decoration:none; color:#000;
+  text-decoration:none; 
+  color:#000;
 }
 
 /* LAYOUT */
 .catalog-wrap{
     margin-top:45px;
-    display:flex; width:100%;
+    display:flex; 
+    width:100%;
 }
 
 /* LEFT IMAGE (up 10px) */
@@ -95,7 +108,8 @@ nav ul li a:hover{opacity:0.6;}
 }
 .left-image img{
     width:100%;
-    height:auto; display:block;
+    height:auto; 
+    display:block;
 }
 
 /* RIGHT SIDE (down 10px) */
@@ -107,12 +121,16 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:10px !important;
 }
 
-.catalog-container{ position:sticky; top:45px; }
+.catalog-container{ 
+    position:sticky; 
+    top:45px; 
+}
 .catalog-title{
     font-size:25px;
     text-transform:uppercase;
     letter-spacing:0.55em;
-    margin-top:15px; margin-bottom:45px;
+    margin-top:15px; 
+    margin-bottom:45px;
 }
 
 /* GRID */
@@ -124,12 +142,16 @@ nav ul li a:hover{opacity:0.6;}
 
 /* PRODUCT BOXES */
 .product-box{
-    width:100%; padding-top:20px;
+    width:100%; 
+    padding-top:20px;
     min-height:160px;
-    display:flex; justify-content:center; align-items:flex-start;
+    display:flex; 
+    justify-content:center; 
+    align-items:flex-start;
 }
 .product-box img{
-    width:65%; height:auto;
+    width:65%; 
+    height:auto;
 }
 
 /* INFO */
@@ -142,7 +164,8 @@ nav ul li a:hover{opacity:0.6;}
 .product-name, .placeholder-name{
     font-size:12.5px;
     text-transform:uppercase;
-    letter-spacing:0.16em; line-height:1.35;
+    letter-spacing:0.16em; 
+    line-height:1.35;
 }
 .price, .placeholder-price{
     opacity:0.55;
@@ -150,22 +173,29 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:8px;
 }
 
-/* DESKTOP — bottom-right adjust (unchanged) */
+/* DESKTOP — bottom-right adjust (kept as-is) */
 @media(min-width:900px){
     .grid > div:nth-child(4){
         margin-top:-160px !important;
     }
 }
 
-/* ⭐ FIX: MOBILE — increase box height so price NEVER cuts */
+/* MOBILE */
 @media(max-width:900px){
 
     nav{display:none;}
 
-    header{justify-content:space-between; padding:6px 16px;}
+    header{
+      justify-content:space-between; 
+      padding:6px 16px;
+    }
 
     .menu-icon{display:block;}
-    .center-logo-link{position:static; transform:none; margin-left:auto;}
+    .center-logo-link{
+        position:static; 
+        transform:none; 
+        margin-left:auto;
+    }
     .center-logo{height:22px;}
 
     .catalog-wrap{flex-direction:column;}
@@ -174,10 +204,15 @@ nav ul li a:hover{opacity:0.6;}
     .left-image img.desktop-only{display:none!important;}
     .left-image img.mobile-only{
         display:block!important;
-        width:100%; height:auto;
+        width:100%; 
+        height:auto;
     }
 
-    .right-side{width:100%; padding:0; background:#ffffff;}
+    .right-side{
+        width:100%; 
+        padding:0; 
+        background:#ffffff;
+    }
 
     .catalog-container{position:static;}
     .catalog-title{display:none;}
@@ -188,9 +223,9 @@ nav ul li a:hover{opacity:0.6;}
         padding:20px 12px 60px;
     }
 
-    /* ⭐ REAL FIX */
     .product-box{
-        min-height:220px !important;
+        padding-top:20px;
+        min-height:160px;  /* back to original, no 220px override */
     }
 
     .grid > div:nth-child(2),
@@ -198,7 +233,10 @@ nav ul li a:hover{opacity:0.6;}
         margin-top:-55px !important;
     }
 
-    footer{margin-top:40px; background:#eeeeee;}
+    footer{
+        margin-top:40px; 
+        background:#eeeeee;
+    }
 }
 
 /* FOOTER */
@@ -258,7 +296,7 @@ footer{
                             <img src="cheetahproduct.avif">
                         </div>
                         <div class="product-info">
-                            <div class="product-name">FELINE01<br>BACKPACK</div>
+                            <div class="product-name">Léopard fur <br>BACKPACK</div>
                             <div class="price">R749</div>
                         </div>
                     </a>
