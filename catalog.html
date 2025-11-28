@@ -48,10 +48,7 @@ nav ul li a{
   font-size:11px;
   text-transform:uppercase;
   letter-spacing:1px;
-  color:#000;
-  display:flex;
-  align-items:center;
-  gap:6px;
+  color:#000; display:flex; align-items:center; gap:6px;
   text-decoration:none;
   transition:opacity .25s ease;
 }
@@ -64,11 +61,9 @@ nav ul li a:hover{opacity:0.6;}
 
 /* SLIDEOUT */
 .slideout{
-  position:fixed;
-  top:0; left:-100%;
+  position:fixed; top:0; left:-100%;
   width:100%; height:100vh;
-  background:#fff;
-  z-index:2000;
+  background:#fff; z-index:2000;
   transition:left .35s ease;
   padding:50px 40px;
 }
@@ -78,53 +73,46 @@ nav ul li a:hover{opacity:0.6;}
   font-size:30px; cursor:pointer;
 }
 .slideout a{
-  display:block;
+  display:block; margin:26px 0;
   font-size:14px;
   text-transform:uppercase;
   letter-spacing:0.28em;
-  margin:26px 0;
-  text-decoration:none;
-  color:#000;
+  text-decoration:none; color:#000;
 }
 
 /* LAYOUT */
 .catalog-wrap{
     margin-top:45px;
-    display:flex;
-    width:100%;
+    display:flex; width:100%;
 }
 
-/* LEFT IMAGE */
+/* LEFT IMAGE (moved UP 10px) */
 .left-image{
     width:50%;
     background:#ffffff;
     overflow:hidden;
+    margin-top:-10px !important;
 }
 .left-image img{
     width:100%;
-    height:auto;
-    display:block;
+    height:auto; display:block;
 }
 
-/* RIGHT SIDE */
+/* RIGHT SIDE (moved DOWN 10px) */
 .right-side{
     width:50%;
     padding:70px 40px 0px;
     background:#ffffff;
     transition:transform .08s ease-out;
+    margin-top:10px !important;
 }
 
-.catalog-container{
-    position:sticky;
-    top:45px;
-}
-
+.catalog-container{ position:sticky; top:45px; }
 .catalog-title{
     font-size:25px;
     text-transform:uppercase;
     letter-spacing:0.55em;
-    margin-top:15px;
-    margin-bottom:45px;
+    margin-top:15px; margin-bottom:45px;
 }
 
 /* GRID */
@@ -136,16 +124,12 @@ nav ul li a:hover{opacity:0.6;}
 
 /* PRODUCT BOXES */
 .product-box{
-    width:100%;
-    padding-top:20px;
+    width:100%; padding-top:20px;
     min-height:160px;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
+    display:flex; justify-content:center; align-items:flex-start;
 }
 .product-box img{
-    width:65%;
-    height:auto;
+    width:65%; height:auto;
 }
 
 /* INFO */
@@ -155,35 +139,21 @@ nav ul li a:hover{opacity:0.6;}
     border-top:1px solid #e6e6e6;
     text-align:left;
 }
-.product-name{
+.product-name, .placeholder-name{
     font-size:12.5px;
     text-transform:uppercase;
-    letter-spacing:0.16em;
-    line-height:1.35;
+    letter-spacing:0.16em; line-height:1.35;
 }
-.price{
-    opacity:0.55;
-    font-size:11.5px;
-    margin-top:8px;
-}
-.placeholder-name{
-    font-size:12.5px;
-    text-transform:uppercase;
-    letter-spacing:0.16em;
-    line-height:1.35;
-}
-.placeholder-price{
+.price, .placeholder-price{
     opacity:0.55;
     font-size:11.5px;
     margin-top:8px;
 }
 
-/* ===========================================================
-   DESKTOP ONLY — MOVE BOTTOM-RIGHT UP
-   =========================================================== */
+/* DESKTOP — bottom-right moved UP earlier (kept as-is) */
 @media(min-width:900px){
     .grid > div:nth-child(4){
-        margin-top:-160px !important; /* bottom-right moved up */
+        margin-top:-160px !important;
     }
 }
 
@@ -192,16 +162,10 @@ nav ul li a:hover{opacity:0.6;}
 
     nav{display:none;}
 
-    header{
-      justify-content:space-between;
-      padding:6px 16px;
-    }
+    header{justify-content:space-between; padding:6px 16px;}
 
     .menu-icon{display:block;}
-    .center-logo-link{
-        position:static; transform:none;
-        margin-left:auto;
-    }
+    .center-logo-link{position:static; transform:none; margin-left:auto;}
     .center-logo{height:22px;}
 
     .catalog-wrap{flex-direction:column;}
@@ -210,15 +174,10 @@ nav ul li a:hover{opacity:0.6;}
     .left-image img.desktop-only{display:none!important;}
     .left-image img.mobile-only{
         display:block!important;
-        width:100%;
-        height:auto;
+        width:100%; height:auto;
     }
 
-    .right-side{
-        width:100%;
-        padding:0;
-        background:#ffffff;
-    }
+    .right-side{width:100%; padding:0; background:#ffffff;}
 
     .catalog-container{position:static;}
     .catalog-title{display:none;}
@@ -239,10 +198,7 @@ nav ul li a:hover{opacity:0.6;}
         margin-top:-55px !important;
     }
 
-    footer{
-        margin-top:40px;
-        background:#eeeeee;
-    }
+    footer{margin-top:40px; background:#eeeeee;}
 }
 
 /* FOOTER */
@@ -326,7 +282,7 @@ footer{
                     </div>
                 </div>
 
-                <!-- BOTTOM RIGHT (now moved UP) -->
+                <!-- BOTTOM RIGHT -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
