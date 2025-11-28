@@ -96,16 +96,17 @@ nav ul li a:hover{opacity:0.6;}
 }
 .left-image img{
     width:100%;
-    height:auto; display:block;
+    height:auto;
+    display:block;
 }
 
-/* RIGHT SIDE — now moved DOWN by exactly 20px */
+/* RIGHT SIDE — moved DOWN by +35px (20px → 55px) */
 .right-side{
     width:50%;
     padding:70px 40px 0px;
     background:#ffffff;
     transition:transform .08s ease-out;
-    margin-top:20px !important;  /* ← changed from 50px to 20px */
+    margin-top:55px !important;
 }
 
 .catalog-container{ position:sticky; top:45px; }
@@ -123,13 +124,19 @@ nav ul li a:hover{opacity:0.6;}
     gap:60px 40px;
 }
 
-/* PRODUCT BOXES */
+/* LEFT PRODUCT BOXES ONLY — SHORTER BY 25px */
+.grid > div:nth-child(1) .product-box,
+.grid > div:nth-child(3) .product-box{
+    min-height:105px !important;  /* 130 → 105 */
+}
+
+/* RIGHT PRODUCT BOXES KEEP OLD HEIGHT */
 .product-box{
     width:100%;
     padding-top:20px;
-    min-height:130px;   /* shorter box, kept from your previous request */
+    min-height:130px;
     display:flex;
-    justify-content:center; 
+    justify-content:center;
     align-items:flex-start;
 }
 .product-box img{
@@ -156,7 +163,7 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:8px;
 }
 
-/* DESKTOP offset you already had */
+/* DESKTOP bottom-right offset (unchanged) */
 @media(min-width:900px){
     .grid > div:nth-child(4){
         margin-top:-160px !important;
@@ -286,7 +293,7 @@ footer{
                     </div>
                 </div>
 
-                <!-- BOTTOM LEFT -->
+                <!-- BOTTOM LEFT (shorter box applied) -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
