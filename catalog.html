@@ -19,7 +19,7 @@ header{
   position:fixed;
   top:0; left:0; right:0;
   height:45px;
-  background:rgba(255,255,255,0.93);
+  background:#fff;
   backdrop-filter:blur(2px);
   display:flex;
   justify-content:space-between;
@@ -28,7 +28,6 @@ header{
   z-index:1200;
   border-bottom:1px solid #eee;
 }
-
 .center-logo-link{
   position:absolute;
   left:50%;
@@ -63,7 +62,7 @@ nav ul li a:hover{opacity:0.6;}
 .menu-icon{display:none;}
 .menu-icon img{height:14px;}
 
-/* SLIDEOUT MENU */
+/* SLIDEOUT */
 .slideout{
   position:fixed;
   top:0; left:-100%;
@@ -71,7 +70,7 @@ nav ul li a:hover{opacity:0.6;}
   background:#fff;
   z-index:2000;
   transition:left .35s ease;
-  padding:50px 40px 40px;
+  padding:50px 40px;
 }
 .slideout.open{left:0;}
 .close-btn{
@@ -102,18 +101,17 @@ nav ul li a:hover{opacity:0.6;}
     overflow:hidden;
 }
 .left-image img{
-    width:100%; height:auto; display:block;
+    width:100%;
+    height:auto;
+    display:block;
 }
 
-/* RIGHT SIDE (PRODUCT AREA) */
+/* RIGHT SIDE (solid white again) */
 .right-side{
     width:50%;
     padding:70px 40px 0px;
-    background:rgba(255,255,255,0.65);
-    backdrop-filter:blur(3px);
-
-    /* ⭐ MUCH MORE RESPONSIVE SCROLL (LESS DELAY) */
-    transition:transform 0.08s ease-out;
+    background:#ffffff; /* ⭐ transparency removed */
+    transition:transform .08s ease-out;
 }
 
 .catalog-container{
@@ -136,7 +134,7 @@ nav ul li a:hover{opacity:0.6;}
     gap:60px 40px;
 }
 
-/* PRODUCT BOXES (shorter + cleaner) */
+/* PRODUCT BOXES */
 .product-box{
     width:100%;
     padding-top:25px;
@@ -148,7 +146,6 @@ nav ul li a:hover{opacity:0.6;}
 .product-box img{
     width:65%;
     height:auto;
-    object-fit:contain;
 }
 
 /* INFO */
@@ -181,21 +178,21 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:8px;
 }
 
-/* ⭐ DESKTOP: move bottom-right placeholder UP (match top-right) */
-@media(min-width:900px){
-    .grid > div:nth-child(4){
-        margin-top:-50px !important;
-    }
+/*
+=========================================
+ FIX: ALIGN RIGHT-SIDE PLACEHOLDERS
+=========================================
+Top-right  = grid item 2
+Bottom-right = grid item 4
+Lift BOTH by same amount (-50px)
+=========================================
+*/
+.grid > div:nth-child(2),
+.grid > div:nth-child(4){
+    margin-top:-50px !important;
 }
 
-/* ⭐ MOBILE: also raise bottom-right placeholder same amount */
-@media(max-width:900px){
-    .grid > div:nth-child(4){
-        margin-top:-50px !important;
-    }
-}
-
-/* MOBILE LAYOUT */
+/* MOBILE */
 @media(max-width:900px){
 
     nav{display:none;}
@@ -225,11 +222,8 @@ nav ul li a:hover{opacity:0.6;}
     .right-side{
         width:100%;
         padding:0;
-        background:rgba(255,255,255,0.65);
-        backdrop-filter:blur(3px);
-
-        /* faster scroll */
-        transition:transform 0.08s ease-out;
+        background:#ffffff;
+        transition:transform .08s ease-out;
     }
 
     .catalog-container{position:static;}
@@ -333,7 +327,7 @@ footer{
                     </div>
                 </div>
 
-                <!-- ⭐ BOTTOM-RIGHT PLACEHOLDER (raised on both desktop & mobile) -->
+                <!-- BOTTOM-RIGHT PLACEHOLDER (now same height as top-right) -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
@@ -351,11 +345,10 @@ footer{
 <footer>© 2025 MINARA5</footer>
 
 <script>
-/* MENU */
 function openMenu(){document.getElementById("menuPanel").classList.add("open");}
 function closeMenu(){document.getElementById("menuPanel").classList.remove("open");}
 
-/* ⭐ SUBTLE + FASTER PARALLAX SCROLL (less delay) */
+/* SUBTLE, INSTANT SCROLL RESPONSE */
 window.addEventListener("scroll", ()=>{
     const y = window.scrollY;
     document.getElementById("rightSide").style.transform =
