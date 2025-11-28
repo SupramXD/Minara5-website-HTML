@@ -28,7 +28,6 @@ header{
   z-index:1200;
   border-bottom:1px solid #eee;
 }
-
 .center-logo-link{
   position:absolute;
   left:50%;
@@ -41,6 +40,7 @@ header{
   pointer-events:none;
 }
 
+/* NAV */
 nav{margin-left:auto;}
 nav ul{list-style:none;display:flex;margin-top:2px;}
 nav ul li{margin-left:25px;}
@@ -60,9 +60,9 @@ nav ul li a:hover{opacity:0.6;}
 .menu-icon{display:none;}
 .menu-icon img{height:14px;}
 
+/* SLIDEOUT */
 .slideout{
-  position:fixed;
-  top:0; left:-100%;
+  position:fixed; top:0; left:-100%;
   width:100%; height:100vh;
   background:#fff; z-index:2000;
   transition:left .35s ease;
@@ -96,8 +96,7 @@ nav ul li a:hover{opacity:0.6;}
 }
 .left-image img{
     width:100%;
-    height:auto;
-    display:block;
+    height:auto; display:block;
 }
 
 /* RIGHT SIDE */
@@ -109,7 +108,7 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:20px !important;
 }
 
-.catalog-container{position:sticky; top:45px;}
+.catalog-container{ position:sticky; top:45px; }
 .catalog-title{
     font-size:25px;
     text-transform:uppercase;
@@ -117,36 +116,25 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:15px; margin-bottom:45px;
 }
 
+/* GRID */
 .grid{
     display:grid;
     grid-template-columns:repeat(2,1fr);
     gap:60px 40px;
 }
 
-/* PRODUCT BOXES (default height for RIGHT side) */
+/* PRODUCT BOXES — SHORTER */
 .product-box{
     width:100%;
-    padding-top:20px;
-    min-height:130px;
+    padding-top:15px;
+    min-height:95px !important;
     display:flex;
-    justify-content:center;
+    justify-content:center; 
     align-items:flex-start;
 }
 .product-box img{
     width:65%;
     height:auto;
-}
-
-/* ✔ LEFT PRODUCT BOXES SHORTER (–25px) */
-.grid > div:nth-child(1) .product-box,
-.grid > div:nth-child(3) .product-box{
-    min-height:105px !important;
-}
-
-/* ✔ RIGHT PRODUCT BOXES MOVED DOWN +35px */
-.grid > div:nth-child(2) .product-box,
-.grid > div:nth-child(4) .product-box{
-    margin-top:35px !important;
 }
 
 /* INFO */
@@ -168,10 +156,11 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:8px;
 }
 
-/* DESKTOP bottom-right adjustment (your existing rule) */
+/* DESKTOP — right column raised */
 @media(min-width:900px){
+    .grid > div:nth-child(2),
     .grid > div:nth-child(4){
-        margin-top:-160px !important;
+        margin-top:-90px !important;
     }
 }
 
@@ -186,7 +175,9 @@ nav ul li a:hover{opacity:0.6;}
     }
 
     .menu-icon{display:block;}
-    .center-logo-link{position:static; transform:none; margin-left:auto;}
+    .center-logo-link{
+        position:static; transform:none; margin-left:auto;
+    }
     .center-logo{height:22px;}
 
     .catalog-wrap{flex-direction:column;}
@@ -209,13 +200,14 @@ nav ul li a:hover{opacity:0.6;}
     }
 
     .product-box{
-        padding-top:20px;
-        min-height:130px !important;
+        padding-top:15px;
+        min-height:95px !important;
     }
 
+    /* SAME OFFSET AS DESKTOP */
     .grid > div:nth-child(2),
     .grid > div:nth-child(4){
-        margin-top:-55px !important;
+        margin-top:-90px !important;
     }
 
     footer{
@@ -281,7 +273,7 @@ footer{
                             <img src="cheetahproduct.avif">
                         </div>
                         <div class="product-info">
-                            <div class="product-name">Léopard fur<br>BACKPACK</div>
+                            <div class="product-name">Léopard fur <br>BACKPACK</div>
                             <div class="price">R749</div>
                         </div>
                     </a>
@@ -296,7 +288,7 @@ footer{
                     </div>
                 </div>
 
-                <!-- BOTTOM LEFT (shorter) -->
+                <!-- BOTTOM LEFT -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
@@ -305,7 +297,7 @@ footer{
                     </div>
                 </div>
 
-                <!-- BOTTOM RIGHT (pulled down) -->
+                <!-- BOTTOM RIGHT -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
@@ -326,9 +318,11 @@ footer{
 function openMenu(){
     document.getElementById("menuPanel").classList.add("open");
 }
+
 function closeMenu(){
     document.getElementById("menuPanel").classList.remove("open");
 }
+
 window.addEventListener("scroll", ()=>{
     const y = window.scrollY;
     document.getElementById("rightSide").style.transform =
