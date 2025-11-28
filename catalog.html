@@ -106,11 +106,11 @@ nav ul li a:hover{opacity:0.6;}
     display:block;
 }
 
-/* RIGHT SIDE (solid white again) */
+/* RIGHT SIDE – solid white */
 .right-side{
     width:50%;
     padding:70px 40px 0px;
-    background:#ffffff; /* ⭐ transparency removed */
+    background:#ffffff;
     transition:transform .08s ease-out;
 }
 
@@ -134,11 +134,11 @@ nav ul li a:hover{opacity:0.6;}
     gap:60px 40px;
 }
 
-/* PRODUCT BOXES */
+/* PRODUCT BOXES – 20px smaller */
 .product-box{
     width:100%;
-    padding-top:25px;
-    min-height:180px;
+    padding-top:20px;
+    min-height:160px;
     display:flex;
     justify-content:center;
     align-items:flex-start;
@@ -150,7 +150,7 @@ nav ul li a:hover{opacity:0.6;}
 
 /* INFO */
 .product-info{
-    margin-top:25px;
+    margin-top:22px;
     padding-top:18px;
     border-top:1px solid #e6e6e6;
     text-align:left;
@@ -178,18 +178,21 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:8px;
 }
 
-/*
-=========================================
- FIX: ALIGN RIGHT-SIDE PLACEHOLDERS
-=========================================
-Top-right  = grid item 2
-Bottom-right = grid item 4
-Lift BOTH by same amount (-50px)
-=========================================
-*/
-.grid > div:nth-child(2),
-.grid > div:nth-child(4){
-    margin-top:-50px !important;
+/* ===========================================================
+   FINAL ALIGNMENT RULES — EXACT VALUES FROM YOUR SCREENSHOTS
+   =========================================================== */
+
+/* DESKTOP */
+@media(min-width:900px){
+    /* TOP-RIGHT: match backpack row height */
+    .grid > div:nth-child(2){
+        margin-top:-110px !important;
+    }
+
+    /* BOTTOM-RIGHT: match second-row height */
+    .grid > div:nth-child(4){
+        margin-top:-45px !important;
+    }
 }
 
 /* MOBILE */
@@ -223,7 +226,6 @@ Lift BOTH by same amount (-50px)
         width:100%;
         padding:0;
         background:#ffffff;
-        transition:transform .08s ease-out;
     }
 
     .catalog-container{position:static;}
@@ -236,8 +238,14 @@ Lift BOTH by same amount (-50px)
     }
 
     .product-box{
-        padding-top:25px;
-        min-height:180px;
+        padding-top:20px;
+        min-height:160px;
+    }
+
+    /* MOBILE – both right items lifted equally */
+    .grid > div:nth-child(2),
+    .grid > div:nth-child(4){
+        margin-top:-55px !important;
     }
 
     footer{
@@ -309,7 +317,7 @@ footer{
                     </a>
                 </div>
 
-                <!-- TOP-RIGHT PLACEHOLDER -->
+                <!-- TOP-RIGHT -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
@@ -318,7 +326,7 @@ footer{
                     </div>
                 </div>
 
-                <!-- BOTTOM-LEFT PLACEHOLDER -->
+                <!-- BOTTOM-LEFT -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
@@ -327,7 +335,7 @@ footer{
                     </div>
                 </div>
 
-                <!-- BOTTOM-RIGHT PLACEHOLDER (now same height as top-right) -->
+                <!-- BOTTOM-RIGHT -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
@@ -345,10 +353,6 @@ footer{
 <footer>© 2025 MINARA5</footer>
 
 <script>
-function openMenu(){document.getElementById("menuPanel").classList.add("open");}
-function closeMenu(){document.getElementById("menuPanel").classList.remove("open");}
-
-/* SUBTLE, INSTANT SCROLL RESPONSE */
 window.addEventListener("scroll", ()=>{
     const y = window.scrollY;
     document.getElementById("rightSide").style.transform =
