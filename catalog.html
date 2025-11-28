@@ -106,7 +106,7 @@ nav ul li a:hover{opacity:0.6;}
     display:block;
 }
 
-/* RIGHT SIDE – solid white */
+/* RIGHT SIDE */
 .right-side{
     width:50%;
     padding:70px 40px 0px;
@@ -134,7 +134,7 @@ nav ul li a:hover{opacity:0.6;}
     gap:60px 40px;
 }
 
-/* PRODUCT BOXES – 20px smaller */
+/* PRODUCT BOXES */
 .product-box{
     width:100%;
     padding-top:20px;
@@ -178,14 +178,12 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:8px;
 }
 
-/* DESKTOP alignment */
+/* ===========================================================
+   DESKTOP ONLY — MOVE BOTTOM-RIGHT UP
+   =========================================================== */
 @media(min-width:900px){
-    .grid > div:nth-child(2){
-        margin-top:-110px !important;
-    }
-
     .grid > div:nth-child(4){
-        margin-top:-45px !important;
+        margin-top:-160px !important; /* bottom-right moved up */
     }
 }
 
@@ -310,7 +308,7 @@ footer{
                     </a>
                 </div>
 
-                <!-- TOP-RIGHT -->
+                <!-- TOP RIGHT -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
@@ -319,7 +317,7 @@ footer{
                     </div>
                 </div>
 
-                <!-- BOTTOM-LEFT -->
+                <!-- BOTTOM LEFT -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
@@ -328,7 +326,7 @@ footer{
                     </div>
                 </div>
 
-                <!-- BOTTOM-RIGHT -->
+                <!-- BOTTOM RIGHT (now moved UP) -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
