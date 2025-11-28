@@ -48,7 +48,7 @@ nav ul li a{
   font-size:11px;
   text-transform:uppercase;
   letter-spacing:1px;
-  color:#000; 
+  color:#000;
   display:flex; align-items:center; gap:6px;
   text-decoration:none;
   transition:opacity .25s ease;
@@ -62,11 +62,9 @@ nav ul li a:hover{opacity:0.6;}
 
 /* SLIDEOUT */
 .slideout{
-  position:fixed; 
-  top:0; left:-100%;
+  position:fixed; top:0; left:-100%;
   width:100%; height:100vh;
-  background:#fff; 
-  z-index:2000;
+  background:#fff; z-index:2000;
   transition:left .35s ease;
   padding:50px 40px;
 }
@@ -89,7 +87,7 @@ nav ul li a:hover{opacity:0.6;}
     display:flex; width:100%;
 }
 
-/* LEFT IMAGE — stays unchanged */
+/* LEFT IMAGE */
 .left-image{
     width:50%;
     background:#ffffff;
@@ -101,13 +99,13 @@ nav ul li a:hover{opacity:0.6;}
     height:auto; display:block;
 }
 
-/* RIGHT SIDE — MOVE DOWN 40px */
+/* RIGHT SIDE — now moved DOWN by exactly 20px */
 .right-side{
     width:50%;
     padding:70px 40px 0px;
     background:#ffffff;
     transition:transform .08s ease-out;
-    margin-top:50px !important;  /* was 10px → now 50px */
+    margin-top:20px !important;  /* ← changed from 50px to 20px */
 }
 
 .catalog-container{ position:sticky; top:45px; }
@@ -125,11 +123,11 @@ nav ul li a:hover{opacity:0.6;}
     gap:60px 40px;
 }
 
-/* PRODUCT BOXES — SHORTENED BY 30px */
+/* PRODUCT BOXES */
 .product-box{
     width:100%;
     padding-top:20px;
-    min-height:130px;   /* was 160px → now 130px */
+    min-height:130px;   /* shorter box, kept from your previous request */
     display:flex;
     justify-content:center; 
     align-items:flex-start;
@@ -158,7 +156,7 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:8px;
 }
 
-/* DESKTOP alignment rule you had */
+/* DESKTOP offset you already had */
 @media(min-width:900px){
     .grid > div:nth-child(4){
         margin-top:-160px !important;
@@ -200,7 +198,6 @@ nav ul li a:hover{opacity:0.6;}
         padding:20px 12px 60px;
     }
 
-    /* MOBILE ALSO GETS THE SHORTER BOX */
     .product-box{
         padding-top:20px;
         min-height:130px !important;
