@@ -86,7 +86,7 @@ nav ul li a:hover{opacity:0.6;}
     display:flex; width:100%;
 }
 
-/* LEFT IMAGE (moved UP 10px) */
+/* LEFT IMAGE (up 10px) */
 .left-image{
     width:50%;
     background:#ffffff;
@@ -98,7 +98,7 @@ nav ul li a:hover{opacity:0.6;}
     height:auto; display:block;
 }
 
-/* RIGHT SIDE (moved DOWN 10px) */
+/* RIGHT SIDE (down 10px) */
 .right-side{
     width:50%;
     padding:70px 40px 0px;
@@ -150,14 +150,14 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:8px;
 }
 
-/* DESKTOP — bottom-right moved UP earlier (kept as-is) */
+/* DESKTOP — bottom-right adjust (unchanged) */
 @media(min-width:900px){
     .grid > div:nth-child(4){
         margin-top:-160px !important;
     }
 }
 
-/* MOBILE */
+/* ⭐ FIX: MOBILE — increase box height so price NEVER cuts */
 @media(max-width:900px){
 
     nav{display:none;}
@@ -188,9 +188,9 @@ nav ul li a:hover{opacity:0.6;}
         padding:20px 12px 60px;
     }
 
+    /* ⭐ REAL FIX */
     .product-box{
-        padding-top:20px;
-        min-height:160px;
+        min-height:220px !important;
     }
 
     .grid > div:nth-child(2),
