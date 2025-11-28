@@ -99,13 +99,13 @@ nav ul li a:hover{opacity:0.6;}
     height:auto; display:block;
 }
 
-/* RIGHT SIDE */
+/* RIGHT SIDE — moved UP 20px */
 .right-side{
     width:50%;
     padding:70px 40px 0px;
     background:#ffffff;
     transition:transform .08s ease-out;
-    margin-top:20px !important;
+    margin-top:0px !important;     /* ← FIXED (from 20px to 0px) */
 }
 
 .catalog-container{ position:sticky; top:45px; }
@@ -123,14 +123,14 @@ nav ul li a:hover{opacity:0.6;}
     gap:60px 40px;
 }
 
-/* PRODUCT BOXES — SHORTER */
+/* PRODUCT BOXES – equal height across all items */
 .product-box{
     width:100%;
-    padding-top:15px;
-    min-height:95px !important;
+    padding-top:10px;
+    height:300px;       /* consistent height */
     display:flex;
     justify-content:center; 
-    align-items:flex-start;
+    align-items:center;
 }
 .product-box img{
     width:65%;
@@ -156,11 +156,11 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:8px;
 }
 
-/* DESKTOP — right column raised */
+/* DESKTOP – right column raised 25px */
 @media(min-width:900px){
     .grid > div:nth-child(2),
     .grid > div:nth-child(4){
-        margin-top:-90px !important;
+        margin-top:-25px !important;
     }
 }
 
@@ -200,14 +200,14 @@ nav ul li a:hover{opacity:0.6;}
     }
 
     .product-box{
-        padding-top:15px;
-        min-height:95px !important;
+        padding-top:10px;
+        height:300px;
     }
 
-    /* SAME OFFSET AS DESKTOP */
+    /* mobile keeps same stagger */
     .grid > div:nth-child(2),
     .grid > div:nth-child(4){
-        margin-top:-90px !important;
+        margin-top:-25px !important;
     }
 
     footer{
