@@ -108,10 +108,10 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:20px !important;
 }
 
-/* STICKY CONTAINER + 20% SCALE ON DESKTOP */
+/* STICKY CONTAINER */
 .catalog-container{ position:sticky; top:45px; }
 
-/* desktop scale for right side 20% smaller */
+/* desktop scale for right side (unchanged) */
 @media(min-width:900px){
     .catalog-container{
         transform:scale(0.8);
@@ -133,11 +133,11 @@ nav ul li a:hover{opacity:0.6;}
     gap:60px 40px;
 }
 
-/* PRODUCT BOXES – FIXED */
+/* PRODUCT BOXES – desktop */
 .product-box{
     width:100%;
     padding-top:10px;
-    height:300px;        /* desktop height */
+    height:300px;
     display:flex;
     justify-content:center; 
     align-items:center;
@@ -174,7 +174,9 @@ nav ul li a:hover{opacity:0.6;}
     }
 }
 
-/* MOBILE */
+/* =========================== */
+/*        MOBILE CHANGES       */
+/* =========================== */
 @media(max-width:900px){
 
     nav{display:none;}
@@ -198,7 +200,14 @@ nav ul li a:hover{opacity:0.6;}
         display:block!important; width:100%; height:auto;
     }
 
-    .right-side{width:100%; padding:0;}
+    /* ✔ allow scroll-transform + overlap */
+    .right-side{
+        width:100%;
+        padding:0;
+        position:relative;
+        z-index:10;          /* sits on top of image */
+        will-change:transform;
+    }
 
     .catalog-container{position:static;}
     .catalog-title{display:none;}
@@ -209,10 +218,9 @@ nav ul li a:hover{opacity:0.6;}
         padding:20px 12px 60px;
     }
 
-    /* MOBILE HEIGHT FIX — ONLY CHANGE */
+    /* ✔ MOBILE PRODUCT BOX HEIGHT = 140px */
     .product-box{
-        padding-top:10px;
-        height:130px;   /* ← changed from 110px */
+        height:140px !important;
     }
 
     .grid > div:nth-child(2),
@@ -276,6 +284,7 @@ footer{
 
             <div class="grid">
 
+                <!-- PRODUCT 1 -->
                 <div>
                     <a href="FELINE01.html" style="color:inherit;text-decoration:none;">
                         <div class="product-box">
@@ -288,6 +297,7 @@ footer{
                     </a>
                 </div>
 
+                <!-- TOP RIGHT -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
@@ -296,6 +306,7 @@ footer{
                     </div>
                 </div>
 
+                <!-- BOTTOM LEFT -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
@@ -304,6 +315,7 @@ footer{
                     </div>
                 </div>
 
+                <!-- BOTTOM RIGHT -->
                 <div>
                     <div class="product-box"></div>
                     <div class="product-info">
@@ -329,4 +341,13 @@ function closeMenu(){
     document.getElementById("menuPanel").classList.remove("open");
 }
 
+/* ✔ MOBILE & DESKTOP SCROLL OVERLAY */
 window.addEventListener("scroll", ()=>{
+    const y = window.scrollY;
+    document.getElementById("rightSide").style.transform =
+        `translateY(${-y * 0.28}px)`;
+});
+</script>
+
+</body>
+</html>
