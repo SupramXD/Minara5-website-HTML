@@ -178,18 +178,12 @@ nav ul li a:hover{opacity:0.6;}
     margin-top:8px;
 }
 
-/* ===========================================================
-   FINAL ALIGNMENT RULES — EXACT VALUES FROM YOUR SCREENSHOTS
-   =========================================================== */
-
-/* DESKTOP */
+/* DESKTOP alignment */
 @media(min-width:900px){
-    /* TOP-RIGHT: match backpack row height */
     .grid > div:nth-child(2){
         margin-top:-110px !important;
     }
 
-    /* BOTTOM-RIGHT: match second-row height */
     .grid > div:nth-child(4){
         margin-top:-45px !important;
     }
@@ -242,7 +236,6 @@ nav ul li a:hover{opacity:0.6;}
         min-height:160px;
     }
 
-    /* MOBILE – both right items lifted equally */
     .grid > div:nth-child(2),
     .grid > div:nth-child(4){
         margin-top:-55px !important;
@@ -353,6 +346,14 @@ footer{
 <footer>© 2025 MINARA5</footer>
 
 <script>
+function openMenu(){
+    document.getElementById("menuPanel").classList.add("open");
+}
+
+function closeMenu(){
+    document.getElementById("menuPanel").classList.remove("open");
+}
+
 window.addEventListener("scroll", ()=>{
     const y = window.scrollY;
     document.getElementById("rightSide").style.transform =
