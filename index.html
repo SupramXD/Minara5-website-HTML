@@ -194,9 +194,7 @@ nav ul li a:hover{opacity:0.65;}
   text-decoration:none;
 }
 
-/* ============================
-   MOBILE HEADER CLEANUP
-============================ */
+/* MOBILE CLEANUP */
 @media(max-width:900px){
 
   .mobile-nav{display:none !important;}
@@ -244,22 +242,18 @@ nav ul li a:hover{opacity:0.65;}
 }
 .brand-body p{margin-bottom:28px;}
 
-/* =====================================================
-   CUSTOM FIXES
-   ===================================================== */
-
-/* MOBILE — number23.webp MUST be the top hero image */
+/* MOBILE — top hero image */
 @media(max-width:900px){
   #imgL { content:url('number23.avif'); }
   #imgR { content:url('test3.avif'); }
 }
 
-/* MOBILE — raise MINARA logo slightly */
+/* MOBILE logo raise */
 @media(max-width:900px){
   #logo { margin-top:-6px; }
 }
 
-/* DESKTOP — adjust number23.webp crop so subject isn't cut */
+/* DESKTOP hero crop */
 @media(min-width:901px){
   #imgR {
     object-fit:cover;
@@ -276,12 +270,12 @@ nav ul li a:hover{opacity:0.65;}
   }
 }
 
-/* ⭐ NEW FOOTER (ONLY CHANGE YOU REQUESTED) */
+/* ⭐ NEW FOOTER (MATCHING CATALOG) */
 footer{
   background:#f5f5f5;
-  padding:30px 0;
+  padding:21px 0;        /* 30% smaller height */
   text-align:center;
-  font-size:11px;
+  font-size:9px;         /* 20% smaller text */
   color:#000;
   text-transform:uppercase;
   letter-spacing:0.20em;
@@ -357,7 +351,7 @@ that  ever  made  sense.
 </div>
 
 <script>
-/* ORIGINAL JS — UNTOUCHED */
+/* ORIGINAL JS — untouched */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
