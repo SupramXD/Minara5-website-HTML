@@ -1,0 +1,7 @@
+<svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+  <!-- Wider + shorter bag -->
+  <rect x="7" y="12" width="16" height="11" fill="none" stroke="black" stroke-width="2"/>
+
+  <!-- Wider handle with gap -->
+  <path d="M10 12 V7 H20 V12" fill="none" stroke="black" stroke-width="2"/>
+</svg>
