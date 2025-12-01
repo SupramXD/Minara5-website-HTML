@@ -47,9 +47,7 @@ nav ul li a{
   text-transform:uppercase;
   letter-spacing:1px;
   color:#000;
-  display:flex;
-  align-items:center;
-  gap:6px;
+  display:flex;align-items:center;gap:6px;
   text-decoration:none;
   transition:opacity .25s ease;
 }
@@ -67,7 +65,7 @@ nav ul li a:hover{opacity:0.6;}
   .center-logo{height:22px;}
 }
 
-/* =================== PAGE SCALE =================== */
+/* =============== PAGE SCALE (UNCHANGED) =============== */
 .page-wrap {
     transform: scale(0.9);
     transform-origin: top center;
@@ -84,14 +82,14 @@ nav ul li a:hover{opacity:0.6;}
 /* =========================================================== */
 .page-wrap {
     position: relative;
-    left: -32px;
+    left: -32px;   /* desktop offset */
     top: -22px;
 }
 
 @media(max-width:900px){
     .page-wrap {
-        left: -18px;
-        top: -16px;   /* ⭐ moved slightly more up on mobile */
+        left: -18px;   /* same left mobile */
+        top: -32px;    /* ⭐ stronger upward shift so it's noticeable */
     }
 }
 
@@ -105,7 +103,7 @@ nav ul li a:hover{opacity:0.6;}
   padding-bottom:120px;
 }
 
-/* SLIDER */
+/* SLIDER (unchanged) */
 .slider{
   width:380px;
   max-width:80vw;
@@ -114,19 +112,15 @@ nav ul li a:hover{opacity:0.6;}
   margin-top:20px;
   margin-bottom:20px;
 }
-
 .slider-track{
   display:flex;
   transition:transform 0.45s cubic-bezier(.45,0,.25,1);
 }
-
 .slider-track img{
   width:100%;
   flex:0 0 100%;
   user-select:none;
 }
-
-/* Arrows */
 .arrow{
   position:absolute;
   top:50%;
@@ -171,7 +165,6 @@ nav ul li a:hover{opacity:0.6;}
   flex-direction:column;
   align-items:flex-start;
 }
-
 .product-title{
   font-size:15px;
   text-transform:uppercase;
@@ -184,7 +177,6 @@ nav ul li a:hover{opacity:0.6;}
   margin-bottom:35px;
   letter-spacing:0.18em;
 }
-
 .cart-btn{
   background:#000;
   color:#fff;
@@ -206,6 +198,7 @@ nav ul li a:hover{opacity:0.6;}
   }
 }
 
+/* DESCRIPTION */
 .desc{
   font-size:13px;
   line-height:1.8;
@@ -218,7 +211,7 @@ nav ul li a:hover{opacity:0.6;}
 
 @media(max-width:900px){
   .desc {
-    margin-top:-4px;   /* ⭐ move “Leopard teaches…” text UP slightly */
+    margin-top:-14px;   /* ⭐ move “Leopard teaches…” text UP more */
   }
 }
 
