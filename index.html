@@ -40,7 +40,6 @@ header{
 }
 .left-nav a:hover{opacity:0.6;}
 
-/* MOBILE SHOP NOW BUTTON */
 .mobile-shopnow {
   display:none;
 }
@@ -93,6 +92,7 @@ nav ul li a:hover{opacity:0.65;}
     display:block;
     position:relative;
     margin:0;
+    z-index:3001 !important;
   }
 }
 
@@ -109,9 +109,23 @@ nav ul li a:hover{opacity:0.65;}
   height:100%;
   object-fit:cover;
   display:block;
+  transition:opacity .3s ease, filter .3s ease;
 }
 .hero img:first-child{flex:1.3;}
 .hero img:last-child{flex:0.7;}
+
+/* hover for hero images */
+#imgL, #imgR{
+  cursor:pointer;
+}
+
+@media(min-width:901px){
+  #imgL:hover,
+  #imgR:hover{
+    opacity:0.94;
+    filter:contrast(1.02) brightness(0.995);
+  }
+}
 
 /* BIG LOGO */
 #logo{
@@ -124,7 +138,7 @@ nav ul li a:hover{opacity:0.65;}
 }
 #logo img{width:100%;}
 
-/* DESKTOP BAGS */
+/* DESKTOP GIFTS */
 #bagsContainer{position:relative;width:100%;height:0;}
 #bagsBtn{
   position:fixed;
@@ -136,8 +150,14 @@ nav ul li a:hover{opacity:0.65;}
   color:#000;
   text-decoration:none;
   z-index:900;
+  transition:opacity .25s ease;
 }
-#bagsBtn:hover{opacity:1;}
+
+/* unified fade */
+#bagsBtn:hover{
+  opacity:0.8 !important;
+}
+
 #shopNow{
   opacity:0;
   margin-left:4px;
@@ -145,12 +165,8 @@ nav ul li a:hover{opacity:0.65;}
   position:relative;
   transition:opacity .3s ease,left .3s ease;
 }
-#bagsBtn:hover #shopNow{
-  opacity:1;
-  left:0;
-}
 
-/* MOBILE BAGS */
+/* MOBILE GIFTS */
 .mobile-bags{
   display:none;
   position:absolute;
@@ -170,7 +186,7 @@ nav ul li a:hover{opacity:0.65;}
   width:100%;
   height:100vh;
   background:#fff;
-  z-index:3000;
+  z-index:5000;
   transition:left .35s ease;
   padding:50px 40px 40px;
 }
@@ -197,7 +213,6 @@ nav ul li a:hover{opacity:0.65;}
 /* MOBILE CLEANUP */
 @media(max-width:900px){
 
-  .mobile-nav{display:none !important;}
   .desktop-only{display:none !important;}
   nav ul li a{display:none !important;}
   #bagsBtn{display:none;}
@@ -270,12 +285,12 @@ nav ul li a:hover{opacity:0.65;}
   }
 }
 
-/* ⭐ NEW FOOTER (MATCHING CATALOG) */
+/* FOOTER */
 footer{
   background:#f5f5f5;
-  padding:21px 0;        /* 30% smaller height */
+  padding:21px 0;
   text-align:center;
-  font-size:9px;         /* 20% smaller text */
+  font-size:9px;
   color:#000;
   text-transform:uppercase;
   letter-spacing:0.20em;
@@ -289,6 +304,7 @@ footer{
   <div class="left-nav">
       <div class="mobile-shopnow"><a href="catalog.html">SHOP NOW</a></div>
       <a href="catalog.html" class="desktop-only">CATALOG</a>
+      <a href="catalog.html" class="desktop-only" style="margin-left:22px;">BAGS</a>
       <a href="social media.html" class="desktop-only" style="margin-left:22px;">SOCIALS</a>
       <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
   </div>
@@ -311,15 +327,15 @@ footer{
 
 <div id="bagsContainer">
   <a id="bagsBtn" href="bags.html">
-    BAGS <span id="shopNow">'SHOP NOW</span>
+    GIFTS <span id="shopNow">'SHOP NOW</span>
   </a>
 </div>
 
 <section id="hero" class="hero">
   <img src="test3.avif" id="imgL">
-  <div style="position:relative;flex:0.7;">
+  <div style="position:relative;flex:0.7%;">
     <img src="number23.avif" id="imgR" style="width:100%;height:100%;object-fit:cover;">
-    <div class="mobile-bags"><a href="bags.html">BAGS 'SHOP NOW</a></div>
+    <div class="mobile-bags"><a href="bags.html">GIFTS 'SHOP NOW</a></div>
   </div>
 </section>
 
@@ -328,17 +344,17 @@ footer{
 
   <div class="brand-body">
     <p>
-Nonconformity,  is  a  desire  rooted  in  the  heart  
-of  this   south  african   generation.
+Nonconformity, is a desire rooted in the heart  
+of this south african generation.
 
-Minara  is  the  hearts   quiet   awakening,  
-whilst  others  line  up  for  the  approved  path,  
-she  minara  -   simply  refuses  the  script.
+Minara is the hearts quiet awakening,  
+whilst others line up for the approved path,  
+she minara - simply refuses the script.
 
 <p>
-To  the  world  she's  a  question  without  an  answer..
-To  herself  she  is  the only  version  
-that  ever  made  sense.
+To the world she's a question without an answer..  
+To herself she is the only version  
+that ever made sense.
     </p>
   </div>
 </section>
@@ -351,7 +367,7 @@ that  ever  made  sense.
 </div>
 
 <script>
-/* ORIGINAL JS — untouched */
+/* ORIGINAL JS */
 (function(){
   const hero=document.getElementById('hero');
   const imgR=document.getElementById('imgR');
@@ -422,6 +438,54 @@ that  ever  made  sense.
   setTimeout(()=>{measure();update();},80);
 })();
 
+/* DESKTOP — hover logic */
+(function(){
+  if(window.matchMedia("(max-width:900px)").matches) return;
+
+  const imgL = document.getElementById('imgL');
+  const imgR = document.getElementById('imgR');
+  const shopNow = document.getElementById('shopNow');
+  const bagsBtn = document.getElementById('bagsBtn');
+
+  if (!shopNow) return;
+
+  imgL.addEventListener('click', ()=>window.location.href="catalog.html");
+  imgR.addEventListener('click', ()=>window.location.href="catalog.html");
+
+  imgL.addEventListener('mouseenter', ()=>{
+    shopNow.style.opacity="1";
+    shopNow.style.left="0";
+  });
+
+  imgL.addEventListener('mouseleave', ()=>{
+    shopNow.style.opacity="";
+    shopNow.style.left="";
+  });
+
+  /* GIFTS also reveals SHOP NOW */
+  bagsBtn.addEventListener('mouseenter', ()=>{
+    shopNow.style.opacity="1";
+    shopNow.style.left="0";
+  });
+  bagsBtn.addEventListener('mouseleave', ()=>{
+    shopNow.style.opacity="";
+    shopNow.style.left="";
+  });
+
+  /* ⭐ KEEP IMAGE DARK WHEN HOVERING GIFTS */
+  bagsBtn.addEventListener('mouseenter', ()=>{
+    imgL.style.filter="contrast(0.97) brightness(0.97)";
+    imgR.style.filter="contrast(0.97) brightness(0.97)";
+  });
+  bagsBtn.addEventListener('mouseleave', ()=>{
+    imgL.style.filter="";
+    imgR.style.filter="";
+  });
+
+})();
+</script>
+
+<script>
 function openMenu(){
   document.getElementById("menuPanel").classList.add("open");
 }
