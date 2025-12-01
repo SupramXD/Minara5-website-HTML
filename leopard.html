@@ -14,7 +14,7 @@ body{
     overflow-x:hidden;
 }
 
-/* ===================== HEADER (unchanged) ===================== */
+/* ===================== HEADER (UNCHANGED) ===================== */
 header{
   position:fixed;
   top:0; left:0; right:0;
@@ -65,7 +65,23 @@ nav ul li a:hover{opacity:0.6;}
   .center-logo{height:22px;}
 }
 
-/* ================= PRODUCT PAGE ================= */
+/* ================================================================ */
+/* ⭐ SCALE ONLY PAGE CONTENT, NOT HEADER ⭐ */
+/* ================================================================ */
+
+.page-wrap {
+    transform: scale(0.9);          /* desktop 10% smaller */
+    transform-origin: top center;
+}
+
+@media(max-width:900px){
+    .page-wrap {
+        transform: scale(0.8);      /* mobile 20% smaller */
+        transform-origin: top center;
+    }
+}
+
+/* ================= PRODUCT PAGE CONTENT BELOW ================= */
 .page-wrap{
   width:100%;
   margin-top:65px;
@@ -75,25 +91,72 @@ nav ul li a:hover{opacity:0.6;}
   padding-bottom:120px;
 }
 
-.product-image{
+/* ---------- SLIDER ---------- */
+.slider{
   width:380px;
   max-width:80vw;
+  overflow:hidden;
+  position:relative;
   margin-top:20px;
-  margin-bottom:40px;
-}
-.product-image img{
-  width:100%;
-  height:auto;
-  display:block;
+  margin-bottom:20px;
 }
 
-/* LEFT ALIGN WRAPPER */
+.slider-track{
+  display:flex;
+  transition:transform 0.45s cubic-bezier(.45,0,.25,1);
+}
+
+.slider-track img{
+  width:100%;
+  flex:0 0 100%;
+  user-select:none;
+}
+
+/* Arrows */
+.arrow{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:13px;
+  color:#6d6d6d;
+  cursor:pointer;
+  padding:8px;
+  user-select:none;
+  transition:opacity 0.25s ease;
+  z-index:5;
+  opacity:0;
+}
+.arrow-left{ left:0; }
+.arrow-right{ right:0; }
+.arrow.visible{ opacity:1; }
+
+/* Dots */
+.slider-dots{
+  display:flex;
+  justify-content:center;
+  margin:15px 0 40px;
+  gap:8px;
+}
+
+.slider-dots div{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#000;
+  opacity:0.25;
+  cursor:pointer;
+  transition:opacity 0.25s;
+}
+.slider-dots div.active{opacity:0.75;}
+.slider-dots div:hover{opacity:0.55;}
+
+/* PRODUCT INFO */
 .product-info-wrap{
   width:380px;
   max-width:80vw;
   display:flex;
   flex-direction:column;
-  align-items:flex-start; /* LEFT align */
+  align-items:flex-start;
 }
 
 .product-title{
@@ -101,13 +164,10 @@ nav ul li a:hover{opacity:0.6;}
   text-transform:uppercase;
   letter-spacing:0.28em;
   margin-bottom:12px;
-  text-align:left;
 }
-
 .product-price{
   font-size:12px;
   opacity:0.6;
-  text-align:left;
   margin-bottom:35px;
   letter-spacing:0.18em;
 }
@@ -123,20 +183,17 @@ nav ul li a:hover{opacity:0.6;}
   cursor:pointer;
   transition:opacity .25s ease;
   margin-bottom:55px;
-  text-align:left;
 }
 .cart-btn:hover{opacity:0.75;}
 
-/* ⭐ MATCHED TO YOUR HOMEPAGE STYLE */
 .desc{
   font-size:13px;
   line-height:1.8;
   letter-spacing:0.12em;
   opacity:0.75;
-  text-align:left;
   white-space:pre-line;
   margin-bottom:80px;
-  margin-left:4px; /* slight indentation like homepage */
+  margin-left:4px;
 }
 
 .back-link{
@@ -144,17 +201,14 @@ nav ul li a:hover{opacity:0.6;}
   letter-spacing:0.20em;
   text-transform:uppercase;
   opacity:0.65;
-  text-decoration:none;
   border:1px solid #000;
   padding:6px 18px;
   color:#000;
-  transition:opacity .25s ease;
-  text-align:left;
 }
 .back-link:hover{opacity:0.45;}
 
 @media(max-width:900px){
-  .product-image{width:270px;}
+  .slider{width:270px;max-width:90vw;}
   .product-info-wrap{width:270px;}
   .cart-btn{width:100%;}
 }
@@ -169,7 +223,7 @@ footer{
     letter-spacing:0.20em;
 }
 
-/* SLIDEOUT MENU */
+/* MENU PANEL */
 .slideout{
   position:fixed;
   top:0; left:-100%;
@@ -195,7 +249,6 @@ footer{
   letter-spacing:0.28em;
   margin:26px 0;
   color:#000;
-  text-decoration:none;
 }
 
 /* INTRO */
@@ -204,7 +257,6 @@ footer{
     inset:0;
     background:rgba(255,255,255,0.85);
     backdrop-filter:blur(18px);
-    -webkit-backdrop-filter:blur(18px);
     z-index:9999;
     opacity:1;
     pointer-events:none;
@@ -219,7 +271,6 @@ footer{
 
 <body>
 
-<!-- LUXURY INTRO -->
 <div id="luxuryIntro"></div>
 
 <header>
@@ -246,8 +297,22 @@ footer{
 
 <div class="page-wrap">
 
-    <div class="product-image">
-        <img src="cheetahproduct.avif">
+    <!-- SLIDER -->
+    <div class="slider" id="slider">
+        <div class="arrow arrow-left" id="arrowLeft" onclick="prevSlide()">&#x2039;</div>
+        <div class="arrow arrow-right" id="arrowRight" onclick="nextSlide()">&#x203A;</div>
+
+        <div class="slider-track" id="sliderTrack">
+            <img src="cheetahproduct.avif">
+            <img src="https://via.placeholder.com/900x1100?text=Image+2">
+            <img src="https://via.placeholder.com/900x1100?text=Image+3">
+        </div>
+    </div>
+
+    <div class="slider-dots">
+        <div onclick="goToSlide(0)" class="active"></div>
+        <div onclick="goToSlide(1)"></div>
+        <div onclick="goToSlide(2)"></div>
     </div>
 
     <div class="product-info-wrap">
@@ -261,7 +326,8 @@ Léopard teaches that true transformation arrives in silence.
 
 Your secret love letter to the world—
 carried in spotted fur, and an intense feeling of self,
-it brings a sense of completeness to any room it finds itself in—
+it brings a sense of completeness
+to any room it finds itself in—
 your signature, signing stolen glances
 for many years still unwritten
         </div>
@@ -274,12 +340,53 @@ for many years still unwritten
 <footer>© 2025 MINARA5</footer>
 
 <script>
-function openMenu(){
-    document.getElementById("menuPanel").classList.add("open");
+function openMenu(){ document.getElementById("menuPanel").classList.add("open"); }
+function closeMenu(){ document.getElementById("menuPanel").classList.remove("open"); }
+
+let currentSlide = 0;
+const track = document.getElementById("sliderTrack");
+const slides = track.querySelectorAll("img");
+const dots = document.querySelectorAll(".slider-dots div");
+const arrowLeft = document.getElementById("arrowLeft");
+const arrowRight = document.getElementById("arrowRight");
+
+function updateSlider(){
+    track.style.transform = "translateX(" + (-currentSlide * 100) + "%)";
+    dots.forEach((d,i)=>d.classList.toggle("active", i===currentSlide));
+    arrowLeft.classList.toggle("visible", currentSlide > 0);
+    arrowRight.classList.toggle("visible", currentSlide < slides.length - 1);
 }
-function closeMenu(){
-    document.getElementById("menuPanel").classList.remove("open");
+updateSlider();
+
+function goToSlide(n){
+    currentSlide = Math.max(0, Math.min(n, slides.length - 1));
+    updateSlider();
 }
+function nextSlide(){
+    if(currentSlide < slides.length - 1){ currentSlide++; updateSlider(); }
+}
+function prevSlide(){
+    if(currentSlide > 0){ currentSlide--; updateSlider(); }
+}
+
+/* Swipe */
+(function(){
+    const slider = document.getElementById("slider");
+    let startX = 0, touching = false;
+
+    slider.addEventListener("touchstart",e=>{
+        startX = e.touches[0].clientX;
+        touching = true;
+    },{passive:true});
+
+    slider.addEventListener("touchend",e=>{
+        if(!touching) return;
+        const delta = e.changedTouches[0].clientX - startX;
+        if(delta > 40) prevSlide();
+        if(delta < -40) nextSlide();
+        touching = false;
+    },{passive:true});
+})();
 </script>
 
 </body>
