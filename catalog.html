@@ -68,6 +68,38 @@ nav ul li a:hover{opacity:0.6;}
   .center-logo{height:22px;}
 }
 
+/* ✔ FIXED SLIDEOUT MENU STYLES (added back from leopard.html) */
+.slideout{
+  position:fixed;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100vh;
+  background:#fff;
+  z-index:3000;
+  transition:left .35s ease;
+  padding:50px 40px 40px;
+}
+.slideout.open{
+  left:0;
+}
+.close-btn{
+  position:absolute;
+  top:18px;
+  right:24px;
+  font-size:30px;
+  cursor:pointer;
+}
+.slideout a{
+  display:block;
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:0.28em;
+  margin:26px 0;
+  color:#000;
+  text-decoration:none;
+}
+
 /* PAGE */
 .catalog-wrap{
   margin-top:45px;
@@ -79,8 +111,6 @@ nav ul li a:hover{opacity:0.6;}
 .left-image{
   width:50%;
   overflow:hidden;
-
-  /* ✔ FIXED GAP (ONLY CHANGE HERE) */
   margin-top:-48px !important;
 }
 .left-image img{
@@ -325,4 +355,3 @@ window.addEventListener("scroll", ()=>{
 
 </body>
 </html>
-
