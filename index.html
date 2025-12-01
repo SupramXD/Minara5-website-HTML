@@ -46,7 +46,9 @@ header{
 
 @media(max-width:900px){
   .mobile-shopnow {
-    display:block;
+    display:flex;
+    align-items:center;
+    gap:12px;
     position:absolute;
     top:10px;
     right:16px;
@@ -59,6 +61,23 @@ header{
     color:#000;
     text-decoration:none;
   }
+}
+
+/* CART BUTTON (desktop + mobile) */
+.cart-btn{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  font-size:12px;
+  color:#000;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.cart-btn img{
+  height:16px;   /* slightly bigger */
+}
+.cart-btn span{
+  font-size:12px; /* slightly bigger */
 }
 
 /* DESKTOP RIGHT NAV */
@@ -90,10 +109,78 @@ nav ul li a:hover{opacity:0.65;}
   }
   .menu-icon{
     display:block;
-    position:relative;
-    margin:0;
     z-index:3001 !important;
   }
+}
+
+/* =====================
+   CART PANEL
+===================== */
+#cartPanel{
+  position:fixed;
+  top:45px;
+  right:-100%;
+  bottom:0;
+  width:65vw;
+  background:#f5f5f5;
+  border-left:1px solid #dcdcdc;
+  z-index:5000;
+  transition:right .35s ease;
+  display:flex;
+  flex-direction:column;
+}
+@media(min-width:901px){
+  #cartPanel{width:26vw;}
+}
+#cartPanel.open{right:0;}
+
+.cart-header-row{
+  background:#fff;
+  border-bottom:1px solid #dcdcdc;
+  padding:12px 20px;
+  font-size:11px;
+  text-transform:uppercase;
+  display:flex;
+  justify-content:space-between;
+}
+.cart-close{cursor:pointer;}
+
+.cart-ascii-wrap{
+  padding:12px 20px;
+  border-bottom:1px solid #dcdcdc;
+  background:#fafafa;
+}
+.cart-ascii{
+  font-family:monospace;
+  font-size:9px;
+  white-space:pre;
+  line-height:1.1;
+}
+
+.cart-body{
+  padding:16px 20px;
+  font-size:11px;
+}
+.cart-auth-links{
+  display:flex;
+  gap:30px;
+  margin-top:8px;
+}
+.cart-auth-links a{
+  font-size:11px;
+  text-transform:uppercase;
+  color:#000;
+  text-decoration:none;
+}
+
+.cart-bottom{
+  margin-top:auto;
+}
+.cart-section{
+  padding:12px 20px;
+  border-top:1px solid #dcdcdc;
+  font-size:11px;
+  text-transform:uppercase;
 }
 
 /* HERO */
@@ -113,18 +200,11 @@ nav ul li a:hover{opacity:0.65;}
 }
 .hero img:first-child{flex:1.3;}
 .hero img:last-child{flex:0.7;}
+#imgL,#imgR{cursor:pointer;}
 
-/* hover for hero images */
-#imgL, #imgR{
-  cursor:pointer;
-}
-
-@media(min-width:901px){
-  #imgL:hover,
-  #imgR:hover{
-    opacity:0.94;
-    filter:contrast(1.02) brightness(0.995);
-  }
+/* test3 darken on hover */
+#imgL:hover{
+  filter:brightness(0.97);
 }
 
 /* BIG LOGO */
@@ -152,18 +232,16 @@ nav ul li a:hover{opacity:0.65;}
   z-index:900;
   transition:opacity .25s ease;
 }
-
-/* unified fade */
 #bagsBtn:hover{
   opacity:0.8 !important;
 }
-
 #shopNow{
   opacity:0;
   margin-left:4px;
   left:6px;
   position:relative;
   transition:opacity .3s ease,left .3s ease;
+  pointer-events:auto;
 }
 
 /* MOBILE GIFTS */
@@ -191,7 +269,6 @@ nav ul li a:hover{opacity:0.65;}
   padding:50px 40px 40px;
 }
 .slideout.open{left:0;}
-
 .close-btn{
   position:absolute;
   top:18px;
@@ -199,7 +276,6 @@ nav ul li a:hover{opacity:0.65;}
   font-size:30px;
   cursor:pointer;
 }
-
 .slideout a{
   display:block;
   font-size:14px;
@@ -210,10 +286,9 @@ nav ul li a:hover{opacity:0.65;}
   text-decoration:none;
 }
 
-/* MOBILE CLEANUP */
 @media(max-width:900px){
-
   .desktop-only{display:none !important;}
+  nav ul li:nth-child(3){display:none !important;} /* Hide desktop cart */
   nav ul li a{display:none !important;}
   #bagsBtn{display:none;}
 
@@ -228,7 +303,6 @@ nav ul li a:hover{opacity:0.65;}
   .mobile-bags{display:block;}
 }
 
-/* DESKTOP ONLY */
 @media(min-width:901px){
   .menu-icon{display:none;}
   #logo img.mobile-logo{display:none;}
@@ -257,27 +331,10 @@ nav ul li a:hover{opacity:0.65;}
 }
 .brand-body p{margin-bottom:28px;}
 
-/* MOBILE — top hero image */
 @media(max-width:900px){
   #imgL { content:url('number23.avif'); }
   #imgR { content:url('test3.avif'); }
-}
 
-/* MOBILE logo raise */
-@media(max-width:900px){
-  #logo { margin-top:-6px; }
-}
-
-/* DESKTOP hero crop */
-@media(min-width:901px){
-  #imgR {
-    object-fit:cover;
-    object-position:80% center;
-  }
-}
-
-/* MOBILE TEXT FIX */
-@media(max-width:900px){
   .brand-body{
     white-space:normal;
     letter-spacing:0.12em;
@@ -302,10 +359,20 @@ footer{
 
 <header id="topbar">
   <div class="left-nav">
-      <div class="mobile-shopnow"><a href="catalog.html">SHOP NOW</a></div>
+      <div class="mobile-shopnow">
+        <a href="catalog.html">SHOP NOW</a>
+
+        <!-- MOBILE CART (only one now) -->
+        <span class="cart-btn" onclick="openCart()">
+          <img src="cart.svg">
+          <span id="cartCountHeaderMobile">00</span>
+        </span>
+      </div>
+
       <a href="catalog.html" class="desktop-only">CATALOG</a>
       <a href="catalog.html" class="desktop-only" style="margin-left:22px;">BAGS</a>
       <a href="social media.html" class="desktop-only" style="margin-left:22px;">SOCIALS</a>
+
       <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
   </div>
 
@@ -313,9 +380,54 @@ footer{
     <ul>
       <li><a href="contact.html"><img src="question mark.svg" class="question-icon"> Contact</a></li>
       <li><a href="auth.html"><img src="head shoulder.svg" class="desktop-icon"> Account</a></li>
+
+      <!-- DESKTOP CART (hidden on mobile) -->
+      <li class="desktop-only">
+        <span class="cart-btn" onclick="openCart()">
+          <img src="cart.svg">
+          <span id="cartCountHeader">00</span>
+        </span>
+      </li>
     </ul>
   </nav>
 </header>
+
+<!-- CART PANEL -->
+<div id="cartPanel">
+  <div class="cart-header-row">
+    <span>BAG <span id="cartCountPanel">00</span></span>
+    <span class="cart-close" onclick="closeCart()">X CLOSE</span>
+  </div>
+
+  <div class="cart-ascii-wrap">
+    <div class="cart-ascii">
+
+
+ _____   __  __   ____    _____  __   __
+| ____| |  \/  | |  _ \  |_   _| \ \ / /
+|  _|   | |\/| | | |_) |   | |    \ V / 
+| |___  | |  | | |  __/    | |     | |  
+|_____| |_|  |_| |_|       |_|     |_|  
+
+ 
+    </div>
+  </div>
+
+  <div class="cart-body">
+    <p>Missing items in your cart?</p>
+    <p>Sign in to see items you added before.</p>
+    <div class="cart-auth-links">
+      <a href="#">Sign in</a>
+      <a href="#">Register</a>
+    </div>
+  </div>
+
+  <div class="cart-bottom">
+    <div class="cart-section">Shipping</div>
+    <div class="cart-section">Total</div>
+    <div class="cart-section">Payment</div>
+  </div>
+</div>
 
 <div class="slideout" id="menuPanel">
   <div class="close-btn" onclick="closeMenu()">×</div>
@@ -326,7 +438,7 @@ footer{
 </div>
 
 <div id="bagsContainer">
-  <a id="bagsBtn" href="catalog.html">
+  <a id="bagsBtn" href="bags.html">
     GIFTS <span id="shopNow">'SHOP NOW</span>
   </a>
 </div>
@@ -367,11 +479,13 @@ that ever made sense.
 </div>
 
 <script>
-/* ORIGINAL JS */
+/* ORIGINAL JS WITH ADDED BEHAVIOUR */
 (function(){
   const hero=document.getElementById('hero');
+  const imgL=document.getElementById('imgL');
   const imgR=document.getElementById('imgR');
   const bagsBtn=document.getElementById('bagsBtn');
+  const shopNow=document.getElementById('shopNow');
   const logo=document.getElementById('logo');
   const topbar=document.getElementById('topbar');
   const isMobile=()=>window.matchMedia('(max-width:900px)').matches;
@@ -436,64 +550,65 @@ that ever made sense.
   window.addEventListener('resize',()=>{measure();update();});
   window.addEventListener('load',()=>{measure();update();});
   setTimeout(()=>{measure();update();},80);
-})();
 
-/* DESKTOP — hover logic */
-(function(){
-  if(window.matchMedia("(max-width:900px)").matches) return;
 
-  const imgL = document.getElementById('imgL');
-  const imgR = document.getElementById('imgR');
-  const shopNow = document.getElementById('shopNow');
-  const bagsBtn = document.getElementById('bagsBtn');
+  /* =======================
+       IMAGE CLICK → catalog
+     ======================= */
+  imgL.onclick=()=>window.location.href="catalog.html";
+  imgR.onclick=()=>window.location.href="catalog.html";
 
-  if (!shopNow) return;
+  /* =======================
+       HOVER → SHOW SHOP NOW
+     ======================= */
 
-  imgL.addEventListener('click', ()=>window.location.href="catalog.html");
-  imgR.addEventListener('click', ()=>window.location.href="catalog.html");
-
-  imgL.addEventListener('mouseenter', ()=>{
+  function showShopNow(){
     shopNow.style.opacity="1";
     shopNow.style.left="0";
-  });
+  }
+  function hideShopNow(){
+    shopNow.style.opacity="0";
+    shopNow.style.left="6px";
+    shopNow.textContent="'SHOP NOW"; /* reset spacing */
+  }
 
-  imgL.addEventListener('mouseleave', ()=>{
-    shopNow.style.opacity="";
-    shopNow.style.left="";
-  });
+  imgL.addEventListener("mouseenter", showShopNow);
+  imgL.addEventListener("mouseleave", hideShopNow);
 
-  /* GIFTS also reveals SHOP NOW */
-  bagsBtn.addEventListener('mouseenter', ()=>{
-    shopNow.style.opacity="1";
-    shopNow.style.left="0";
-  });
-  bagsBtn.addEventListener('mouseleave', ()=>{
-    shopNow.style.opacity="";
-    shopNow.style.left="";
-  });
+  bagsBtn.addEventListener("mouseenter", showShopNow);
+  bagsBtn.addEventListener("mouseleave", hideShopNow);
 
-  /* ⭐ KEEP IMAGE DARK WHEN HOVERING GIFTS */
-  bagsBtn.addEventListener('mouseenter', ()=>{
-    imgL.style.filter="contrast(0.97) brightness(0.97)";
-    imgR.style.filter="contrast(0.97) brightness(0.97)";
-  });
-  bagsBtn.addEventListener('mouseleave', ()=>{
-    imgL.style.filter="";
-    imgR.style.filter="";
-  });
+  /* When hovering GIFTS or SHOP NOW → add 2 spaces */
+  function addSpaces(){
+    shopNow.textContent="  'SHOP NOW";
+  }
+  function removeSpaces(){
+    shopNow.textContent="'SHOP NOW";
+  }
+
+  bagsBtn.addEventListener("mouseenter", addSpaces);
+  shopNow.addEventListener("mouseenter", addSpaces);
+
+  bagsBtn.addEventListener("mouseleave", removeSpaces);
+  shopNow.addEventListener("mouseleave", removeSpaces);
 
 })();
-</script>
 
-<script>
-function openMenu(){
-  document.getElementById("menuPanel").classList.add("open");
-}
-function closeMenu(){
-  document.getElementById("menuPanel").classList.remove("open");
+/* MENU */
+function openMenu(){document.getElementById("menuPanel").classList.add("open");}
+function closeMenu(){document.getElementById("menuPanel").classList.remove("open");}
+
+/* CART */
+function openCart(){document.getElementById("cartPanel").classList.add("open");}
+function closeCart(){document.getElementById("cartPanel").classList.remove("open");}
+function updateCartCount(count){
+  const v = count < 10 ? "0"+count : count;
+  ["cartCountHeader","cartCountHeaderMobile","cartCountPanel"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent=v;
+  });
 }
 </script>
 
 </body>
 </html>
-
