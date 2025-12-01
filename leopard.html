@@ -14,7 +14,7 @@ body{
     overflow-x:hidden;
 }
 
-/* HEADER (unchanged) */
+/* ===================== HEADER (UNCHANGED) ===================== */
 header{
   position:fixed;
   top:0; left:0; right:0;
@@ -67,7 +67,7 @@ nav ul li a:hover{opacity:0.6;}
   .center-logo{height:22px;}
 }
 
-/* PAGE SCALE (unchanged) */
+/* =================== PAGE SCALE =================== */
 .page-wrap {
     transform: scale(0.9);
     transform-origin: top center;
@@ -79,7 +79,23 @@ nav ul li a:hover{opacity:0.6;}
     }
 }
 
-/* PRODUCT PAGE */
+/* =========================================================== */
+/* ⭐ STRONG HIGH-FASHION OFFSET — YOUR NEW VALUES ⭐ */
+/* =========================================================== */
+.page-wrap {
+    position: relative;
+    left: -32px;   /* desktop offset */
+    top: -22px;
+}
+
+@media(max-width:900px){
+    .page-wrap {
+        left: -18px;  /* mobile offset */
+        top: -12px;
+    }
+}
+
+/* ================= PRODUCT PAGE CONTENT ================= */
 .page-wrap{
   width:100%;
   margin-top:65px;
@@ -185,7 +201,7 @@ nav ul li a:hover{opacity:0.6;}
 
 @media(max-width:900px){
   .cart-btn{
-    padding:12px 32px; /* narrower mobile button */
+    padding:12px 32px;
     width:auto;
   }
 }
@@ -200,7 +216,7 @@ nav ul li a:hover{opacity:0.6;}
   margin-left:4px;
 }
 
-/* ⭐ FIXED BACK BUTTON: keep border, remove hyperlink outline ⭐ */
+/* BACK BUTTON */
 .back-link{
   font-size:11px;
   letter-spacing:0.20em;
@@ -208,11 +224,8 @@ nav ul li a:hover{opacity:0.6;}
   opacity:0.65;
   padding:6px 18px;
   color:#000;
-  text-decoration:none; /* no underline */
-  border:1px solid #000; /* keep outline box */
-  outline:none;         /* remove click outline */
-}
-.back-link:focus{
+  text-decoration:none;
+  border:1px solid #000;
   outline:none;
 }
 .back-link:hover{opacity:0.45;}
@@ -360,7 +373,7 @@ const arrowRight = document.getElementById("arrowRight");
 
 function updateSlider(){
     track.style.transform = "translateX(" + (-currentSlide * 100) + "%)";
-    dots.forEach((d,i)=>d.classList.toggle("active", i===currentSlide));
+    dots.forEach((d,i)=>d.classList.toggle("active",i===currentSlide));
     arrowLeft.classList.toggle("visible", currentSlide > 0);
     arrowRight.classList.toggle("visible", currentSlide < slides.length - 1);
 }
