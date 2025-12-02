@@ -35,6 +35,23 @@ body{
     z-index:10;
   }
 }
+/* WHITE FLOOR BELOW CART — FIXES MOBILE GAP */
+@media(max-width:900px){
+  #cartFloor{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    height:160px; /* MAKE THIS BIGGER IF YOU STILL SEE GAP */
+    background:#fff;
+    z-index:4500; /* below cart (5000), above site */
+    display:none;
+  }
+  #cartFloor.show{
+    display:block;
+  }
+}
+
 
 
 /* =====================
@@ -479,6 +496,7 @@ footer{
 </header>
 
 <!-- CART PANEL -->
+ <div id="cartFloor"></div>
 <div id="cartPanel">
   <div class="cart-header-row">
     <span>BAG <span id="cartCountPanel">00</span></span>
@@ -685,8 +703,16 @@ function openMenu(){document.getElementById("menuPanel").classList.add("open");}
 function closeMenu(){document.getElementById("menuPanel").classList.remove("open");}
 
 /* CART */
-function openCart(){document.getElementById("cartPanel").classList.add("open");}
-function closeCart(){document.getElementById("cartPanel").classList.remove("open");}
+function openCart(){
+  document.getElementById("cartPanel").classList.add("open");
+  document.getElementById("cartFloor").classList.add("show"); // show the white buffer floor
+}
+
+function closeCart(){
+  document.getElementById("cartPanel").classList.remove("open");
+  document.getElementById("cartFloor").classList.remove("show"); // hide the white buffer floor
+}
+
 function updateCartCount(count){
   const v = count < 10 ? "0"+count : count;
   ["cartCountHeader","cartCountHeaderMobile","cartCountPanel"].forEach(id=>{
