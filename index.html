@@ -132,6 +132,14 @@ nav ul li a:hover{opacity:0.65;}
   will-change:height;
 
 }
+/* prevents visual flashing under cart on mobile */
+@media(max-width:900px){
+  #cartPanel{
+    background:#fff; /* solid white base */
+    overflow:hidden; /* stops momentary reveal */
+  }
+}
+
 #cartPanel::after{
  content:"";
   position:absolute;
@@ -177,6 +185,12 @@ nav ul li a:hover{opacity:0.65;}
   white-space:pre;
   line-height:1.1;
 }
+@media(max-width:900px){
+  .cart-ascii{
+    font-size:8.5px; /* 5% smaller */
+  }
+}
+
 
 .cart-body{
   padding:16px 20px;
@@ -656,6 +670,23 @@ function updateCartCount(count){
     if(el) el.textContent=v;
   });
 }
+/* REAL mobile cart height fix */
+function updateCartHeight(){
+  const panel = document.getElementById("cartPanel");
+  if(!panel) return;
+  
+  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  panel.style.height = `calc(${vh}px - 45px)`;
+}
+
+if (window.visualViewport){
+  visualViewport.addEventListener("resize", updateCartHeight);
+  visualViewport.addEventListener("scroll", updateCartHeight);
+}
+
+window.addEventListener("load", updateCartHeight);
+window.addEventListener("orientationchange", updateCartHeight);
+
 </script>
 
 </body>
