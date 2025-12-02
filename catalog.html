@@ -102,11 +102,11 @@ nav ul li a:hover{opacity:0.6;}
   width:100vw;
   height:100vh;
   background:rgba(0,0,0,0.32);
-  backdrop-filter:blur(2px);
+  backdrop-filter:blur(1.4px); /* 30% less blur */
   opacity:0;
   pointer-events:none;
   transition:opacity .25s ease;
-  z-index:4000;
+  z-index:9000; /* above header */
 }
 #pageDimmer.active{
   opacity:1;
@@ -135,13 +135,13 @@ nav ul li a:hover{opacity:0.6;}
 
 #cartPanel{
   position:fixed;
-  top:45px;
+  top:0;                 /* cover from very top, over header */
   right:-100%;
-  height: calc(100dvh - 45px);
+  height:100dvh;         /* full screen height */
   width:65vw;
   background:#fff;
   border-left:1px solid #dcdcdc;
-  z-index:5000;
+  z-index:10000;         /* above everything */
   display:flex;
   flex-direction:column;
   transition:right .35s ease, height .25s ease;
@@ -528,7 +528,7 @@ function closeMenu(){
     document.getElementById("menuPanel").classList.remove("open");
 }
 
-/* PARALLAX FROM YOUR FILE */
+/* PARALLAX */
 window.addEventListener("scroll", ()=>{
     const y = window.scrollY;
     document.getElementById("rightSide").style.transform =
@@ -579,7 +579,7 @@ function updateCartHeight(){
   if(!panel) return;
   
   const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  panel.style.height = `calc(${vh}px - 45px)`;
+  panel.style.height = vh + "px";   // full viewport height
 }
 
 if (window.visualViewport){
