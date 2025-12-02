@@ -15,6 +15,28 @@ body{
   color:#000;
 }
 
+/* REAL WORKING MOBILE SAFE-FLOOR FIX */
+@media(max-width:900px){
+  #cartPanel::after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    height:100px; /* change if needed */
+    background:#fff;
+    z-index:5;
+    pointer-events:none;
+  }
+
+  /* ensure real cart content stays above the patch */
+  #cartPanel > *{
+    position:relative;
+    z-index:10;
+  }
+}
+
+
 /* =====================
    DESKTOP HEADER
 ===================== */
