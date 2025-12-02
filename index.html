@@ -130,6 +130,8 @@ nav ul li a:hover{opacity:0.65;}
   flex-direction:column;
   background:#fff; /* solid white safety layer */
   will-change:height;
+  transition: right .35s ease, height .25s ease;
+
 
 }
 /* prevents visual flashing under cart on mobile */
@@ -139,23 +141,23 @@ nav ul li a:hover{opacity:0.65;}
     overflow:hidden; /* stops momentary reveal */
   }
 }
+/* White safety background — mobile only, cart open only */
+@media(max-width:900px){
+  #cartPanel.open::after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    height:140px; /* safe buffer, never visible unless needed */
+    background:#fff;
+    z-index:-1; /* stays behind all cart content */
+  }
+}
 
-#cartPanel::after{
- content:"";
-  position:absolute;
-  bottom:0;
-  left:0;
-  width:100%;
-  height:40px; /* safety patch */
-  background:#fff;
-  pointer-events:none;
-  z-index:0; /* stays UNDER content */
-}
-/* ensure cart content stays above safety patch */
-#cartPanel > *{
-  position:relative;
-  z-index:1;
-}
+
+
+
 
 
 @media(min-width:901px){
@@ -686,6 +688,31 @@ if (window.visualViewport){
 
 window.addEventListener("load", updateCartHeight);
 window.addEventListener("orientationchange", updateCartHeight);
+
+/* Smooth mobile cart height adjustment */
+let cartHeightTimeout = null;
+
+function updateCartHeightSmooth(){
+  clearTimeout(cartHeightTimeout);
+
+  cartHeightTimeout = setTimeout(() => {
+    const panel = document.getElementById("cartPanel");
+    if(!panel) return;
+
+    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+
+    panel.style.height = `calc(${vh}px - 45px)`;
+  }, 60); // short delay = smoother animation, no flash
+}
+
+if(window.visualViewport){
+  visualViewport.addEventListener("resize", updateCartHeightSmooth);
+  visualViewport.addEventListener("scroll", updateCartHeightSmooth);
+}
+
+window.addEventListener("orientationchange", updateCartHeightSmooth);
+window.addEventListener("load", updateCartHeightSmooth);
+
 
 </script>
 
