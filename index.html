@@ -138,24 +138,44 @@ nav ul li a:hover{opacity:0.65;}
 /* =====================
    CART PANEL
 ===================== */
+
+#pageDimmer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.32);
+  backdrop-filter: blur(1.4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+  z-index: 9000;
+}
+#pageDimmer.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
+
+
 #cartPanel{
-  position:fixed;
-  top:45px;
-  right:-100%;
-  height: calc(100dvh - 45px); /* FIXES mobile cart bottom gap */
-  width:65vw;
-  background:#fff; /* prevents flashing site beneath */
-  border-left:1px solid #dcdcdc;
-  z-index:5000;
-  transition:right .35s ease;
-  display:flex;
-  flex-direction:column;
-  background:#fff; /* solid white safety layer */
-  will-change:height;
-  transition: right .35s ease, height .25s ease;
+  position: fixed;
+  top: 0;          /* ← makes cart start at screen top */
+  right: -100%;
+  height: 100vh;   /* ← full screen height */
+  width: 65vw;
+  background: #fff;
+  border-left: 1px solid #dcdcdc;
+  z-index: 10000;  /* ← above header */
+  display: flex;
+  flex-direction: column;
+  transition: right .35s ease;
+  overflow: hidden;
 
 
 }
+
 /* prevents visual flashing under cart on mobile */
 @media(max-width:900px){
   #cartPanel{
@@ -478,6 +498,10 @@ footer{
   </nav>
 </header>
 
+<div id="pageDimmer"></div>
+
+
+
 <!-- CART PANEL -->
 <div id="cartPanel">
   <div class="cart-header-row">
@@ -685,8 +709,24 @@ function openMenu(){document.getElementById("menuPanel").classList.add("open");}
 function closeMenu(){document.getElementById("menuPanel").classList.remove("open");}
 
 /* CART */
-function openCart(){document.getElementById("cartPanel").classList.add("open");}
-function closeCart(){document.getElementById("cartPanel").classList.remove("open");}
+function openCart(){
+  document.getElementById("cartPanel").classList.add("open");
+  document.getElementById("pageDimmer").classList.add("active");
+
+  document.body.style.overflow = "hidden";
+  document.documentElement.style.overflow = "hidden";
+}
+
+function closeCart(){
+  document.getElementById("cartPanel").classList.remove("open");
+  document.getElementById("pageDimmer").classList.remove("active");
+
+  document.body.style.overflow = "";
+  document.documentElement.style.overflow = "";
+}
+
+document.getElementById("pageDimmer").addEventListener("click", closeCart);
+
 function updateCartCount(count){
   const v = count < 10 ? "0"+count : count;
   ["cartCountHeader","cartCountHeaderMobile","cartCountPanel"].forEach(id=>{
@@ -700,7 +740,7 @@ function updateCartHeight(){
   if(!panel) return;
   
   const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  panel.style.height = `calc(${vh}px - 45px)`;
+  
 }
 
 if (window.visualViewport){
@@ -723,7 +763,7 @@ function updateCartHeightSmooth(){
 
     const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
 
-    panel.style.height = `calc(${vh}px - 45px)`;
+    
   }, 60); // short delay = smoother animation, no flash
 }
 
