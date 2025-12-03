@@ -14,7 +14,7 @@ body{
     overflow-x:hidden;
 }
 
-/* ===================== HEADER (UNCHANGED) ===================== */
+/* ===================== HEADER ===================== */
 header{
   position:fixed;
   top:0; left:0; right:0;
@@ -61,11 +61,19 @@ nav ul li a:hover{opacity:0.6;}
   nav{display:none;}
   header{justify-content:space-between;padding:6px 16px;}
   .menu-icon{display:block;}
-  .center-logo-link{position:static;transform:none;margin-left:auto;}
+
+  /* MOBILE CENTERED LOGO (same as catalog) */
+  .center-logo-link{
+    position:absolute !important;
+    left:50% !important;
+    top:50% !important;
+    transform:translate(-50%, -50%) !important;
+    margin:0 !important;
+  }
   .center-logo{height:22px;}
 }
 
-/* =============== PAGE SCALE (UNCHANGED) =============== */
+/* =============== PAGE SCALE / OFFSETS (UNCHANGED) =============== */
 .page-wrap {
     transform: scale(0.9);
     transform-origin: top center;
@@ -76,24 +84,49 @@ nav ul li a:hover{opacity:0.6;}
         transform-origin: top center;
     }
 }
-
-/* =========================================================== */
-/* ⭐ STRONG HIGH-FASHION OFFSET — DESKTOP & MOBILE ⭐ */
-/* =========================================================== */
 .page-wrap {
     position: relative;
-    left: -32px;   /* desktop offset */
+    left: -32px;
     top: -22px;
 }
-
 @media(max-width:900px){
     .page-wrap {
-        left: -18px;   /* same left mobile */
-        top: -32px;    /* ⭐ stronger upward shift so it's noticeable */
+        left: -18px;
+        top: -32px;
     }
 }
 
-/* ================= PRODUCT PAGE CONTENT ================= */
+/* CART BUTTON IN HEADER (IDENTICAL TO CATALOG) */
+.cart-header-btn{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  font-size:12px;
+  text-transform:uppercase;
+  color:#000;
+  cursor:pointer;
+  margin-left:15px;
+}
+.cart-header-btn img{height:16px;}
+.cart-header-btn span{font-size:12px;}
+
+/* MOBILE CART ICON */
+.mobile-cart{
+  display:none;
+}
+@media(max-width:900px){
+  .mobile-cart{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    position:absolute;
+    right:16px;
+    top:10px;
+  }
+  .mobile-cart img{height:16px;}
+}
+
+/* ===================== PAGE CONTENT ===================== */
 .page-wrap{
   width:100%;
   margin-top:65px;
@@ -103,7 +136,7 @@ nav ul li a:hover{opacity:0.6;}
   padding-bottom:120px;
 }
 
-/* SLIDER (unchanged) */
+/* SLIDER */
 .slider{
   width:380px;
   max-width:80vw;
@@ -138,7 +171,7 @@ nav ul li a:hover{opacity:0.6;}
 .arrow-right{ right:0; }
 .arrow.visible{ opacity:1; }
 
-/* Dots */
+/* DOTS */
 .slider-dots{
   display:flex;
   justify-content:center;
@@ -177,7 +210,7 @@ nav ul li a:hover{opacity:0.6;}
   margin-bottom:35px;
   letter-spacing:0.18em;
 }
-.cart-btn{
+.add-to-cart{
   background:#000;
   color:#fff;
   padding:12px 40px;
@@ -189,10 +222,10 @@ nav ul li a:hover{opacity:0.6;}
   transition:opacity .25s ease;
   margin-bottom:55px;
 }
-.cart-btn:hover{opacity:0.75;}
+.add-to-cart:hover{opacity:0.75;}
 
 @media(max-width:900px){
-  .cart-btn{
+  .add-to-cart{
     padding:12px 32px;
     width:auto;
   }
@@ -208,11 +241,8 @@ nav ul li a:hover{opacity:0.6;}
   margin-bottom:80px;
   margin-left:4px;
 }
-
 @media(max-width:900px){
-  .desc {
-    margin-top:-14px;   /* ⭐ move “Leopard teaches…” text UP more */
-  }
+  .desc { margin-top:-14px; }
 }
 
 /* BACK BUTTON */
@@ -225,13 +255,8 @@ nav ul li a:hover{opacity:0.6;}
   color:#000;
   text-decoration:none;
   border:1px solid #000;
-  outline:none;
 }
 .back-link:hover{opacity:0.45;}
-
-@media(max-width:900px){
-  .product-info-wrap{width:270px;}
-}
 
 /* FOOTER */
 footer{
@@ -271,7 +296,7 @@ footer{
   color:#000;
 }
 
-/* INTRO */
+/* INTRO ANIMATION (unchanged) */
 #luxuryIntro{
     position:fixed;
     inset:0;
@@ -286,6 +311,93 @@ footer{
     0%{opacity:1; backdrop-filter:blur(18px);}
     100%{opacity:0; backdrop-filter:blur(0px);}
 }
+
+/* ====================== CART SYSTEM ADDED ====================== */
+
+/* DIMMER */
+#pageDimmer{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  background:rgba(0,0,0,0.32);
+  backdrop-filter:blur(1.4px);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s ease;
+  z-index:9000;
+}
+#pageDimmer.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* CART PANEL */
+#cartPanel{
+  position:fixed;
+  top:0;
+  right:-100%;
+  height:100vh;
+  width:65vw;
+  background:#fff;
+  border-left:1px solid #dcdcdc;
+  z-index:10000;
+  display:flex;
+  flex-direction:column;
+  transition:right .35s ease;
+}
+@media(min-width:901px){
+  #cartPanel{width:26vw;}
+}
+#cartPanel.open{right:0;}
+
+.cart-header-row{
+  background:#fff;
+  border-bottom:1px solid #dcdcdc;
+  padding:14px 20px;
+  font-size:11px;
+  text-transform:uppercase;
+  display:flex;
+  justify-content:space-between;
+}
+.cart-close{cursor:pointer;}
+
+.cart-ascii-wrap{
+  padding:12px 20px;
+  border-bottom:1px solid #dcdcdc;
+  background:#fafafa;
+}
+.cart-ascii{
+  font-family:monospace;
+  font-size:9px;
+  white-space:pre;
+  line-height:1.1;
+}
+
+.cart-body{
+  padding:16px 20px;
+  font-size:11px;
+}
+
+.cart-auth-links{
+  display:flex;
+  gap:30px;
+  margin-top:8px;
+}
+.cart-auth-links a{
+  font-size:11px;
+  text-transform:uppercase;
+  color:#000;
+  text-decoration:none;
+}
+
+.cart-bottom{margin-top:auto;}
+.cart-section{
+  padding:12px 20px;
+  border-top:1px solid #dcdcdc;
+  font-size:11px;
+  text-transform:uppercase;
+}
 </style>
 </head>
 
@@ -295,17 +407,71 @@ footer{
 
 <header>
   <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
+
   <a href="index.html" class="center-logo-link">
     <img src="minara 5 transparent 2.svg" class="center-logo">
   </a>
+
   <nav>
     <ul>
       <li><a href="contact.html"><img src="question mark.svg" class="question-icon">Contact</a></li>
       <li><a href="auth.html"><img src="head shoulder.svg" class="desktop-icon">Account</a></li>
+
+      <!-- DESKTOP CART -->
+      <li>
+        <span class="cart-header-btn" onclick="openCart()">
+          <img src="cart.svg">
+          <span id="cartCountHeader">00</span>
+        </span>
+      </li>
     </ul>
   </nav>
+
+  <!-- MOBILE CART -->
+  <span class="cart-header-btn mobile-cart" onclick="openCart()">
+    <img src="cart.svg">
+    <span id="cartCountHeaderMobile">00</span>
+  </span>
 </header>
 
+<!-- DIMMER -->
+<div id="pageDimmer"></div>
+
+<!-- CART PANEL -->
+<div id="cartPanel">
+  <div class="cart-header-row">
+    <span>BAG <span id="cartCountPanel">00</span></span>
+    <span class="cart-close" onclick="closeCart()">X CLOSE</span>
+  </div>
+
+  <div class="cart-ascii-wrap">
+    <div class="cart-ascii">
+ _____   __  __   ____    _____  __   __
+| ____| |  \/  | |  _ \  |_   _| \ \ / /
+|  _|   | |\/| | | |_) |   | |    \ V / 
+| |___  | |  | | |  __/    | |     | |  
+|_____| |_|  |_| |_|       |_|     |_|  
+    </div>
+  </div>
+
+  <div class="cart-body">
+    <p>Missing items in your cart?</p>
+    <p>Sign in to see items added before.</p>
+
+    <div class="cart-auth-links">
+      <a href="#">Sign in</a>
+      <a href="#">Register</a>
+    </div>
+  </div>
+
+  <div class="cart-bottom">
+    <div class="cart-section">Shipping</div>
+    <div class="cart-section">Total</div>
+    <div class="cart-section">Payment</div>
+  </div>
+</div>
+
+<!-- MENU PANEL -->
 <div class="slideout" id="menuPanel">
   <div class="close-btn" onclick="closeMenu()">×</div>
   <a href="index.html">Home</a>
@@ -339,7 +505,7 @@ footer{
         <div class="product-title">Léopard Fur Backpack</div>
         <div class="product-price">R749</div>
 
-        <button class="cart-btn">ADD TO CART</button>
+        <button class="add-to-cart" onclick="openCart()">ADD TO CART</button>
 
         <div class="desc">
 Léopard teaches that true transformation arrives in silence.
@@ -360,9 +526,42 @@ for many years still unwritten
 <footer>© 2025 MINARA5</footer>
 
 <script>
+
+/* MENU */
 function openMenu(){ document.getElementById("menuPanel").classList.add("open"); }
 function closeMenu(){ document.getElementById("menuPanel").classList.remove("open"); }
 
+/* CART OPEN */
+function openCart(){
+  document.getElementById("cartPanel").classList.add("open");
+  document.getElementById("pageDimmer").classList.add("active");
+
+  document.body.style.overflow = "hidden";
+  document.documentElement.style.overflow = "hidden";
+}
+
+/* CART CLOSE */
+function closeCart(){
+  document.getElementById("cartPanel").classList.remove("open");
+  document.getElementById("pageDimmer").classList.remove("active");
+
+  document.body.style.overflow = "";
+  document.documentElement.style.overflow = "";
+}
+
+/* CLICK OUTSIDE TO CLOSE */
+document.getElementById("pageDimmer").addEventListener("click", closeCart);
+
+/* CART COUNT */
+function updateCartCount(n){
+  const v = n < 10 ? "0"+n : n;
+  ["cartCountHeader","cartCountHeaderMobile","cartCountPanel"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent=v;
+  });
+}
+
+/* SLIDER */
 let currentSlide = 0;
 const track = document.getElementById("sliderTrack");
 const slides = track.querySelectorAll("img");
@@ -382,7 +581,7 @@ function goToSlide(n){ currentSlide = Math.max(0, Math.min(n, slides.length - 1)
 function nextSlide(){ if(currentSlide < slides.length - 1){ currentSlide++; updateSlider(); } }
 function prevSlide(){ if(currentSlide > 0){ currentSlide--; updateSlider(); } }
 
-/* Swipe */
+/* SWIPE */
 (function(){
     const slider = document.getElementById("slider");
     let startX = 0, touching = false;
