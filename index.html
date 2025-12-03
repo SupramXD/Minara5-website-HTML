@@ -665,10 +665,28 @@ that ever made sense.
     logo.style.transform='translateX(-50%)';
   }
 
-  window.addEventListener('scroll',update);
-  window.addEventListener('resize',()=>{measure();update();});
-  window.addEventListener('load',()=>{measure();update();});
-  setTimeout(()=>{measure();update();},80);
+ window.addEventListener('load', () => {
+    measure();      // calculate hero positions first
+    update();       // then update header + logo
+});
+
+// prevent premature calculations
+window.addEventListener('resize', () => {
+    measure();
+    update();
+});
+
+// mobile scroll handler, AFTER measure() has run properly
+window.addEventListener('scroll', () => {
+    update();
+});
+
+// small delay to ensure correct image bounding boxes (your old working trick)
+setTimeout(() => {
+    measure();
+    update();
+}, 80);
+
 
 
   /* =======================
