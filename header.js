@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-/* FIREBASE CONFIG */
 const firebaseConfig = {
     apiKey: "AIzaSyC8srbzH_DcCYQJXe9MNOyy2OHZSaLidIo",
     authDomain: "minara5.firebaseapp.com",
@@ -36,15 +35,13 @@ onAuthStateChanged(auth, (user) => {
 
 /* CLICK HANDLER */
 window.accountClicked = function(event){
-    event.preventDefault();
+    event.stopPropagation();
 
-    if (!currentUser){
-        // not logged in → go to login page
+    if (!currentUser) {
         location.href = "account.html";
         return;
     }
 
-    // logged in → toggle dropdown menu
     const box = document.getElementById("accountDropdown");
     box.style.display = (box.style.display === "block") ? "none" : "block";
 };
@@ -54,7 +51,7 @@ window.closeAccDropdown = function(){
     document.getElementById("accountDropdown").style.display = "none";
 };
 
-/* LOGOUT */
+/* LOG OUT */
 window.logout = function(){
     signOut(auth).then(()=>{
         location.href = "index.html";
@@ -66,7 +63,7 @@ document.addEventListener("click", function(e){
     const box = document.getElementById("accountDropdown");
     if (!box) return;
 
-    if (!box.contains(e.target) && e.target.id !== "accountLabel"){
+    if (!box.contains(e.target) && !e.target.classList.contains("account-label")) {
         box.style.display = "none";
     }
 });
