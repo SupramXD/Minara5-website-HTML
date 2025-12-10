@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MINARA5 — Register</title>
+
+<style>
+/* RESET */
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html, body {height: 100%;}
+
+body{
+  display:flex;
+  flex-direction:column;
+  font-family:Helvetica,Arial,sans-serif;
+  background:#fff;
+  overflow-x:hidden;
+  color:#000;
+}
+
+/* =========================================================
+   HEADER (EXACT SAME AS YOUR SITE — UNMODIFIED)
+========================================================= */
+
+header{
+  position:fixed;
+  top:0; left:0; right:0;
+  height:48px; /* your original height */
+  background:rgba(255,255,255,0.96);
+  border-bottom:1px solid #eee;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  padding:0 20px; /* your original spacing */
+  z-index:1200;
+}
+.header-left,
+.header-right {
+    align-items: flex-start !important;
+    padding-top: 0 !important;
+    margin-top: -21px !important; /* fine-tune vertical alignment */
+}
+
+/* LEFT NAV */
+.header-left{
+  display:flex;
+  align-items:center;
+  gap:22px;
+}
+
+.header-left a{
+  font-size:12px;
+  text-transform:uppercase;
+  color:#000;
+  text-decoration:none;
+  letter-spacing:1px;
+}
+
+.menu-icon{
+  display:none;
+  cursor:pointer;
+}
+.menu-icon img{height:14px;}
+
+.mobile-shopnow{
+  display:none;
+}
+.mobile-shopnow a{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#000;
+  text-decoration:none;
+}
+
+/* CENTER LOGO */
+.header-center{
+  display:flex;
+  justify-content:center;
+}
+.header-logo{
+  width:160px; /* original size */
+  pointer-events:none;
+  user-select:none;
+}
+
+/* RIGHT NAV */
+.header-right{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+}
+.header-right ul{
+  list-style:none;
+  display:flex;
+  gap:25px;
+}
+.header-right ul li a{
+  font-size:11px;
+  text-transform:uppercase;
+  color:#000;
+  text-decoration:none;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.desktop-icon{height:12px;}
+.question-icon{height:14px;}
+
+.cart-btn{
+  display:flex;
+  gap:4px;
+  align-items:center;
+  cursor:pointer;
+}
+.cart-btn img{height:16px;}
+.cart-btn span{font-size:12px;}
+
+/* MOBILE HEADER */
+@media(max-width:900px){
+  header{
+    grid-template-columns:auto 1fr auto;
+    padding:0 14px;
+  }
+  .header-left a.desktop-only{display:none;}
+  .header-right ul li a.desktop-only{display:none;}
+
+  .menu-icon{display:block;}
+  .mobile-shopnow{display:block; position:absolute; top:14px; left:60px;}
+}
+
+/* =========================================================
+   CART (unchanged)
+========================================================= */
+
+#pageDimmer{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.32);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s;
+  z-index:9000;
+}
+#pageDimmer.active{opacity:1;pointer-events:auto;}
+
+#cartPanel{
+  position:fixed;
+  top:0; right:-100%;
+  width:65vw;
+  height:100vh;
+  background:#fff;
+  border-left:1px solid #dcdcdc;
+  z-index:10000;
+  display:flex;
+  flex-direction:column;
+  transition:right .35s ease;
+  overflow:hidden;
+}
+@media(min-width:901px){#cartPanel{width:26vw;}}
+#cartPanel.open{right:0;}
+
+.cart-header-row{
+  padding:14px 20px;
+  border-bottom:1px solid #dcdcdc;
+  background:#fff;
+  display:flex; justify-content:space-between;
+  font-size:11px; text-transform:uppercase;
+}
+.cart-close{cursor:pointer;}
+
+.cart-ascii-wrap{
+  padding:12px 20px;
+  border-bottom:1px solid #dcdcdc;
+  background:#fafafa;
+}
+.cart-ascii{
+  white-space:pre;
+  font-family:monospace;
+  font-size:9px;
+}
+
+.cart-body{padding:16px 20px; font-size:11px;}
+.cart-auth-links{display:flex;gap:30px;margin-top:8px;}
+.cart-auth-links a{text-decoration:none;color:#000;text-transform:uppercase;font-size:11px;}
+
+.cart-bottom{margin-top:auto;}
+.cart-section{
+  padding:12px 20px;
+  border-top:1px solid #dcdcdc;
+  font-size:11px;
+  text-transform:uppercase;
+}
+
+/* =========================================================
+   MENU PANEL
+========================================================= */
+.slideout{
+  position:fixed;
+  top:0; left:-100%;
+  width:100%; height:100vh;
+  background:#fff;
+  transition:left .35s;
+  padding:50px 40px 40px;
+  z-index:5000;
+}
+.slideout.open{left:0;}
+
+.close-btn{
+  position:absolute; top:18px; right:24px;
+  font-size:30px; cursor:pointer;
+}
+
+.slideout a{
+  display:block;
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:0.28em;
+  margin:26px 0;
+  color:#000;
+  text-decoration:none;
+}
+
+/* =========================================================
+   REGISTER PAGE CONTENT
+========================================================= */
+
+.wrapper{
+  max-width:420px;
+  margin:100px auto 60px; /* moved up slightly (Option A) */
+  padding:0 20px;
+}
+
+h1{
+  font-size:26px;
+  font-weight:600;
+  text-align:center;
+  letter-spacing:2px;
+  margin-bottom:40px;
+}
+
+.account-intro{
+  margin-bottom:50px;
+  font-size:13px;
+  letter-spacing:0.3px;
+}
+
+.intro-title{
+  font-size:18px;
+  font-weight:500;
+  margin-bottom:8px;
+}
+
+.intro-location{font-size:12px;margin-bottom:16px;}
+.change-location{text-decoration:underline; cursor:pointer;}
+
+.intro-benefits{
+  list-style:none;
+  font-size:12px;
+  line-height:1.7;
+}
+.intro-benefits li::before{
+  content:"— ";
+}
+
+/* REGISTER BOX */
+.box{
+  border:1px solid #000;
+  padding:30px;
+  margin-bottom:40px;
+}
+
+.box-title{
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  margin-bottom:20px;
+}
+
+input{
+  width:100%;
+  padding:12px 14px;
+  margin-top:12px;
+  border:none;
+  border-bottom:1px solid #000;
+  background:transparent;
+  font-size:14px;
+}
+
+button{
+  width:100%;
+  padding:14px 0;
+  margin-top:28px;
+  background:#000;
+  color:#fff;
+  border:none;
+  letter-spacing:1.5px;
+  cursor:pointer;
+}
+button:hover{opacity:0.85;}
+
+footer{
+  margin-top:auto;
+  background:#f5f5f5;
+  padding:21px 0;
+  text-align:center;
+  font-size:9px;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+}
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     HEADER (unchanged)
+========================================================= -->
+<header>
+  <div class="header-left">
+      <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
+      <div class="mobile-shopnow"><a href="catalog.html">SHOP NOW</a></div>
+      <a href="catalog.html" class="desktop-only">CATALOG</a>
+      <a href="catalog.html" class="desktop-only">BAGS</a>
+      <a href="social media.html" class="desktop-only">SOCIALS</a>
+  </div>
+
+  <div class="header-center">
+      <a href="index.html"><img src="minara 5 transparent 2.svg" class="header-logo"></a>
+  </div>
+
+  <div class="header-right">
+      <ul>
+        <li><a href="contact.html" class="desktop-only"><img src="question mark.svg" class="question-icon">Contact</a></li>
+        <li><a href="account.html"><img src="head shoulder.svg" class="desktop-icon"><span id="accountLabel">Account</span></a></li>
+        <li>
+          <span class="cart-btn" onclick="openCart()">
+            <img src="cart.svg">
+            <span id="cartCountHeader">00</span>
+          </span>
+        </li>
+      </ul>
+  </div>
+</header>
+
+<!-- =========================================================
+     CART + MENU (unchanged)
+========================================================= -->
+<div id="pageDimmer"></div>
+
+<div id="cartPanel">
+  <div class="cart-header-row">
+    <span>BAG <span id="cartCountPanel">00</span></span>
+    <span class="cart-close" onclick="closeCart()">X CLOSE</span>
+  </div>
+
+  <div class="cart-ascii-wrap">
+    <div class="cart-ascii">
+ _____   __  __   ____    _____  __   __
+| ____| |  \/  | |  _ \  |_   _| \ \ / /
+|  _|   | |\/| | | |_) |   | |    \ V / 
+| |___  | |  | | |  __/    | |     | |  
+|_____| |_|  |_| |_|       |_|     |_|  
+    </div>
+  </div>
+
+  <div class="cart-body">
+    <p>Missing items in your cart?</p>
+    <p>Sign in to see items you added before.</p>
+
+    <div class="cart-auth-links">
+      <a href="account.html">Sign in</a>
+      <a href="register.html">Register</a>
+    </div>
+  </div>
+
+  <div class="cart-bottom">
+    <div class="cart-section">Shipping</div>
+    <div class="cart-section">Total</div>
+    <div class="cart-section">Payment</div>
+  </div>
+</div>
+
+<div class="slideout" id="menuPanel">
+  <div class="close-btn" onclick="closeMenu()">×</div>
+  <a href="catalog.html">Catalog</a>
+  <a href="social media.html">Social Media</a>
+  <a href="contact.html">Contact</a>
+  <a href="account.html">Login</a>
+</div>
+
+<!-- =========================================================
+     MAIN REGISTER CONTENT
+========================================================= -->
+<div class="wrapper">
+
+  <h1>REGISTER</h1>
+
+  <div class="account-intro">
+      <h2 class="intro-title">Create your MINARA5 account</h2>
+
+      <div class="intro-location">
+        South Africa, <a class="change-location">Change location</a>
+      </div>
+
+      <ul class="intro-benefits">
+        <li>Priority access to new collections</li>
+        <li>Eligible to exclusive events and gifting</li>
+        <li>Easily track your orders and returns</li>
+        <li>Pre-access to sale</li>
+        <li>Priority shipping</li>
+      </ul>
+  </div>
+
+  <div class="box">
+      <div class="box-title">CREATE ACCOUNT</div>
+
+      <input id="register-email" type="email" placeholder="Email">
+      <input id="register-password" type="password" placeholder="Password">
+
+      <button onclick="register()">REGISTER</button>
+
+      <p style="margin-top:20px;font-size:13px;cursor:pointer;"
+         onclick="location.href='account.html'">Already have an account? Sign in</p>
+  </div>
+
+</div>
+
+<footer>© 2025 MINARA5</footer>
+
+<!-- CART + MENU JS -->
+<script>
+function openCart(){
+  document.getElementById('cartPanel').classList.add('open');
+  document.getElementById('pageDimmer').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeCart(){
+  document.getElementById('cartPanel').classList.remove('open');
+  document.getElementById('pageDimmer').classList.remove('active');
+  document.body.style.overflow='';
+}
+document.getElementById('pageDimmer').addEventListener('click', closeCart);
+
+function updateCartCount(n){
+  const v=n<10?'0'+n:String(n);
+  document.getElementById('cartCountHeader').textContent=v;
+  document.getElementById('cartCountPanel').textContent=v;
+}
+
+function openMenu(){document.getElementById("menuPanel").classList.add("open");}
+function closeMenu(){document.getElementById("menuPanel").classList.remove("open");}
+</script>
+
+<!-- FIREBASE REGISTRATION LOGIC -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyC8srbzH_DcCYQJXe9MNOyy2OHZSaLidIo",
+    authDomain: "minara5.firebaseapp.com",
+    projectId: "minara5",
+    storageBucket: "minara5.firebasestorage.app",
+    messagingSenderId: "860405871052",
+    appId: "1:860405871052:web:2aead90773c24721f72d69"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// REGISTER → auto-login → redirect home
+window.register = function(){
+    const email = document.getElementById("register-email").value;
+    const password = document.getElementById("register-password").value;
+
+    createUserWithEmailAndPassword(auth,email,password)
+      .then(()=>{
+          location.href = "index.html"; 
+      })
+      .catch(err => alert(err.message));
+};
+
+// if logged in already → redirect home
+onAuthStateChanged(auth,(user)=>{
+    if(user){
+        location.href = "index.html";
+    }
+});
+</script>
+
+<!-- SHARED HEADER LOGIC -->
+<script type="module" src="header.js"></script>
+
+</body>
+</html>
