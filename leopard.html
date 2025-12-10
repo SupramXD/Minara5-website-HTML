@@ -11,6 +11,16 @@
     color: #000 !important;
     text-decoration: none !important;
     cursor: default !important;
+    font-size: 11px !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1; /* prevents vertical misalignment */
+}
+
+#accountLabel {
+    color: #000 !important;
+    text-decoration: none !important;
+    cursor: default !important;
 }
 
   /* ACCOUNT DROPDOWN PANEL */
@@ -445,6 +455,32 @@ footer{
   font-size:11px;
   text-transform:uppercase;
 }
+
+/* === FIX ACCOUNT HEADER ITEM === */
+.header-account a,
+.header-account a:link,
+.header-account a:visited,
+.header-account a:hover,
+.header-account a:active {
+    color: #000 !important;
+    text-decoration: none !important;
+}
+
+.header-account {
+    display: flex;
+    align-items: center;
+}
+
+.header-account .account-label {
+    color: #000 !important;
+    font-size: 11px !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1;
+    margin-left: 4px;
+    cursor: default;
+}
+
 </style>
 </head>
 
@@ -472,10 +508,13 @@ footer{
   <nav>
     <ul>
       <li><a href="contact.html"><img src="question mark.svg" class="question-icon">Contact</a></li>
-      <a href="#" onclick="accountClicked(event)">
-    <img src="head shoulder.svg" class="desktop-icon">
-    <span id="accountLabel">Account</span>
-</a>
+<li class="header-account">
+  <a href="#" onclick="accountClicked(event)">
+      <img src="head shoulder.svg" class="desktop-icon">
+      <span id="accountLabel" class="account-label">Account</span>
+  </a>
+</li>
+
 
 
       <!-- DESKTOP CART -->
