@@ -3,13 +3,17 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>MINARA5 — Register</title>
+<title>MINARA5 — Account</title>
 
 <style>
-/* RESET */
+/* =========================================================
+   RESET + PAGE FOUNDATION
+========================================================= */
 *{margin:0;padding:0;box-sizing:border-box;}
 
-html, body {height: 100%;}
+html, body {
+    height: 100%;
+}
 
 body{
   display:flex;
@@ -21,41 +25,43 @@ body{
 }
 
 /* =========================================================
-   HEADER (EXACT SAME AS YOUR SITE — UNMODIFIED)
+   HEADER — NEW 3-COLUMN HIGH-FASHION LAYOUT
 ========================================================= */
 
 header{
   position:fixed;
   top:0; left:0; right:0;
-  height:48px; /* your original height */
+  height:60px !important; /* thicker header */
   background:rgba(255,255,255,0.96);
   border-bottom:1px solid #eee;
   display:grid;
   grid-template-columns:1fr auto 1fr;
   align-items:center;
-  padding:0 20px; /* your original spacing */
+  padding-left:29px !important;
+  padding-right:29px !important;
   z-index:1200;
 }
+
 .header-left,
 .header-right {
     align-items: flex-start !important;
     padding-top: 0 !important;
-    margin-top: -21px !important; /* fine-tune vertical alignment */
+    margin-top: -29px !important; /* fine-tune vertical alignment */
 }
 
-/* LEFT NAV */
+
 .header-left{
   display:flex;
   align-items:center;
-  gap:22px;
+  gap:27px !important;
 }
 
 .header-left a{
   font-size:12px;
   text-transform:uppercase;
+  letter-spacing:1px;
   color:#000;
   text-decoration:none;
-  letter-spacing:1px;
 }
 
 .menu-icon{
@@ -64,13 +70,10 @@ header{
 }
 .menu-icon img{height:14px;}
 
-.mobile-shopnow{
-  display:none;
-}
+.mobile-shopnow{display:none;}
 .mobile-shopnow a{
   font-size:11px;
   text-transform:uppercase;
-  letter-spacing:1px;
   color:#000;
   text-decoration:none;
 }
@@ -81,12 +84,12 @@ header{
   justify-content:center;
 }
 .header-logo{
-  width:160px; /* original size */
+  width:190px !important;
   pointer-events:none;
   user-select:none;
 }
 
-/* RIGHT NAV */
+/* RIGHT SIDE */
 .header-right{
   display:flex;
   justify-content:flex-end;
@@ -95,7 +98,7 @@ header{
 .header-right ul{
   list-style:none;
   display:flex;
-  gap:25px;
+  gap:27px !important;
 }
 .header-right ul li a{
   font-size:11px;
@@ -107,9 +110,11 @@ header{
   gap:6px;
 }
 
+/* Icons */
 .desktop-icon{height:12px;}
 .question-icon{height:14px;}
 
+/* CART BUTTON */
 .cart-btn{
   display:flex;
   gap:4px;
@@ -123,24 +128,21 @@ header{
 @media(max-width:900px){
   header{
     grid-template-columns:auto 1fr auto;
-    padding:0 14px;
   }
   .header-left a.desktop-only{display:none;}
   .header-right ul li a.desktop-only{display:none;}
-
   .menu-icon{display:block;}
-  .mobile-shopnow{display:block; position:absolute; top:14px; left:60px;}
+  .mobile-shopnow{display:block; position:absolute; top:22px; left:65px;}
 }
 
 /* =========================================================
-   CART (unchanged)
+   CART PANEL
 ========================================================= */
-
 #pageDimmer{
   position:fixed; inset:0;
   background:rgba(0,0,0,0.32);
-  opacity:0;
-  pointer-events:none;
+  backdrop-filter:blur(1.4px);
+  opacity:0; pointer-events:none;
   transition:opacity .25s;
   z-index:9000;
 }
@@ -149,8 +151,8 @@ header{
 #cartPanel{
   position:fixed;
   top:0; right:-100%;
-  width:65vw;
   height:100vh;
+  width:65vw;
   background:#fff;
   border-left:1px solid #dcdcdc;
   z-index:10000;
@@ -163,26 +165,24 @@ header{
 #cartPanel.open{right:0;}
 
 .cart-header-row{
+  background:#fff;
   padding:14px 20px;
   border-bottom:1px solid #dcdcdc;
-  background:#fff;
+  font-size:11px;
+  text-transform:uppercase;
   display:flex; justify-content:space-between;
-  font-size:11px; text-transform:uppercase;
 }
 .cart-close{cursor:pointer;}
 
-.cart-ascii-wrap{
-  padding:12px 20px;
-  border-bottom:1px solid #dcdcdc;
-  background:#fafafa;
-}
+.cart-ascii-wrap{padding:12px 20px;border-bottom:1px solid #dcdcdc;background:#fafafa;}
 .cart-ascii{
   white-space:pre;
   font-family:monospace;
   font-size:9px;
+  line-height:1.1;
 }
 
-.cart-body{padding:16px 20px; font-size:11px;}
+.cart-body{padding:16px 20px;font-size:11px;}
 .cart-auth-links{display:flex;gap:30px;margin-top:8px;}
 .cart-auth-links a{text-decoration:none;color:#000;text-transform:uppercase;font-size:11px;}
 
@@ -195,16 +195,16 @@ header{
 }
 
 /* =========================================================
-   MENU PANEL
+   MOBILE MENU PANEL
 ========================================================= */
 .slideout{
   position:fixed;
   top:0; left:-100%;
   width:100%; height:100vh;
   background:#fff;
+  z-index:5000;
   transition:left .35s;
   padding:50px 40px 40px;
-  z-index:5000;
 }
 .slideout.open{left:0;}
 
@@ -224,12 +224,11 @@ header{
 }
 
 /* =========================================================
-   REGISTER PAGE CONTENT
+   ACCOUNT PAGE LAYOUT
 ========================================================= */
-
 .wrapper{
   max-width:420px;
-  margin:100px auto 60px; /* moved up slightly (Option A) */
+  margin:140px auto 60px;
   padding:0 20px;
 }
 
@@ -241,6 +240,7 @@ h1{
   margin-bottom:40px;
 }
 
+/* INTRO (DIOR STYLE) */
 .account-intro{
   margin-bottom:50px;
   font-size:13px;
@@ -253,23 +253,30 @@ h1{
   margin-bottom:8px;
 }
 
-.intro-location{font-size:12px;margin-bottom:16px;}
-.change-location{text-decoration:underline; cursor:pointer;}
+.intro-location{
+  font-size:12px;
+  margin-bottom:16px;
+}
+
+.change-location{
+  color:#000;
+  text-decoration:underline;
+  cursor:pointer;
+}
 
 .intro-benefits{
   list-style:none;
   font-size:12px;
   line-height:1.7;
 }
-.intro-benefits li::before{
-  content:"— ";
-}
+.intro-benefits li::before{content:"— ";}
 
-/* REGISTER BOX */
+/* LOGIN & REGISTER BOXES */
 .box{
   border:1px solid #000;
   padding:30px;
   margin-bottom:40px;
+  display:none;
 }
 
 .box-title{
@@ -287,22 +294,33 @@ input{
   border-bottom:1px solid #000;
   background:transparent;
   font-size:14px;
+  outline:none;
 }
 
 button{
+  margin-top:28px;
   width:100%;
   padding:14px 0;
-  margin-top:28px;
   background:#000;
   color:#fff;
-  border:none;
   letter-spacing:1.5px;
+  border:none;
   cursor:pointer;
 }
 button:hover{opacity:0.85;}
 
+#user-info{
+  display:none;
+  text-align:center;
+  margin-top:40px;
+  font-size:14px;
+}
+
+/* =========================================================
+   FOOTER — FIXED TO BOTTOM
+========================================================= */
 footer{
-  margin-top:auto;
+  margin-top:auto !important;
   background:#f5f5f5;
   padding:21px 0;
   text-align:center;
@@ -310,14 +328,82 @@ footer{
   letter-spacing:0.2em;
   text-transform:uppercase;
 }
+/* ================================
+   ACCOUNT DROPDOWN (FINAL VERSION)
+=================================== */
+
+.header-account .account-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.account-label {
+    color: #000 !important;
+    font-size: 11px !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none !important;
+    line-height: 1;
+    user-select: none;
+}
+
+/* Dropdown box */
+.acc-dropdown {
+    position: absolute;
+    top: 48px; /* your header height */
+    right: 20px;
+    width: 220px;
+    background: #fff;
+    border: 1px solid #cfcfcf;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    display: none;
+    z-index: 9999;
+}
+
+.acc-head {
+    padding: 12px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #000;
+    display: flex;
+    justify-content: space-between;
+    text-transform: uppercase;
+}
+
+.acc-close {
+    cursor: pointer;
+}
+
+/* Menu items */
+.acc-item {
+    display: block;
+    padding: 12px 14px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #000 !important;
+    text-decoration: none !important;
+    border-bottom: 1px solid #eee;
+}
+
+.acc-item:hover {
+    background: #f7f7f7;
+}
+
 </style>
 </head>
 <body>
 
 <!-- =========================================================
-     HEADER (unchanged)
+     HEADER (FUNCTIONAL)
 ========================================================= -->
-<header>
+<header id="topbar">
+    
+
+  <!-- LEFT -->
   <div class="header-left">
       <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
       <div class="mobile-shopnow"><a href="catalog.html">SHOP NOW</a></div>
@@ -326,14 +412,24 @@ footer{
       <a href="social media.html" class="desktop-only">SOCIALS</a>
   </div>
 
+  <!-- CENTER -->
   <div class="header-center">
-      <a href="index.html"><img src="minara 5 transparent 2.svg" class="header-logo"></a>
+    <a href="index.html">
+      <img src="minara 5 transparent 2.svg" class="header-logo">
+      </a>
   </div>
 
+  <!-- RIGHT -->
   <div class="header-right">
       <ul>
         <li><a href="contact.html" class="desktop-only"><img src="question mark.svg" class="question-icon">Contact</a></li>
-        <li><a href="account.html"><img src="head shoulder.svg" class="desktop-icon"><span id="accountLabel">Account</span></a></li>
+        <li class="header-account">
+    <div class="account-trigger" onclick="accountClicked(event)">
+        <img src="head shoulder.svg" class="desktop-icon">
+        <span id="accountLabel" class="account-label">ACCOUNT</span>
+    </div>
+</li>
+
         <li>
           <span class="cart-btn" onclick="openCart()">
             <img src="cart.svg">
@@ -342,10 +438,21 @@ footer{
         </li>
       </ul>
   </div>
+
 </header>
+<div id="accountDropdown" class="acc-dropdown">
+    <div class="acc-head">
+        <span id="accName">ACCOUNT</span>
+        <span class="acc-close" onclick="closeAccDropdown()">X CLOSE</span>
+    </div>
+
+    <a href="accountorder.html" class="acc-item">MY ORDERS</a>
+    <a href="#" onclick="logout()" class="acc-item">LOG OUT</a>
+</div>
+
 
 <!-- =========================================================
-     CART + MENU (unchanged)
+     CART PANEL + MENU
 ========================================================= -->
 <div id="pageDimmer"></div>
 
@@ -371,7 +478,7 @@ footer{
 
     <div class="cart-auth-links">
       <a href="account.html">Sign in</a>
-      <a href="register.html">Register</a>
+      <a href="account.html">Register</a>
     </div>
   </div>
 
@@ -391,14 +498,15 @@ footer{
 </div>
 
 <!-- =========================================================
-     MAIN REGISTER CONTENT
+     MAIN ACCOUNT CONTENT
 ========================================================= -->
 <div class="wrapper">
 
-  <h1>REGISTER</h1>
+  <h1>ACCOUNT</h1>
 
+  <!-- INTRO SECTION -->
   <div class="account-intro">
-      <h2 class="intro-title">Create your MINARA5 account</h2>
+      <h2 class="intro-title">Sign in or register</h2>
 
       <div class="intro-location">
         South Africa, <a class="change-location">Change location</a>
@@ -413,23 +521,38 @@ footer{
       </ul>
   </div>
 
-  <div class="box">
-      <div class="box-title">CREATE ACCOUNT</div>
+  <!-- LOGIN -->
+  <div id="login-box" class="box">
+      <div class="box-title">LOGIN</div>
+      <input id="login-email" type="email" placeholder="Email">
+      <input id="login-password" type="password" placeholder="Password">
+      <button onclick="login()">SIGN IN</button>
+      <p style="margin-top:20px;font-size:13px;cursor:pointer;" onclick="showRegister()"><a href="register.html">CREATE AN ACCOUNT</a></p>
+  </div>
 
+  <!-- REGISTER -->
+  <div id="register-box" class="box">
+      <div class="box-title">CREATE ACCOUNT</div>
       <input id="register-email" type="email" placeholder="Email">
       <input id="register-password" type="password" placeholder="Password">
-
       <button onclick="register()">REGISTER</button>
+      <p style="margin-top:20px;font-size:13px;cursor:pointer;" onclick="showLogin()">Back to login</p>
+  </div>
 
-      <p style="margin-top:20px;font-size:13px;cursor:pointer;"
-         onclick="location.href='account.html'">Already have an account? Sign in</p>
+  <!-- LOGGED IN -->
+  <div id="user-info">
+      Logged in as <span id="user-email"></span><br><br>
+      <button onclick="logout()">LOG OUT</button>
   </div>
 
 </div>
 
 <footer>© 2025 MINARA5</footer>
 
-<!-- CART + MENU JS -->
+
+<!-- =========================================================
+     CART + MENU JS
+========================================================= -->
 <script>
 function openCart(){
   document.getElementById('cartPanel').classList.add('open');
@@ -453,49 +576,83 @@ function openMenu(){document.getElementById("menuPanel").classList.add("open");}
 function closeMenu(){document.getElementById("menuPanel").classList.remove("open");}
 </script>
 
-<!-- FIREBASE REGISTRATION LOGIC -->
+
+<!-- =========================================================
+     FIREBASE AUTH
+========================================================= -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    onAuthStateChanged
+import { 
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
+/* FIREBASE CONFIG */
 const firebaseConfig = {
     apiKey: "AIzaSyC8srbzH_DcCYQJXe9MNOyy2OHZSaLidIo",
     authDomain: "minara5.firebaseapp.com",
     projectId: "minara5",
     storageBucket: "minara5.firebasestorage.app",
     messagingSenderId: "860405871052",
-    appId: "1:860405871052:web:2aead90773c24721f72d69"
+    appId: "1:860405871052:web:2aead90773c24721f72d69",
+    measurementId: "G-2M9B3NS032"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// REGISTER → auto-login → redirect home
+function showLogin(){
+  document.getElementById("login-box").style.display="block";
+  document.getElementById("register-box").style.display="none";
+  document.getElementById("user-info").style.display="none";
+}
+
+function showRegister(){
+  document.getElementById("login-box").style.display="none";
+  document.getElementById("register-box").style.display="block";
+  document.getElementById("user-info").style.display="none";
+}
+
 window.register = function(){
-    const email = document.getElementById("register-email").value;
-    const password = document.getElementById("register-password").value;
+  const email=document.getElementById("register-email").value;
+  const password=document.getElementById("register-password").value;
 
-    createUserWithEmailAndPassword(auth,email,password)
-      .then(()=>{
-          location.href = "index.html"; 
-      })
-      .catch(err => alert(err.message));
-};
+  createUserWithEmailAndPassword(auth,email,password)
+    .then(()=>{
+      alert("Account created!");
+      showLogin();
+    })
+    .catch(err=>alert(err.message));
+}
 
-// if logged in already → redirect home
+window.login = function(){
+  const email=document.getElementById("login-email").value;
+  const password=document.getElementById("login-password").value;
+
+  signInWithEmailAndPassword(auth,email,password)
+    .then(()=>alert("Logged in!"))
+    .catch(err=>alert(err.message));
+}
+
+window.logout=function(){signOut(auth);}
+
 onAuthStateChanged(auth,(user)=>{
-    if(user){
-        location.href = "index.html";
-    }
+  if(user){
+      document.getElementById("login-box").style.display="none";
+      document.getElementById("register-box").style.display="none";
+      document.getElementById("user-info").style.display="block";
+      document.getElementById("user-email").textContent=user.email;
+  } else {
+      showLogin();
+  }
 });
 </script>
-
-<!-- SHARED HEADER LOGIC -->
 <script type="module" src="header.js"></script>
+
 
 </body>
 </html>
+
