@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 /* FIREBASE CONFIG */
 const firebaseConfig = {
@@ -8,25 +8,65 @@ const firebaseConfig = {
     projectId: "minara5",
     storageBucket: "minara5.firebasestorage.app",
     messagingSenderId: "860405871052",
-    appId: "1:860405871052:web:2aead90773c24721f72d69",
-    measurementId: "G-2M9B3NS032"
+    appId: "1:860405871052:web:2aead90773c24721f72d69"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-/* UPDATE ACCOUNT LABEL IN HEADER */
+let currentUser = null;
+
+/* UPDATE HEADER LABEL */
 onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+
     const label = document.getElementById("accountLabel");
-    if (!label) return;  // if page has no label, skip
+    const accName = document.getElementById("accName");
 
     if (user) {
         let email = user.email;
-        if (email.length > 12) {
-            email = email.substring(0, 12) + "...";
-        }
-        label.textContent = email;
+        if (email.length > 12) email = email.substring(0,12) + "...";
+
+        if (label) label.textContent = email;
+        if (accName) accName.textContent = email;
     } else {
-        label.textContent = "Account";
+        if (label) label.textContent = "Account";
+    }
+});
+
+/* CLICK HANDLER */
+window.accountClicked = function(event){
+    event.preventDefault();
+
+    if (!currentUser){
+        // not logged in → go to login page
+        location.href = "account.html";
+        return;
+    }
+
+    // logged in → toggle dropdown menu
+    const box = document.getElementById("accountDropdown");
+    box.style.display = (box.style.display === "block") ? "none" : "block";
+};
+
+/* CLOSE DROPDOWN */
+window.closeAccDropdown = function(){
+    document.getElementById("accountDropdown").style.display = "none";
+};
+
+/* LOGOUT */
+window.logout = function(){
+    signOut(auth).then(()=>{
+        location.href = "index.html";
+    });
+};
+
+/* CLICK OUTSIDE TO CLOSE */
+document.addEventListener("click", function(e){
+    const box = document.getElementById("accountDropdown");
+    if (!box) return;
+
+    if (!box.contains(e.target) && e.target.id !== "accountLabel"){
+        box.style.display = "none";
     }
 });
