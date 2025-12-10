@@ -6,6 +6,47 @@
 <title>Léopard Fur Backpack – MINARA5</title>
 
 <style>
+
+  /* ACCOUNT DROPDOWN PANEL */
+.account-dropdown {
+    position: absolute;
+    top: 48px; /* matches your header height */
+    right: 20px;
+    width: 240px;
+    background: #fff;
+    border: 1px solid #dcdcdc;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    display: none;
+    z-index: 2000;
+    font-size: 12px;
+}
+
+.acc-header {
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #000;
+    display: flex;
+    justify-content: space-between;
+}
+
+.acc-close {
+    cursor: pointer;
+}
+
+.acc-item {
+    display: block;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    color: #000;
+    text-decoration: none;
+}
+
+.acc-item:hover {
+    background: #f5f5f5;
+}
+
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
     font-family:Helvetica,Arial,sans-serif;
@@ -406,6 +447,16 @@ footer{
 <div id="luxuryIntro"></div>
 
 <header>
+  <div id="accountDropdown" class="account-dropdown">
+    <div class="acc-header">
+        <span id="accName">ACCOUNT</span>
+        <span class="acc-close" onclick="closeAccDropdown()">X CLOSE</span>
+    </div>
+
+    <a href="accountorder.html" class="acc-item">MY ORDERS</a>
+    <a href="#" class="acc-item" onclick="logout()">LOG OUT</a>
+</div>
+
   <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
 
   <a href="index.html" class="center-logo-link">
@@ -415,7 +466,11 @@ footer{
   <nav>
     <ul>
       <li><a href="contact.html"><img src="question mark.svg" class="question-icon">Contact</a></li>
-      <li><a href="register.html"><img src="head shoulder.svg" class="desktop-icon"><span id="accountLabel">Account</span></a></li>
+      <a href="#" onclick="accountClicked(event)">
+    <img src="head shoulder.svg" class="desktop-icon">
+    <span id="accountLabel">Account</span>
+</a>
+
 
       <!-- DESKTOP CART -->
       <li>
