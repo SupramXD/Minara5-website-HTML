@@ -409,12 +409,77 @@ footer{
   text-transform:uppercase;
   letter-spacing:0.20em;
 }
+/* ================================
+   ACCOUNT DROPDOWN (FINAL VERSION)
+=================================== */
+
+.header-account .account-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.account-label {
+    color: #000 !important;
+    font-size: 11px !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none !important;
+    line-height: 1;
+    user-select: none;
+}
+
+/* Dropdown box */
+.acc-dropdown {
+    position: absolute;
+    top: 48px; /* your header height */
+    right: 20px;
+    width: 220px;
+    background: #fff;
+    border: 1px solid #cfcfcf;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    display: none;
+    z-index: 9999;
+}
+
+.acc-head {
+    padding: 12px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #000;
+    display: flex;
+    justify-content: space-between;
+    text-transform: uppercase;
+}
+
+.acc-close {
+    cursor: pointer;
+}
+
+/* Menu items */
+.acc-item {
+    display: block;
+    padding: 12px 14px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #000 !important;
+    text-decoration: none !important;
+    border-bottom: 1px solid #eee;
+}
+
+.acc-item:hover {
+    background: #f7f7f7;
+}
 
 </style>
 </head>
 <body>
 
 <header id="topbar">
+  
   <div class="left-nav">
       <div class="mobile-shopnow"><a href="catalog.html">SHOP NOW</a></div>
       <a href="catalog.html" class="desktop-only">CATALOG</a>
@@ -423,10 +488,18 @@ footer{
       <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
   </div>
 
+  
+
   <nav>
     <ul>
       <li><a href="contact.html"><img src="question mark.svg" class="question-icon"> Contact</a></li>
-      <li><a href="register.html"><img src="head shoulder.svg" class="desktop-icon"> <span id="accountLabel">Account</span></a></li>
+      <li class="header-account">
+    <div class="account-trigger" onclick="accountClicked(event)">
+        <img src="head shoulder.svg" class="desktop-icon">
+        <span id="accountLabel" class="account-label">ACCOUNT</span>
+    </div>
+</li>
+
       <li>
         <span class="cart-btn" onclick="openCart()">
           <img src="cart.svg" alt="Cart">
@@ -436,6 +509,16 @@ footer{
     </ul>
   </nav>
 </header>
+<div id="accountDropdown" class="acc-dropdown">
+    <div class="acc-head">
+        <span id="accName">ACCOUNT</span>
+        <span class="acc-close" onclick="closeAccDropdown()">X CLOSE</span>
+    </div>
+
+    <a href="accountorder.html" class="acc-item">MY ORDERS</a>
+    <a href="#" onclick="logout()" class="acc-item">LOG OUT</a>
+</div>
+
 
 <div id="pageDimmer"></div>
 
