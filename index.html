@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -18,6 +18,67 @@ body{
 /* =====================
    DESKTOP HEADER
 ===================== */
+#mobileShopButton {
+    display: none;
+}
+/* --- A. GLOBAL FONT DECLARATION (Put this first!) --- */
+@font-face {
+    font-family: 'Gotham Narrow Bold';
+    /* Since files are in the same folder, the path is just the filename */
+    src: url('Gotham Narrow Bold.woff2') format('woff2'),
+         url('Gotham Narrow Bold.woff') format('woff'),  
+         url('Gotham Narrow Bold.otf') format('opentype'); /* Fallback */
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap; 
+}
+
+
+/* --- B. MOBILE BUTTON STYLING (The high-end look) --- */
+@media (max-width: 900px) {
+    #mobileShopButton {
+        display: flex;
+        position: absolute;
+        top: calc(100vh * 0.63);
+        left: 50%;
+        transform: translateX(-50%);
+        justify-content: center;
+        align-items: center;
+        
+        /* Your requested padding */
+        padding: 17px 24.5px; 
+        
+        /* --- LUXURY COLORS --- */
+        background: #F8F8F8; /* Soft Off-White */
+        border: none;
+        color: #1A1A1A; /* Deep Charcoal/Near Black */
+        
+        /* --- FONT STYLE --- */
+        font-family: 'Gotham Narrow Bold', Arial, sans-serif; 
+        font-size: 12px; 
+        font-weight: 700; 
+        text-transform: uppercase;
+        letter-spacing: 1.1px; /* Wide, elegant spacing */
+        
+        line-height: normal; 
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        
+        /* Existing utility styles */
+        /* --- OVERLAP FIX: Z-INDEX REDUCTION --- */
+        z-index: 900; /* Changed from 2000 to 900 so headers/logos will overlap it. */
+        cursor: pointer;
+        text-align: center;
+    }
+}
+
+
+@media(max-width:900px){
+    .header-account { 
+        display: none !important;
+    }
+}
+
 header{
   position:fixed;top:0;left:0;right:0;
   height:45px;
@@ -481,7 +542,7 @@ footer{
 <header id="topbar">
   
   <div class="left-nav">
-      <div class="mobile-shopnow"><a href="catalog.html">SHOP NOW</a></div>
+      
       <a href="catalog.html" class="desktop-only">CATALOG</a>
       <a href="catalog.html" class="desktop-only" style="margin-left:22px;">BAGS</a>
       <a href="social media.html" class="desktop-only" style="margin-left:22px;">SOCIALS</a>
@@ -496,7 +557,7 @@ footer{
       <li class="header-account">
     <div class="account-trigger" onclick="accountClicked(event)">
         <img src="head shoulder.svg" class="desktop-icon">
-        <span id="accountLabel" class="account-label">ACCOUNT</span>
+        <span id="accountLabel" class="account-label">Account</span>
     </div>
 </li>
 
@@ -560,7 +621,8 @@ footer{
   <a href="catalog.html">Catalog</a>
   <a href="social media.html">Social Media</a>
   <a href="contact.html">Contact</a>
-  <a href="auth.php">Login</a>
+  <a href="#" id="mobileAccountLink">login</a>
+
 </div>
 
 <div id="bagsContainer">
@@ -570,6 +632,8 @@ footer{
 </div>
 
 <section id="hero" class="hero">
+  <div id="mobileShopButton">see more</div>
+
   <img src="test3.avif" id="imgL">
   <div style="position:relative;flex:0.7%;">
     <img src="number23.avif" id="imgR" style="width:100%;height:100%;object-fit:cover;">
@@ -745,7 +809,14 @@ function closeMenu(){
   document.getElementById("menuPanel").classList.remove("open");
 }
 </script>
+<script>
+document.getElementById("mobileShopButton").addEventListener("click", () =>{
+    window.location.href = "catalog.html";
+});
+</script>
+
 <script type="module" src="header.js"></script>
 
 </body>
 </html>
+
