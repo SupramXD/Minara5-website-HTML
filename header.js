@@ -15,10 +15,20 @@ const auth = getAuth(app);
 
 let currentUser = null;
 
-/* UPDATE HEADER LABEL */
+/* ======================================
+   DOM SAFE GETTER (Fixes mobile issue)
+======================================= */
+function getMobileButton() {
+    return document.getElementById("mobileAccountLink");
+}
+
+/* ======================================
+   UPDATE HEADER + MOBILE LABELS
+======================================= */
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
 
+    /* Desktop label */
     const label = document.getElementById("accountLabel");
     const accName = document.getElementById("accName");
 
@@ -31,9 +41,31 @@ onAuthStateChanged(auth, (user) => {
     } else {
         if (label) label.textContent = "Account";
     }
+
+    /* MOBILE BUTTON UPDATE */
+    const mobileBtn = getMobileButton();
+    if (!mobileBtn) return;
+
+    if (user) {
+        let emailText = user.email;
+        if (emailText.length > 12) emailText = emailText.substring(0,12) + "...";
+
+        mobileBtn.textContent = emailText;
+        mobileBtn.onclick = (event) => {
+            event.stopPropagation();
+            accountClicked(event);
+        };
+    } else {
+        mobileBtn.textContent = "Login";
+        mobileBtn.onclick = () => {
+            window.location.href = "account.html";
+        };
+    }
 });
 
-/* CLICK HANDLER */
+/* ======================================
+   ACCOUNT CLICK HANDLER
+======================================= */
 window.accountClicked = function(event){
     event.stopPropagation();
 
@@ -46,19 +78,20 @@ window.accountClicked = function(event){
     box.style.display = (box.style.display === "block") ? "none" : "block";
 };
 
-/* CLOSE DROPDOWN */
+/* ====================================== */
 window.closeAccDropdown = function(){
     document.getElementById("accountDropdown").style.display = "none";
 };
 
-/* LOG OUT */
 window.logout = function(){
     signOut(auth).then(()=>{
         location.href = "index.html";
     });
 };
 
-/* CLICK OUTSIDE TO CLOSE */
+/* ======================================
+   CLOSE DROPDOWN ON OUTSIDE CLICK
+======================================= */
 document.addEventListener("click", function(e){
     const box = document.getElementById("accountDropdown");
     if (!box) return;
@@ -67,3 +100,32 @@ document.addEventListener("click", function(e){
         box.style.display = "none";
     }
 });
+
+/* ======================================
+   DOM READY FIX FOR MOBILE BUTTON
+   (ensures it always attaches)
+======================================= */
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = getMobileButton();
+    if (!btn) return;
+
+    if (currentUser) {
+        btn.textContent = currentUser.email.substring(0,12) + "...";
+        btn.onclick = (e) => accountClicked(e);
+    } else {
+        btn.textContent = "Login";
+        btn.onclick = () => window.location.href = "account.html";
+    }
+});
+
+/* Fallback safety trigger */
+setTimeout(() => {
+    const btn = getMobileButton();
+    if (!btn) return;
+
+    if (currentUser) {
+        btn.onclick = (e) => accountClicked(e);
+    } else {
+        btn.onclick = () => window.location.href = "account.html";
+    }
+}, 800);
