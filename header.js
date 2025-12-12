@@ -15,9 +15,7 @@ const auth = getAuth(app);
 
 let currentUser = null;
 
-/* ===============================
-   UPDATE HEADER LABEL (DESKTOP)
-================================= */
+/* UPDATE HEADER LABEL */
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
 
@@ -26,43 +24,16 @@ onAuthStateChanged(auth, (user) => {
 
     if (user) {
         let email = user.email;
-        if (email.length > 12) email = email.substring(0, 12) + "...";
+        if (email.length > 12) email = email.substring(0,12) + "...";
 
         if (label) label.textContent = email;
         if (accName) accName.textContent = email;
     } else {
         if (label) label.textContent = "Account";
     }
-
-    /* ===============================
-       UPDATE MOBILE ACCOUNT BUTTON
-    ================================= */
-    const mobileBtn = document.getElementById("mobileAccountLink");
-
-    if (mobileBtn) {
-        if (user) {
-            // Logged in → show email and open dropdown
-            let emailText = user.email;
-            if (emailText.length > 12) emailText = emailText.substring(0, 12) + "...";
-
-            mobileBtn.textContent = emailText;
-            mobileBtn.onclick = (event) => {
-                event.stopPropagation();
-                accountClicked(event);
-            };
-        } else {
-            // Logged out → show login and redirect
-            mobileBtn.textContent = "Login";
-            mobileBtn.onclick = () => {
-                window.location.href = "account.html";
-            };
-        }
-    }
 });
 
-/* ===============================
-   CLICK HANDLER
-================================= */
+/* CLICK HANDLER */
 window.accountClicked = function(event){
     event.stopPropagation();
 
@@ -75,25 +46,19 @@ window.accountClicked = function(event){
     box.style.display = (box.style.display === "block") ? "none" : "block";
 };
 
-/* ===============================
-   CLOSE DROPDOWN
-================================= */
+/* CLOSE DROPDOWN */
 window.closeAccDropdown = function(){
     document.getElementById("accountDropdown").style.display = "none";
 };
 
-/* ===============================
-   LOG OUT
-================================= */
+/* LOG OUT */
 window.logout = function(){
     signOut(auth).then(()=>{
         location.href = "index.html";
     });
 };
 
-/* ===============================
-   CLICK OUTSIDE TO CLOSE DROPDOWN
-================================= */
+/* CLICK OUTSIDE TO CLOSE */
 document.addEventListener("click", function(e){
     const box = document.getElementById("accountDropdown");
     if (!box) return;
