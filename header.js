@@ -16,12 +16,12 @@ const auth = getAuth(app);
 let currentUser = null;
 
 /* ===============================
-   DESKTOP + GLOBAL AUTH STATE
-================================= */
+   AUTH STATE
+================================ */
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
 
-    // DESKTOP LABEL
+    /* ===== DESKTOP HEADER (EMAIL) ===== */
     const label = document.getElementById("accountLabel");
     const accName = document.getElementById("accName");
 
@@ -34,77 +34,103 @@ onAuthStateChanged(auth, (user) => {
         if (label) label.textContent = "Account";
     }
 
-    // UPDATE MOBILE TEXT ONLY (no handlers here)
-    const mobileLink = document.getElementById("mobileAccountLink");
-    if (mobileLink) {
-        mobileLink.textContent = user ? "MY ACCOUNT" : "LOGIN";
-    }
+    setupMobileAccount(user);
 });
 
 /* ===============================
-   DESKTOP CLICK
-================================= */
-window.accountClicked = function (event) {
-    event.stopPropagation();
+   MOBILE ACCOUNT (FINAL)
+================================ */
+function setupMobileAccount(user) {
 
-    if (!currentUser) {
-        location.href = "account.html";
+    const myAcc = document.getElementById("mobileMyAccount");
+    const drop = document.getElementById("mobileAccountDropdown");
+    const logoutBtn = document.getElementById("mobileLogout");
+
+    if (!myAcc || !drop || !logoutBtn) return;
+
+    // Reset
+    drop.innerHTML = "";
+
+    /* ===============================
+       LOGGED OUT → LOGIN ONLY
+    ================================= */
+    if (!user) {
+        myAcc.innerHTML = "LOGIN";
+        myAcc.onclick = () => {
+            window.location.href = "account.html";
+        };
+        drop.style.display = "none";
+        logoutBtn.style.display = "none";
         return;
     }
 
-    const box = document.getElementById("accountDropdown");
-    if (!box) return;
+    /* ===============================
+       LOGGED IN
+    ================================= */
+    myAcc.innerHTML = `
+        <span>MY ACCOUNT</span>
+        <span class="mobile-arrow open">▸</span>
+    `;
+    logoutBtn.style.display = "block";
 
+    const arrow = myAcc.querySelector(".mobile-arrow");
+
+    // Inject desktop dropdown content
+    const desktopDrop = document.getElementById("accountDropdown");
+    drop.innerHTML = desktopDrop.innerHTML;
+
+    // Remove logout from injected dropdown (mobile has its own)
+    drop.querySelectorAll("[onclick*='logout']").forEach(el => el.remove());
+
+    // OPEN BY DEFAULT
+    drop.style.display = "block";
+    arrow.classList.add("open");
+
+    /* TOGGLE OPEN / CLOSE */
+    function toggle() {
+        const isOpen = drop.style.display === "block";
+        drop.style.display = isOpen ? "none" : "block";
+        arrow.classList.toggle("open", !isOpen);
+    }
+
+    // Clicking MY ACCOUNT area OR arrow
+    myAcc.onclick = toggle;
+
+    // X CLOSE inside dropdown
+    const closeBtn = drop.querySelector(".acc-close");
+    if (closeBtn) {
+        closeBtn.onclick = toggle;
+    }
+
+    // LOGOUT
+    logoutBtn.onclick = () => {
+        signOut(auth).then(() => {
+            window.location.href = "index.html";
+        });
+    };
+}
+
+/* ===============================
+   DESKTOP DROPDOWN (UNCHANGED)
+================================ */
+window.accountClicked = function(event) {
+    event.stopPropagation();
+    if (!currentUser) {
+        window.location.href = "account.html";
+        return;
+    }
+    const box = document.getElementById("accountDropdown");
     box.style.display = box.style.display === "block" ? "none" : "block";
 };
 
-window.closeAccDropdown = function () {
-    const box = document.getElementById("accountDropdown");
-    if (box) box.style.display = "none";
+window.closeAccDropdown = function() {
+    document.getElementById("accountDropdown").style.display = "none";
 };
 
-/* ===============================
-   LOG OUT (GLOBAL)
-================================= */
-window.logout = function () {
-    signOut(auth).then(() => {
-        location.href = "index.html";
-    });
-};
-
-/* ===============================
-   MOBILE CLICK (THIS WAS MISSING)
-================================= */
-document.addEventListener("DOMContentLoaded", () => {
-    const mobileLink = document.getElementById("mobileAccountLink");
-    if (!mobileLink) return;
-
-    mobileLink.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (!currentUser) {
-            // NOT LOGGED IN
-            window.location.href = "account.html";
-            return;
-        }
-
-        // LOGGED IN → toggle dropdown
-        const box = document.getElementById("accountDropdown");
-        if (!box) return;
-
-        box.style.display = "block";
-    });
-});
-
-/* ===============================
-   CLICK OUTSIDE CLOSE (DESKTOP)
-================================= */
-document.addEventListener("click", (e) => {
+document.addEventListener("click", function(e) {
     const box = document.getElementById("accountDropdown");
     if (!box) return;
-
-    if (!box.contains(e.target) && !e.target.closest(".account-trigger")) {
+    if (!box.contains(e.target) && !e.target.classList.contains("account-label")) {
         box.style.display = "none";
     }
 });
