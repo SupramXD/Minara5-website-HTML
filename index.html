@@ -542,6 +542,39 @@ footer{
     background: #f7f7f7;
 }
 
+@media (max-width:900px){
+
+  .mobile-account-block{
+    margin-top: 26px;
+  }
+
+  .mobile-account-link{
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:0.28em;
+    margin:26px 0;
+    cursor:pointer;
+    color:#000;
+  }
+
+  .mobile-account-link.logout{
+    margin-top:32px;
+  }
+
+  .mobile-account-dropdown{
+    display:none;
+    margin-top:18px;
+    border-top:1px solid #eee;
+  }
+
+  .mobile-account-dropdown .acc-item{
+    border-bottom:none;
+    padding:16px 0;
+    font-size:13px;
+    letter-spacing:0.22em;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -628,7 +661,14 @@ footer{
   <a href="catalog.html">Catalog</a>
   <a href="social media.html">Social Media</a>
   <a href="contact.html">Contact</a>
-  <a href="#" id="mobileAccountLink">login</a>
+  <div id="mobileAccountBlock" class="mobile-account-block">
+    <div id="mobileMyAccount" class="mobile-account-link">MY ACCOUNT</div>
+
+    <div id="mobileAccountDropdown" class="mobile-account-dropdown"></div>
+
+    <div id="mobileLogout" class="mobile-account-link logout">LOGOUT</div>
+</div>
+
 
 </div>
 
@@ -639,7 +679,7 @@ footer{
 </div>
 
 <section id="hero" class="hero">
-  <div id="mobileShopButton">see more</div>
+  <div id="mobileShopButton">shop catalog</div>
 
   <img src="test3.avif" id="imgL">
   <div style="position:relative;flex:0.7%;">
