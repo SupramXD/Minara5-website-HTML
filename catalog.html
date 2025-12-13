@@ -450,6 +450,55 @@ footer{
     background: #f7f7f7;
 }
 
+@media (max-width:900px){
+
+  .mobile-account-block{
+    margin-top:26px;
+  }
+
+  .mobile-account-link{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:0.28em;
+    margin:26px 0;
+    cursor:pointer;
+    color:#000;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+  }
+
+  .mobile-arrow{
+    margin-left:8px;
+    font-size:14px;
+    transition:transform .25s ease;
+    pointer-events:none;
+  }
+
+  .mobile-arrow.open{
+    transform:rotate(90deg);
+  }
+
+  .mobile-account-dropdown{
+    margin-top:14px;
+  }
+
+  .mobile-account-dropdown .acc-item{
+    background:#f4f4f4;
+    margin:10px 0;
+    padding:16px 18px;
+    border:none;
+    font-size:13px;
+    letter-spacing:0.22em;
+  }
+
+  .mobile-account-link.logout{
+    margin-top:66px;
+  }
+}
+
 </style>
 </head>
 
