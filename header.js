@@ -21,22 +21,24 @@ let currentUser = null;
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
 
-    /* DESKTOP LABEL */
+    /* ===== DESKTOP (EMAIL RESTORED) ===== */
     const label = document.getElementById("accountLabel");
     const accName = document.getElementById("accName");
 
     if (user) {
-        if (label) label.textContent = "MY ACCOUNT";
-        if (accName) accName.textContent = "MY ACCOUNT";
+        let email = user.email;
+        if (email.length > 12) email = email.substring(0,12) + "...";
+        if (label) label.textContent = email;
+        if (accName) accName.textContent = email;
     } else {
-        if (label) label.textContent = "ACCOUNT";
+        if (label) label.textContent = "Account";
     }
 
     setupMobileAccount(user);
 });
 
 /* ===============================
-   MOBILE ACCOUNT
+   MOBILE ACCOUNT (FINAL)
 ================================ */
 function setupMobileAccount(user){
 
@@ -44,41 +46,51 @@ function setupMobileAccount(user){
     const myAcc = document.getElementById("mobileMyAccount");
     const drop = document.getElementById("mobileAccountDropdown");
     const logoutBtn = document.getElementById("mobileLogout");
-    const arrow = document.getElementById("mobileArrow");
 
-    if (!block) return;
+    if (!block || !myAcc || !drop || !logoutBtn) return;
 
-    // RESET
-    block.style.display = "block";
+    /* RESET */
     drop.style.display = "none";
-    if (arrow) arrow.classList.remove("open");
+    drop.innerHTML = "";
 
     if (!user) {
-        // LOGGED OUT → LOGIN ONLY
+        /* LOGGED OUT */
         myAcc.textContent = "LOGIN";
         myAcc.onclick = () => location.href = "account.html";
         logoutBtn.style.display = "none";
-        drop.innerHTML = "";
         return;
     }
 
-    // LOGGED IN
-    myAcc.childNodes[0].nodeValue = "MY ACCOUNT ";
+    /* LOGGED IN */
+    myAcc.innerHTML = `MY ACCOUNT <span class="mobile-arrow">▸</span>`;
     logoutBtn.style.display = "block";
 
-    // Inject dropdown content (WITHOUT logout)
+    /* Inject desktop dropdown content */
     const desktopDrop = document.getElementById("accountDropdown");
     drop.innerHTML = desktopDrop.innerHTML;
+
+    /* Remove logout from injected dropdown */
     drop.querySelectorAll("[onclick*='logout']").forEach(el => el.remove());
 
-    myAcc.onclick = () => {
-        const open = drop.style.display === "block";
-        drop.style.display = open ? "none" : "block";
-        if (arrow) arrow.classList.toggle("open", !open);
-    };
+    /* OPEN BY DEFAULT */
+    drop.style.display = "block";
 
+    /* X CLOSE HANDLER */
+    const closeBtn = drop.querySelector(".acc-close");
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            drop.style.display = "none";
+        };
+    }
+
+    /* Logout */
     logoutBtn.onclick = () => {
         signOut(auth).then(() => location.href = "index.html");
+    };
+
+    /* Disable click on MY ACCOUNT (arrow is visual only) */
+    myAcc.onclick = (e) => {
+        e.preventDefault();
     };
 }
 
