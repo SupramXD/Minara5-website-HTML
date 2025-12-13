@@ -392,16 +392,16 @@ footer{
 /* CART PANEL */
 #cartPanel{
   position:fixed;
-  top:0;
+  top:0;                 /* cover from very top, over header */
   right:-100%;
-  height:100vh;
-  width:65vw;
+  height:100dvh;         /* full screen height */
+  width:85vw;
   background:#fff;
   border-left:1px solid #dcdcdc;
-  z-index:10000;
+  z-index:10000;         /* above everything */
   display:flex;
   flex-direction:column;
-  transition:right .35s ease;
+  transition:right .35s ease, height .25s ease;
 }
 @media(min-width:901px){
   #cartPanel{width:26vw;}
@@ -417,17 +417,20 @@ footer{
   display:flex;
   justify-content:space-between;
 }
-.cart-close{cursor:pointer;}
+.cart-close{cursor:pointer;
+}
 
 .cart-ascii-wrap{
   padding:12px 20px;
   border-bottom:1px solid #dcdcdc;
   background:#fafafa;
+  
 }
 .cart-ascii{
   font-family:monospace;
   font-size:9px;
   white-space:pre;
+  
   line-height:1.1;
 }
 
