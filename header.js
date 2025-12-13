@@ -21,13 +21,13 @@ let currentUser = null;
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
 
-    /* DESKTOP — EMAIL */
+    /* ===== DESKTOP HEADER (EMAIL) ===== */
     const label = document.getElementById("accountLabel");
     const accName = document.getElementById("accName");
 
     if (user) {
         let email = user.email;
-        if (email.length > 12) email = email.substring(0,12) + "...";
+        if (email.length > 12) email = email.substring(0, 12) + "...";
         if (label) label.textContent = email;
         if (accName) accName.textContent = email;
     } else {
@@ -38,9 +38,9 @@ onAuthStateChanged(auth, (user) => {
 });
 
 /* ===============================
-   MOBILE ACCOUNT (ACCORDION)
+   MOBILE ACCOUNT (FINAL)
 ================================ */
-function setupMobileAccount(user){
+function setupMobileAccount(user) {
 
     const myAcc = document.getElementById("mobileMyAccount");
     const drop = document.getElementById("mobileAccountDropdown");
@@ -48,72 +48,86 @@ function setupMobileAccount(user){
 
     if (!myAcc || !drop || !logoutBtn) return;
 
-    drop.style.display = "none";
+    // Reset
     drop.innerHTML = "";
 
+    /* ===============================
+       LOGGED OUT → LOGIN ONLY
+    ================================= */
     if (!user) {
-        /* LOGGED OUT */
         myAcc.innerHTML = "LOGIN";
-        myAcc.onclick = () => location.href = "account.html";
+        myAcc.onclick = () => {
+            window.location.href = "account.html";
+        };
+        drop.style.display = "none";
         logoutBtn.style.display = "none";
         return;
     }
 
-    /* LOGGED IN */
+    /* ===============================
+       LOGGED IN
+    ================================= */
     myAcc.innerHTML = `
         <span>MY ACCOUNT</span>
-        <span class="mobile-arrow">▸</span>
+        <span class="mobile-arrow open">▸</span>
     `;
     logoutBtn.style.display = "block";
 
     const arrow = myAcc.querySelector(".mobile-arrow");
 
-    /* Inject dropdown content */
+    // Inject desktop dropdown content
     const desktopDrop = document.getElementById("accountDropdown");
     drop.innerHTML = desktopDrop.innerHTML;
 
-    /* Remove duplicate logout */
+    // Remove logout from injected dropdown (mobile has its own)
     drop.querySelectorAll("[onclick*='logout']").forEach(el => el.remove());
 
-    /* TOGGLE OPEN/CLOSE */
-    function toggle(){
-        const open = drop.style.display === "block";
-        drop.style.display = open ? "none" : "block";
-        arrow.classList.toggle("open", !open);
+    // OPEN BY DEFAULT
+    drop.style.display = "block";
+    arrow.classList.add("open");
+
+    /* TOGGLE OPEN / CLOSE */
+    function toggle() {
+        const isOpen = drop.style.display === "block";
+        drop.style.display = isOpen ? "none" : "block";
+        arrow.classList.toggle("open", !isOpen);
     }
 
+    // Clicking MY ACCOUNT area OR arrow
     myAcc.onclick = toggle;
 
-    /* X CLOSE */
+    // X CLOSE inside dropdown
     const closeBtn = drop.querySelector(".acc-close");
     if (closeBtn) {
         closeBtn.onclick = toggle;
     }
 
-    /* LOGOUT */
+    // LOGOUT
     logoutBtn.onclick = () => {
-        signOut(auth).then(() => location.href = "index.html");
+        signOut(auth).then(() => {
+            window.location.href = "index.html";
+        });
     };
 }
 
 /* ===============================
    DESKTOP DROPDOWN (UNCHANGED)
 ================================ */
-window.accountClicked = function(event){
+window.accountClicked = function(event) {
     event.stopPropagation();
     if (!currentUser) {
-        location.href = "account.html";
+        window.location.href = "account.html";
         return;
     }
     const box = document.getElementById("accountDropdown");
     box.style.display = box.style.display === "block" ? "none" : "block";
 };
 
-window.closeAccDropdown = function(){
+window.closeAccDropdown = function() {
     document.getElementById("accountDropdown").style.display = "none";
 };
 
-document.addEventListener("click", function(e){
+document.addEventListener("click", function(e) {
     const box = document.getElementById("accountDropdown");
     if (!box) return;
     if (!box.contains(e.target) && !e.target.classList.contains("account-label")) {
