@@ -618,6 +618,46 @@ footer{
   }
 }
 
+@media (max-width:900px){
+
+  .mobile-account-link{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+
+  .mobile-arrow{
+    margin-left:8px;          /* pulls arrow closer */
+    font-size:14px;
+    transition:transform .25s ease;
+  }
+
+  .mobile-arrow.open{
+    transform:rotate(90deg);
+  }
+
+  .mobile-account-dropdown{
+    margin-top:14px;
+  }
+
+  .mobile-account-dropdown .acc-item{
+    background:#f4f4f4;
+    margin:10px 0;
+    padding:16px 18px;
+  }
+
+  .mobile-account-link.logout{
+    margin-top:44px;          /* more gap before LOGOUT */
+  }
+
+  /* kill blue highlight */
+  .mobile-account-link,
+  .mobile-account-link *{
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+  }
+}
+
 </style>
 </head>
 <body>
