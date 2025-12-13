@@ -21,7 +21,7 @@ let currentUser = null;
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
 
-    /* ===== DESKTOP (EMAIL RESTORED) ===== */
+    /* DESKTOP — EMAIL */
     const label = document.getElementById("accountLabel");
     const accName = document.getElementById("accName");
 
@@ -38,59 +38,61 @@ onAuthStateChanged(auth, (user) => {
 });
 
 /* ===============================
-   MOBILE ACCOUNT (FINAL)
+   MOBILE ACCOUNT (ACCORDION)
 ================================ */
 function setupMobileAccount(user){
 
-    const block = document.getElementById("mobileAccountBlock");
     const myAcc = document.getElementById("mobileMyAccount");
     const drop = document.getElementById("mobileAccountDropdown");
     const logoutBtn = document.getElementById("mobileLogout");
 
-    if (!block || !myAcc || !drop || !logoutBtn) return;
+    if (!myAcc || !drop || !logoutBtn) return;
 
-    /* RESET */
     drop.style.display = "none";
     drop.innerHTML = "";
 
     if (!user) {
         /* LOGGED OUT */
-        myAcc.textContent = "LOGIN";
+        myAcc.innerHTML = "LOGIN";
         myAcc.onclick = () => location.href = "account.html";
         logoutBtn.style.display = "none";
         return;
     }
 
     /* LOGGED IN */
-    myAcc.innerHTML = `MY ACCOUNT <span class="mobile-arrow">▸</span>`;
+    myAcc.innerHTML = `
+        <span>MY ACCOUNT</span>
+        <span class="mobile-arrow">▸</span>
+    `;
     logoutBtn.style.display = "block";
 
-    /* Inject desktop dropdown content */
+    const arrow = myAcc.querySelector(".mobile-arrow");
+
+    /* Inject dropdown content */
     const desktopDrop = document.getElementById("accountDropdown");
     drop.innerHTML = desktopDrop.innerHTML;
 
-    /* Remove logout from injected dropdown */
+    /* Remove duplicate logout */
     drop.querySelectorAll("[onclick*='logout']").forEach(el => el.remove());
 
-    /* OPEN BY DEFAULT */
-    drop.style.display = "block";
-
-    /* X CLOSE HANDLER */
-    const closeBtn = drop.querySelector(".acc-close");
-    if (closeBtn) {
-        closeBtn.onclick = () => {
-            drop.style.display = "none";
-        };
+    /* TOGGLE OPEN/CLOSE */
+    function toggle(){
+        const open = drop.style.display === "block";
+        drop.style.display = open ? "none" : "block";
+        arrow.classList.toggle("open", !open);
     }
 
-    /* Logout */
+    myAcc.onclick = toggle;
+
+    /* X CLOSE */
+    const closeBtn = drop.querySelector(".acc-close");
+    if (closeBtn) {
+        closeBtn.onclick = toggle;
+    }
+
+    /* LOGOUT */
     logoutBtn.onclick = () => {
         signOut(auth).then(() => location.href = "index.html");
-    };
-
-    /* Disable click on MY ACCOUNT (arrow is visual only) */
-    myAcc.onclick = (e) => {
-        e.preventDefault();
     };
 }
 
