@@ -575,6 +575,37 @@ footer{
   }
 }
 
+@media (max-width:900px){
+
+  .mobile-account-block{
+    margin-top:26px;
+  }
+
+  .mobile-arrow{
+    float:right;
+    transition:transform .25s ease;
+  }
+
+  .mobile-arrow.open{
+    transform:rotate(90deg);
+  }
+
+  .mobile-account-dropdown{
+    display:none;
+    margin-top:14px;
+  }
+
+  /* Greyed luxury container */
+  .mobile-account-dropdown .acc-item{
+    background:#f4f4f4;
+    margin:10px 0;
+    padding:16px 18px;
+    border:none;
+    font-size:13px;
+    letter-spacing:0.22em;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -661,13 +692,16 @@ footer{
   <a href="catalog.html">Catalog</a>
   <a href="social media.html">Social Media</a>
   <a href="contact.html">Contact</a>
-  <div id="mobileAccountBlock" class="mobile-account-block">
-    <div id="mobileMyAccount" class="mobile-account-link">MY ACCOUNT</div>
+<div id="mobileAccountBlock" class="mobile-account-block">
+    <div id="mobileMyAccount" class="mobile-account-link">
+        MY ACCOUNT <span id="mobileArrow" class="mobile-arrow">▸</span>
+    </div>
 
     <div id="mobileAccountDropdown" class="mobile-account-dropdown"></div>
 
     <div id="mobileLogout" class="mobile-account-link logout">LOGOUT</div>
 </div>
+
 
 
 </div>
