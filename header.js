@@ -15,117 +15,88 @@ const auth = getAuth(app);
 
 let currentUser = null;
 
-/* ======================================
-   DOM SAFE GETTER (Fixes mobile issue)
-======================================= */
-function getMobileButton() {
-    return document.getElementById("mobileAccountLink");
-}
-
-/* ======================================
-   UPDATE HEADER + MOBILE LABELS
-======================================= */
+/* ===============================
+   AUTH STATE
+================================ */
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
 
-    /* Desktop label */
+    /* DESKTOP LABEL (UNCHANGED) */
     const label = document.getElementById("accountLabel");
     const accName = document.getElementById("accName");
 
     if (user) {
         let email = user.email;
         if (email.length > 12) email = email.substring(0,12) + "...";
-
         if (label) label.textContent = email;
         if (accName) accName.textContent = email;
     } else {
         if (label) label.textContent = "Account";
     }
 
-    /* MOBILE BUTTON UPDATE */
-    const mobileBtn = getMobileButton();
-    if (!mobileBtn) return;
+    /* MOBILE ACCOUNT BLOCK */
+    const mobileBlock = document.getElementById("mobileAccountBlock");
+    if (!mobileBlock) return;
 
-    if (user) {
-        let emailText = user.email;
-        if (emailText.length > 12) emailText = emailText.substring(0,12) + "...";
-
-        mobileBtn.textContent = emailText;
-        mobileBtn.onclick = (event) => {
-            event.stopPropagation();
-            accountClicked(event);
-        };
-    } else {
-        mobileBtn.textContent = "Login";
-        mobileBtn.onclick = () => {
+    if (!user) {
+        // not logged in → redirect to login
+        mobileBlock.onclick = () => {
             window.location.href = "account.html";
         };
+        return;
     }
+
+    setupMobileAccount();
 });
 
-/* ======================================
-   ACCOUNT CLICK HANDLER
-======================================= */
+/* ===============================
+   MOBILE ACCOUNT LOGIC
+================================ */
+function setupMobileAccount(){
+
+    const myAcc = document.getElementById("mobileMyAccount");
+    const logoutBtn = document.getElementById("mobileLogout");
+    const mobileDrop = document.getElementById("mobileAccountDropdown");
+
+    if (!myAcc || !logoutBtn || !mobileDrop) return;
+
+    // Inject existing dropdown content
+    const desktopDrop = document.getElementById("accountDropdown");
+    mobileDrop.innerHTML = desktopDrop.innerHTML;
+
+    myAcc.onclick = () => {
+        mobileDrop.style.display =
+            mobileDrop.style.display === "block" ? "none" : "block";
+    };
+
+    logoutBtn.onclick = () => {
+        signOut(auth).then(()=>{
+            location.href = "index.html";
+        });
+    };
+}
+
+/* ===============================
+   DESKTOP DROPDOWN (UNCHANGED)
+================================ */
 window.accountClicked = function(event){
     event.stopPropagation();
-
     if (!currentUser) {
         location.href = "account.html";
         return;
     }
-
     const box = document.getElementById("accountDropdown");
-    box.style.display = (box.style.display === "block") ? "none" : "block";
+    box.style.display = box.style.display === "block" ? "none" : "block";
 };
 
-/* ====================================== */
 window.closeAccDropdown = function(){
     document.getElementById("accountDropdown").style.display = "none";
 };
 
-window.logout = function(){
-    signOut(auth).then(()=>{
-        location.href = "index.html";
-    });
-};
-
-/* ======================================
-   CLOSE DROPDOWN ON OUTSIDE CLICK
-======================================= */
 document.addEventListener("click", function(e){
     const box = document.getElementById("accountDropdown");
     if (!box) return;
-
     if (!box.contains(e.target) && !e.target.classList.contains("account-label")) {
         box.style.display = "none";
     }
 });
-
-/* ======================================
-   DOM READY FIX FOR MOBILE BUTTON
-   (ensures it always attaches)
-======================================= */
-document.addEventListener("DOMContentLoaded", () => {
-    const btn = getMobileButton();
-    if (!btn) return;
-
-    if (currentUser) {
-        btn.textContent = currentUser.email.substring(0,12) + "...";
-        btn.onclick = (e) => accountClicked(e);
-    } else {
-        btn.textContent = "Login";
-        btn.onclick = () => window.location.href = "account.html";
-    }
-});
-
-/* Fallback safety trigger */
-setTimeout(() => {
-    const btn = getMobileButton();
-    if (!btn) return;
-
-    if (currentUser) {
-        btn.onclick = (e) => accountClicked(e);
-    } else {
-        btn.onclick = () => window.location.href = "account.html";
-    }
-}, 800);
