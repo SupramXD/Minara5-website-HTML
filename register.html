@@ -138,6 +138,7 @@ header{
 .header-account{
   display:none;
 }
+
 @media(max-width:900px){
   .header-left,
   .header-right{
@@ -152,7 +153,6 @@ header{
     width:110px !important;
   }
 }
-
 
 
 
@@ -722,36 +722,42 @@ window.register = function(){
   const email=document.getElementById("register-email").value;
   const password=document.getElementById("register-password").value;
 
-createUserWithEmailAndPassword(auth, email, password)
-  .then(() => {
-      window.location.href = "index.html";
-  })
-  .catch((error) => {
-      errorMsg.textContent = error.message;
-  });
-
-
-window.login = function(){
-  const email=document.getElementById("login-email").value;
-  const password=document.getElementById("login-password").value;
-
-  signInWithEmailAndPassword(auth,email,password)
-    .then(()=>alert("Logged in!"))
+  createUserWithEmailAndPassword(auth,email,password)
+    .then(()=>{
+      alert("Account created!");
+      showLogin();
+    })
     .catch(err=>alert(err.message));
 }
 
-window.logout=function(){signOut(auth);}
+// ... existing Firebase setup ...
 
-onAuthStateChanged(auth,(user)=>{
-  if(user){
-      document.getElementById("login-box").style.display="none";
-      document.getElementById("register-box").style.display="none";
-      document.getElementById("user-info").style.display="block";
-      document.getElementById("user-email").textContent=user.email;
+window.login = function(){
+  const email = document.getElementById("login-email").value;
+  const password = document.getElementById("login-password").value;
+
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      // 1. Redirect to index.html immediately after login success
+      window.location.href = "index.html";
+    })
+    .catch(err => alert(err.message));
+}
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+      // 2. Hide forms if already logged in
+      document.getElementById("login-box").style.display = "none";
+      document.getElementById("register-box").style.display = "none";
+      document.getElementById("user-info").style.display = "block";
+      document.getElementById("user-email").textContent = user.email;
   } else {
-      showLogin();
+      // 3. This ensures the correct box is shown when NOT logged in
+      // Since this is register.html, you might want to call showRegister() instead
+      showRegister(); 
   }
 });
+
 </script>
 <script type="module" src="header.js"></script>
 
