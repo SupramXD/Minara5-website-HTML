@@ -134,6 +134,27 @@ header{
   .menu-icon{display:block;}
   .mobile-shopnow{display:block; position:absolute; top:22px; left:65px;}
 }
+/* REMOVE DESKTOP ACCOUNT ICON ON MOBILE */
+.header-account{
+  display:none;
+}
+@media(max-width:900px){
+  .header-left,
+  .header-right{
+    width:0;
+    padding:0;
+  }
+}
+
+/* SMALLER LOGO ON MOBILE */
+@media(max-width:900px){
+  .header-logo{
+    width:110px !important;
+  }
+}
+
+
+
 
 /* =========================================================
    CART PANEL
@@ -464,7 +485,7 @@ footer{
   <!-- LEFT -->
   <div class="header-left">
       <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
-      <div class="mobile-shopnow"><a href="catalog.html">SHOP NOW</a></div>
+      
       <a href="catalog.html" class="desktop-only">CATALOG</a>
       <a href="catalog.html" class="desktop-only">BAGS</a>
       <a href="social media.html" class="desktop-only">SOCIALS</a>
@@ -701,13 +722,14 @@ window.register = function(){
   const email=document.getElementById("register-email").value;
   const password=document.getElementById("register-password").value;
 
-  createUserWithEmailAndPassword(auth,email,password)
-    .then(()=>{
-      alert("Account created!");
-      showLogin();
-    })
-    .catch(err=>alert(err.message));
-}
+createUserWithEmailAndPassword(auth, email, password)
+  .then(() => {
+      window.location.href = "index.html";
+  })
+  .catch((error) => {
+      errorMsg.textContent = error.message;
+  });
+
 
 window.login = function(){
   const email=document.getElementById("login-email").value;
