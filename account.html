@@ -730,27 +730,28 @@ window.register = function(){
     .catch(err=>alert(err.message));
 }
 
+
 window.login = function(){
-  const email=document.getElementById("login-email").value;
-  const password=document.getElementById("login-password").value;
+  const email = document.getElementById("login-email").value;
+  const password = document.getElementById("login-password").value;
 
-signInWithEmailAndPassword(auth, email, password)
-  .then(() => {
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      // Redirect happens immediately upon successful login
       window.location.href = "index.html";
-  })
-  .catch((error) => {
-      errorMsg.textContent = error.message;
-  });
+    })
+    .catch(err => alert(err.message));
+}
 
-
-window.logout=function(){signOut(auth);}
-
-onAuthStateChanged(auth,(user)=>{
-  if(user){
-      document.getElementById("login-box").style.display="none";
-      document.getElementById("register-box").style.display="none";
-      document.getElementById("user-info").style.display="block";
-      document.getElementById("user-email").textContent=user.email;
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+      // If a user is already logged in and visits account.html, 
+      // send them to index or show their info.
+      // If you want them to stay on the page to see "Logged in as...", keep this:
+      document.getElementById("login-box").style.display = "none";
+      document.getElementById("register-box").style.display = "none";
+      document.getElementById("user-info").style.display = "block";
+      document.getElementById("user-email").textContent = user.email;
   } else {
       showLogin();
   }
