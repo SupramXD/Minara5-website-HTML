@@ -3,8 +3,8 @@ import {
     getAuth, 
     onAuthStateChanged, 
     signOut, 
-    sendPasswordResetEmail, // Added
-    sendEmailVerification   // Added
+    sendPasswordResetEmail, 
+    sendEmailVerification 
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -21,8 +21,7 @@ const auth = getAuth(app);
 
 let currentUser = null;
 
-// --- NEW UNIVERSAL FORGOT PASSWORD ---
-// This function will look for an email input and a message area in your HTML
+// --- UNIVERSAL FORGOT PASSWORD ---
 window.universalForgotPassword = function() {
     const emailField = document.getElementById("login-email");
     const msgField = document.getElementById("resetMsg");
@@ -57,8 +56,7 @@ window.universalForgotPassword = function() {
         });
 };
 
-// --- NEW UNIVERSAL VERIFICATION SENDER ---
-// This helps send the email immediately after registration
+// --- UNIVERSAL VERIFICATION SENDER ---
 window.sendVerification = function(user) {
     if (!user) return;
     sendEmailVerification(user)
@@ -77,21 +75,24 @@ onAuthStateChanged(auth, (user) => {
 
     if (user) {
         let email = user.email;
-        // Check if verified for display purposes
+        // Logic: Show unverified status in the dropdown but keep the label clean
         const displayEmail = user.emailVerified ? email : email + " (Unverified)";
         
-        if (email.length > 12) email = email.substring(0, 12) + "...";
-        if (label) label.textContent = email;
+        // Truncate email for the small header label
+        let shortEmail = email.length > 12 ? email.substring(0, 12) + "..." : email;
+        
+        if (label) label.textContent = shortEmail;
         if (accName) accName.textContent = displayEmail;
     } else {
         if (label) label.textContent = "Account";
+        if (accName) accName.textContent = "ACCOUNT";
     }
 
     setupMobileAccount(user);
 });
 
 /* ===============================
-   MOBILE ACCOUNT (FINAL)
+   MOBILE ACCOUNT
 ================================ */
 function setupMobileAccount(user) {
     const myAcc = document.getElementById("mobileMyAccount");
@@ -100,50 +101,35 @@ function setupMobileAccount(user) {
 
     if (!myAcc || !drop || !logoutBtn) return;
 
-    drop.innerHTML = "";
-
     if (!user) {
         myAcc.innerHTML = "LOGIN";
-        myAcc.onclick = () => {
-            window.location.href = "account.html";
-        };
+        myAcc.onclick = () => { window.location.href = "account.html"; };
         drop.style.display = "none";
         logoutBtn.style.display = "none";
         return;
     }
 
-    myAcc.innerHTML = `
-        <span>MY ACCOUNT</span>
-        <span class="mobile-arrow open">▸</span>
-    `;
+    myAcc.innerHTML = `<span>MY ACCOUNT</span> <span class="mobile-arrow">▸</span>`;
     logoutBtn.style.display = "block";
 
-    const arrow = myAcc.querySelector(".mobile-arrow");
+    // Clone the desktop dropdown content into the mobile dropdown
     const desktopDrop = document.getElementById("accountDropdown");
-    drop.innerHTML = desktopDrop.innerHTML;
+    if (desktopDrop) {
+        // Filter out existing logouts to avoid doubles
+        let cleanHTML = desktopDrop.innerHTML;
+        drop.innerHTML = cleanHTML;
+        drop.querySelectorAll("[onclick*='logout']").forEach(el => el.remove());
+    }
 
-    drop.querySelectorAll("[onclick*='logout']").forEach(el => el.remove());
-
-    drop.style.display = "block";
-    arrow.classList.add("open");
-
-    function toggle() {
+    myAcc.onclick = () => {
         const isOpen = drop.style.display === "block";
         drop.style.display = isOpen ? "none" : "block";
-        arrow.classList.toggle("open", !isOpen);
-    }
-
-    myAcc.onclick = toggle;
-
-    const closeBtn = drop.querySelector(".acc-close");
-    if (closeBtn) {
-        closeBtn.onclick = toggle;
-    }
+        const arrow = myAcc.querySelector(".mobile-arrow");
+        if (arrow) arrow.style.transform = isOpen ? "rotate(0deg)" : "rotate(90deg)";
+    };
 
     logoutBtn.onclick = () => {
-        signOut(auth).then(() => {
-            window.location.href = "index.html";
-        });
+        signOut(auth).then(() => { window.location.href = "index.html"; });
     };
 }
 
@@ -164,13 +150,12 @@ window.closeAccDropdown = function() {
     document.getElementById("accountDropdown").style.display = "none";
 };
 
-document.addEventListener("click", function(e) {
+document.addEventListener("click", (e) => {
     const box = document.getElementById("accountDropdown");
-    if (!box) return;
-    if (!box.contains(e.target) && !e.target.classList.contains("account-label")) {
+    if (box && !box.contains(e.target) && !e.target.closest(".account-trigger")) {
         box.style.display = "none";
     }
 });
 
-// Export auth to be used by other scripts if needed
+// Export auth globally
 window.auth = auth;
