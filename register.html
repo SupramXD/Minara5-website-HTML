@@ -624,29 +624,29 @@ footer{
   </div>
 
   <!-- LOGIN -->
-  <div id="login-box" class="box">
-      <div class="box-title">LOGIN</div>
-      <input id="login-email" type="email" placeholder="Email">
-      <input id="login-password" type="password" placeholder="Password">
-      <button onclick="login()">SIGN IN</button>
-      <p style="margin-top:20px;font-size:13px;cursor:pointer;" onclick="showRegister()"><a href="register.html">CREATE AN ACCOUNT</a></p>
-  </div>
+<div id="login-box" class="box">
+    <div class="box-title">LOGIN</div>
+    <input id="login-email" type="email" placeholder="Email">
+    <input id="login-password" type="password" placeholder="Password">
+    
+    <p id="forgotPassword"
+       onclick="universalForgotPassword()"
+       style="margin-top:14px;font-size:12px;letter-spacing:.22em;cursor:pointer;">
+       Forgot password?
+    </p>
+    <p id="resetMsg" style="font-size:12px;margin-top:10px;"></p>
 
-  <!-- REGISTER -->
-  <div id="register-box" class="box">
-      <div class="box-title">CREATE ACCOUNT</div>
-      <input id="register-email" type="email" placeholder="Email">
-      <input id="register-password" type="password" placeholder="Password">
-      <p id="forgotPassword"
-   onclick="universalForgotPassword()"
-   style="margin-top:14px;font-size:12px;letter-spacing:.22em;cursor:pointer;">
-   Forgot password?
-</p>
+    <button onclick="login()">SIGN IN</button>
+    <p style="margin-top:20px;font-size:13px;cursor:pointer;" onclick="showRegister()">CREATE AN ACCOUNT</p>
+</div>
 
-<p id="resetMsg" style="font-size:12px;margin-top:10px;"></p>
-<button onclick="register()">REGISTER</button>
-<p style="margin-top:20px; font-size:13px;">
-    <a href="account.html">BACK TO LOGIN</a>
+<div id="register-box" class="box">
+    <div class="box-title">CREATE ACCOUNT</div>
+    <input id="register-email" type="email" placeholder="Email">
+    <input id="register-password" type="password" placeholder="Password">
+    
+    <button onclick="register()">REGISTER</button>
+    <p style="margin-top:20px; font-size:13px;"><a href="account.html">BACK TO LOGIN</a>
 </p>
 </div>
 
@@ -733,10 +733,11 @@ window.register = function() {
 
   createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-      // Send verification email automatically
-      sendVerification(userCredential.user); 
-      alert("Account created! Please verify your email before logging in.");
-      showLogin();
+      // 1. Send verification email in the background
+      window.sendVerification(userCredential.user); 
+      
+      // 2. DON'T show an alert that stops them, just go to the store!
+      window.location.href = "index.html"; 
     })
     .catch(err => alert(err.message));
 }
@@ -747,11 +748,12 @@ window.login = function() {
 
   signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-      // Only redirect if they clicked the link in their email
+      // Security check: ensure they verified their email
       if (userCredential.user.emailVerified) {
         window.location.href = "index.html";
       } else {
         alert("Please verify your email address first. Check your inbox!");
+        // Optional: window.sendVerification(userCredential.user); // Resend link
       }
     })
     .catch(err => alert(err.message));
