@@ -637,9 +637,18 @@ footer{
       <div class="box-title">CREATE ACCOUNT</div>
       <input id="register-email" type="email" placeholder="Email">
       <input id="register-password" type="password" placeholder="Password">
-      <button onclick="register()">REGISTER</button>
-      <p style="margin-top:20px;font-size:13px;cursor:pointer;" onclick="showLogin()">Back to login</p>
-  </div>
+      <p id="forgotPassword"
+   onclick="universalForgotPassword()"
+   style="margin-top:14px;font-size:12px;letter-spacing:.22em;cursor:pointer;">
+   Forgot password?
+</p>
+
+<p id="resetMsg" style="font-size:12px;margin-top:10px;"></p>
+<button onclick="register()">REGISTER</button>
+<p style="margin-top:20px; font-size:13px;">
+    <a href="account.html">BACK TO LOGIN</a>
+</p>
+</div>
 
   <!-- LOGGED IN -->
   <div id="user-info">
@@ -718,28 +727,32 @@ function showRegister(){
   document.getElementById("user-info").style.display="none";
 }
 
-window.register = function(){
-  const email=document.getElementById("register-email").value;
-  const password=document.getElementById("register-password").value;
+window.register = function() {
+  const email = document.getElementById("register-email").value;
+  const password = document.getElementById("register-password").value;
 
-  createUserWithEmailAndPassword(auth,email,password)
-    .then(()=>{
-      alert("Account created!");
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      // Send verification email automatically
+      sendVerification(userCredential.user); 
+      alert("Account created! Please verify your email before logging in.");
       showLogin();
     })
-    .catch(err=>alert(err.message));
+    .catch(err => alert(err.message));
 }
 
-// ... existing Firebase setup ...
-
-window.login = function(){
+window.login = function() {
   const email = document.getElementById("login-email").value;
   const password = document.getElementById("login-password").value;
 
   signInWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      // 1. Redirect to index.html immediately after login success
-      window.location.href = "index.html";
+    .then((userCredential) => {
+      // Only redirect if they clicked the link in their email
+      if (userCredential.user.emailVerified) {
+        window.location.href = "index.html";
+      } else {
+        alert("Please verify your email address first. Check your inbox!");
+      }
     })
     .catch(err => alert(err.message));
 }
