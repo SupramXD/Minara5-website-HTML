@@ -730,15 +730,18 @@ function showRegister(){
 }
 
 window.register = function(){
-  const email=document.getElementById("register-email").value;
-  const password=document.getElementById("register-password").value;
+  const email = document.getElementById("register-email").value;
+  const password = document.getElementById("register-password").value;
 
-  createUserWithEmailAndPassword(auth,email,password)
-    .then(()=>{
-      alert("Account created!");
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      // THIS LINE IS REQUIRED: It sends the actual email link
+      window.sendVerification(userCredential.user); 
+      
+      alert("Account created! Please check your email to verify your account.");
       showLogin();
     })
-    .catch(err=>alert(err.message));
+    .catch(err => alert(err.message));
 }
 
 
@@ -747,17 +750,9 @@ window.login = function() {
   const password = document.getElementById("login-password").value;
 
   signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      const user = userCredential.user;
-      
-      // Check if the user has clicked the link in their email
-      if (user.emailVerified) {
-        window.location.href = "index.html"; // Redirect if verified
-      } else {
-        alert("Please verify your email address first. Check your inbox!");
-        // Optional: You can sign them out here so they stay on the login page
-        // signOut(auth); 
-      }
+    .then(() => {
+      // Allow everyone in to drive sales
+      window.location.href = "index.html";
     })
     .catch(err => alert(err.message));
 }
