@@ -301,7 +301,7 @@ nav ul li a:hover{opacity:0.65;}
   #imgL:hover,
   #imgR:hover{
     
-    filter:contrast(0.95) brightness(0.98);
+    filter:contrast(1) brightness(1);
   }
 }
 
@@ -437,6 +437,19 @@ nav ul li a:hover{opacity:0.65;}
   white-space:pre-line;
   letter-spacing:0.18em;
 }
+.luxury-text{
+  letter-spacing:0.14em;
+  word-spacing:0.22em;
+  line-height:1.75;
+  font-weight:400;
+  opacity:0.9;
+}
+
+/* Slight irregularity — fashion editorial trick */
+.luxury-text br + br{
+  line-height:2.2;
+}
+
 .brand-body p{margin-bottom:28px;}
 
 /* MOBILE — top hero image */
@@ -777,21 +790,25 @@ footer{
 <section class="brand-section">
   <h2 class="brand-title">MINARA5</h2>
 
-  <div class="brand-body">
-    <p>
-Nonconformity, is a desire rooted in the heart  
-of this south african generation.
+<div class="brand-body luxury-text">
 
-Minara is the hearts quiet awakening,  
-whilst others line up for the approved path,  
-she minara - simply refuses the script.
+Nonconformity, is a desire&nbsp;&nbsp;rooted in the heart  
+of this south&nbsp;&nbsp;african generation.
 
-<p>
-To the world she's a question without an answer..  
+
+
+Minara is the heart’s quiet&nbsp;&nbsp;awakening,  
+whilst others line up&nbsp;&nbsp;for the approved path,  
+she minara&nbsp;&nbsp;— simply refuses the social norm.
+
+
+
+To the world she’s a question&nbsp;&nbsp;without an answer…  
 To herself she is the only version  
 that ever made sense.
-    </p>
-  </div>
+
+</div>
+
 </section>
 
 <footer>© 2025 MINARA5</footer>
