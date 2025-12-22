@@ -624,13 +624,24 @@ footer{
   </div>
 
   <!-- LOGIN -->
-  <div id="login-box" class="box">
-      <div class="box-title">LOGIN</div>
-      <input id="login-email" type="email" placeholder="Email">
-      <input id="login-password" type="password" placeholder="Password">
-      <button onclick="login()">SIGN IN</button>
-      <p style="margin-top:20px;font-size:13px;cursor:pointer;" onclick="showRegister()"><a href="register.html">CREATE AN ACCOUNT</a></p>
-  </div>
+<div id="login-box" class="box">
+    <div class="box-title">LOGIN</div>
+    <input id="login-email" type="email" placeholder="Email">
+    <input id="login-password" type="password" placeholder="Password">
+    
+    <p id="forgotPassword"
+       onclick="universalForgotPassword()"
+       style="margin-top:14px;font-size:12px;letter-spacing:.22em;cursor:pointer;">
+       Forgot password?
+    </p>
+
+    <p id="resetMsg" style="font-size:12px;margin-top:10px;"></p>
+    
+    <button onclick="login()">SIGN IN</button>
+    <p style="margin-top:20px;font-size:13px;cursor:pointer;" onclick="showRegister()">
+        <a href="register.html">CREATE AN ACCOUNT</a>
+    </p>
+</div>
 
   <!-- REGISTER -->
   <div id="register-box" class="box">
@@ -731,14 +742,22 @@ window.register = function(){
 }
 
 
-window.login = function(){
+window.login = function() {
   const email = document.getElementById("login-email").value;
   const password = document.getElementById("login-password").value;
 
   signInWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      // Redirect happens immediately upon successful login
-      window.location.href = "index.html";
+    .then((userCredential) => {
+      const user = userCredential.user;
+      
+      // Check if the user has clicked the link in their email
+      if (user.emailVerified) {
+        window.location.href = "index.html"; // Redirect if verified
+      } else {
+        alert("Please verify your email address first. Check your inbox!");
+        // Optional: You can sign them out here so they stay on the login page
+        // signOut(auth); 
+      }
     })
     .catch(err => alert(err.message));
 }
