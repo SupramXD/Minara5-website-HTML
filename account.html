@@ -629,11 +629,14 @@ footer{
     <input id="login-email" type="email" placeholder="Email">
     <input id="login-password" type="password" placeholder="Password">
     
-    <p id="forgotPassword"
-       onclick="universalForgotPassword()"
-       style="margin-top:14px;font-size:12px;letter-spacing:.22em;cursor:pointer;">
-       Forgot password?
-    </p>
+    
+  <p
+  id="forgotPasswordLink"
+  style="margin-top:18px;font-size:12px;cursor:pointer;text-decoration:underline;"
+>
+ <a href="javascript:void(0)" onclick="window.universalForgotPassword(event)">Forgot password?</a>
+</p>
+
 
     <p id="resetMsg" style="font-size:12px;margin-top:10px;"></p>
     
@@ -651,6 +654,26 @@ footer{
       <button onclick="register()">REGISTER</button>
       <p style="margin-top:20px;font-size:13px;cursor:pointer;" onclick="showLogin()">Back to login</p>
   </div>
+  
+
+<!-- RESET PASSWORD (ADD THIS) -->
+<div id="reset-box" class="box">
+  <div class="box-title">RESET PASSWORD</div>
+
+  <input id="reset-email" type="email" placeholder="Email">
+
+  <button onclick="sendReset()">SEND RESET LINK</button>
+
+  <p
+    style="margin-top:20px;font-size:13px;cursor:pointer;"
+    onclick="showLogin()"
+  >
+    Back to login
+  </p>
+
+  <p id="reset-msg" style="margin-top:16px;font-size:12px;"></p>
+</div>
+
 
   <!-- LOGGED IN -->
   <div id="user-info">
@@ -694,82 +717,54 @@ function closeMenu(){document.getElementById("menuPanel").classList.remove("open
      FIREBASE AUTH
 ========================================================= -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { 
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  // We use the "Master" functions from header.js to avoid conflicts
+  window.showLogin = function() {
+    document.getElementById("login-box").style.display = "block";
+    document.getElementById("register-box").style.display = "none";
+    document.getElementById("user-info").style.display = "none";
+  };
 
-/* FIREBASE CONFIG */
-const firebaseConfig = {
-    apiKey: "AIzaSyC8srbzH_DcCYQJXe9MNOyy2OHZSaLidIo",
-    authDomain: "minara5.firebaseapp.com",
-    projectId: "minara5",
-    storageBucket: "minara5.firebasestorage.app",
-    messagingSenderId: "860405871052",
-    appId: "1:860405871052:web:2aead90773c24721f72d69",
-    measurementId: "G-2M9B3NS032"
-};
+  window.showRegister = function() {
+    document.getElementById("login-box").style.display = "none";
+    document.getElementById("register-box").style.display = "block";
+    document.getElementById("user-info").style.display = "none";
+  };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-function showLogin(){
-  document.getElementById("login-box").style.display="block";
-  document.getElementById("register-box").style.display="none";
-  document.getElementById("user-info").style.display="none";
-}
-
-function showRegister(){
-  document.getElementById("login-box").style.display="none";
-  document.getElementById("register-box").style.display="block";
-  document.getElementById("user-info").style.display="none";
-}
-
-window.register = function(){
-  const email = document.getElementById("register-email").value;
-  const password = document.getElementById("register-password").value;
-
-  createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      // THIS LINE IS REQUIRED: It sends the actual email link
-      window.sendVerification(userCredential.user); 
-      
-      alert("Account created! Please check your email to verify your account.");
-      showLogin();
-    })
-    .catch(err => alert(err.message));
-}
-
+  window.register = function() {
+    const email = document.getElementById("register-email").value;
+    const password = document.getElementById("register-password").value;
+    // This calls the working logic in header.js
+    if (window.processRegister) window.processRegister(email, password);
+  };
 
 window.login = function() {
-  const email = document.getElementById("login-email").value;
-  const password = document.getElementById("login-password").value;
+  // Use "email" because that is the ID in your HTML 
+  const email = document.getElementById("email").value; 
+  const password = document.getElementById("password").value;
+  if (window.processLogin) window.processLogin(email, password);
+};
 
-  signInWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      // Allow everyone in to drive sales
-      window.location.href = "index.html";
-    })
-    .catch(err => alert(err.message));
-}
+  // This handles the "Logged in as" UI
+// This version ensures the boxes appear even if Firebase is slow
+  window.addEventListener('load', () => {
+    // 1. First, make sure the correct box is visible by default
+    if (window.location.pathname.includes("register")) {
+        showRegister();
+    } else {
+        showLogin();
+    }
 
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-      // If a user is already logged in and visits account.html, 
-      // send them to index or show their info.
-      // If you want them to stay on the page to see "Logged in as...", keep this:
-      document.getElementById("login-box").style.display = "none";
-      document.getElementById("register-box").style.display = "none";
-      document.getElementById("user-info").style.display = "block";
-      document.getElementById("user-email").textContent = user.email;
-  } else {
-      showLogin();
-  }
-});
+    // 2. Then, wait for the header to tell us if someone is actually logged in
+    setTimeout(() => {
+        if (window.auth && window.auth.currentUser) {
+            const user = window.auth.currentUser;
+            document.getElementById("login-box").style.display = "none";
+            document.getElementById("register-box").style.display = "none";
+            document.getElementById("user-info").style.display = "block";
+            document.getElementById("user-email").textContent = user.email;
+        }
+    }, 1000); // Wait 1 second for Firebase to wake up
+  });
 </script>
 <script type="module" src="header.js"></script>
 
