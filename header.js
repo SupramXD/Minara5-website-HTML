@@ -4,7 +4,9 @@ import {
     onAuthStateChanged, 
     signOut, 
     sendPasswordResetEmail, 
-    sendEmailVerification 
+    sendEmailVerification,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -18,87 +20,74 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
+window.auth = auth; // Keeps it accessible for your account.html
 let currentUser = null;
 
-// --- UNIVERSAL FORGOT PASSWORD ---
-window.universalForgotPassword = function() {
-    const emailField = document.getElementById("login-email");
-    const msgField = document.getElementById("resetMsg");
-    const email = emailField ? emailField.value : "";
+// --- MASTER TRIGGERS (Fixes "Nothing Happening") ---
 
-    if (!email) {
-        if (msgField) {
-            msgField.innerText = "Please enter your email above first.";
-            msgField.style.color = "red";
-        } else {
-            alert("Please enter your email address first.");
-        }
-        return;
+window.processRegister = function(email, password) {
+    createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            sendEmailVerification(userCredential.user);
+            window.location.href = "index.html"; 
+        })
+        .catch(err => alert(err.message));
+};
+
+window.processLogin = function(email, password) {
+    signInWithEmailAndPassword(auth, email, password)
+        .then(() => { window.location.href = "index.html"; })
+        .catch(err => alert(err.message));
+};
+
+// --- MASTER FORGOT PASSWORD FIX ---
+window.universalForgotPassword = function(e) {
+    if (e) e.preventDefault(); // STOPS the page from refreshing
+    
+    // This checks for "email" (your Login ID) and "register-email" (your Register ID)
+    const emailField = document.getElementById("email") || 
+                       document.getElementById("login-email") || 
+                       document.getElementById("register-email");
+    
+    let email = emailField ? emailField.value : "";
+
+    // If no email is typed, we use a prompt so the button ALWAYS works
+    if (!email || email.trim() === "") {
+        email = prompt("Please enter your email address for the reset link:");
     }
 
-    sendPasswordResetEmail(auth, email)
-        .then(() => {
-            if (msgField) {
-                msgField.innerText = "Reset link sent! Check your inbox.";
-                msgField.style.color = "green";
-            } else {
-                alert("Password reset email sent!");
-            }
-        })
-        .catch((error) => {
-            if (msgField) {
-                msgField.innerText = error.message;
-                msgField.style.color = "red";
-            } else {
-                alert(error.message);
-            }
-        });
+    if (email) {
+        sendPasswordResetEmail(auth, email)
+            .then(() => alert("Success! A reset link has been sent to: " + email))
+            .catch(err => alert("Error: " + err.message));
+    }
 };
-
-// --- UNIVERSAL VERIFICATION SENDER ---
-window.sendVerification = function(user) {
-    if (!user) return;
-    sendEmailVerification(user)
-        .then(() => console.log("Verification email sent."))
-        .catch((error) => console.error("Verification error:", error.message));
-};
-
 /* ===============================
-   AUTH STATE
+   AUTH STATE & UI LOGIC
 ================================ */
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
-
     const label = document.getElementById("accountLabel");
     const accName = document.getElementById("accName");
 
     if (user) {
         let email = user.email;
-        // Logic: Show unverified status in the dropdown but keep the label clean
-        const displayEmail = user.emailVerified ? email : email + " (Unverified)";
-        
-        // Truncate email for the small header label
-        let shortEmail = email.length > 12 ? email.substring(0, 12) + "..." : email;
-        
-        if (label) label.textContent = shortEmail;
-        if (accName) accName.textContent = displayEmail;
+        if (label) label.textContent = email.length > 12 ? email.substring(0, 12) + "..." : email;
+        if (accName) accName.textContent = user.email;
     } else {
         if (label) label.textContent = "Account";
         if (accName) accName.textContent = "ACCOUNT";
     }
-
     setupMobileAccount(user);
 });
 
 /* ===============================
-   MOBILE ACCOUNT
+   MOBILE ACCOUNT LOGIC (Preserved)
 ================================ */
 function setupMobileAccount(user) {
     const myAcc = document.getElementById("mobileMyAccount");
     const drop = document.getElementById("mobileAccountDropdown");
     const logoutBtn = document.getElementById("mobileLogout");
-
     if (!myAcc || !drop || !logoutBtn) return;
 
     if (!user) {
@@ -111,11 +100,10 @@ function setupMobileAccount(user) {
 
     myAcc.innerHTML = `<span>MY ACCOUNT</span> <span class="mobile-arrow">▸</span>`;
     logoutBtn.style.display = "block";
-
-    // Clone the desktop dropdown content into the mobile dropdown
     const desktopDrop = document.getElementById("accountDropdown");
+    
     if (desktopDrop) {
-        // Filter out existing logouts to avoid doubles
+        // FILTERING LOGIC PRESERVED
         let cleanHTML = desktopDrop.innerHTML;
         drop.innerHTML = cleanHTML;
         drop.querySelectorAll("[onclick*='logout']").forEach(el => el.remove());
@@ -125,37 +113,27 @@ function setupMobileAccount(user) {
         const isOpen = drop.style.display === "block";
         drop.style.display = isOpen ? "none" : "block";
         const arrow = myAcc.querySelector(".mobile-arrow");
+        // ROTATION LOGIC PRESERVED
         if (arrow) arrow.style.transform = isOpen ? "rotate(0deg)" : "rotate(90deg)";
     };
 
-    logoutBtn.onclick = () => {
-        signOut(auth).then(() => { window.location.href = "index.html"; });
-    };
+    logoutBtn.onclick = () => { signOut(auth).then(() => { window.location.href = "index.html"; }); };
 }
 
 /* ===============================
-   DESKTOP DROPDOWN
+   DESKTOP DROPDOWN (Preserved)
 ================================ */
 window.accountClicked = function(event) {
     event.stopPropagation();
-    if (!currentUser) {
-        window.location.href = "account.html";
-        return;
-    }
+    if (!currentUser) { window.location.href = "account.html"; return; }
     const box = document.getElementById("accountDropdown");
     box.style.display = box.style.display === "block" ? "none" : "block";
 };
 
-window.closeAccDropdown = function() {
-    document.getElementById("accountDropdown").style.display = "none";
-};
+window.logout = function() { signOut(auth).then(() => { window.location.href = "index.html"; }); };
+window.closeAccDropdown = function() { document.getElementById("accountDropdown").style.display = "none"; };
 
 document.addEventListener("click", (e) => {
     const box = document.getElementById("accountDropdown");
-    if (box && !box.contains(e.target) && !e.target.closest(".account-trigger")) {
-        box.style.display = "none";
-    }
+    if (box && !box.contains(e.target)) box.style.display = "none";
 });
-
-// Export auth globally
-window.auth = auth;
