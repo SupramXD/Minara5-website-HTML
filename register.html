@@ -717,9 +717,9 @@ function closeMenu(){document.getElementById("menuPanel").classList.remove("open
   };
 
 window.login = function() {
-  // Use "email" because that is the ID in your HTML 
-  const email = document.getElementById("email").value; 
-  const password = document.getElementById("password").value;
+  // These now match your actual IDs: login-email and login-password
+  const email = document.getElementById("login-email").value; 
+  const password = document.getElementById("login-password").value;
   if (window.processLogin) window.processLogin(email, password);
 };
 
