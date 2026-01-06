@@ -472,6 +472,16 @@ footer{
   user-select:none;
 }
 
+.account-link {
+  color: #551A8B;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.account-link:hover {
+  opacity: 0.6;
+}
+
 </style>
 </head>
 <body>
@@ -630,19 +640,30 @@ footer{
     <input id="login-password" type="password" placeholder="Password">
     
     
-  <p
-  id="forgotPasswordLink"
-  style="margin-top:18px;font-size:12px;cursor:pointer;text-decoration:underline;"
->
- <a href="javascript:void(0)" onclick="window.universalForgotPassword(event)">Forgot password?</a>
+ <p style="margin-top:18px;font-size:12px;">
+  <a
+    href="#"
+    onclick="showReset(); return false;"
+    class="account-link"
+  >
+    Forgot password?
+  </a>
 </p>
+
 
 
     <p id="resetMsg" style="font-size:12px;margin-top:10px;"></p>
     
     <button onclick="login()">SIGN IN</button>
-    <p style="margin-top:20px;font-size:13px;cursor:pointer;" onclick="showRegister()">
-        <a href="register.html">CREATE AN ACCOUNT</a>
+    <p style="margin-top:20px; font-size:13px; cursor:pointer;" onclick="showRegister()">
+        <a 
+          href="#" 
+          class="account-link" 
+          onclick="showRegister(); return false;" 
+          style="color: #551A8B !important; text-decoration: underline !important;"
+        >
+          CREATE AN ACCOUNT
+        </a>
     </p>
 </div>
 
@@ -652,7 +673,17 @@ footer{
       <input id="register-email" type="email" placeholder="Email">
       <input id="register-password" type="password" placeholder="Password">
       <button onclick="register()">REGISTER</button>
-      <p style="margin-top:20px;font-size:13px;cursor:pointer;" onclick="showLogin()">Back to login</p>
+<p style="margin-top:20px; font-size:12px;">
+      <a
+        href="#"
+        class="account-link"
+        onclick="showLogin(); return false;"
+        style="color: #551A8B !important; text-decoration: underline !important;"
+      >
+        Back to login
+      </a>
+    </p>
+
   </div>
   
 
@@ -662,16 +693,19 @@ footer{
 
   <input id="reset-email" type="email" placeholder="Email">
 
-  <button onclick="sendReset()">SEND RESET LINK</button>
+  <button onclick="sendPasswordReset()">SEND RESET LINK</button>
 
-  <p
-    style="margin-top:20px;font-size:13px;cursor:pointer;"
-    onclick="showLogin()"
-  >
-    Back to login
-  </p>
 
-  <p id="reset-msg" style="margin-top:16px;font-size:12px;"></p>
+<p style="margin-top:20px; font-size:12px;">
+      <a
+        href="#"
+        class="account-link"
+        onclick="showLogin(); return false;"
+        style="color: #551A8B !important; text-decoration: underline !important;"
+      >
+        Back to login
+      </a>
+    </p>
 </div>
 
 
@@ -717,6 +751,14 @@ function closeMenu(){document.getElementById("menuPanel").classList.remove("open
      FIREBASE AUTH
 ========================================================= -->
 <script type="module">
+window.showReset = function () {
+  document.getElementById("login-box").style.display = "none";
+  document.getElementById("register-box").style.display = "none";
+  document.getElementById("user-info").style.display = "none";
+  document.getElementById("reset-box").style.display = "block";
+};
+
+
   // We use the "Master" functions from header.js to avoid conflicts
   window.showLogin = function() {
     document.getElementById("login-box").style.display = "block";
@@ -764,7 +806,25 @@ window.login = function() {
         }
     }, 1000); // Wait 1 second for Firebase to wake up
   });
+  function hideAllAccountBoxes() {
+  document.getElementById("login-box").style.display = "none";
+  document.getElementById("register-box").style.display = "none";
+  document.getElementById("reset-box").style.display = "none";
+  document.getElementById("user-info").style.display = "none";
+}
+
+window.showReset = function () {
+  hideAllAccountBoxes();
+  document.getElementById("reset-box").style.display = "block";
+};
+
+window.showLogin = function () {
+  hideAllAccountBoxes();
+  document.getElementById("login-box").style.display = "block";
+};
+
 </script>
+
 <script type="module" src="header.js"></script>
 
 
