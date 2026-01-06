@@ -482,6 +482,18 @@ footer{
   opacity: 0.6;
 }
 
+/* This ensures the color stays #551A8B no matter what */
+.account-link, 
+.account-link:link, 
+.account-link:visited {
+  color: #551A8B !important;
+  text-decoration: underline !important;
+  cursor: pointer;
+}
+
+.account-link:hover {
+  opacity: 0.6;
+}
 </style>
 </head>
 <body>
@@ -751,6 +763,22 @@ function closeMenu(){document.getElementById("menuPanel").classList.remove("open
      FIREBASE AUTH
 ========================================================= -->
 <script type="module">
+
+  window.sendPasswordReset = function() {
+  const email = document.getElementById("reset-email").value;
+  if (!email) {
+    alert("Please enter your email address.");
+    return;
+  }
+  // This calls the Firebase logic in your header.js
+  if (window.processReset) {
+    window.processReset(email);
+    alert("Reset link sent! Please check your email.");
+    showLogin(); // Send them back to login after sending
+  } else {
+    console.error("Reset function not found in header.js");
+  }
+};
 window.showReset = function () {
   document.getElementById("login-box").style.display = "none";
   document.getElementById("register-box").style.display = "none";
