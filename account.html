@@ -764,19 +764,20 @@ function closeMenu(){document.getElementById("menuPanel").classList.remove("open
 ========================================================= -->
 <script type="module">
 
-  window.sendPasswordReset = function() {
+window.sendPasswordReset = function() {
   const email = document.getElementById("reset-email").value;
   if (!email) {
     alert("Please enter your email address.");
     return;
   }
-  // This calls the Firebase logic in your header.js
-  if (window.processReset) {
-    window.processReset(email);
-    alert("Reset link sent! Please check your email.");
-    showLogin(); // Send them back to login after sending
+
+  // Use the working function already defined in your header.js
+  if (window.universalForgotPassword) {
+    // We pass a fake event object so e.preventDefault() doesn't crash
+    window.universalForgotPassword({ preventDefault: () => {} });
+    showLogin(); 
   } else {
-    console.error("Reset function not found in header.js");
+    alert("Auth system not ready. Please refresh.");
   }
 };
 window.showReset = function () {
