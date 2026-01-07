@@ -138,6 +138,7 @@ header{
 .header-account{
   display:none;
 }
+
 @media(max-width:900px){
   .header-left,
   .header-right{
@@ -145,7 +146,6 @@ header{
     padding:0;
   }
 }
-
 
 /* SMALLER LOGO ON MOBILE */
 @media(max-width:900px){
@@ -247,21 +247,10 @@ header{
 /* =========================================================
    ACCOUNT PAGE LAYOUT
 ========================================================= */
-.wrapper {
-  width: 100%;
-  max-width: 450px !important; 
-  /* 120px top, auto left/right (centers it), 60px bottom */
-  margin: 120px auto 60px !important; 
-  padding: 0 20px;
-  display: block; 
-}
-
-.box {
-  width: 100%;
-  background: #fff;
-  padding: 40px;
-  border: 1px solid #000;
-  box-sizing: border-box;
+.wrapper{
+  max-width:420px;
+  margin:140px auto 60px;
+  padding:0 20px;
 }
 
 h1{
@@ -483,28 +472,6 @@ footer{
   user-select:none;
 }
 
-.account-link {
-  color: #551A8B;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.account-link:hover {
-  opacity: 0.6;
-}
-
-/* This ensures the color stays #551A8B no matter what */
-.account-link, 
-.account-link:link, 
-.account-link:visited {
-  color: #551A8B !important;
-  text-decoration: underline !important;
-  cursor: pointer;
-}
-
-.account-link:hover {
-  opacity: 0.6;
-}
 </style>
 </head>
 <body>
@@ -513,7 +480,7 @@ footer{
      HEADER (FUNCTIONAL)
 ========================================================= -->
 <header id="topbar">
-  
+    
 
   <!-- LEFT -->
   <div class="header-left">
@@ -656,93 +623,35 @@ footer{
       </ul>
   </div>
 
-<!-- LOGIN / EMAIL FIRST -->
-<div id="login-box" class="box" style="display:block;">
-  <div class="box-title" id="login-title" style="margin-bottom:10px;">SIGN IN OR CREATE</div>
-
-  <div id="email-static-display" style="display:none; margin-bottom: 20px; font-size: 14px;">
-    <span id="display-selected-email" style="color: #000;"></span> 
-    <a href="#" onclick="goBackToEmail(); return false;" style="color: #007bff; text-decoration: underline; margin-left: 8px; font-size: 13px;">Edit</a>
-  </div>
-
-  <div id="email-input-group">
-    <input id="email-step" type="email" placeholder="Email">
-    <button id="continue-btn" onclick="checkEmail()" style="margin-top:20px;">CONTINUE</button>
-  </div>
-  
-  <p id="email-msg" style="margin-top:14px; font-size:12px; color: red;"></p>
-
-  <div id="password-step" style="display:none; margin-top:10px;">
-    <input id="login-password" type="password" placeholder="PASSWORD">
+  <!-- LOGIN -->
+<div id="login-box" class="box">
+    <div class="box-title">LOGIN</div>
+    <input id="login-email" type="email" placeholder="Email">
+    <input id="login-password" type="password" placeholder="Password">
     
-    <p style="margin-top:14px; font-size:12px;">
-      <a href="#" onclick="showReset(); return false;" class="account-link" style="color: #551A8B !important; text-decoration: underline !important;">
-        Forgot password?
-      </a>
-    </p>
-    <button onclick="login()">SIGN IN</button>
-  </div>
-</div>
-
-
-
+   <p
+  id="forgotPasswordLink"
+  style="margin-top:18px;font-size:12px;cursor:pointer;text-decoration:underline;"
+>
+  Forgot your password?
+</p>
 
     <p id="resetMsg" style="font-size:12px;margin-top:10px;"></p>
-    
-    
-    <p style="margin-top:20px; font-size:13px; cursor:pointer;" onclick="showRegister()">
-        <a 
-          href="#" 
-          class="account-link" 
-          onclick="showRegister(); return false;" 
-          style="color: #551A8B !important; text-decoration: underline !important;"
-        >
-          
-        </a>
-    </p>
+
+    <button onclick="login()">SIGN IN</button>
+    <p style="margin-top:20px;font-size:13px;cursor:pointer;" onclick="showRegister()">CREATE AN ACCOUNT</p>
 </div>
 
-  <!-- REGISTER -->
-  <div id="register-box" class="box">
-      <div class="box-title">CREATE ACCOUNT</div>
-      <input id="register-email" type="email" placeholder="Email">
-      <input id="register-password" type="password" placeholder="Password">
-      <button onclick="register()">REGISTER</button>
-<p style="margin-top:20px; font-size:12px;">
-      <a
-        href="#"
-        class="account-link"
-        onclick="showLogin(); return false;"
-        style="color: #551A8B !important; text-decoration: underline !important;"
-      >
-        Back to login
-      </a>
-    </p>
+<div id="register-box" class="box">
+    <div class="box-title">CREATE ACCOUNT</div>
+    <input id="register-email" type="email" placeholder="Email">
+    <input id="register-password" type="password" placeholder="Password">
+    
+    <button onclick="register()">REGISTER</button>
+    <p style="margin-top:20px; font-size:13px;"><a href="account.html">BACK TO LOGIN</a>
+</p>
 
-  </div>
-  
-
-<!-- RESET PASSWORD (ADD THIS) -->
-<div id="reset-box" class="box">
-  <div class="box-title">RESET PASSWORD</div>
-
-  <input id="reset-email" type="email" placeholder="Email">
-
-  <button onclick="sendPasswordReset()">SEND RESET LINK</button>
-
-
-<p style="margin-top:20px; font-size:12px;">
-      <a
-        href="#"
-        class="account-link"
-        onclick="showLogin(); return false;"
-        style="color: #551A8B !important; text-decoration: underline !important;"
-      >
-        Back to login
-      </a>
-    </p>
 </div>
-
 
   <!-- LOGGED IN -->
   <div id="user-info">
@@ -750,9 +659,10 @@ footer{
       <button onclick="logout()">LOG OUT</button>
   </div>
 
+  
 </div>
 
-<footer>©2026 MINARA5</footer>
+<footer>© 2026 MINARA5</footer>
 
 
 <!-- =========================================================
@@ -783,34 +693,9 @@ function closeMenu(){document.getElementById("menuPanel").classList.remove("open
 
 
 <!-- =========================================================
-     FIREBASE AUTH
+     
 ========================================================= -->
 <script type="module">
-
-window.sendPasswordReset = function() {
-  const email = document.getElementById("reset-email").value;
-  if (!email) {
-    alert("Please enter your email address.");
-    return;
-  }
-
-  // Use the working function already defined in your header.js
-  if (window.universalForgotPassword) {
-    // We pass a fake event object so e.preventDefault() doesn't crash
-    window.universalForgotPassword({ preventDefault: () => {} });
-    showLogin(); 
-  } else {
-    alert("Auth system not ready. Please refresh.");
-  }
-};
-window.showReset = function () {
-  document.getElementById("login-box").style.display = "none";
-  document.getElementById("register-box").style.display = "none";
-  document.getElementById("user-info").style.display = "none";
-  document.getElementById("reset-box").style.display = "block";
-};
-
-
   // We use the "Master" functions from header.js to avoid conflicts
   window.showLogin = function() {
     document.getElementById("login-box").style.display = "block";
@@ -837,6 +722,7 @@ window.login = function() {
   const password = document.getElementById("login-password").value;
   if (window.processLogin) window.processLogin(email, password);
 };
+
   // This handles the "Logged in as" UI
 // This version ensures the boxes appear even if Firebase is slow
   window.addEventListener('load', () => {
@@ -858,120 +744,21 @@ window.login = function() {
         }
     }, 1000); // Wait 1 second for Firebase to wake up
   });
-  function hideAllAccountBoxes() {
-  document.getElementById("login-box").style.display = "none";
-  document.getElementById("register-box").style.display = "none";
-  document.getElementById("reset-box").style.display = "none";
-  document.getElementById("user-info").style.display = "none";
-}
 
-window.showReset = function () {
-  hideAllAccountBoxes();
-  document.getElementById("reset-box").style.display = "block";
-};
+  window.addEventListener('load', () => {
+  // 1. Look at the URL (e.g., register.html?email=test@me.com)
+  const urlParams = new URLSearchParams(window.location.search);
+  const emailFromUrl = urlParams.get('email');
 
-window.showLogin = function () {
-  hideAllAccountBoxes();
-  document.getElementById("login-box").style.display = "block";
-};
-
-// 1. Add this import at the very top of your <script type="module"> block
-import { fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-
-// 2. The Logic to check account existence
-window.checkEmail = async function () {
-  const email = document.getElementById("email-step").value;
-  const msg = document.getElementById("email-msg");
-  const continueBtn = document.getElementById("continue-btn");
-  const passwordStep = document.getElementById("password-step");
-
-  if (!email) {
-    msg.textContent = "Please enter your email.";
-    return;
-  }
-
-  try {
-    // Firebase checks if this email is already registered
-    const methods = await fetchSignInMethodsForEmail(window.auth, email);
-
-    if (methods.length > 0) {
-      // ACCOUNT EXISTS -> Show Password step on THIS page
-      passwordStep.style.display = "block";
-      continueBtn.style.display = "none";
-      document.getElementById("login-title").textContent = "WELCOME BACK";
-      msg.textContent = "";
-    } else {
-      // ACCOUNT DOES NOT EXIST -> Redirect to register.html with the email in the URL
-      // This "saves" the email for the next page
-      window.location.href = `register.html?email=${encodeURIComponent(email)}`;
+  // 2. If an email was passed, put it in the register email box
+  if (emailFromUrl) {
+    const registerEmailInput = document.getElementById("register-email");
+    if (registerEmailInput) {
+      registerEmailInput.value = emailFromUrl;
     }
-  } catch (error) {
-    console.error(error);
-    msg.textContent = "Error checking email. Please try again.";
   }
-};
-
-window.login = function() {
-  const email = document.getElementById("email-step").value; 
-  const password = document.getElementById("login-password").value;
-  
-  if (!password) {
-    alert("Please enter your password.");
-    return;
-  }
-
-  if (window.processLogin) {
-    window.processLogin(email, password);
-  }
-};
-
-// Function to go back and edit the email
-window.goBackToEmail = function() {
-  document.getElementById("email-input-group").style.display = "block";
-  document.getElementById("email-static-display").style.display = "none";
-  document.getElementById("password-step").style.display = "none";
-  document.getElementById("login-title").textContent = "SIGN IN OR CREATE";
-  document.getElementById("email-msg").textContent = "";
-};
-
-// Updated checkEmail to handle the UI swap
-window.checkEmail = async function () {
-  const email = document.getElementById("email-step").value;
-  const msg = document.getElementById("email-msg");
-  const inputGroup = document.getElementById("email-input-group");
-  const staticDisplay = document.getElementById("email-static-display");
-  const passwordStep = document.getElementById("password-step");
-  const displayText = document.getElementById("display-selected-email");
-
-  if (!email) {
-    msg.textContent = "Please enter your email.";
-    return;
-  }
-
-  try {
-    const methods = await fetchSignInMethodsForEmail(window.auth, email);
-
-    if (methods.length > 0) {
-      // ACCOUNT EXISTS: Hide input group, show static email and password box
-      inputGroup.style.display = "none";
-      staticDisplay.style.display = "block";
-      passwordStep.style.display = "block";
-      
-      displayText.textContent = email; // Set the email text
-      document.getElementById("login-title").textContent = "ENTER YOUR PASSWORD";
-      msg.textContent = "";
-    } else {
-      // NO ACCOUNT: Redirect to register with email saved in URL
-      window.location.href = `register.html?email=${encodeURIComponent(email)}`;
-    }
-  } catch (error) {
-    console.error(error);
-    msg.textContent = "Error checking email. Please try again.";
-  }
-};
-
+});
 </script>
-
 <script type="module" src="header.js"></script>
 
 
