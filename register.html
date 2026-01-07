@@ -744,6 +744,20 @@ window.login = function() {
         }
     }, 1000); // Wait 1 second for Firebase to wake up
   });
+
+  window.addEventListener('load', () => {
+  // 1. Look at the URL (e.g., register.html?email=test@me.com)
+  const urlParams = new URLSearchParams(window.location.search);
+  const emailFromUrl = urlParams.get('email');
+
+  // 2. If an email was passed, put it in the register email box
+  if (emailFromUrl) {
+    const registerEmailInput = document.getElementById("register-email");
+    if (registerEmailInput) {
+      registerEmailInput.value = emailFromUrl;
+    }
+  }
+});
 </script>
 <script type="module" src="header.js"></script>
 
