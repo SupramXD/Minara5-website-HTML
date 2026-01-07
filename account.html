@@ -658,14 +658,22 @@ footer{
 
 <!-- LOGIN / EMAIL FIRST -->
 <div id="login-box" class="box" style="display:block;">
-  <div class="box-title" id="login-title">SIGN IN OR CREATE</div>
+  <div class="box-title" id="login-title" style="margin-bottom:10px;">SIGN IN OR CREATE</div>
 
-  <input id="email-step" type="email" placeholder="Email">
+  <div id="email-static-display" style="display:none; margin-bottom: 20px; font-size: 14px;">
+    <span id="display-selected-email" style="color: #000;"></span> 
+    <a href="#" onclick="goBackToEmail(); return false;" style="color: #007bff; text-decoration: underline; margin-left: 8px; font-size: 13px;">Edit</a>
+  </div>
+
+  <div id="email-input-group">
+    <input id="email-step" type="email" placeholder="Email">
+    <button id="continue-btn" onclick="checkEmail()" style="margin-top:20px;">CONTINUE</button>
+  </div>
   
   <p id="email-msg" style="margin-top:14px; font-size:12px; color: red;"></p>
 
-  <div id="password-step" style="display:none; margin-top:20px;">
-    <input id="login-password" type="password" placeholder="Password">
+  <div id="password-step" style="display:none; margin-top:10px;">
+    <input id="login-password" type="password" placeholder="PASSWORD">
     
     <p style="margin-top:14px; font-size:12px;">
       <a href="#" onclick="showReset(); return false;" class="account-link" style="color: #551A8B !important; text-decoration: underline !important;">
@@ -673,11 +681,7 @@ footer{
       </a>
     </p>
     <button onclick="login()">SIGN IN</button>
-    
-    
   </div>
-
-  <button id="continue-btn" onclick="checkEmail()">CONTINUE</button>
 </div>
 
 
@@ -921,6 +925,50 @@ window.login = function() {
   }
 };
 
+// Function to go back and edit the email
+window.goBackToEmail = function() {
+  document.getElementById("email-input-group").style.display = "block";
+  document.getElementById("email-static-display").style.display = "none";
+  document.getElementById("password-step").style.display = "none";
+  document.getElementById("login-title").textContent = "SIGN IN OR CREATE";
+  document.getElementById("email-msg").textContent = "";
+};
+
+// Updated checkEmail to handle the UI swap
+window.checkEmail = async function () {
+  const email = document.getElementById("email-step").value;
+  const msg = document.getElementById("email-msg");
+  const inputGroup = document.getElementById("email-input-group");
+  const staticDisplay = document.getElementById("email-static-display");
+  const passwordStep = document.getElementById("password-step");
+  const displayText = document.getElementById("display-selected-email");
+
+  if (!email) {
+    msg.textContent = "Please enter your email.";
+    return;
+  }
+
+  try {
+    const methods = await fetchSignInMethodsForEmail(window.auth, email);
+
+    if (methods.length > 0) {
+      // ACCOUNT EXISTS: Hide input group, show static email and password box
+      inputGroup.style.display = "none";
+      staticDisplay.style.display = "block";
+      passwordStep.style.display = "block";
+      
+      displayText.textContent = email; // Set the email text
+      document.getElementById("login-title").textContent = "ENTER YOUR PASSWORD";
+      msg.textContent = "";
+    } else {
+      // NO ACCOUNT: Redirect to register with email saved in URL
+      window.location.href = `register.html?email=${encodeURIComponent(email)}`;
+    }
+  } catch (error) {
+    console.error(error);
+    msg.textContent = "Error checking email. Please try again.";
+  }
+};
 
 </script>
 
