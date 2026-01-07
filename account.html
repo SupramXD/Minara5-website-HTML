@@ -890,16 +890,15 @@ window.checkEmail = async function () {
     const methods = await fetchSignInMethodsForEmail(window.auth, email);
 
     if (methods.length > 0) {
-      // ACCOUNT EXISTS -> Show Password step
+      // ACCOUNT EXISTS -> Show Password step on THIS page
       passwordStep.style.display = "block";
       continueBtn.style.display = "none";
       document.getElementById("login-title").textContent = "WELCOME BACK";
       msg.textContent = "";
     } else {
-      // ACCOUNT DOES NOT EXIST -> Go to Register box
-      // We pre-fill the email for the user
-      document.getElementById("register-email").value = email;
-      showRegister();
+      // ACCOUNT DOES NOT EXIST -> Redirect to register.html with the email in the URL
+      // This "saves" the email for the next page
+      window.location.href = `register.html?email=${encodeURIComponent(email)}`;
     }
   } catch (error) {
     console.error(error);
