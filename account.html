@@ -247,10 +247,21 @@ header{
 /* =========================================================
    ACCOUNT PAGE LAYOUT
 ========================================================= */
-.wrapper{
-  max-width:420px;
-  margin:140px auto 60px;
-  padding:0 20px;
+.wrapper {
+  width: 100%;
+  max-width: 450px !important; 
+  /* 120px top, auto left/right (centers it), 60px bottom */
+  margin: 120px auto 60px !important; 
+  padding: 0 20px;
+  display: block; 
+}
+
+.box {
+  width: 100%;
+  background: #fff;
+  padding: 40px;
+  border: 1px solid #000;
+  box-sizing: border-box;
 }
 
 h1{
@@ -645,28 +656,35 @@ footer{
       </ul>
   </div>
 
-  <!-- LOGIN -->
-<div id="login-box" class="box">
-    <div class="box-title">LOGIN</div>
-    <input id="login-email" type="email" placeholder="Email">
+<!-- LOGIN / EMAIL FIRST -->
+<div id="login-box" class="box" style="display:block;">
+  <div class="box-title" id="login-title">SIGN IN OR CREATE</div>
+
+  <input id="email-step" type="email" placeholder="Email">
+  
+  <p id="email-msg" style="margin-top:14px; font-size:12px; color: red;"></p>
+
+  <div id="password-step" style="display:none; margin-top:20px;">
     <input id="login-password" type="password" placeholder="Password">
     
+    <p style="margin-top:14px; font-size:12px;">
+      <a href="#" onclick="showReset(); return false;" class="account-link" style="color: #551A8B !important; text-decoration: underline !important;">
+        Forgot password?
+      </a>
+    </p>
     
- <p style="margin-top:18px;font-size:12px;">
-  <a
-    href="#"
-    onclick="showReset(); return false;"
-    class="account-link"
-  >
-    Forgot password?
-  </a>
-</p>
+    
+  </div>
+
+  <button id="continue-btn" onclick="checkEmail()">CONTINUE</button>
+</div>
+
 
 
 
     <p id="resetMsg" style="font-size:12px;margin-top:10px;"></p>
     
-    <button onclick="login()">SIGN IN</button>
+    
     <p style="margin-top:20px; font-size:13px; cursor:pointer;" onclick="showRegister()">
         <a 
           href="#" 
@@ -674,7 +692,7 @@ footer{
           onclick="showRegister(); return false;" 
           style="color: #551A8B !important; text-decoration: underline !important;"
         >
-          CREATE AN ACCOUNT
+          
         </a>
     </p>
 </div>
@@ -851,6 +869,58 @@ window.showLogin = function () {
   hideAllAccountBoxes();
   document.getElementById("login-box").style.display = "block";
 };
+
+// 1. Add this import at the very top of your <script type="module"> block
+import { fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+// 2. The Logic to check account existence
+window.checkEmail = async function () {
+  const email = document.getElementById("email-step").value;
+  const msg = document.getElementById("email-msg");
+  const continueBtn = document.getElementById("continue-btn");
+  const passwordStep = document.getElementById("password-step");
+
+  if (!email) {
+    msg.textContent = "Please enter your email.";
+    return;
+  }
+
+  try {
+    // Firebase checks if this email is already registered
+    const methods = await fetchSignInMethodsForEmail(window.auth, email);
+
+    if (methods.length > 0) {
+      // ACCOUNT EXISTS -> Show Password step
+      passwordStep.style.display = "block";
+      continueBtn.style.display = "none";
+      document.getElementById("login-title").textContent = "WELCOME BACK";
+      msg.textContent = "";
+    } else {
+      // ACCOUNT DOES NOT EXIST -> Go to Register box
+      // We pre-fill the email for the user
+      document.getElementById("register-email").value = email;
+      showRegister();
+    }
+  } catch (error) {
+    console.error(error);
+    msg.textContent = "Error checking email. Please try again.";
+  }
+};
+
+window.login = function() {
+  const email = document.getElementById("email-step").value; 
+  const password = document.getElementById("login-password").value;
+  
+  if (!password) {
+    alert("Please enter your password.");
+    return;
+  }
+
+  if (window.processLogin) {
+    window.processLogin(email, password);
+  }
+};
+
 
 </script>
 
