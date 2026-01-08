@@ -516,7 +516,7 @@ footer{
     position: absolute;
     top: 45px; 
     right: 30px; 
-    width: 250px; /* Slightly wider to prevent email clipping */
+    width: 250px; 
     background: #fff;
     border: 1px solid #dcdcdc;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
@@ -525,7 +525,8 @@ footer{
 }
 
 .acc-head {
-    padding: 40px 14px 12px 14px; /* Large top padding to move email down */
+    /* Large top padding ensures the email is pushed well below the X */
+    padding: 38px 14px 12px 14px; 
     border-bottom: 1px solid #000;
     position: relative;
     display: flex;
@@ -537,9 +538,9 @@ footer{
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
-    word-break: break-all; /* Forces email to wrap if too long */
-    color: #000;
-    line-height: 1.4;
+    word-break: break-all; 
+    color: #000; /* Email text color */
+    line-height: 1.2;
 }
 
 .acc-close {
@@ -547,25 +548,26 @@ footer{
     top: 12px;
     right: 14px;
     cursor: pointer;
-    font-size: 13px; /* Made "X CLOSE" bigger */
+    /* Matched size and color to email */
+    font-size: 11px; 
     font-weight: 700;
     letter-spacing: 1px;
-    color: #a366ff; /* Purple link color */
+    color: #000; 
     text-transform: uppercase;
 }
 
 .acc-close:hover {
-    opacity: 0.7;
+    opacity: 0.6;
 }
 
-/* Menu items */
+/* Menu items - Normal Hyperlink Look */
 .acc-item {
     display: block;
     padding: 14px;
     font-size: 11px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: #a366ff !important; /* Purple link color for My Orders/Logout */
+    color: #000 !important; /* Back to normal black */
     text-decoration: none !important;
     border-bottom: 1px solid #eee;
     transition: background 0.2s;
@@ -577,6 +579,7 @@ footer{
 
 .acc-item:hover {
     background: #f9f9f9;
+    text-decoration: underline !important; /* Optional: adds hyperlink feel */
 }
 
 @media (max-width:900px){
