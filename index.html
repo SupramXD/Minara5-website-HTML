@@ -513,34 +513,34 @@ footer{
 
 /* Dropdown box */
 .acc-dropdown {
-    position: fixed; /* Fixed to stay top-right regardless of scroll */
-    top: 45px; 
-    right: 0; /* Aligned to the very right edge of screen */
-    width: 400px; /* Increased width to match reference image */
+    position: fixed; 
+    top: 0;           /* Touches the very top of the screen */
+    right: 0;         /* Touches the very right of the screen */
+    width: 420px;     
+    height: auto;
     background: #fff;
-    border: 1px solid #eee;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border-left: 1px solid #eee; /* Only need a left border since it hits the edges */
+    box-shadow: -5px 0 25px rgba(0,0,0,0.08);
     display: none;
-    z-index: 10001; /* Above the dimmer */
+    z-index: 10001;   /* Sits above everything, including the header */
 }
 
-/* Dimmer logic for the account dropdown */
+/* Dimmer logic */
 .acc-dimmer-active #pageDimmer {
     opacity: 1;
     pointer-events: auto;
 }
 
 .acc-head {
-    padding: 12px 20px;
+    padding: 15px 20px; /* Closer to the borders */
     border-bottom: 1px solid #000;
     display: flex;
-    justify-content: space-between; /* Spreads Email and Close button */
+    justify-content: space-between; 
     align-items: center;
 }
 
 #accName {
-    display: block; /* Re-enabled email */
-    font-size: 11px;
+    font-size: 13px; /* Slightly bigger text */
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -549,35 +549,33 @@ footer{
 
 .acc-close {
     cursor: pointer;
-    font-size: 11px; 
+    font-size: 13px; /* Slightly bigger text */
     font-weight: 400;
     letter-spacing: 1.5px;
-    color: #0000EE; /* Matching the blue in your image */
+    color: #0000A0; /* Darker, premium blue */
     text-transform: uppercase;
-    display: flex;
-    gap: 8px;
 }
 
-/* Menu items - High fashion blue hyperlinks */
+/* Menu items */
 .acc-item {
     display: block;
-    padding: 18px 20px; /* Taller boxes as requested */
-    font-size: 11px;
+    padding: 20px 20px; /* Large clickable area, text close to left border */
+    font-size: 13px;    /* Slightly bigger text */
     letter-spacing: 1px;
     text-transform: uppercase;
-    color: #0000EE !important;
+    color: #0000A0 !important; /* Premium dark blue */
     text-decoration: none !important;
     border-bottom: 1px solid #eee;
 }
 
+/* Removed the large gap before Logout */
 .acc-item:last-child {
-    border-bottom: none;
-    margin-top: 40px; /* Push LOG OUT down like in reference image */
+    border-bottom: 1px solid #eee; 
 }
 
 .acc-item:hover {
     text-decoration: underline !important;
-    background: #fcfcfc;
+    background: #fafafa;
 }
 
 @media (max-width:900px){
