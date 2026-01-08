@@ -137,3 +137,20 @@ document.addEventListener("click", (e) => {
     const box = document.getElementById("accountDropdown");
     if (box && !box.contains(e.target)) box.style.display = "none";
 });
+
+function accountClicked(event) {
+    const dropdown = document.getElementById('accountDropdown');
+    const isOpening = dropdown.style.display !== 'block';
+    
+    if (isOpening) {
+        dropdown.style.display = 'block';
+        document.body.classList.add('acc-dimmer-active'); // Triggers the dim
+    } else {
+        closeAccDropdown();
+    }
+}
+
+function closeAccDropdown() {
+    document.getElementById('accountDropdown').style.display = 'none';
+    document.body.classList.remove('acc-dimmer-active'); // Removes the dim
+}
