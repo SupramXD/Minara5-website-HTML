@@ -514,25 +514,25 @@ footer{
 /* Dropdown box */
 .acc-dropdown {
     position: fixed; 
-    top: 0;           /* Touches the very top of the screen */
-    right: 0;         /* Touches the very right of the screen */
-    width: 420px;     
-    height: auto;
+    top: 0;           
+    right: 0;         
+    width: 380px;     /* Matches the wider reference image scale */
     background: #fff;
-    border-left: 1px solid #eee; /* Only need a left border since it hits the edges */
-    box-shadow: -5px 0 25px rgba(0,0,0,0.08);
+    border-left: 1px solid #eee;
+    box-shadow: -5px 0 20px rgba(0,0,0,0.05);
     display: none;
-    z-index: 10001;   /* Sits above everything, including the header */
+    z-index: 10001;   
 }
 
-/* Dimmer logic */
+/* Ensure dimmer is visible when active */
 .acc-dimmer-active #pageDimmer {
-    opacity: 1;
-    pointer-events: auto;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    display: block !important;
 }
 
 .acc-head {
-    padding: 15px 20px; /* Closer to the borders */
+    padding: 10px 14px; /* Small gaps between text and borders */
     border-bottom: 1px solid #000;
     display: flex;
     justify-content: space-between; 
@@ -540,7 +540,7 @@ footer{
 }
 
 #accName {
-    font-size: 13px; /* Slightly bigger text */
+    font-size: 11.5px; /* Slightly bigger than original 11px */
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -549,33 +549,28 @@ footer{
 
 .acc-close {
     cursor: pointer;
-    font-size: 13px; /* Slightly bigger text */
+    font-size: 11.5px; 
     font-weight: 400;
-    letter-spacing: 1.5px;
-    color: #0000A0; /* Darker, premium blue */
+    letter-spacing: 1.2px;
+    color: #00008B; /* Deep premium blue */
     text-transform: uppercase;
 }
 
 /* Menu items */
 .acc-item {
     display: block;
-    padding: 20px 20px; /* Large clickable area, text close to left border */
-    font-size: 13px;    /* Slightly bigger text */
+    padding: 14px 14px; /* Tight gaps like the image */
+    font-size: 11.5px;    
     letter-spacing: 1px;
     text-transform: uppercase;
-    color: #0000A0 !important; /* Premium dark blue */
+    color: #00008B !important; 
     text-decoration: none !important;
     border-bottom: 1px solid #eee;
 }
 
-/* Removed the large gap before Logout */
-.acc-item:last-child {
-    border-bottom: 1px solid #eee; 
-}
-
 .acc-item:hover {
     text-decoration: underline !important;
-    background: #fafafa;
+    background: #fcfcfc;
 }
 
 @media (max-width:900px){
