@@ -138,19 +138,40 @@ document.addEventListener("click", (e) => {
     if (box && !box.contains(e.target)) box.style.display = "none";
 });
 
-function accountClicked(event) {
-    const dropdown = document.getElementById('accountDropdown');
-    const isOpening = dropdown.style.display !== 'block';
-    
-    if (isOpening) {
-        dropdown.style.display = 'block';
-        document.body.classList.add('acc-dimmer-active'); // Triggers the dim
-    } else {
-        closeAccDropdown();
+// Function to handle the account dropdown and dimmer
+window.accountClicked = function(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
     }
-}
+    
+    const dropdown = document.getElementById('accountDropdown');
+    const dimmer = document.getElementById('pageDimmer');
+    
+    // Show Dropdown
+    dropdown.style.display = 'block';
+    
+    // Fix Dimmer: ensure it's above the header but below the dropdown
+    if (dimmer) {
+        dimmer.style.zIndex = "10000"; 
+        document.body.classList.add('acc-dimmer-active');
+    }
+};
 
-function closeAccDropdown() {
-    document.getElementById('accountDropdown').style.display = 'none';
-    document.body.classList.remove('acc-dimmer-active'); // Removes the dim
-}
+window.closeAccDropdown = function() {
+    const dropdown = document.getElementById('accountDropdown');
+    if (dropdown) dropdown.style.display = 'none';
+    document.body.classList.remove('acc-dimmer-active');
+};
+
+// Global click listener to close if clicking outside (on the dimmer)
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('accountDropdown');
+    const trigger = document.querySelector('.account-trigger');
+    
+    if (dropdown && dropdown.style.display === 'block') {
+        if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
+            closeAccDropdown();
+        }
+    }
+});
