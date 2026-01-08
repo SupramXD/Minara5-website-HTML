@@ -124,22 +124,6 @@ function setupMobileAccount(user) {
    DESKTOP DROPDOWN (Preserved)
 ================================ */
 window.accountClicked = function(event) {
-    event.stopPropagation();
-    if (!currentUser) { window.location.href = "account.html"; return; }
-    const box = document.getElementById("accountDropdown");
-    box.style.display = box.style.display === "block" ? "none" : "block";
-};
-
-window.logout = function() { signOut(auth).then(() => { window.location.href = "index.html"; }); };
-window.closeAccDropdown = function() { document.getElementById("accountDropdown").style.display = "none"; };
-
-document.addEventListener("click", (e) => {
-    const box = document.getElementById("accountDropdown");
-    if (box && !box.contains(e.target)) box.style.display = "none";
-});
-
-// Function to handle the account dropdown and dimmer
-window.accountClicked = function(event) {
     if (event) {
         event.preventDefault();
         event.stopPropagation();
@@ -149,29 +133,26 @@ window.accountClicked = function(event) {
     const dimmer = document.getElementById('pageDimmer');
     
     // Show Dropdown
-    dropdown.style.display = 'block';
+    if (dropdown) dropdown.style.display = 'block';
     
-    // Fix Dimmer: ensure it's above the header but below the dropdown
+    // Show Dimmer
     if (dimmer) {
-        dimmer.style.zIndex = "10000"; 
-        document.body.classList.add('acc-dimmer-active');
+        dimmer.classList.add('active'); // Uses your existing "active" CSS class
     }
 };
 
 window.closeAccDropdown = function() {
     const dropdown = document.getElementById('accountDropdown');
+    const dimmer = document.getElementById('pageDimmer');
+    
     if (dropdown) dropdown.style.display = 'none';
-    document.body.classList.remove('acc-dimmer-active');
+    if (dimmer) dimmer.classList.remove('active');
 };
 
-// Global click listener to close if clicking outside (on the dimmer)
-document.addEventListener('click', function(e) {
-    const dropdown = document.getElementById('accountDropdown');
-    const trigger = document.querySelector('.account-trigger');
-    
-    if (dropdown && dropdown.style.display === 'block') {
-        if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
-            closeAccDropdown();
-        }
+// Ensure clicking the dimmer also closes the account box
+document.addEventListener('DOMContentLoaded', () => {
+    const dimmer = document.getElementById('pageDimmer');
+    if (dimmer) {
+        dimmer.addEventListener('click', closeAccDropdown);
     }
 });
