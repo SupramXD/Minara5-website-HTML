@@ -513,68 +513,71 @@ footer{
 
 /* Dropdown box */
 .acc-dropdown {
-    position: absolute;
+    position: fixed; /* Fixed to stay top-right regardless of scroll */
     top: 45px; 
-    right: 30px; 
-    width: 220px; 
+    right: 0; /* Aligned to the very right edge of screen */
+    width: 400px; /* Increased width to match reference image */
     background: #fff;
-    border: 1px solid #dcdcdc;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     display: none;
-    z-index: 9999;
+    z-index: 10001; /* Above the dimmer */
+}
+
+/* Dimmer logic for the account dropdown */
+.acc-dimmer-active #pageDimmer {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .acc-head {
-    /* Lowering these numbers makes the top box shorter */
-    padding: 8px 14px; 
-    min-height: 32px; 
-    
+    padding: 12px 20px;
     border-bottom: 1px solid #000;
-    position: relative;
     display: flex;
-    justify-content: flex-end; 
+    justify-content: space-between; /* Spreads Email and Close button */
     align-items: center;
 }
 
-/* Hide the email element since you want it removed */
 #accName {
-    display: none;
+    display: block; /* Re-enabled email */
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #000;
 }
 
 .acc-close {
     cursor: pointer;
     font-size: 11px; 
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: #000; 
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    color: #0000EE; /* Matching the blue in your image */
     text-transform: uppercase;
-    line-height: 1.5;
+    display: flex;
+    gap: 8px;
 }
 
-.acc-close:hover {
-    opacity: 0.6;
-}
-
-/* Menu items - Blue Hyperlink without initial underline */
+/* Menu items - High fashion blue hyperlinks */
 .acc-item {
     display: block;
-    padding: 14px;
+    padding: 18px 20px; /* Taller boxes as requested */
     font-size: 11px;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    color: #0000EE !important; /* Standard hyperlink blue */
-    text-decoration: none !important; /* No underline by default */
+    color: #0000EE !important;
+    text-decoration: none !important;
     border-bottom: 1px solid #eee;
-    transition: background 0.2s;
 }
 
 .acc-item:last-child {
     border-bottom: none;
+    margin-top: 40px; /* Push LOG OUT down like in reference image */
 }
 
 .acc-item:hover {
-    background: #f9f9f9;
-    text-decoration: underline !important; /* Underline only on hover */
+    text-decoration: underline !important;
+    background: #fcfcfc;
 }
 
 @media (max-width:900px){
