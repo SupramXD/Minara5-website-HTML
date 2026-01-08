@@ -516,61 +516,57 @@ footer{
     position: absolute;
     top: 45px; 
     right: 30px; 
-    width: 250px; 
+    width: 230px; /* Slimmer width for a sleeker look */
     background: #fff;
-    border: 1px solid #dcdcdc;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid #eee; /* Lighter border for a cleaner aesthetic */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04); /* Softer, high-end shadow */
     display: none;
     z-index: 9999;
 }
 
 .acc-head {
-    /* Large top padding ensures the email is pushed well below the X */
-    padding: 38px 14px 12px 14px; 
-    border-bottom: 1px solid #000;
+    /* Reduced padding to stop it from feeling "too big" */
+    padding: 32px 16px 14px 16px; 
+    border-bottom: 1px solid #000; /* Keeps the signature sharp line */
     position: relative;
     display: flex;
     flex-direction: column;
 }
 
 #accName {
-    font-size: 11px;
+    font-size: 10px; /* Slightly smaller for an editorial feel */
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 1.2px; /* Increased letter spacing */
     text-transform: uppercase;
     word-break: break-all; 
-    color: #000; /* Email text color */
-    line-height: 1.2;
+    color: #000;
+    line-height: 1;
 }
 
 .acc-close {
     position: absolute;
     top: 12px;
-    right: 14px;
+    right: 16px;
     cursor: pointer;
-    /* Matched size and color to email */
-    font-size: 11px; 
-    font-weight: 700;
-    letter-spacing: 1px;
+    font-size: 10px; /* Matches email size */
+    font-weight: 400; /* Thinner weight for elegance */
+    letter-spacing: 1.5px;
     color: #000; 
     text-transform: uppercase;
+    opacity: 0.8;
 }
 
-.acc-close:hover {
-    opacity: 0.6;
-}
-
-/* Menu items - Normal Hyperlink Look */
+/* Menu items - Classic Blue Hyperlink */
 .acc-item {
     display: block;
-    padding: 14px;
-    font-size: 11px;
-    letter-spacing: 1.5px;
+    padding: 15px 16px;
+    font-size: 10.5px;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    color: #000 !important; /* Back to normal black */
-    text-decoration: none !important;
-    border-bottom: 1px solid #eee;
-    transition: background 0.2s;
+    color: #0000EE !important; /* Standard browser hyperlink blue */
+    text-decoration: underline; /* Standard hyperlink style */
+    border-bottom: 1px solid #f9f9f9;
+    transition: opacity 0.2s;
 }
 
 .acc-item:last-child {
@@ -578,8 +574,8 @@ footer{
 }
 
 .acc-item:hover {
-    background: #f9f9f9;
-    text-decoration: underline !important; /* Optional: adds hyperlink feel */
+    opacity: 0.6;
+    background: #fafafa;
 }
 
 @media (max-width:900px){
