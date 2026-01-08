@@ -525,13 +525,15 @@ footer{
 }
 
 .acc-head {
-    /* Height reduced since email is removed */
-    padding: 12px 14px; 
+    /* Lowering these numbers makes the top box shorter */
+    padding: 8px 14px; 
+    min-height: 32px; 
+    
     border-bottom: 1px solid #000;
     position: relative;
     display: flex;
-    justify-content: flex-end; /* Pushes the X to the right */
-    min-height: 40px;
+    justify-content: flex-end; 
+    align-items: center;
 }
 
 /* Hide the email element since you want it removed */
