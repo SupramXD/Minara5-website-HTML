@@ -512,23 +512,11 @@ footer{
 }
 
 /* Dropdown box */
-/* ================================
-   ACCOUNT DROPDOWN (FIXED VERSION)
-=================================== */
-
-.header-account .account-trigger {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-}
-
-/* Dropdown box */
 .acc-dropdown {
     position: absolute;
-    top: 45px; /* Aligns with header bottom */
-    right: 30px; /* Aligns with header padding */
-    width: 240px;
+    top: 45px; 
+    right: 30px; 
+    width: 250px; /* Slightly wider to prevent email clipping */
     background: #fff;
     border: 1px solid #dcdcdc;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
@@ -537,11 +525,11 @@ footer{
 }
 
 .acc-head {
-    padding: 18px 14px 12px 14px; /* Added top padding for the X */
+    padding: 40px 14px 12px 14px; /* Large top padding to move email down */
     border-bottom: 1px solid #000;
-    position: relative; /* Needed to anchor the Close button */
+    position: relative;
     display: flex;
-    flex-direction: column; /* Stack Email above other things if needed */
+    flex-direction: column;
 }
 
 #accName {
@@ -549,23 +537,25 @@ footer{
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
-    word-break: break-all; /* Prevents long emails from breaking layout */
-    padding-right: 50px; /* Leaves room for the X */
+    word-break: break-all; /* Forces email to wrap if too long */
+    color: #000;
+    line-height: 1.4;
 }
 
 .acc-close {
     position: absolute;
-    top: 10px;
-    right: 12px;
+    top: 12px;
+    right: 14px;
     cursor: pointer;
-    font-size: 10px;
-    font-weight: 400;
+    font-size: 13px; /* Made "X CLOSE" bigger */
+    font-weight: 700;
     letter-spacing: 1px;
-    opacity: 0.8;
+    color: #a366ff; /* Purple link color */
+    text-transform: uppercase;
 }
 
 .acc-close:hover {
-    opacity: 1;
+    opacity: 0.7;
 }
 
 /* Menu items */
@@ -575,7 +565,7 @@ footer{
     font-size: 11px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: #000 !important;
+    color: #a366ff !important; /* Purple link color for My Orders/Logout */
     text-decoration: none !important;
     border-bottom: 1px solid #eee;
     transition: background 0.2s;
