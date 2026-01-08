@@ -512,47 +512,81 @@ footer{
 }
 
 /* Dropdown box */
+/* ================================
+   ACCOUNT DROPDOWN (FIXED VERSION)
+=================================== */
+
+.header-account .account-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+/* Dropdown box */
 .acc-dropdown {
     position: absolute;
-    top: 48px; /* your header height */
-    right: 20px;
-    width: 220px;
+    top: 45px; /* Aligns with header bottom */
+    right: 30px; /* Aligns with header padding */
+    width: 240px;
     background: #fff;
-    border: 1px solid #cfcfcf;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 1px solid #dcdcdc;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     display: none;
     z-index: 9999;
 }
 
 .acc-head {
-    padding: 12px 14px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1px;
+    padding: 18px 14px 12px 14px; /* Added top padding for the X */
     border-bottom: 1px solid #000;
+    position: relative; /* Needed to anchor the Close button */
     display: flex;
-    justify-content: space-between;
+    flex-direction: column; /* Stack Email above other things if needed */
+}
+
+#accName {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
     text-transform: uppercase;
+    word-break: break-all; /* Prevents long emails from breaking layout */
+    padding-right: 50px; /* Leaves room for the X */
 }
 
 .acc-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
     cursor: pointer;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+.acc-close:hover {
+    opacity: 1;
 }
 
 /* Menu items */
 .acc-item {
     display: block;
-    padding: 12px 14px;
+    padding: 14px;
     font-size: 11px;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
     color: #000 !important;
     text-decoration: none !important;
     border-bottom: 1px solid #eee;
+    transition: background 0.2s;
+}
+
+.acc-item:last-child {
+    border-bottom: none;
 }
 
 .acc-item:hover {
-    background: #f7f7f7;
+    background: #f9f9f9;
 }
 
 @media (max-width:900px){
