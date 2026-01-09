@@ -23,38 +23,39 @@
     cursor: default !important;
 }
 
-/* Dropdown box */
+  /* ACCOUNT DROPDOWN PANEL */
 .acc-dropdown {
     position: fixed; 
     top: 0;           
     right: 0;         
-    width: 360px;     
+    width: 320px; /* Slimmer, high-fashion width */
     background: #fff;
     border-left: 1px solid #eee;
     box-shadow: -5px 0 20px rgba(0,0,0,0.05);
     display: none;
-    z-index: 10001; /* Must be higher than the dimmer */
+    z-index: 10001; 
 }
 
-/* FORCING DIMMER TO SHOW */
+/* FIXING DIMMER */
 #pageDimmer.active {
     display: block !important;
     opacity: 1 !important;
     pointer-events: auto !important;
-    z-index: 10000 !important; /* One level below the dropdown */
+    z-index: 10000 !important; 
+    background: rgba(0,0,0,0.5); /* Ensures it actually dims */
 }
 
 .acc-head {
-    /* Tight top/side padding, but bottom padding creates the gap before the line */
-    padding: 8px 12px 20px 12px; 
+    /* 20px bottom padding creates the gap between email and the black line */
+    padding: 10px 12px 20px 12px; 
     border-bottom: 1px solid #000;
     display: flex;
     justify-content: space-between; 
-    align-items: flex-start; /* Keeps text at the very top */
+    align-items: flex-start;
 }
 
 #accName {
-    font-size: 10.5px; /* Very slightly smaller */
+    font-size: 10.2px; /* Very small/elegant */
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -63,18 +64,18 @@
 
 .acc-close {
     cursor: pointer;
-    font-size: 10.5px; 
+    font-size: 10.2px; 
     font-weight: 400;
     letter-spacing: 1.2px;
     color: #00008B; 
     text-transform: uppercase;
 }
 
-/* Menu items - Tighter boxes */
+/* Menu items - Tighter and smaller */
 .acc-item {
     display: block;
-    padding: 10px 12px; /* Smaller boxes, text closer to left/top borders */
-    font-size: 10.5px;    
+    padding: 8px 12px; /* Very tight boxes */
+    font-size: 10.2px;    
     letter-spacing: 1px;
     text-transform: uppercase;
     color: #00008B !important; 
@@ -85,14 +86,6 @@
 .acc-item:hover {
     text-decoration: underline !important;
     background: #fcfcfc;
-}
-
-*{margin:0;padding:0;box-sizing:border-box;}
-body{
-    font-family:Helvetica,Arial,sans-serif;
-    background:#ffffff;
-    color:#000;
-    overflow-x:hidden;
 }
 
 /* ===================== HEADER ===================== */
