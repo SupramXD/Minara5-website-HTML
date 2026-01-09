@@ -25,10 +25,11 @@
 
   /* ACCOUNT DROPDOWN PANEL */
 .acc-dropdown {
-    position: fixed; 
-    top: 0;           
-    right: 0;         
-    width: 320px; /* Slimmer, high-fashion width */
+    position: fixed !important; 
+    top: 0 !important;           
+    right: 0 !important;         
+    left: auto !important; /* Forces it away from the left side */
+    width: 320px;     
     background: #fff;
     border-left: 1px solid #eee;
     box-shadow: -5px 0 20px rgba(0,0,0,0.05);
@@ -36,17 +37,22 @@
     z-index: 10001; 
 }
 
-/* FIXING DIMMER */
+/* DIMMER FIX */
 #pageDimmer.active {
     display: block !important;
     opacity: 1 !important;
     pointer-events: auto !important;
     z-index: 10000 !important; 
-    background: rgba(0,0,0,0.5); /* Ensures it actually dims */
+    background: rgba(0,0,0,0.4); 
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .acc-head {
-    /* 20px bottom padding creates the gap between email and the black line */
+    /* Tight top/side, 20px gap under text before the line */
     padding: 10px 12px 20px 12px; 
     border-bottom: 1px solid #000;
     display: flex;
@@ -55,7 +61,7 @@
 }
 
 #accName {
-    font-size: 10.2px; /* Very small/elegant */
+    font-size: 10.2px; /* Small premium font */
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -67,14 +73,13 @@
     font-size: 10.2px; 
     font-weight: 400;
     letter-spacing: 1.2px;
-    color: #00008B; 
+    color: #00008B; /* Dark premium blue */
     text-transform: uppercase;
 }
 
-/* Menu items - Tighter and smaller */
 .acc-item {
     display: block;
-    padding: 8px 12px; /* Very tight boxes */
+    padding: 8px 12px; /* Tighter boxes */
     font-size: 10.2px;    
     letter-spacing: 1px;
     text-transform: uppercase;
