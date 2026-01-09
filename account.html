@@ -383,46 +383,66 @@ footer{
 
 /* Dropdown box */
 .acc-dropdown {
-    position: absolute;
-    top: 48px; /* your header height */
-    right: 20px;
-    width: 220px;
+    position: fixed; 
+    top: 0;           
+    right: 0;         
+    width: 360px;     
     background: #fff;
-    border: 1px solid #cfcfcf;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-left: 1px solid #eee;
+    box-shadow: -5px 0 20px rgba(0,0,0,0.05);
     display: none;
-    z-index: 9999;
+    z-index: 10001; /* Must be higher than the dimmer */
+}
+
+/* FORCING DIMMER TO SHOW */
+#pageDimmer.active {
+    display: block !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 10000 !important; /* One level below the dropdown */
 }
 
 .acc-head {
-    padding: 12px 14px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1px;
+    /* Tight top/side padding, but bottom padding creates the gap before the line */
+    padding: 8px 12px 20px 12px; 
     border-bottom: 1px solid #000;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; 
+    align-items: flex-start; /* Keeps text at the very top */
+}
+
+#accName {
+    font-size: 10.5px; /* Very slightly smaller */
+    font-weight: 700;
+    letter-spacing: 1px;
     text-transform: uppercase;
+    color: #000;
 }
 
 .acc-close {
     cursor: pointer;
+    font-size: 10.5px; 
+    font-weight: 400;
+    letter-spacing: 1.2px;
+    color: #00008B; 
+    text-transform: uppercase;
 }
 
-/* Menu items */
+/* Menu items - Tighter boxes */
 .acc-item {
     display: block;
-    padding: 12px 14px;
-    font-size: 11px;
+    padding: 10px 12px; /* Smaller boxes, text closer to left/top borders */
+    font-size: 10.5px;    
     letter-spacing: 1px;
     text-transform: uppercase;
-    color: #000 !important;
+    color: #00008B !important; 
     text-decoration: none !important;
     border-bottom: 1px solid #eee;
 }
 
 .acc-item:hover {
-    background: #f7f7f7;
+    text-decoration: underline !important;
+    background: #fcfcfc;
 }
 @media (max-width:900px){
 
