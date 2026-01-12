@@ -37,38 +37,54 @@
     font-size: 12px;
 }
 
-.acc-header {
-    padding: 12px 16px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1px;
+.acc-head {
+    padding: 15px 15px 25px 15px; 
     border-bottom: 1px solid #000;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; 
+    align-items: center;
 }
 
+#accName {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #000;
+}
+
+/* This fixes the "Fat X" by forcing it to stay inside the box */
 .acc-close {
     cursor: pointer;
+    font-size: 10px !important; 
+    color: #00008B !important; 
+    text-transform: uppercase;
+    position: static !important; /* Prevents jumping to top-left */
+    line-height: 1;
 }
 
 .acc-item {
     display: block;
-    padding: 12px 16px;
-    border-bottom: 1px solid #eee;
-    color: #000;
-    text-decoration: none;
-}
-
-.acc-item:hover {
-    background: #f5f5f5;
+    padding: 12px 15px; 
+    font-size: 10.5px;    
+    color: #00008B !important; 
+    text-decoration: none !important;
+    border-bottom: 1px solid #f9f9f9;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
-body{
-    font-family:Helvetica,Arial,sans-serif;
-    background:#ffffff;
-    color:#000;
-    overflow-x:hidden;
+/* --- 1. THE EDITORIAL FONT (TITLE ONLY) --- */
+.product-title, .product-info h1 {
+    /* This replicates the look you like by using the browser's high-end serif */
+    font-family: "Times New Roman", Times, serif !important; 
+    text-transform: uppercase !important;
+    letter-spacing: 0.28em !important;
+    font-weight: 400 !important; /* Serif looks better thinner */
+    font-style:; /* Try adding this if you want it even more editorial */
+}
+
+/* --- 2. THE REST OF THE SITE (REVERT TO HELVETICA) --- */
+body, p, a, span, li, .acc-dropdown, .acc-item, #accName {
+    font-family: Helvetica, Arial, sans-serif !important;
 }
 
 /* ===================== HEADER ===================== */
