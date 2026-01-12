@@ -25,18 +25,17 @@
 
   /* ACCOUNT DROPDOWN PANEL */
 .account-dropdown {
-    position: absolute;
-    top: 48px; /* matches your header height */
-    right: 20px;
-    width: 240px;
-    background: #fff;
-    border: 1px solid #dcdcdc;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    display: none;
-    z-index: 2000;
-    font-size: 12px;
+    position: absolute !important; /* Keep absolute so it doesn't break your layout */
+    top: 45px !important;         /* Matches your 45px header height */
+    right: 0 !important;
+    width: 280px !important;      /* Slightly wider for premium feel */
+    background: #fff !important;
+    border: 1px solid #eee !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+    display: none;                /* Hidden by default */
+    z-index: 9999 !important;
+    font-family: Helvetica, Arial, sans-serif !important;
 }
-
 .acc-head {
     padding: 15px 15px 25px 15px; 
     border-bottom: 1px solid #000;
