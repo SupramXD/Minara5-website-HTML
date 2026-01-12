@@ -7,26 +7,27 @@
 
 <style>
 
-#accountLabel {
+.header-account .account-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.account-label {
     color: #000 !important;
-    text-decoration: none !important;
-    cursor: default !important;
     font-size: 11px !important;
     text-transform: uppercase;
     letter-spacing: 1px;
-    line-height: 1; /* prevents vertical misalignment */
-}
-
-#accountLabel {
-    color: #000 !important;
     text-decoration: none !important;
-    cursor: default !important;
+    line-height: 1;
+    user-select: none;
 }
 
   /* ACCOUNT DROPDOWN PANEL */
 .account-dropdown {
     position: absolute !important; /* Keep absolute so it doesn't break your layout */
-    top: 45px !important;         /* Matches your 45px header height */
+    top: 0px !important;         /* Matches your 45px header height */
     right: 0 !important;
     width: 280px !important;      /* Slightly wider for premium feel */
     background: #fff !important;
@@ -36,40 +37,56 @@
     z-index: 9999 !important;
     font-family: Helvetica, Arial, sans-serif !important;
 }
+/* FORCING DIMMER TO SHOW */
+#pageDimmer.active {
+    display: block !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 10000 !important; /* One level below the dropdown */
+}
+
 .acc-head {
-    padding: 15px 15px 25px 15px; 
+    /* Tight top/side padding, but bottom padding creates the gap before the line */
+    padding: 8px 12px 20px 12px; 
     border-bottom: 1px solid #000;
     display: flex;
     justify-content: space-between; 
-    align-items: center;
+    align-items: flex-start; /* Keeps text at the very top */
 }
 
 #accName {
-    font-size: 10px;
+    font-size: 10.5px; /* Very slightly smaller */
     font-weight: 700;
+    letter-spacing: 1px;
     text-transform: uppercase;
     color: #000;
 }
 
-/* This fixes the "Fat X" by forcing it to stay inside the box */
 .acc-close {
     cursor: pointer;
-    font-size: 10px !important; 
-    color: #00008B !important; 
+    font-size: 10.5px; 
+    font-weight: 400;
+    letter-spacing: 1.2px;
+    color: #00008B; 
     text-transform: uppercase;
-    position: static !important; /* Prevents jumping to top-left */
-    line-height: 1;
 }
 
+/* Menu items - Tighter boxes */
 .acc-item {
     display: block;
-    padding: 12px 15px; 
+    padding: 10px 12px; /* Smaller boxes, text closer to left/top borders */
     font-size: 10.5px;    
+    letter-spacing: 1px;
+    text-transform: uppercase;
     color: #00008B !important; 
     text-decoration: none !important;
-    border-bottom: 1px solid #f9f9f9;
+    border-bottom: 1px solid #eee;
 }
 
+.acc-item:hover {
+    text-decoration: underline !important;
+    background: #fcfcfc;
+}
 *{margin:0;padding:0;box-sizing:border-box;}
 /* --- 1. THE EDITORIAL FONT (TITLE ONLY) --- */
 .product-title, .product-info h1 {
