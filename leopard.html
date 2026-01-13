@@ -7,92 +7,68 @@
 
 <style>
 
-.header-account .account-trigger {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-}
-
-.account-label {
+#accountLabel {
     color: #000 !important;
+    text-decoration: none !important;
+    cursor: default !important;
     font-size: 11px !important;
     text-transform: uppercase;
     letter-spacing: 1px;
+    line-height: 1; /* prevents vertical misalignment */
+}
+
+#accountLabel {
+    color: #000 !important;
     text-decoration: none !important;
-    line-height: 1;
-    user-select: none;
+    cursor: default !important;
 }
 
   /* ACCOUNT DROPDOWN PANEL */
 .account-dropdown {
-  position: fixed;
-  top: 0;
-  right: -360px;
-  width: 360px;
-  height: 100vh;
-  background: #fff;
-  border-left: 1px solid #dcdcdc;
-  z-index: 10001;
-  transition: right .35s ease;
-  display: flex;
-  flex-direction: column;
+    position: absolute;
+    top: 48px; /* matches your header height */
+    right: 20px;
+    width: 240px;
+    background: #fff;
+    border: 1px solid #dcdcdc;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    display: none;
+    z-index: 2000;
+    font-size: 12px;
 }
 
-.account-dropdown.open {
-  right: 0;
-}
-
-.acc-head {
-  padding: 22px 24px;
-  border-bottom: 1px solid #000;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-#accName {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+.acc-header {
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #000;
+    display: flex;
+    justify-content: space-between;
 }
 
 .acc-close {
-  cursor: pointer;
-  font-size: 10.5px;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
+    cursor: pointer;
 }
 
 .acc-item {
-  padding: 18px 24px;
-  font-size: 11px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  text-decoration: none;
-  color: #000;
-  border-bottom: 1px solid #eee;
+    display: block;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    color: #000;
+    text-decoration: none;
 }
 
 .acc-item:hover {
-  background: #fcfcfc;
+    background: #f5f5f5;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
-/* --- 1. THE EDITORIAL FONT (TITLE ONLY) --- */
-.product-title, .product-info h1 {
-    /* This replicates the look you like by using the browser's high-end serif */
-    font-family: "Times New Roman", Times, serif !important; 
-    text-transform: uppercase !important;
-    letter-spacing: 0.28em !important;
-    font-weight: 400 !important; /* Serif looks better thinner */
-     /* Try adding this if you want it even more editorial */
-}
-
-/* --- 2. THE REST OF THE SITE (REVERT TO HELVETICA) --- */
-body, p, a, span, li, .acc-dropdown, .acc-item, #accName {
-    font-family: Helvetica, Arial, sans-serif !important;
+body{
+    font-family:Helvetica,Arial,sans-serif;
+    background:#ffffff;
+    color:#000;
+    overflow-x:hidden;
 }
 
 /* ===================== HEADER ===================== */
@@ -574,7 +550,15 @@ footer{
 <div id="luxuryIntro"></div>
 
 <header>
- 
+  <div id="accountDropdown" class="account-dropdown">
+    <div class="acc-header">
+        <span id="accName">ACCOUNT</span>
+        <span class="acc-close" onclick="closeAccDropdown()">X CLOSE</span>
+    </div>
+
+    <a href="accountorder.html" class="acc-item">MY ORDERS</a>
+    <a href="#" class="acc-item" onclick="logout()">LOG OUT</a>
+</div>
 
   <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
 
@@ -610,16 +594,6 @@ footer{
     <span id="cartCountHeaderMobile">00</span>
   </span>
 </header>
-
- <div id="accountDropdown" class="account-dropdown">
-    <div class="acc-header">
-        <span id="accName">ACCOUNT</span>
-        <span class="acc-close" onclick="closeAccDropdown()">X CLOSE</span>
-    </div>
-
-    <a href="accountorder.html" class="acc-item">MY ORDERS</a>
-    <a href="#" class="acc-item" onclick="logout()">LOG OUT</a>
-</div>
 
 <!-- DIMMER -->
 <div id="pageDimmer"></div>
