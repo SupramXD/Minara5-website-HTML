@@ -950,11 +950,23 @@ window.checkEmail = async function () {
 
     if (methods.length > 0) {
       // ACCOUNT EXISTS -> Show Password step on THIS page
-      passwordStep.style.display = "block";
-      continueBtn.style.display = "none";
-      document.getElementById("login-title").textContent = "WELCOME BACK";
-      msg.textContent = "";
-    } else {
+     if (methods.length > 0) {
+    // 1. Hide the email input and the new sub-text
+    document.getElementById("email-input-group").style.display = "none";
+    const subtext = document.querySelector(".login-subtext");
+    if (subtext) subtext.style.display = "none";
+
+    // 2. Show the password step and static email
+    document.getElementById("static-email-wrap").style.display = "block"; // Ensure this matches your ID
+    document.getElementById("password-step").style.display = "block";
+    
+    // 3. Update the Header Text exactly as requested
+    document.getElementById("login-title").textContent = "ENTER PASSWORD TO LOGIN";
+    
+    // 4. Set the email text
+    document.getElementById("display-selected-email").textContent = email;
+    document.getElementById("email-msg").textContent = "";
+}
       // ACCOUNT DOES NOT EXIST -> Redirect to register.html with the email in the URL
       // This "saves" the email for the next page
       window.location.href = `register.html?email=${encodeURIComponent(email)}`;
@@ -1012,7 +1024,7 @@ window.checkEmail = async function () {
       passwordStep.style.display = "block";
       
       displayText.textContent = email; // Set the email text
-      document.getElementById("login-title").textContent = "ENTER YOUR PASSWORD";
+      document.getElementById("login-title").textContent = "ENTER PASSWORD TO LOGIN";
       msg.textContent = "";
     } else {
       // NO ACCOUNT: Redirect to register with email saved in URL
