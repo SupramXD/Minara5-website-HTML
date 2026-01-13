@@ -129,16 +129,17 @@ window.accountClicked = function(event) {
         event.stopPropagation();
     }
     
+    // Check if user is logged in before showing dropdown
+    if (!auth.currentUser) {
+        window.location.href = "account.html"; // Redirect to login if not authenticated
+        return;
+    }
+    
     const dropdown = document.getElementById('accountDropdown');
     const dimmer = document.getElementById('pageDimmer');
     
-    // Show Dropdown
     if (dropdown) dropdown.style.display = 'block';
-    
-    // Show Dimmer
-    if (dimmer) {
-        dimmer.classList.add('active'); // Uses your existing "active" CSS class
-    }
+    if (dimmer) dimmer.classList.add('active');
 };
 
 window.closeAccDropdown = function() {
@@ -156,3 +157,13 @@ document.addEventListener('DOMContentLoaded', () => {
         dimmer.addEventListener('click', closeAccDropdown);
     }
 });
+window.logout = function() {
+    signOut(auth)
+        .then(() => {
+            // This clears the session and sends them back to the home page
+            window.location.href = "index.html"; 
+        })
+        .catch((error) => {
+            console.error("Logout Error:", error);
+        });
+};
