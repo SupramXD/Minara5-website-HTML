@@ -932,45 +932,27 @@ window.showLogin = function () {
 // 1. Add this import at the very top of your <script type="module"> block
 import { fetchSignInMethodsForEmail, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-  // --- UI NAVIGATION ---
-  window.showLogin = function() {
-    hideAllAccountBoxes();
-    document.getElementById("login-box").style.display = "block";
-  };
-
-  window.showRegister = function() {
-    hideAllAccountBoxes();
-    document.getElementById("register-box").style.display = "block";
-  };
-
-  window.showReset = function () {
-    hideAllAccountBoxes();
-    document.getElementById("reset-box").style.display = "block";
-  };
-
-  function hideAllAccountBoxes() {
-    document.getElementById("login-box").style.display = "none";
-    document.getElementById("register-box").style.display = "none";
-    document.getElementById("reset-box").style.display = "none";
-    document.getElementById("user-info").style.display = "none";
-  }
-
-  // --- CORE LOGIC ---
-
-  // Go back to the email input step
+  // --- 1. NAVIGATION: GO BACK ---
   window.goBackToEmail = function() {
     const subtext = document.querySelector(".login-subtext");
+    
+    // Show email input and sub-text
     document.getElementById("email-input-group").style.display = "block";
     if (subtext) subtext.style.display = "block"; 
+
+    // Hide password step and static display
     document.getElementById("email-static-display").style.display = "none";
     document.getElementById("password-step").style.display = "none";
+    
+    // Reset title and message
     document.getElementById("login-title").textContent = "ENTER YOUR EMAIL TO CONTINUE";
     document.getElementById("email-msg").textContent = "";
   };
 
-  // Step 1: Check if email exists
+  // --- 2. STEP 1: CONTINUE BUTTON (checkEmail) ---
   window.checkEmail = async function () {
-    const email = document.getElementById("email-step").value;
+    const emailInput = document.getElementById("email-step");
+    const email = emailInput ? emailInput.value.trim() : "";
     const msg = document.getElementById("email-msg");
     const subtext = document.querySelector(".login-subtext");
 
@@ -980,28 +962,37 @@ import { fetchSignInMethodsForEmail, signInWithEmailAndPassword } from "https://
     }
 
     try {
+      // Check if account exists in Firebase
       const methods = await fetchSignInMethodsForEmail(window.auth, email);
+
       if (methods.length > 0) {
-        // Switch to password step
+        // ACCOUNT FOUND: Switch to Password Step
         document.getElementById("email-input-group").style.display = "none";
-        if (subtext) subtext.style.display = "none";
+        if (subtext) subtext.style.display = "none"; // Hide the subtext
+
         document.getElementById("email-static-display").style.display = "block";
         document.getElementById("password-step").style.display = "block";
+        
+        // Update UI Header and Email Display
         document.getElementById("login-title").textContent = "ENTER PASSWORD TO LOGIN";
         document.getElementById("display-selected-email").textContent = email;
         msg.textContent = "";
       } else {
+        // NO ACCOUNT: Redirect to registration
         window.location.href = `register.html?email=${encodeURIComponent(email)}`;
       }
     } catch (error) {
+      console.error("Firebase Error:", error);
       msg.textContent = "Error checking email. Please try again.";
     }
   };
 
-  // Step 2: Perform the actual login (FIXED FUNCTION)
+  // --- 3. STEP 2: SIGN IN BUTTON (login) ---
   window.login = function() {
-    const email = document.getElementById("email-step").value; // Use the value from the first step
-    const password = document.getElementById("login-password").value; // Matches your HTML ID
+    // We get the email from the original input field
+    const email = document.getElementById("email-step").value;
+    const passwordField = document.getElementById("login-password");
+    const password = passwordField ? passwordField.value : "";
     const msg = document.getElementById("email-msg");
 
     if(!password) {
@@ -1009,39 +1000,22 @@ import { fetchSignInMethodsForEmail, signInWithEmailAndPassword } from "https://
       return;
     }
 
+    // Attempt Firebase Sign In
     signInWithEmailAndPassword(window.auth, email, password)
       .then(() => {
-        window.location.href = "index.html";
+        window.location.href = "index.html"; // Redirect on success
       })
       .catch((error) => {
+        console.error("Login Error:", error);
         msg.textContent = "Incorrect password. Please try again.";
       });
   };
 
-  // Register and Reset logic
-  window.register = function() {
-    const email = document.getElementById("register-email").value;
-    const password = document.getElementById("register-password").value;
-    if (window.processRegister) window.processRegister(email, password);
-  };
-
-  window.sendPasswordReset = function() {
-    const email = document.getElementById("reset-email").value;
-    if (window.universalForgotPassword) window.universalForgotPassword({ preventDefault: () => {} });
-  };
-
-  // Auth State Listener
+  // UI Setup on Page Load
   window.addEventListener('load', () => {
-    if (window.location.pathname.includes("register")) showRegister();
-    else showLogin();
-
-    setTimeout(() => {
-      if (window.auth && window.auth.currentUser) {
-        hideAllAccountBoxes();
-        document.getElementById("user-info").style.display = "block";
-        document.getElementById("user-email").textContent = window.auth.currentUser.email;
-      }
-    }, 1000);
+    // Show login by default if not on register page
+    const loginBox = document.getElementById("login-box");
+    if(loginBox) loginBox.style.display = "block";
   });
 </script>
 
