@@ -535,6 +535,29 @@ footer{
     margin-top: 8px;          /* Small gap below the main header */
     margin-bottom: 20px;      /* Space before the input box */
 }
+
+/* Styling for the email display in the password step */
+#display-selected-email {
+    opacity: 0.5; /* Makes the email semi-translucent */
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Matching the Edit button to the Forgot Password color */
+.edit-btn {
+    color: #00008B !important; /* Matches the dark blue of forgot password */
+    font-size: 10px;
+    text-transform: uppercase;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-left: 10px;
+    opacity: 0.8;
+}
+
+.edit-btn:hover {
+    opacity: 1;
+}
 </style>
 </head>
 <body>
@@ -674,7 +697,7 @@ footer{
       <h2 class="intro-title">Sign in or create</h2>
 
       <div class="intro-location">
-        South Africa, <a class="change-location">Change location</a>
+       
       </div>
 
       <ul class="intro-benefits">
@@ -691,10 +714,10 @@ footer{
   <div class="box-title" id="login-title" style="margin-bottom:10px;">ENTER YOUR EMAIL TO CONTINUE</div>
   <div class="login-subtext">We’ll find your account or create one..</div>
 
-  <div id="email-static-display" style="display:none; margin-bottom: 20px; font-size: 14px;">
-    <span id="display-selected-email" style="color: #000;"></span> 
-    <a href="#" onclick="goBackToEmail(); return false;" style="color: #007bff; text-decoration: underline; margin-left: 8px; font-size: 13px;">Edit</a>
-  </div>
+  <div id="email-static-display" style="display:none; text-align: left; margin-bottom: 20px;">
+    <span id="display-selected-email"></span>
+    <span class="edit-btn" onclick="goBackToEmail()">Edit</span>
+</div>
 
   <div id="email-input-group">
     <input id="email-step" type="email" placeholder="Email">
