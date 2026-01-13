@@ -12,13 +12,13 @@
   /* ACCOUNT DROPDOWN PANEL */
 .acc-dropdown {
     position: fixed; 
-    top: 0;           
-    right: 0;         
-    width: 360px;     
-    height: 100vh; /* Ensures full height like a side panel */
+    top: 45px;        /* Changed from 0 to match your header height */
+    right: 30px;      /* Changed from 0 to align with the header padding */
+    width: 240px;     /* Made slightly narrower for a "floating" look */
+    height: auto;     /* FIX: Stops after the last item */
     background: #fff;
-    border-left: 1px solid #eee;
-    box-shadow: -5px 0 20px rgba(0,0,0,0.05);
+    border: 1px solid #eee; /* Full border instead of just left-border */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     display: none;
     z-index: 10001; 
 }
@@ -481,6 +481,8 @@ footer{
 .header-account {
     display: flex;
     align-items: center;
+    height: 100%; /* Force it to take up the full header height for centering */
+    align-self: center; /* Ensures it aligns with the other <li> items */
 }
 
 .header-account .account-label {
