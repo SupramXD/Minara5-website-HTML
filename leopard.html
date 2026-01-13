@@ -12,15 +12,16 @@
   /* ACCOUNT DROPDOWN PANEL */
 .acc-dropdown {
     position: fixed; 
-    top: 0;           
-    right: 0;         
-    width: 360px;     
-    height: 100vh; /* Ensures full height like a side panel */
+    top: 45px;            /* Sits right below your 45px header */
+    right: 30px;          /* Matches your header's side padding */
+    width: 280px;         /* Specific width for the menu */
+    height: auto;         /* FIX: This stops the white space at the bottom */
     background: #fff;
-    border-left: 1px solid #eee;
-    box-shadow: -5px 0 20px rgba(0,0,0,0.05);
+    border: 1px solid #eee; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     display: none;
     z-index: 10001; 
+    padding-bottom: 5px;  /* Small clean finish at the bottom */
 }
 
 /* Forcing Dimmer Z-Index */
@@ -32,11 +33,11 @@
 }
 
 .acc-head {
-    padding: 8px 12px 20px 12px; 
-    border-bottom: 1px solid #000;
+    padding: 12px 12px;   /* Reduced from 20px to prevent gaps */
+    border-bottom: 1px solid #eee;
     display: flex;
     justify-content: space-between; 
-    align-items: flex-start;
+    align-items: center;  /* Center the 'Account' and 'Close' text */
 }
 
 #accName {
