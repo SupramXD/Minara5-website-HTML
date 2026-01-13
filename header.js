@@ -9,6 +9,9 @@ import {
     signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
+/* ===============================
+   FIREBASE INIT
+================================ */
 const firebaseConfig = {
     apiKey: "AIzaSyC8srbzH_DcCYQJXe9MNOyy2OHZSaLidIo",
     authDomain: "minara5.firebaseapp.com",
@@ -20,11 +23,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-window.auth = auth; // Keeps it accessible for your account.html
+window.auth = auth;
+
 let currentUser = null;
 
-// --- MASTER TRIGGERS (Fixes "Nothing Happening") ---
-
+/* ===============================
+   AUTH ACTIONS
+================================ */
 window.processRegister = function(email, password) {
     createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
@@ -36,63 +41,71 @@ window.processRegister = function(email, password) {
 
 window.processLogin = function(email, password) {
     signInWithEmailAndPassword(auth, email, password)
-        .then(() => { window.location.href = "index.html"; })
+        .then(() => window.location.href = "index.html")
         .catch(err => alert(err.message));
 };
 
-// --- MASTER FORGOT PASSWORD FIX ---
-window.universalForgotPassword = function(e) {
-    if (e) e.preventDefault(); // STOPS the page from refreshing
-    
-    // This checks for "email" (your Login ID) and "register-email" (your Register ID)
-    const emailField = document.getElementById("email") || 
-                       document.getElementById("login-email") || 
-                       document.getElementById("register-email");
-    
-    let email = emailField ? emailField.value : "";
-
-    // If no email is typed, we use a prompt so the button ALWAYS works
-    if (!email || email.trim() === "") {
-        email = prompt("Please enter your email address for the reset link:");
-    }
-
-    if (email) {
-        sendPasswordResetEmail(auth, email)
-            .then(() => alert("Success! A reset link has been sent to: " + email))
-            .catch(err => alert("Error: " + err.message));
-    }
-};
 /* ===============================
-   AUTH STATE & UI LOGIC
+   FORGOT PASSWORD (NO POPUP)
+================================ */
+window.universalForgotPassword = function(e) {
+    if (e) e.preventDefault();
+
+    const emailField =
+        document.getElementById("email") ||
+        document.getElementById("login-email") ||
+        document.getElementById("register-email");
+
+    const email = emailField?.value?.trim();
+
+    if (!email) {
+        alert("Please enter your email first.");
+        return;
+    }
+
+    sendPasswordResetEmail(auth, email)
+        .then(() => alert("Password reset email sent."))
+        .catch(err => alert(err.message));
+};
+
+/* ===============================
+   AUTH STATE
 ================================ */
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
+
     const label = document.getElementById("accountLabel");
     const accName = document.getElementById("accName");
 
     if (user) {
-        let email = user.email;
-        if (label) label.textContent = email.length > 12 ? email.substring(0, 12) + "..." : email;
+        const shortEmail =
+            user.email.length > 12
+                ? user.email.substring(0, 12) + "..."
+                : user.email;
+
+        if (label) label.textContent = shortEmail;
         if (accName) accName.textContent = user.email;
     } else {
-        if (label) label.textContent = "Account";
+        if (label) label.textContent = "ACCOUNT";
         if (accName) accName.textContent = "ACCOUNT";
     }
+
     setupMobileAccount(user);
 });
 
 /* ===============================
-   MOBILE ACCOUNT LOGIC (Preserved)
+   MOBILE ACCOUNT LOGIC
 ================================ */
 function setupMobileAccount(user) {
     const myAcc = document.getElementById("mobileMyAccount");
     const drop = document.getElementById("mobileAccountDropdown");
     const logoutBtn = document.getElementById("mobileLogout");
+
     if (!myAcc || !drop || !logoutBtn) return;
 
     if (!user) {
-        myAcc.innerHTML = "LOGIN";
-        myAcc.onclick = () => { window.location.href = "account.html"; };
+        myAcc.textContent = "LOGIN";
+        myAcc.onclick = () => window.location.href = "account.html";
         drop.style.display = "none";
         logoutBtn.style.display = "none";
         return;
@@ -100,12 +113,10 @@ function setupMobileAccount(user) {
 
     myAcc.innerHTML = `<span>MY ACCOUNT</span> <span class="mobile-arrow">▸</span>`;
     logoutBtn.style.display = "block";
+
     const desktopDrop = document.getElementById("accountDropdown");
-    
     if (desktopDrop) {
-        // FILTERING LOGIC PRESERVED
-        let cleanHTML = desktopDrop.innerHTML;
-        drop.innerHTML = cleanHTML;
+        drop.innerHTML = desktopDrop.innerHTML;
         drop.querySelectorAll("[onclick*='logout']").forEach(el => el.remove());
     }
 
@@ -113,46 +124,52 @@ function setupMobileAccount(user) {
         const isOpen = drop.style.display === "block";
         drop.style.display = isOpen ? "none" : "block";
         const arrow = myAcc.querySelector(".mobile-arrow");
-        // ROTATION LOGIC PRESERVED
         if (arrow) arrow.style.transform = isOpen ? "rotate(0deg)" : "rotate(90deg)";
     };
 
-    logoutBtn.onclick = () => { signOut(auth).then(() => { window.location.href = "index.html"; }); };
+    logoutBtn.onclick = () =>
+        signOut(auth).then(() => window.location.href = "index.html");
 }
 
 /* ===============================
-   DESKTOP DROPDOWN (Preserved)
+   DESKTOP ACCOUNT DROPDOWN
+   (NO DIMMER — THIS IS THE FIX)
 ================================ */
 window.accountClicked = function(event) {
-    if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
-    
-    const dropdown = document.getElementById('accountDropdown');
-    const dimmer = document.getElementById('pageDimmer');
-    
-    // Show Dropdown
-    if (dropdown) dropdown.style.display = 'block';
-    
-    // Show Dimmer
-    if (dimmer) {
-        dimmer.classList.add('active'); // Uses your existing "active" CSS class
-    }
+    event?.preventDefault();
+    event?.stopPropagation();
+
+    const dropdown = document.getElementById("accountDropdown");
+
+    // Close cart if open
+    document.getElementById("cartPanel")?.classList.remove("open");
+    document.getElementById("pageDimmer")?.classList.remove("active");
+
+    if (!dropdown) return;
+
+    dropdown.style.display =
+        dropdown.style.display === "block" ? "none" : "block";
+
+    document.body.style.overflow = "hidden";
 };
 
 window.closeAccDropdown = function() {
-    const dropdown = document.getElementById('accountDropdown');
-    const dimmer = document.getElementById('pageDimmer');
-    
-    if (dropdown) dropdown.style.display = 'none';
-    if (dimmer) dimmer.classList.remove('active');
+    const dropdown = document.getElementById("accountDropdown");
+    if (dropdown) dropdown.style.display = "none";
+    document.body.style.overflow = "";
 };
 
-// Ensure clicking the dimmer also closes the account box
-document.addEventListener('DOMContentLoaded', () => {
-    const dimmer = document.getElementById('pageDimmer');
-    if (dimmer) {
-        dimmer.addEventListener('click', closeAccDropdown);
+/* ===============================
+   CLICK OUTSIDE TO CLOSE ACCOUNT
+================================ */
+document.addEventListener("click", (e) => {
+    const dropdown = document.getElementById("accountDropdown");
+    const trigger = document.querySelector(".account-trigger");
+
+    if (!dropdown || !trigger) return;
+
+    if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
+        dropdown.style.display = "none";
+        document.body.style.overflow = "";
     }
 });
