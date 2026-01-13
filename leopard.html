@@ -24,43 +24,66 @@
 }
 
   /* ACCOUNT DROPDOWN PANEL */
-.account-dropdown {
-    position: absolute;
-    top: 48px; /* matches your header height */
-    right: 20px;
-    width: 240px;
+.acc-dropdown {
+    position: fixed; 
+    top: 0;           
+    right: 0;         
+    width: 360px;     
+    height: 100vh; /* Ensures full height like a side panel */
     background: #fff;
-    border: 1px solid #dcdcdc;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-left: 1px solid #eee;
+    box-shadow: -5px 0 20px rgba(0,0,0,0.05);
     display: none;
-    z-index: 2000;
-    font-size: 12px;
+    z-index: 10001; 
 }
 
-.acc-header {
-    padding: 12px 16px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1px;
+/* Forcing Dimmer Z-Index */
+#pageDimmer.active {
+    display: block !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 10000 !important; 
+}
+
+.acc-head {
+    padding: 8px 12px 20px 12px; 
     border-bottom: 1px solid #000;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; 
+    align-items: flex-start;
+}
+
+#accName {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #000;
 }
 
 .acc-close {
     cursor: pointer;
+    font-size: 10.5px; 
+    font-weight: 400;
+    letter-spacing: 1.2px;
+    color: #00008B; 
+    text-transform: uppercase;
 }
 
 .acc-item {
     display: block;
-    padding: 12px 16px;
+    padding: 10px 12px;
+    font-size: 10.5px;    
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #00008B !important; 
+    text-decoration: none !important;
     border-bottom: 1px solid #eee;
-    color: #000;
-    text-decoration: none;
 }
 
 .acc-item:hover {
-    background: #f5f5f5;
+    text-decoration: underline !important;
+    background: #fcfcfc;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -550,15 +573,7 @@ footer{
 <div id="luxuryIntro"></div>
 
 <header>
-  <div id="accountDropdown" class="account-dropdown">
-    <div class="acc-header">
-        <span id="accName">ACCOUNT</span>
-        <span class="acc-close" onclick="closeAccDropdown()">X CLOSE</span>
-    </div>
-
-    <a href="accountorder.html" class="acc-item">MY ORDERS</a>
-    <a href="#" onclick="logout()" class="acc-item">LOG OUT</a>
-</div>
+  
 
   <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
 
@@ -781,6 +796,14 @@ function prevSlide(){ if(currentSlide > 0){ currentSlide--; updateSlider(); } }
 </script>
 <script type="module" src="header.js"></script>
 
+<div id="accountDropdown" class="account-dropdown">
+    <div class="acc-header">
+        <span id="accName">ACCOUNT</span>
+        <span class="acc-close" onclick="closeAccDropdown()">X CLOSE</span>
+    </div>
 
+    <a href="accountorder.html" class="acc-item">MY ORDERS</a>
+    <a href="#" onclick="logout()" class="acc-item">LOG OUT</a>
+</div>
 </body>
 </html>
