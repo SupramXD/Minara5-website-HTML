@@ -7,21 +7,7 @@
 
 <style>
 
-#accountLabel {
-    color: #000 !important;
-    text-decoration: none !important;
-    cursor: default !important;
-    font-size: 11px !important;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    line-height: 1; /* prevents vertical misalignment */
-}
 
-#accountLabel {
-    color: #000 !important;
-    text-decoration: none !important;
-    cursor: default !important;
-}
 
   /* ACCOUNT DROPDOWN PANEL */
 .acc-dropdown {
@@ -585,12 +571,11 @@ footer{
     <ul>
       <li><a href="contact.html"><img src="question mark.svg" class="question-icon">Contact</a></li>
 <li class="header-account">
-  <a href="#" onclick="accountClicked(event)">
-      <img src="head shoulder.svg" class="desktop-icon">
-      <span id="accountLabel" class="account-label">Account</span>
-  </a>
+    <div class="account-trigger" onclick="accountClicked(event)">
+        <img src="head shoulder.svg" class="desktop-icon">
+        <span id="accountLabel" class="account-label">Account</span>
+    </div>
 </li>
-
 
 
       <!-- DESKTOP CART -->
@@ -796,12 +781,11 @@ function prevSlide(){ if(currentSlide > 0){ currentSlide--; updateSlider(); } }
 </script>
 <script type="module" src="header.js"></script>
 
-<div id="accountDropdown" class="account-dropdown">
-    <div class="acc-header">
+<div id="accountDropdown" class="acc-dropdown">
+    <div class="acc-head">
         <span id="accName">ACCOUNT</span>
         <span class="acc-close" onclick="closeAccDropdown()">X CLOSE</span>
     </div>
-
     <a href="accountorder.html" class="acc-item">MY ORDERS</a>
     <a href="#" onclick="logout()" class="acc-item">LOG OUT</a>
 </div>
