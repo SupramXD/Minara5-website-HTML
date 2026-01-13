@@ -525,6 +525,16 @@ footer{
 .account-link:hover {
   opacity: 0.6;
 }
+
+.login-subtext {
+    font-size: 10px;           /* Smaller font size */
+    text-transform: uppercase; /* Keeps the high-fashion look */
+    letter-spacing: 1px;      /* Matches your existing styling */
+    opacity: 0.5;             /* Slightly translucent effect */
+    text-align: left;         /* Left-aligned */
+    margin-top: 8px;          /* Small gap below the main header */
+    margin-bottom: 20px;      /* Space before the input box */
+}
 </style>
 </head>
 <body>
@@ -661,16 +671,16 @@ footer{
 
   <!-- INTRO SECTION -->
   <div class="account-intro">
-      <h2 class="intro-title">Sign in or register</h2>
+      <h2 class="intro-title">Sign in or create</h2>
 
       <div class="intro-location">
         South Africa, <a class="change-location">Change location</a>
       </div>
 
       <ul class="intro-benefits">
-        <li>Priority access to new collections</li>
-        <li>Eligible to exclusive events and gifting</li>
-        <li>Easily track your orders and returns</li>
+        <li>Priority access to new sales</li>
+        <li>Cart remembers your items</li>
+        <li>Easily track your orders</li>
         <li>Pre-access to sale</li>
         <li>Priority shipping</li>
       </ul>
@@ -678,7 +688,8 @@ footer{
 
 <!-- LOGIN / EMAIL FIRST -->
 <div id="login-box" class="box" style="display:block;">
-  <div class="box-title" id="login-title" style="margin-bottom:10px;">SIGN IN OR CREATE</div>
+  <div class="box-title" id="login-title" style="margin-bottom:10px;">ENTER YOUR EMAIL TO CONTINUE</div>
+  <div class="login-subtext">We’ll find your account or create one..</div>
 
   <div id="email-static-display" style="display:none; margin-bottom: 20px; font-size: 14px;">
     <span id="display-selected-email" style="color: #000;"></span> 
