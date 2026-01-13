@@ -26,28 +26,27 @@
 
   /* ACCOUNT DROPDOWN PANEL */
 .account-dropdown {
-    position: absolute !important; /* Keep absolute so it doesn't break your layout */
-    top: 0px !important;         /* Matches your 45px header height */
-    right: 0 !important;
-    width: 280px !important;      /* Slightly wider for premium feel */
-    background: #fff !important;
-    border: 1px solid #eee !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
-    display: none;                /* Hidden by default */
-    z-index: 9999 !important;
-    font-family: Helvetica, Arial, sans-serif !important;
+  position: fixed;
+  top: 0;
+  right: -360px;
+  width: 360px;
+  height: 100vh;
+  background: #fff;
+  border-left: 1px solid #dcdcdc;
+  z-index: 10001;
+  transition: right .35s ease;
+  display: flex;
+  flex-direction: column;
+}
+.account-dropdown.open {
+  right: 0;
 }
 /* FORCING DIMMER TO SHOW */
-#pageDimmer.active {
-    display: block !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    z-index: 10000 !important; /* One level below the dropdown */
-}
+
 
 .acc-head {
     /* Tight top/side padding, but bottom padding creates the gap before the line */
-    padding: 8px 12px 20px 12px; 
+    padding: 22px 24px; 
     border-bottom: 1px solid #000;
     display: flex;
     justify-content: space-between; 
@@ -74,8 +73,8 @@
 /* Menu items - Tighter boxes */
 .acc-item {
     display: block;
-    padding: 10px 12px; /* Smaller boxes, text closer to left/top borders */
-    font-size: 10.5px;    
+    padding: 18px 24px; /* Smaller boxes, text closer to left/top borders */
+    font-size: 11px;    
     letter-spacing: 1px;
     text-transform: uppercase;
     color: #00008B !important; 
@@ -95,7 +94,7 @@
     text-transform: uppercase !important;
     letter-spacing: 0.28em !important;
     font-weight: 400 !important; /* Serif looks better thinner */
-    font-style:; /* Try adding this if you want it even more editorial */
+     /* Try adding this if you want it even more editorial */
 }
 
 /* --- 2. THE REST OF THE SITE (REVERT TO HELVETICA) --- */
