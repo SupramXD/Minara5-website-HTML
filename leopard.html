@@ -577,6 +577,57 @@ footer{
     opacity: 0.5 !important;
 }
 
+/* Precise Edge Alignment */
+.cart-header-row {
+    position: relative;
+    padding: 0 !important;
+    
+    /* --- CHANGE THIS TO MAKE THE TOP ROW TALLER (LONGER) --- */
+    min-height: 45px; 
+    
+    /* --- CHANGE THIS TO #000 TO MAKE THE LINE BLACK --- */
+    border-bottom: 1px solid #000; 
+}
+
+/* BAG 00 - Top Left */
+#bagCountLabel {
+    position: absolute;
+    top: 8px;     
+    left: 10px;    
+    font-size: 12px !important; 
+    font-family: 'Gotham Narrow Bold', sans-serif;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* X CLOSE - Top Right */
+.cart-close {
+    position: absolute;
+    top: 7px;     
+    right: 9px;   
+    font-size: 12px !important; 
+    color: #1106e8 !important; 
+    letter-spacing: 1px;
+    font-weight: 400;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+/* Ensure other breaker lines in the cart are also black */
+.cart-ascii-wrap {
+    padding: 12px 20px;
+    border-bottom: 1px solid #000; /* Made black */
+    background: #fafafa;
+}
+
+.cart-section {
+    padding: 12px 20px;
+    border-top: 1px solid #000; /* Made black */
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
 </style>
 </head>
 
@@ -627,9 +678,9 @@ footer{
 <!-- CART PANEL -->
 <div id="cartPanel">
   <div class="cart-header-row">
-    <span>BAG <span id="cartCountPanel">00</span></span>
+    <span id="bagCountLabel">BAG 00</span>
     <span class="cart-close" onclick="closeCart()">X CLOSE</span>
-  </div>
+</div>
 
   <div class="cart-ascii-wrap">
     <div class="cart-ascii">
@@ -642,7 +693,7 @@ footer{
   </div>
 
   <div class="cart-body">
-    <p>Missing items in your cart?</p>
+    <p>MISSING ITEMS IN YOUR CART?</p>
     <p>Sign in to see items added before.</p>
 
     <div class="cart-auth-links">
