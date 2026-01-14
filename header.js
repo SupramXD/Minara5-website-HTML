@@ -235,20 +235,33 @@ function saveAndSyncCart() {
 }
 
 // 5. RENDER UI FUNCTION
+let lastRemovedItem = null; // Store item for Undo session
+
 window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiContainer = document.querySelector('.cart-ascii');
+    const bagLabel = document.getElementById('bagCountLabel');
     
     if (!cartContainer || !asciiContainer) return;
 
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    if (bagLabel) bagLabel.textContent = `BAG ${totalItems.toString().padStart(2, '0')}`;
+
     if (cart.length === 0) {
         asciiContainer.textContent = ` _____   __  __   ____    _____  __   __\n| ____| |  \\/  | |  _ \\  |_   _| \\ \\ / /\n|  _|   | |\\/| | | |_) |   | |    \\ V / \n| |___  | |  | | |  __/    | |     | |  \n|_____| |_|  |_| |_|       |_|     |_|  `;
-        cartContainer.innerHTML = `
-            <p style="text-align:center; padding:40px 0; font-size:10px; letter-spacing:2px; opacity:0.5;">YOUR BAG IS EMPTY</p>
-            <div class="cart-auth-links" style="justify-content:center;">
-              <a href="account.html">Sign in</a>
-              <a href="account.html">Register</a>
-            </div>`;
+        
+        // Show Undo option if an item was just removed
+        let emptyHtml = `<p style="text-align:center; padding:40px 0; font-size:10px; letter-spacing:2px; opacity:0.5;">YOUR BAG IS EMPTY</p>`;
+        if (lastRemovedItem) {
+            emptyHtml += `<p style="text-align:center; font-size:10px;">
+                <span class="undo-btn" onclick="undoRemove()">UNDO REMOVE</span>
+                <span style="margin: 0 10px; opacity: 0.3;">|</span>
+                <span style="cursor:pointer; opacity:0.5;" onclick="clearUndo()">DISMISS</span>
+            </p>`;
+        }
+        cartContainer.innerHTML = emptyHtml;
         return;
     }
 
@@ -257,42 +270,54 @@ window.renderCartUI = function() {
     let html = '';
     cart.forEach((item, index) => {
         html += `
-            <div class="cart-item-row">
-                <img src="${item.image}" class="cart-item-img">
-                <div class="cart-item-details">
-                    <div class="cart-item-name">${item.name}</div>
-                    <div class="cart-item-meta">COLOUR: ORIGINAL<br>ONE SIZE</div>
-                    <div style="font-size:11px; letter-spacing:1px;">R${item.price.toLocaleString()}</div>
-                    <div class="qty-stepper">
-                        <div class="qty-btn" onclick="changeQty(${index}, -1)">–</div>
-                        <div class="qty-val">${item.quantity}</div>
-                        <div class="qty-btn" onclick="changeQty(${index}, 1)">+</div>
+            <div class="cart-item-row" style="display: flex; gap: 15px; align-items: flex-start;">
+                <img src="${item.image}" style="width: 90px; height: 120px; object-fit: cover; border: 1px solid #000;">
+                <div style="flex: 1; display: flex; flex-direction: column;">
+                    <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:1px; border-bottom: 1px solid #000; padding-bottom: 4px; margin-bottom: 8px;">${item.name}</div>
+                    <div style="font-size:10px; opacity:0.6; letter-spacing:0.5px; text-transform:uppercase; border-bottom: 1px solid #eee; padding-bottom: 4px; margin-bottom: 10px;">COLOUR: ORIGINAL<br>ONE SIZE</div>
+                    <div style="font-size:11px; letter-spacing:1px; margin-bottom:12px;">R${item.price.toLocaleString()}</div>
+                    
+                    <div class="qty-stepper" style="display: flex; align-items: center; border: 1px solid #000; width: fit-content;">
+                        <div class="qty-btn" onclick="changeQty(${index}, -1)" style="width:25px; height:25px; display:flex; align-items:center; justify-content:center; cursor:pointer;">–</div>
+                        <div class="qty-val" style="width:30px; text-align:center; font-size:11px; border-left:1px solid #000; border-right:1px solid #000;">${item.quantity}</div>
+                        <div class="qty-btn" onclick="changeQty(${index}, 1)" style="width:25px; height:25px; display:flex; align-items:center; justify-content:center; cursor:pointer;">+</div>
                     </div>
-                    <span class="cart-remove-link" onclick="removeFromCart(${index})">X REMOVE</span>
+                    
+                    <span class="cart-remove-link" onclick="removeFromCart(${index})" style="font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:#0000FF !important; cursor:pointer; margin-top:15px; font-weight:bold;">✕ REMOVE</span>
                 </div>
             </div>`;
     });
 
+    // Add Shipping/Total Box and Payment Section
+    html += `
+        <div class="shipping-total-box">
+            <div class="box-top-row"><span>SHIPPING</span><span>FREE</span></div>
+            <div class="box-bottom-row"><span>TOTAL</span><span>R${totalPrice.toLocaleString()}</span></div>
+        </div>
+        <div class="payment-section">
+            PAYMENT
+            <div style="margin-top:15px; height:30px; opacity:0.3; font-size:9px;">[PLACE PAYMENT IMAGES HERE]</div>
+        </div>`;
+
     cartContainer.innerHTML = html;
-    
-    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const bottomSections = document.querySelectorAll('.cart-section');
-    if (bottomSections.length >= 2) {
-        bottomSections[1].innerHTML = `TOTAL <span style="float:right;">R${totalPrice.toLocaleString()}</span>`;
-    }
 };
 
-window.changeQty = function(index, delta) {
-    if (cart[index]) {
-        cart[index].quantity += delta;
-        if (cart[index].quantity < 1) cart.splice(index, 1);
-        saveAndSyncCart();
-    }
-};
-
+// Undo Logic
 window.removeFromCart = function(index) {
+    lastRemovedItem = cart[index]; // Save for undo
     cart.splice(index, 1);
     saveAndSyncCart();
 };
 
-document.addEventListener('DOMContentLoaded', saveAndSyncCart);
+window.undoRemove = function() {
+    if (lastRemovedItem) {
+        cart.push(lastRemovedItem);
+        lastRemovedItem = null;
+        saveAndSyncCart();
+    }
+};
+
+window.clearUndo = function() {
+    lastRemovedItem = null;
+    renderCartUI();
+};
