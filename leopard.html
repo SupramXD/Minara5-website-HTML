@@ -417,14 +417,12 @@ footer{
 }
 #cartPanel.open{right:0;}
 
-.cart-header-row{
-  background:#fff;
-  border-bottom:1px solid #dcdcdc;
-  padding:14px 20px;
-  font-size:11px;
-  text-transform:uppercase;
-  display:flex;
-  justify-content:space-between;
+.cart-header-row {
+    position: relative;
+    padding: 0 !important;
+    min-height: 45px;
+    border-bottom: 1px solid #000 !important; /* All lines black */
+    display: block;
 }
 .cart-close{cursor:pointer;
 }
@@ -449,12 +447,11 @@ footer{
   font-size:11px;
 }
 
+/* Item Borders */
 .cart-item-row {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 35px;
-    align-items: flex-start;
-    position: relative;
+    border-bottom: 1px solid #000 !important; /* Bottom line for products */
+    padding-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 /* Fixed image size to stop it from taking up the whole page */
@@ -670,13 +667,12 @@ footer{
 /* BAG 00 - Top Left */
 #bagCountLabel {
     position: absolute;
-    top: 8px;     
-    left: 10px;    
-    font-size: 12px !important; 
+    top: 8px;
+    left: 10px;
+    font-size: 12px !important;
     font-family: 'Gotham Narrow Bold', sans-serif;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    white-space: nowrap;
 }
 
 /* X CLOSE - Top Right */
@@ -692,6 +688,49 @@ footer{
     text-transform: uppercase;
 }
 
+/* Shipping & Totals Box */
+.shipping-total-box {
+    background-color: #fcfcfc; /* Very slight gray */
+    border: 1px solid #000;
+    margin: 15px 10px;
+    padding: 12px;
+    position: relative;
+    min-height: 100px;
+}
+.box-top-row, .box-bottom-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-family: 'Gotham Narrow Bold', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.box-bottom-row {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    width: calc(100% - 24px);
+}
+
+/* Payment Section */
+.payment-section {
+    margin: 0 10px 30px 10px;
+    border-top: 1px solid #000;
+    padding-top: 8px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+/* High Fashion Undo Button */
+.undo-btn {
+    color: #ff0000 !important;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-left: 10px;
+}
 
 </style>
 </head>
