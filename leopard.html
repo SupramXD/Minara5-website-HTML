@@ -433,12 +433,8 @@ footer{
 
 /* Unicode Header Border Fix */
 .cart-ascii-wrap {
-    background-color: #f7f7f7 !important; /* Subtle shade restored */
-    border-bottom: 1px solid #000 !important;
-    padding: 20px 0 !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    height: 120px; /* Taller as requested */
+    background: #f2f2f2 !important;
 }
 
 .cart-ascii {
@@ -697,14 +693,13 @@ footer{
 
 /* Shipping & Totals Box */
 .shipping-total-box {
-    background-color: #f9f9f9; /* Barely noticeable gray */
+    background: #f7f7f7;
     border-top: 1px solid #000;
-    border-bottom: 1px solid #000;
-    padding: 15px 20px;
-    margin: 0; /* Touch ends of cart */
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    justify-content: center;
+    gap: 10px;
 }
 .box-top-row, .box-bottom-row {
     display: flex;
@@ -721,8 +716,8 @@ footer{
     justify-content: space-between;
     font-family: 'Gotham Narrow Bold', sans-serif;
     font-size: 11px;
-    text-transform: uppercase;
     letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 .box-bottom-row {
@@ -734,13 +729,10 @@ footer{
 
 /* Payment Section */
 .payment-section {
-    background-color: #f2f2f2; /* Slightly darker than shipping box */
-    border-bottom: 1px solid #000;
-    padding: 15px 20px 40px 20px; /* Space for card images at bottom */
-    margin: 0; /* Touch ends of cart */
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    background: #eeeeee; /* Darker shade */
+    border-top: 1px solid #000;
+    padding: 20px 20px 40px 20px;
+    min-height: 100px;
 }
 /* High Fashion Undo Button */
 .undo-btn {
@@ -767,6 +759,20 @@ footer{
     cursor: default;
 }
 
+.checkout-btn {
+    width: 90%;
+    margin: 15px auto;
+    display: block;
+    background: #ccff00; /* High fashion light green */
+    color: #000;
+    border: 1px solid #000;
+    padding: 14px;
+    font-family: 'Gotham Narrow Bold', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
 </style>
 </head>
 
