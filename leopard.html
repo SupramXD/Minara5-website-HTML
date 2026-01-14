@@ -742,7 +742,13 @@ function openMenu(){ document.getElementById("menuPanel").classList.add("open");
 function closeMenu(){ document.getElementById("menuPanel").classList.remove("open"); }
 
 /* CART OPEN */
+/* CART OPEN */
 function openCart(){
+  // Add this line to refresh the items from header.js
+  if (typeof renderCartUI === "function") {
+      renderCartUI();
+  }
+
   document.getElementById("cartPanel").classList.add("open");
   document.getElementById("pageDimmer").classList.add("active");
 
