@@ -433,27 +433,25 @@ footer{
 
 /* Unicode Header Border Fix */
 .cart-ascii-wrap {
-    background-color: #f7f7f7 !important;
-    padding: 25px 0 !important;
+    padding: 20px;
+    background: #f7f7f7;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    border-bottom: 1px solid #000;
+    justify-content: flex-start; /* Left align */
 }
 
 .cart-ascii {
     font-family: monospace;
-    font-size: 10px; /* Normal, readable size */
-    line-height: 1.2;
+    font-size: 9px; /* Normal size */
+    line-height: 1.1;
+    text-align: left;
     white-space: pre;
-    color: #000;
 }
 
+/* Fix #6: Ensure body allows footer to stay at bottom */
 .cart-body {
+    height: calc(100vh - 160px); 
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 180px); /* Adjust based on your header/ascii height */
-    overflow-y: auto;
     padding: 0 !important;
 }
 
@@ -828,7 +826,7 @@ footer{
 <div id="cartPanel" class="cart-panel">
     <div class="cart-head">
         <span id="bagCountLabel">BAG 00</span>
-        <span class="cart-close" onclick="closeCart()">CLOSE</span>
+        <span class="cart-close" onclick="closeCart()">X CLOSE</span>
     </div>
 
   <div class="cart-ascii-wrap">
