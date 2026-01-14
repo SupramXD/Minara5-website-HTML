@@ -427,11 +427,13 @@ footer{
 .cart-close{cursor:pointer;
 }
 
-.cart-ascii-wrap{
-  padding:12px 20px;
-  border-bottom:1px solid #dcdcdc;
-  background:#fafafa;
-  
+.cart-header-row, .cart-ascii-wrap, .cart-section, .cart-item-row {
+    border-color: #000 !important;
+}
+
+/* Unicode Header Border Fix */
+.cart-ascii-wrap {
+    border-bottom: 1px solid #000 !important;
 }
 .cart-ascii{
   font-family:monospace;
@@ -456,10 +458,7 @@ footer{
 
 /* Fixed image size to stop it from taking up the whole page */
 .cart-item-img {
-    width: 90px;
-    height: 115px;
-    object-fit: cover;
-    background: #f9f9f9;
+    border: none !important;
 }
 
 .cart-item-details {
@@ -690,17 +689,28 @@ footer{
 
 /* Shipping & Totals Box */
 .shipping-total-box {
-    background-color: #fcfcfc; /* Very slight gray */
-    border: 1px solid #000;
-    margin: 15px 10px;
-    padding: 12px;
-    position: relative;
-    min-height: 100px;
+    background-color: #f9f9f9; /* Barely noticeable gray */
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    padding: 15px 20px;
+    margin: 0; /* Touch ends of cart */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 .box-top-row, .box-bottom-row {
     display: flex;
     justify-content: space-between;
     width: 100%;
+    font-family: 'Gotham Narrow Bold', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.box-row {
+    display: flex;
+    justify-content: space-between;
     font-family: 'Gotham Narrow Bold', sans-serif;
     font-size: 11px;
     text-transform: uppercase;
@@ -716,9 +726,10 @@ footer{
 
 /* Payment Section */
 .payment-section {
-    margin: 0 10px 30px 10px;
-    border-top: 1px solid #000;
-    padding-top: 8px;
+    background-color: #f2f2f2; /* Slightly darker than shipping box */
+    border-bottom: 1px solid #000;
+    padding: 15px 20px 40px 20px; /* Space for card images at bottom */
+    margin: 0; /* Touch ends of cart */
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -730,6 +741,22 @@ footer{
     font-weight: bold;
     text-decoration: underline;
     margin-left: 10px;
+}
+
+/* #9 Undo Link Styling */
+.undo-link {
+    color: #1106e8 !important;
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.removed-status {
+    color: #000;
+    opacity: 0.5;
+    text-transform: uppercase;
+    cursor: default;
 }
 
 </style>
