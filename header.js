@@ -235,46 +235,55 @@ function saveAndSyncCart() {
 }
 
 // 5. RENDER UI FUNCTION
-let lastRemovedItem = null; // Store item for Undo session
+let lastRemovedItem = null;
 
+// #8 Fix: Ensure cart is actually synced on every render
 window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiContainer = document.querySelector('.cart-ascii');
     const bagLabel = document.getElementById('bagCountLabel');
     
+    // #1 Replace current bottom sections
+    const bottomSections = document.querySelectorAll('.cart-section');
+    bottomSections.forEach(sec => sec.style.display = 'none'); 
+
     if (!cartContainer || !asciiContainer) return;
 
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    if (bagLabel) bagLabel.textContent = `BAG ${totalItems.toString().padStart(2, '0')}`;
+    // #2 Change Label to MINARA⑤
+    if (bagLabel) bagLabel.textContent = `MINARA⑤ ${totalItems.toString().padStart(2, '0')}`;
 
+    // #12 Remove "Your cart is empty" text, use only Unicode
     if (cart.length === 0) {
         asciiContainer.textContent = ` _____   __  __   ____    _____  __   __\n| ____| |  \\/  | |  _ \\  |_   _| \\ \\ / /\n|  _|   | |\\/| | | |_) |   | |    \\ V / \n| |___  | |  | | |  __/    | |     | |  \n|_____| |_|  |_| |_|       |_|     |_|  `;
         
-        // Show Undo option if an item was just removed
-        let emptyHtml = `<p style="text-align:center; padding:40px 0; font-size:10px; letter-spacing:2px; opacity:0.5;">YOUR BAG IS EMPTY</p>`;
+        let emptyHtml = '';
+        // #10 & #11 Undo Section Logic
         if (lastRemovedItem) {
-            emptyHtml += `<p style="text-align:center; font-size:10px;">
-                <span class="undo-btn" onclick="undoRemove()">UNDO REMOVE</span>
-                <span style="margin: 0 10px; opacity: 0.3;">|</span>
-                <span style="cursor:pointer; opacity:0.5;" onclick="clearUndo()">DISMISS</span>
-            </p>`;
+            emptyHtml = `
+                <div style="text-align:center; padding:20px; font-size:10px; letter-spacing:1px;">
+                    <span class="removed-status">REMOVED: ${lastRemovedItem.id}</span>
+                    <span style="margin: 0 10px;">|</span>
+                    <span class="undo-link" onclick="undoRemove()">UNDO</span>
+                </div>`;
         }
         cartContainer.innerHTML = emptyHtml;
         return;
     }
 
+    // Header when cart has items
     asciiContainer.textContent = ` ____       _       ____ \n| __ )     / \\     / ___|\n|  _ \\    / _ \\   | |  _ \n| |_) |  / ___ \\  | |_| |\n|____/  /_/   \\_\\  \\____|`;
 
-    let html = '';
+    let itemHtml = '<div style="padding: 0 15px;">';
     cart.forEach((item, index) => {
-        html += `
-            <div class="cart-item-row" style="display: flex; gap: 15px; align-items: flex-start;">
-                <img src="${item.image}" style="width: 90px; height: 120px; object-fit: cover; border: 1px solid #000;">
+        itemHtml += `
+            <div class="cart-item-row" style="display: flex; gap: 15px; align-items: flex-start; padding: 20px 0;">
+                <img src="${item.image}" class="cart-item-img" style="width: 90px; height: 120px; object-fit: cover;">
                 <div style="flex: 1; display: flex; flex-direction: column;">
                     <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:1px; border-bottom: 1px solid #000; padding-bottom: 4px; margin-bottom: 8px;">${item.name}</div>
-                    <div style="font-size:10px; opacity:0.6; letter-spacing:0.5px; text-transform:uppercase; border-bottom: 1px solid #eee; padding-bottom: 4px; margin-bottom: 10px;">COLOUR: ORIGINAL<br>ONE SIZE</div>
+                    <div style="font-size:10px; opacity:0.6; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:10px;">COLOUR: ORIGINAL<br>ONE SIZE</div>
                     <div style="font-size:11px; letter-spacing:1px; margin-bottom:12px;">R${item.price.toLocaleString()}</div>
                     
                     <div class="qty-stepper" style="display: flex; align-items: center; border: 1px solid #000; width: fit-content;">
@@ -283,28 +292,32 @@ window.renderCartUI = function() {
                         <div class="qty-btn" onclick="changeQty(${index}, 1)" style="width:25px; height:25px; display:flex; align-items:center; justify-content:center; cursor:pointer;">+</div>
                     </div>
                     
-                    <span class="cart-remove-link" onclick="removeFromCart(${index})" style="font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:#0000FF !important; cursor:pointer; margin-top:15px; font-weight:bold;">✕ REMOVE</span>
+                    <span class="cart-remove-link" onclick="removeFromCart(${index})" style="font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:#1106e8 !important; cursor:pointer; margin-top:15px; font-weight:bold;">✕ REMOVE</span>
                 </div>
             </div>`;
     });
+    itemHtml += '</div>';
 
-    // Add Shipping/Total Box and Payment Section
-    html += `
+    // #4 & #5 Tiered Boxes
+    const footerHtml = `
         <div class="shipping-total-box">
-            <div class="box-top-row"><span>SHIPPING</span><span>FREE</span></div>
-            <div class="box-bottom-row"><span>TOTAL</span><span>R${totalPrice.toLocaleString()}</span></div>
+            <div class="box-row"><span>SHIPPING</span><span>FREE</span></div>
+            <div class="box-row"><span>TOTAL</span><span>R${totalPrice.toLocaleString()}</span></div>
         </div>
         <div class="payment-section">
             PAYMENT
-            <div style="margin-top:15px; height:30px; opacity:0.3; font-size:9px;">[PLACE PAYMENT IMAGES HERE]</div>
+            <div style="margin-top:20px; display:flex; gap:10px; opacity:0.8;">
+                <div style="width:30px; height:20px; background:#ddd;"></div>
+                <div style="width:30px; height:20px; background:#ddd;"></div>
+            </div>
         </div>`;
 
-    cartContainer.innerHTML = html;
+    cartContainer.innerHTML = itemHtml + footerHtml;
 };
 
-// Undo Logic
+// #10 & #11 Modified Remove/Undo Functions
 window.removeFromCart = function(index) {
-    lastRemovedItem = cart[index]; // Save for undo
+    lastRemovedItem = { ...cart[index] }; 
     cart.splice(index, 1);
     saveAndSyncCart();
 };
@@ -315,9 +328,4 @@ window.undoRemove = function() {
         lastRemovedItem = null;
         saveAndSyncCart();
     }
-};
-
-window.clearUndo = function() {
-    lastRemovedItem = null;
-    renderCartUI();
 };
