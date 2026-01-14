@@ -207,119 +207,113 @@ window.addToCart = function(productId) {
 
 // 4. THE SYNC FUNCTION (Fixed for BAG 00 and Green Icon)
 function saveAndSyncCart() {
-    // 1. Save to Storage
     localStorage.setItem('minara_cart', JSON.stringify(cart));
     
-    // 2. Calculate actual items
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const countStr = totalItems.toString().padStart(2, '0');
     
-    // 3. Force update ALL labels immediately
-    const labels = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel"];
-    labels.forEach(id => {
+    // Force update all header and panel counters
+    const labelIds = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel"];
+    labelIds.forEach(id => {
         const el = document.getElementById(id);
-        if (el) {
-            // Restore "BAG 00" branding for the panel
-            el.textContent = (id === "bagCountLabel") ? `BAG ${countStr}` : countStr;
-        }
+        if (el) el.textContent = (id === "bagCountLabel") ? `BAG ${countStr}` : countStr;
     });
 
-    // 4. Update Icon
-    const cartIcons = document.querySelectorAll('.cart-header-btn img, .mobile-cart img');
-    cartIcons.forEach(img => {
+    // Update cart icon color
+    document.querySelectorAll('.cart-header-btn img, .mobile-cart img').forEach(img => {
         img.src = totalItems > 0 ? "cart_green.svg" : "cart.svg";
     });
 
-    // 5. Re-draw the actual products
     renderCartUI();
 }
 
-// 5. RENDER UI FUNCTION
-let lastRemovedItem = null;
+// Fix #2 & #3: Global scope functions for buttons
+window.changeQty = function(index, delta) {
+    if (cart[index]) {
+        cart[index].quantity += delta;
+        if (cart[index].quantity < 1) cart.splice(index, 1);
+        saveAndSyncCart();
+    }
+};
 
-// #8 Fix: Ensure cart is actually synced on every render
+window.removeFromCart = function(index) {
+    lastRemovedItem = { ...cart[index] };
+    cart.splice(index, 1);
+    saveAndSyncCart();
+};
+
 window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiContainer = document.querySelector('.cart-ascii');
-    
     if (!cartContainer || !asciiContainer) return;
 
-    // Resetting the footer sections in the HTML so we can use our new bottom boxes
-    const oldSections = document.querySelectorAll('.cart-section');
-    oldSections.forEach(s => s.style.display = 'none');
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    // #2 Custom MINARA⑤ Unicode
-    const minaraUnicode = `
- __  __  ___  _   _    _    ____     _    _  _   
-|  \/  ||_ _|| \ | |  / \  |  _ \   / \  | || |  
-| |\/| | | | |  \| | / _ \ | |_) | / _ \ | || |_ 
-| |  | | | | | |\  |/ ___ \|  _ < / ___ \|__   _|
-|_|  |_||___||_| \_/_/   \_\_| \\/_/   \_\  |_|  
-                                                 `;
+    // Fix #4: High-Fashion Block Unicode
+    const minaraArt = `
+ M  M  I  N  N  A  RR  A
+ MM MM  I  NN N A A R R A A
+ M M M  I  N NN AAA RR  AAA
+ M   M  I  N  N A A R R A A 5`;
 
-    const emptyUnicode = `
- _____  __  __  ____  _____ __   __
-| ____||  \/  ||  _ \|_   _|\ \ / /
-|  _|  | |\/| || |_) | | |   \ V / 
-| |___ | |  | ||  __/  | |    | |  
-|_____||_|  |_||_|     |_|    |_|  `;
+    const emptyArt = `
+ EEEE M  M PPPP TTT Y  Y
+ E    MM MM P  P  T   Y Y 
+ EEE  M M M PPPP  T    Y  
+ E    M   M P     T    Y  
+ EEEE M   M P     T    Y  `;
 
-    if (cart.length === 0) {
-        asciiContainer.textContent = emptyUnicode;
-        asciiContainer.style.height = "120px"; // Making it taller vertically
-        
-        let emptyHtml = '';
-        if (lastRemovedItem) {
-            emptyHtml = `
-                <div style="text-align:center; padding:20px; font-size:10px;">
-                    <span style="opacity:0.5;">REMOVED: ${lastRemovedItem.id}</span>
-                    <span style="margin: 0 10px;">|</span>
-                    <span class="undo-link" onclick="undoRemove()" style="color:#1106e8; text-decoration:underline; cursor:pointer; font-weight:bold;">UNDO</span>
-                </div>`;
-        }
-        cartContainer.innerHTML = emptyHtml;
-        return;
-    }
+    asciiContainer.textContent = totalItems > 0 ? minaraArt : emptyArt;
 
-    asciiContainer.textContent = minaraUnicode;
-    asciiContainer.style.height = "120px";
-
-    // Build Item List
-    let itemHtml = '<div style="padding: 0 15px; flex-grow: 1;">';
-    cart.forEach((item, index) => {
-        itemHtml += `
-            <div class="cart-item-row" style="display: flex; gap: 15px; border-bottom: 1px solid #000; padding: 20px 0;">
-                <img src="${item.image}" style="width: 90px; height: 120px; object-fit: cover;">
-                <div style="flex: 1; display: flex; flex-direction: column;">
-                    <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase; border-bottom: 1px solid #000; padding-bottom:4px; margin-bottom:8px;">${item.name}</div>
-                    <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL<br>ONE SIZE</div>
+    let html = '<div style="flex-grow: 1; padding: 0 15px;">';
+    
+    if (totalItems === 0) {
+        html += `<div style="text-align:center; padding:40px 0;">
+            ${lastRemovedItem ? `<span style="opacity:0.5; font-size:10px;">REMOVED: ${lastRemovedItem.id}</span>
+            <span class="undo-link" onclick="undoRemove()" style="color:#1106e8; margin-left:10px; cursor:pointer; text-decoration:underline; font-weight:bold; font-size:10px;">UNDO</span>` : ''}
+        </div>`;
+    } else {
+        cart.forEach((item, index) => {
+            html += `
+            <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 0;">
+                <img src="${item.image}" style="width:80px; height:100px; object-fit:cover;">
+                <div style="flex:1;">
+                    <div class="cart-item-name">${item.name}</div>
+                    <div class="cart-item-meta">COLOUR: ORIGINAL / O/S</div>
                     <div style="font-size:11px;">R${item.price.toLocaleString()}</div>
-                    <div class="qty-stepper" style="display: flex; align-items: center; border: 1px solid #000; width: fit-content; margin-top:10px;">
-                        <div class="qty-btn" onclick="changeQty(${index}, -1)" style="width:25px; height:25px; display:flex; align-items:center; justify-content:center; cursor:pointer;">–</div>
-                        <div class="qty-val" style="width:30px; text-align:center; font-size:11px; border-left:1px solid #000; border-right:1px solid #000;">${item.quantity}</div>
-                        <div class="qty-btn" onclick="changeQty(${index}, 1)" style="width:25px; height:25px; display:flex; align-items:center; justify-content:center; cursor:pointer;">+</div>
+                    <div class="qty-stepper">
+                        <div class="qty-btn" onclick="changeQty(${index}, -1)">–</div>
+                        <div class="qty-val">${item.quantity}</div>
+                        <div class="qty-btn" onclick="changeQty(${index}, 1)">+</div>
                     </div>
-                    <span onclick="removeFromCart(${index})" style="font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; font-weight:bold; text-transform:uppercase;">✕ REMOVE</span>
+                    <div onclick="removeFromCart(${index})" class="cart-remove-link">✕ REMOVE</div>
                 </div>
             </div>`;
-    });
-    itemHtml += '</div>';
+        });
+    }
+    html += '</div>';
 
-    // #1 Moving shipping/payment to the very bottom
-    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    // Fix #5, #6, #7: Dynamic Footer Logic
+    const hasItems = totalItems > 0;
     const footerHtml = `
-        <div style="margin-top: auto;">
-            <div class="shipping-total-box" style="background:#f9f9f9; border-top:1px solid #000; padding:20px; display:flex; flex-direction:column; gap:10px;">
-                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>SHIPPING</span><span>FREE</span></div>
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold;"><span>TOTAL</span><span>R${totalPrice.toLocaleString()}</span></div>
+        <div class="cart-footer-wrap" style="margin-top:auto;">
+            ${hasItems ? `<button class="checkout-btn">CHECKOUT</button>` : ''}
+            <div class="shipping-total-box" style="height: ${hasItems ? '80px' : '60px'};">
+                <div class="box-row"><span>SHIPPING</span><span>FREE</span></div>
+                ${!hasItems ? `<div class="box-row"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
-            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:20px 20px 40px 20px; font-size:11px;">
-                PAYMENT
-                <div style="margin-top:15px; display:flex; gap:10px; opacity:0.5;">
-                    [CARD IMAGES]
+            <div class="payment-section">
+                <div class="box-row">
+                    <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
+                    ${hasItems ? `<span>R${totalPrice.toLocaleString()}</span>` : ''}
+                </div>
+                <div class="payment-icons" style="margin-top:15px; display:flex; gap:8px; opacity:0.6;">
+                    <div style="width:30px; height:18px; background:#ccc;"></div>
+                    <div style="width:30px; height:18px; background:#ccc;"></div>
                 </div>
             </div>
         </div>`;
 
-    cartContainer.innerHTML = `<div style="display: flex; flex-direction: column; min-height: 100%;">${itemHtml}${footerHtml}</div>`;
+    cartContainer.innerHTML = `<div style="display:flex; flex-direction:column; min-height:100%;">${html}${footerHtml}</div>`;
 };
