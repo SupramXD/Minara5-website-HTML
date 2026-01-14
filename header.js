@@ -167,3 +167,52 @@ window.logout = function() {
             console.error("Logout Error:", error);
         });
 };
+
+// 1. PRODUCT DATA
+const products = {
+    "leopard-backpack": {
+        id: "leopard-backpack",
+        name: "Léopard Fur Backpack",
+        price: 1200,
+        image: "cheetahproduct.avif"
+    }
+};
+
+// 2. INITIALIZE CART
+let cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
+
+// 3. THE FUNCTION (Renamed to addToCart)
+window.addToCart = function(productId) {
+    const product = products[productId];
+    if (!product) {
+        console.error("Product not found in database");
+        return;
+    }
+
+    const existingItem = cart.find(item => item.id === productId);
+
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({ ...product, quantity: 1 });
+    }
+
+    saveAndSyncCart();
+    
+    // Optional: Visual confirmation
+    console.log("Added to cart:", product.name);
+};
+
+function saveAndSyncCart() {
+    localStorage.setItem('minara_cart', JSON.stringify(cart));
+    
+    const cartCountElement = document.getElementById('cartCountHeader');
+    if (cartCountElement) {
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        // Formats 1 to "01", 10 to "10"
+        cartCountElement.textContent = totalItems.toString().padStart(2, '0');
+    }
+}
+
+// Update header count immediately when page loads
+document.addEventListener('DOMContentLoaded', saveAndSyncCart);
