@@ -433,20 +433,28 @@ footer{
 
 /* Unicode Header Border Fix */
 .cart-ascii-wrap {
+    background-color: #f7f7f7 !important; /* Subtle shade restored */
     border-bottom: 1px solid #000 !important;
-}
-.cart-ascii{
-  font-family:monospace;
-  font-size:9px;
-  white-space:pre;
-  
-  line-height:1.1;
+    padding: 20px 0 !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.cart-body{
-  padding:16px 15px;
-  overflow-y: auto;
-  font-size:11px;
+.cart-ascii {
+    font-size: 8px !important; /* Adjust if the MINARA name is too wide */
+    line-height: 1.1 !important;
+    white-space: pre !important;
+    color: #000;
+}
+
+/* Ensure the cart body can push the footer to the absolute bottom */
+.cart-body {
+    display: flex;
+    flex-direction: column;
+    padding: 0 !important; /* Items and footer handle their own padding */
+    height: calc(100vh - 180px); /* Adjust based on your header height */
+    overflow-y: auto;
 }
 
 /* Item Borders */
