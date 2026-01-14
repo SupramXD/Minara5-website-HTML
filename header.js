@@ -221,45 +221,58 @@ function saveAndSyncCart() {
 // 4. RENDER UI (Globalized so leopard.html can call it)
 window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
-    if (!cartContainer) return;
+    const asciiContainer = document.querySelector('.cart-ascii');
+    const countPanel = document.getElementById('cartCountPanel');
+    if (!cartContainer || !asciiContainer) return;
+
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    if (countPanel) countPanel.textContent = totalItems.toString().padStart(2, '0');
 
     if (cart.length === 0) {
+        // Unicode for "EMPTY"
+        asciiContainer.textContent = ` _____   __  __   ____    _____  __   __\n| ____| |  \\/  | |  _ \\  |_   _| \\ \\ / /\n|  _|   | |\\/| | | |_) |   | |    \\ V / \n| |___  | |  | | |  __/    | |     | |  \n|_____| |_|  |_| |_|       |_|     |_|  `;
         cartContainer.innerHTML = `
             <p style="text-align:center; padding:40px 0; font-size:11px; letter-spacing:1px;">YOUR BAG IS EMPTY</p>
-            <p style="text-align:center; font-size:10px; color:#999; text-transform:uppercase;">Sign in or register if items are missing</p>
             <div class="cart-auth-links" style="justify-content:center; margin-top:20px;">
                 <a href="account.html">Sign in</a>
                 <a href="register.html">Register</a>
-            </div>
-        `;
+            </div>`;
         return;
     }
 
-    let html = '<div class="cart-items-list" style="margin-top:10px;">';
+    // Change Unicode to "BAG" when items exist
+    asciiContainer.textContent = ` ____       _       ____ \n| __ )     / \\     / ___|\n|  _ \\    / _ \\   | |  _ \n| |_) |  / ___ \\  | |_| |\n|____/  /_/   \\_\\  \\____|`;
+
+    let html = '<div class="cart-items-list" style="margin-top:20px;">';
     cart.forEach((item, index) => {
         html += `
-            <div style="display: flex; gap: 15px; margin-bottom: 25px; align-items: flex-start;">
-                <img src="${item.image}" style="width: 80px; height: 100px; object-fit: cover; border: 1px solid #eee;">
-                <div style="flex: 1;">
-                    <div style="font-family:sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:bold;">${item.name}</div>
-                    <div style="font-size:11px; margin-top:6px; opacity:0.7;">R${item.price}</div>
-                    <div style="font-size:10px; margin-top:4px; opacity:0.5;">QTY: ${item.quantity}</div>
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+                <img src="${item.image}" style="width: 100%; height: auto; object-fit: cover;">
+                <div style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:13px; text-transform:uppercase; letter-spacing:0.2em; line-height:1.4;">
+                            ${item.name}<br>
+                            <span style="font-size:11px; opacity:0.6; font-weight:400;">SIZE: O/S</span>
+                        </div>
+                        <span onclick="removeFromCart(${index})" style="cursor:pointer; font-size:16px; color:#00008B;">✕</span>
+                    </div>
+                    <div style="margin-top: 15px; font-size: 12px; letter-spacing: 0.1em;">
+                        QTY: ${item.quantity}<br>
+                        PRICE: R${item.price.toLocaleString()}
+                    </div>
                 </div>
-                <span onclick="removeFromCart(${index})" style="cursor:pointer; font-size:12px; opacity:0.5;">✕</span>
-            </div>
-        `;
+            </div>`;
     });
     html += '</div>';
 
     cartContainer.innerHTML = html;
     
-    // Update Total
+    // Update Totals in bottom section
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const bottomSections = document.querySelectorAll('.cart-section');
     if (bottomSections.length >= 2) {
-        bottomSections[1].innerHTML = `Total <span style="float:right;">R${total}</span>`;
+        bottomSections[1].innerHTML = `TOTAL <span style="float:right;">R${total.toLocaleString()}</span>`;
     }
 };
-
 // Sync on load
 document.addEventListener('DOMContentLoaded', saveAndSyncCart);
