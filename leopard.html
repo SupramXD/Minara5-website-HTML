@@ -411,7 +411,6 @@ footer{
   display:flex;
   flex-direction:column;
   transition:right .35s ease, height .25s ease;
-  border-left: 1px solid #000;
 }
 @media(min-width:901px){
   #cartPanel{width:26vw;}
@@ -434,28 +433,28 @@ footer{
 
 /* Unicode Header Border Fix */
 .cart-ascii-wrap {
-    background: #f7f7f7;
-    padding: 20px;
-    border-bottom: 1px solid #000 !important; /* Separation line */
+    background-color: #f7f7f7 !important;
+    padding: 25px 0 !important;
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #000;
 }
 
 .cart-ascii {
     font-family: monospace;
-    font-size: 9px; /* Normal size */
-    line-height: 1.1;
-    text-align: left;
+    font-size: 10px; /* Normal, readable size */
+    line-height: 1.2;
     white-space: pre;
+    color: #000;
 }
 
-/* Fix #6: Ensure body allows footer to stay at bottom */
 .cart-body {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 160px); 
+    height: calc(100vh - 180px); /* Adjust based on your header/ascii height */
     overflow-y: auto;
-    /* Removed padding to let footer touch edges */
+    padding: 0 !important;
 }
 
 /* Item Borders */
@@ -672,8 +671,6 @@ footer{
     border-bottom: 1px solid #000; 
 }
 
-
-
 /* BAG 00 - Top Left */
 #bagCountLabel {
     position: absolute;
@@ -780,13 +777,6 @@ footer{
     cursor: pointer;
     text-transform: uppercase;
 }
-
-.cart-head {
-    padding: 12px 20px;
-    border-bottom: 1px solid #000 !important; /* Forces black line */
-    display: flex;
-    justify-content: space-between;
-}
 </style>
 </head>
 
@@ -838,7 +828,7 @@ footer{
 <div id="cartPanel" class="cart-panel">
     <div class="cart-head">
         <span id="bagCountLabel">BAG 00</span>
-        <span class="cart-close" onclick="closeCart()">X CLOSE</span>
+        <span class="cart-close" onclick="closeCart()">CLOSE</span>
     </div>
 
   <div class="cart-ascii-wrap">
