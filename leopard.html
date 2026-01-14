@@ -802,10 +802,10 @@ footer{
 
       <!-- DESKTOP CART -->
       <li>
-        <span class="cart-header-btn" onclick="openCart()">
-          <img src="cart.svg">
-          <span id="cartCountHeader">00</span>
-        </span>
+        <div class="cart-header-btn" onclick="openCart()">
+    <img src="cart.svg" alt="Cart">
+    <span id="cartCountHeader">00</span>
+</div>
       </li>
     </ul>
   </nav>
@@ -1006,6 +1006,16 @@ function prevSlide(){ if(currentSlide > 0){ currentSlide--; updateSlider(); } }
         touching = false;
     },{passive:true});
 })();
+
+
+window.openCart = function() {
+    // #1 Fix: This function should ALWAYS run regardless of cart content
+    const panel = document.getElementById('cartPanel');
+    const dimmer = document.getElementById('pageDimmer');
+    if (panel) panel.classList.add('open');
+    if (dimmer) dimmer.classList.add('active');
+    renderCartUI(); 
+};
 </script>
 <script type="module" src="header.js"></script>
 
