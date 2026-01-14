@@ -173,7 +173,7 @@ const products = {
     "leopard-backpack": {
         id: "leopard-backpack",
         name: "Léopard Fur Backpack",
-        price: 1200,
+        price: 749, // Updated to match your R749 price in HTML
         image: "cheetahproduct.avif"
     }
 };
@@ -181,16 +181,12 @@ const products = {
 // 2. INITIALIZE CART
 let cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
 
-// 3. THE FUNCTION (Renamed to addToCart)
+// 3. THE ADD FUNCTION
 window.addToCart = function(productId) {
     const product = products[productId];
-    if (!product) {
-        console.error("Product not found in database");
-        return;
-    }
+    if (!product) return;
 
     const existingItem = cart.find(item => item.id === productId);
-
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
@@ -199,20 +195,74 @@ window.addToCart = function(productId) {
 
     saveAndSyncCart();
     
-    // Optional: Visual confirmation
-    console.log("Added to cart:", product.name);
+    // AUTO-OPEN THE CART (Matches the function name in your HTML)
+    if (typeof openCart === "function") {
+        openCart();
+    }
 };
 
 function saveAndSyncCart() {
     localStorage.setItem('minara_cart', JSON.stringify(cart));
     
-    const cartCountElement = document.getElementById('cartCountHeader');
-    if (cartCountElement) {
-        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-        // Formats 1 to "01", 10 to "10"
-        cartCountElement.textContent = totalItems.toString().padStart(2, '0');
+    // Update Header Numbers (Both Desktop and Mobile)
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const countStr = totalItems.toString().padStart(2, '0');
+    
+    ["cartCountHeader", "cartCountHeaderMobile", "cartCountPanel"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = countStr;
+    });
+
+    renderCartUI();
+}
+
+// 4. RENDER UI (Updated to match leopard.html structure)
+function renderCartUI() {
+    const cartContainer = document.querySelector('.cart-body'); // Matches leopard.html class
+    if (!cartContainer) return;
+
+    if (cart.length === 0) {
+        cartContainer.innerHTML = `
+            <p style="text-align:center; padding:40px 0; font-size:11px; letter-spacing:1px;">YOUR BAG IS EMPTY</p>
+            <p style="text-align:center; font-size:10px; color:#999; text-transform:uppercase;">Sign in or register if items are missing</p>
+            <div class="cart-auth-links" style="justify-content:center; margin-top:20px;">
+                <a href="account.html">Sign in</a>
+                <a href="register.html">Register</a>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '<div class="cart-items-list" style="margin-top:10px;">';
+    cart.forEach((item, index) => {
+        html += `
+            <div style="display: flex; gap: 15px; margin-bottom: 25px; align-items: flex-start;">
+                <img src="${item.image}" style="width: 80px; height: 100px; object-fit: cover; border: 1px solid #eee;">
+                <div style="flex: 1;">
+                    <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:1px;">${item.name}</div>
+                    <div style="font-size:11px; margin-top:6px; opacity:0.7;">R${item.price}</div>
+                    <div style="font-size:10px; margin-top:4px; opacity:0.5;">QTY: ${item.quantity}</div>
+                </div>
+                <span onclick="removeFromCart(${index})" style="cursor:pointer; font-size:12px; opacity:0.5;">✕</span>
+            </div>
+        `;
+    });
+    html += '</div>';
+
+    cartContainer.innerHTML = html;
+    
+    // Update the Total in the bottom section
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const bottomSections = document.querySelectorAll('.cart-section');
+    if (bottomSections.length >= 2) {
+        bottomSections[1].innerHTML = `TOTAL <span style="float:right;">R${total}</span>`;
     }
 }
 
-// Update header count immediately when page loads
+window.removeFromCart = function(index) {
+    cart.splice(index, 1);
+    saveAndSyncCart();
+};
+
+// Sync on load
 document.addEventListener('DOMContentLoaded', saveAndSyncCart);
