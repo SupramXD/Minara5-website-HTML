@@ -561,6 +561,22 @@ footer{
   user-select:none;
 }
 
+/* --- CART & ACCOUNT HOVER EFFECT --- */
+.cart-header-btn, 
+.account-trigger,
+.header-left a,
+.header-right ul li a {
+    transition: opacity 0.3s ease !important;
+    cursor: pointer !important;
+}
+
+.cart-header-btn:hover, 
+.account-trigger:hover,
+.header-left a:hover,
+.header-right ul li a:hover {
+    opacity: 0.5 !important;
+}
+
 </style>
 </head>
 
@@ -699,7 +715,7 @@ footer{
         <div class="product-title">Léopard Fur Backpack</div>
         <div class="product-price">R749</div>
 
-        <button class="add-to-cart" onclick="openCart()">ADD TO CART</button>
+        <button class="add-to-cart" onclick="addToCart('leopard-backpack')">ADD TO BAG</button>
 
         <div class="desc">
 Léopard teaches that true transformation arrives in silence.
