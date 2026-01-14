@@ -1016,6 +1016,14 @@ window.openCart = function() {
     if (dimmer) dimmer.classList.add('active');
     renderCartUI(); 
 };
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Initial sync to fix #2 (site reload bug)
+    if (typeof saveAndSyncCart === 'function') {
+        saveAndSyncCart();
+    }
+});
 </script>
 <script type="module" src="header.js"></script>
 
