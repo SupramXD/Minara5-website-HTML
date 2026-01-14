@@ -207,30 +207,30 @@ window.addToCart = function(productId) {
 
 // 4. THE SYNC FUNCTION (Fixed for BAG 00 and Green Icon)
 function saveAndSyncCart() {
+    // 1. Save to Storage
     localStorage.setItem('minara_cart', JSON.stringify(cart));
     
+    // 2. Calculate actual items
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const countStr = totalItems.toString().padStart(2, '0');
     
-    // Update all number labels including the panel's "BAG 00"
-    const idsToUpdate = ["cartCountHeader", "cartCountHeaderMobile", "cartCountPanel"];
-    idsToUpdate.forEach(id => {
+    // 3. Force update ALL labels immediately
+    const labels = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel"];
+    labels.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.textContent = countStr;
+        if (el) {
+            // Restore "BAG 00" branding for the panel
+            el.textContent = (id === "bagCountLabel") ? `BAG ${countStr}` : countStr;
+        }
     });
 
-    // SPECIFIC FIX: Update the "BAG 00" label in the cart panel
-    const bagLabel = document.getElementById('bagCountLabel');
-    if (bagLabel) {
-        bagLabel.textContent = `BAG ${countStr}`;
-    }
-
-    // DYNAMIC ICON: Switch to cart_green.svg if items > 0
+    // 4. Update Icon
     const cartIcons = document.querySelectorAll('.cart-header-btn img, .mobile-cart img');
     cartIcons.forEach(img => {
         img.src = totalItems > 0 ? "cart_green.svg" : "cart.svg";
     });
 
+    // 5. Re-draw the actual products
     renderCartUI();
 }
 
@@ -241,91 +241,85 @@ let lastRemovedItem = null;
 window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiContainer = document.querySelector('.cart-ascii');
-    const bagLabel = document.getElementById('bagCountLabel');
     
-    // #1 Replace current bottom sections
-    const bottomSections = document.querySelectorAll('.cart-section');
-    bottomSections.forEach(sec => sec.style.display = 'none'); 
-
     if (!cartContainer || !asciiContainer) return;
 
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    // Resetting the footer sections in the HTML so we can use our new bottom boxes
+    const oldSections = document.querySelectorAll('.cart-section');
+    oldSections.forEach(s => s.style.display = 'none');
 
-    // #2 Change Label to MINARA⑤
-    if (bagLabel) bagLabel.textContent = `MINARA⑤ ${totalItems.toString().padStart(2, '0')}`;
+    // #2 Custom MINARA⑤ Unicode
+    const minaraUnicode = `
+ __  __  ___  _   _    _    ____     _    _  _   
+|  \/  ||_ _|| \ | |  / \  |  _ \   / \  | || |  
+| |\/| | | | |  \| | / _ \ | |_) | / _ \ | || |_ 
+| |  | | | | | |\  |/ ___ \|  _ < / ___ \|__   _|
+|_|  |_||___||_| \_/_/   \_\_| \\/_/   \_\  |_|  
+                                                 `;
 
-    // #12 Remove "Your cart is empty" text, use only Unicode
+    const emptyUnicode = `
+ _____  __  __  ____  _____ __   __
+| ____||  \/  ||  _ \|_   _|\ \ / /
+|  _|  | |\/| || |_) | | |   \ V / 
+| |___ | |  | ||  __/  | |    | |  
+|_____||_|  |_||_|     |_|    |_|  `;
+
     if (cart.length === 0) {
-        asciiContainer.textContent = ` _____   __  __   ____    _____  __   __\n| ____| |  \\/  | |  _ \\  |_   _| \\ \\ / /\n|  _|   | |\\/| | | |_) |   | |    \\ V / \n| |___  | |  | | |  __/    | |     | |  \n|_____| |_|  |_| |_|       |_|     |_|  `;
+        asciiContainer.textContent = emptyUnicode;
+        asciiContainer.style.height = "120px"; // Making it taller vertically
         
         let emptyHtml = '';
-        // #10 & #11 Undo Section Logic
         if (lastRemovedItem) {
             emptyHtml = `
-                <div style="text-align:center; padding:20px; font-size:10px; letter-spacing:1px;">
-                    <span class="removed-status">REMOVED: ${lastRemovedItem.id}</span>
+                <div style="text-align:center; padding:20px; font-size:10px;">
+                    <span style="opacity:0.5;">REMOVED: ${lastRemovedItem.id}</span>
                     <span style="margin: 0 10px;">|</span>
-                    <span class="undo-link" onclick="undoRemove()">UNDO</span>
+                    <span class="undo-link" onclick="undoRemove()" style="color:#1106e8; text-decoration:underline; cursor:pointer; font-weight:bold;">UNDO</span>
                 </div>`;
         }
         cartContainer.innerHTML = emptyHtml;
         return;
     }
 
-    // Header when cart has items
-    asciiContainer.textContent = ` ____       _       ____ \n| __ )     / \\     / ___|\n|  _ \\    / _ \\   | |  _ \n| |_) |  / ___ \\  | |_| |\n|____/  /_/   \\_\\  \\____|`;
+    asciiContainer.textContent = minaraUnicode;
+    asciiContainer.style.height = "120px";
 
-    let itemHtml = '<div style="padding: 0 15px;">';
+    // Build Item List
+    let itemHtml = '<div style="padding: 0 15px; flex-grow: 1;">';
     cart.forEach((item, index) => {
         itemHtml += `
-            <div class="cart-item-row" style="display: flex; gap: 15px; align-items: flex-start; padding: 20px 0;">
-                <img src="${item.image}" class="cart-item-img" style="width: 90px; height: 120px; object-fit: cover;">
+            <div class="cart-item-row" style="display: flex; gap: 15px; border-bottom: 1px solid #000; padding: 20px 0;">
+                <img src="${item.image}" style="width: 90px; height: 120px; object-fit: cover;">
                 <div style="flex: 1; display: flex; flex-direction: column;">
-                    <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:1px; border-bottom: 1px solid #000; padding-bottom: 4px; margin-bottom: 8px;">${item.name}</div>
-                    <div style="font-size:10px; opacity:0.6; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:10px;">COLOUR: ORIGINAL<br>ONE SIZE</div>
-                    <div style="font-size:11px; letter-spacing:1px; margin-bottom:12px;">R${item.price.toLocaleString()}</div>
-                    
-                    <div class="qty-stepper" style="display: flex; align-items: center; border: 1px solid #000; width: fit-content;">
+                    <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase; border-bottom: 1px solid #000; padding-bottom:4px; margin-bottom:8px;">${item.name}</div>
+                    <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL<br>ONE SIZE</div>
+                    <div style="font-size:11px;">R${item.price.toLocaleString()}</div>
+                    <div class="qty-stepper" style="display: flex; align-items: center; border: 1px solid #000; width: fit-content; margin-top:10px;">
                         <div class="qty-btn" onclick="changeQty(${index}, -1)" style="width:25px; height:25px; display:flex; align-items:center; justify-content:center; cursor:pointer;">–</div>
                         <div class="qty-val" style="width:30px; text-align:center; font-size:11px; border-left:1px solid #000; border-right:1px solid #000;">${item.quantity}</div>
                         <div class="qty-btn" onclick="changeQty(${index}, 1)" style="width:25px; height:25px; display:flex; align-items:center; justify-content:center; cursor:pointer;">+</div>
                     </div>
-                    
-                    <span class="cart-remove-link" onclick="removeFromCart(${index})" style="font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:#1106e8 !important; cursor:pointer; margin-top:15px; font-weight:bold;">✕ REMOVE</span>
+                    <span onclick="removeFromCart(${index})" style="font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; font-weight:bold; text-transform:uppercase;">✕ REMOVE</span>
                 </div>
             </div>`;
     });
     itemHtml += '</div>';
 
-    // #4 & #5 Tiered Boxes
+    // #1 Moving shipping/payment to the very bottom
+    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const footerHtml = `
-        <div class="shipping-total-box">
-            <div class="box-row"><span>SHIPPING</span><span>FREE</span></div>
-            <div class="box-row"><span>TOTAL</span><span>R${totalPrice.toLocaleString()}</span></div>
-        </div>
-        <div class="payment-section">
-            PAYMENT
-            <div style="margin-top:20px; display:flex; gap:10px; opacity:0.8;">
-                <div style="width:30px; height:20px; background:#ddd;"></div>
-                <div style="width:30px; height:20px; background:#ddd;"></div>
+        <div style="margin-top: auto;">
+            <div class="shipping-total-box" style="background:#f9f9f9; border-top:1px solid #000; padding:20px; display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>SHIPPING</span><span>FREE</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold;"><span>TOTAL</span><span>R${totalPrice.toLocaleString()}</span></div>
+            </div>
+            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:20px 20px 40px 20px; font-size:11px;">
+                PAYMENT
+                <div style="margin-top:15px; display:flex; gap:10px; opacity:0.5;">
+                    [CARD IMAGES]
+                </div>
             </div>
         </div>`;
 
-    cartContainer.innerHTML = itemHtml + footerHtml;
-};
-
-// #10 & #11 Modified Remove/Undo Functions
-window.removeFromCart = function(index) {
-    lastRemovedItem = { ...cart[index] }; 
-    cart.splice(index, 1);
-    saveAndSyncCart();
-};
-
-window.undoRemove = function() {
-    if (lastRemovedItem) {
-        cart.push(lastRemovedItem);
-        lastRemovedItem = null;
-        saveAndSyncCart();
-    }
+    cartContainer.innerHTML = `<div style="display: flex; flex-direction: column; min-height: 100%;">${itemHtml}${footerHtml}</div>`;
 };
