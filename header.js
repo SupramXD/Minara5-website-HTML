@@ -218,30 +218,62 @@ function saveAndSyncCart() {
     renderCartUI();
 }
 
+// --- UPDATED SYNC & ICON LOGIC ---
+
+function saveAndSyncCart() {
+    localStorage.setItem('minara_cart', JSON.stringify(cart));
+    
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const countStr = totalItems.toString().padStart(2, '0');
+    
+    // 1. Update ALL count labels with the working header logic
+    const countIds = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel"];
+    countIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            // For bagCountLabel, we keep the "BAG " prefix
+            if (id === "bagCountLabel") {
+                el.textContent = `BAG ${countStr}`;
+            } else {
+                el.textContent = countStr;
+            }
+        }
+    });
+
+    // 2. Dynamic Green Cart Icon
+    // This finds all cart icons in your header and updates them
+    const cartIcons = document.querySelectorAll('.cart-header-btn img, .mobile-cart img');
+    cartIcons.forEach(img => {
+        if (totalItems > 0) {
+            img.src = "cart_green.svg";
+        } else {
+            img.src = "cart.svg";
+        }
+    });
+
+    renderCartUI();
+}
+
 window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiContainer = document.querySelector('.cart-ascii');
-    // Targets the "BAG 00" text in the top-left corner
     const bagLabel = document.getElementById('bagCountLabel');
     
     if (!cartContainer || !asciiContainer) return;
 
-    // 1. Calculate totals for the label and the price
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const countStr = totalItems.toString().padStart(2, '0');
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    // 2. Update the "BAG 00" text dynamically
+    // Ensure BAG 00 updates when UI renders
     if (bagLabel) {
         bagLabel.textContent = `BAG ${countStr}`;
     }
 
-    // 3. Handle Empty State
     if (cart.length === 0) {
         asciiContainer.textContent = ` _____   __  __   ____    _____  __   __\n| ____| |  \\/  | |  _ \\  |_   _| \\ \\ / /\n|  _|   | |\\/| | | |_) |   | |    \\ V / \n| |___  | |  | | |  __/    | |     | |  \n|_____| |_|  |_| |_|       |_|     |_|  `;
         cartContainer.innerHTML = `<p style="text-align:center; padding:60px 0; font-size:10px; letter-spacing:2px; opacity:0.5; text-transform:uppercase;">Your bag is empty</p>`;
         
-        // Update total to 0
         const bottomSections = document.querySelectorAll('.cart-section');
         if (bottomSections.length >= 2) {
             bottomSections[1].innerHTML = `TOTAL <span style="float:right;">R0</span>`;
@@ -249,10 +281,8 @@ window.renderCartUI = function() {
         return;
     }
 
-    // 4. Update Unicode to "BAG"
     asciiContainer.textContent = ` ____       _       ____ \n| __ )     / \\     / ___|\n|  _ \\    / _ \\   | |  _ \n| |_) |  / ___ \\  | |_| |\n|____/  /_/   \\_\\  \\____|`;
 
-    // 5. Build High-Fashion Item List
     let html = '';
     cart.forEach((item, index) => {
         html += `
@@ -277,27 +307,10 @@ window.renderCartUI = function() {
 
     cartContainer.innerHTML = html;
     
-    // 6. Update Totals Footer
     const bottomSections = document.querySelectorAll('.cart-section');
     if (bottomSections.length >= 2) {
         bottomSections[1].innerHTML = `TOTAL <span style="float:right;">R${totalPrice.toLocaleString()}</span>`;
     }
-};
-
-// HELPER FUNCTIONS
-window.changeQty = function(index, delta) {
-    if (cart[index]) {
-        cart[index].quantity += delta;
-        if (cart[index].quantity < 1) {
-            cart.splice(index, 1);
-        }
-        saveAndSyncCart();
-    }
-};
-
-window.removeFromCart = function(index) {
-    cart.splice(index, 1);
-    saveAndSyncCart();
 };
 // Sync on load
 document.addEventListener('DOMContentLoaded', saveAndSyncCart);
