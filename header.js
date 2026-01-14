@@ -170,12 +170,16 @@ window.logout = function() {
 
 // CART WITH ID SYSTEM
 
+/* ===============================
+   CART SYSTEM (REPAIRED)
+================================ */
+
 // 1. PRODUCT DATA
 const products = {
     "leopard-backpack": {
         id: "leopard-backpack",
         name: "Léopard Fur Backpack",
-        price: 749, // Updated to match your R749 price in HTML
+        price: 749, 
         image: "cheetahproduct.avif"
     }
 };
@@ -197,41 +201,26 @@ window.addToCart = function(productId) {
 
     saveAndSyncCart();
     
-    // AUTO-OPEN THE CART (Matches the function name in your HTML)
-    if (typeof openCart === "function") {
+    // Explicitly call openCart from the global window scope
+    if (typeof window.openCart === "function") {
+        window.openCart();
+    } else if (typeof openCart === "function") {
         openCart();
     }
 };
 
-function saveAndSyncCart() {
-    localStorage.setItem('minara_cart', JSON.stringify(cart));
-    
-    // Update Header Numbers (Both Desktop and Mobile)
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const countStr = totalItems.toString().padStart(2, '0');
-    
-    ["cartCountHeader", "cartCountHeaderMobile", "cartCountPanel"].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = countStr;
-    });
-
-    renderCartUI();
-}
-
-// --- UPDATED SYNC & ICON LOGIC ---
-
+// 4. MERGED SYNC FUNCTION (Only one version allowed)
 function saveAndSyncCart() {
     localStorage.setItem('minara_cart', JSON.stringify(cart));
     
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const countStr = totalItems.toString().padStart(2, '0');
     
-    // 1. Update ALL count labels with the working header logic
+    // Update ALL count labels
     const countIds = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel"];
     countIds.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-            // For bagCountLabel, we keep the "BAG " prefix
             if (id === "bagCountLabel") {
                 el.textContent = `BAG ${countStr}`;
             } else {
@@ -240,20 +229,16 @@ function saveAndSyncCart() {
         }
     });
 
-    // 2. Dynamic Green Cart Icon
-    // This finds all cart icons in your header and updates them
+    // Dynamic Green Cart Icon logic
     const cartIcons = document.querySelectorAll('.cart-header-btn img, .mobile-cart img');
     cartIcons.forEach(img => {
-        if (totalItems > 0) {
-            img.src = "cart_green.svg";
-        } else {
-            img.src = "cart.svg";
-        }
+        img.src = totalItems > 0 ? "cart_green.svg" : "cart.svg";
     });
 
     renderCartUI();
 }
 
+// 5. RENDER UI FUNCTION
 window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiContainer = document.querySelector('.cart-ascii');
@@ -262,13 +247,7 @@ window.renderCartUI = function() {
     if (!cartContainer || !asciiContainer) return;
 
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const countStr = totalItems.toString().padStart(2, '0');
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-    // Ensure BAG 00 updates when UI renders
-    if (bagLabel) {
-        bagLabel.textContent = `BAG ${countStr}`;
-    }
 
     if (cart.length === 0) {
         asciiContainer.textContent = ` _____   __  __   ____    _____  __   __\n| ____| |  \\/  | |  _ \\  |_   _| \\ \\ / /\n|  _|   | |\\/| | | |_) |   | |    \\ V / \n| |___  | |  | | |  __/    | |     | |  \n|_____| |_|  |_| |_|       |_|     |_|  `;
@@ -286,21 +265,20 @@ window.renderCartUI = function() {
     let html = '';
     cart.forEach((item, index) => {
         html += `
-            <div class="cart-item-row" style="display: flex; gap: 15px; margin-bottom: 30px; align-items: flex-start;">
-                <img src="${item.image}" style="width: 90px; height: 120px; object-fit: cover; background: #f9f9f9;">
-                
-                <div style="flex: 1; display: flex; flex-direction: column;">
-                    <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">${item.name}</div>
-                    <div style="font-size:10px; opacity:0.6; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:10px;">COLOUR: ORIGINAL<br>ONE SIZE</div>
-                    <div style="font-size:11px; letter-spacing:1px; margin-bottom:12px;">R${item.price.toLocaleString()}</div>
+            <div class="cart-item-row">
+                <img src="${item.image}" class="cart-item-img">
+                <div class="cart-item-details">
+                    <div class="cart-item-name">${item.name}</div>
+                    <div class="cart-item-meta">COLOUR: ORIGINAL<br>ONE SIZE</div>
+                    <div style="font-size:11px; letter-spacing:1px;">R${item.price.toLocaleString()}</div>
                     
-                    <div class="qty-stepper" style="display: flex; align-items: center; border: 1px solid #000; width: fit-content;">
-                        <div class="qty-btn" onclick="changeQty(${index}, -1)" style="width:25px; height:25px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px;">–</div>
-                        <div class="qty-val" style="width:30px; text-align:center; font-size:11px; border-left:1px solid #000; border-right:1px solid #000;">${item.quantity}</div>
-                        <div class="qty-btn" onclick="changeQty(${index}, 1)" style="width:25px; height:25px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px;">+</div>
+                    <div class="qty-stepper">
+                        <div class="qty-btn" onclick="changeQty(${index}, -1)">–</div>
+                        <div class="qty-val">${item.quantity}</div>
+                        <div class="qty-btn" onclick="changeQty(${index}, 1)">+</div>
                     </div>
                     
-                    <span class="cart-remove-link" onclick="removeFromCart(${index})" style="font-size:9px; text-transform:uppercase; letter-spacing:1px; color:#0000FF !important; cursor:pointer; margin-top:15px; text-decoration:underline;">X REMOVE</span>
+                    <span class="cart-remove-link" onclick="removeFromCart(${index})">X REMOVE</span>
                 </div>
             </div>`;
     });
@@ -312,5 +290,22 @@ window.renderCartUI = function() {
         bottomSections[1].innerHTML = `TOTAL <span style="float:right;">R${totalPrice.toLocaleString()}</span>`;
     }
 };
+
+// 6. HELPER FUNCTIONS
+window.changeQty = function(index, delta) {
+    if (cart[index]) {
+        cart[index].quantity += delta;
+        if (cart[index].quantity < 1) {
+            cart.splice(index, 1);
+        }
+        saveAndSyncCart();
+    }
+};
+
+window.removeFromCart = function(index) {
+    cart.splice(index, 1);
+    saveAndSyncCart();
+};
+
 // Sync on load
 document.addEventListener('DOMContentLoaded', saveAndSyncCart);
