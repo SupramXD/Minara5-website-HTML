@@ -433,24 +433,28 @@ footer{
 
 /* Unicode Header Border Fix */
 .cart-ascii-wrap {
-    height: 120px; /* Taller as requested */
-    background: #f2f2f2 !important;
+    background-color: #f7f7f7 !important;
+    padding: 25px 0 !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #000;
 }
 
 .cart-ascii {
-    font-size: 8px !important; /* Adjust if the MINARA name is too wide */
-    line-height: 1.1 !important;
-    white-space: pre !important;
+    font-family: monospace;
+    font-size: 10px; /* Normal, readable size */
+    line-height: 1.2;
+    white-space: pre;
     color: #000;
 }
 
-/* Ensure the cart body can push the footer to the absolute bottom */
 .cart-body {
     display: flex;
     flex-direction: column;
-    padding: 0 !important; /* Items and footer handle their own padding */
-    height: calc(100vh - 180px); /* Adjust based on your header height */
+    height: calc(100vh - 180px); /* Adjust based on your header/ascii height */
     overflow-y: auto;
+    padding: 0 !important;
 }
 
 /* Item Borders */
@@ -821,11 +825,11 @@ footer{
 <div id="pageDimmer"></div>
 
 <!-- CART PANEL -->
-<div id="cartPanel">
-  <div class="cart-header-row">
-    <span id="bagCountLabel">BAG 00</span>
-    <span class="cart-close" onclick="closeCart()">X CLOSE</span>
-</div>
+<div id="cartPanel" class="cart-panel">
+    <div class="cart-head">
+        <span id="bagCountLabel">BAG 00</span>
+        <span class="cart-close" onclick="closeCart()">CLOSE</span>
+    </div>
 
   <div class="cart-ascii-wrap">
     <div class="cart-ascii">
@@ -847,11 +851,7 @@ footer{
     </div>
   </div>
 
-  <div class="cart-bottom">
-    <div class="cart-section">Shipping</div>
-    <div class="cart-section">Total</div>
-    <div class="cart-section">Payment</div>
-  </div>
+
 </div>
 
 <!-- MENU PANEL -->
@@ -1016,14 +1016,6 @@ window.openCart = function() {
     if (dimmer) dimmer.classList.add('active');
     renderCartUI(); 
 };
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Initial sync to fix #2 (site reload bug)
-    if (typeof saveAndSyncCart === 'function') {
-        saveAndSyncCart();
-    }
-});
 </script>
 <script type="module" src="header.js"></script>
 
