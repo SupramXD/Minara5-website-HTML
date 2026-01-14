@@ -444,8 +444,86 @@ footer{
 }
 
 .cart-body{
-  padding:16px 20px;
+  padding:16px 15px;
+  overflow-y: auto;
   font-size:11px;
+}
+
+.cart-item-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 35px;
+    align-items: flex-start;
+    position: relative;
+}
+
+/* Fixed image size to stop it from taking up the whole page */
+.cart-item-img {
+    width: 90px;
+    height: 115px;
+    object-fit: cover;
+    background: #f9f9f9;
+}
+
+.cart-item-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.cart-item-name {
+    font-family: 'Gotham Narrow Bold', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.cart-item-meta {
+    font-size: 10px;
+    opacity: 0.6;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+/* High-Fashion Quantity Stepper */
+.qty-stepper {
+    display: flex;
+    align-items: center;
+    border: 1px solid #000;
+    width: fit-content;
+    margin-top: 8px;
+}
+
+.qty-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+}
+
+.qty-val {
+    width: 30px;
+    text-align: center;
+    font-size: 11px;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+}
+
+/* Remove Button - Pinned to bottom right of the item */
+.cart-remove-link {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #1106e8 !important; /* Your light blue color */
+    cursor: pointer;
+    margin-top: 15px;
+    text-decoration: underline;
 }
 
 .cart-auth-links{
@@ -614,19 +692,6 @@ footer{
     text-transform: uppercase;
 }
 
-/* Ensure other breaker lines in the cart are also black */
-.cart-ascii-wrap {
-    padding: 12px 20px;
-    border-bottom: 1px solid #000; /* Made black */
-    background: #fafafa;
-}
-
-.cart-section {
-    padding: 12px 20px;
-    border-top: 1px solid #000; /* Made black */
-    font-size: 11px;
-    text-transform: uppercase;
-}
 
 </style>
 </head>
