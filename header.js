@@ -168,6 +168,8 @@ window.logout = function() {
         });
 };
 
+// CART WITH ID SYSTEM
+
 // 1. PRODUCT DATA
 const products = {
     "leopard-backpack": {
@@ -216,9 +218,9 @@ function saveAndSyncCart() {
     renderCartUI();
 }
 
-// 4. RENDER UI (Updated to match leopard.html structure)
-function renderCartUI() {
-    const cartContainer = document.querySelector('.cart-body'); // Matches leopard.html class
+// 4. RENDER UI (Globalized so leopard.html can call it)
+window.renderCartUI = function() {
+    const cartContainer = document.querySelector('.cart-body');
     if (!cartContainer) return;
 
     if (cart.length === 0) {
@@ -239,7 +241,7 @@ function renderCartUI() {
             <div style="display: flex; gap: 15px; margin-bottom: 25px; align-items: flex-start;">
                 <img src="${item.image}" style="width: 80px; height: 100px; object-fit: cover; border: 1px solid #eee;">
                 <div style="flex: 1;">
-                    <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:1px;">${item.name}</div>
+                    <div style="font-family:sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:bold;">${item.name}</div>
                     <div style="font-size:11px; margin-top:6px; opacity:0.7;">R${item.price}</div>
                     <div style="font-size:10px; margin-top:4px; opacity:0.5;">QTY: ${item.quantity}</div>
                 </div>
@@ -251,17 +253,12 @@ function renderCartUI() {
 
     cartContainer.innerHTML = html;
     
-    // Update the Total in the bottom section
+    // Update Total
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const bottomSections = document.querySelectorAll('.cart-section');
     if (bottomSections.length >= 2) {
-        bottomSections[1].innerHTML = `TOTAL <span style="float:right;">R${total}</span>`;
+        bottomSections[1].innerHTML = `Total <span style="float:right;">R${total}</span>`;
     }
-}
-
-window.removeFromCart = function(index) {
-    cart.splice(index, 1);
-    saveAndSyncCart();
 };
 
 // Sync on load
