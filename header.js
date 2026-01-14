@@ -218,57 +218,76 @@ function saveAndSyncCart() {
     renderCartUI();
 }
 
-// 4. RENDER UI (Globalized so leopard.html can call it)
 window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiContainer = document.querySelector('.cart-ascii');
+    // Targets the "BAG 00" text in the top-left corner
+    const bagLabel = document.getElementById('bagCountLabel');
     
     if (!cartContainer || !asciiContainer) return;
 
+    // 1. Calculate totals for the label and the price
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const countStr = totalItems.toString().padStart(2, '0');
+    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    // 2. Update the "BAG 00" text dynamically
+    if (bagLabel) {
+        bagLabel.textContent = `BAG ${countStr}`;
+    }
+
+    // 3. Handle Empty State
     if (cart.length === 0) {
         asciiContainer.textContent = ` _____   __  __   ____    _____  __   __\n| ____| |  \\/  | |  _ \\  |_   _| \\ \\ / /\n|  _|   | |\\/| | | |_) |   | |    \\ V / \n| |___  | |  | | |  __/    | |     | |  \n|_____| |_|  |_| |_|       |_|     |_|  `;
-        cartContainer.innerHTML = `<p style="text-align:center; padding:60px 0; font-size:10px; letter-spacing:2px; opacity:0.5;">YOUR BAG IS EMPTY</p>`;
+        cartContainer.innerHTML = `<p style="text-align:center; padding:60px 0; font-size:10px; letter-spacing:2px; opacity:0.5; text-transform:uppercase;">Your bag is empty</p>`;
+        
+        // Update total to 0
+        const bottomSections = document.querySelectorAll('.cart-section');
+        if (bottomSections.length >= 2) {
+            bottomSections[1].innerHTML = `TOTAL <span style="float:right;">R0</span>`;
+        }
         return;
     }
 
+    // 4. Update Unicode to "BAG"
     asciiContainer.textContent = ` ____       _       ____ \n| __ )     / \\     / ___|\n|  _ \\    / _ \\   | |  _ \n| |_) |  / ___ \\  | |_| |\n|____/  /_/   \\_\\  \\____|`;
 
+    // 5. Build High-Fashion Item List
     let html = '';
     cart.forEach((item, index) => {
         html += `
-            <div class="cart-item-row">
-                <img src="${item.image}" class="cart-item-img">
-                <div class="cart-item-details">
-                    <div class="cart-item-name">${item.name}</div>
-                    <div class="cart-item-meta">COLOUR: ORIGINAL<br>ONE SIZE</div>
-                    <div style="font-size:11px; letter-spacing:1px;">R${item.price.toLocaleString()}</div>
+            <div class="cart-item-row" style="display: flex; gap: 15px; margin-bottom: 30px; align-items: flex-start;">
+                <img src="${item.image}" style="width: 90px; height: 120px; object-fit: cover; background: #f9f9f9;">
+                
+                <div style="flex: 1; display: flex; flex-direction: column;">
+                    <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">${item.name}</div>
+                    <div style="font-size:10px; opacity:0.6; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:10px;">COLOUR: ORIGINAL<br>ONE SIZE</div>
+                    <div style="font-size:11px; letter-spacing:1px; margin-bottom:12px;">R${item.price.toLocaleString()}</div>
                     
-                    <div class="qty-stepper">
-                        <div class="qty-btn" onclick="changeQty(${index}, -1)">–</div>
-                        <div class="qty-val">${item.quantity}</div>
-                        <div class="qty-btn" onclick="changeQty(${index}, 1)">+</div>
+                    <div class="qty-stepper" style="display: flex; align-items: center; border: 1px solid #000; width: fit-content;">
+                        <div class="qty-btn" onclick="changeQty(${index}, -1)" style="width:25px; height:25px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px;">–</div>
+                        <div class="qty-val" style="width:30px; text-align:center; font-size:11px; border-left:1px solid #000; border-right:1px solid #000;">${item.quantity}</div>
+                        <div class="qty-btn" onclick="changeQty(${index}, 1)" style="width:25px; height:25px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:14px;">+</div>
                     </div>
                     
-                    <span class="cart-remove-link" onclick="removeFromCart(${index})">X REMOVE</span>
+                    <span class="cart-remove-link" onclick="removeFromCart(${index})" style="font-size:9px; text-transform:uppercase; letter-spacing:1px; color:#0000FF !important; cursor:pointer; margin-top:15px; text-decoration:underline;">X REMOVE</span>
                 </div>
             </div>`;
     });
 
     cartContainer.innerHTML = html;
     
-    // Update Totals
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    // 6. Update Totals Footer
     const bottomSections = document.querySelectorAll('.cart-section');
     if (bottomSections.length >= 2) {
-        bottomSections[1].innerHTML = `TOTAL <span style="float:right;">R${total.toLocaleString()}</span>`;
+        bottomSections[1].innerHTML = `TOTAL <span style="float:right;">R${totalPrice.toLocaleString()}</span>`;
     }
 };
 
-// New Function to handle Plus/Minus
+// HELPER FUNCTIONS
 window.changeQty = function(index, delta) {
     if (cart[index]) {
         cart[index].quantity += delta;
-        // If quantity drops below 1, remove the item
         if (cart[index].quantity < 1) {
             cart.splice(index, 1);
         }
