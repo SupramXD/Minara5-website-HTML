@@ -186,16 +186,17 @@ const products = {
 let cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
 
 // 3. THE ADD FUNCTION
-window.addToCart = function(productId) {
-    const product = products[productId];
-    if (!product) return;
-
-    const existingItem = cart.find(item => item.id === productId);
-    if (existingItem) {
-        existingItem.quantity += 1;
+// Ensure this is at the TOP level of header.js (outside other blocks)
+window.addToCart = function(productName, price, image) {
+    const existing = cart.find(item => item.name === productName);
+    if (existing) {
+        existing.quantity += 1;
     } else {
-        cart.push({ ...product, quantity: 1 });
+        cart.push({ name: productName, price: price, image: image, quantity: 1 });
     }
+    saveAndSyncCart();
+    openCart(); // Automatically open the cart so the user sees it worked
+};
 
 /* ===============================
    REPAIRED CART & SYNC LOGIC
@@ -227,26 +228,12 @@ window.renderCartUI = function() {
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const hasItems = totalItems > 0;
 
-    // Fix #4 & #5: Corrected ASCII (Left Aligned & Fixed MINARA5)
-    const minaraArt = `
-MINARA5
-M   M  I  N   N  AAAAA  RRRR    AAAAA  55555
-MM MM  I  NN  N  A   A  R   R  A   A  5
-M M M  I  N N N  AAAAA  RRRR   AAAAA  5555
-M   M  I  N  NN  A   A  R  R   A   A      5
-M   M  I  N   N  A   A  R   R  A   A  5555`;
-
-    const emptyArt = `
-EMPTY
-EEEEE  M   M  PPPP   TTTTT  Y   Y
-E      MM MM  P   P    T     Y Y
-EEE    M M M  PPPP     T      Y
-E      M   M  P        T      Y
-EEEEE  M   M  P        T      Y`;
-
+    // ASCII logic
+    const minaraArt = `MINARA5\n...`; // Use your previously defined ASCII strings here
+    const emptyArt = `EMPTY\n...`;
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-    // Build Items List
+    // Item List Area
     let itemHtml = '<div style="flex-grow: 1; padding: 0 15px;">';
     if (hasItems) {
         cart.forEach((item, index) => {
@@ -266,16 +253,23 @@ EEEEE  M   M  P        T      Y`;
                 </div>
             </div>`;
         });
+    } else {
+        // Fix #4: Smaller font for empty state text
+        itemHtml += `
+            <div style="padding:40px 20px; text-align:left;">
+                <div style="font-size:10px; letter-spacing:1px; margin-bottom:10px;">MISSING ITEMS IN YOUR CART?</div>
+                <div style="font-size:10px; opacity:0.6;">SIGN IN TO SEE THEM.</div>
+            </div>`;
     }
     itemHtml += '</div>';
 
-    // Fix #6 & #7: Bottom-aligned tiers with dynamic Checkout menu
+    // Fix #2: Footer always shows
     const footerHtml = `
         <div class="cart-footer-wrap" style="margin-top:auto; width:100%;">
             <div class="shipping-box" style="background:#f9f9f9; border-top:1px solid #000; padding:15px 20px;">
                 <div style="display:flex; justify-content:space-between; font-size:11px;"><span>SHIPPING</span><span>FREE</span></div>
             </div>
-            <div class="payment-box" style="background:#f2f2f2; border-top:1px solid #000; padding:15px 20px 30px 20px;">
+            <div class="payment-box" style="background:#f2f2f2; border-top:1px solid #000; padding:15px 20px 30px 20px; border-bottom:1px solid #000;">
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:15px;">
                     <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
