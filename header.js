@@ -249,32 +249,41 @@ window.renderCartUI = function() {
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const hasItems = totalItems > 0;
 
-    // ASCII Art (Left Aligned, No Extra Text)
-    const art = `
+    // MINARA 5 Art (for when cart has items)
+    const minaraArt = `
+ __  __ ___ _   _   _   ____    _    _____ 
+|  \\/  |_ _| \\ | | / \\ |  _ \\  / \\  | ____|
+| |\\/| || ||  \\| |/ _ \\| |_) |/ _ \\ |___ \\ 
+| |  | || || |\\  / ___ \\  _ < / ___ \\ ___) |
+|_|  |_|___|_| \\_/_/   \\_\\_| \\_\\_/   \\_\\____/ `;
+
+    // EMPTY Art (for when cart is empty)
+    const emptyArt = `
  _____ __  __ ____ _______   __
 | ____|  \\/  |  _ \\_   _\\ \\ / /
 |  _| | |\\/| | |_) || |  \\ V / 
 | |___| |  | |  __/ | |   | |  
 |_____|_|  |_|_|    |_|   |_| `;
 
-    asciiContainer.textContent = art;
+    // Toggle based on cart status
+    asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
+    asciiContainer.style.fontSize = "11px"; // Consistent size
 
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
 
     if (hasItems) {
-        // Wrapper for items to prevent border-stacking
         html += '<div class="items-area" style="flex-grow:1;">';
         cart.forEach((item, index) => {
             html += `
-            <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 15px;">
+            <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid rgba(0,0,0,0.1); padding:20px 15px;">
                 <img src="${item.image}" style="width:80px; height:105px; object-fit:cover;">
                 <div style="flex:1;">
                     <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</div>
                     <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL</div>
                     <div style="font-size:11px;">R${item.price.toLocaleString()}</div>
-                    <div class="qty-stepper" style="display:flex; border:1px solid #000; width:fit-content; margin-top:10px;">
+                    <div class="qty-stepper" style="display:flex; border:1px solid rgba(0,0,0,0.1); width:fit-content; margin-top:10px;">
                         <div class="qty-btn" onclick="window.changeQty(${index}, -1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">–</div>
-                        <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #000; border-right:1px solid #000; font-size:11px; display:flex; align-items:center; justify-content:center;">${item.quantity}</div>
+                        <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid rgba(0,0,0,0.1); border-right:1px solid rgba(0,0,0,0.1); font-size:11px; display:flex; align-items:center; justify-content:center;">${item.quantity}</div>
                         <div class="qty-btn" onclick="window.changeQty(${index}, 1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">+</div>
                     </div>
                     <div onclick="window.removeFromCart(${index})" style="font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; text-decoration:underline; font-weight:bold; text-transform:uppercase;">✕ REMOVE</div>
@@ -283,44 +292,26 @@ window.renderCartUI = function() {
         });
         html += '</div>';
     } else {
-        // #4 Empty state text from Image
+        // Empty State Text with Translucent Style
         html += `
-        <div style="padding:35px 25px; flex-grow:1;">
-            <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; line-height:1.4;">
-                Missing items in your cart?<br>Sign in to see items you added before.
-            </div>
-            <div style="display:flex; gap:25px; margin-top:15px;">
-                <a href="account.html" style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; color:#000; text-decoration:none;">SIGN IN</a>
-                <a href="account.html" style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; color:#000; text-decoration:none;">REGISTER</a>
+        <div style="padding:40px 25px; flex-grow:1;">
+            <div style="font-size:10px; color:rgba(0,0,0,0.4); letter-spacing:0.5px; margin-bottom:4px;">Missing items in your cart?</div>
+            <div style="font-size:10px; color:rgba(0,0,0,0.4); letter-spacing:0.5px; margin-bottom:18px;">Sign in to see items you added before.</div>
+            <div style="display:flex; gap:20px;">
+                <a href="account.html" style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; color:#1106e8; text-decoration:none;">SIGN IN</a>
+                <a href="account.html" style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; color:#1106e8; text-decoration:none;">REGISTER</a>
             </div>
         </div>`;
     }
 
-    // #1 & #5 Footer area
+    // Footer with Translucent Borders
     html += `
         <div class="cart-footer-area" style="margin-top:auto;">
-            <div style="background:#f9f9f9; border-top:1px solid #000; padding:15px 20px; display:flex; flex-direction:column; gap:8px;">
+            <div style="background:#f9f9f9; border-top:1px solid rgba(0,0,0,0.1); padding:15px 20px; display:flex; flex-direction:column; gap:8px;">
                 <div style="display:flex; justify-content:space-between; font-size:11px;"><span>SHIPPING</span><span>FREE</span></div>
                 ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
-            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:20px 20px 30px 20px; border-bottom:1px solid #000;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold; margin-bottom:15px;">
-                    <span style="font-family:'Gotham Narrow Bold',sans-serif;">${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
-                    <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
-                </div>
-                
-                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:14px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; letter-spacing:1px; margin-bottom:15px; font-weight:bold;">CONTINUE TO CHECKOUT</button>` : ''}
-                
-                <div style="display:flex; gap:8px; opacity:0.4;">
-                    <div style="width:30px; height:18px; background:#000;"></div>
-                    <div style="width:30px; height:18px; background:#000;"></div>
-                </div>
-            </div>
-        </div>
-    </div>`;
-
-    cartContainer.innerHTML = html;
-};
+            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid rgba(0,0,0,0.1); padding:20px 20px
 
 // #2 & #3 HELPER FUNCTIONS (Attached to window so HTML buttons can see them)
 window.changeQty = function(index, delta) {
