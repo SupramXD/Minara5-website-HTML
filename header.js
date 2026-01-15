@@ -205,100 +205,113 @@ window.addToCart = function(productId) {
     }
 };
 
-/* ===============================
-   REPAIRED CART LOGIC
-================================ */
-
-// Fix #2 & #3: Ensure these are at the top level so they are found by the HTML
-window.changeQty = function(index, delta) {
-    if (cart[index]) {
-        cart[index].quantity += delta;
-        if (cart[index].quantity < 1) cart.splice(index, 1);
-        saveAndSyncCart();
-    }
-};
-
-window.removeFromCart = function(index) {
-    lastRemovedItem = { ...cart[index] };
-    cart.splice(index, 1);
-    saveAndSyncCart();
-};
-
+// 4. THE SYNC FUNCTION (Fixed for BAG 00 and Green Icon)
+// Fix #2: Forces all labels and icons to sync with the actual data
 function saveAndSyncCart() {
     localStorage.setItem('minara_cart', JSON.stringify(cart));
     
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const countStr = totalItems.toString().padStart(2, '0');
     
-    // Fix: Sync all labels across the site
-    const labels = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel"];
-    labels.forEach(id => {
+    // Update every possible counter in the site
+    const ids = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel"];
+    ids.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.textContent = (id === "bagCountLabel") ? `BAG ${countStr}` : countStr;
+        if (el) {
+            el.textContent = (id === "bagCountLabel") ? `BAG ${countStr}` : countStr;
+        }
     });
+
+    // Update cart icon color
+    const icons = document.querySelectorAll('.cart-header-btn img, .mobile-cart img');
+    icons.forEach(img => { img.src = totalItems > 0 ? "cart_green.svg" : "cart.svg"; });
 
     renderCartUI();
 }
+
+// Fix #3: Explicitly bind to window so HTML 'onclick' can find it
+window.removeFromCart = function(index) {
+    lastRemovedItem = { ...cart[index] };
+    cart.splice(index, 1);
+    saveAndSyncCart();
+};
 
 window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiContainer = document.querySelector('.cart-ascii');
     if (!cartContainer || !asciiContainer) return;
 
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    // #5 & #6 New ASCII Art
+    // Fix #4: High-Fashion Block Unicode
     const minaraArt = `
-                         __  __ ___ _   _    _    ____      _    ____  
-|  \\/  |_ _| \\ | |  / \\  |  _ \\    / \\  | ___| 
-| |\\/| || ||  \\| | / _ \\ | |_) |  / _ \\ |___ \\ 
-| |  | || || |\\  |/ ___ \\|  _ <  / ___ \\ ___) |
-|_|  |_|___|_| \\_/_/   \\_\\_| \\_\\/_/   \\_\\____/ `;
+ M   M  I  N   N   AAA   RRRR    AAA   55555
+ MM MM  I  NN  N  A   A  R   R  A   A  5
+ M M M  I  N N N  AAAAA  RRRR   AAAAA  5555
+ M   M  I  N  NN  A   A  R  R   A   A      5
+ M   M  I  N   N  A   A  R   R  A   A  5555`;
 
     const emptyArt = `
- _____ __  __ ____ _______   __
-| ____|  \\/  |  _ \\_   _\\ \\ / /
-|  _| | |\\/| | |_) || |  \\ V / 
-| |___| |  | |  __/ | |   | |  
-|_____|_|  |_|_|    |_|   |_|  `;
+ EEEEE  M   M  PPPP   TTTTT  Y   Y
+ E      MM MM  P   P    T     Y Y
+ EEE    M M M  PPPP     T      Y
+ E      M   M  P        T      Y
+ EEEEE  M   M  P        T      Y`;
 
-    asciiContainer.textContent = cart.length > 0 ? minaraArt : emptyArt;
+    asciiContainer.textContent = totalItems > 0 ? minaraArt : emptyArt;
 
-    // Item List
+    // Item List Area
     let itemHtml = '<div style="flex-grow: 1; padding: 0 15px;">';
-    cart.forEach((item, index) => {
-        itemHtml += `
+    if (totalItems > 0) {
+        cart.forEach((item, index) => {
+            itemHtml += `
             <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 0;">
-                <img src="${item.image}" style="width:90px; height:120px; object-fit:cover;">
+                <img src="${item.image}" style="width:80px; height:100px; object-fit:cover;">
                 <div style="flex:1;">
                     <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</div>
-                    <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL<br>ONE SIZE</div> <div style="font-size:11px;">R${item.price.toLocaleString()}</div>
+                    <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL / O/S</div>
+                    <div style="font-size:11px;">R${item.price.toLocaleString()}</div>
                     <div class="qty-stepper" style="display:flex; border:1px solid #000; width:fit-content; margin-top:10px;">
                         <div class="qty-btn" onclick="changeQty(${index}, -1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">–</div>
                         <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #000; border-right:1px solid #000;">${item.quantity}</div>
                         <div class="qty-btn" onclick="changeQty(${index}, 1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">+</div>
                     </div>
-                    <span onclick="removeFromCart(${index})" style="font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; font-weight:bold; text-transform:uppercase; text-decoration:underline; display:block;">✕ REMOVE</span>
+                    <div onclick="removeFromCart(${index})" style="font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; text-decoration:underline; text-transform:uppercase;">✕ REMOVE</div>
                 </div>
             </div>`;
-    });
+        });
+    } else if (lastRemovedItem) {
+        itemHtml += `<div style="text-align:center; padding:20px; font-size:10px;">
+            <span style="opacity:0.5;">REMOVED: ${lastRemovedItem.id}</span>
+            <span class="undo-link" onclick="undoRemove()" style="color:#1106e8; margin-left:10px; cursor:pointer; font-weight:bold;">UNDO</span>
+        </div>`;
+    }
     itemHtml += '</div>';
 
-    // #1 Restore old shipping/total boxes to the bottom
+    // Fix #1, #5, #6, #7: Bottom Boxes and Checkout logic
+    const hasItems = totalItems > 0;
     const footerHtml = `
-        <div style="margin-top: auto;">
-            <div class="cart-section" style="background:#f9f9f9; padding:20px; display:flex; flex-direction:column; gap:10px; border-top:1px solid #000;">
+        <div class="cart-footer-wrap" style="margin-top:auto; display:flex; flex-direction:column;">
+            <div class="shipping-total-box" style="background:#f9f9f9; border-top:1px solid #000; padding:15px 20px; height:70px; display:flex; flex-direction:column; justify-content:center; gap:8px;">
                 <div style="display:flex; justify-content:space-between; font-size:11px;"><span>SHIPPING</span><span>FREE</span></div>
-                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>TOTAL</span><span>R${totalPrice.toLocaleString()}</span></div>
+                ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
-            <div class="cart-section" style="background:#f2f2f2; border-top:1px solid #000; padding:20px 20px 40px 20px;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold; margin-bottom:15px;">
-                    <span>PAYMENT</span>
-                    <span>R${totalPrice.toLocaleString()}</span>
+            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:15px 20px 30px 20px; min-height:100px;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;">
+                    <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
+                    ${hasItems ? `<span>R${totalPrice.toLocaleString()}</span>` : ''}
                 </div>
-                <div style="display:flex; gap:10px; opacity:0.5;">[PAYMENT IMAGES]</div>
+                ${hasItems ? `<button class="checkout-btn" style="width:100%; margin:15px 0; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; letter-spacing:1px;">CHECKOUT</button>` : ''}
+                <div style="display:flex; gap:8px; opacity:0.4;">
+                    <div style="width:30px; height:18px; background:#000;"></div>
+                    <div style="width:30px; height:18px; background:#000;"></div>
+                </div>
             </div>
         </div>`;
 
-    cartContainer.innerHTML = `<div style="display:flex; flex-direction:column; min-height:100%;">${itemHtml}${footerHtml}</div>`;
+    cartContainer.innerHTML = `<div style="display:flex; flex-direction:column; height:100%;">${itemHtml}${footerHtml}</div>`;
 };
+
+// Run on page load to fix bug #2
+document.addEventListener('DOMContentLoaded', saveAndSyncCart);
