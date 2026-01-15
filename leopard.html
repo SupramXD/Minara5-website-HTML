@@ -431,21 +431,21 @@ footer{
     border-color: #000 !important;
 }
 
-/* #1: Distinct box for the ASCII */
 .cart-ascii-wrap {
     background: #f7f7f7;
-    padding: 15px;
+    padding: 20px 25px;
     border-bottom: 1px solid #000 !important;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start; /* Forces it to the left */
 }
 
 .cart-ascii {
     font-family: monospace;
-    font-size: 10px; /* Normal, readable size */
-    line-height: 1.2;
+    font-size: 8px; /* Slightly smaller to prevent wrapping/wonkiness */
     white-space: pre;
-    color: #000;
+    text-align: left;
+    line-height: 1.1;
+    margin: 0;
 }
 
 /* Ensure the body doesn't have internal padding so lines touch edges */
