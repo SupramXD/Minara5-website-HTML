@@ -449,9 +449,12 @@ footer{
 }
 
 /* Ensure the body doesn't have internal padding so lines touch edges */
+/* Ensure the body takes up the remaining space for the footer fix */
 .cart-body {
-    padding: 0 !important; 
-    overflow-x: hidden;
+    padding: 0 !important;
+    height: calc(100% - 80px); /* Adjusts for the larger header */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Item Borders */
@@ -775,12 +778,14 @@ footer{
     text-transform: uppercase;
 }
 
+/* #2: Make top row bigger vertically */
 .cart-head {
-    padding: 12px 20px;
+    height: 80px; /* Increased vertical size */
+    padding: 0 20px;
     border-bottom: 1px solid #000 !important;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: center; /* Keeps text centered in the same place */
 }
 </style>
 </head>
