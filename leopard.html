@@ -433,19 +433,20 @@ footer{
 
 .cart-ascii-wrap {
     background: #f7f7f7;
-    padding: 20px 25px;
+    padding: 30px 25px; /* Increased padding for size */
     border-bottom: 1px solid #000 !important;
     display: flex;
-    justify-content: flex-start; /* Forces it to the left */
+    justify-content: flex-start;
 }
 
 .cart-ascii {
     font-family: monospace;
-    font-size: 8px; /* Slightly smaller to prevent wrapping/wonkiness */
+    font-size: 14px; /* Matches the larger image reference */
+    font-weight: bold;
     white-space: pre;
     text-align: left;
-    line-height: 1.1;
-    margin: 0;
+    line-height: 1;
+    letter-spacing: -1px;
 }
 
 /* Ensure the body doesn't have internal padding so lines touch edges */
