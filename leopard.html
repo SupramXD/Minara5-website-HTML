@@ -433,31 +433,19 @@ footer{
 
 .cart-ascii-wrap {
     background: #f7f7f7;
-    padding: 25px; 
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+    padding: 20px 25px;
+    border-bottom: 1px solid #000 !important;
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-start; /* Forces it to the left */
 }
 
 .cart-ascii {
     font-family: monospace;
-    font-size: 11px; /* Increased from 8px */
+    font-size: 8px; /* Slightly smaller to prevent wrapping/wonkiness */
     white-space: pre;
     text-align: left;
     line-height: 1.1;
     margin: 0;
-    color: #000;
-}
-
-
-/* #1 & #2: Translucent borders for everything */
-.cart-header-row, 
-.cart-ascii-wrap, 
-.cart-section, 
-.cart-item-row,
-#cartPanel,
-.cart-body { 
-    border-color: rgba(0, 0, 0, 0.1) !important; 
 }
 
 /* Ensure the body doesn't have internal padding so lines touch edges */
