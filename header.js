@@ -249,36 +249,28 @@ window.renderCartUI = function() {
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const hasItems = totalItems > 0;
 
-    // #3: Exact requested ASCII style for MINARA5
+    // #1 & #3: Cleaned ASCII Art (BAG STATUS removed)
     const minaraArt = `
- __  __ ___ _   _   _   ____    _    _____ 
-|  \\/  |_ _| \\ | | / \\ |  _ \\  / \\  | ____|
-| |\\/| || ||  \\| |/ _ \\| |_) |/ _ \\ |___ \\ 
-| |  | || || |\\  / ___ \\  _ < / ___ \\ ___) |
-|_|  |_|___|_| \\_/_/   \\_\\_| \\_\\_/   \\_\\____/ `;
+ _____ __  __ ____ _______   __
+| ____|  \\/  |  _ \\_   _\\ \\ / /
+|  _| | |\\/| | |_) || |  \\ V / 
+| |___| |  | |  __/ | |   | |  
+|_____|_|  |_|_|    |_|   |_| `;
     
-    // #3: Exact requested ASCII style for EMPTY
     const emptyArt = `
  _____ __  __ ____ _______   __
 | ____|  \\/  |  _ \\_   _\\ \\ / /
 |  _| | |\\/| | |_) || |  \\ V / 
 | |___| |  | |  __/ | |   | |  
-|_____|_|  |_|_|    |_|   |_|
-BAG STATUS: EMPTY`;
+|_____|_|  |_|_|    |_|   |_| `;
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
-    
-    // Logic for left-alignment and sizing
-    asciiContainer.style.textAlign = "left"; 
-    asciiContainer.style.whiteSpace = "pre";
-    asciiContainer.style.fontSize = "10px"; 
-    asciiContainer.style.lineHeight = "1.1";
 
-    // #1 & #2: Container setup to push footer down
+    // Main wrapper to handle "footer at bottom"
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
 
     if (hasItems) {
-        html += '<div class="cart-items-list" style="flex-grow: 1;">';
+        html += '<div class="cart-items-list" style="flex-grow:1;">';
         cart.forEach((item, index) => {
             html += `
             <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 15px;">
@@ -298,10 +290,18 @@ BAG STATUS: EMPTY`;
         });
         html += '</div>';
     } else {
-        html += `<div style="padding:40px 15px; border-bottom:1px solid #000; font-size:10px; opacity:0.6; flex-grow:1;">YOUR BAG IS EMPTY.</div>`;
+        // #4: New Empty Cart Text
+        html += `
+        <div style="padding:40px 25px; flex-grow:1; border-bottom:1px solid #000;">
+            <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; margin-bottom:5px;">MISSING ITEMS?</div>
+            <div style="font-size:10px; opacity:0.6;">
+                <a href="account.html" style="color:#000; text-decoration:underline;">LOGIN</a> OR 
+                <a href="account.html" style="color:#000; text-decoration:underline;">REGISTER</a> TO SEE THEM.
+            </div>
+        </div>`;
     }
 
-    // #1: Footer Section pushed to bottom
+    // #5: Shipping/Payment section + CONTINUE TO CHECKOUT
     html += `
         <div class="cart-footer-wrapper" style="margin-top:auto;">
             <div style="background:#f9f9f9; border-top:1px solid #000; padding:15px 20px;">
@@ -313,7 +313,7 @@ BAG STATUS: EMPTY`;
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
                 </div>
                 
-                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:14px; font-family:'Gotham Narrow Bold',sans-serif; font-size:12px; cursor:pointer; letter-spacing:1px; margin-bottom:15px; font-weight:bold;">CONTINUE TO CHECKOUT</button>` : ''}
+                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:14px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; letter-spacing:1px; margin-bottom:15px; font-weight:bold;">CONTINUE TO CHECKOUT</button>` : ''}
                 
                 <div style="display:flex; gap:8px; opacity:0.4;">
                     <div style="width:30px; height:18px; background:#000;"></div>
