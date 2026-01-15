@@ -205,11 +205,29 @@ window.addToCart = function(productId) {
     }
 };
 
-/* ===============================
-   REPAIRED CART LOGIC
-================================ */
+// 4. THE SYNC FUNCTION (Fixed for BAG 00 and Green Icon)
+function saveAndSyncCart() {
+    localStorage.setItem('minara_cart', JSON.stringify(cart));
+    
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const countStr = totalItems.toString().padStart(2, '0');
+    
+    // Force update all header and panel counters
+    const labelIds = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel"];
+    labelIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = (id === "bagCountLabel") ? `BAG ${countStr}` : countStr;
+    });
 
-// Fix #2 & #3: Ensure these are at the top level so they are found by the HTML
+    // Update cart icon color
+    document.querySelectorAll('.cart-header-btn img, .mobile-cart img').forEach(img => {
+        img.src = totalItems > 0 ? "cart_green.svg" : "cart.svg";
+    });
+
+    renderCartUI();
+}
+
+// Fix #2 & #3: Global scope functions for buttons
 window.changeQty = function(index, delta) {
     if (cart[index]) {
         cart[index].quantity += delta;
@@ -224,81 +242,78 @@ window.removeFromCart = function(index) {
     saveAndSyncCart();
 };
 
-function saveAndSyncCart() {
-    localStorage.setItem('minara_cart', JSON.stringify(cart));
-    
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const countStr = totalItems.toString().padStart(2, '0');
-    
-    // Fix: Sync all labels across the site
-    const labels = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel"];
-    labels.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = (id === "bagCountLabel") ? `BAG ${countStr}` : countStr;
-    });
-
-    renderCartUI();
-}
-
 window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiContainer = document.querySelector('.cart-ascii');
     if (!cartContainer || !asciiContainer) return;
 
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    // #5 & #6 New ASCII Art
+    // Fix #4: High-Fashion Block Unicode
     const minaraArt = `
-                         __  __ ___ _   _    _    ____      _    ____  
-|  \\/  |_ _| \\ | |  / \\  |  _ \\    / \\  | ___| 
-| |\\/| || ||  \\| | / _ \\ | |_) |  / _ \\ |___ \\ 
-| |  | || || |\\  |/ ___ \\|  _ <  / ___ \\ ___) |
-|_|  |_|___|_| \\_/_/   \\_\\_| \\_\\/_/   \\_\\____/ `;
+ M  M  I  N  N  A  RR  A
+ MM MM  I  NN N A A R R A A
+ M M M  I  N NN AAA RR  AAA
+ M   M  I  N  N A A R R A A 5`;
 
     const emptyArt = `
- _____ __  __ ____ _______   __
-| ____|  \\/  |  _ \\_   _\\ \\ / /
-|  _| | |\\/| | |_) || |  \\ V / 
-| |___| |  | |  __/ | |   | |  
-|_____|_|  |_|_|    |_|   |_|  `;
+ EEEE M  M PPPP TTT Y  Y
+ E    MM MM P  P  T   Y Y 
+ EEE  M M M PPPP  T    Y  
+ E    M   M P     T    Y  
+ EEEE M   M P     T    Y  `;
 
-    asciiContainer.textContent = cart.length > 0 ? minaraArt : emptyArt;
+    asciiContainer.textContent = totalItems > 0 ? minaraArt : emptyArt;
 
-    // Item List
-    let itemHtml = '<div style="flex-grow: 1; padding: 0 15px;">';
-    cart.forEach((item, index) => {
-        itemHtml += `
+    let html = '<div style="flex-grow: 1; padding: 0 15px;">';
+    
+    if (totalItems === 0) {
+        html += `<div style="text-align:center; padding:40px 0;">
+            ${lastRemovedItem ? `<span style="opacity:0.5; font-size:10px;">REMOVED: ${lastRemovedItem.id}</span>
+            <span class="undo-link" onclick="undoRemove()" style="color:#1106e8; margin-left:10px; cursor:pointer; text-decoration:underline; font-weight:bold; font-size:10px;">UNDO</span>` : ''}
+        </div>`;
+    } else {
+        cart.forEach((item, index) => {
+            html += `
             <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 0;">
-                <img src="${item.image}" style="width:90px; height:120px; object-fit:cover;">
+                <img src="${item.image}" style="width:80px; height:100px; object-fit:cover;">
                 <div style="flex:1;">
-                    <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</div>
-                    <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL<br>ONE SIZE</div> <div style="font-size:11px;">R${item.price.toLocaleString()}</div>
-                    <div class="qty-stepper" style="display:flex; border:1px solid #000; width:fit-content; margin-top:10px;">
-                        <div class="qty-btn" onclick="changeQty(${index}, -1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">–</div>
-                        <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #000; border-right:1px solid #000;">${item.quantity}</div>
-                        <div class="qty-btn" onclick="changeQty(${index}, 1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">+</div>
+                    <div class="cart-item-name">${item.name}</div>
+                    <div class="cart-item-meta">COLOUR: ORIGINAL / O/S</div>
+                    <div style="font-size:11px;">R${item.price.toLocaleString()}</div>
+                    <div class="qty-stepper">
+                        <div class="qty-btn" onclick="changeQty(${index}, -1)">–</div>
+                        <div class="qty-val">${item.quantity}</div>
+                        <div class="qty-btn" onclick="changeQty(${index}, 1)">+</div>
                     </div>
-                    <span onclick="removeFromCart(${index})" style="font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; font-weight:bold; text-transform:uppercase; text-decoration:underline; display:block;">✕ REMOVE</span>
+                    <div onclick="removeFromCart(${index})" class="cart-remove-link">✕ REMOVE</div>
                 </div>
             </div>`;
-    });
-    itemHtml += '</div>';
+        });
+    }
+    html += '</div>';
 
-    // #1 Restore old shipping/total boxes to the bottom
+    // Fix #5, #6, #7: Dynamic Footer Logic
+    const hasItems = totalItems > 0;
     const footerHtml = `
-        <div style="margin-top: auto;">
-            <div class="cart-section" style="background:#f9f9f9; padding:20px; display:flex; flex-direction:column; gap:10px; border-top:1px solid #000;">
-                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>SHIPPING</span><span>FREE</span></div>
-                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>TOTAL</span><span>R${totalPrice.toLocaleString()}</span></div>
+        <div class="cart-footer-wrap" style="margin-top:auto;">
+            ${hasItems ? `<button class="checkout-btn">CHECKOUT</button>` : ''}
+            <div class="shipping-total-box" style="height: ${hasItems ? '80px' : '60px'};">
+                <div class="box-row"><span>SHIPPING</span><span>FREE</span></div>
+                ${!hasItems ? `<div class="box-row"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
-            <div class="cart-section" style="background:#f2f2f2; border-top:1px solid #000; padding:20px 20px 40px 20px;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold; margin-bottom:15px;">
-                    <span>PAYMENT</span>
-                    <span>R${totalPrice.toLocaleString()}</span>
+            <div class="payment-section">
+                <div class="box-row">
+                    <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
+                    ${hasItems ? `<span>R${totalPrice.toLocaleString()}</span>` : ''}
                 </div>
-                <div style="display:flex; gap:10px; opacity:0.5;">[PAYMENT IMAGES]</div>
+                <div class="payment-icons" style="margin-top:15px; display:flex; gap:8px; opacity:0.6;">
+                    <div style="width:30px; height:18px; background:#ccc;"></div>
+                    <div style="width:30px; height:18px; background:#ccc;"></div>
+                </div>
             </div>
         </div>`;
 
-    cartContainer.innerHTML = `<div style="display:flex; flex-direction:column; min-height:100%;">${itemHtml}${footerHtml}</div>`;
+    cartContainer.innerHTML = `<div style="display:flex; flex-direction:column; min-height:100%;">${html}${footerHtml}</div>`;
 };
