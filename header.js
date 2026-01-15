@@ -236,6 +236,8 @@ window.removeFromCart = function(index) {
     saveAndSyncCart();
 };
 
+// --- KEEP EVERYTHING ABOVE THIS UNTOUCHED ---
+
 window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiContainer = document.querySelector('.cart-ascii');
@@ -243,75 +245,86 @@ window.renderCartUI = function() {
 
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const hasItems = totalItems > 0;
 
-    // Fix #4: High-Fashion Block Unicode
+    // #6 ASCII type updated to / style
     const minaraArt = `
- M   M  I  N   N   AAA   RRRR    AAA   55555
- MM MM  I  NN  N  A   A  R   R  A   A  5
- M M M  I  N N N  AAAAA  RRRR   AAAAA  5555
- M   M  I  N  NN  A   A  R  R   A   A      5
- M   M  I  N   N  A   A  R   R  A   A  5555`;
-
+ //  //  //  //  //  //  //
+//   MINARA5   //
+//  //  //  //  //  //  //`;
+    
     const emptyArt = `
- EEEEE  M   M  PPPP   TTTTT  Y   Y
- E      MM MM  P   P    T     Y Y
- EEE    M M M  PPPP     T      Y
- E      M   M  P        T      Y
- EEEEE  M   M  P        T      Y`;
+ //  //  //  //  //  //  //
+//    EMPTY    //
+//  //  //  //  //  //  //`;
 
-    asciiContainer.textContent = totalItems > 0 ? minaraArt : emptyArt;
+    asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-    // Item List Area
-    let itemHtml = '<div style="flex-grow: 1; padding: 0 15px;">';
-    if (totalItems > 0) {
+    // #4 & #5: Borders touch edges by using padding on the row, not the container
+    let html = '<div style="display:flex; flex-direction:column; height:100%;">';
+
+    if (hasItems) {
         cart.forEach((item, index) => {
-            itemHtml += `
-            <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 0;">
-                <img src="${item.image}" style="width:80px; height:100px; object-fit:cover;">
+            html += `
+            <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 15px;">
+                <img src="${item.image}" style="width:80px; height:105px; object-fit:cover;">
                 <div style="flex:1;">
                     <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</div>
-                    <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL / O/S</div>
+                    <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL<br>ONE SIZE</div>
                     <div style="font-size:11px;">R${item.price.toLocaleString()}</div>
+                    
                     <div class="qty-stepper" style="display:flex; border:1px solid #000; width:fit-content; margin-top:10px;">
                         <div class="qty-btn" onclick="changeQty(${index}, -1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">–</div>
-                        <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #000; border-right:1px solid #000;">${item.quantity}</div>
+                        <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #000; border-right:1px solid #000; font-size:11px; display:flex; align-items:center; justify-content:center;">${item.quantity}</div>
                         <div class="qty-btn" onclick="changeQty(${index}, 1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">+</div>
                     </div>
-                    <div onclick="removeFromCart(${index})" style="font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; text-decoration:underline; text-transform:uppercase;">✕ REMOVE</div>
+                    
+                    <div onclick="removeFromCart(${index})" style="font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; text-decoration:underline; font-weight:bold; text-transform:uppercase;">✕ REMOVE</div>
                 </div>
             </div>`;
         });
-    } else if (lastRemovedItem) {
-        itemHtml += `<div style="text-align:center; padding:20px; font-size:10px;">
-            <span style="opacity:0.5;">REMOVED: ${lastRemovedItem.id}</span>
-            <span class="undo-link" onclick="undoRemove()" style="color:#1106e8; margin-left:10px; cursor:pointer; font-weight:bold;">UNDO</span>
-        </div>`;
+    } else {
+        html += `
+            <div style="padding:30px 15px; border-bottom:1px solid #000;">
+                <div style="font-size:10px; letter-spacing:1px; margin-bottom:5px;">MISSING ITEMS IN YOUR CART?</div>
+                <div style="font-size:10px; opacity:0.6;">SIGN IN TO SEE THEM.</div>
+            </div>`;
     }
-    itemHtml += '</div>';
 
-    // Fix #1, #5, #6, #7: Bottom Boxes and Checkout logic
-    const hasItems = totalItems > 0;
-    const footerHtml = `
-        <div class="cart-footer-wrap" style="margin-top:auto; display:flex; flex-direction:column;">
-            <div class="shipping-total-box" style="background:#f9f9f9; border-top:1px solid #000; padding:15px 20px; height:70px; display:flex; flex-direction:column; justify-content:center; gap:8px;">
+    // #2 & #4: Shipping and Payment boxes separated by black lines
+    html += `
+        <div class="cart-footer" style="margin-top:auto;">
+            <div style="background:#f9f9f9; border-top:1px solid #000; padding:15px 20px;">
                 <div style="display:flex; justify-content:space-between; font-size:11px;"><span>SHIPPING</span><span>FREE</span></div>
-                ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
-            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:15px 20px 30px 20px; min-height:100px;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;">
+            <div style="background:#f2f2f2; border-top:1px solid #000; padding:15px 20px 30px 20px; border-bottom:1px solid #000;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold; margin-bottom:15px;">
                     <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
-                    ${hasItems ? `<span>R${totalPrice.toLocaleString()}</span>` : ''}
+                    <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
                 </div>
-                ${hasItems ? `<button class="checkout-btn" style="width:100%; margin:15px 0; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; letter-spacing:1px;">CHECKOUT</button>` : ''}
                 <div style="display:flex; gap:8px; opacity:0.4;">
                     <div style="width:30px; height:18px; background:#000;"></div>
                     <div style="width:30px; height:18px; background:#000;"></div>
                 </div>
             </div>
-        </div>`;
+        </div>
+    </div>`;
 
-    cartContainer.innerHTML = `<div style="display:flex; flex-direction:column; height:100%;">${itemHtml}${footerHtml}</div>`;
+    cartContainer.innerHTML = html;
 };
 
-// Run on page load to fix bug #2
-document.addEventListener('DOMContentLoaded', saveAndSyncCart);
+// HELPER FUNCTIONS (Fixed for #2 and #3)
+window.changeQty = function(index, delta) {
+    if (cart[index]) {
+        cart[index].quantity += delta;
+        if (cart[index].quantity < 1) {
+            cart.splice(index, 1);
+        }
+        saveAndSyncCart();
+    }
+};
+
+window.removeFromCart = function(index) {
+    cart.splice(index, 1);
+    saveAndSyncCart();
+};
