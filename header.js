@@ -249,31 +249,33 @@ window.renderCartUI = function() {
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const hasItems = totalItems > 0;
 
-    // #6 ASCII type updated to / style
+    // #3: Enhanced /_ ) variant ASCII
     const minaraArt = `
- //  //  //  //  //  //  //
-//   MINARA5   //
-//  //  //  //  //  //  //`;
+  _/_/_/  _/_/_/  _/_/_/
+ /_/ /_/ /_/ /_/ /_/ /_/
+/_/     /_/ /_/ /_/_/_/ 
+MINARA5 EDITION /_/_/_/`;
     
     const emptyArt = `
- //  //  //  //  //  //  //
-//    EMPTY    //
-//  //  //  //  //  //  //`;
+  _/_/_/  _/_/_/  _/_/_/
+ /_/     /_/ /_/ /_/ /_/
+_/_/_/  /_/_/_/ /_/_/_/ 
+BAG STATUS: /_/ EMPTY`;
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-    // #4 & #5: Container setup for edge-to-edge borders
-    let html = '<div style="display:flex; flex-direction:column; height:100%;">';
+    // #2 & #4: Container with flex-direction column to push footer down
+    let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
 
     if (hasItems) {
+        html += '<div class="cart-items-list">';
         cart.forEach((item, index) => {
-            // #5 border-bottom:1px solid #000; ensures the line touches both edges
             html += `
             <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 15px;">
                 <img src="${item.image}" style="width:80px; height:105px; object-fit:cover;">
                 <div style="flex:1;">
                     <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</div>
-                    <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL<br>ONE SIZE</div>
+                    <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL</div>
                     <div style="font-size:11px;">R${item.price.toLocaleString()}</div>
                     
                     <div class="qty-stepper" style="display:flex; border:1px solid #000; width:fit-content; margin-top:10px;">
@@ -286,17 +288,14 @@ window.renderCartUI = function() {
                 </div>
             </div>`;
         });
+        html += '</div>';
     } else {
-        html += `
-            <div style="padding:30px 15px; border-bottom:1px solid #000;">
-                <div style="font-size:10px; letter-spacing:1px; margin-bottom:5px;">MISSING ITEMS IN YOUR CART?</div>
-                <div style="font-size:10px; opacity:0.6;">SIGN IN TO SEE THEM.</div>
-            </div>`;
+        html += `<div style="padding:30px 15px; border-bottom:1px solid #000; font-size:10px; opacity:0.6;">YOUR BAG IS EMPTY.</div>`;
     }
 
-    // #4: Footer boxes separated by black lines
+    // #2: This wrapper uses margin-top:auto to stay at the very bottom
     html += `
-        <div class="cart-footer" style="margin-top:auto;">
+        <div class="cart-footer-wrapper" style="margin-top:auto;">
             <div style="background:#f9f9f9; border-top:1px solid #000; padding:15px 20px;">
                 <div style="display:flex; justify-content:space-between; font-size:11px;"><span>SHIPPING</span><span>FREE</span></div>
             </div>
@@ -310,7 +309,8 @@ window.renderCartUI = function() {
                     <div style="width:30px; height:18px; background:#000;"></div>
                 </div>
             </div>
-        </div>`;
+        </div>
+    </div>`;
 
     cartContainer.innerHTML = html;
 };
