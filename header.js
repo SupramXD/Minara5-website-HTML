@@ -183,9 +183,10 @@ const products = {
 };
 
 // 2. INITIALIZE CART
+// --- 1. INITIALIZE CART FROM STORAGE ---
 let cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
 
-// 3. THE ADD FUNCTION
+// --- 2. THE ADD FUNCTION ---
 window.addToCart = function(productId) {
     const product = products[productId];
     if (!product) return;
@@ -199,21 +200,19 @@ window.addToCart = function(productId) {
 
     saveAndSyncCart();
     
-    // Auto-open panel (Function exists in leopard.html)
     if (typeof openCart === "function") {
         openCart();
     }
 };
 
-// 4. THE SYNC FUNCTION (Fixed for BAG 00 and Green Icon)
-// Fix #2: Forces all labels and icons to sync with the actual data
-function saveAndSyncCart() {
+// --- 3. THE SYNC FUNCTION ---
+// We add 'window.' to make sure it's accessible everywhere
+window.saveAndSyncCart = function() {
     localStorage.setItem('minara_cart', JSON.stringify(cart));
     
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const countStr = totalItems.toString().padStart(2, '0');
     
-    // Update every possible counter in the site
     const ids = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel"];
     ids.forEach(id => {
         const el = document.getElementById(id);
@@ -221,6 +220,18 @@ function saveAndSyncCart() {
             el.textContent = (id === "bagCountLabel") ? `BAG ${countStr}` : countStr;
         }
     });
+
+    // This ensures the list inside the cart panel also updates
+    if (typeof renderCartUI === 'function') {
+        renderCartUI();
+    }
+};
+
+// --- 4. THE REFRESH BUG FIX ---
+// This is the part you were missing! It runs the sync as soon as the page loads.
+document.addEventListener('DOMContentLoaded', () => {
+    saveAndSyncCart();
+});
 
     // Update cart icon color
     const icons = document.querySelectorAll('.cart-header-btn img, .mobile-cart img');
