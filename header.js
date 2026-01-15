@@ -183,36 +183,40 @@ const products = {
 };
 
 // 2. INITIALIZE CART
-// --- 1. INITIALIZE CART FROM STORAGE ---
+// 1. INITIALIZE CART (Verified: Reads from browser storage on load)
 let cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
 
-// --- 2. THE ADD FUNCTION ---
-window.addToCart = function(productId) {
-    const product = products[productId];
-    if (!product) return;
-
-    const existingItem = cart.find(item => item.id === productId);
+// 2. ADD TO BAG FUNCTION (Verified: Matches leopard.html button arguments)
+window.addToCart = function(name, price, image) {
+    const existingItem = cart.find(item => item.name === name);
+    
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
-        cart.push({ ...product, quantity: 1 });
+        cart.push({ 
+            name: name, 
+            price: price, 
+            image: image, 
+            quantity: 1 
+        });
     }
 
     saveAndSyncCart();
     
-    if (typeof openCart === "function") {
-        openCart();
+    // Opens the cart panel automatically after adding
+    if (typeof window.openCart === "function") {
+        window.openCart();
     }
 };
 
-// --- 3. THE SYNC FUNCTION ---
-// We add 'window.' to make sure it's accessible everywhere
+// 3. THE SYNC FUNCTION (Updates all "00" labels)
 window.saveAndSyncCart = function() {
     localStorage.setItem('minara_cart', JSON.stringify(cart));
     
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const countStr = totalItems.toString().padStart(2, '0');
     
+    // Updates Header (Desktop/Mobile) and the Cart Title
     const ids = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel"];
     ids.forEach(id => {
         const el = document.getElementById(id);
@@ -221,14 +225,13 @@ window.saveAndSyncCart = function() {
         }
     });
 
-    // This ensures the list inside the cart panel also updates
-    if (typeof renderCartUI === 'function') {
-        renderCartUI();
+    // Refreshes the item list inside the cart panel
+    if (typeof window.renderCartUI === 'function') {
+        window.renderCartUI();
     }
 };
 
-// --- 4. THE REFRESH BUG FIX ---
-// This is the part you were missing! It runs the sync as soon as the page loads.
+// 4. THE REFRESH FIX (Forces the count to update as soon as the page loads)
 document.addEventListener('DOMContentLoaded', () => {
     saveAndSyncCart();
 });
