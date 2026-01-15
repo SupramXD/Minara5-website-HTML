@@ -431,13 +431,13 @@ footer{
     border-color: #000 !important;
 }
 
-/* #4 Separation border for the ASCII box */
+/* #1: Distinct box for the ASCII */
 .cart-ascii-wrap {
     background: #f7f7f7;
     padding: 15px;
-    border-bottom: 1px solid #000; /* This creates the separation line */
+    border-bottom: 1px solid #000 !important;
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
 }
 
 .cart-ascii {
@@ -774,6 +774,14 @@ footer{
     cursor: pointer;
     text-transform: uppercase;
 }
+
+.cart-head {
+    padding: 12px 20px;
+    border-bottom: 1px solid #000 !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 </style>
 </head>
 
@@ -825,7 +833,7 @@ footer{
 <div id="cartPanel" class="cart-panel">
     <div class="cart-head">
         <span id="bagCountLabel">BAG 00</span>
-        <span class="cart-close" onclick="closeCart()">CLOSE</span>
+        <span class="cart-close" onclick="closeCart()">X CLOSE</span>
     </div>
 
   <div class="cart-ascii-wrap">
