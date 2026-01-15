@@ -249,28 +249,21 @@ window.renderCartUI = function() {
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const hasItems = totalItems > 0;
 
-    // #1 & #3: Cleaned ASCII Art (BAG STATUS removed)
-    const minaraArt = `
- _____ __  __ ____ _______   __
-| ____|  \\/  |  _ \\_   _\\ \\ / /
-|  _| | |\\/| | |_) || |  \\ V / 
-| |___| |  | |  __/ | |   | |  
-|_____|_|  |_|_|    |_|   |_| `;
-    
-    const emptyArt = `
+    // ASCII Art (Left Aligned, No Extra Text)
+    const art = `
  _____ __  __ ____ _______   __
 | ____|  \\/  |  _ \\_   _\\ \\ / /
 |  _| | |\\/| | |_) || |  \\ V / 
 | |___| |  | |  __/ | |   | |  
 |_____|_|  |_|_|    |_|   |_| `;
 
-    asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
+    asciiContainer.textContent = art;
 
-    // Main wrapper to handle "footer at bottom"
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
 
     if (hasItems) {
-        html += '<div class="cart-items-list" style="flex-grow:1;">';
+        // Wrapper for items to prevent border-stacking
+        html += '<div class="items-area" style="flex-grow:1;">';
         cart.forEach((item, index) => {
             html += `
             <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 15px;">
@@ -290,26 +283,29 @@ window.renderCartUI = function() {
         });
         html += '</div>';
     } else {
-        // #4: New Empty Cart Text
+        // #4 Empty state text from Image
         html += `
-        <div style="padding:40px 25px; flex-grow:1; border-bottom:1px solid #000;">
-            <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; margin-bottom:5px;">MISSING ITEMS?</div>
-            <div style="font-size:10px; opacity:0.6;">
-                <a href="account.html" style="color:#000; text-decoration:underline;">LOGIN</a> OR 
-                <a href="account.html" style="color:#000; text-decoration:underline;">REGISTER</a> TO SEE THEM.
+        <div style="padding:35px 25px; flex-grow:1;">
+            <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; line-height:1.4;">
+                Missing items in your cart?<br>Sign in to see items you added before.
+            </div>
+            <div style="display:flex; gap:25px; margin-top:15px;">
+                <a href="account.html" style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; color:#000; text-decoration:none;">SIGN IN</a>
+                <a href="account.html" style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; color:#000; text-decoration:none;">REGISTER</a>
             </div>
         </div>`;
     }
 
-    // #5: Shipping/Payment section + CONTINUE TO CHECKOUT
+    // #1 & #5 Footer area
     html += `
-        <div class="cart-footer-wrapper" style="margin-top:auto;">
-            <div style="background:#f9f9f9; border-top:1px solid #000; padding:15px 20px;">
+        <div class="cart-footer-area" style="margin-top:auto;">
+            <div style="background:#f9f9f9; border-top:1px solid #000; padding:15px 20px; display:flex; flex-direction:column; gap:8px;">
                 <div style="display:flex; justify-content:space-between; font-size:11px;"><span>SHIPPING</span><span>FREE</span></div>
+                ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
-            <div style="background:#f2f2f2; border-top:1px solid #000; padding:20px 20px 30px 20px; border-bottom:1px solid #000;">
+            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:20px 20px 30px 20px; border-bottom:1px solid #000;">
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold; margin-bottom:15px;">
-                    <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
+                    <span style="font-family:'Gotham Narrow Bold',sans-serif;">${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
                 </div>
                 
