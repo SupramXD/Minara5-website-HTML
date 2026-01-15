@@ -431,14 +431,13 @@ footer{
     border-color: #000 !important;
 }
 
-/* Unicode Header Border Fix */
+/* #4 Separation border for the ASCII box */
 .cart-ascii-wrap {
-    background-color: #f7f7f7 !important;
-    padding: 25px 0 !important;
+    background: #f7f7f7;
+    padding: 15px;
+    border-bottom: 1px solid #000; /* This creates the separation line */
     display: flex;
-    justify-content: center;
-    align-items: center;
-    border-bottom: 1px solid #000;
+    justify-content: flex-start;
 }
 
 .cart-ascii {
@@ -449,12 +448,10 @@ footer{
     color: #000;
 }
 
+/* Ensure the body doesn't have internal padding so lines touch edges */
 .cart-body {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 180px); /* Adjust based on your header/ascii height */
-    overflow-y: auto;
-    padding: 0 !important;
+    padding: 0 !important; 
+    overflow-x: hidden;
 }
 
 /* Item Borders */
