@@ -249,26 +249,40 @@ window.renderCartUI = function() {
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const hasItems = totalItems > 0;
 
-    // ASCII Art
+    // #3: Exact requested ASCII style for MINARA5
     const minaraArt = `
-  _/_/_/  _/_/_/  _/_/_/
- /_/ /_/ /_/ /_/ /_/ /_/
-/_/     /_/ /_/ /_/_/_/ 
-MINARA5 EDITION /_/_/_/`;
+
+
+ __  __ ___ _   _    _    ____      _      ____  
+|  \/  |_ _| \ | |  / \  |  _ \    / \    | ___| 
+| |\/| || ||  \| | / _ \ | |_) |  / _ \   |___ \ 
+| |  | || || |\  |/ ___ \|  _ <  / ___ \   ___) |
+|_|  |_|___|_| \_/_/   \_\_| \_\/_/   \_\ |____/ 
+
+ `;
     
+    // #3: Exact requested ASCII style for EMPTY
     const emptyArt = `
-  _/_/_/  _/_/_/  _/_/_/
- /_/     /_/ /_/ /_/ /_/
-_/_/_/  /_/_/_/ /_/_/_/ 
-BAG STATUS: /_/ EMPTY`;
+ _____   __  __   ____    _____  __   __
+| ____| |  \/  | |  _ \  |_   _| \ \ / /
+|  _|   | |\/| | | |_) |   | |    \ V / 
+| |___  | |  | | |  __/    | |     | |  
+|_____| |_|  |_| |_|       |_|     |_| 
+BAG STATUS: EMPTY`;
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
+    
+    // Logic for left-alignment and sizing
+    asciiContainer.style.textAlign = "left"; 
+    asciiContainer.style.whiteSpace = "pre";
+    asciiContainer.style.fontSize = "10px"; 
+    asciiContainer.style.lineHeight = "1.1";
 
-    // #1: wrapper with min-height: 100% and flex-direction column pushes the footer down
+    // #1 & #2: Container setup to push footer down
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
 
     if (hasItems) {
-        html += '<div class="cart-items-list">';
+        html += '<div class="cart-items-list" style="flex-grow: 1;">';
         cart.forEach((item, index) => {
             html += `
             <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 15px;">
@@ -288,22 +302,22 @@ BAG STATUS: /_/ EMPTY`;
         });
         html += '</div>';
     } else {
-        html += `<div style="padding:30px 15px; border-bottom:1px solid #000; font-size:10px; opacity:0.6;">YOUR BAG IS EMPTY.</div>`;
+        html += `<div style="padding:40px 15px; border-bottom:1px solid #000; font-size:10px; opacity:0.6; flex-grow:1;">YOUR BAG IS EMPTY.</div>`;
     }
 
-    // #1 & #3: Footer section pushed to bottom with Checkout button added
+    // #1: Footer Section pushed to bottom
     html += `
         <div class="cart-footer-wrapper" style="margin-top:auto;">
             <div style="background:#f9f9f9; border-top:1px solid #000; padding:15px 20px;">
                 <div style="display:flex; justify-content:space-between; font-size:11px;"><span>SHIPPING</span><span>FREE</span></div>
             </div>
-            <div style="background:#f2f2f2; border-top:1px solid #000; padding:15px 20px 30px 20px; border-bottom:1px solid #000;">
+            <div style="background:#f2f2f2; border-top:1px solid #000; padding:20px 20px 30px 20px; border-bottom:1px solid #000;">
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold; margin-bottom:15px;">
                     <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
                 </div>
                 
-                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; letter-spacing:1px; margin-bottom:15px;">CONTINUE TO CHECKOUT</button>` : ''}
+                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:14px; font-family:'Gotham Narrow Bold',sans-serif; font-size:12px; cursor:pointer; letter-spacing:1px; margin-bottom:15px; font-weight:bold;">CONTINUE TO CHECKOUT</button>` : ''}
                 
                 <div style="display:flex; gap:8px; opacity:0.4;">
                     <div style="width:30px; height:18px; background:#000;"></div>
