@@ -249,7 +249,7 @@ window.renderCartUI = function() {
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const hasItems = totalItems > 0;
 
-    // #3: Enhanced /_ ) variant ASCII
+    // ASCII Art
     const minaraArt = `
   _/_/_/  _/_/_/  _/_/_/
  /_/ /_/ /_/ /_/ /_/ /_/
@@ -264,7 +264,7 @@ BAG STATUS: /_/ EMPTY`;
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-    // #2 & #4: Container with flex-direction column to push footer down
+    // #1: wrapper with min-height: 100% and flex-direction column pushes the footer down
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
 
     if (hasItems) {
@@ -277,13 +277,11 @@ BAG STATUS: /_/ EMPTY`;
                     <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</div>
                     <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL</div>
                     <div style="font-size:11px;">R${item.price.toLocaleString()}</div>
-                    
                     <div class="qty-stepper" style="display:flex; border:1px solid #000; width:fit-content; margin-top:10px;">
                         <div class="qty-btn" onclick="window.changeQty(${index}, -1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">–</div>
                         <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #000; border-right:1px solid #000; font-size:11px; display:flex; align-items:center; justify-content:center;">${item.quantity}</div>
                         <div class="qty-btn" onclick="window.changeQty(${index}, 1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">+</div>
                     </div>
-                    
                     <div onclick="window.removeFromCart(${index})" style="font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; text-decoration:underline; font-weight:bold; text-transform:uppercase;">✕ REMOVE</div>
                 </div>
             </div>`;
@@ -293,7 +291,7 @@ BAG STATUS: /_/ EMPTY`;
         html += `<div style="padding:30px 15px; border-bottom:1px solid #000; font-size:10px; opacity:0.6;">YOUR BAG IS EMPTY.</div>`;
     }
 
-    // #2: This wrapper uses margin-top:auto to stay at the very bottom
+    // #1 & #3: Footer section pushed to bottom with Checkout button added
     html += `
         <div class="cart-footer-wrapper" style="margin-top:auto;">
             <div style="background:#f9f9f9; border-top:1px solid #000; padding:15px 20px;">
@@ -304,6 +302,9 @@ BAG STATUS: /_/ EMPTY`;
                     <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
                 </div>
+                
+                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; letter-spacing:1px; margin-bottom:15px;">CONTINUE TO CHECKOUT</button>` : ''}
+                
                 <div style="display:flex; gap:8px; opacity:0.4;">
                     <div style="width:30px; height:18px; background:#000;"></div>
                     <div style="width:30px; height:18px; background:#000;"></div>
