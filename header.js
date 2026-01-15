@@ -183,72 +183,33 @@ const products = {
 };
 
 // 2. INITIALIZE CART
-// 1. INITIALIZE CART (Verified: Reads from browser storage on load)
 let cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
 
-// 2. ADD TO BAG FUNCTION (Verified: Matches leopard.html button arguments)
-window.addToCart = function(name, price, image) {
-    const existingItem = cart.find(item => item.name === name);
-    
+// 3. THE ADD FUNCTION
+window.addToCart = function(productId) {
+    const product = products[productId];
+    if (!product) return;
+
+    const existingItem = cart.find(item => item.id === productId);
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
-        cart.push({ 
-            name: name, 
-            price: price, 
-            image: image, 
-            quantity: 1 
-        });
+        cart.push({ ...product, quantity: 1 });
     }
 
     saveAndSyncCart();
     
-    // Opens the cart panel automatically after adding
-    if (typeof window.openCart === "function") {
-        window.openCart();
+    // Auto-open panel (Function exists in leopard.html)
+    if (typeof openCart === "function") {
+        openCart();
     }
 };
 
-// 3. THE SYNC FUNCTION (Updates all "00" labels)
-window.saveAndSyncCart = function() {
-    localStorage.setItem('minara_cart', JSON.stringify(cart));
-    
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const countStr = totalItems.toString().padStart(2, '0');
-    
-    // Updates Header (Desktop/Mobile) and the Cart Title
-    const ids = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel"];
-    ids.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.textContent = (id === "bagCountLabel") ? `BAG ${countStr}` : countStr;
-        }
-    });
-
-    // Refreshes the item list inside the cart panel
-    if (typeof window.renderCartUI === 'function') {
-        window.renderCartUI();
-    }
-};
-
-// 4. THE REFRESH FIX (Forces the count to update as soon as the page loads)
-document.addEventListener('DOMContentLoaded', () => {
-    saveAndSyncCart();
-});
-
-    // Update cart icon color
-    const icons = document.querySelectorAll('.cart-header-btn img, .mobile-cart img');
-    icons.forEach(img => { img.src = totalItems > 0 ? "cart_green.svg" : "cart.svg"; });
-
-    renderCartUI();
-}
-
-// Fix #3: Explicitly bind to window so HTML 'onclick' can find it
 /* ===============================
-   UPDATED CART LOGIC
+   REPAIRED CART LOGIC
 ================================ */
 
-// Fix #3: Explicitly bind handlers to window so HTML clicks can find them
+// Fix #2 & #3: Ensure these are at the top level so they are found by the HTML
 window.changeQty = function(index, delta) {
     if (cart[index]) {
         cart[index].quantity += delta;
@@ -258,41 +219,57 @@ window.changeQty = function(index, delta) {
 };
 
 window.removeFromCart = function(index) {
+    lastRemovedItem = { ...cart[index] };
     cart.splice(index, 1);
     saveAndSyncCart();
 };
+
+function saveAndSyncCart() {
+    localStorage.setItem('minara_cart', JSON.stringify(cart));
+    
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const countStr = totalItems.toString().padStart(2, '0');
+    
+    // Fix: Sync all labels across the site
+    const labels = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel"];
+    labels.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = (id === "bagCountLabel") ? `BAG ${countStr}` : countStr;
+    });
+
+    renderCartUI();
+}
 
 window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiContainer = document.querySelector('.cart-ascii');
     if (!cartContainer || !asciiContainer) return;
 
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    // Fix #5: New Standard-Size ASCII Art
+    // #5 & #6 New ASCII Art
     const minaraArt = `
-  __  __ ___ _   _    _    ____     ____  
- |  \\/  |_ _| \\ | |  / \\  |  _ \\   | ___| 
- | |\\/| || ||  \\| | / _ \\ | |_) |  |___ \\ 
- | |  | || || |\\  |/ ___ \\|  _ <    ___) |
- |_|  |_|___|_| \\_/_/   \\_\\_| \\_\\  |____/ `;
+                         __  __ ___ _   _    _    ____      _    ____  
+|  \\/  |_ _| \\ | |  / \\  |  _ \\    / \\  | ___| 
+| |\\/| || ||  \\| | / _ \\ | |_) |  / _ \\ |___ \\ 
+| |  | || || |\\  |/ ___ \\|  _ <  / ___ \\ ___) |
+|_|  |_|___|_| \\_/_/   \\_\\_| \\_\\/_/   \\_\\____/ `;
 
     const emptyArt = `
-  _____ __  __ ____ _______   __
- | ____|  \\/  |  _ \\_   _\\ \\ / /
- |  _| | |\\/| | |_) || |  \\ V / 
- | |___| |  | |  __/ | |   | |  
- |_____|_|  |_|_|    |_|   |_|  `;
+ _____ __  __ ____ _______   __
+| ____|  \\/  |  _ \\_   _\\ \\ / /
+|  _| | |\\/| | |_) || |  \\ V / 
+| |___| |  | |  __/ | |   | |  
+|_____|_|  |_|_|    |_|   |_|  `;
 
-    asciiContainer.textContent = totalItems > 0 ? minaraArt : emptyArt;
+    asciiContainer.textContent = cart.length > 0 ? minaraArt : emptyArt;
 
     // Item List
     let itemHtml = '<div style="flex-grow: 1; padding: 0 15px;">';
     cart.forEach((item, index) => {
         itemHtml += `
             <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 0;">
-                <img src="${item.image}" style="width:80px; height:105px; object-fit:cover;">
+                <img src="${item.image}" style="width:90px; height:120px; object-fit:cover;">
                 <div style="flex:1;">
                     <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</div>
                     <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL<br>ONE SIZE</div> <div style="font-size:11px;">R${item.price.toLocaleString()}</div>
@@ -301,28 +278,27 @@ window.renderCartUI = function() {
                         <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #000; border-right:1px solid #000;">${item.quantity}</div>
                         <div class="qty-btn" onclick="changeQty(${index}, 1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">+</div>
                     </div>
-                    <div onclick="removeFromCart(${index})" style="font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; text-transform:uppercase; text-decoration:underline;">✕ REMOVE</div>
+                    <span onclick="removeFromCart(${index})" style="font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; font-weight:bold; text-transform:uppercase; text-decoration:underline; display:block;">✕ REMOVE</span>
                 </div>
             </div>`;
     });
     itemHtml += '</div>';
 
-    // Fix #2: Build new footer boxes dynamically inside the same container
+    // #1 Restore old shipping/total boxes to the bottom
     const footerHtml = `
-        <div class="cart-footer" style="margin-top:auto;">
-            <div style="background:#f9f9f9; border-top:1px solid #000; padding:15px 20px; display:flex; flex-direction:column; gap:8px;">
+        <div style="margin-top: auto;">
+            <div class="cart-section" style="background:#f9f9f9; padding:20px; display:flex; flex-direction:column; gap:10px; border-top:1px solid #000;">
                 <div style="display:flex; justify-content:space-between; font-size:11px;"><span>SHIPPING</span><span>FREE</span></div>
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold;"><span>TOTAL</span><span>R${totalPrice.toLocaleString()}</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>TOTAL</span><span>R${totalPrice.toLocaleString()}</span></div>
             </div>
-            <div style="background:#f2f2f2; border-top:1px solid #000; padding:15px 20px 30px 20px; font-size:11px;">
-                <div style="font-weight:bold; margin-bottom:10px;">PAYMENT</div>
-                <div style="display:flex; gap:8px; opacity:0.4;">
-                    <div style="width:30px; height:18px; background:#000;"></div>
-                    <div style="width:30px; height:18px; background:#000;"></div>
+            <div class="cart-section" style="background:#f2f2f2; border-top:1px solid #000; padding:20px 20px 40px 20px;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold; margin-bottom:15px;">
+                    <span>PAYMENT</span>
+                    <span>R${totalPrice.toLocaleString()}</span>
                 </div>
+                <div style="display:flex; gap:10px; opacity:0.5;">[PAYMENT IMAGES]</div>
             </div>
         </div>`;
 
-    // Overwriting the container completely prevents duplicate boxes
     cartContainer.innerHTML = `<div style="display:flex; flex-direction:column; min-height:100%;">${itemHtml}${footerHtml}</div>`;
 };
