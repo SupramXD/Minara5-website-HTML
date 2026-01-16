@@ -251,34 +251,36 @@ window.renderCartUI = function() {
     const hasItems = totalItems > 0;
     const isLoggedIn = !!currentUser;
 
-    // #3: FIXED MINARA ART - Matched exactly to your provided reference
-    const minaraArt = `
- __  __    ___    _   _     _      ____      _      ____  
-|  \\/  |  |_ _|  | \\ | |   / \\    |  _ \\    / \\    | ___| 
-| |\\/| |   | |   |  \\| |  / _ \\   | |_) |  / _ \\   |___ \\ 
-| |  | |   | |   | |\\  | / ___ \\  |  _ <  / ___ \\   ___) |
-|_|  |_|  |___|  |_| \\_/_/   \\_\\ _| \\_\\/_/   \\_\\ |____/ `;
+    // #2: NEW BAG ASCII ART (Matches style with 2 blank lines for alignment)
+    const bagArt = `
+ ____       _       ____ 
+| __ )     / \\     / ___|
+|  _ \\    / _ \\   | |  _ 
+| |_) |  / ___ \\  | |_| |
+|____/  /_/   \\_\\  \\____|
+                          
+                          `;
 
+    // #2: ADJUSTED EMPTY ART (Moved the bottom of the 'Y' back 2 spaces)
     const emptyArt = `
  _____   __  __   ____    _____  __   __
 | ____| |  \\/  | |  _ \\  |_   _| \\ \\ / /
 |  _|   | |\\/| | | |_) |   | |    \\ V / 
 | |___  | |  | | |  __/    | |     | |  
-|_____| |_|  |_| |_|       |_|       |_| `;
+|_____| |_|  |_| |_|       |_|     |_| `;
 
-    asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
+    asciiContainer.textContent = hasItems ? bagArt : emptyArt;
 
     // ALIGNMENT & BORDER FIX
     asciiWrap.style.display = "flex";
     asciiWrap.style.alignItems = "center";       
     asciiWrap.style.justifyContent = "flex-start"; 
-    asciiWrap.style.borderLeft = "none";         // Explicitly removed the left black border
+    asciiWrap.style.borderLeft = "none";         
     asciiWrap.style.padding = "0 25px";
     asciiWrap.style.minHeight = "90px";          
     
     asciiContainer.style.fontSize = "9px";
     asciiContainer.style.lineHeight = "1.1";
-    asciiContainer.style.marginBottom = "15px";  // #1: Added blank space under to align higher
     asciiContainer.style.whiteSpace = "pre";
 
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
@@ -317,11 +319,10 @@ window.renderCartUI = function() {
         html += '</div>';
     }
 
-    // FOOTER LOGIC
-    // #2: Shipping/Total is BIGGER when empty (100px)
-    const footBoxHeight = hasItems ? "45px" : "100px"; 
-    // #2: Payment box is now VERY SMALL when empty (0px bottom padding, 4px margin)
-    const paymentPadding = hasItems ? "20px 20px" : "5px 20px 0px 20px"; 
+    // #3: FOOTER LOGIC - MINIMIZED PAYMENT BOX
+    const footBoxHeight = hasItems ? "45px" : "115px"; 
+    // Reduced padding and margin for empty state to make the bottom box much smaller
+    const paymentPadding = hasItems ? "20px 20px" : "4px 20px 2px 20px"; 
 
     html += `
         <div class="cart-footer-area" style="margin-top:auto;">
@@ -332,12 +333,12 @@ window.renderCartUI = function() {
                 ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
             <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:${paymentPadding}; border-bottom:1px solid #000;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:${hasItems ? '15px' : '4px'};">
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:${hasItems ? '15px' : '2px'};">
                     <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
                 </div>
                 ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; font-weight:bold; letter-spacing:1px;">CONTINUE TO CHECKOUT</button>` : ''}
-                <div style="display:flex; gap:8px; opacity:0.3; margin-top:${hasItems ? '12px' : '2px'}; margin-bottom:${hasItems ? '0px' : '5px'};">
+                <div style="display:flex; gap:8px; opacity:0.3; margin-top:${hasItems ? '12px' : '0px'};">
                     <div style="width:25px; height:15px; background:#000;"></div>
                     <div style="width:25px; height:15px; background:#000;"></div>
                 </div>
@@ -366,10 +367,24 @@ window.removeFromCart = function(index) {
 // --- THIS IS THE BUG FIX LOGIC (UNCHANGED) ---
 document.addEventListener('DOMContentLoaded', () => {
     saveAndSyncCart();
+
+    // #3: BACKGROUND SCROLL LOCK logic
+    const panel = document.getElementById('cartPanel');
+    const cartObserver = new MutationObserver(() => {
+        if (panel && panel.classList.contains('open')) {
+            document.body.style.overflow = 'hidden'; // Prevents background scrolling
+        } else {
+            document.body.style.overflow = ''; // Restores scrolling when closed
+        }
+    });
+
+    if (panel) {
+        cartObserver.observe(panel, { attributes: true, attributeFilter: ['class'] });
+    }
+
     const dimmer = document.getElementById('pageDimmer');
     if (dimmer) {
         dimmer.addEventListener('click', () => {
-            const panel = document.getElementById('cartPanel');
             if (panel) panel.classList.remove('open');
             dimmer.classList.remove('active');
             window.closeAccDropdown();
