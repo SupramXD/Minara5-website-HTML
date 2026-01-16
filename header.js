@@ -251,7 +251,7 @@ window.renderCartUI = function() {
     const hasItems = totalItems > 0;
     const isLoggedIn = !!currentUser;
 
-    // #2: NEW BAG ASCII ART (Matches style with 2 blank lines for alignment)
+    // #2: BAG ASCII Art with 2 spaces under it for alignment
     const bagArt = `
  ____       _       ____ 
 | __ )     / \\     / ___|
@@ -261,17 +261,19 @@ window.renderCartUI = function() {
                           
                           `;
 
-    // #2: ADJUSTED EMPTY ART (Moved the bottom of the 'Y' back 2 spaces)
+    // #2: EMPTY ASCII Art with 2 spaces under it and fixed 'Y'
     const emptyArt = `
  _____   __  __   ____    _____  __   __
 | ____| |  \\/  | |  _ \\  |_   _| \\ \\ / /
 |  _|   | |\\/| | | |_) |   | |    \\ V / 
 | |___  | |  | | |  __/    | |     | |  
-|_____| |_|  |_| |_|       |_|     |_| `;
+|_____| |_|  |_| |_|       |_|     |_| 
+                                        
+                                        `;
 
     asciiContainer.textContent = hasItems ? bagArt : emptyArt;
 
-    // ALIGNMENT & BORDER FIX
+    // Header Styling
     asciiWrap.style.display = "flex";
     asciiWrap.style.alignItems = "center";       
     asciiWrap.style.justifyContent = "flex-start"; 
@@ -319,10 +321,12 @@ window.renderCartUI = function() {
         html += '</div>';
     }
 
-    // #3: FOOTER LOGIC - MINIMIZED PAYMENT BOX
-    const footBoxHeight = hasItems ? "45px" : "115px"; 
-    // Reduced padding and margin for empty state to make the bottom box much smaller
-    const paymentPadding = hasItems ? "20px 20px" : "4px 20px 2px 20px"; 
+    // FOOTER LOGIC
+    const footBoxHeight = hasItems ? "45px" : "120px"; 
+    
+    // #1 & #3: FORCE payment box to be small when empty
+    const paymentBoxHeight = hasItems ? "auto" : "40px"; 
+    const paymentPadding = hasItems ? "20px 20px" : "8px 20px"; 
 
     html += `
         <div class="cart-footer-area" style="margin-top:auto;">
@@ -332,15 +336,15 @@ window.renderCartUI = function() {
                 </div>
                 ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
-            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:${paymentPadding}; border-bottom:1px solid #000;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:${hasItems ? '15px' : '2px'};">
+            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:${paymentPadding}; height:${paymentBoxHeight}; min-height:${paymentBoxHeight}; border-bottom:1px solid #000; display:flex; flex-direction:column; justify-content:center;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:${hasItems ? '15px' : '4px'};">
                     <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
                 </div>
                 ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; font-weight:bold; letter-spacing:1px;">CONTINUE TO CHECKOUT</button>` : ''}
                 <div style="display:flex; gap:8px; opacity:0.3; margin-top:${hasItems ? '12px' : '0px'};">
-                    <div style="width:25px; height:15px; background:#000;"></div>
-                    <div style="width:25px; height:15px; background:#000;"></div>
+                    <div style="width:25px; height:${hasItems ? '15px' : '10px'}; background:#000;"></div>
+                    <div style="width:25px; height:${hasItems ? '15px' : '10px'}; background:#000;"></div>
                 </div>
             </div>
         </div>
