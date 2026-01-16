@@ -1,1049 +1,397 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Léopard Fur Backpack – MINARA5</title>
-
-<style>
-
-
-
-  /* ACCOUNT DROPDOWN PANEL */
-.acc-dropdown {
-    position: fixed; 
-    top: 0;           
-    right: 0;         
-    width: 360px;     
-    background: #fff;
-    border-left: 1px solid #eee;
-    box-shadow: -5px 0 20px rgba(0,0,0,0.05);
-    display: none;
-    z-index: 10001; /* Must be higher than the dimmer */
-}
-
-/* Forcing Dimmer Z-Index */
-#pageDimmer.active {
-    display: block !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    z-index: 10000 !important; 
-}
-
-.acc-head {
-    /* Tight top/side padding, but bottom padding creates the gap before the line */
-    padding: 8px 12px 20px 12px; 
-    border-bottom: 1px solid #000;
-    display: flex;
-    justify-content: space-between; 
-    align-items: flex-start; /* Keeps text at the very top */
-}
-
-#accName {
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: #000;
-}
-
-.acc-close {
-    cursor: pointer;
-    font-size: 10.5px; 
-    font-weight: 400;
-    letter-spacing: 1.2px;
-    color: #00008B; 
-    text-transform: uppercase;
-}
-
-.acc-item {
-    display: block;
-    padding: 10px 12px;
-    font-size: 10.5px;    
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: #00008B !important; 
-    text-decoration: none !important;
-    border-bottom: 1px solid #eee;
-}
-
-.acc-item:hover {
-    text-decoration: underline !important;
-    background: #fcfcfc;
-}
-
-*{margin:0;padding:0;box-sizing:border-box;}
-body{
-    font-family:Helvetica,Arial,sans-serif;
-    background:#ffffff;
-    color:#000;
-    overflow-x:hidden;
-}
-
-/* ===================== HEADER ===================== */
-header{
-  position:fixed;
-  top:0; left:0; right:0;
-  height:45px;
-  background:#fff;
-  backdrop-filter:blur(2px);
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  padding:4px 30px;
-  z-index:1200;
-  border-bottom:1px solid #eee;
-}
-.center-logo-link{
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-}
-.center-logo{
-  height:29px;
-  opacity:0.92;
-  pointer-events:none;
-}
-nav{margin-left:auto;}
-nav ul{list-style:none;display:flex;margin-top:2px;}
-nav ul li{margin-left:25px;}
-nav ul li a{
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:1px;
-  color:#000;
-  display:flex;align-items:center;gap:6px;
-  text-decoration:none;
-  transition:opacity .25s ease;
-}
-nav ul li a:hover{opacity:0.6;}
-.question-icon{height:14px;}
-.desktop-icon{height:12px;}
-.menu-icon{display:none;}
-.menu-icon img{height:14px;}
-
-@media(max-width:900px){
-  nav{display:none;}
-  header{justify-content:space-between;padding:6px 16px;}
-  .menu-icon{display:block;}
-
-  /* MOBILE CENTERED LOGO (same as catalog) */
-  .center-logo-link{
-    position:absolute !important;
-    left:50% !important;
-    top:50% !important;
-    transform:translate(-50%, -50%) !important;
-    margin:0 !important;
-  }
-  .center-logo{height:22px;}
-}
-
-/* =============== PAGE SCALE / OFFSETS (UNCHANGED) =============== */
-.page-wrap {
-    transform: scale(0.9);
-    transform-origin: top center;
-}
-@media(max-width:900px){
-    .page-wrap {
-        transform: scale(0.8);
-        transform-origin: top center;
-    }
-}
-.page-wrap {
-    position: relative;
-    left: -32px;
-    top: -22px;
-}
-@media(max-width:900px){
-    .page-wrap {
-        left: -18px;
-        top: -32px;
-    }
-}
-
-/* CART BUTTON IN HEADER (IDENTICAL TO CATALOG) */
-.cart-header-btn{
-  display:flex;
-  align-items:center;
-  gap:5px;
-  font-size:12px;
-  text-transform:uppercase;
-  color:#000;
-  cursor:pointer;
-  margin-left:15px;
-}
-.cart-header-btn img{height:16px;}
-.cart-header-btn span{font-size:12px;}
-
-/* MOBILE CART ICON */
-.mobile-cart{
-  display:none;
-}
-@media(max-width:900px){
-  .mobile-cart{
-    display:flex;
-    align-items:center;
-    gap:4px;
-    position:absolute;
-    right:16px;
-    top:10px;
-  }
-  .mobile-cart img{height:16px;}
-}
-
-/* ===================== PAGE CONTENT ===================== */
-.page-wrap{
-  width:100%;
-  margin-top:65px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding-bottom:120px;
-}
-
-/* SLIDER */
-.slider{
-  width:380px;
-  max-width:80vw;
-  overflow:hidden;
-  position:relative;
-  margin-top:20px;
-  margin-bottom:20px;
-}
-.slider-track{
-  display:flex;
-  transition:transform 0.45s cubic-bezier(.45,0,.25,1);
-}
-.slider-track img{
-  width:100%;
-  flex:0 0 100%;
-  user-select:none;
-}
-.arrow{
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  font-size:13px;
-  color:#6d6d6d;
-  cursor:pointer;
-  padding:8px;
-  user-select:none;
-  transition:opacity 0.25s ease;
-  z-index:5;
-  opacity:0;
-}
-.arrow-left{ left:0; }
-.arrow-right{ right:0; }
-.arrow.visible{ opacity:1; }
-
-/* DOTS */
-.slider-dots{
-  display:flex;
-  justify-content:center;
-  margin:15px 0 40px;
-  gap:8px;
-}
-.slider-dots div{
-  width:6px;
-  height:6px;
-  border-radius:50%;
-  background:#000;
-  opacity:0.25;
-  cursor:pointer;
-  transition:opacity 0.25s;
-}
-.slider-dots div.active{opacity:0.75;}
-.slider-dots div:hover{opacity:0.55;}
-
-/* PRODUCT INFO */
-.product-info-wrap{
-  width:380px;
-  max-width:80vw;
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-.product-title{
-  font-size:15px;
-  text-transform:uppercase;
-  letter-spacing:0.28em;
-  margin-bottom:12px;
-}
-.product-price{
-  font-size:12px;
-  opacity:0.6;
-  margin-bottom:35px;
-  letter-spacing:0.18em;
-}
-.add-to-cart{
-  background:#000;
-  color:#fff;
-  padding:12px 40px;
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:0.18em;
-  border:1px solid #000;
-  cursor:pointer;
-  transition:opacity .25s ease;
-  margin-bottom:55px;
-}
-.add-to-cart:hover{opacity:0.75;}
-
-@media(max-width:900px){
-  .add-to-cart{
-    padding:12px 32px;
-    width:auto;
-  }
-}
-
-/* DESCRIPTION */
-.desc{
-  font-size:13px;
-  line-height:1.8;
-  letter-spacing:0.12em;
-  opacity:0.75;
-  white-space:pre-line;
-  margin-bottom:80px;
-  margin-left:4px;
-}
-@media(max-width:900px){
-  .desc { margin-top:-14px; }
-}
-
-/* BACK BUTTON */
-.back-link{
-  font-size:11px;
-  letter-spacing:0.20em;
-  text-transform:uppercase;
-  opacity:0.65;
-  padding:6px 18px;
-  color:#000;
-  text-decoration:none;
-  border:1px solid #000;
-}
-.back-link:hover{opacity:0.45;}
-
-/* FOOTER */
-footer{
-    background:#f5f5f5;
-    padding:21px 0;
-    text-align:center;
-    font-size:9px;
-    text-transform:uppercase;
-    letter-spacing:0.20em;
-}
-
-/* MENU PANEL */
-.slideout{
-  position:fixed;
-  top:0; left:-100%;
-  width:100%;
-  height:100vh;
-  background:#fff;
-  z-index:3000;
-  transition:left .35s ease;
-  padding:50px 40px 40px;
-}
-.slideout.open{left:0;}
-.close-btn{
-  position:absolute;
-  top:18px;
-  right:24px;
-  font-size:30px;
-  cursor:pointer;
-}
-.slideout a{
-  display:block;
-  font-size:14px;
-  text-transform:uppercase;
-  letter-spacing:0.28em;
-  margin:26px 0;
-  color:#000;
-}
-
-/* INTRO ANIMATION (unchanged) */
-#luxuryIntro{
-    position:fixed;
-    inset:0;
-    background:rgba(255,255,255,0.85);
-    backdrop-filter:blur(18px);
-    z-index:9999;
-    opacity:1;
-    pointer-events:none;
-    animation:luxFade 0.22s ease-out forwards;
-}
-@keyframes luxFade {
-    0%{opacity:1; backdrop-filter:blur(18px);}
-    100%{opacity:0; backdrop-filter:blur(0px);}
-}
-
-/* ====================== CART SYSTEM ADDED ====================== */
-
-/* DIMMER */
-#pageDimmer{
-  position:fixed;
-  inset:0;
-  width:100vw;
-  height:100vh;
-  background:rgba(0,0,0,0.32);
-  backdrop-filter:blur(1.4px);
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .25s ease;
-  z-index:9000;
-}
-#pageDimmer.active{
-  opacity:1;
-  pointer-events:auto;
-}
-
-/* CART PANEL */
-#cartPanel{
-  position:fixed;
-  top:0;                 /* cover from very top, over header */
-  right:-100%;
-  height:100dvh;         /* full screen height */
-  width:85vw;
-  background:#fff;
-  border-left:1px solid #dcdcdc;
-  z-index:10000;         /* above everything */
-  display:flex;
-  flex-direction:column;
-  transition:right .35s ease, height .25s ease;
-}
-@media(min-width:901px){
-  #cartPanel{width:26vw;}
-}
-#cartPanel.open{right:0;}
-
-.cart-header-row {
-    position: relative;
-    padding: 0 !important;
-    min-height: 45px;
-    border-bottom: 1px solid #000 !important; /* All lines black */
-    display: block;
-}
-.cart-close{cursor:pointer;
-}
-
-.cart-header-row, .cart-ascii-wrap, .cart-section, .cart-item-row {
-    border-color: #000 !important;
-}
-
-.cart-ascii-wrap {
-    background: #f7f7f7;
-    /* Box size is now primarily controlled by padding in header.js */
-    border-bottom: 1px solid #000 !important;
-    display: flex;
-    justify-content: flex-start; 
-}
-
-.cart-ascii {
-    font-family: monospace;
-    white-space: pre;
-    text-align: left;
-    line-height: 1.1;
-    color: #000;
-}
-
-/* Ensure the body doesn't have internal padding so lines touch edges */
-/* Ensure the body takes up the remaining space for the footer fix */
-.cart-body {
-    padding: 0 !important;
-    height: calc(100% - 80px); /* Adjusts for the larger header */
-    display: flex;
-    flex-direction: column;
-}
-
-/* Item Borders */
-.cart-item-row {
-    border-bottom: 1px solid #000 !important; /* Bottom line for products */
-    padding-bottom: 20px;
-    margin-bottom: 20px;
-}
-
-/* Fixed image size to stop it from taking up the whole page */
-.cart-item-img {
-    border: none !important;
-}
-
-.cart-item-details {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.cart-item-name {
-    font-family: 'Gotham Narrow Bold', sans-serif;
-    font-size: 11px;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-}
-
-.cart-item-meta {
-    font-size: 10px;
-    opacity: 0.6;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-}
-
-/* High-Fashion Quantity Stepper */
-.qty-stepper {
-    display: flex;
-    align-items: center;
-    border: 1px solid #000;
-    width: fit-content;
-    margin-top: 8px;
-}
-
-.qty-btn {
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 14px;
-    user-select: none;
-}
-
-.qty-val {
-    width: 30px;
-    text-align: center;
-    font-size: 11px;
-    border-left: 1px solid #000;
-    border-right: 1px solid #000;
-}
-
-/* Remove Button - Pinned to bottom right of the item */
-.cart-remove-link {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #1106e8 !important; /* Your light blue color */
-    cursor: pointer;
-    margin-top: 15px;
-    text-decoration: underline;
-}
-
-.cart-auth-links{
-  display:flex;
-  gap:30px;
-  margin-top:8px;
-}
-.cart-auth-links a{
-  font-size:11px;
-  text-transform:uppercase;
-  color:#000;
-  text-decoration:none;
-}
-
-.cart-bottom{margin-top:auto;}
-.cart-section{
-  padding:12px 20px;
-  border-top:1px solid #dcdcdc;
-  font-size:11px;
-  text-transform:uppercase;
-}
-
-/* === FIX ACCOUNT HEADER ITEM === */
-.header-account a,
-.header-account a:link,
-.header-account a:visited,
-.header-account a:hover,
-.header-account a:active {
-    color: #000 !important;
-    text-decoration: none !important;
-}
-
-.header-account {
-    display: flex;
-    align-items: center;
-    height: 100%;       /* Takes up full header height to allow centering */
-    align-self: center; /* Forces this specific item to center vertically */
-    margin-top: -2px;   /* Fine-tuning to match the 'Contact' text exactly */
-}
-
-.header-account .account-trigger {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-}
-
-.header-account .account-label {
-    color: #000 !important;
-    font-size: 11px !important;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    line-height: 1;
-    margin-left: 4px;
-    cursor: default;
-}
-@media (max-width:900px){
-
-  .mobile-account-block{
-    margin-top:26px;
-  }
-
-  .mobile-account-link{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    font-size:14px;
-    text-transform:uppercase;
-    letter-spacing:0.28em;
-    margin:26px 0;
-    cursor:pointer;
-    color:#000;
-    -webkit-tap-highlight-color:transparent;
-    user-select:none;
-  }
-
-  .mobile-arrow{
-    margin-left:8px;
-    font-size:14px;
-    transition:transform .25s ease;
-    pointer-events:none;
-  }
-
-  .mobile-arrow.open{
-    transform:rotate(90deg);
-  }
-
-  .mobile-account-dropdown{
-    margin-top:14px;
-  }
-
-  .mobile-account-dropdown .acc-item{
-    background:#f4f4f4;
-    margin:10px 0;
-    padding:16px 18px;
-    border:none;
-    font-size:13px;
-    letter-spacing:0.22em;
-  }
-
-  .mobile-account-link.logout{
-    margin-top:66px;
-  }
-}
-/* MOBILE ACCOUNT BUTTON */
-.mobile-account{
-  font-size:14px;
-  text-transform:uppercase;
-  letter-spacing:0.28em;
-  margin:26px 0;
-  color:#000;
-  cursor:pointer;
-  user-select:none;
-}
-
-/* --- CART & ACCOUNT HOVER EFFECT --- */
-.cart-header-btn, 
-.account-trigger,
-.header-left a,
-.header-right ul li a {
-    transition: opacity 0.3s ease !important;
-    cursor: pointer !important;
-}
-
-.cart-header-btn:hover, 
-.account-trigger:hover,
-.header-left a:hover,
-.header-right ul li a:hover {
-    opacity: 0.5 !important;
-}
-
-/* Precise Edge Alignment */
-.cart-header-row {
-    position: relative;
-    padding: 0 !important;
-    
-    /* --- CHANGE THIS TO MAKE THE TOP ROW TALLER (LONGER) --- */
-    min-height: 45px; 
-    
-    /* --- CHANGE THIS TO #000 TO MAKE THE LINE BLACK --- */
-    border-bottom: 1px solid #000; 
-}
-
-/* BAG 00 - Top Left */
-#bagCountLabel {
-    position: absolute;
-    top: 8px;
-    left: 10px;
-    font-size: 12px !important;
-    font-family: 'Gotham Narrow Bold', sans-serif;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-}
-
-/* X CLOSE - Top Right */
-.cart-close {
-    position: absolute;
-    top: 7px;     
-    right: 9px;   
-    font-size: 12px !important; 
-    color: #1106e8 !important; 
-    letter-spacing: 1px;
-    font-weight: 400;
-    cursor: pointer;
-    text-transform: uppercase;
-}
-
-/* Shipping & Totals Box */
-.shipping-total-box {
-    background: #f7f7f7;
-    border-top: 1px solid #000;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 10px;
-}
-.box-top-row, .box-bottom-row {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    font-family: 'Gotham Narrow Bold', sans-serif;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.box-row {
-    display: flex;
-    justify-content: space-between;
-    font-family: 'Gotham Narrow Bold', sans-serif;
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-.box-bottom-row {
-    position: absolute;
-    bottom: 12px;
-    left: 12px;
-    width: calc(100% - 24px);
-}
-
-/* Payment Section */
-.payment-section {
-    background: #eeeeee; /* Darker shade */
-    border-top: 1px solid #000;
-    padding: 20px 20px 40px 20px;
-    min-height: 100px;
-}
-/* High Fashion Undo Button */
-.undo-btn {
-    color: #ff0000 !important;
-    cursor: pointer;
-    font-weight: bold;
-    text-decoration: underline;
-    margin-left: 10px;
-}
-
-/* #9 Undo Link Styling */
-.undo-link {
-    color: #1106e8 !important;
-    text-decoration: underline;
-    cursor: pointer;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.removed-status {
-    color: #000;
-    opacity: 0.5;
-    text-transform: uppercase;
-    cursor: default;
-}
-
-.checkout-btn {
-    width: 90%;
-    margin: 15px auto;
-    display: block;
-    background: #ccff00; /* High fashion light green */
-    color: #000;
-    border: 1px solid #000;
-    padding: 14px;
-    font-family: 'Gotham Narrow Bold', sans-serif;
-    font-size: 12px;
-    letter-spacing: 2px;
-    cursor: pointer;
-    text-transform: uppercase;
-}
-
-/* #2: Make top row bigger vertically */
-.cart-head {
-    height: 45px; /* Increased vertical size */
-    padding: 0 20px;
-    border-bottom: 1px solid #000 !important;
-    display: flex;
-    justify-content: space-between;
-    align-items: center; /* Keeps text centered in the same place */
-}
-
-.cart-header-row, 
-.cart-ascii-wrap, 
-.cart-section, 
-.cart-item-row,
-#cartPanel,
-.cart-body { 
-    border-color: #000 !important; 
-}
-</style>
-</head>
-
-<body>
-
-<div id="luxuryIntro"></div>
-
-<header>
-  
-
-  <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
-
-  <a href="index.html" class="center-logo-link">
-    <img src="minara 5 transparent 2.svg" class="center-logo">
-  </a>
-
-  <nav>
-    <ul>
-      <li><a href="contact.html"><img src="question mark.svg" class="question-icon">Contact</a></li>
-<li class="header-account">
-    <div class="account-trigger" onclick="accountClicked(event)">
-        <img src="head shoulder.svg" class="desktop-icon">
-        <span id="accountLabel" class="account-label">Account</span>
-    </div>
-</li>
-
-
-      <!-- DESKTOP CART -->
-      <li>
-        <div class="cart-header-btn" onclick="openCart()">
-    <img src="cart.svg" alt="Cart">
-    <span id="cartCountHeader">00</span>
-</div>
-      </li>
-    </ul>
-  </nav>
-
-  <!-- MOBILE CART -->
-  <span class="cart-header-btn mobile-cart" onclick="openCart()">
-    <img src="cart.svg">
-    <span id="cartCountHeaderMobile">00</span>
-  </span>
-</header>
-
-<!-- DIMMER -->
-<div id="pageDimmer"></div>
-
-<!-- CART PANEL -->
-<div id="cartPanel" class="cart-panel">
-    <div class="cart-head">
-        <span id="bagCountLabel">ITEMS 00</span>
-        <span class="cart-close" onclick="closeCart()">X CLOSE</span>
-    </div>
-
-  <div class="cart-ascii-wrap">
-    <div class="cart-ascii">
- _____   __  __   ____    _____  __   __
-| ____| |  \/  | |  _ \  |_   _| \ \ / /
-|  _|   | |\/| | | |_) |   | |    \ V / 
-| |___  | |  | | |  __/    | |     | |  
-|_____| |_|  |_| |_|       |_|     |_|  
-    </div>
-  </div>
-
-  <div class="cart-body">
-    <p>MISSING ITEMS IN YOUR CART?</p>
-    <p>Sign in to see items added before.</p>
-
-    <div class="cart-auth-links">
-      <a href="#">Sign in</a>
-      <a href="#">Register</a>
-    </div>
-  </div>
-
-
-</div>
-
-<!-- MENU PANEL -->
-<div class="slideout" id="menuPanel">
-  <div class="close-btn" onclick="closeMenu()">×</div>
-  <a href="index.html">Home</a>
-  <a href="catalog.html">Catalog</a>
-  <a href="social media.html">Social Media</a>
-  <a href="contact.html">Contact</a>
-  <div class="mobile-account-block">
-
-  <div
-    id="mobileMyAccount"
-    class="mobile-account-link"
-  >
-    LOGIN
-  </div>
-
-  <div
-    id="mobileAccountDropdown"
-    class="mobile-account-dropdown"
-  ></div>
-
-  <div
-    id="mobileLogout"
-    class="mobile-account-link logout"
-    style="display:none;"
-  >
-    LOG OUT
-  </div>
-
-</div>
-
-</div>
-
-<div class="page-wrap">
-
-    <!-- SLIDER -->
-    <div class="slider" id="slider">
-        <div class="arrow arrow-left" id="arrowLeft" onclick="prevSlide()">&#x2039;</div>
-        <div class="arrow arrow-right" id="arrowRight" onclick="nextSlide()">&#x203A;</div>
-
-        <div class="slider-track" id="sliderTrack">
-            <img src="cheetahproduct.avif">
-            <img src="https://via.placeholder.com/900x1100?text=Image+2">
-            <img src="https://via.placeholder.com/900x1100?text=Image+3">
-        </div>
-    </div>
-
-    <div class="slider-dots">
-        <div onclick="goToSlide(0)" class="active"></div>
-        <div onclick="goToSlide(1)"></div>
-        <div onclick="goToSlide(2)"></div>
-    </div>
-
-    <div class="product-info-wrap">
-        <div class="product-title">Léopard Fur Backpack</div>
-        <div class="product-price">R749</div>
-
-        <button class="add-to-cart" onclick="addToCart('leopard-backpack')">ADD TO BAG</button>
-
-        <div class="desc">
-Léopard teaches that true transformation arrives in silence.
-
-Your secret love letter to the world—
-carried in spotted fur, and an intense feeling of self,
-it brings a sense of completeness
-to any room it finds itself in—
-your signature, signing stolen glances
-for many years still unwritten
-        </div>
-
-        <a class="back-link" href="catalog.html">back</a>
-    </div>
-
-</div>
-
-<footer>© 2026 MINARA5</footer>
-
-<script>
-
-/* MENU */
-function openMenu(){ document.getElementById("menuPanel").classList.add("open"); }
-function closeMenu(){ document.getElementById("menuPanel").classList.remove("open"); }
-
-/* CART OPEN */
-/* CART OPEN */
-function openCart(){
-  // Add this line to refresh the items from header.js
-  if (typeof renderCartUI === "function") {
-      renderCartUI();
-  }
-
-  document.getElementById("cartPanel").classList.add("open");
-  document.getElementById("pageDimmer").classList.add("active");
-
-  document.body.style.overflow = "hidden";
-  document.documentElement.style.overflow = "hidden";
-}
-
-/* CART CLOSE */
-function closeCart(){
-  document.getElementById("cartPanel").classList.remove("open");
-  document.getElementById("pageDimmer").classList.remove("active");
-
-  document.body.style.overflow = "";
-  document.documentElement.style.overflow = "";
-}
-
-/* CLICK OUTSIDE TO CLOSE */
-document.getElementById("pageDimmer").addEventListener("click", closeCart);
-
-/* CART COUNT */
-function updateCartCount(n){
-  const v = n < 10 ? "0"+n : n;
-  ["cartCountHeader","cartCountHeaderMobile","cartCountPanel"].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.textContent=v;
-  });
-}
-
-/* SLIDER */
-let currentSlide = 0;
-const track = document.getElementById("sliderTrack");
-const slides = track.querySelectorAll("img");
-const dots = document.querySelectorAll(".slider-dots div");
-const arrowLeft = document.getElementById("arrowLeft");
-const arrowRight = document.getElementById("arrowRight");
-
-function updateSlider(){
-    track.style.transform = "translateX(" + (-currentSlide * 100) + "%)";
-    dots.forEach((d,i)=>d.classList.toggle("active",i===currentSlide));
-    arrowLeft.classList.toggle("visible", currentSlide > 0);
-    arrowRight.classList.toggle("visible", currentSlide < slides.length - 1);
-}
-updateSlider();
-
-function goToSlide(n){ currentSlide = Math.max(0, Math.min(n, slides.length - 1)); updateSlider(); }
-function nextSlide(){ if(currentSlide < slides.length - 1){ currentSlide++; updateSlider(); } }
-function prevSlide(){ if(currentSlide > 0){ currentSlide--; updateSlider(); } }
-
-/* SWIPE */
-(function(){
-    const slider = document.getElementById("slider");
-    let startX = 0, touching = false;
-    slider.addEventListener("touchstart",e=>{ startX = e.touches[0].clientX; touching = true; },{passive:true});
-    slider.addEventListener("touchend",e=>{
-        if(!touching) return;
-        const delta = e.changedTouches[0].clientX - startX;
-        if(delta > 40) prevSlide();
-        if(delta < -40) nextSlide();
-        touching = false;
-    },{passive:true});
-})();
-
-
-window.openCart = function() {
-    // #1 Fix: This function should ALWAYS run regardless of cart content
-    const panel = document.getElementById('cartPanel');
-    const dimmer = document.getElementById('pageDimmer');
-    if (panel) panel.classList.add('open');
-    if (dimmer) dimmer.classList.add('active');
-    renderCartUI(); 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { 
+    getAuth, 
+    onAuthStateChanged, 
+    signOut, 
+    sendPasswordResetEmail, 
+    sendEmailVerification,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyC8srbzH_DcCYQJXe9MNOyy2OHZSaLidIo",
+    authDomain: "minara5.firebaseapp.com",
+    projectId: "minara5",
+    storageBucket: "minara5.firebasestorage.app",
+    messagingSenderId: "860405871052",
+    appId: "1:860405871052:web:2aead90773c24721f72d69"
 };
-</script>
-<script type="module" src="header.js"></script>
 
-<div id="accountDropdown" class="acc-dropdown">
-    <div class="acc-head">
-        <span id="accName">ACCOUNT</span>
-        <span class="acc-close" onclick="closeAccDropdown()">X CLOSE</span>
-    </div>
-    <a href="accountorder.html" class="acc-item">MY ORDERS</a>
-    <a href="#" onclick="logout()" class="acc-item">LOG OUT</a>
-</div>
-</body>
-</html>
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+window.auth = auth; // Keeps it accessible for your account.html
+let currentUser = null;
+
+// --- MASTER TRIGGERS (Fixes "Nothing Happening") ---
+
+window.processRegister = function(email, password) {
+    createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            sendEmailVerification(userCredential.user);
+            window.location.href = "index.html"; 
+        })
+        .catch(err => alert(err.message));
+};
+
+window.processLogin = function(email, password) {
+    signInWithEmailAndPassword(auth, email, password)
+        .then(() => { window.location.href = "index.html"; })
+        .catch(err => alert(err.message));
+};
+
+// --- MASTER FORGOT PASSWORD FIX ---
+window.universalForgotPassword = function(e) {
+    if (e) e.preventDefault(); // STOPS the page from refreshing
+    
+    // This checks for "email" (your Login ID) and "register-email" (your Register ID)
+    const emailField = document.getElementById("email") || 
+                       document.getElementById("login-email") || 
+                       document.getElementById("register-email");
+    
+    let email = emailField ? emailField.value : "";
+
+    // If no email is typed, we use a prompt so the button ALWAYS works
+    if (!email || email.trim() === "") {
+        email = prompt("Please enter your email address for the reset link:");
+    }
+
+    if (email) {
+        sendPasswordResetEmail(auth, email)
+            .then(() => alert("Success! A reset link has been sent to: " + email))
+            .catch(err => alert("Error: " + err.message));
+    }
+};
+/* ===============================
+   AUTH STATE & UI LOGIC
+================================ */
+onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    const label = document.getElementById("accountLabel");
+    const accName = document.getElementById("accName");
+
+    if (user) {
+        let email = user.email;
+        if (label) label.textContent = email.length > 12 ? email.substring(0, 12) + "..." : email;
+        if (accName) accName.textContent = user.email;
+    } else {
+        if (label) label.textContent = "Account";
+        if (accName) accName.textContent = "ACCOUNT";
+    }
+    setupMobileAccount(user);
+});
+
+/* ===============================
+   MOBILE ACCOUNT LOGIC (Preserved)
+================================ */
+function setupMobileAccount(user) {
+    const myAcc = document.getElementById("mobileMyAccount");
+    const drop = document.getElementById("mobileAccountDropdown");
+    const logoutBtn = document.getElementById("mobileLogout");
+    if (!myAcc || !drop || !logoutBtn) return;
+
+    if (!user) {
+        myAcc.innerHTML = "LOGIN";
+        myAcc.onclick = () => { window.location.href = "account.html"; };
+        drop.style.display = "none";
+        logoutBtn.style.display = "none";
+        return;
+    }
+
+    myAcc.innerHTML = `<span>MY ACCOUNT</span> <span class="mobile-arrow">▸</span>`;
+    logoutBtn.style.display = "block";
+    const desktopDrop = document.getElementById("accountDropdown");
+    
+    if (desktopDrop) {
+        // FILTERING LOGIC PRESERVED
+        let cleanHTML = desktopDrop.innerHTML;
+        drop.innerHTML = cleanHTML;
+        drop.querySelectorAll("[onclick*='logout']").forEach(el => el.remove());
+    }
+
+    myAcc.onclick = () => {
+        const isOpen = drop.style.display === "block";
+        drop.style.display = isOpen ? "none" : "block";
+        const arrow = myAcc.querySelector(".mobile-arrow");
+        // ROTATION LOGIC PRESERVED
+        if (arrow) arrow.style.transform = isOpen ? "rotate(0deg)" : "rotate(90deg)";
+    };
+
+    logoutBtn.onclick = () => { signOut(auth).then(() => { window.location.href = "index.html"; }); };
+}
+
+/* ===============================
+   DESKTOP DROPDOWN (Preserved)
+================================ */
+window.accountClicked = function(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    
+    // Check if user is logged in before showing dropdown
+    if (!auth.currentUser) {
+        window.location.href = "account.html"; // Redirect to login if not authenticated
+        return;
+    }
+    
+    const dropdown = document.getElementById('accountDropdown');
+    const dimmer = document.getElementById('pageDimmer');
+    
+    if (dropdown) dropdown.style.display = 'block';
+    if (dimmer) dimmer.classList.add('active');
+};
+
+window.closeAccDropdown = function() {
+    const dropdown = document.getElementById('accountDropdown');
+    const dimmer = document.getElementById('pageDimmer');
+    
+    if (dropdown) dropdown.style.display = 'none';
+    if (dimmer) dimmer.classList.remove('active');
+};
+
+// Ensure clicking the dimmer also closes the account box
+document.addEventListener('DOMContentLoaded', () => {
+    const dimmer = document.getElementById('pageDimmer');
+    if (dimmer) {
+        dimmer.addEventListener('click', closeAccDropdown);
+    }
+});
+window.logout = function() {
+    signOut(auth)
+        .then(() => {
+            // This clears the session and sends them back to the home page
+            window.location.href = "index.html"; 
+        })
+        .catch((error) => {
+            console.error("Logout Error:", error);
+        });
+};
+
+/* ===============================
+   CART WITH ID SYSTEM (REPAIRED)
+================================ */
+
+// 1. PRODUCT DATA
+const products = {
+    "leopard-backpack": {
+        id: "leopard-backpack",
+        name: "Léopard Fur Backpack",
+        price: 749, 
+        image: "cheetahproduct.avif"
+    }
+};
+
+// 2. INITIALIZE CART
+let cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
+
+// 3. THE ADD FUNCTION
+window.addToCart = function(productId) {
+    const product = products[productId];
+    if (!product) return;
+
+    const existingItem = cart.find(item => item.id === productId);
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({ ...product, quantity: 1 });
+    }
+
+    saveAndSyncCart();
+    
+    // Auto-open panel (Function exists in leopard.html)
+    if (typeof openCart === "function") {
+        openCart();
+    }
+};
+
+// 4. THE SYNC FUNCTION (Fixed for BAG 00 and Green Icon)
+// Fix #2: Forces all labels and icons to sync with the actual data
+function saveAndSyncCart() {
+    localStorage.setItem('minara_cart', JSON.stringify(cart));
+    
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const countStr = totalItems.toString().padStart(2, '0');
+    
+    // Update every possible counter in the site
+    const ids = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel"];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.textContent = (id === "bagCountLabel") ? `ITEMS ${countStr}` : countStr;
+        }
+    });
+
+    // Update cart icon color
+    const icons = document.querySelectorAll('.cart-header-btn img, .mobile-cart img');
+    icons.forEach(img => { img.src = totalItems > 0 ? "cart_green.svg" : "cart.svg"; });
+
+    renderCartUI();
+}
+
+// Fix #3: Explicitly bind to window so HTML 'onclick' can find it
+window.removeFromCart = function(index) {
+    lastRemovedItem = { ...cart[index] };
+    cart.splice(index, 1);
+    saveAndSyncCart();
+};
+
+/* ===============================
+   CART UI & BUTTON FIXES
+================================ */
+
+window.renderCartUI = function() {
+    const cartContainer = document.querySelector('.cart-body');
+    const asciiWrap = document.querySelector('.cart-ascii-wrap');
+    const asciiContainer = document.querySelector('.cart-ascii');
+    if (!cartContainer || !asciiContainer) return;
+
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const hasItems = totalItems > 0;
+    const isLoggedIn = !!currentUser;
+
+    // #2: BAG ASCII Art with 2 spaces under it for alignment
+    const bagArt = `
+ ____       _       ____ 
+| __ )     / \\     / ___|
+|  _ \\    / _ \\   | |  _ 
+| |_) |  / ___ \\  | |_| |
+|____/  /_/   \\_\\  \\____|
+                          
+                          `;
+
+    // #2: EMPTY ASCII Art with 2 spaces under it and fixed 'Y'
+    const emptyArt = `
+ _____   __  __   ____    _____  __   __
+| ____| |  \\/  | |  _ \\  |_   _| \\ \\ / /
+|  _|   | |\\/| | | |_) |   | |    \\ V / 
+| |___  | |  | | |  __/    | |     | |  
+|_____| |_|  |_| |_|       |_|     |_| 
+                                        
+                                        `;
+
+    asciiContainer.textContent = hasItems ? bagArt : emptyArt;
+
+    // Header Styling
+    asciiWrap.style.display = "flex";
+    asciiWrap.style.alignItems = "center";       
+    asciiWrap.style.justifyContent = "flex-start"; 
+    asciiWrap.style.borderLeft = "none";         
+    asciiWrap.style.padding = "0 25px";
+    asciiWrap.style.minHeight = "90px";          
+    
+    asciiContainer.style.fontSize = "9px";
+    asciiContainer.style.lineHeight = "1.1";
+    asciiContainer.style.whiteSpace = "pre";
+
+    let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
+
+    if (hasItems) {
+        html += '<div class="items-area" style="flex-grow:1; overflow-y:auto;">';
+        cart.forEach((item, index) => {
+            html += `
+            <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 15px;">
+                <img src="${item.image}" style="width:80px; height:105px; object-fit:cover;">
+                <div style="flex:1;">
+                    <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</div>
+                    <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL</div>
+                    <div style="font-size:11px;">R${item.price.toLocaleString()}</div>
+                    <div class="qty-stepper" style="display:flex; border:1px solid #000; width:fit-content; margin-top:10px;">
+                        <div class="qty-btn" onclick="window.changeQty(${index}, -1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">–</div>
+                        <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #000; border-right:1px solid #000; font-size:11px; display:flex; align-items:center; justify-content:center;">${item.quantity}</div>
+                        <div class="qty-btn" onclick="window.changeQty(${index}, 1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">+</div>
+                    </div>
+                    <div onclick="window.removeFromCart(${index})" style="font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; text-decoration:underline; font-weight:bold; text-transform:uppercase;">✕ REMOVE</div>
+                </div>
+            </div>`;
+        });
+        html += '</div>';
+    } else {
+        html += '<div style="padding:10px 25px; flex-grow:1; display:flex; flex-direction:column; align-items:flex-start;">';
+        if (!isLoggedIn) {
+            html += `
+            <div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; margin-bottom:4px;">Missing items in your cart?</div>
+            <div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; margin-bottom:18px;">Sign in to see items you added before.</div>
+            <div style="display:flex; gap:30px;">
+                <a href="account.html" style="font-size:11px; color:#1106e8; text-decoration:underline; font-weight:normal;">SIGN IN</a>
+                <a href="account.html" style="font-size:11px; color:#1106e8; text-decoration:underline; font-weight:normal;">REGISTER</a>
+            </div>`;
+        }
+        html += '</div>';
+    }
+
+// FOOTER LOGIC
+    // Shrunk the Shipping/Total box (Changed from 120px to 105px)
+    const footBoxHeight = hasItems ? "45px" : "105px"; 
+    
+    // Increased Payment box slightly (Changed from 40px to 55px)
+    const paymentBoxHeight = hasItems ? "auto" : "55px"; 
+    const paymentPadding = hasItems ? "20px 20px" : "10px 20px"; 
+
+    html += `
+        <div class="cart-footer-area" style="margin-top:auto;">
+            <div style="background:#f9f9f9; border-top:1px solid #000; padding:12px 20px; height:${footBoxHeight}; display:flex; flex-direction:column; justify-content:space-between;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;">
+                    <span>SHIPPING</span><span>FREE</span>
+                </div>
+                ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;"><span>TOTAL</span><span>R0</span></div>` : ''}
+            </div>
+            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:${paymentPadding}; height:${paymentBoxHeight}; min-height:${paymentBoxHeight}; border-bottom:1px solid #000; display:flex; flex-direction:column; justify-content:center;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:${hasItems ? '15px' : '6px'};">
+                    <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
+                    <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
+                </div>
+                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; font-weight:bold; letter-spacing:1px;">CONTINUE TO CHECKOUT</button>` : ''}
+                <div style="display:flex; gap:8px; opacity:0.3; margin-top:${hasItems ? '12px' : '2px'};">
+                    <div style="width:25px; height:${hasItems ? '15px' : '12px'}; background:#000;"></div>
+                    <div style="width:25px; height:${hasItems ? '15px' : '12px'}; background:#000;"></div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+
+    cartContainer.innerHTML = html;
+// #2 & #3 HELPER FUNCTIONS (Attached to window so HTML buttons can see them)
+window.changeQty = function(index, delta) {
+    if (cart[index]) {
+        cart[index].quantity += delta;
+        if (cart[index].quantity < 1) {
+            cart.splice(index, 1);
+        }
+        saveAndSyncCart();
+    }
+};
+
+window.removeFromCart = function(index) {
+    cart.splice(index, 1);
+    saveAndSyncCart();
+};
+
+// --- THIS IS THE BUG FIX LOGIC (UNCHANGED) ---
+document.addEventListener('DOMContentLoaded', () => {
+    saveAndSyncCart();
+
+    // #3: BACKGROUND SCROLL LOCK logic
+    const panel = document.getElementById('cartPanel');
+    const cartObserver = new MutationObserver(() => {
+        if (panel && panel.classList.contains('open')) {
+            document.body.style.overflow = 'hidden'; // Prevents background scrolling
+        } else {
+            document.body.style.overflow = ''; // Restores scrolling when closed
+        }
+    });
+
+    if (panel) {
+        cartObserver.observe(panel, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    const dimmer = document.getElementById('pageDimmer');
+    if (dimmer) {
+        dimmer.addEventListener('click', () => {
+            if (panel) panel.classList.remove('open');
+            dimmer.classList.remove('active');
+            window.closeAccDropdown();
+        });
+    }
+});
