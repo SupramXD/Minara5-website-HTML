@@ -251,7 +251,7 @@ window.renderCartUI = function() {
     const hasItems = totalItems > 0;
     const isLoggedIn = !!currentUser;
 
-    // #4: FIXED MINARA ART (Uniform block widths for alignment)
+    // #4: FIXED MINARA ART (JS Safe with matching block widths)
     const minaraArt = `
  __  __    ___    _   _     _      ____      _      ____  
 |  \\/  |  |_ _|  | \\ | |   / \\    |  _ \\    / \\    | ___| 
@@ -259,12 +259,13 @@ window.renderCartUI = function() {
 | |  | |   | |   | |\\  | / ___ \\  |  _ <  / ___ \\   ___) |
 |_|  |_|  |___|  |_| \\_/_/   \\_\\ _| \\_\\/_/   \\_\\ |____/ `;
 
+    // EXACT EMPTY ART AS REQUESTED
     const emptyArt = `
- _____   __  __   ____    _______   __   __
-| ____| |  \\/  | |  _ \\  |__   __|  \\ \\ / /
-|  _|   | |\\/| | |_) |    | |      \\ V / 
-| |___  | |  | | |  __/     | |       | |  
-|_____| |_|  |_| |_|        |_|       |_|  `;
+ _____   __  __   ____    _____  __   __
+| ____| |  \\/  | |  _ \\  |_   _| \\ \\ / /
+|  _|   | |\\/| | | |_) |   | |    \\ V / 
+| |___  | |  | | |  __/    | |     | |  
+|_____| |_|  |_| |_|       |_|     |_| `;
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
@@ -278,8 +279,8 @@ window.renderCartUI = function() {
     
     asciiContainer.style.fontSize = "9px";
     asciiContainer.style.lineHeight = "1.1";
-    // #1: Extra space under to align art higher
-    asciiContainer.style.marginBottom = "12px"; 
+    // #1: Higher alignment
+    asciiContainer.style.marginBottom = "15px"; 
     asciiContainer.style.whiteSpace = "pre";
 
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
@@ -305,7 +306,7 @@ window.renderCartUI = function() {
         });
         html += '</div>';
     } else {
-        html += '<div style="padding:15px 25px; flex-grow:1; display:flex; flex-direction:column; align-items:flex-start;">';
+        html += '<div style="padding:10px 25px; flex-grow:1; display:flex; flex-direction:column; align-items:flex-start;">';
         if (!isLoggedIn) {
             html += `
             <div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; margin-bottom:4px;">Missing items in your cart?</div>
@@ -318,9 +319,11 @@ window.renderCartUI = function() {
         html += '</div>';
     }
 
-    // #2 & #3: CONDITIONAL SIZING FOR FOOTER
-    const footBoxHeight = hasItems ? "45px" : "55px"; 
-    const paymentPadding = hasItems ? "20px 20px" : "10px 20px"; // Bigger for checkout, smaller for empty
+    // FOOTER LOGIC
+    // #2 & #3: "Shipping/Total" box (f9f9f9) is BIGGER when empty (100px) and SMALLER when full (45px)
+    const footBoxHeight = hasItems ? "45px" : "100px"; 
+    // #2: "Payment" box (f2f2f2) is SMALLER when empty (padding 8px) and BIGGER when full (padding 20px)
+    const paymentPadding = hasItems ? "20px 20px" : "8px 20px"; 
 
     html += `
         <div class="cart-footer-area" style="margin-top:auto;">
@@ -331,12 +334,12 @@ window.renderCartUI = function() {
                 ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
             <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:${paymentPadding}; border-bottom:1px solid #000;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:${hasItems ? '15px' : '6px'};">
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:${hasItems ? '15px' : '4px'};">
                     <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
                 </div>
                 ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; font-weight:bold; letter-spacing:1px;">CONTINUE TO CHECKOUT</button>` : ''}
-                <div style="display:flex; gap:8px; opacity:0.3; margin-top:${hasItems ? '12px' : '4px'};">
+                <div style="display:flex; gap:8px; opacity:0.3; margin-top:${hasItems ? '12px' : '2px'};">
                     <div style="width:25px; height:15px; background:#000;"></div>
                     <div style="width:25px; height:15px; background:#000;"></div>
                 </div>
