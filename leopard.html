@@ -433,21 +433,19 @@ footer{
 
 .cart-ascii-wrap {
     background: #f7f7f7;
-    padding: 30px 25px; 
+    padding: 15px 20px; /* Reduced padding makes the box smaller */
     border-bottom: 1px solid #000 !important;
     display: flex;
-    justify-content: center; /* Centers the ASCII art horizontally */
-    align-items: center;    /* Centers the ASCII art vertically */
-    min-height: 120px;
+    justify-content: flex-start; /* Aligns content to the left */
+    min-height: 80px; /* Reduced height */
 }
 
 .cart-ascii {
     font-family: monospace;
-    font-size: 11px; /* #3: Bigger ASCII font size */
+    font-size: 8px; /* High-density ASCII size */
     white-space: pre;
-    text-align: center;
-    line-height: 1.2;
-    margin: 0;
+    text-align: left;
+    line-height: 1.1;
     color: #000;
 }
 
