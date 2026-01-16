@@ -257,32 +257,27 @@ window.renderCartUI = function() {
 |  \\/  |_ _| \\ | |  / \\  |  _ \\    / \\  | ___| 
 | |\\/| || ||  \\| | / _ \\ | |_) |  / _ \\ |___ \\ 
 | |  | || || |\\  |/ ___ \\|  _ <  / ___ \\ ___) |
-|_|  |_|___|_| \\_/_/   \\_\\_| \\_\\/_/   \\_\\____/ `
-ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌;
+|_|  |_|___|_| \\_/_/   \\_\\_| \\_\\/_/   \\_\\____/ `;
 
     const emptyArt = `
  _____ __  __ ____ _______   __
 | ____|  \\/  |  _ \\_   _\\ \\ / /
 |  _| | |\\/| | |_) || |  \\ V / 
 | |___| |  | |  __/ | |   | |  
-|_____|_|  |_|_|    |_|   |_| `
-ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌;
+|_____|_|  |_|_|    |_|   |_| `;
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
     // #2: VERTICAL CENTERING logic
-    asciiWrap.style.display = "row";
+    asciiWrap.style.display = "flex";
     asciiWrap.style.flexDirection = "column";
-    asciiWrap.style.justifyContent = "flex-start"; // Vertical center
-    asciiWrap.style.alignItems = "center"; // Keep left-aligned
+    asciiWrap.style.justifyContent = "center"; // Vertical center
+    asciiWrap.style.alignItems = "flex-start"; // Keep left-aligned
     asciiWrap.style.padding = "15px 25px"; 
     asciiWrap.style.minHeight = "100px"; 
-
-    asciiWrap.style.padding = "0 25px"; // Removed top/bottom padding so flex can do the centering
-    asciiWrap.style.minHeight = "100px";
     
     asciiContainer.style.fontSize = "12px";
-    asciiContainer.style.lineHeight = "1";
+    asciiContainer.style.lineHeight = "1.1";
     asciiContainer.style.margin = "0";
 
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
