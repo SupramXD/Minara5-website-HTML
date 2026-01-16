@@ -267,23 +267,23 @@ window.renderCartUI = function() {
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-    // #1 & #3: VERTICAL CENTERING & BOX SIZE
+    // #1, #2, & #4: MATCHED TO REFERENCE PHOTOS
     asciiWrap.style.display = "flex";
     asciiWrap.style.flexDirection = "row";
-    asciiWrap.style.alignItems = "center";      // Mathematical vertical center
-    asciiWrap.style.justifyContent = "center";  // Centers the art horizontally
+    asciiWrap.style.alignItems = "center";      // Forces true vertical center
+    asciiWrap.style.justifyContent = "center";  // Centers art horizontally
     
-    // #2: REMOVE LEFT BORDER
+    // REMOVE LEFT BORDER & SHRINK BOX
     asciiWrap.style.borderLeft = "none";        // Removes the black line
-    asciiWrap.style.padding = "0";              // Removes padding that pushes art down
-    asciiWrap.style.minHeight = "85px";         // Shorter box to match the photo
+    asciiWrap.style.padding = "0";              // Zero padding ensures perfect center
+    asciiWrap.style.minHeight = "80px";         // Slightly smaller box height
     
-    // ASCII STYLING (Smaller + Spaced out)
-    asciiContainer.style.fontSize = "9px";      // Smaller art to match reference
-    asciiContainer.style.letterSpacing = "2px"; // Adds space between each ascii character
-    asciiContainer.style.lineHeight = "1.0";    // Trims vertical spacing for perfect center
+    // ASCII STYLING (Spaced out + Smaller)
+    asciiContainer.style.fontSize = "9px";      // Smaller font size
+    asciiContainer.style.letterSpacing = "4px"; // Adds space between characters
+    asciiContainer.style.lineHeight = "1.0";    // Trims vertical "air" for perfect center
     asciiContainer.style.margin = "0";
-    asciiContainer.style.textAlign = "center";
+    asciiContainer.style.whiteSpace = "pre";    
 
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
 
@@ -308,7 +308,6 @@ window.renderCartUI = function() {
         });
         html += '</div>';
     } else {
-        // EMPTY STATE STYLING TO MATCH PHOTO
         html += '<div style="padding:40px 25px; flex-grow:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">';
         if (!isLoggedIn) {
             html += `
