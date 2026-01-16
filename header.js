@@ -252,19 +252,19 @@ window.renderCartUI = function() {
     const isLoggedIn = !!currentUser;
 
     // #3: FIXED MINARA ART - Matched exactly to your provided reference
-const bagArt = `
- ____       _       ____ 
-| __ )     / \\     / ___|
-|  _ \\    / _ \\   | |  _ 
-| |_) |  / ___ \\  | |_| |
-|____/  /_/   \\_\\  \\____| `;
+    const minaraArt = `
+ __  __    ___    _   _     _      ____      _      ____  
+|  \\/  |  |_ _|  | \\ | |   / \\    |  _ \\    / \\    | ___| 
+| |\\/| |   | |   |  \\| |  / _ \\   | |_) |  / _ \\   |___ \\ 
+| |  | |   | |   | |\\  | / ___ \\  |  _ <  / ___ \\   ___) |
+|_|  |_|  |___|  |_| \\_/_/   \\_\\ _| \\_\\/_/   \\_\\ |____/ `;
 
     const emptyArt = `
  _____   __  __   ____    _____  __   __
 | ____| |  \\/  | |  _ \\  |_   _| \\ \\ / /
 |  _|   | |\\/| | | |_) |   | |    \\ V / 
 | |___  | |  | | |  __/    | |     | |  
-|_____| |_|  |_| |_|       |_|     |_| `;
+|_____| |_|  |_| |_|       |_|       |_| `;
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
