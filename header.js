@@ -268,16 +268,18 @@ window.renderCartUI = function() {
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-    // #2: VERTICAL CENTERING logic
+// #2: VERTICAL CENTERING logic - FIXED
     asciiWrap.style.display = "flex";
-    asciiWrap.style.flexDirection = "column";
-    asciiWrap.style.justifyContent = "center"; // Vertical center
-    asciiWrap.style.alignItems = "flex-start"; // Keep left-aligned
-    asciiWrap.style.padding = "15px 25px"; 
+    asciiWrap.style.flexDirection = "row";      // Row direction handles vertical centering better
+    asciiWrap.style.alignItems = "center";     // Mathematically centers the art vertically
+    asciiWrap.style.justifyContent = "flex-start"; // Keeps the art on the left side
+    
+    // Remove top/bottom padding to allow flexbox to do the work
+    asciiWrap.style.padding = "0 25px"; 
     asciiWrap.style.minHeight = "100px"; 
     
     asciiContainer.style.fontSize = "12px";
-    asciiContainer.style.lineHeight = "1.1";
+    asciiContainer.style.lineHeight = "1.0";    // Trims "air" from the font for a perfect center
     asciiContainer.style.margin = "0";
 
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
