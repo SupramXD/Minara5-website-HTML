@@ -251,33 +251,38 @@ window.renderCartUI = function() {
     const hasItems = totalItems > 0;
     const isLoggedIn = !!currentUser;
 
-    // Fixed MINARA 5 Art (Double backslashes preserved for JS)
+    // #1 & #3: FIXED MINARA 5 Art (Using double backslashes for JS safety)
     const minaraArt = `
  __  __ ___ _   _    _    ____      _    ____  
 |  \\/  |_ _| \\ | |  / \\  |  _ \\    / \\  | ___| 
 | |\\/| || ||  \\| | / _ \\ | |_) |  / _ \\ |___ \\ 
 | |  | || || |\\  |/ ___ \\|  _ <  / ___ \\ ___) |
-|_|  |_|___|_| \\_/_/   \\_\\_| \\_\\/_/   \\_\\____/ `;
+|_|  |_|___|_| \\_/_/   \\_\\_| \\_\\/_/   \\_\\____/ `
+ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌;
 
     const emptyArt = `
  _____ __  __ ____ _______   __
 | ____|  \\/  |  _ \\_   _\\ \\ / /
 |  _| | |\\/| | |_) || |  \\ V / 
 | |___| |  | |  __/ | |   | |  
-|_____|_|  |_|_|    |_|   |_| `;
+|_____|_|  |_|_|    |_|   |_| `
+ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌ㅤ‌;
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-    // #2 VERTICAL CENTERING FIX
-    asciiWrap.style.display = "flex";          // Fixed from "row" to "flex"
-    asciiWrap.style.flexDirection = "row";    // Row direction allows for vertical centering
-    asciiWrap.style.alignItems = "center";    // This centers the ASCII vertically in the 100px box
-    asciiWrap.style.justifyContent = "flex-start"; 
-    asciiWrap.style.padding = "0 25px";       // Zero top/bottom padding so centering is mathematical
+    // #2: VERTICAL CENTERING logic
+    asciiWrap.style.display = "row";
+    asciiWrap.style.flexDirection = "column";
+    asciiWrap.style.justifyContent = "flex-start"; // Vertical center
+    asciiWrap.style.alignItems = "center"; // Keep left-aligned
+    asciiWrap.style.padding = "15px 25px"; 
     asciiWrap.style.minHeight = "100px"; 
 
+    asciiWrap.style.padding = "0 25px"; // Removed top/bottom padding so flex can do the centering
+    asciiWrap.style.minHeight = "100px";
+    
     asciiContainer.style.fontSize = "12px";
-    asciiContainer.style.lineHeight = "1";    // Trims the font's internal spacing
+    asciiContainer.style.lineHeight = "1";
     asciiContainer.style.margin = "0";
 
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
@@ -316,7 +321,8 @@ window.renderCartUI = function() {
         html += '</div>';
     }
 
-    // #1 DYNAMIC SHIPPING BOX SIZE
+    // #1: DYNAMIC SHIPPING BOX SIZE
+    // If cart has items, it uses 45px (original/small). If empty, it stays 90px (tall).
     const footBoxHeight = hasItems ? "45px" : "90px";
 
     html += `
