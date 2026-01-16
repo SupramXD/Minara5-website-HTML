@@ -251,7 +251,7 @@ window.renderCartUI = function() {
     const hasItems = totalItems > 0;
     const isLoggedIn = !!currentUser;
 
-    // #4: FIXED MINARA ART (JS Safe with matching block widths)
+    // #3: FIXED MINARA ART - Matched exactly to your provided reference
     const minaraArt = `
  __  __    ___    _   _     _      ____      _      ____  
 |  \\/  |  |_ _|  | \\ | |   / \\    |  _ \\    / \\    | ___| 
@@ -259,28 +259,26 @@ window.renderCartUI = function() {
 | |  | |   | |   | |\\  | / ___ \\  |  _ <  / ___ \\   ___) |
 |_|  |_|  |___|  |_| \\_/_/   \\_\\ _| \\_\\/_/   \\_\\ |____/ `;
 
-    // EXACT EMPTY ART AS REQUESTED
     const emptyArt = `
  _____   __  __   ____    _____  __   __
 | ____| |  \\/  | |  _ \\  |_   _| \\ \\ / /
 |  _|   | |\\/| | | |_) |   | |    \\ V / 
 | |___  | |  | | |  __/    | |     | |  
-|_____| |_|  |_| |_|       |_|     |_| `;
+|_____| |_|  |_| |_|       |_|       |_| `;
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-    // ALIGNMENT & HEADER
+    // ALIGNMENT & BORDER FIX
     asciiWrap.style.display = "flex";
     asciiWrap.style.alignItems = "center";       
     asciiWrap.style.justifyContent = "flex-start"; 
-    asciiWrap.style.borderLeft = "none";         
+    asciiWrap.style.borderLeft = "none";         // Explicitly removed the left black border
     asciiWrap.style.padding = "0 25px";
     asciiWrap.style.minHeight = "90px";          
     
     asciiContainer.style.fontSize = "9px";
     asciiContainer.style.lineHeight = "1.1";
-    // #1: Higher alignment
-    asciiContainer.style.marginBottom = "15px"; 
+    asciiContainer.style.marginBottom = "15px";  // #1: Added blank space under to align higher
     asciiContainer.style.whiteSpace = "pre";
 
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
@@ -320,10 +318,10 @@ window.renderCartUI = function() {
     }
 
     // FOOTER LOGIC
-    // #2 & #3: "Shipping/Total" box (f9f9f9) is BIGGER when empty (100px) and SMALLER when full (45px)
+    // #2: Shipping/Total is BIGGER when empty (100px)
     const footBoxHeight = hasItems ? "45px" : "100px"; 
-    // #2: "Payment" box (f2f2f2) is SMALLER when empty (padding 8px) and BIGGER when full (padding 20px)
-    const paymentPadding = hasItems ? "20px 20px" : "8px 20px"; 
+    // #2: Payment box is now VERY SMALL when empty (0px bottom padding, 4px margin)
+    const paymentPadding = hasItems ? "20px 20px" : "5px 20px 0px 20px"; 
 
     html += `
         <div class="cart-footer-area" style="margin-top:auto;">
@@ -339,7 +337,7 @@ window.renderCartUI = function() {
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
                 </div>
                 ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; font-weight:bold; letter-spacing:1px;">CONTINUE TO CHECKOUT</button>` : ''}
-                <div style="display:flex; gap:8px; opacity:0.3; margin-top:${hasItems ? '12px' : '2px'};">
+                <div style="display:flex; gap:8px; opacity:0.3; margin-top:${hasItems ? '12px' : '2px'}; margin-bottom:${hasItems ? '0px' : '5px'};">
                     <div style="width:25px; height:15px; background:#000;"></div>
                     <div style="width:25px; height:15px; background:#000;"></div>
                 </div>
