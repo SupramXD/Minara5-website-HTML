@@ -240,7 +240,7 @@ window.removeFromCart = function(index) {
    CART UI & BUTTON FIXES
 ================================ */
 
-wwindow.renderCartUI = function() {
+window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiWrap = document.querySelector('.cart-ascii-wrap');
     const asciiContainer = document.querySelector('.cart-ascii');
@@ -251,7 +251,7 @@ wwindow.renderCartUI = function() {
     const hasItems = totalItems > 0;
     const isLoggedIn = !!currentUser;
 
-    // #1 & #3 FIXED ASCII (Double backslashes for proper rendering)
+    // #3 FIXED MINARA 5 Art (Using double backslashes for JS)
     const minaraArt = `
  __  __ ___ _   _   _   ____    _    _____ 
 |  \\/  |_ _| \\ | | / \\ |  _ \\  / \\  | ____|
@@ -268,15 +268,14 @@ wwindow.renderCartUI = function() {
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-    // #1: Small box, but keep the 9px text size
-    asciiContainer.style.fontSize = "9px";
-    asciiWrap.style.padding = "15px 20px"; 
-    asciiWrap.style.minHeight = "auto";
+    // #1 Bigger ASCII Text & Box (Adjust values here)
+    asciiContainer.style.fontSize = "12px"; 
+    asciiWrap.style.padding = "40px 25px"; 
 
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
 
     if (hasItems) {
-        html += '<div class="items-area" style="flex-grow:1; overflow-y:auto;">';
+        html += '<div class="items-area" style="flex-grow:1;">';
         cart.forEach((item, index) => {
             html += `
             <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 15px;">
@@ -309,25 +308,19 @@ wwindow.renderCartUI = function() {
         html += '</div>';
     }
 
-    // #2 & #3: Proper Alignment and Shorter Payment Box
+    // #2 Taller Footer + Payment Placeholders
     html += `
         <div class="cart-footer-area" style="margin-top:auto;">
-            <div style="background:#f9f9f9; border-top:1px solid #000; padding:20px; height:85px; display:flex; flex-direction:column; justify-content:space-between;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;">
-                    <span>SHIPPING</span><span>FREE</span>
-                </div>
-                ${!hasItems ? `
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;">
-                    <span>TOTAL</span><span>R0</span>
-                </div>` : ''}
+            <div style="background:#f9f9f9; border-top:1px solid #000; padding:25px 20px; display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; justify-content:space-between; font-size:11px;"><span>SHIPPING</span><span>FREE</span></div>
+                ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
-
-            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:15px 20px 20px 20px; border-bottom:1px solid #000;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:15px;">
-                    <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
+            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:25px 20px 35px 20px; border-bottom:1px solid #000;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold; margin-bottom:20px;">
+                    <span style="font-family:'Gotham Narrow Bold',sans-serif;">${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
                 </div>
-                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; letter-spacing:1px; margin-bottom:15px; font-weight:bold;">CONTINUE TO CHECKOUT</button>` : ''}
+                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:14px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; letter-spacing:1px; margin-bottom:20px; font-weight:bold;">CONTINUE TO CHECKOUT</button>` : ''}
                 
                 <div style="display:flex; gap:8px; opacity:0.4;">
                     <div style="width:30px; height:18px; background:#000;"></div>
