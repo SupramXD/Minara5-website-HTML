@@ -433,18 +433,21 @@ footer{
 
 .cart-ascii-wrap {
     background: #f7f7f7;
-    padding: 20px 25px;
+    padding: 30px 25px; 
     border-bottom: 1px solid #000 !important;
     display: flex;
-    justify-content: flex-start; /* Forces it to the left */
+    justify-content: center; /* Centers the ASCII art horizontally */
+    align-items: center;    /* Centers the ASCII art vertically */
+    min-height: 120px;
 }
 
 .cart-ascii {
     font-family: monospace;
-    font-size: 11px; /* Increased slightly for the detailed MINARA 5 art */
+    font-size: 11px; /* #3: Bigger ASCII font size */
     white-space: pre;
-    text-align: left;
-    line-height: 1.1;
+    text-align: center;
+    line-height: 1.2;
+    margin: 0;
     color: #000;
 }
 
@@ -786,6 +789,15 @@ footer{
     display: flex;
     justify-content: space-between;
     align-items: center; /* Keeps text centered in the same place */
+}
+
+.cart-header-row, 
+.cart-ascii-wrap, 
+.cart-section, 
+.cart-item-row,
+#cartPanel,
+.cart-body { 
+    border-color: #000 !important; 
 }
 </style>
 </head>
