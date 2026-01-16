@@ -251,13 +251,13 @@ window.renderCartUI = function() {
     const hasItems = totalItems > 0;
     const isLoggedIn = !!currentUser;
 
-    // Fixed ASCII art with proper escape characters
+    // #1 & #3: FIXED MINARA 5 Art (Using double backslashes for JS safety)
     const minaraArt = `
- __  __ ___ _   _   _   ____    _    _____ 
-|  \\/  |_ _| \\ | | / \\ |  _ \\  / \\  | ____|
-| |\\/| || ||  \\| |/ _ \\| |_) |/ _ \\ |___ \\ 
-| |  | || || |\\  / ___ \\  _ < / ___ \\ ___) |
-|_|  |_|___|_| \\_/_/   \\_\\_| \\_\\_/   \\_\\____/ `;
+ __  __ ___ _   _    _    ____      _    ____  
+|  \\/  |_ _| \\ | |  / \\  |  _ \\    / \\  | ___| 
+| |\\/| || ||  \\| | / _ \\ | |_) |  / _ \\ |___ \\ 
+| |  | || || |\\  |/ ___ \\|  _ <  / ___ \\ ___) |
+|_|  |_|___|_| \\_/_/   \\_\\_| \\_\\/_/   \\_\\____/ `;
 
     const emptyArt = `
  _____ __  __ ____ _______   __
@@ -268,10 +268,17 @@ window.renderCartUI = function() {
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-    // #1: Keep text size (12px) but make the box smaller (shorter padding)
-    asciiContainer.style.fontSize = "12px"; 
-    asciiWrap.style.padding = "20px 25px"; 
-    asciiWrap.style.minHeight = "auto";
+    // #2: VERTICAL CENTERING logic
+    asciiWrap.style.display = "flex";
+    asciiWrap.style.flexDirection = "column";
+    asciiWrap.style.justifyContent = "center"; // Vertical center
+    asciiWrap.style.alignItems = "flex-start"; // Keep left-aligned
+    asciiWrap.style.padding = "15px 25px"; 
+    asciiWrap.style.minHeight = "100px"; 
+    
+    asciiContainer.style.fontSize = "12px";
+    asciiContainer.style.lineHeight = "1.1";
+    asciiContainer.style.margin = "0";
 
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
 
@@ -309,10 +316,13 @@ window.renderCartUI = function() {
         html += '</div>';
     }
 
-    // #2 & #3: Adjusted footer alignment and heights
+    // #1: DYNAMIC SHIPPING BOX SIZE
+    // If cart has items, it uses 45px (original/small). If empty, it stays 90px (tall).
+    const footBoxHeight = hasItems ? "45px" : "90px";
+
     html += `
         <div class="cart-footer-area" style="margin-top:auto;">
-            <div style="background:#f9f9f9; border-top:1px solid #000; padding:20px; height:90px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div style="background:#f9f9f9; border-top:1px solid #000; padding:15px 20px; height:${footBoxHeight}; display:flex; flex-direction:column; justify-content:space-between;">
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;">
                     <span>SHIPPING</span><span>FREE</span>
                 </div>
