@@ -251,7 +251,6 @@ window.renderCartUI = function() {
     const hasItems = totalItems > 0;
     const isLoggedIn = !!currentUser;
 
-    // #1 & #3: FIXED MINARA 5 Art (Using double backslashes for JS safety)
     const minaraArt = `
  __  __ ___ _   _    _    ____      _    ____  
 |  \\/  |_ _| \\ | |  / \\  |  _ \\    / \\  | ___| 
@@ -268,20 +267,23 @@ window.renderCartUI = function() {
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-// #2: VERTICAL CENTERING logic - MATCHED TO REFERENCE
+    // #1 & #3: VERTICAL CENTERING & BOX SIZE
     asciiWrap.style.display = "flex";
-    asciiWrap.style.flexDirection = "row";      // Row allows for perfect vertical alignment
-    asciiWrap.style.alignItems = "center";     // Mathematically centers the art vertically
-    asciiWrap.style.justifyContent = "flex-start"; // Keeps it aligned to the left
+    asciiWrap.style.flexDirection = "row";
+    asciiWrap.style.alignItems = "center";      // Mathematical vertical center
+    asciiWrap.style.justifyContent = "center";  // Centers the art horizontally
     
-    // Remove top/bottom padding so the flexbox centering is 100% accurate
-    asciiWrap.style.padding = "0 25px"; 
-    asciiWrap.style.minHeight = "100px"; 
+    // #2: REMOVE LEFT BORDER
+    asciiWrap.style.borderLeft = "none";        // Removes the black line
+    asciiWrap.style.padding = "0";              // Removes padding that pushes art down
+    asciiWrap.style.minHeight = "85px";         // Shorter box to match the photo
     
-    asciiContainer.style.fontSize = "12px";
-    asciiContainer.style.lineHeight = "1.0";    // Trims font spacing to match the reference look
+    // ASCII STYLING (Smaller + Spaced out)
+    asciiContainer.style.fontSize = "9px";      // Smaller art to match reference
+    asciiContainer.style.letterSpacing = "2px"; // Adds space between each ascii character
+    asciiContainer.style.lineHeight = "1.0";    // Trims vertical spacing for perfect center
     asciiContainer.style.margin = "0";
-    asciiContainer.style.whiteSpace = "pre";    // Ensures the ASCII structure is preserved
+    asciiContainer.style.textAlign = "center";
 
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
 
@@ -306,21 +308,20 @@ window.renderCartUI = function() {
         });
         html += '</div>';
     } else {
-        html += '<div style="padding:40px 25px; flex-grow:1;">';
+        // EMPTY STATE STYLING TO MATCH PHOTO
+        html += '<div style="padding:40px 25px; flex-grow:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">';
         if (!isLoggedIn) {
             html += `
-            <div style="font-size:10px; color:rgba(0,0,0,0.4); letter-spacing:0.5px; margin-bottom:4px;">Missing items in your cart?</div>
-            <div style="font-size:10px; color:rgba(0,0,0,0.4); letter-spacing:0.5px; margin-bottom:18px;">Sign in to see items you added before.</div>
-            <div style="display:flex; gap:20px;">
-                <a href="account.html" style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; color:#1106e8; text-decoration:none;">SIGN IN</a>
-                <a href="account.html" style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; color:#1106e8; text-decoration:none;">REGISTER</a>
+            <div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; margin-bottom:4px; text-transform:uppercase;">Missing items in your cart?</div>
+            <div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; margin-bottom:25px; text-transform:uppercase;">Sign in to see items you added before.</div>
+            <div style="display:flex; gap:30px; justify-content:center;">
+                <a href="account.html" style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; color:#1106e8; text-decoration:none; font-weight:bold;">SIGN IN</a>
+                <a href="account.html" style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; color:#1106e8; text-decoration:none; font-weight:bold;">REGISTER</a>
             </div>`;
         }
         html += '</div>';
     }
 
-    // #1: DYNAMIC SHIPPING BOX SIZE
-    // If cart has items, it uses 45px (original/small). If empty, it stays 90px (tall).
     const footBoxHeight = hasItems ? "45px" : "90px";
 
     html += `
