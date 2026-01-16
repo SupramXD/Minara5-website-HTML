@@ -252,38 +252,35 @@ window.renderCartUI = function() {
     const isLoggedIn = !!currentUser;
 
     const minaraArt = `
- __  __ ___ _   _    _    ____      _    ____  
-|  \\/  |_ _| \\ | |  / \\  |  _ \\    / \\  | ___| 
-| |\\/| || ||  \\| | / _ \\ | |_) |  / _ \\ |___ \\ 
-| |  | || || |\\  |/ ___ \\|  _ <  / ___ \\ ___) |
-|_|  |_|___|_| \\_/_/   \\_\\_| \\_\\/_/   \\_\\____/ `;
+ __  __  ___  _   _   _    ____   _    ____  
+|  \\/  ||  _|| \\ | | / \\  |  _ \\ / \\  | ___| 
+| |\\/| || |  |  \\| |/ _ \\ | |_) / _ \\ |___ \\ 
+| |  | || |  | |\\  / ___ \\|  _ / ___ \\ ___) |
+|_|  |_||___||_| \\/_/   \\_\\_| /_/   \\_\\____/ `;
 
+    // #4: Art with proper block spacing
     const emptyArt = `
- _____ __  __ ____ _______   __
-| ____|  \\/  |  _ \\_   _\\ \\ / /
-|  _| | |\\/| | |_) || |  \\ V / 
-| |___| |  | |  __/ | |   | |  
-|_____|_|  |_|_|    |_|   |_| `;
+| ____|   |  \\/  |   |  _ \\    |_   _|   \\ \\ / /
+|  _|     | |\\/| |   | |_) |     | |      \\ V / 
+| |___    | |  | |   |  __/      | |       | |  
+|_____|   |_|  |_|   |_|         |_|       |_|  `;
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-    // #1, #2, & #4: MATCHED TO REFERENCE PHOTOS
+    // #1: LEFT ALIGNED & VERTICALLY CENTERED
     asciiWrap.style.display = "flex";
     asciiWrap.style.flexDirection = "row";
-    asciiWrap.style.alignItems = "center";      // Forces true vertical center
-    asciiWrap.style.justifyContent = "center";  // Centers art horizontally
+    asciiWrap.style.alignItems = "center";       // Vertical center
+    asciiWrap.style.justifyContent = "flex-start"; // Left aligned
+    asciiWrap.style.borderLeft = "none";         // Remove black border
+    asciiWrap.style.padding = "0 25px";
+    asciiWrap.style.minHeight = "90px";          // Smaller box size
     
-    // REMOVE LEFT BORDER & SHRINK BOX
-    asciiWrap.style.borderLeft = "none";        // Removes the black line
-    asciiWrap.style.padding = "0";              // Zero padding ensures perfect center
-    asciiWrap.style.minHeight = "80px";         // Slightly smaller box height
-    
-    // ASCII STYLING (Spaced out + Smaller)
-    asciiContainer.style.fontSize = "9px";      // Smaller font size
-    asciiContainer.style.letterSpacing = "4px"; // Adds space between characters
-    asciiContainer.style.lineHeight = "1.0";    // Trims vertical "air" for perfect center
-    asciiContainer.style.margin = "0";
-    asciiContainer.style.whiteSpace = "pre";    
+    // #3: Blank space under art to align it a bit higher
+    asciiContainer.style.fontSize = "9px";
+    asciiContainer.style.lineHeight = "1.1";
+    asciiContainer.style.marginBottom = "5px";    // Pushes art up slightly
+    asciiContainer.style.whiteSpace = "pre";
 
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
 
@@ -308,12 +305,13 @@ window.renderCartUI = function() {
         });
         html += '</div>';
     } else {
-        html += '<div style="padding:40px 25px; flex-grow:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">';
+        // #2: MOVE TEXT TOP LEFT UNDER ART
+        html += '<div style="padding:15px 25px; flex-grow:1; display:flex; flex-direction:column; align-items:flex-start; text-align:left;">';
         if (!isLoggedIn) {
             html += `
-            <div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; margin-bottom:4px; text-transform:uppercase;">Missing items in your cart?</div>
-            <div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; margin-bottom:25px; text-transform:uppercase;">Sign in to see items you added before.</div>
-            <div style="display:flex; gap:30px; justify-content:center;">
+            <div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; margin-bottom:4px; font-weight:bold;">Missing items in your cart?</div>
+            <div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; margin-bottom:18px;">Sign in to see items you added before.</div>
+            <div style="display:flex; gap:30px;">
                 <a href="account.html" style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; color:#1106e8; text-decoration:none; font-weight:bold;">SIGN IN</a>
                 <a href="account.html" style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; color:#1106e8; text-decoration:none; font-weight:bold;">REGISTER</a>
             </div>`;
@@ -321,30 +319,26 @@ window.renderCartUI = function() {
         html += '</div>';
     }
 
-    const footBoxHeight = hasItems ? "45px" : "90px";
+    // SMALLER PAYMENT BOX
+    const footBoxHeight = hasItems ? "40px" : "80px";
 
     html += `
         <div class="cart-footer-area" style="margin-top:auto;">
-            <div style="background:#f9f9f9; border-top:1px solid #000; padding:15px 20px; height:${footBoxHeight}; display:flex; flex-direction:column; justify-content:space-between;">
+            <div style="background:#f9f9f9; border-top:1px solid #000; padding:12px 20px; height:${footBoxHeight}; display:flex; flex-direction:column; justify-content:space-between;">
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;">
                     <span>SHIPPING</span><span>FREE</span>
                 </div>
-                ${!hasItems ? `
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;">
-                    <span>TOTAL</span><span>R0</span>
-                </div>` : ''}
+                ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
-
-            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:15px 20px 20px 20px; border-bottom:1px solid #000;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:15px;">
+            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:12px 20px; border-bottom:1px solid #000;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:12px;">
                     <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
                 </div>
-                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; letter-spacing:1px; margin-bottom:15px; font-weight:bold;">CONTINUE TO CHECKOUT</button>` : ''}
-                
-                <div style="display:flex; gap:8px; opacity:0.4;">
-                    <div style="width:30px; height:18px; background:#000;"></div>
-                    <div style="width:30px; height:18px; background:#000;"></div>
+                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:10px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; font-weight:bold;">CONTINUE TO CHECKOUT</button>` : ''}
+                <div style="display:flex; gap:8px; opacity:0.3; margin-top:10px;">
+                    <div style="width:25px; height:15px; background:#000;"></div>
+                    <div style="width:25px; height:15px; background:#000;"></div>
                 </div>
             </div>
         </div>
