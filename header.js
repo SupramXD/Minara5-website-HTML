@@ -240,7 +240,7 @@ window.removeFromCart = function(index) {
    CART UI & BUTTON FIXES
 ================================ */
 
-wwindow.renderCartUI = function() {
+window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiWrap = document.querySelector('.cart-ascii-wrap');
     const asciiContainer = document.querySelector('.cart-ascii');
@@ -251,7 +251,7 @@ wwindow.renderCartUI = function() {
     const hasItems = totalItems > 0;
     const isLoggedIn = !!currentUser;
 
-    // #1 & #3 FIXED ASCII (Double backslashes for proper rendering)
+    // Fixed ASCII art with proper escape characters
     const minaraArt = `
  __  __ ___ _   _   _   ____    _    _____ 
 |  \\/  |_ _| \\ | | / \\ |  _ \\  / \\  | ____|
@@ -268,9 +268,9 @@ wwindow.renderCartUI = function() {
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-    // #1: Small box, but keep the 9px text size
-    asciiContainer.style.fontSize = "9px";
-    asciiWrap.style.padding = "15px 20px"; 
+    // #1: Keep text size (12px) but make the box smaller (shorter padding)
+    asciiContainer.style.fontSize = "12px"; 
+    asciiWrap.style.padding = "20px 25px"; 
     asciiWrap.style.minHeight = "auto";
 
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
@@ -309,10 +309,10 @@ wwindow.renderCartUI = function() {
         html += '</div>';
     }
 
-    // #2 & #3: Proper Alignment and Shorter Payment Box
+    // #2 & #3: Adjusted footer alignment and heights
     html += `
         <div class="cart-footer-area" style="margin-top:auto;">
-            <div style="background:#f9f9f9; border-top:1px solid #000; padding:20px; height:85px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div style="background:#f9f9f9; border-top:1px solid #000; padding:20px; height:90px; display:flex; flex-direction:column; justify-content:space-between;">
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;">
                     <span>SHIPPING</span><span>FREE</span>
                 </div>
