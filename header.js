@@ -251,19 +251,23 @@ window.renderCartUI = function() {
     const hasItems = totalItems > 0;
     const isLoggedIn = !!window.auth.currentUser;
 
-    // #2: Remove Minara ASCII box when items are present
-    if (hasItems) {
-        asciiWrap.style.display = 'none'; // Hide the entire ASCII row
-    } else {
-        asciiWrap.style.display = 'flex'; // Show only when empty
-        // #3: Fixed and larger EMPTY ASCII
-        asciiContainer.textContent = `
+    // #3 Re-introducing MINARA 5 in the "EMPTY" block style
+    const minaraArt = `
+ __  __ ___ _   _   _   ____    _    _____ 
+|  \\/  |_ _| \\ | | / \\ |  _ \\  / \\  | ____|
+| |\\/| || ||  \\| |/ _ \\| |_) |/ _ \\ |___ \\ 
+| |  | || || |\\  / ___ \\  _ < / ___ \\ ___) |
+|_|  |_|___|_| \\_/_/   \\_\\_| \\_\\_/   \\_\\____/ `;
+
+    const emptyArt = `
  _____ __  __ ____ _______   __
 | ____|  \\/  |  _ \\_   _\\ \\ / /
 |  _| | |\\/| | |_) || |  \\ V / 
 | |___| |  | |  __/ | |   | |  
 |_____|_|  |_|_|    |_|   |_| `;
-    }
+
+    // #2 & #3: Show the box for both, but swap the text
+    asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
 
@@ -288,7 +292,6 @@ window.renderCartUI = function() {
         });
         html += '</div>';
     } else {
-        // #1: Empty state text (only shows if NOT logged in)
         html += '<div style="padding:40px 25px; flex-grow:1;">';
         if (!isLoggedIn) {
             html += `
@@ -302,7 +305,7 @@ window.renderCartUI = function() {
         html += '</div>';
     }
 
-    // Footer with Black Borders
+    // Footer section remains with solid black borders
     html += `
         <div class="cart-footer-area" style="margin-top:auto;">
             <div style="background:#f9f9f9; border-top:1px solid #000; padding:15px 20px; display:flex; flex-direction:column; gap:8px;">
@@ -315,10 +318,6 @@ window.renderCartUI = function() {
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
                 </div>
                 ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:14px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; letter-spacing:1px; margin-bottom:15px; font-weight:bold;">CONTINUE TO CHECKOUT</button>` : ''}
-                <div style="display:flex; gap:8px; opacity:0.4;">
-                    <div style="width:30px; height:18px; background:#000;"></div>
-                    <div style="width:30px; height:18px; background:#000;"></div>
-                </div>
             </div>
         </div>
     </div>`;
