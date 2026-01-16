@@ -240,7 +240,7 @@ window.removeFromCart = function(index) {
    CART UI & BUTTON FIXES
 ================================ */
 
-window.renderCartUI = function() {
+wwindow.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiWrap = document.querySelector('.cart-ascii-wrap');
     const asciiContainer = document.querySelector('.cart-ascii');
@@ -251,7 +251,7 @@ window.renderCartUI = function() {
     const hasItems = totalItems > 0;
     const isLoggedIn = !!currentUser;
 
-    // Fixed ASCII strings using double backslashes
+    // #1 & #3 FIXED ASCII (Double backslashes for proper rendering)
     const minaraArt = `
  __  __ ___ _   _   _   ____    _    _____ 
 |  \\/  |_ _| \\ | | / \\ |  _ \\  / \\  | ____|
@@ -268,8 +268,8 @@ window.renderCartUI = function() {
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-    // #1: Smaller box, kept text size at 12px
-    asciiContainer.style.fontSize = "12px"; 
+    // #1: Small box, but keep the 9px text size
+    asciiContainer.style.fontSize = "9px";
     asciiWrap.style.padding = "15px 20px"; 
     asciiWrap.style.minHeight = "auto";
 
@@ -309,7 +309,7 @@ window.renderCartUI = function() {
         html += '</div>';
     }
 
-    // #2 & #3: Footer alignment and shorter payment section
+    // #2 & #3: Proper Alignment and Shorter Payment Box
     html += `
         <div class="cart-footer-area" style="margin-top:auto;">
             <div style="background:#f9f9f9; border-top:1px solid #000; padding:20px; height:85px; display:flex; flex-direction:column; justify-content:space-between;">
@@ -321,12 +321,14 @@ window.renderCartUI = function() {
                     <span>TOTAL</span><span>R0</span>
                 </div>` : ''}
             </div>
-            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:12px 20px 18px 20px; border-bottom:1px solid #000;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:12px;">
+
+            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:15px 20px 20px 20px; border-bottom:1px solid #000;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:15px;">
                     <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
                 </div>
-                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; letter-spacing:1px; margin-bottom:12px; font-weight:bold;">CONTINUE TO CHECKOUT</button>` : ''}
+                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; letter-spacing:1px; margin-bottom:15px; font-weight:bold;">CONTINUE TO CHECKOUT</button>` : ''}
+                
                 <div style="display:flex; gap:8px; opacity:0.4;">
                     <div style="width:30px; height:18px; background:#000;"></div>
                     <div style="width:30px; height:18px; background:#000;"></div>
@@ -334,13 +336,16 @@ window.renderCartUI = function() {
             </div>
         </div>
     </div>`;
+
     cartContainer.innerHTML = html;
 };
-
+// #2 & #3 HELPER FUNCTIONS (Attached to window so HTML buttons can see them)
 window.changeQty = function(index, delta) {
     if (cart[index]) {
         cart[index].quantity += delta;
-        if (cart[index].quantity < 1) { cart.splice(index, 1); }
+        if (cart[index].quantity < 1) {
+            cart.splice(index, 1);
+        }
         saveAndSyncCart();
     }
 };
@@ -350,6 +355,7 @@ window.removeFromCart = function(index) {
     saveAndSyncCart();
 };
 
+// --- THIS IS THE BUG FIX LOGIC (UNCHANGED) ---
 document.addEventListener('DOMContentLoaded', () => {
     saveAndSyncCart();
     const dimmer = document.getElementById('pageDimmer');
