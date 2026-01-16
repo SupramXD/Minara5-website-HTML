@@ -240,7 +240,7 @@ window.removeFromCart = function(index) {
    CART UI & BUTTON FIXES
 ================================ */
 
-wwindow.renderCartUI = function() {
+window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiWrap = document.querySelector('.cart-ascii-wrap');
     const asciiContainer = document.querySelector('.cart-ascii');
@@ -251,7 +251,7 @@ wwindow.renderCartUI = function() {
     const hasItems = totalItems > 0;
     const isLoggedIn = !!currentUser;
 
-    // #2: NEW BAG ASCII ART (Matches EMPTY style)
+    // #2: NEW BAG ASCII ART (Matches the style of EMPTY)
     const bagArt = `
  ____       _       ____ 
 | __ )     / \\     / ___|
@@ -259,6 +259,7 @@ wwindow.renderCartUI = function() {
 | |_) |  / ___ \\  | |_| |
 |____/  /_/   \\_\\  \\____|`;
 
+    // Restored EMPTY art exactly as requested
     const emptyArt = `
  _____   __  __   ____    _____  __   __
 | ____| |  \\/  | |  _ \\  |_   _| \\ \\ / /
@@ -268,11 +269,11 @@ wwindow.renderCartUI = function() {
 
     asciiContainer.textContent = hasItems ? bagArt : emptyArt;
 
-    // ALIGNMENT & BORDER FIX
+    // ALIGNMENT & BORDER REMOVAL
     asciiWrap.style.display = "flex";
     asciiWrap.style.alignItems = "center";       
     asciiWrap.style.justifyContent = "flex-start"; 
-    asciiWrap.style.borderLeft = "none";         
+    asciiWrap.style.borderLeft = "none";         // Removed the left black border
     asciiWrap.style.padding = "0 25px";
     asciiWrap.style.minHeight = "90px";          
     
@@ -318,9 +319,10 @@ wwindow.renderCartUI = function() {
     }
 
     // FOOTER LOGIC
-    const footBoxHeight = hasItems ? "45px" : "110px"; 
-    // #1: MINIMIZED PAYMENT BOX FOR EMPTY STATE
-    const paymentPadding = hasItems ? "20px 20px" : "4px 20px"; 
+    // #1 & #3: Shipping/Total box is BIGGER when empty (120px)
+    const footBoxHeight = hasItems ? "45px" : "120px"; 
+    // #1: Payment box is SMALLER when empty (total padding reduced)
+    const paymentPadding = hasItems ? "20px 20px" : "5px 20px"; 
 
     html += `
         <div class="cart-footer-area" style="margin-top:auto;">
@@ -331,7 +333,7 @@ wwindow.renderCartUI = function() {
                 ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
             <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:${paymentPadding}; border-bottom:1px solid #000;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:${hasItems ? '15px' : '2px'};">
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:${hasItems ? '15px' : '4px'};">
                     <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
                 </div>
