@@ -243,6 +243,9 @@ window.removeFromCart = function(index) {
 window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiWrap = document.querySelector('.cart-ascii-wrap');
+
+    asciiWrap.style.padding = "10px 20px"; // Lower first number = shorter box
+asciiWrap.style.minHeight = "75px";    // Direct pixel height control
     const asciiContainer = document.querySelector('.cart-ascii');
     if (!cartContainer || !asciiContainer) return;
 
@@ -268,6 +271,8 @@ window.renderCartUI = function() {
 
     // #2 & #3: Show the box for both, but swap the text
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
+
+    asciiContainer.style.fontSize = "9px";
 
     let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
 
