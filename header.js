@@ -324,16 +324,19 @@ const minaraArt = `
         }
 
         // #3: UNDO BUTTON UI (Based on reference image)
-        if (lastRemovedItem) {
-            html += `
-            <div style="width:100%; margin-top:30px; border-top:1px solid #eee; padding-top:10px;">
-                <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase; margin-bottom:12px;">${lastRemovedItem.name}</div>
-                <div style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid #eee; padding-top:10px;">
-                    <span style="color:red; font-size:11px; font-weight:normal; text-transform:uppercase;">REMOVED</span>
-                    <span onclick="window.undoRemove()" style="color:#1106e8; font-size:11px; text-decoration:underline; cursor:pointer; font-weight:normal; text-transform:uppercase;">UNDO</span>
-                </div>
-            </div>`;
-        }
+        // #3: THE UNDO BUTTON (Black lines, touching edges)
+if (lastRemovedItem) {
+    html += `
+    <div style="width:100%; margin-top:30px; border-top:1px solid #000; border-bottom:1px solid #000;">
+        <div style="padding:15px 25px;">
+            <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase; margin-bottom:12px;">${lastRemovedItem.name}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="color:red; font-size:11px; font-weight:bold; text-transform:uppercase;">REMOVED</span>
+                <span onclick="window.undoRemove()" style="color:#1106e8; font-size:11px; text-decoration:underline; cursor:pointer; font-weight:bold; text-transform:uppercase;">UNDO</span>
+            </div>
+        </div>
+    </div>`;
+}
         
         html += '</div>';
     }
@@ -367,13 +370,13 @@ const minaraArt = `
 
     cartContainer.innerHTML = html;
 };
-// --- UPDATED HELPER FUNCTIONS (REPLACING THE OLD ONES AT THE BOTTOM) ---
+// --- HELPER FUNCTIONS (CORRECTED) ---
 
 window.changeQty = function(index, delta) {
     if (cart[index]) {
         cart[index].quantity += delta;
         if (cart[index].quantity < 1) {
-            window.removeFromCart(index); // Calls our new remove function to trigger Undo
+            window.removeFromCart(index); // Triggers undo logic
         } else {
             saveAndSyncCart();
         }
@@ -382,31 +385,22 @@ window.changeQty = function(index, delta) {
 
 window.removeFromCart = function(index) {
     if (cart[index]) {
-        // This line is required for the Undo button to see the item
-        lastRemovedItem = { ...cart[index] }; 
+        lastRemovedItem = { ...cart[index] }; // Crucial for Undo button
         cart.splice(index, 1);
         saveAndSyncCart();
     }
 };
 
 window.undoRemove = function() {
-    // #3: THE UNDO BUTTON (Lines touch edges, dark black color)
-if (lastRemovedItem) {
-    html += `
-    <div style="width:100%; margin-top:30px;">
-        <div style="padding: 0 25px; font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase; margin-bottom:12px;">
-            ${lastRemovedItem.name}
-        </div>
-        
-        <div style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid #000; border-bottom: 1px solid #000; padding:15px 25px;">
-            <span style="color:red; font-size:11px; font-weight:bold; text-transform:uppercase;">REMOVED</span>
-            <span onclick="window.undoRemove()" style="color:#1106e8; font-size:11px; text-decoration:underline; cursor:pointer; font-weight:bold; text-transform:uppercase;">UNDO</span>
-        </div>
-    </div>`;
-}
+    if (lastRemovedItem) {
+        cart.push(lastRemovedItem);
+        lastRemovedItem = null; 
+        saveAndSyncCart();
+    }
 };
 
-// --- AUTH STATE SYNC ---
+// --- AUTH SYNC & INITIALIZATION ---
+
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
     const label = document.getElementById("accountLabel");
@@ -421,18 +415,13 @@ onAuthStateChanged(auth, (user) => {
         if (accName) accName.textContent = "ACCOUNT";
     }
     setupMobileAccount(user);
-    
-    // This ensures "ADD ITEMS TO BAG" shows up immediately when you log in
-    renderCartUI(); 
+    renderCartUI(); // Fixes the inconsistent "Add to bag" text immediately
 });
 
-// --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     saveAndSyncCart();
-
     const panel = document.getElementById('cartPanel');
     const dimmer = document.getElementById('pageDimmer');
-    
     if (dimmer) {
         dimmer.addEventListener('click', () => {
             if (panel) panel.classList.remove('open');
