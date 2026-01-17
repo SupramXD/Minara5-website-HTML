@@ -367,46 +367,69 @@ const minaraArt = `
 
     cartContainer.innerHTML = html;
 };
-// #2 & #3 HELPER FUNCTIONS (Attached to window so HTML buttons can see them)
+// --- UPDATED HELPER FUNCTIONS (REPLACING THE OLD ONES AT THE BOTTOM) ---
+
 window.changeQty = function(index, delta) {
     if (cart[index]) {
         cart[index].quantity += delta;
         if (cart[index].quantity < 1) {
-            cart.splice(index, 1);
+            window.removeFromCart(index); // Calls our new remove function to trigger Undo
+        } else {
+            saveAndSyncCart();
         }
-        saveAndSyncCart();
     }
 };
 
 window.removeFromCart = function(index) {
-    cart.splice(index, 1);
-    saveAndSyncCart();
+    if (cart[index]) {
+        // This line is required for the Undo button to see the item
+        lastRemovedItem = { ...cart[index] }; 
+        cart.splice(index, 1);
+        saveAndSyncCart();
+    }
 };
 
-// --- THIS IS THE BUG FIX LOGIC (UNCHANGED) ---
+window.undoRemove = function() {
+    if (lastRemovedItem) {
+        cart.push(lastRemovedItem);
+        lastRemovedItem = null; // Hide the undo button after use
+        saveAndSyncCart();
+    }
+};
+
+// --- AUTH STATE SYNC ---
+onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    const label = document.getElementById("accountLabel");
+    const accName = document.getElementById("accName");
+
+    if (user) {
+        let email = user.email;
+        if (label) label.textContent = email.length > 12 ? email.substring(0, 12) + "..." : email;
+        if (accName) accName.textContent = user.email;
+    } else {
+        if (label) label.textContent = "Account";
+        if (accName) accName.textContent = "ACCOUNT";
+    }
+    setupMobileAccount(user);
+    
+    // This ensures "ADD ITEMS TO BAG" shows up immediately when you log in
+    renderCartUI(); 
+});
+
+// --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     saveAndSyncCart();
 
-    // #3: BACKGROUND SCROLL LOCK logic
     const panel = document.getElementById('cartPanel');
-    const cartObserver = new MutationObserver(() => {
-        if (panel && panel.classList.contains('open')) {
-            document.body.style.overflow = 'hidden'; // Prevents background scrolling
-        } else {
-            document.body.style.overflow = ''; // Restores scrolling when closed
-        }
-    });
-
-    if (panel) {
-        cartObserver.observe(panel, { attributes: true, attributeFilter: ['class'] });
-    }
-
     const dimmer = document.getElementById('pageDimmer');
+    
     if (dimmer) {
         dimmer.addEventListener('click', () => {
             if (panel) panel.classList.remove('open');
             dimmer.classList.remove('active');
             window.closeAccDropdown();
+            document.body.style.overflow = ''; 
         });
     }
 });
