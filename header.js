@@ -1,4 +1,4 @@
-let lastRemovedItem = null; // Stores the last item for the "Undo" feature
+let lastRemovedItem = null;
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { 
     getAuth, 
@@ -252,6 +252,7 @@ window.renderCartUI = function() {
     const hasItems = totalItems > 0;
     const isLoggedIn = !!currentUser;
 
+    // YOUR EXACT ASCII ART
 const minaraArt = `
  __  __   ___   _   _     _      ____      _     
 |  \\/  | |_ _| | \\ | |   / \\    |  _ \\    / \\    
@@ -273,13 +274,13 @@ const minaraArt = `
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-    // #2: Remove left border line
-    asciiWrap.style.borderLeft = "none"; 
+    // #2: REMOVE LEFT BORDER
+    asciiWrap.style.borderLeft = "none";         
     asciiWrap.style.display = "flex";
-    asciiWrap.style.alignItems = "center";
-    asciiWrap.style.justifyContent = "flex-start";
+    asciiWrap.style.alignItems = "center";       
+    asciiWrap.style.justifyContent = "flex-start"; 
     asciiWrap.style.padding = "0 25px";
-    asciiWrap.style.minHeight = "90px";
+    asciiWrap.style.minHeight = "90px";          
     asciiContainer.style.fontSize = "9px";
     asciiContainer.style.lineHeight = "1.1";
     asciiContainer.style.whiteSpace = "pre";
@@ -309,7 +310,7 @@ const minaraArt = `
     } else {
         html += '<div style="padding:10px 25px; flex-grow:1; display:flex; flex-direction:column; align-items:flex-start;">';
         
-        // #1: Logged in prompt or standard prompt
+        // #1: LOGGED IN TEXT
         if (isLoggedIn) {
             html += `<div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; text-transform:uppercase;">ADD ITEMS TO BAG</div>`;
         } else {
@@ -322,21 +323,24 @@ const minaraArt = `
             </div>`;
         }
 
-        // #3: Undo Button logic
+        // #3: UNDO BUTTON UI (Based on reference image)
         if (lastRemovedItem) {
             html += `
-            <div style="width:100%; margin-top:30px; border-top:1px solid #eee; padding-top:15px; display:flex; justify-content:space-between; align-items:center;">
-                <span style="color:red; font-size:11px; font-weight:bold; text-transform:uppercase;">REMOVED</span>
-                <span onclick="window.undoRemove()" style="color:#1106e8; font-size:11px; text-decoration:underline; cursor:pointer; font-weight:bold; text-transform:uppercase;">UNDO</span>
+            <div style="width:100%; margin-top:30px; border-top:1px solid #eee; padding-top:10px;">
+                <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase; margin-bottom:12px;">${lastRemovedItem.name}</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid #eee; padding-top:10px;">
+                    <span style="color:red; font-size:11px; font-weight:normal; text-transform:uppercase;">REMOVED</span>
+                    <span onclick="window.undoRemove()" style="color:#1106e8; font-size:11px; text-decoration:underline; cursor:pointer; font-weight:normal; text-transform:uppercase;">UNDO</span>
+                </div>
             </div>`;
         }
         
         html += '</div>';
     }
 
-    // FOOTER LOGIC (unchanged per your instruction)
+    // FOOTER (Restored to your previous working version)
     const footBoxHeight = hasItems ? "45px" : "80px"; 
-    const paymentBoxHeight = hasItems ? "auto" : "55px"; 
+    const paymentBoxHeight = hasItems ? "auto" : "50px"; 
     const paymentPadding = hasItems ? "20px 20px" : "8px 20px"; 
 
     html += `
