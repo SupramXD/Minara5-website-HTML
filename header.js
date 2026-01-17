@@ -1,3 +1,4 @@
+let lastRemovedItem = null; // Stores the last item for the "Undo" feature
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { 
     getAuth, 
@@ -251,7 +252,6 @@ window.renderCartUI = function() {
     const hasItems = totalItems > 0;
     const isLoggedIn = !!currentUser;
 
-    // #2: BAG ASCII Art with 2 spaces under it for alignment
 const minaraArt = `
  __  __   ___   _   _     _      ____      _     
 |  \\/  | |_ _| | \\ | |   / \\    |  _ \\    / \\    
@@ -273,14 +273,13 @@ const minaraArt = `
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
-    // Header Styling
+    // #2: Remove left border line
+    asciiWrap.style.borderLeft = "none"; 
     asciiWrap.style.display = "flex";
-    asciiWrap.style.alignItems = "center";       
-    asciiWrap.style.justifyContent = "flex-start"; 
-    asciiWrap.style.borderLeft = "none";         
+    asciiWrap.style.alignItems = "center";
+    asciiWrap.style.justifyContent = "flex-start";
     asciiWrap.style.padding = "0 25px";
-    asciiWrap.style.minHeight = "90px";          
-    
+    asciiWrap.style.minHeight = "90px";
     asciiContainer.style.fontSize = "9px";
     asciiContainer.style.lineHeight = "1.1";
     asciiContainer.style.whiteSpace = "pre";
@@ -309,7 +308,11 @@ const minaraArt = `
         html += '</div>';
     } else {
         html += '<div style="padding:10px 25px; flex-grow:1; display:flex; flex-direction:column; align-items:flex-start;">';
-        if (!isLoggedIn) {
+        
+        // #1: Logged in prompt or standard prompt
+        if (isLoggedIn) {
+            html += `<div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; text-transform:uppercase;">ADD ITEMS TO BAG</div>`;
+        } else {
             html += `
             <div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; margin-bottom:4px;">Missing items in your cart?</div>
             <div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; margin-bottom:18px;">Sign in to see items you added before.</div>
@@ -318,14 +321,22 @@ const minaraArt = `
                 <a href="account.html" style="font-size:11px; color:#1106e8; text-decoration:underline; font-weight:normal;">REGISTER</a>
             </div>`;
         }
+
+        // #3: Undo Button logic
+        if (lastRemovedItem) {
+            html += `
+            <div style="width:100%; margin-top:30px; border-top:1px solid #eee; padding-top:15px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="color:red; font-size:11px; font-weight:bold; text-transform:uppercase;">REMOVED</span>
+                <span onclick="window.undoRemove()" style="color:#1106e8; font-size:11px; text-decoration:underline; cursor:pointer; font-weight:bold; text-transform:uppercase;">UNDO</span>
+            </div>`;
+        }
+        
         html += '</div>';
     }
 
-    // FOOTER LOGIC
+    // FOOTER LOGIC (unchanged per your instruction)
     const footBoxHeight = hasItems ? "45px" : "80px"; 
-    
-    // #1 & #3: FORCE payment box to be small when empty
-    const paymentBoxHeight = hasItems ? "auto" : "50px"; 
+    const paymentBoxHeight = hasItems ? "auto" : "55px"; 
     const paymentPadding = hasItems ? "20px 20px" : "8px 20px"; 
 
     html += `
