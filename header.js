@@ -390,11 +390,20 @@ window.removeFromCart = function(index) {
 };
 
 window.undoRemove = function() {
-    if (lastRemovedItem) {
-        cart.push(lastRemovedItem);
-        lastRemovedItem = null; // Hide the undo button after use
-        saveAndSyncCart();
-    }
+    // #3: THE UNDO BUTTON (Lines touch edges, dark black color)
+if (lastRemovedItem) {
+    html += `
+    <div style="width:100%; margin-top:30px;">
+        <div style="padding: 0 25px; font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase; margin-bottom:12px;">
+            ${lastRemovedItem.name}
+        </div>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid #000; border-bottom: 1px solid #000; padding:15px 25px;">
+            <span style="color:red; font-size:11px; font-weight:bold; text-transform:uppercase;">REMOVED</span>
+            <span onclick="window.undoRemove()" style="color:#1106e8; font-size:11px; text-decoration:underline; cursor:pointer; font-weight:bold; text-transform:uppercase;">UNDO</span>
+        </div>
+    </div>`;
+}
 };
 
 // --- AUTH STATE SYNC ---
