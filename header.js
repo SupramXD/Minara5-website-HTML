@@ -298,7 +298,7 @@ const minaraArt = `
                     <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL</div>
                     <div style="font-size:11px;">R${item.price.toLocaleString()}</div>
                     <div class="qty-stepper" style="display:flex; border:1px solid #000; width:fit-content; margin-top:10px;">
-                        <div class="qty-btn" onclick="window.changeQty(${index}, -1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">–</div>
+                        <div class="qty-btn" onclick="window.changeQty(${index}, -1)" style="width:25px; height:25px; cursor:${item.quantity <= 1 ? 'not-allowed' : 'pointer'}; opacity:${item.quantity <= 1 ? '0.3' : '1'}; display:flex; justify-content:center; align-items:center; ${item.quantity <= 1 ? 'pointer-events:none;' : ''}">–</div>
                         <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #000; border-right:1px solid #000; font-size:11px; display:flex; align-items:center; justify-content:center;">${item.quantity}</div>
                         <div class="qty-btn" onclick="window.changeQty(${index}, 1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">+</div>
                     </div>
@@ -356,7 +356,7 @@ const minaraArt = `
                     <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
                 </div>
-                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; font-weight:bold; letter-spacing:1px;">CONTINUE TO CHECKOUT</button>` : ''}
+                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; color:#000 !important; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; font-weight:bold; letter-spacing:1px;">CONTINUE TO CHECKOUT</button>` : ''}
                 <div style="display:flex; gap:8px; opacity:0.3; margin-top:${hasItems ? '12px' : '0px'};">
                     <div style="width:25px; height:${hasItems ? '15px' : '10px'}; background:#000;"></div>
                     <div style="width:25px; height:${hasItems ? '15px' : '10px'}; background:#000;"></div>
@@ -371,12 +371,11 @@ const minaraArt = `
 
 window.changeQty = function(index, delta) {
     if (cart[index]) {
-        cart[index].quantity += delta;
-        if (cart[index].quantity < 1) {
-            window.removeFromCart(index); // Calls our new remove function to trigger Undo
-        } else {
-            saveAndSyncCart();
+        if (cart[index].quantity <= 1 && delta === -1) {
+            return; // Prevent removal if quantity is 1
         }
+        cart[index].quantity += delta;
+        saveAndSyncCart();
     }
 };
 
