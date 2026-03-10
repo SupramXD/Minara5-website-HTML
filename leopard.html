@@ -406,7 +406,7 @@ footer{
   height:100dvh;         /* full screen height */
   width:85vw;
   background:#fff;
-  border-left:1px solid #dcdcdc;
+  border-left: 1px solid #000 !important;
   z-index:10000;         /* above everything */
   display:flex;
   flex-direction:column;
@@ -437,9 +437,10 @@ footer{
     border-bottom: 1px solid #000 !important;
     display: flex;
     justify-content: flex-start;
-    border-left: 0px none transparent !important; /* Total kill of the left border */
+    /* This overrides the panel's left border for this specific section */
+    border-left: 1px solid #f7f7f7 !important; 
+    margin-left: -1px; 
     outline: none !important;
-    box-shadow: none !important;
 }
 
 .cart-ascii {
@@ -1038,7 +1039,7 @@ window.openCart = function() {
     renderCartUI(); 
 };
 </script>
-<script type="module" src="header.js"></script>
+<script type="module" src="header.js?v=2"></script>
 
 <div id="accountDropdown" class="acc-dropdown">
     <div class="acc-head">
