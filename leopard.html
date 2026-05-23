@@ -85,8 +85,9 @@ header{
   position:fixed;
   top:0; left:0; right:0;
   height:45px;
-  background:#fff;
-  backdrop-filter:blur(2px);
+  background:rgba(255, 255, 255, 0.88);
+  -webkit-backdrop-filter:blur(20px);
+  backdrop-filter:blur(20px);
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
@@ -406,7 +407,7 @@ footer{
   height:100dvh;         /* full screen height */
   width:85vw;
   background:#fff;
-  border-left: 1px solid #000 !important;
+  
   z-index:10000;         /* above everything */
   display:flex;
   flex-direction:column;
@@ -1039,7 +1040,7 @@ window.openCart = function() {
     renderCartUI(); 
 };
 </script>
-<script type="module" src="header.js?v=2"></script>
+<script type="module" src="header.js"></script>
 
 <div id="accountDropdown" class="acc-dropdown">
     <div class="acc-head">
