@@ -239,13 +239,24 @@ window.removeFromCart = function(index) {
 
 /* ===============================
    CART UI & BUTTON FIXES
-================================ */
-
-window.renderCartUI = function() {
+================================ */window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiWrap = document.querySelector('.cart-ascii-wrap');
     const asciiContainer = document.querySelector('.cart-ascii');
     if (!cartContainer || !asciiContainer) return;
+
+    // Ensure the cart body has zero padding and correct flex column layout so footer touches the edges perfectly
+    cartContainer.style.setProperty('padding', '0', 'important');
+    cartContainer.style.setProperty('display', 'flex', 'important');
+    cartContainer.style.setProperty('flex-direction', 'column', 'important');
+    cartContainer.style.setProperty('flex-grow', '1', 'important');
+    cartContainer.style.setProperty('overflow', 'hidden', 'important');
+
+    // Hide the static placeholder cart-bottom footer to prevent double footer and let dynamic footer take its place
+    const staticBottom = document.querySelector('.cart-bottom');
+    if (staticBottom) {
+        staticBottom.style.setProperty('display', 'none', 'important');
+    }
 
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -269,8 +280,8 @@ const minaraArt = `
 |  _|   | |\\/| | | |_) |   | |    \\ V / 
 | |___  | |  | | |  __/    | |     | |  
 |_____| |_|  |_| |_|       |_|     |_| 
-                                        
-                                        `;
+                                         
+                                         `;
 
     asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
 
@@ -285,7 +296,7 @@ const minaraArt = `
     asciiContainer.style.lineHeight = "1.1";
     asciiContainer.style.whiteSpace = "pre";
 
-    let html = '<div style="display:flex; flex-direction:column; min-height:100%;">';
+    let html = '<div style="display:flex; flex-direction:column; height:100%; flex-grow:1; overflow:hidden;">';
 
     if (hasItems) {
         html += '<div class="items-area" style="flex-grow:1; overflow-y:auto;">';
@@ -344,14 +355,14 @@ const minaraArt = `
     const paymentPadding = hasItems ? "20px 20px" : "8px 20px"; 
 
     html += `
-        <div class="cart-footer-area" style="margin-top:auto;">
-            <div style="background:#f9f9f9; border-top:1px solid #000; padding:12px 20px; height:${footBoxHeight}; display:flex; flex-direction:column; justify-content:space-between;">
+        <div class="cart-footer-area" style="margin-top:auto; width:100%;">
+            <div style="background:#f9f9f9; border-top:1px solid #000; padding:12px 20px; height:${footBoxHeight}; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;">
                     <span>SHIPPING</span><span>FREE</span>
                 </div>
                 ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
-            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:${paymentPadding}; height:${paymentBoxHeight}; min-height:${paymentBoxHeight}; border-bottom:1px solid #000; display:flex; flex-direction:column; justify-content:center;">
+            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:${paymentPadding}; height:${paymentBoxHeight}; min-height:${paymentBoxHeight}; border-bottom:1px solid #000; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box; width:100%;">
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:${hasItems ? '15px' : '4px'};">
                     <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
                     <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
