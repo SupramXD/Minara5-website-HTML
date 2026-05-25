@@ -26,19 +26,65 @@ let currentUser = null;
 
 // --- MASTER TRIGGERS (Fixes "Nothing Happening") ---
 
-window.processRegister = function(email, password) {
-    createUserWithEmailAndPassword(auth, email, password)
+window.login = function() {
+    const email = prompt("Enter your email address:");
+    if (email === null) {
+        console.log("Login cancelled.");
+        return;
+    }
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+        alert("Email cannot be empty.");
+        return;
+    }
+    const password = prompt("Enter your password:");
+    if (password === null) {
+        console.log("Login cancelled.");
+        return;
+    }
+    
+    console.log("Attempting sign in for " + cleanEmail + "...");
+    signInWithEmailAndPassword(auth, cleanEmail, password)
         .then((userCredential) => {
-            sendEmailVerification(userCredential.user);
-            window.location.href = "index.html"; 
+            console.log("Login successful! Welcome " + userCredential.user.email);
+            alert("Login successful!");
+            window.location.reload();
         })
-        .catch(err => alert(err.message));
+        .catch(err => {
+            console.error("Login failed:", err.message);
+            alert("Login failed: " + err.message);
+        });
 };
 
-window.processLogin = function(email, password) {
-    signInWithEmailAndPassword(auth, email, password)
-        .then(() => { window.location.href = "index.html"; })
-        .catch(err => alert(err.message));
+window.register = function() {
+    const email = prompt("Enter email address to register:");
+    if (email === null) {
+        console.log("Registration cancelled.");
+        return;
+    }
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+        alert("Email cannot be empty.");
+        return;
+    }
+    const password = prompt("Enter password to register:");
+    if (password === null) {
+        console.log("Registration cancelled.");
+        return;
+    }
+    
+    console.log("Attempting registration for " + cleanEmail + "...");
+    createUserWithEmailAndPassword(auth, cleanEmail, password)
+        .then((userCredential) => {
+            console.log("Registration successful! Welcome " + userCredential.user.email);
+            sendEmailVerification(userCredential.user);
+            alert("Registration successful! A verification email has been sent.");
+            window.location.reload();
+        })
+        .catch(err => {
+            console.error("Registration failed:", err.message);
+            alert("Registration failed: " + err.message);
+        });
 };
 
 // --- MASTER FORGOT PASSWORD FIX ---
@@ -66,8 +112,128 @@ window.universalForgotPassword = function(e) {
 /* ===============================
    AUTH STATE & UI LOGIC
 ================================ */
+function protectRoutes(user) {
+    const path = window.location.pathname;
+    const adminEmail = "sub2meboyi@gmail.com";
+    
+    if (path.includes("admin.html")) {
+        if (!user || user.email !== adminEmail) {
+            window.location.href = "index.html";
+            return true;
+        }
+    }
+    
+    if (!user) {
+        if (path.includes("account.html") || path.includes("register.html")) {
+            window.location.href = "index.html";
+            return true;
+        }
+    }
+    return false;
+}
+
+function updateAdminHeaderButton(user) {
+    const adminEmails = ["sub2meboyi@gmail.com"];
+    const isAdmin = user && adminEmails.includes(user.email);
+    
+    // 1. Desktop header button injection
+    const headerUl = document.querySelector("header nav ul, header .header-right ul, header ul");
+    let adminLi = document.getElementById("adminHeaderLi");
+    
+    if (isAdmin) {
+        if (headerUl && !adminLi) {
+            adminLi = document.createElement("li");
+            adminLi.id = "adminHeaderLi";
+            adminLi.style.display = "flex";
+            adminLi.style.alignItems = "center";
+            adminLi.style.marginLeft = "20px";
+            
+            adminLi.innerHTML = `
+                <a href="admin.html" id="adminHeaderBtn" style="
+                    background: #ccff00 !important;
+                    color: #000 !important;
+                    border: 1px solid #000 !important;
+                    padding: 8px 16px !important;
+                    font-family: 'Gotham Narrow Bold', sans-serif !important;
+                    font-size: 11px !important;
+                    letter-spacing: 1.5px !important;
+                    text-transform: uppercase !important;
+                    text-decoration: none !important;
+                    font-weight: bold !important;
+                    display: inline-block !important;
+                    transition: all 0.2s ease !important;
+                    cursor: pointer !important;
+                ">ADMIN PANEL</a>
+            `;
+            
+            const accountLi = headerUl.querySelector(".header-account");
+            if (accountLi) {
+                headerUl.insertBefore(adminLi, accountLi);
+            } else {
+                headerUl.appendChild(adminLi);
+            }
+            
+            const btn = adminLi.querySelector("#adminHeaderBtn");
+            if (btn) {
+                btn.addEventListener("mouseenter", () => { btn.style.opacity = "0.8"; });
+                btn.addEventListener("mouseleave", () => { btn.style.opacity = "1"; });
+            }
+        }
+    } else {
+        if (adminLi) {
+            adminLi.remove();
+        }
+    }
+
+    // 2. Mobile menu button injection
+    const menuPanel = document.getElementById("menuPanel");
+    let mobileAdminBtn = document.getElementById("mobileAdminPanelBtn");
+    
+    if (isAdmin) {
+        if (menuPanel && !mobileAdminBtn) {
+            mobileAdminBtn = document.createElement("a");
+            mobileAdminBtn.id = "mobileAdminPanelBtn";
+            mobileAdminBtn.href = "admin.html";
+            mobileAdminBtn.textContent = "ADMIN PANEL";
+            mobileAdminBtn.style.cssText = `
+                display: block;
+                font-size: 14px;
+                text-transform: uppercase;
+                letter-spacing: 0.28em;
+                margin: 26px 0;
+                color: #000;
+                font-weight: bold;
+                background: #ccff00;
+                border: 1px solid #000;
+                padding: 12px;
+                text-align: center;
+                text-decoration: none;
+            `;
+            
+            const mobileAccBlock = document.getElementById("mobileAccountBlock");
+            if (mobileAccBlock) {
+                menuPanel.insertBefore(mobileAdminBtn, mobileAccBlock);
+            } else {
+                menuPanel.appendChild(mobileAdminBtn);
+            }
+        }
+    } else {
+        if (mobileAdminBtn) {
+            mobileAdminBtn.remove();
+        }
+    }
+}
+
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
+    
+    if (protectRoutes(user)) return;
+    
+    const headerAccs = document.querySelectorAll(".header-account");
+    headerAccs.forEach(el => {
+        el.style.display = user ? "block" : "none";
+    });
+
     const label = document.getElementById("accountLabel");
     const accName = document.getElementById("accName");
 
@@ -80,6 +246,7 @@ onAuthStateChanged(auth, (user) => {
         if (accName) accName.textContent = "ACCOUNT";
     }
     setupMobileAccount(user);
+    updateAdminHeaderButton(user);
 });
 
 /* ===============================
@@ -89,15 +256,19 @@ function setupMobileAccount(user) {
     const myAcc = document.getElementById("mobileMyAccount");
     const drop = document.getElementById("mobileAccountDropdown");
     const logoutBtn = document.getElementById("mobileLogout");
+    const mobileAccBlock = document.getElementById("mobileAccountBlock");
     if (!myAcc || !drop || !logoutBtn) return;
 
     if (!user) {
-        myAcc.innerHTML = "LOGIN";
-        myAcc.onclick = () => { window.location.href = "account.html"; };
+        if (mobileAccBlock) mobileAccBlock.style.display = "none";
+        myAcc.style.display = "none";
         drop.style.display = "none";
         logoutBtn.style.display = "none";
         return;
     }
+
+    if (mobileAccBlock) mobileAccBlock.style.display = "block";
+    myAcc.style.display = "block";
 
     myAcc.innerHTML = `<span>MY ACCOUNT</span> <span class="mobile-arrow">▸</span>`;
     logoutBtn.style.display = "block";
@@ -325,13 +496,7 @@ const minaraArt = `
         if (isLoggedIn) {
             html += `<div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; text-transform:uppercase;">ADD ITEMS TO BAG</div>`;
         } else {
-            html += `
-            <div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; margin-bottom:4px;">Missing items in your cart?</div>
-            <div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; margin-bottom:18px;">Sign in to see items you added before.</div>
-            <div style="display:flex; gap:30px;">
-                <a href="account.html" style="font-size:11px; color:#1106e8; text-decoration:underline; font-weight:normal;">SIGN IN</a>
-                <a href="account.html" style="font-size:11px; color:#1106e8; text-decoration:underline; font-weight:normal;">REGISTER</a>
-            </div>`;
+            html += `<div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; text-transform:uppercase;">ADD ITEMS TO BAG</div>`;
         }
 
         // #3: UNDO BUTTON UI (Based on reference image)
@@ -411,20 +576,10 @@ window.undoRemove = function() {
 // --- AUTH STATE SYNC ---
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
-    const label = document.getElementById("accountLabel");
-    const accName = document.getElementById("accName");
-
-    if (user) {
-        let email = user.email;
-        if (label) label.textContent = email.length > 12 ? email.substring(0, 12) + "..." : email;
-        if (accName) accName.textContent = user.email;
-    } else {
-        if (label) label.textContent = "Account";
-        if (accName) accName.textContent = "ACCOUNT";
-    }
-    setupMobileAccount(user);
+    if (protectRoutes(user)) return;
     
-    // This ensures "ADD ITEMS TO BAG" shows up immediately when you log in
+    setupMobileAccount(user);
+    updateAdminHeaderButton(user);
     renderCartUI(); 
 });
 
