@@ -9,6 +9,11 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { 
+    getFirestore, 
+    collection, 
+    addDoc 
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyC8srbzH_DcCYQJXe9MNOyy2OHZSaLidIo",
@@ -21,7 +26,9 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 window.auth = auth; // Keeps it accessible for your account.html
+window.db = db;     // Expose globally for newsletter submissions
 let currentUser = null;
 
 // --- MASTER TRIGGERS (Fixes "Nothing Happening") ---
@@ -472,13 +479,19 @@ const minaraArt = `
     if (hasItems) {
         html += '<div class="items-area" style="flex-grow:1; overflow-y:auto;">';
         cart.forEach((item, index) => {
+            const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
+            const itemPrice = item.price;
+            const displayPrice = hasDiscount 
+                ? `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${itemPrice.toLocaleString()}</span><span style="color: #1106e8; font-weight: bold;">R${Math.round(itemPrice * 0.95).toLocaleString()}</span>` 
+                : `R${itemPrice.toLocaleString()}`;
+
             html += `
             <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 15px;">
                 <img src="${item.image}" style="width:80px; height:105px; object-fit:cover;">
                 <div style="flex:1;">
                     <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</div>
                     <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL</div>
-                    <div style="font-size:11px;">R${item.price.toLocaleString()}</div>
+                    <div style="font-size:11px;">${displayPrice}</div>
                     <div class="qty-stepper" style="display:flex; border:1px solid #000; width:fit-content; margin-top:10px;">
                         <div class="qty-btn" onclick="window.changeQty(${index}, -1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">–</div>
                         <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #000; border-right:1px solid #000; font-size:11px; display:flex; align-items:center; justify-content:center;">${item.quantity}</div>
@@ -519,6 +532,12 @@ const minaraArt = `
     const paymentBoxHeight = hasItems ? "auto" : "50px"; 
     const paymentPadding = hasItems ? "20px 20px" : "8px 20px"; 
 
+    const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
+    let priceDisplay = 'R' + totalPrice.toLocaleString();
+    if (hasDiscount) {
+        priceDisplay = `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${totalPrice.toLocaleString()}</span><span style="color: #1106e8; font-weight: bold;">R${Math.round(totalPrice * 0.95).toLocaleString()}</span>`;
+    }
+
     html += `
         <div class="cart-footer-area" style="margin-top:auto; width:100%;">
             <div style="background:#f9f9f9; border-top:1px solid #000; padding:12px 20px; height:${footBoxHeight}; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
@@ -530,7 +549,7 @@ const minaraArt = `
             <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:${paymentPadding}; height:${paymentBoxHeight}; min-height:${paymentBoxHeight}; border-bottom:1px solid #000; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box; width:100%;">
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:${hasItems ? '15px' : '4px'};">
                     <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
-                    <span>${hasItems ? 'R' + totalPrice.toLocaleString() : ''}</span>
+                    <span>${hasItems ? priceDisplay : ''}</span>
                 </div>
                 ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold',sans-serif; font-size:11px; cursor:pointer; font-weight:bold; letter-spacing:1px;">CONTINUE TO CHECKOUT</button>` : ''}
                 <div style="display:flex; gap:8px; opacity:0.3; margin-top:${hasItems ? '12px' : '0px'};">
@@ -756,4 +775,161 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // Setup newsletter and discounts
+    setupMobileNewsletter();
+    setupDesktopNewsletter();
+    window.applyGlobalDiscount();
 });
+
+/* ===============================
+   NEWSLETTER SUBSCRIPTIONS & 5% DISCOUNT
+================================ */
+
+window.submitNewsletter = async function(event, type) {
+    if (event) event.preventDefault();
+    
+    const emailInput = document.getElementById(type === 'mobile' ? 'mobileNewsletterEmail' : 'desktopSignupEmail');
+    const email = emailInput ? emailInput.value.trim() : "";
+    
+    if (!email) return;
+    
+    console.log("Submitting email to newsletter: " + email);
+    
+    try {
+        if (window.db) {
+            await addDoc(collection(window.db, "subscribers"), {
+                email: email,
+                timestamp: new Date().toISOString()
+            });
+            console.log("Newsletter subscription saved to Firebase!");
+        } else {
+            console.warn("Firestore database reference not available.");
+        }
+        
+        localStorage.setItem("minara_discount_5", "active");
+        
+        // Show success state
+        if (type === 'mobile') {
+            const formWrap = document.getElementById("mobileNewsletterFormWrap");
+            const successEl = document.getElementById("mobileNewsletterSuccess");
+            if (formWrap) formWrap.style.display = "none";
+            if (successEl) successEl.style.display = "block";
+            const promoText = document.querySelector("#mobileNewsletterPromo span");
+            if (promoText) promoText.textContent = "5% DISCOUNT ACTIVE";
+        } else {
+            const form = document.getElementById("desktopSignupForm");
+            const successEl = document.getElementById("desktopSignupSuccess");
+            if (form) form.style.display = "none";
+            if (successEl) successEl.style.display = "block";
+        }
+        
+        window.applyGlobalDiscount();
+        
+        if (typeof renderCartUI === 'function') {
+            renderCartUI();
+        }
+        
+        alert("Success! Your 5% first order discount has been applied.");
+    } catch (error) {
+        console.error("Subscription failed:", error);
+        alert("Subscription failed: " + error.message);
+    }
+};
+
+window.applyGlobalDiscount = function() {
+    const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
+    if (!hasDiscount) return;
+    
+    // 1. Homepage product cards
+    const hpPrices = document.querySelectorAll(".hp-price");
+    hpPrices.forEach(el => {
+        if (el.textContent.includes("R749") && !el.querySelector(".old-price")) {
+            el.innerHTML = `<span class="old-price" style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R749</span><span style="color: #1106e8; font-weight: bold;">R712</span>`;
+        }
+    });
+    
+    // 2. Catalog page product cards
+    const catPrices = document.querySelectorAll(".price");
+    catPrices.forEach(el => {
+        if (el.textContent.includes("R749") && !el.querySelector(".old-price")) {
+            el.innerHTML = `<span class="old-price" style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R749</span><span style="color: #1106e8; font-weight: bold;">R712</span>`;
+        }
+    });
+    
+    // 3. Product detail pages
+    const productPrices = document.querySelectorAll(".product-price");
+    productPrices.forEach(el => {
+        if (el.textContent.includes("R749") && !el.querySelector(".old-price")) {
+            el.innerHTML = `<span class="old-price" style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R749</span><span style="color: #1106e8; font-weight: bold;">R712</span>`;
+        }
+    });
+};
+
+function setupMobileNewsletter() {
+    const menuPanel = document.getElementById("menuPanel");
+    if (!menuPanel) return;
+    
+    let mobileNews = document.getElementById("mobileNewsletterBlock");
+    if (!mobileNews) {
+        mobileNews = document.createElement("div");
+        mobileNews.id = "mobileNewsletterBlock";
+        mobileNews.style.cssText = `
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        `;
+        
+        mobileNews.innerHTML = `
+            <div id="mobileNewsletterPromo" style="font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                <span>SIGN UP FOR 5% OFF</span>
+                <span id="mobileNewsletterArrow" style="transition: transform 0.25s ease;">▸</span>
+            </div>
+            <div id="mobileNewsletterFormWrap" style="display: none; margin-top: 15px;">
+                <p style="font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;">Get 5% off your first order by subscribing.</p>
+                <form id="mobileNewsletterForm" style="display: flex; border-bottom: 1px solid #000; padding-bottom: 5px;">
+                    <input type="email" id="mobileNewsletterEmail" placeholder="YOUR EMAIL" required style="border: none; background: transparent; font-size: 11px; width: 100%; outline: none; text-transform: uppercase; font-family: inherit;">
+                    <button type="submit" style="background: transparent; border: none; font-size: 11px; font-weight: bold; color: #1106e8; cursor: pointer; padding: 0 5px; width: auto; margin: 0; font-family: inherit;">SUBMIT</button>
+                </form>
+            </div>
+            <div id="mobileNewsletterSuccess" style="display: none; font-size: 10px; color: #34c759; font-weight: bold; margin-top: 10px; text-transform: uppercase; letter-spacing: 0.5px;">✓ DISCOUNT APPLIED: 5% OFF</div>
+        `;
+        
+        menuPanel.appendChild(mobileNews);
+        
+        const promo = mobileNews.querySelector("#mobileNewsletterPromo");
+        const formWrap = mobileNews.querySelector("#mobileNewsletterFormWrap");
+        const arrow = mobileNews.querySelector("#mobileNewsletterArrow");
+        
+        promo.onclick = () => {
+            const isHidden = formWrap.style.display === "none";
+            formWrap.style.display = isHidden ? "block" : "none";
+            arrow.style.transform = isHidden ? "rotate(90deg)" : "rotate(0deg)";
+        };
+        
+        const form = mobileNews.querySelector("#mobileNewsletterForm");
+        form.onsubmit = (e) => {
+            window.submitNewsletter(e, 'mobile');
+        };
+    }
+    
+    const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
+    if (hasDiscount) {
+        const formWrap = document.getElementById("mobileNewsletterFormWrap");
+        const successEl = document.getElementById("mobileNewsletterSuccess");
+        if (formWrap) formWrap.style.display = "none";
+        if (successEl) successEl.style.display = "block";
+        const promoText = document.querySelector("#mobileNewsletterPromo span");
+        if (promoText) promoText.textContent = "5% DISCOUNT ACTIVE";
+    }
+}
+
+function setupDesktopNewsletter() {
+    const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
+    if (hasDiscount) {
+        const form = document.getElementById("desktopSignupForm");
+        const successEl = document.getElementById("desktopSignupSuccess");
+        if (form) form.style.display = "none";
+        if (successEl) successEl.style.display = "block";
+    }
+}
