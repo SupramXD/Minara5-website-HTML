@@ -933,6 +933,24 @@
               status: "Active",
               image: "cheetahproduct.avif",
               description: "Leopard Fur Backpack\n\nCarefully crafted luxury fur backpack designed for high fashion nonconformity."
+          },
+          {
+              id: "minara-no-23",
+              name: "Minara Icons No. 23",
+              price: 850,
+              stock: 25,
+              status: "Active",
+              image: "number23.avif",
+              description: "Minara Icons No. 23\n\nOur signature fragrance clone carefully crafted for nonconformist elegance. Premium long-lasting scent notes of rich floral and absolute amber."
+          },
+          {
+              id: "minara-sitting",
+              name: "Minara Icons Sitting",
+              price: 950,
+              stock: 15,
+              status: "Active",
+              image: "sitting.webp",
+              description: "Minara Icons Sitting\n\nA deep, mysterious scent designed for quiet confidence. Scent notes of premium wood, high-fashion vanilla, and exotic spice."
           }
       ];
       
@@ -994,7 +1012,7 @@
           if (window.db && window.dbCollection && window.dbGetDocs) {
               try {
                   const timeoutPromise = new Promise((_, reject) => 
-                      setTimeout(() => reject(new Error("Timeout")), 1500)
+                      setTimeout(() => reject(new Error("Timeout")), 10000)
                   );
                   const querySnapshot = await Promise.race([
                       window.dbGetDocs(window.dbCollection(window.db, "products")),
@@ -1078,7 +1096,25 @@
                                       image: "cheetahproduct.avif",
                                       description: "Leopard Fur Backpack\n\nCarefully crafted luxury fur backpack designed for high fashion nonconformity."
                                   },
-                                  ...cleanedLocalProds.filter(lp => lp.id !== "leopard-backpack")
+                                  {
+                                      id: "minara-no-23",
+                                      name: "Minara Icons No. 23",
+                                      price: 850,
+                                      stock: 25,
+                                      status: "Active",
+                                      image: "number23.avif",
+                                      description: "Minara Icons No. 23\n\nOur signature fragrance clone carefully crafted for nonconformist elegance. Premium long-lasting scent notes of rich floral and absolute amber."
+                                  },
+                                  {
+                                      id: "minara-sitting",
+                                      name: "Minara Icons Sitting",
+                                      price: 950,
+                                      stock: 15,
+                                      status: "Active",
+                                      image: "sitting.webp",
+                                      description: "Minara Icons Sitting\n\nA deep, mysterious scent designed for quiet confidence. Scent notes of premium wood, high-fashion vanilla, and exotic spice."
+                                  },
+                                  ...cleanedLocalProds.filter(lp => lp.id !== "leopard-backpack" && lp.id !== "minara-no-23" && lp.id !== "minara-sitting")
                               ];
                               updated = true;
                           }
@@ -1179,11 +1215,14 @@
           console.error("Local storage product save failed:", err);
       }
 
+      let firestoreSuccess = false;
+      let firestoreErrorMsg = "";
+
       // Save to Firestore `"products"` collection using preloaded global window.db
       if (window.db && window.dbDoc && window.dbSetDoc) {
           try {
               const timeoutPromise = new Promise((_, reject) => 
-                  setTimeout(() => reject(new Error("Timeout waiting for Firestore")), 1500)
+                  setTimeout(() => reject(new Error("Timeout waiting for Firestore")), 10000)
               );
               await Promise.race([
                   window.dbSetDoc(window.dbDoc(window.db, "products", idStr), {
@@ -1198,6 +1237,7 @@
                   timeoutPromise
               ]);
               console.log("Dynamic product injected into Firestore successfully!");
+              firestoreSuccess = true;
               
               // Update status to synced in local cache
               try {
@@ -1211,6 +1251,7 @@
                   console.error("Failed to update sync status in local cache:", cacheErr);
               }
           } catch (dbErr) {
+              firestoreErrorMsg = dbErr.message || dbErr;
               console.warn("Firestore product injection timed out or failed, falling back to local storage:", dbErr);
           }
       }
@@ -1222,7 +1263,11 @@
           submitBtn.innerHTML = originalText;
       }
 
-      alert("Success! " + name + " has been successfully injected into the catalog database.");
+      if (firestoreSuccess) {
+          alert("Success! " + name + " has been successfully injected and synced to Firestore.");
+      } else {
+          alert("Warning: " + name + " was saved locally, but failed to sync online to Firestore.\nError: " + firestoreErrorMsg + "\n\nIf you are running the files locally using the file:/// protocol on some browsers, this product may not show up on other pages until a successful Firestore sync. Please check your internet connection.");
+      }
       
       if (typeof window.loadCatalog === 'function') {
           window.loadCatalog();
@@ -1300,23 +1345,32 @@
           console.error("Local storage product deletion failed:", err);
       }
 
+      let firestoreDelSuccess = false;
+      let firestoreDelErrorMsg = "";
+
       // 2. Sync Firebase Firestore database
       if (window.db && window.dbDoc && window.dbDeleteDoc) {
           try {
               const timeoutPromise = new Promise((_, reject) => 
-                  setTimeout(() => reject(new Error("Timeout waiting for Firestore deletion")), 1500)
+                  setTimeout(() => reject(new Error("Timeout waiting for Firestore deletion")), 10000)
               );
               await Promise.race([
                   window.dbDeleteDoc(window.dbDoc(window.db, "products", productId)),
                   timeoutPromise
               ]);
               console.log("Firestore product deletion completed successfully!");
+              firestoreDelSuccess = true;
           } catch (dbErr) {
+              firestoreDelErrorMsg = dbErr.message || dbErr;
               console.error("Firestore product deletion failed or timed out:", dbErr);
           }
       }
 
-      alert("Success! The product has been removed from the catalog database.");
+      if (firestoreDelSuccess) {
+          alert("Success! The product has been permanently removed from the catalog and Firestore.");
+      } else {
+          alert("Warning: The product was removed locally, but failed to sync the deletion to Firestore.\nError: " + firestoreDelErrorMsg);
+      }
       
       if (typeof window.loadCatalog === 'function') {
           window.loadCatalog();

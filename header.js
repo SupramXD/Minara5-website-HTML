@@ -1,5 +1,5 @@
 let lastRemovedItem = null;
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { 
     getAuth, 
     onAuthStateChanged, 
@@ -24,7 +24,7 @@ const firebaseConfig = {
     appId: "1:860405871052:web:2aead90773c24721f72d69"
 };
 
-const app = initializeApp(firebaseConfig);
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 window.auth = auth; // Keeps it accessible for your account.html
@@ -366,8 +366,50 @@ let cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
 
 // 3. THE ADD FUNCTION
 window.addToCart = function(productId) {
-    const product = products[productId];
-    if (!product) return;
+    // 1. Check our hardcoded products map
+    let product = products[productId];
+    
+    // 2. Check default catalog products if not in products map
+    if (!product) {
+        const defaults = {
+            "minara-no-23": {
+                id: "minara-no-23",
+                name: "Minara Icons No. 23",
+                price: 850,
+                image: "number23.avif"
+            },
+            "minara-sitting": {
+                id: "minara-sitting",
+                name: "Minara Icons Sitting",
+                price: 950,
+                image: "sitting.webp"
+            }
+        };
+        product = defaults[productId];
+    }
+    
+    // 3. Check custom local storage products
+    if (!product) {
+        try {
+            const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+            const found = localProds.find(p => p.id === productId);
+            if (found) {
+                product = {
+                    id: found.id,
+                    name: found.name,
+                    price: found.price,
+                    image: found.image.split(',')[0].trim()
+                };
+            }
+        } catch (e) {
+            console.error("Local storage lookup failed in addToCart:", e);
+        }
+    }
+    
+    if (!product) {
+        console.warn("Product not found for addToCart:", productId);
+        return;
+    }
 
     const existingItem = cart.find(item => item.id === productId);
     if (existingItem) {
