@@ -1085,18 +1085,24 @@
       if (window.db) {
           try {
               const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js");
-              await setDoc(doc(window.db, "products", idStr), {
-                  name: name,
-                  price: price,
-                  stock: stock,
-                  image: image,
-                  description: description,
-                  status: status,
-                  timestamp: new Date().toISOString()
-              });
+              const timeoutPromise = new Promise((_, reject) => 
+                  setTimeout(() => reject(new Error("Timeout waiting for Firestore")), 1500)
+              );
+              await Promise.race([
+                  setDoc(doc(window.db, "products", idStr), {
+                      name: name,
+                      price: price,
+                      stock: stock,
+                      image: image,
+                      description: description,
+                      status: status,
+                      timestamp: new Date().toISOString()
+                  }),
+                  timeoutPromise
+              ]);
               console.log("Dynamic product injected into Firestore successfully!");
           } catch (dbErr) {
-              console.error("Firestore product injection failed:", dbErr);
+              console.warn("Firestore product injection timed out or failed, falling back to local storage:", dbErr);
           }
       }
 

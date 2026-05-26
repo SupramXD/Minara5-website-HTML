@@ -401,8 +401,8 @@ function saveAndSyncCart() {
         }
     });
 
-    // Update cart icon color
-    const icons = document.querySelectorAll('.cart-header-btn img, .mobile-cart img');
+    // Update cart icon color across all layouts (Desktop + Mobile)
+    const icons = document.querySelectorAll('.cart-header-btn img, .cart-btn img, .mobile-cart img, .cart-btn.mobile-cart img');
     icons.forEach(img => { img.src = totalItems > 0 ? "cart_green.svg" : "cart.svg"; });
 
     renderCartUI();
