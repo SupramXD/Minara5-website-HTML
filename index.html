@@ -1258,7 +1258,7 @@
     <div class="desktop-signup-container" style="margin-top: 50px; max-width: 500px; text-align: left;">
         <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 11px; letter-spacing: 2.2px; text-transform: uppercase; margin-bottom: 15px;">Sign up for 5% off first order</div>
         <form id="desktopSignupForm" onsubmit="event.preventDefault(); if(window.submitNewsletter) { window.submitNewsletter(event, 'desktop'); } else { console.warn('Newsletter script not loaded yet.'); }" style="display: flex; border-bottom: 1px solid #000; padding-bottom: 5px;">
-            <input type="email" id="desktopSignupEmail" placeholder="ENTER YOUR EMAIL" required style="border: none; background: transparent; font-size: 11px; letter-spacing: 1px; width: 100%; outline: none; text-transform: uppercase; font-family: inherit;">
+            <input type="email" id="desktopSignupEmail" placeholder="Enter your email" required style="border: none; background: transparent; font-size: 11px; letter-spacing: 1px; width: 100%; outline: none; text-transform: none; font-family: inherit;">
             <button type="submit" style="background: transparent; border: none; font-size: 11px; font-weight: bold; color: #1106e8; cursor: pointer; padding: 0 10px; width: auto; margin: 0; font-family: inherit; letter-spacing: 1px;">SUBMIT</button>
         </form>
         <div id="desktopSignupSuccess" style="display: none;"></div>
@@ -1421,7 +1421,125 @@
   </script>
 
   <script type="module" src="header.js"></script>
+  <script type="module">
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+    document.addEventListener("DOMContentLoaded", async () => {
+        // Find grid container
+        const grid = document.querySelector('.home-products-list');
+        if (!grid) return;
+
+        // Default products list starting with the hardcoded Leopard Fur Backpack
+        let products = [
+            {
+                id: "leopard-backpack",
+                name: "Léopard fur <br>BACKPACK",
+                price: 749,
+                stock: 45,
+                image: "cheetahproduct.avif",
+                status: "Active",
+                url: "leopard.html"
+            }
+        ];
+
+        // 1. Fetch custom products from local storage
+        try {
+            const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+            localProds.forEach(p => {
+                if (!products.some(item => item.id === p.id)) {
+                    products.push({
+                        id: p.id,
+                        name: p.name.replace(/\s+/g, ' ').replace(" ", " <br>"), // break name in two lines for premium look
+                        price: p.price,
+                        stock: p.stock,
+                        image: p.image,
+                        status: p.status,
+                        url: `leopard.html?id=${p.id}`
+                    });
+                }
+            });
+        } catch (e) {
+            console.error("Local storage products read failed:", e);
+        }
+
+        // 2. Fetch custom products from Firestore
+        let retries = 5;
+        while (!window.db && retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            retries--;
+        }
+
+        if (window.db) {
+            try {
+                const querySnapshot = await getDocs(collection(window.db, "products"));
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const p = {
+                        id: doc.id,
+                        name: data.name.replace(/\s+/g, ' ').replace(" ", " <br>"),
+                        price: Number(data.price),
+                        stock: Number(data.stock),
+                        image: data.image,
+                        status: data.status,
+                        url: `leopard.html?id=${doc.id}`
+                    };
+                    const existingIdx = products.findIndex(item => item.id === p.id);
+                    if (existingIdx > -1) {
+                        products[existingIdx] = p; // override with live firestore details
+                    } else {
+                        products.push(p);
+                    }
+                });
+            } catch (dbErr) {
+                console.warn("Firestore products query failed:", dbErr);
+            }
+        }
+
+        // 3. Filter active items
+        const activeProducts = products.filter(p => p.status === 'Active');
+
+        // 4. Render! We fill up to 4 items using placeholder cards
+        let gridHtml = "";
+        
+        // Render real items
+        activeProducts.forEach(p => {
+            const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
+            const displayPrice = hasDiscount
+                ? `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${p.price.toLocaleString()}</span><span style="color: #1106e8; font-weight: bold;">R${Math.round(p.price * 0.95).toLocaleString()}</span>`
+                : `R${p.price.toLocaleString()}`;
+
+            gridHtml += `
+                <a href="${p.url}" class="home-product-card">
+                    <div class="hp-box">
+                        <img src="${p.image.split(',')[0].trim()}" alt="${p.name.replace('<br>', ' ')}">
+                    </div>
+                    <div class="hp-info">
+                        <div class="hp-name">${p.name}</div>
+                        <div class="hp-price hp-price-card">${displayPrice}</div>
+                        <button class="add-to-cart" onclick="event.preventDefault(); event.stopPropagation(); addToCart('${p.id}')">${p.stock > 0 ? 'ADD TO BAG' : 'OUT OF STOCK'}</button>
+                    </div>
+                </a>
+            `;
+        });
+
+        // Add placeholders if total active items is less than 4
+        const placeholdersNeeded = Math.max(0, 4 - activeProducts.length);
+        for (let i = 0; i < placeholdersNeeded; i++) {
+            gridHtml += `
+                <div class="home-product-card">
+                    <div class="hp-box"></div>
+                    <div class="hp-info">
+                        <div class="hp-name placeholder">AWAITING<br>REVEAL</div>
+                        <div class="hp-price placeholder">R000</div>
+                        <button class="add-to-cart" disabled style="opacity: 0.5; cursor: not-allowed;">COMING SOON</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        grid.innerHTML = gridHtml;
+    });
+  </script>
 </body>
 
 </html>

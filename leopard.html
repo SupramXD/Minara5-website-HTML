@@ -1050,6 +1050,140 @@ window.openCart = function() {
     <a href="accountorder.html" class="acc-item">MY ORDERS</a>
     <a href="#" onclick="logout()" class="acc-item">LOG OUT</a>
 </div>
+<script type="module">
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get('id');
+        if (!productId || productId === 'leopard-backpack') return;
+
+        console.log("Loading custom dynamic product details for: " + productId);
+        
+        let product = null;
+
+        // 1. Try loading from localStorage first (for instant load)
+        try {
+            const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+            product = localProds.find(p => p.id === productId);
+        } catch (e) {
+            console.error("Local storage product read failed:", e);
+        }
+
+        // 2. Try loading from Firestore
+        // We'll wait a brief moment for header.js to initialize window.db if needed
+        let retries = 5;
+        while (!window.db && retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            retries--;
+        }
+
+        if (window.db) {
+            try {
+                const docRef = doc(window.db, "products", productId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    product = {
+                        id: productId,
+                        name: data.name,
+                        price: Number(data.price),
+                        stock: Number(data.stock),
+                        image: data.image,
+                        description: data.description,
+                        status: data.status
+                    };
+                }
+            } catch (dbErr) {
+                console.warn("Firestore product details load failed:", dbErr);
+            }
+        }
+
+        if (!product) {
+            console.warn("Product not found in localStorage or Firestore.");
+            return;
+        }
+
+        // 3. Dynamically swap the content of the page!
+        
+        // Tab title
+        document.title = product.name + " – MINARA5";
+
+        // Title
+        const titleEl = document.querySelector('.product-title');
+        if (titleEl) {
+            titleEl.innerHTML = product.name;
+        }
+
+        // Price (handle discount if active)
+        const priceEl = document.querySelector('.product-price');
+        if (priceEl) {
+            const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
+            if (hasDiscount) {
+                priceEl.innerHTML = `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${product.price.toLocaleString()}</span><span style="color: #1106e8; font-weight: bold;">R${Math.round(product.price * 0.95).toLocaleString()}</span>`;
+            } else {
+                priceEl.innerHTML = `R${product.price.toLocaleString()}`;
+            }
+        }
+
+        // Image slider
+        const track = document.querySelector('.slider-track');
+        if (track) {
+            // Support multiple comma separated images, or just one
+            const images = product.image.split(',');
+            let imageHtml = "";
+            images.forEach(img => {
+                const src = img.trim();
+                imageHtml += `<img src="${src}" alt="${product.name}">`;
+            });
+            track.innerHTML = imageHtml;
+            
+            // Re-setup slider dots if there are multiple images
+            const dotsContainer = document.querySelector('.slider-dots');
+            if (dotsContainer) {
+                if (images.length > 1) {
+                    let dotsHtml = "";
+                    images.forEach((_, i) => {
+                        dotsHtml += `<div class="${i === 0 ? 'active' : ''}"></div>`;
+                    });
+                    dotsContainer.innerHTML = dotsHtml;
+                    
+                    // Re-bind dots clicks
+                    const dots = dotsContainer.querySelectorAll('div');
+                    dots.forEach((dot, idx) => {
+                        dot.onclick = () => {
+                            // Find slider track width
+                            const imgWidth = track.querySelector('img').offsetWidth;
+                            track.style.transform = `translateX(-${idx * imgWidth}px)`;
+                            dots.forEach(d => d.classList.remove('active'));
+                            dot.classList.add('active');
+                        };
+                    });
+                } else {
+                    dotsContainer.innerHTML = ""; // Hide dots if only 1 image
+                }
+            }
+        }
+
+        // Description (bio)
+        const descEl = document.querySelector('.desc');
+        if (descEl) {
+            descEl.innerHTML = product.description.replace(/\n/g, '<br>');
+        }
+
+        // ADD TO BAG button action
+        const addToBagBtn = document.querySelector('.add-to-cart');
+        if (addToBagBtn) {
+            addToBagBtn.setAttribute('onclick', `addToCart('${product.id}')`);
+            if (product.stock <= 0) {
+                addToBagBtn.innerHTML = "OUT OF STOCK";
+                addToBagBtn.disabled = true;
+                addToBagBtn.style.opacity = "0.5";
+                addToBagBtn.style.cursor = "not-allowed";
+            }
+        }
+    });
+</script>
 </body>
 </html>
 

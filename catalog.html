@@ -785,7 +785,123 @@ window.addEventListener("load", updateCartHeight);
 window.addEventListener("orientationchange", updateCartHeight);
 </script>
 <script type="module" src="header.js"></script>
+<script type="module">
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+    document.addEventListener("DOMContentLoaded", async () => {
+        // Find grid container
+        const grid = document.querySelector('.catalog-grid');
+        if (!grid) return;
 
+        // Default products list starting with the hardcoded Leopard Fur Backpack
+        let products = [
+            {
+                id: "leopard-backpack",
+                name: "Léopard Fur Backpack",
+                price: 749,
+                stock: 45,
+                image: "cheetahproduct.avif",
+                status: "Active",
+                url: "leopard.html"
+            }
+        ];
+
+        // 1. Fetch custom products from local storage
+        try {
+            const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+            localProds.forEach(p => {
+                if (!products.some(item => item.id === p.id)) {
+                    products.push({
+                        ...p,
+                        url: `leopard.html?id=${p.id}`
+                    });
+                }
+            });
+        } catch (e) {
+            console.error("Local storage products read failed:", e);
+        }
+
+        // 2. Fetch custom products from Firestore
+        let retries = 5;
+        while (!window.db && retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            retries--;
+        }
+
+        if (window.db) {
+            try {
+                const querySnapshot = await getDocs(collection(window.db, "products"));
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const p = {
+                        id: doc.id,
+                        name: data.name,
+                        price: Number(data.price),
+                        stock: Number(data.stock),
+                        image: data.image,
+                        status: data.status,
+                        url: `leopard.html?id=${doc.id}`
+                    };
+                    const existingIdx = products.findIndex(item => item.id === p.id);
+                    if (existingIdx > -1) {
+                        products[existingIdx] = p; // override with live firestore details
+                    } else {
+                        products.push(p);
+                    }
+                });
+            } catch (dbErr) {
+                console.warn("Firestore products query failed:", dbErr);
+            }
+        }
+
+        // 3. Filter active items
+        const activeProducts = products.filter(p => p.status === 'Active');
+
+        // 4. Render! We fill up to 4 items using COMING SOON placeholders
+        let gridHtml = "";
+        
+        // Render real items
+        activeProducts.forEach(p => {
+            const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
+            const displayPrice = hasDiscount
+                ? `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${p.price.toLocaleString()}</span><span style="color: #1106e8; font-weight: bold;">R${Math.round(p.price * 0.95).toLocaleString()}</span>`
+                : `R${p.price.toLocaleString()}`;
+
+            gridHtml += `
+                <div class="catalog-item">
+                    <a href="${p.url}" class="product-link">
+                        <div class="product-box">
+                            <img src="${p.image.split(',')[0].trim()}" alt="${p.name}">
+                        </div>
+                        <div class="product-info">
+                            <div class="product-name">${p.name}</div>
+                            <div class="price">${displayPrice}</div>
+                        </div>
+                    </a>
+                    <button class="add-to-cart-btn" onclick="addToCart('${p.id}')">${p.stock > 0 ? 'ADD TO BAG' : 'OUT OF STOCK'}</button>
+                </div>
+            `;
+        });
+
+        // Add placeholders if total active items is less than 4
+        const placeholdersNeeded = Math.max(0, 4 - activeProducts.length);
+        for (let i = 0; i < placeholdersNeeded; i++) {
+            gridHtml += `
+                <div class="catalog-item">
+                    <div class="product-link">
+                        <div class="product-box"></div>
+                        <div class="product-info">
+                            <div class="placeholder-name">AWAITING<br>REVEAL</div>
+                            <div class="placeholder-price">R000</div>
+                        </div>
+                    </div>
+                    <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>
+                </div>
+            `;
+        }
+
+        grid.innerHTML = gridHtml;
+    });
+</script>
 </body>
 </html>

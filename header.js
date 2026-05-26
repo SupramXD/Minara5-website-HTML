@@ -812,10 +812,16 @@ window.submitNewsletter = async function(event, type) {
     
     try {
         if (window.db) {
-            await addDoc(collection(window.db, "subscribers"), {
-                email: email,
-                timestamp: new Date().toISOString()
-            });
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error("Timeout waiting for Firestore")), 1500)
+            );
+            await Promise.race([
+                addDoc(collection(window.db, "subscribers"), {
+                    email: email,
+                    timestamp: new Date().toISOString()
+                }),
+                timeoutPromise
+            ]);
             console.log("Newsletter subscription saved to Firebase!");
         } else {
             console.warn("Firestore database reference not available.");
@@ -958,7 +964,7 @@ function setupMobileNewsletter() {
             <div id="mobileNewsletterFormWrap" style="display: none; margin-top: 15px;">
                 <p style="font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;">Get 5% off your first order by subscribing.</p>
                 <form id="mobileNewsletterForm" style="display: flex; border-bottom: 1px solid #000; padding-bottom: 5px;">
-                    <input type="email" id="mobileNewsletterEmail" placeholder="YOUR EMAIL" required style="border: none; background: transparent; font-size: 11px; width: 100%; outline: none; text-transform: uppercase; font-family: inherit;">
+                    <input type="email" id="mobileNewsletterEmail" placeholder="Enter your email" required style="border: none; background: transparent; font-size: 11px; width: 100%; outline: none; text-transform: none; font-family: inherit;">
                     <button type="submit" style="background: transparent; border: none; font-size: 11px; font-weight: bold; color: #1106e8; cursor: pointer; padding: 0 5px; width: auto; margin: 0; font-family: inherit;">SUBMIT</button>
                 </form>
             </div>

@@ -627,6 +627,16 @@
           </div>
 
           <div class="form-group">
+            <label for="prodImage">Product Image Path / URL</label>
+            <input type="text" id="prodImage" class="form-input" placeholder="e.g. cheetahproduct.avif or URL" required>
+          </div>
+
+          <div class="form-group">
+            <label for="prodDesc">Product Description / Bio</label>
+            <textarea id="prodDesc" class="form-input" placeholder="Luxury product details & biography..." style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: #fff; width: 100%; min-height: 80px; padding: 12px; font-family: inherit; font-size: 13px; outline: none; border-radius: 4px; resize: vertical;" required></textarea>
+          </div>
+
+          <div class="form-group">
             <label for="prodStatus">Catalog Status</label>
             <select id="prodStatus" class="form-input" style="background:#1a1a24;">
               <option value="Active">Active / Revealed</option>
@@ -755,11 +765,16 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // Expose Firebase tools globally for other standard scripts on this page
+    window.db = db;
+    window.auth = auth;
+
     onAuthStateChanged(auth, (user) => {
       const adminEmail = "sub2meboyi@gmail.com";
       if (user && user.email === adminEmail) {
         document.body.style.display = "block";
         fetchSubscribers();
+        loadCatalog();
       } else {
         document.body.style.display = "none";
       }
@@ -896,6 +911,99 @@
           if (feedCount) feedCount.textContent = mergedSubscribers.length + " Cached Subscribers";
       }
     }
+
+    async function loadCatalog() {
+      const tableBody = document.querySelector("#catalogTable tbody");
+      const statsEl = document.getElementById("inventoryFulfillmentStats");
+      const dashCountEl = document.getElementById("dashboardCatalogCount");
+      if (!tableBody) return;
+      
+      let products = [
+          {
+              id: "leopard-backpack",
+              name: "Léopard Fur Backpack",
+              price: 749,
+              stock: 45,
+              status: "Active",
+              image: "cheetahproduct.avif",
+              description: "Leopard Fur Backpack\n\nCarefully crafted luxury fur backpack designed for high fashion nonconformity."
+          }
+      ];
+      
+      // Load custom products from localStorage
+      try {
+          const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+          localProds.forEach(p => {
+              if (!products.some(item => item.id === p.id)) {
+                  products.push(p);
+              }
+          });
+      } catch (e) {
+          console.error("Local storage products load failed:", e);
+      }
+      
+      // Load custom products from Firestore
+      if (db) {
+          try {
+              const querySnapshot = await getDocs(collection(db, "products"));
+              querySnapshot.forEach((doc) => {
+                  const data = doc.data();
+                  const p = {
+                      id: doc.id,
+                      name: data.name,
+                      price: Number(data.price),
+                      stock: Number(data.stock),
+                      status: data.status,
+                      image: data.image,
+                      description: data.description
+                  };
+                  const existingIdx = products.findIndex(item => item.id === p.id);
+                  if (existingIdx > -1) {
+                      products[existingIdx] = p; // Override with live Firestore stock / values
+                  } else {
+                      products.push(p);
+                  }
+              });
+          } catch (firestoreErr) {
+              console.warn("Firestore products load failed, relying on local simulation:", firestoreErr);
+          }
+      }
+      
+      // Render catalog grid table rows with extensive adjustable stock counters
+      let html = "";
+      products.forEach((p) => {
+          const statusBadgeClass = p.status === 'Active' ? 'admin' : 'user';
+          html += `
+              <tr id="catalog-row-${p.id}">
+                  <td style="font-family: monospace; font-size: 11px;">${p.id}</td>
+                  <td style="font-weight: bold; color: var(--accent);">${p.name}</td>
+                  <td>R${p.price.toLocaleString()}</td>
+                  <td id="stock-level-${p.id}">${p.stock} units</td>
+                  <td><span class="status-badge ${statusBadgeClass}">${p.status}</span></td>
+                  <td style="white-space: nowrap;">
+                      <button class="btn-action" onclick="adjustStock('${p.id}', 1)" style="margin-right: 2px; padding: 4px 8px;">+1</button>
+                      <button class="btn-action" onclick="adjustStock('${p.id}', -1)" style="margin-right: 6px; padding: 4px 8px;">-1</button>
+                      
+                      <button class="btn-action" onclick="adjustStock('${p.id}', 10)" style="margin-right: 2px; padding: 4px 8px;">+10</button>
+                      <button class="btn-action" onclick="adjustStock('${p.id}', -10)" style="margin-right: 6px; padding: 4px 8px;">-10</button>
+                      
+                      <button class="btn-action" onclick="adjustStock('${p.id}', 50)" style="margin-right: 2px; padding: 4px 8px;">+50</button>
+                      <button class="btn-action" onclick="adjustStock('${p.id}', -50)" style="padding: 4px 8px;">-50</button>
+                  </td>
+              </tr>
+          `;
+      });
+      
+      tableBody.innerHTML = html;
+      if (statsEl) statsEl.textContent = products.length + " Items in System";
+      if (dashCountEl) dashCountEl.textContent = products.length;
+      
+      // Sync products globally
+      window.minaraProducts = products;
+    }
+
+    // Bind to window for dynamic calls
+    window.loadCatalog = loadCatalog;
   </script>
 
   <!-- INTERACTIVE ADMIN ACTIONS & SCRIPT CONSOLES -->
@@ -927,53 +1035,88 @@
       alert("Order #" + (1025 - rowId) + " fulfilled successfully! Revenue updated.");
     };
 
-    // 2. PRODUCT ADDITION TO CATALOG
-    let catalogCount = 1;
-    window.handleAddProduct = function(e) {
+    // 2. PRODUCT ADDITION TO CATALOG WITH DUAL-WRITE SYNCS
+    window.handleAddProduct = async function(e) {
       e.preventDefault();
       
-      const name = document.getElementById("prodName").value;
+      const name = document.getElementById("prodName").value.trim();
       const price = parseFloat(document.getElementById("prodPrice").value);
       const stock = parseInt(document.getElementById("prodStock").value);
+      const image = document.getElementById("prodImage").value.trim();
+      const description = document.getElementById("prodDesc").value.trim();
       const status = document.getElementById("prodStatus").value;
 
-      if (!name || isNaN(price) || isNaN(stock)) return;
+      if (!name || isNaN(price) || isNaN(stock) || !image || !description) return;
 
-      // Add to catalog table
-      const catalogTable = document.getElementById("catalogTable").getElementsByTagName("tbody")[0];
-      const newRowId = "catalog-row-" + (catalogCount + 1);
-      
-      const newRow = catalogTable.insertRow();
-      newRow.id = newRowId;
-      
       const idStr = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      
-      newRow.innerHTML = `
-        <td>${idStr}</td>
-        <td>${name}</td>
-        <td>R${price.toLocaleString()}</td>
-        <td id="stock-level-${catalogCount + 1}">${stock} units</td>
-        <td><span class="status-badge ${status === 'Active' ? 'admin' : 'user'}">${status}</span></td>
-        <td>
-          <button class="btn-action" onclick="adjustStock('${catalogCount + 1}', 5)" style="margin-right: 5px;">+5</button>
-          <button class="btn-action" onclick="adjustStock('${catalogCount + 1}', -5)">-5</button>
-        </td>
-      `;
+      const newProduct = {
+          id: idStr,
+          name: name,
+          price: price,
+          stock: stock,
+          image: image,
+          description: description,
+          status: status
+      };
 
-      // Update metrics
-      catalogCount++;
-      document.getElementById("dashboardCatalogCount").textContent = catalogCount;
-      document.getElementById("inventoryFulfillmentStats").textContent = catalogCount + " Items Active";
+      // Lock buttons during submit injection
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn ? submitBtn.innerHTML : "";
+      if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = "INJECTING...";
+      }
 
-      // Reset form
+      // Save to localStorage
+      try {
+          const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+          const idx = localProds.findIndex(p => p.id === idStr);
+          if (idx > -1) {
+              localProds[idx] = newProduct;
+          } else {
+              localProds.push(newProduct);
+          }
+          localStorage.setItem("minara_products", JSON.stringify(localProds));
+      } catch (err) {
+          console.error("Local storage product save failed:", err);
+      }
+
+      // Save to Firestore `"products"` collection using global window.db
+      if (window.db) {
+          try {
+              const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js");
+              await setDoc(doc(window.db, "products", idStr), {
+                  name: name,
+                  price: price,
+                  stock: stock,
+                  image: image,
+                  description: description,
+                  status: status,
+                  timestamp: new Date().toISOString()
+              });
+              console.log("Dynamic product injected into Firestore successfully!");
+          } catch (dbErr) {
+              console.error("Firestore product injection failed:", dbErr);
+          }
+      }
+
+      // Unlock submit button and reset form
       document.getElementById("productForm").reset();
-      
+      if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+      }
+
       alert("Success! " + name + " has been successfully injected into the catalog database.");
+      
+      if (typeof window.loadCatalog === 'function') {
+          window.loadCatalog();
+      }
     };
 
-    // 3. STOCK LEVEL ADJUSTMENT
-    window.adjustStock = function(rowId, amount) {
-      const stockTd = document.getElementById("stock-level-" + rowId);
+    // 3. EXPANDED STOCK LEVEL ADJUSTMENT WITH DUAL-WRITE SYNCS
+    window.adjustStock = async function(productId, amount) {
+      const stockTd = document.getElementById("stock-level-" + productId);
       if (!stockTd) return;
 
       let currentStock = parseInt(stockTd.textContent);
@@ -981,8 +1124,46 @@
 
       const newStock = Math.max(0, currentStock + amount);
       stockTd.textContent = newStock + " units";
-      
-      document.getElementById("inventoryFulfillmentStats").textContent = catalogCount + " Items (Updated Stock) ✓";
+
+      // Sync and adjust in global storage
+      if (window.minaraProducts) {
+          const product = window.minaraProducts.find(p => p.id === productId);
+          if (product) {
+              product.stock = newStock;
+              
+              // 1. Sync local storage cache
+              try {
+                  const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+                  const idx = localProds.findIndex(p => p.id === productId);
+                  if (idx > -1) {
+                      localProds[idx].stock = newStock;
+                  } else if (productId !== 'leopard-backpack') {
+                      localProds.push({ ...product, stock: newStock });
+                  }
+                  localStorage.setItem("minara_products", JSON.stringify(localProds));
+              } catch (err) {
+                  console.error("Local storage stock update failed:", err);
+              }
+              
+              // 2. Sync Firebase Firestore database
+              if (window.db && productId !== 'leopard-backpack') {
+                  try {
+                      const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js");
+                      await updateDoc(doc(window.db, "products", productId), {
+                          stock: newStock
+                      });
+                      console.log("Firestore stock sync completed!");
+                  } catch (dbErr) {
+                      console.error("Firestore stock sync failed:", dbErr);
+                  }
+              }
+          }
+      }
+
+      const statsEl = document.getElementById("inventoryFulfillmentStats");
+      if (statsEl) {
+          statsEl.textContent = "Stock Level Adjusted ✓";
+      }
     };
 
     // 4. USER ROLE TOGGLE (PROMOTION)
