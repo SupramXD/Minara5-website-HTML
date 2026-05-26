@@ -736,10 +736,25 @@
 
   <!-- LOAD FIREBASE ROUTE CHECK & SYSTEM MODULES -->
   <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
     import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
     
-    const auth = getAuth();
+    // Core Firebase config matching header.js
+    const firebaseConfig = {
+        apiKey: "AIzaSyC8srbzH_DcCYQJXe9MNOyy2OHZSaLidIo",
+        authDomain: "minara5.firebaseapp.com",
+        projectId: "minara5",
+        storageBucket: "minara5.firebasestorage.app",
+        messagingSenderId: "860405871052",
+        appId: "1:860405871052:web:2aead90773c24721f72d69"
+    };
+
+    // Safe initialization guard to avoid "App already exists" errors
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
     onAuthStateChanged(auth, (user) => {
       const adminEmail = "sub2meboyi@gmail.com";
       if (user && user.email === adminEmail) {
@@ -751,16 +766,44 @@
     });
 
     async function fetchSubscribers() {
-      const db = getFirestore();
       const tableBody = document.getElementById("subscribersTableBody");
       const feedCount = document.getElementById("subscribersFeedCount");
       if (!tableBody) return;
       
       try {
+          // 1. Fetch live subscribers from Firestore
           const q = query(collection(db, "subscribers"), orderBy("timestamp", "desc"));
           const querySnapshot = await getDocs(q);
           
-          if (querySnapshot.empty) {
+          let allSubscribers = [];
+          querySnapshot.forEach((doc) => {
+              const data = doc.data();
+              allSubscribers.push({
+                  id: doc.id,
+                  email: data.email,
+                  timestamp: data.timestamp,
+                  source: 'firestore'
+              });
+          });
+
+          // 2. Fetch offline cached subscribers from localStorage
+          const offlineSubs = JSON.parse(localStorage.getItem("minara_offline_subscribers") || "[]");
+          offlineSubs.forEach((sub, index) => {
+              // De-duplicate if already in Firestore
+              if (!allSubscribers.some(item => item.email.toLowerCase() === sub.email.toLowerCase())) {
+                  allSubscribers.push({
+                      id: `local_cache_q${index}`,
+                      email: sub.email,
+                      timestamp: sub.timestamp,
+                      source: 'offline'
+                  });
+              }
+          });
+
+          // 3. Sort merged list by timestamp descending
+          allSubscribers.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+          if (allSubscribers.length === 0) {
               tableBody.innerHTML = `
                   <tr>
                       <td colspan="4" style="text-align: center; opacity: 0.5; padding: 30px;">No subscribers registered yet.</td>
@@ -771,46 +814,86 @@
           }
           
           let html = "";
-          let count = 0;
-          querySnapshot.forEach((doc) => {
-              const data = doc.data();
-              const date = new Date(data.timestamp).toLocaleString();
+          allSubscribers.forEach((sub) => {
+              const date = new Date(sub.timestamp).toLocaleString();
+              const isOffline = sub.source === 'offline';
+              const badgeClass = isOffline ? 'pending' : 'admin';
+              const badgeText = isOffline ? 'PENDING SYNC' : '5% OFF ACTIVE';
+              const emailColor = isOffline ? '#ff9f0a' : 'var(--accent)';
+              const offlineBadge = isOffline ? ` <span style="font-size: 8px; font-weight: normal; color: #ff9f0a; border: 1px solid rgba(255, 159, 10, 0.3); padding: 1px 4px; margin-left: 5px; border-radius: 2px;">OFFLINE CACHE</span>` : '';
+              
               html += `
                   <tr>
-                      <td style="font-weight: bold; color: var(--accent);">${data.email}</td>
+                      <td style="font-weight: bold; color: ${emailColor};">${sub.email}${offlineBadge}</td>
                       <td>${date}</td>
-                      <td><span class="status-badge admin">5% OFF ACTIVE</span></td>
-                      <td style="font-family: monospace; opacity: 0.5;">${doc.id}</td>
+                      <td><span class="status-badge ${badgeClass}">${badgeText}</span></td>
+                      <td style="font-family: monospace; opacity: 0.5;">${sub.id}</td>
                   </tr>
               `;
-              count++;
           });
           
           tableBody.innerHTML = html;
-          if (feedCount) feedCount.textContent = count + " Active Subscribers";
+          if (feedCount) feedCount.textContent = allSubscribers.length + " Active Subscribers";
       } catch (error) {
-          console.error("Error fetching subscribers:", error);
-          tableBody.innerHTML = `
+          console.error("Error fetching subscribers from Firestore:", error);
+          
+          // Fall back gracefully to displaying local storage + mock fallback so admin console works
+          const offlineSubs = JSON.parse(localStorage.getItem("minara_offline_subscribers") || "[]");
+          const mockEmails = ["sub2meboyi@gmail.com", "customer.alex@outlook.com", "zanele.m@gmail.com"];
+          
+          let mergedSubscribers = [];
+          
+          offlineSubs.forEach((sub, index) => {
+              mergedSubscribers.push({
+                  id: `local_cache_q${index}`,
+                  email: sub.email,
+                  timestamp: sub.timestamp,
+                  source: 'offline'
+              });
+          });
+          
+          mockEmails.forEach((email, i) => {
+              if (!mergedSubscribers.some(sub => sub.email.toLowerCase() === email.toLowerCase())) {
+                  mergedSubscribers.push({
+                      id: `mock_doc_id_x${i}`,
+                      email: email,
+                      timestamp: new Date(2026, 4, 25, 11, 45, 10 + i).toISOString(),
+                      source: 'mock'
+                  });
+              }
+          });
+          
+          // Sort descending
+          mergedSubscribers.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+          
+          let html = `
               <tr>
-                  <td colspan="4" style="text-align: center; color: var(--danger); padding: 30px;">Error connecting to Firestore: ${error.message} (Using local mock cache fallback)</td>
+                  <td colspan="4" style="text-align: center; color: var(--danger); font-size: 11px; padding: 12px; background: rgba(255, 59, 48, 0.05); border-bottom: 1px solid rgba(255, 59, 48, 0.2);">
+                      ⚠ Firestore Connection Error: ${error.message} (Using local cache & mock fallback)
+                  </td>
               </tr>
           `;
           
-          // Local fallback simulation if Firestore rules are blocked or not configured
-          const mockEmails = ["sub2meboyi@gmail.com", "customer.alex@outlook.com", "zanele.m@gmail.com"];
-          let fallbackHtml = "";
-          mockEmails.forEach((email, i) => {
-              fallbackHtml += `
+          mergedSubscribers.forEach((sub) => {
+              const date = new Date(sub.timestamp).toLocaleString();
+              const isOffline = sub.source === 'offline';
+              const badgeClass = isOffline ? 'pending' : 'admin';
+              const badgeText = isOffline ? 'PENDING SYNC' : '5% OFF ACTIVE';
+              const emailColor = isOffline ? '#ff9f0a' : 'var(--accent)';
+              const offlineBadge = isOffline ? ` <span style="font-size: 8px; font-weight: normal; color: #ff9f0a; border: 1px solid rgba(255, 159, 10, 0.3); padding: 1px 4px; margin-left: 5px; border-radius: 2px;">OFFLINE CACHE</span>` : '';
+              
+              html += `
                   <tr>
-                      <td style="font-weight: bold; color: var(--accent);">${email}</td>
-                      <td>5/25/2026, 11:45:1${i} AM</td>
-                      <td><span class="status-badge admin">5% OFF ACTIVE</span></td>
-                      <td style="font-family: monospace; opacity: 0.5;">mock_doc_id_x${i}</td>
+                      <td style="font-weight: bold; color: ${emailColor};">${sub.email}${offlineBadge}</td>
+                      <td>${date}</td>
+                      <td><span class="status-badge ${badgeClass}">${badgeText}</span></td>
+                      <td style="font-family: monospace; opacity: 0.5;">${sub.id}</td>
                   </tr>
               `;
           });
-          tableBody.innerHTML = fallbackHtml;
-          if (feedCount) feedCount.textContent = "3 Cached Subscribers";
+          
+          tableBody.innerHTML = html;
+          if (feedCount) feedCount.textContent = mergedSubscribers.length + " Cached Subscribers";
       }
     }
   </script>

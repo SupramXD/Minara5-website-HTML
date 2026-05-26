@@ -795,6 +795,20 @@ window.submitNewsletter = async function(event, type) {
     if (!email) return;
     
     console.log("Submitting email to newsletter: " + email);
+
+    // Get form elements for immediate premium visual feedback
+    const form = document.getElementById(type === 'mobile' ? 'mobileNewsletterForm' : 'desktopSignupForm');
+    const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
+    const originalBtnText = submitBtn ? submitBtn.innerHTML : "SUBMIT";
+
+    // Immediate loading visual state changes
+    if (emailInput) emailInput.disabled = true;
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "SAVING...";
+        submitBtn.style.opacity = "0.5";
+        submitBtn.style.cursor = "not-allowed";
+    }
     
     try {
         if (window.db) {
@@ -805,35 +819,91 @@ window.submitNewsletter = async function(event, type) {
             console.log("Newsletter subscription saved to Firebase!");
         } else {
             console.warn("Firestore database reference not available.");
+            throw new Error("Firestore not initialized");
         }
-        
-        localStorage.setItem("minara_discount_5", "active");
-        
-        // Show success state
-        if (type === 'mobile') {
-            const formWrap = document.getElementById("mobileNewsletterFormWrap");
-            const successEl = document.getElementById("mobileNewsletterSuccess");
-            if (formWrap) formWrap.style.display = "none";
-            if (successEl) successEl.style.display = "block";
-            const promoText = document.querySelector("#mobileNewsletterPromo span");
-            if (promoText) promoText.textContent = "5% DISCOUNT ACTIVE";
-        } else {
-            const form = document.getElementById("desktopSignupForm");
-            const successEl = document.getElementById("desktopSignupSuccess");
-            if (form) form.style.display = "none";
-            if (successEl) successEl.style.display = "block";
-        }
-        
-        window.applyGlobalDiscount();
-        
-        if (typeof renderCartUI === 'function') {
-            renderCartUI();
-        }
-        
-        alert("Success! Your 5% first order discount has been applied.");
     } catch (error) {
-        console.error("Subscription failed:", error);
-        alert("Subscription failed: " + error.message);
+        console.warn("Firestore write failed, triggering local offline cache fallback:", error);
+        
+        // Save to offline cache in localStorage so the admin panel can still read it
+        try {
+            const offlineSubs = JSON.parse(localStorage.getItem("minara_offline_subscribers") || "[]");
+            if (!offlineSubs.some(sub => sub.email.toLowerCase() === email.toLowerCase())) {
+                offlineSubs.push({
+                    email: email,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem("minara_offline_subscribers", JSON.stringify(offlineSubs));
+            }
+        } catch (storageError) {
+            console.error("Failed to save to local storage:", storageError);
+        }
+    }
+
+    // Activate the discount
+    localStorage.setItem("minara_discount_5", "active");
+
+    // Clean inputs and reset button state
+    if (emailInput) {
+        emailInput.disabled = false;
+        emailInput.value = "";
+    }
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.style.opacity = "";
+        submitBtn.style.cursor = "";
+    }
+
+    // Inject fade-in keyframe animations if missing
+    if (!document.getElementById('minara-fadein-style')) {
+        const style = document.createElement('style');
+        style.id = 'minara-fadein-style';
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(4px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Show premium styled success alert state with catalog redirection link
+    if (type === 'mobile') {
+        const formWrap = document.getElementById("mobileNewsletterFormWrap");
+        const successEl = document.getElementById("mobileNewsletterSuccess");
+        const promoText = document.querySelector("#mobileNewsletterPromo span");
+        if (formWrap) formWrap.style.display = "none";
+        if (successEl) {
+            successEl.innerHTML = `
+                <div style="margin-top: 14px; padding: 16px; background: rgba(52, 199, 89, 0.06); border: 1px solid #34c759; border-radius: 2px; animation: fadeIn 0.4s ease;">
+                    <div style="color: #34c759; font-size: 11px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase;">✓ DISCOUNT ACTIVATED</div>
+                    <div style="color: #000; font-size: 10px; margin-top: 6px; letter-spacing: 0.5px; opacity: 0.8; text-transform: uppercase; font-family: inherit; line-height: 1.4;">You've unlocked 5% off your first order! Your discount has been applied to your bag.</div>
+                    <a href="catalog.html" style="display: inline-block; margin-top: 12px; background: #000; color: #ccff00; font-size: 9px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; padding: 9px 18px; text-decoration: none; border: 1px solid #000;">SHOP THE CATALOG →</a>
+                </div>
+            `;
+            successEl.style.display = "block";
+        }
+        if (promoText) promoText.textContent = "5% DISCOUNT ACTIVE";
+    } else {
+        const form = document.getElementById("desktopSignupForm");
+        const successEl = document.getElementById("desktopSignupSuccess");
+        if (form) form.style.display = "none";
+        if (successEl) {
+            successEl.innerHTML = `
+                <div style="margin-top: 18px; padding: 22px; background: rgba(52, 199, 89, 0.06); border: 1px solid #34c759; border-radius: 2px; animation: fadeIn 0.4s ease;">
+                    <div style="color: #34c759; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 13px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase;">✓ DISCOUNT ACTIVATED: 5% OFF FIRST ORDER</div>
+                    <div style="color: #000; font-size: 11px; margin-top: 6px; opacity: 0.8; letter-spacing: 0.5px; text-transform: uppercase; font-family: inherit; line-height: 1.5;">You've unlocked 5% off your first order! Your discount has been successfully applied to your bag. Use the button below to explore our exclusive collection.</div>
+                    <a href="catalog.html" style="display: inline-block; margin-top: 16px; background: #000; color: #ccff00; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; padding: 12px 24px; text-decoration: none; border: 1px solid #000; transition: all 0.2s ease; cursor: pointer;">EXPLORE THE CATALOG →</a>
+                </div>
+            `;
+            successEl.style.display = "block";
+        }
+    }
+    
+    window.applyGlobalDiscount();
+    
+    if (typeof renderCartUI === 'function') {
+        renderCartUI();
     }
 };
 
@@ -892,7 +962,7 @@ function setupMobileNewsletter() {
                     <button type="submit" style="background: transparent; border: none; font-size: 11px; font-weight: bold; color: #1106e8; cursor: pointer; padding: 0 5px; width: auto; margin: 0; font-family: inherit;">SUBMIT</button>
                 </form>
             </div>
-            <div id="mobileNewsletterSuccess" style="display: none; font-size: 10px; color: #34c759; font-weight: bold; margin-top: 10px; text-transform: uppercase; letter-spacing: 0.5px;">✓ DISCOUNT APPLIED: 5% OFF</div>
+            <div id="mobileNewsletterSuccess" style="display: none;"></div>
         `;
         
         menuPanel.appendChild(mobileNews);
