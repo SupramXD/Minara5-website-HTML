@@ -748,7 +748,7 @@
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, orderBy, doc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
     
     // Core Firebase config matching header.js
     const firebaseConfig = {
@@ -768,6 +768,10 @@
     // Expose Firebase tools globally for other standard scripts on this page
     window.db = db;
     window.auth = auth;
+    window.dbDoc = doc;
+    window.dbSetDoc = setDoc;
+    window.dbUpdateDoc = updateDoc;
+    window.dbDeleteDoc = deleteDoc;
 
     onAuthStateChanged(auth, (user) => {
       const adminEmail = "sub2meboyi@gmail.com";
@@ -942,64 +946,88 @@
           console.error("Local storage products load failed:", e);
       }
       
-      // Load custom products from Firestore
-      if (db) {
-          try {
-              const querySnapshot = await getDocs(collection(db, "products"));
-              querySnapshot.forEach((doc) => {
-                  const data = doc.data();
-                  const p = {
-                      id: doc.id,
-                      name: data.name,
-                      price: Number(data.price),
-                      stock: Number(data.stock),
-                      status: data.status,
-                      image: data.image,
-                      description: data.description
-                  };
-                  const existingIdx = products.findIndex(item => item.id === p.id);
-                  if (existingIdx > -1) {
-                      products[existingIdx] = p; // Override with live Firestore stock / values
-                  } else {
-                      products.push(p);
+      const renderTable = () => {
+          let html = "";
+          products.forEach((p) => {
+              const statusBadgeClass = p.status === 'Active' ? 'admin' : 'user';
+              const deleteBtnHtml = p.id !== 'leopard-backpack' 
+                  ? `<button class="btn-action danger-btn" onclick="deleteProduct('${p.id}')" style="margin-left: 10px; padding: 4px 8px;">✕ Delete</button>` 
+                  : '';
+              
+              html += `
+                  <tr id="catalog-row-${p.id}">
+                      <td style="font-family: monospace; font-size: 11px;">${p.id}</td>
+                      <td style="font-weight: bold; color: var(--accent);">${p.name}</td>
+                      <td>R${p.price.toLocaleString()}</td>
+                      <td id="stock-level-${p.id}">${p.stock} units</td>
+                      <td><span class="status-badge ${statusBadgeClass}">${p.status}</span></td>
+                      <td style="white-space: nowrap;">
+                          <button class="btn-action" onclick="adjustStock('${p.id}', 1)" style="margin-right: 2px; padding: 4px 8px;">+1</button>
+                          <button class="btn-action" onclick="adjustStock('${p.id}', -1)" style="margin-right: 6px; padding: 4px 8px;">-1</button>
+                          
+                          <button class="btn-action" onclick="adjustStock('${p.id}', 10)" style="margin-right: 2px; padding: 4px 8px;">+10</button>
+                          <button class="btn-action" onclick="adjustStock('${p.id}', -10)" style="margin-right: 6px; padding: 4px 8px;">-10</button>
+                          
+                          <button class="btn-action" onclick="adjustStock('${p.id}', 50)" style="margin-right: 2px; padding: 4px 8px;">+50</button>
+                          <button class="btn-action" onclick="adjustStock('${p.id}', -50)" style="padding: 4px 8px;">-50</button>
+                          ${deleteBtnHtml}
+                      </td>
+                  </tr>
+              `;
+          });
+          
+          tableBody.innerHTML = html;
+          if (statsEl) statsEl.textContent = products.length + " Items in System";
+          if (dashCountEl) dashCountEl.textContent = products.length;
+          
+          // Sync products globally
+          window.minaraProducts = products;
+      };
+
+      // 1. Instant Render from hardcoded + localStorage
+      renderTable();
+      
+      // 2. Fetch custom products from Firestore in background
+      setTimeout(async () => {
+          if (db) {
+              try {
+                  const timeoutPromise = new Promise((_, reject) => 
+                      setTimeout(() => reject(new Error("Timeout")), 1500)
+                  );
+                  const querySnapshot = await Promise.race([
+                      getDocs(collection(db, "products")),
+                      timeoutPromise
+                  ]);
+                  
+                  let updated = false;
+                  querySnapshot.forEach((doc) => {
+                      const data = doc.data();
+                      const p = {
+                          id: doc.id,
+                          name: data.name,
+                          price: Number(data.price),
+                          stock: Number(data.stock),
+                          status: data.status,
+                          image: data.image,
+                          description: data.description
+                      };
+                      const existingIdx = products.findIndex(item => item.id === p.id);
+                      if (existingIdx > -1) {
+                          products[existingIdx] = p; // Override with live Firestore stock / values
+                      } else {
+                          products.push(p);
+                      }
+                      updated = true;
+                  });
+                  
+                  if (updated) {
+                      renderTable(); // Re-render table with live data!
                   }
-              });
-          } catch (firestoreErr) {
-              console.warn("Firestore products load failed, relying on local simulation:", firestoreErr);
+              } catch (firestoreErr) {
+                  console.warn("Firestore products background load timed out or failed:", firestoreErr);
+              }
           }
-      }
-      
-      // Render catalog grid table rows with extensive adjustable stock counters
-      let html = "";
-      products.forEach((p) => {
-          const statusBadgeClass = p.status === 'Active' ? 'admin' : 'user';
-          html += `
-              <tr id="catalog-row-${p.id}">
-                  <td style="font-family: monospace; font-size: 11px;">${p.id}</td>
-                  <td style="font-weight: bold; color: var(--accent);">${p.name}</td>
-                  <td>R${p.price.toLocaleString()}</td>
-                  <td id="stock-level-${p.id}">${p.stock} units</td>
-                  <td><span class="status-badge ${statusBadgeClass}">${p.status}</span></td>
-                  <td style="white-space: nowrap;">
-                      <button class="btn-action" onclick="adjustStock('${p.id}', 1)" style="margin-right: 2px; padding: 4px 8px;">+1</button>
-                      <button class="btn-action" onclick="adjustStock('${p.id}', -1)" style="margin-right: 6px; padding: 4px 8px;">-1</button>
-                      
-                      <button class="btn-action" onclick="adjustStock('${p.id}', 10)" style="margin-right: 2px; padding: 4px 8px;">+10</button>
-                      <button class="btn-action" onclick="adjustStock('${p.id}', -10)" style="margin-right: 6px; padding: 4px 8px;">-10</button>
-                      
-                      <button class="btn-action" onclick="adjustStock('${p.id}', 50)" style="margin-right: 2px; padding: 4px 8px;">+50</button>
-                      <button class="btn-action" onclick="adjustStock('${p.id}', -50)" style="padding: 4px 8px;">-50</button>
-                  </td>
-              </tr>
-          `;
-      });
-      
-      tableBody.innerHTML = html;
-      if (statsEl) statsEl.textContent = products.length + " Items in System";
-      if (dashCountEl) dashCountEl.textContent = products.length;
-      
-      // Sync products globally
-      window.minaraProducts = products;
+      }, 0);
     }
 
     // Bind to window for dynamic calls
@@ -1081,15 +1109,14 @@
           console.error("Local storage product save failed:", err);
       }
 
-      // Save to Firestore `"products"` collection using global window.db
-      if (window.db) {
+      // Save to Firestore `"products"` collection using preloaded global window.db
+      if (window.db && window.dbDoc && window.dbSetDoc) {
           try {
-              const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js");
               const timeoutPromise = new Promise((_, reject) => 
                   setTimeout(() => reject(new Error("Timeout waiting for Firestore")), 1500)
               );
               await Promise.race([
-                  setDoc(doc(window.db, "products", idStr), {
+                  window.dbSetDoc(window.dbDoc(window.db, "products", idStr), {
                       name: name,
                       price: price,
                       stock: stock,
@@ -1152,10 +1179,9 @@
               }
               
               // 2. Sync Firebase Firestore database
-              if (window.db && productId !== 'leopard-backpack') {
+              if (window.db && window.dbDoc && window.dbUpdateDoc && productId !== 'leopard-backpack') {
                   try {
-                      const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js");
-                      await updateDoc(doc(window.db, "products", productId), {
+                      await window.dbUpdateDoc(window.dbDoc(window.db, "products", productId), {
                           stock: newStock
                       });
                       console.log("Firestore stock sync completed!");
@@ -1169,6 +1195,49 @@
       const statsEl = document.getElementById("inventoryFulfillmentStats");
       if (statsEl) {
           statsEl.textContent = "Stock Level Adjusted ✓";
+      }
+    };
+
+    // 3.5. PRODUCT DELETION SYSTEM
+    window.deleteProduct = async function(productId) {
+      if (productId === 'leopard-backpack') {
+          alert("Cannot delete the core Leopard Fur Backpack product!");
+          return;
+      }
+
+      if (!confirm("Are you sure you want to permanently delete this product from the catalog?")) {
+          return;
+      }
+
+      // 1. Sync local storage cache
+      try {
+          const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+          const filteredProds = localProds.filter(p => p.id !== productId);
+          localStorage.setItem("minara_products", JSON.stringify(filteredProds));
+      } catch (err) {
+          console.error("Local storage product deletion failed:", err);
+      }
+
+      // 2. Sync Firebase Firestore database
+      if (window.db && window.dbDoc && window.dbDeleteDoc) {
+          try {
+              const timeoutPromise = new Promise((_, reject) => 
+                  setTimeout(() => reject(new Error("Timeout waiting for Firestore deletion")), 1500)
+              );
+              await Promise.race([
+                  window.dbDeleteDoc(window.dbDoc(window.db, "products", productId)),
+                  timeoutPromise
+              ]);
+              console.log("Firestore product deletion completed successfully!");
+          } catch (dbErr) {
+              console.error("Firestore product deletion failed or timed out:", dbErr);
+          }
+      }
+
+      alert("Success! The product has been removed from the catalog database.");
+      
+      if (typeof window.loadCatalog === 'function') {
+          window.loadCatalog();
       }
     };
 
