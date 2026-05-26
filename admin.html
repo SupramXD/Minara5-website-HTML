@@ -772,6 +772,8 @@
     window.dbSetDoc = setDoc;
     window.dbUpdateDoc = updateDoc;
     window.dbDeleteDoc = deleteDoc;
+    window.dbCollection = collection;
+    window.dbGetDocs = getDocs;
 
     onAuthStateChanged(auth, (user) => {
       const adminEmail = "sub2meboyi@gmail.com";
@@ -989,17 +991,19 @@
       
       // 2. Fetch custom products from Firestore in background
       setTimeout(async () => {
-          if (db) {
+          if (window.db && window.dbCollection && window.dbGetDocs) {
               try {
                   const timeoutPromise = new Promise((_, reject) => 
                       setTimeout(() => reject(new Error("Timeout")), 1500)
                   );
                   const querySnapshot = await Promise.race([
-                      getDocs(collection(db, "products")),
+                      window.dbGetDocs(window.dbCollection(window.db, "products")),
                       timeoutPromise
                   ]);
                   
                   let updated = false;
+                  let firestoreProds = [];
+                  
                   querySnapshot.forEach((doc) => {
                       const data = doc.data();
                       const p = {
@@ -1011,14 +1015,77 @@
                           image: data.image,
                           description: data.description
                       };
+                      firestoreProds.push(p);
+                      
                       const existingIdx = products.findIndex(item => item.id === p.id);
                       if (existingIdx > -1) {
-                          products[existingIdx] = p; // Override with live Firestore stock / values
+                          const current = products[existingIdx];
+                          if (current.name !== p.name || current.price !== p.price || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.description !== p.description) {
+                              products[existingIdx] = p; // Override with live Firestore stock / values
+                              updated = true;
+                          }
                       } else {
                           products.push(p);
+                          updated = true;
                       }
-                      updated = true;
                   });
+                  
+                  // Sync Firestore products back to localStorage cache to prevent disappearing on reload!
+                  try {
+                      const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+                      let localUpdated = false;
+                      
+                      firestoreProds.forEach(fp => {
+                          const idx = localProds.findIndex(lp => lp.id === fp.id);
+                          if (idx > -1) {
+                              // Update existing
+                              const cur = localProds[idx];
+                              if (cur.name !== fp.name || cur.price !== fp.price || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.description !== fp.description) {
+                                  localProds[idx] = fp;
+                                  localUpdated = true;
+                              }
+                          } else {
+                              // Insert new
+                              localProds.push(fp);
+                              localUpdated = true;
+                          }
+                      });
+                      
+                      // Remove local products deleted in Firestore ONLY if firestoreProds has items (to prevent wiping on empty server responses or security blockouts)
+                      if (firestoreProds.length > 0) {
+                          const cleanedLocalProds = localProds.filter(lp => {
+                              if (lp.id === 'leopard-backpack') return true;
+                              const existsInFirestore = firestoreProds.some(fp => fp.id === lp.id);
+                              if (!existsInFirestore) {
+                                  localUpdated = true;
+                                  return false;
+                              }
+                              return true;
+                          });
+                          
+                          if (localUpdated) {
+                              localStorage.setItem("minara_products", JSON.stringify(cleanedLocalProds));
+                              // Keep products array in sync too!
+                              products = [
+                                  {
+                                      id: "leopard-backpack",
+                                      name: "Léopard Fur Backpack",
+                                      price: 749,
+                                      stock: 45,
+                                      status: "Active",
+                                      image: "cheetahproduct.avif",
+                                      description: "Leopard Fur Backpack\n\nCarefully crafted luxury fur backpack designed for high fashion nonconformity."
+                                  },
+                                  ...cleanedLocalProds.filter(lp => lp.id !== "leopard-backpack")
+                              ];
+                              updated = true;
+                          }
+                      } else if (localUpdated) {
+                          localStorage.setItem("minara_products", JSON.stringify(localProds));
+                      }
+                  } catch (cacheErr) {
+                      console.error("Failed to sync Firestore products back to local storage cache:", cacheErr);
+                  }
                   
                   if (updated) {
                       renderTable(); // Re-render table with live data!

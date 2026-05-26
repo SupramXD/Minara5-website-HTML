@@ -1604,45 +1604,49 @@
                         });
                         
                         // Check if any product was deleted from Firestore but is still in local cache, remove it!
-                        const cleanedLocalProds = localProds.filter(lp => {
-                            if (lp.id === 'leopard-backpack') return true;
-                            const existsInFirestore = firestoreProds.some(fp => fp.id === lp.id);
-                            if (!existsInFirestore) {
-                                localUpdated = true;
-                                return false; // delete from local storage cache
-                            }
-                            return true;
-                        });
-
-                        if (localUpdated) {
-                            localStorage.setItem("minara_products", JSON.stringify(cleanedLocalProds));
-                            
-                            // Re-build products list in memory to keep it matched
-                            products = [
-                                {
-                                    id: "leopard-backpack",
-                                    name: "Léopard fur <br>BACKPACK",
-                                    price: 749,
-                                    stock: 45,
-                                    image: "cheetahproduct.avif",
-                                    status: "Active",
-                                    url: "leopard.html"
+                        if (firestoreProds.length > 0) {
+                            const cleanedLocalProds = localProds.filter(lp => {
+                                if (lp.id === 'leopard-backpack') return true;
+                                const existsInFirestore = firestoreProds.some(fp => fp.id === lp.id);
+                                if (!existsInFirestore) {
+                                    localUpdated = true;
+                                    return false; // delete from local storage cache
                                 }
-                            ];
-                            cleanedLocalProds.forEach(p => {
-                                if (p.id !== 'leopard-backpack') {
-                                    products.push({
-                                        id: p.id,
-                                        name: p.name.replace(/\s+/g, ' ').replace(" ", " <br>"),
-                                        price: p.price,
-                                        stock: p.stock,
-                                        image: p.image,
-                                        status: p.status,
-                                        url: `leopard.html?id=${p.id}`
-                                    });
-                                }
+                                return true;
                             });
-                            updated = true;
+
+                            if (localUpdated) {
+                                localStorage.setItem("minara_products", JSON.stringify(cleanedLocalProds));
+                                
+                                // Re-build products list in memory to keep it matched
+                                products = [
+                                    {
+                                        id: "leopard-backpack",
+                                        name: "Léopard fur <br>BACKPACK",
+                                        price: 749,
+                                        stock: 45,
+                                        image: "cheetahproduct.avif",
+                                        status: "Active",
+                                        url: "leopard.html"
+                                    }
+                                ];
+                                cleanedLocalProds.forEach(p => {
+                                    if (p.id !== 'leopard-backpack') {
+                                        products.push({
+                                            id: p.id,
+                                            name: p.name.replace(/\s+/g, ' ').replace(" ", " <br>"),
+                                            price: p.price,
+                                            stock: p.stock,
+                                            image: p.image,
+                                            status: p.status,
+                                            url: `leopard.html?id=${p.id}`
+                                        });
+                                    }
+                                });
+                                updated = true;
+                            }
+                        } else if (localUpdated) {
+                            localStorage.setItem("minara_products", JSON.stringify(localProds));
                         }
                     } catch (err) {
                         console.error("Failed to sync Firestore products back to local storage cache:", err);
