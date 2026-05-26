@@ -1595,10 +1595,10 @@
                         firestoreProds.forEach(fp => {
                             const idx = localProds.findIndex(lp => lp.id === fp.id);
                             if (idx > -1) {
-                                localProds[idx] = fp;
+                                localProds[idx] = { ...fp, syncStatus: "synced" };
                                 localUpdated = true;
                             } else {
-                                localProds.push(fp);
+                                localProds.push({ ...fp, syncStatus: "synced" });
                                 localUpdated = true;
                             }
                         });
@@ -1607,6 +1607,8 @@
                         if (firestoreProds.length > 0) {
                             const cleanedLocalProds = localProds.filter(lp => {
                                 if (lp.id === 'leopard-backpack') return true;
+                                if (lp.syncStatus === 'pending') return true; // Keep local-only pending items
+                                
                                 const existsInFirestore = firestoreProds.some(fp => fp.id === lp.id);
                                 if (!existsInFirestore) {
                                     localUpdated = true;

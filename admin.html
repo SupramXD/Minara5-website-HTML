@@ -1041,12 +1041,12 @@
                               // Update existing
                               const cur = localProds[idx];
                               if (cur.name !== fp.name || cur.price !== fp.price || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.description !== fp.description) {
-                                  localProds[idx] = fp;
+                                  localProds[idx] = { ...fp, syncStatus: "synced" };
                                   localUpdated = true;
                               }
                           } else {
                               // Insert new
-                              localProds.push(fp);
+                              localProds.push({ ...fp, syncStatus: "synced" });
                               localUpdated = true;
                           }
                       });
@@ -1055,6 +1055,8 @@
                       if (firestoreProds.length > 0) {
                           const cleanedLocalProds = localProds.filter(lp => {
                               if (lp.id === 'leopard-backpack') return true;
+                              if (lp.syncStatus === 'pending') return true; // Keep local-only pending items
+                              
                               const existsInFirestore = firestoreProds.some(fp => fp.id === lp.id);
                               if (!existsInFirestore) {
                                   localUpdated = true;
@@ -1166,6 +1168,7 @@
       try {
           const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
           const idx = localProds.findIndex(p => p.id === idStr);
+          newProduct.syncStatus = "pending"; // Mark as pending initially
           if (idx > -1) {
               localProds[idx] = newProduct;
           } else {
@@ -1195,6 +1198,18 @@
                   timeoutPromise
               ]);
               console.log("Dynamic product injected into Firestore successfully!");
+              
+              // Update status to synced in local cache
+              try {
+                  const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+                  const idx = localProds.findIndex(p => p.id === idStr);
+                  if (idx > -1) {
+                      localProds[idx].syncStatus = "synced";
+                      localStorage.setItem("minara_products", JSON.stringify(localProds));
+                  }
+              } catch (cacheErr) {
+                  console.error("Failed to update sync status in local cache:", cacheErr);
+              }
           } catch (dbErr) {
               console.warn("Firestore product injection timed out or failed, falling back to local storage:", dbErr);
           }

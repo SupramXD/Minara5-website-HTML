@@ -1192,10 +1192,11 @@ window.openCart = function() {
                         try {
                             const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
                             const idx = localProds.findIndex(lp => lp.id === productId);
+                            const liveProductWithStatus = { ...liveProduct, syncStatus: "synced" };
                             if (idx > -1) {
-                                localProds[idx] = liveProduct;
+                                localProds[idx] = liveProductWithStatus;
                             } else {
-                                localProds.push(liveProduct);
+                                localProds.push(liveProductWithStatus);
                             }
                             localStorage.setItem("minara_products", JSON.stringify(localProds));
                         } catch (cacheErr) {
