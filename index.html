@@ -1448,7 +1448,7 @@
                 image: "number23.avif",
                 status: "Active",
                 description: "Minara Icons No. 23\n\nOur signature fragrance clone carefully crafted for nonconformist elegance. Premium long-lasting scent notes of rich floral and absolute amber.",
-                url: "leopard.html?id=minara-no-23"
+                url: "template product.html?id=minara-no-23"
             },
             {
                 id: "minara-sitting",
@@ -1458,7 +1458,7 @@
                 image: "sitting.webp",
                 status: "Active",
                 description: "Minara Icons Sitting\n\nA deep, mysterious scent designed for quiet confidence. Scent notes of premium wood, high-fashion vanilla, and exotic spice.",
-                url: "leopard.html?id=minara-sitting"
+                url: "template product.html?id=minara-sitting"
             }
         ];
 
@@ -1475,7 +1475,7 @@
                             stock: p.stock,
                             image: p.image,
                             status: p.status,
-                            url: `leopard.html?id=${p.id}`
+                            url: `template product.html?id=${p.id}`
                         });
                     } else {
                         // Keep current local storage stock/values if already there
@@ -1489,7 +1489,7 @@
                                 stock: p.stock,
                                 image: p.image,
                                 status: p.status,
-                                url: p.id === 'leopard-backpack' ? 'leopard.html' : `leopard.html?id=${p.id}`
+                                url: p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`
                             };
                         }
                     }
@@ -1576,7 +1576,7 @@
                             stock: Number(data.stock),
                             image: data.image,
                             status: data.status,
-                            url: `leopard.html?id=${doc.id}`
+                            url: `template product.html?id=${doc.id}`
                         };
                         firestoreProds.push(p);
 
@@ -1603,7 +1603,7 @@
                                 stock: p.stock,
                                 image: p.image,
                                 status: p.status,
-                                url: `leopard.html?id=${p.id}`
+                                url: `template product.html?id=${p.id}`
                             });
                             updated = true;
                         }
@@ -1662,7 +1662,7 @@
                                             stock: p.stock,
                                             image: p.image,
                                             status: p.status,
-                                            url: `leopard.html?id=${p.id}`
+                                            url: `template product.html?id=${p.id}`
                                         });
                                     }
                                 });
