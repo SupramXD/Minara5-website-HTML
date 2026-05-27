@@ -833,6 +833,25 @@ window.addEventListener("orientationchange", updateCartHeight);
             }
         };
 
+        // Dynamic image quality optimizer for catalog view (Free CDN caching proxy)
+        const getOptimizedImageUrl = (src) => {
+            if (!src) return "";
+            const cleanSrc = src.split(',')[0].trim();
+            const isLocal = window.location.protocol === "file:" || 
+                            window.location.hostname === "localhost" || 
+                            window.location.hostname === "127.0.0.1";
+            if (isLocal || cleanSrc.startsWith("data:")) {
+                return cleanSrc;
+            }
+            try {
+                const absoluteUrl = new URL(cleanSrc, window.location.href).href;
+                return `https://images.weserv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=400&q=50&output=avif`;
+            } catch (e) {
+                console.warn("Failed to optimize image URL:", cleanSrc, e);
+                return cleanSrc;
+            }
+        };
+
         // Render function
         const renderGrid = () => {
             const activeProducts = products.filter(p => p.status === 'Active');
@@ -848,7 +867,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                     <div class="catalog-item">
                         <a href="${p.url}" class="product-link">
                             <div class="product-box">
-                                <img src="${p.image.split(',')[0].trim()}" alt="${p.name}">
+                                <img src="${getOptimizedImageUrl(p.image)}" alt="${p.name}">
                             </div>
                             <div class="product-info">
                                 <div class="product-name">${p.name}</div>

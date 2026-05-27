@@ -1479,6 +1479,25 @@
             }
         };
 
+        // Dynamic image quality optimizer for catalog view (Free CDN caching proxy)
+        const getOptimizedImageUrl = (src) => {
+            if (!src) return "";
+            const cleanSrc = src.split(',')[0].trim();
+            const isLocal = window.location.protocol === "file:" || 
+                            window.location.hostname === "localhost" || 
+                            window.location.hostname === "127.0.0.1";
+            if (isLocal || cleanSrc.startsWith("data:")) {
+                return cleanSrc;
+            }
+            try {
+                const absoluteUrl = new URL(cleanSrc, window.location.href).href;
+                return `https://images.weserv.nl/?url=${encodeURIComponent(absoluteUrl)}&w=400&q=50&output=avif`;
+            } catch (e) {
+                console.warn("Failed to optimize image URL:", cleanSrc, e);
+                return cleanSrc;
+            }
+        };
+
         // Render function
         const renderGrid = () => {
             const activeProducts = products.filter(p => p.status === 'Active');
@@ -1493,7 +1512,7 @@
                 gridHtml += `
                     <a href="${p.url}" class="home-product-card">
                         <div class="hp-box">
-                            <img src="${p.image.split(',')[0].trim()}" alt="${p.name.replace('<br>', ' ')}">
+                            <img src="${getOptimizedImageUrl(p.image)}" alt="${p.name.replace('<br>', ' ')}">
                         </div>
                         <div class="hp-info">
                             <div class="hp-name">${p.name}</div>
