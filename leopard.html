@@ -933,6 +933,7 @@ footer{
     <div class="product-info-wrap">
         <div class="product-title">Léopard Fur Backpack</div>
         <div class="product-price">R749</div>
+        <div class="product-stock" style="font-size:11px; opacity:0.6; margin-bottom:25px; letter-spacing:0.18em; text-transform:uppercase;">IN STOCK: 45 UNITS</div>
 
         <button class="add-to-cart" onclick="addToCart('leopard-backpack')">ADD TO BAG</button>
 
@@ -1081,18 +1082,20 @@ window.openCart = function() {
 
         // Helper to swap dynamic content
         const swapContent = (p) => {
+            if (!p) return;
+            
             // Tab title
-            document.title = p.name + " – MINARA5";
+            document.title = (p.name || "Product") + " – MINARA5";
 
             // Title
             const titleEl = document.querySelector('.product-title');
             if (titleEl) {
-                titleEl.innerHTML = p.name;
+                titleEl.innerHTML = p.name || "Product";
             }
 
             // Price (handle discount if active)
             const priceEl = document.querySelector('.product-price');
-            if (priceEl) {
+            if (priceEl && p.price !== undefined) {
                 const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
                 if (hasDiscount) {
                     priceEl.innerHTML = `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${p.price.toLocaleString()}</span><span style="color: #1106e8; font-weight: bold;">R${Math.round(p.price * 0.95).toLocaleString()}</span>`;
@@ -1101,15 +1104,27 @@ window.openCart = function() {
                 }
             }
 
+            // Stock Level display
+            const stockEl = document.querySelector('.product-stock');
+            if (stockEl && p.stock !== undefined) {
+                if (p.stock <= 0) {
+                    stockEl.innerHTML = `<span style="color: #ff3b30; font-weight: bold;">OUT OF STOCK</span>`;
+                } else if (p.stock <= 5) {
+                    stockEl.innerHTML = `<span style="color: #ff9500; font-weight: bold;">ONLY ${p.stock} LEFT - ORDER SOON</span>`;
+                } else {
+                    stockEl.innerHTML = `IN STOCK: ${p.stock} UNITS`;
+                }
+            }
+
             // Image slider
             const track = document.querySelector('.slider-track');
-            if (track) {
-                // Support multiple comma separated images, or just one
-                const images = p.image.split(',');
+            if (track && p.image) {
+                // Support multiple comma separated images, or just one (unless base64)
+                const images = p.image.startsWith('data:') ? [p.image] : p.image.split(',');
                 let imageHtml = "";
                 images.forEach(img => {
                     const src = img.trim();
-                    imageHtml += `<img src="${src}" alt="${p.name}">`;
+                    imageHtml += `<img src="${src}" alt="${p.name || 'Product'}">`;
                 });
                 track.innerHTML = imageHtml;
                 
@@ -1143,7 +1158,7 @@ window.openCart = function() {
             // Description (bio)
             const descEl = document.querySelector('.desc');
             if (descEl) {
-                descEl.innerHTML = p.description.replace(/\n/g, '<br>');
+                descEl.innerHTML = (p.description || "").replace(/\n/g, '<br>');
             }
 
             // ADD TO BAG button action
@@ -1188,12 +1203,13 @@ window.openCart = function() {
                         price: Number(data.price),
                         stock: Number(data.stock),
                         image: data.image,
+                        image_thumb: data.image_thumb || "",
                         description: data.description,
                         status: data.status
                     };
                     
                     // Only swap if values changed or we didn't have local cache!
-                    if (!product || product.name !== liveProduct.name || product.price !== liveProduct.price || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.description !== liveProduct.description || product.status !== liveProduct.status) {
+                    if (!product || product.name !== liveProduct.name || product.price !== liveProduct.price || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status) {
                         product = liveProduct;
                         swapContent(product);
                         
