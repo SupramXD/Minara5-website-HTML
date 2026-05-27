@@ -1055,10 +1055,19 @@ window.openCart = function() {
 
     async function initProductDetails() {
         const params = new URLSearchParams(window.location.search);
-        const productId = params.get('id');
-        if (!productId || productId === 'leopard-backpack') return;
+        const productId = params.get('id') || 'leopard-backpack';
+        
+        let hasOverride = false;
+        try {
+            const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+            hasOverride = localProds.some(p => p.id === productId);
+        } catch (e) {}
 
-        console.log("Loading custom dynamic product details for: " + productId);
+        if (productId === 'leopard-backpack' && !hasOverride) {
+            console.log("No local overrides for Leopard Backpack. Retaining default static content unless Firestore has overrides.");
+        } else {
+            console.log("Loading custom dynamic product details for: " + productId);
+        }
         
         let product = null;
 

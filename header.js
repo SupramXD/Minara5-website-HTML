@@ -10,7 +10,7 @@ import {
     signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { 
-    getFirestore, 
+    initializeFirestore, 
     collection, 
     addDoc 
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -26,7 +26,9 @@ const firebaseConfig = {
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db = initializeFirestore(app, {
+    experimentalForceLongPolling: true
+});
 window.auth = auth; // Keeps it accessible for your account.html
 window.db = db;     // Expose globally for newsletter submissions
 let currentUser = null;
@@ -366,10 +368,30 @@ let cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
 
 // 3. THE ADD FUNCTION
 window.addToCart = function(productId) {
-    // 1. Check our hardcoded products map
-    let product = products[productId];
+    let product = null;
     
-    // 2. Check default catalog products if not in products map
+    // 1. Check custom local storage products first to pick up any admin edits (name, price, image)
+    try {
+        const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+        const found = localProds.find(p => p.id === productId);
+        if (found) {
+            product = {
+                id: found.id,
+                name: found.name,
+                price: found.price,
+                image: found.image.split(',')[0].trim()
+            };
+        }
+    } catch (e) {
+        console.error("Local storage lookup failed in addToCart:", e);
+    }
+    
+    // 2. Check our hardcoded products map if not customized/edited
+    if (!product) {
+        product = products[productId];
+    }
+    
+    // 3. Check default catalog products if not in products map
     if (!product) {
         const defaults = {
             "minara-no-23": {
@@ -386,24 +408,6 @@ window.addToCart = function(productId) {
             }
         };
         product = defaults[productId];
-    }
-    
-    // 3. Check custom local storage products
-    if (!product) {
-        try {
-            const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
-            const found = localProds.find(p => p.id === productId);
-            if (found) {
-                product = {
-                    id: found.id,
-                    name: found.name,
-                    price: found.price,
-                    image: found.image.split(',')[0].trim()
-                };
-            }
-        } catch (e) {
-            console.error("Local storage lookup failed in addToCart:", e);
-        }
     }
     
     if (!product) {

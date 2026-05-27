@@ -441,6 +441,84 @@
       border-top: 1px solid var(--border-color);
       margin-top: 100px;
     }
+
+    /* EDIT MODAL GLASSMORPHISM */
+    .edit-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .edit-modal.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .edit-modal-content {
+      background: rgba(18, 18, 24, 0.95);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      padding: 30px;
+      position: relative;
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .edit-modal.active .edit-modal-content {
+      transform: scale(1);
+    }
+
+    .edit-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 15px;
+    }
+
+    .edit-modal-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .edit-modal-close {
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--danger);
+      transition: opacity 0.2s;
+    }
+
+    .edit-modal-close:hover {
+      opacity: 0.8;
+    }
+
+    .edit-modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+      margin-top: 30px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 20px;
+    }
   </style>
 </head>
 
@@ -748,7 +826,7 @@
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-    import { getFirestore, collection, getDocs, query, orderBy, doc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { initializeFirestore, collection, getDocs, query, orderBy, doc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
     
     // Core Firebase config matching header.js
     const firebaseConfig = {
@@ -763,7 +841,9 @@
     // Safe initialization guard to avoid "App already exists" errors
     const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    const db = initializeFirestore(app, {
+        experimentalForceLongPolling: true
+    });
 
     // Expose Firebase tools globally for other standard scripts on this page
     window.db = db;
@@ -958,7 +1038,13 @@
       try {
           const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
           localProds.forEach(p => {
-              if (!products.some(item => item.id === p.id)) {
+              const existingIdx = products.findIndex(item => item.id === p.id);
+              if (existingIdx > -1) {
+                  products[existingIdx] = {
+                      ...products[existingIdx],
+                      ...p
+                  };
+              } else {
                   products.push(p);
               }
           });
@@ -970,6 +1056,7 @@
           let html = "";
           products.forEach((p) => {
               const statusBadgeClass = p.status === 'Active' ? 'admin' : 'user';
+              const editBtnHtml = `<button class="btn-action accent-btn" onclick="openEditModal('${p.id}')" style="margin-left: 10px; padding: 4px 8px;">✎ Edit</button>`;
               const deleteBtnHtml = p.id !== 'leopard-backpack' 
                   ? `<button class="btn-action danger-btn" onclick="deleteProduct('${p.id}')" style="margin-left: 10px; padding: 4px 8px;">✕ Delete</button>` 
                   : '';
@@ -990,6 +1077,7 @@
                           
                           <button class="btn-action" onclick="adjustStock('${p.id}', 50)" style="margin-right: 2px; padding: 4px 8px;">+50</button>
                           <button class="btn-action" onclick="adjustStock('${p.id}', -50)" style="padding: 4px 8px;">-50</button>
+                          ${editBtnHtml}
                           ${deleteBtnHtml}
                       </td>
                   </tr>
@@ -1399,10 +1487,190 @@
         alert("Account has been demoted. Access authorization revoked.");
       }
     };
+
+    // EDIT MODAL JS LOGIC
+    window.openEditModal = function(productId) {
+      if (!window.minaraProducts) return;
+      const product = window.minaraProducts.find(p => p.id === productId);
+      if (!product) return;
+
+      document.getElementById("editProdId").value = product.id;
+      document.getElementById("editProdName").value = product.name;
+      document.getElementById("editProdPrice").value = product.price;
+      document.getElementById("editProdStock").value = product.stock;
+      document.getElementById("editProdImage").value = product.image;
+      document.getElementById("editProdDesc").value = product.description;
+      document.getElementById("editProdStatus").value = product.status;
+
+      const modal = document.getElementById("editProductModal");
+      modal.style.display = "flex";
+      setTimeout(() => modal.classList.add("active"), 10);
+    };
+
+    window.closeEditModal = function() {
+      const modal = document.getElementById("editProductModal");
+      modal.classList.remove("active");
+      setTimeout(() => modal.style.display = "none", 300);
+    };
+
+    window.handleSaveEdit = async function(e) {
+      e.preventDefault();
+      
+      const id = document.getElementById("editProdId").value;
+      const name = document.getElementById("editProdName").value.trim();
+      const price = parseFloat(document.getElementById("editProdPrice").value);
+      const stock = parseInt(document.getElementById("editProdStock").value);
+      const image = document.getElementById("editProdImage").value.trim();
+      const description = document.getElementById("editProdDesc").value.trim();
+      const status = document.getElementById("editProdStatus").value;
+
+      if (!id || !name || isNaN(price) || isNaN(stock) || !image || !description) return;
+
+      const updatedProduct = {
+          id: id,
+          name: name,
+          price: price,
+          stock: stock,
+          image: image,
+          description: description,
+          status: status
+      };
+
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn ? submitBtn.innerHTML : "";
+      if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = "SAVING...";
+      }
+
+      // 1. Save to local storage
+      try {
+          const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+          const idx = localProds.findIndex(p => p.id === id);
+          updatedProduct.syncStatus = "pending"; // Mark as pending initially
+          if (idx > -1) {
+              localProds[idx] = updatedProduct;
+          } else {
+              localProds.push(updatedProduct);
+          }
+          localStorage.setItem("minara_products", JSON.stringify(localProds));
+      } catch (err) {
+          console.error("Local storage edit update failed:", err);
+      }
+
+      let firestoreSuccess = false;
+      let firestoreErrorMsg = "";
+
+      // 2. Save to Firestore
+      if (window.db && window.dbDoc && window.dbSetDoc) {
+          try {
+              const timeoutPromise = new Promise((_, reject) => 
+                  setTimeout(() => reject(new Error("Timeout waiting for Firestore")), 10000)
+              );
+              await Promise.race([
+                  window.dbSetDoc(window.dbDoc(window.db, "products", id), {
+                      name: name,
+                      price: price,
+                      stock: stock,
+                      image: image,
+                      description: description,
+                      status: status,
+                      timestamp: new Date().toISOString()
+                  }),
+                  timeoutPromise
+              ]);
+              console.log("Product edits saved to Firestore successfully!");
+              firestoreSuccess = true;
+              
+              // Update status to synced in local cache
+              try {
+                  const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+                  const idx = localProds.findIndex(p => p.id === id);
+                  if (idx > -1) {
+                      localProds[idx].syncStatus = "synced";
+                      localStorage.setItem("minara_products", JSON.stringify(localProds));
+                  }
+              } catch (cacheErr) {
+                  console.error("Failed to update sync status in local cache:", cacheErr);
+              }
+          } catch (dbErr) {
+              firestoreErrorMsg = dbErr.message || dbErr;
+              console.warn("Firestore product edits save timed out or failed, falling back to local storage:", dbErr);
+          }
+      }
+
+      closeEditModal();
+      if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+      }
+
+      if (firestoreSuccess) {
+          alert("Success! " + name + " has been successfully updated and synced to Firestore.");
+      } else {
+          alert("Warning: " + name + " was updated locally, but failed to sync online to Firestore.\nError: " + firestoreErrorMsg);
+      }
+      
+      if (typeof window.loadCatalog === 'function') {
+          window.loadCatalog();
+      }
+    };
   </script>
 
   <!-- DYNAMIC IMPORT FOR LOGOUT SYSTEM -->
   <script type="module" src="header.js"></script>
+
+  <!-- EDIT PRODUCT MODAL -->
+  <div id="editProductModal" class="edit-modal">
+    <div class="edit-modal-content">
+      <div class="edit-modal-header">
+        <h3 class="edit-modal-title">Edit Product Details</h3>
+        <span class="edit-modal-close" onclick="closeEditModal()">✕ Close</span>
+      </div>
+      
+      <form id="editProductForm" onsubmit="handleSaveEdit(event)">
+        <input type="hidden" id="editProdId">
+        
+        <div class="form-group">
+          <label for="editProdName">Product Title / Name</label>
+          <input type="text" id="editProdName" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editProdPrice">Price (R)</label>
+          <input type="number" id="editProdPrice" class="form-input" min="1" required>
+        </div>
+
+        <div class="form-group">
+          <label for="editProdStock">Stock Level</label>
+          <input type="number" id="editProdStock" class="form-input" min="0" required>
+        </div>
+
+        <div class="form-group">
+          <label for="editProdImage">Product Image Path(s) / URL(s) <span style="text-transform: none; opacity: 0.5;">(comma-separated)</span></label>
+          <input type="text" id="editProdImage" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label for="editProdDesc">Product Biography / Description</label>
+          <textarea id="editProdDesc" class="form-input" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: #fff; width: 100%; min-height: 100px; padding: 12px; font-family: inherit; font-size: 13px; outline: none; border-radius: 4px; resize: vertical;" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="editProdStatus">Catalog Status</label>
+          <select id="editProdStatus" class="form-input" style="background:#1a1a24; color: #fff;">
+            <option value="Active">Active / Revealed</option>
+            <option value="Awaiting">Awaiting Reveal</option>
+          </select>
+        </div>
+
+        <div class="edit-modal-footer">
+          <button type="button" class="btn-action" onclick="closeEditModal()" style="padding: 10px 20px;">Cancel</button>
+          <button type="submit" class="btn-action accent-btn" style="padding: 10px 20px;">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
 </body>
 </html>
