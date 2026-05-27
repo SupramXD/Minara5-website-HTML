@@ -1081,24 +1081,6 @@
               status: "Active",
               image: "cheetahproduct.avif",
               description: "Leopard Fur Backpack\n\nCarefully crafted luxury fur backpack designed for high fashion nonconformity."
-          },
-          {
-              id: "minara-no-23",
-              name: "Minara Icons No. 23",
-              price: 850,
-              stock: 25,
-              status: "Active",
-              image: "number23.avif",
-              description: "Minara Icons No. 23\n\nOur signature fragrance clone carefully crafted for nonconformist elegance. Premium long-lasting scent notes of rich floral and absolute amber."
-          },
-          {
-              id: "minara-sitting",
-              name: "Minara Icons Sitting",
-              price: 950,
-              stock: 15,
-              status: "Active",
-              image: "sitting.webp",
-              description: "Minara Icons Sitting\n\nA deep, mysterious scent designed for quiet confidence. Scent notes of premium wood, high-fashion vanilla, and exotic spice."
           }
       ];
       
@@ -1252,25 +1234,7 @@
                                       image: "cheetahproduct.avif",
                                       description: "Leopard Fur Backpack\n\nCarefully crafted luxury fur backpack designed for high fashion nonconformity."
                                   },
-                                  {
-                                      id: "minara-no-23",
-                                      name: "Minara Icons No. 23",
-                                      price: 850,
-                                      stock: 25,
-                                      status: "Active",
-                                      image: "number23.avif",
-                                      description: "Minara Icons No. 23\n\nOur signature fragrance clone carefully crafted for nonconformist elegance. Premium long-lasting scent notes of rich floral and absolute amber."
-                                  },
-                                  {
-                                      id: "minara-sitting",
-                                      name: "Minara Icons Sitting",
-                                      price: 950,
-                                      stock: 15,
-                                      status: "Active",
-                                      image: "sitting.webp",
-                                      description: "Minara Icons Sitting\n\nA deep, mysterious scent designed for quiet confidence. Scent notes of premium wood, high-fashion vanilla, and exotic spice."
-                                  },
-                                  ...cleanedLocalProds.filter(lp => lp.id !== "leopard-backpack" && lp.id !== "minara-no-23" && lp.id !== "minara-sitting")
+                                  ...cleanedLocalProds.filter(lp => lp.id !== "leopard-backpack")
                               ];
                               updated = true;
                           }

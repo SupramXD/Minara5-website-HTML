@@ -107,6 +107,45 @@ window.register = function() {
         });
 };
 
+window.processLogin = function(email, password) {
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+        alert("Email cannot be empty.");
+        return;
+    }
+    console.log("Attempting sign in for " + cleanEmail + "...");
+    signInWithEmailAndPassword(auth, cleanEmail, password)
+        .then((userCredential) => {
+            console.log("Login successful! Welcome " + userCredential.user.email);
+            alert("Login successful!");
+            window.location.reload();
+        })
+        .catch(err => {
+            console.error("Login failed:", err.message);
+            alert("Login failed: " + err.message);
+        });
+};
+
+window.processRegister = function(email, password) {
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+        alert("Email cannot be empty.");
+        return;
+    }
+    console.log("Attempting registration for " + cleanEmail + "...");
+    createUserWithEmailAndPassword(auth, cleanEmail, password)
+        .then((userCredential) => {
+            console.log("Registration successful! Welcome " + userCredential.user.email);
+            sendEmailVerification(userCredential.user);
+            alert("Registration successful! A verification email has been sent.");
+            window.location.reload();
+        })
+        .catch(err => {
+            console.error("Registration failed:", err.message);
+            alert("Registration failed: " + err.message);
+        });
+};
+
 // --- MASTER FORGOT PASSWORD FIX ---
 window.universalForgotPassword = function(e) {
     if (e) e.preventDefault(); // STOPS the page from refreshing
@@ -423,24 +462,7 @@ window.addToCart = function(productId) {
         product = products[productId];
     }
     
-    // 3. Check default catalog products if not in products map
-    if (!product) {
-        const defaults = {
-            "minara-no-23": {
-                id: "minara-no-23",
-                name: "Minara Icons No. 23",
-                price: 850,
-                image: "number23.avif"
-            },
-            "minara-sitting": {
-                id: "minara-sitting",
-                name: "Minara Icons Sitting",
-                price: 950,
-                image: "sitting.webp"
-            }
-        };
-        product = defaults[productId];
-    }
+
     
     if (!product) {
         console.warn("Product not found for addToCart:", productId);
