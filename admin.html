@@ -562,9 +562,9 @@
       <div class="stat-card">
         <div class="stat-header">
           <span class="stat-label">Total Revenue</span>
-          <span style="color: var(--success); font-size: 11px; font-weight:700;">+14.2%</span>
+          <span style="color: var(--success); font-size: 11px; font-weight:700;">+0.0%</span>
         </div>
-        <div class="stat-value" id="dashboardRevenue">R164,166</div>
+        <div class="stat-value" id="dashboardRevenue">R0</div>
         <div class="stat-change up">vs previous 30 days</div>
       </div>
 
@@ -573,8 +573,8 @@
           <span class="stat-label">Active Orders</span>
           <span style="color: var(--accent); font-size: 11px; font-weight:700;">Live</span>
         </div>
-        <div class="stat-value" id="dashboardOrdersCount">218</div>
-        <div class="stat-change up">12 pending shipment</div>
+        <div class="stat-value" id="dashboardOrdersCount">0</div>
+        <div class="stat-change up">0 pending shipment</div>
       </div>
 
       <div class="stat-card">
@@ -647,35 +647,8 @@
             </thead>
             <tbody>
               <!-- RENDERED DYNAMICALLY BY JAVASCRIPT -->
-              <tr id="order-row-1">
-                <td>#1024</td>
-                <td>sub2meboyi@gmail.com</td>
-                <td>Léopard Fur Backpack</td>
-                <td>R749</td>
-                <td><span class="status-badge pending">Pending</span></td>
-                <td>
-                  <button class="btn-action accent-btn" onclick="fulfillOrder('1')">Fulfill</button>
-                </td>
-              </tr>
-              <tr id="order-row-2">
-                <td>#1023</td>
-                <td>customer.alex@outlook.com</td>
-                <td>Léopard Fur Backpack</td>
-                <td>R749</td>
-                <td><span class="status-badge shipped">Shipped</span></td>
-                <td>
-                  <button class="btn-action" disabled style="opacity: 0.5; cursor: not-allowed;">Completed</button>
-                </td>
-              </tr>
-              <tr id="order-row-3">
-                <td>#1022</td>
-                <td>zanele.m@gmail.com</td>
-                <td>Léopard Fur Backpack</td>
-                <td>R749</td>
-                <td><span class="status-badge shipped">Shipped</span></td>
-                <td>
-                  <button class="btn-action" disabled style="opacity: 0.5; cursor: not-allowed;">Completed</button>
-                </td>
+              <tr>
+                <td colspan="6" style="text-align: center; opacity: 0.5; padding: 30px;">No active orders in system.</td>
               </tr>
             </tbody>
           </table>
@@ -781,33 +754,9 @@
                 <th>Privileges Control</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="usersTableBody">
               <tr>
-                <td>sub2meboyi@gmail.com</td>
-                <td>usr_admin_minara_x9001</td>
-                <td><span class="status-badge admin">ADMIN ID</span></td>
-                <td><span style="color: var(--success); font-weight:700;">✓ Primary Owner</span></td>
-                <td>
-                  <button class="btn-action" disabled style="opacity: 0.4; cursor:not-allowed;">Superuser</button>
-                </td>
-              </tr>
-              <tr id="user-row-2">
-                <td>customer.alex@outlook.com</td>
-                <td>usr_customer_312f82</td>
-                <td><span class="status-badge user" id="user-role-badge-2">Customer</span></td>
-                <td><span style="color: var(--success);">✓ Active</span></td>
-                <td>
-                  <button class="btn-action accent-btn" id="promote-btn-2" onclick="toggleRole('2')">Promote to Admin</button>
-                </td>
-              </tr>
-              <tr id="user-row-3">
-                <td>zanele.m@gmail.com</td>
-                <td>usr_customer_90b81c</td>
-                <td><span class="status-badge user" id="user-role-badge-3">Customer</span></td>
-                <td><span style="color: var(--success);">✓ Active</span></td>
-                <td>
-                  <button class="btn-action accent-btn" id="promote-btn-3" onclick="toggleRole('3')">Promote to Admin</button>
-                </td>
+                <td colspan="5" style="text-align: center; opacity: 0.5; padding: 30px;">Loading registered accounts from Firestore...</td>
               </tr>
             </tbody>
           </table>
@@ -826,7 +775,7 @@
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-    import { initializeFirestore, setLogLevel, collection, getDocs, query, orderBy, doc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { initializeFirestore, setLogLevel, collection, getDocs, query, orderBy, doc, setDoc, updateDoc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
     
     // Core Firebase config matching header.js
     const firebaseConfig = {
@@ -861,6 +810,7 @@
     window.dbDeleteDoc = deleteDoc;
     window.dbCollection = collection;
     window.dbGetDocs = getDocs;
+    window.dbAddDoc = addDoc;
 
     onAuthStateChanged(auth, (user) => {
       const adminEmail = "sub2meboyi@gmail.com";
@@ -868,6 +818,7 @@
         document.body.style.display = "block";
         fetchSubscribers();
         loadCatalog();
+        fetchUsers();
       } else {
         document.body.style.display = "none";
       }
@@ -879,7 +830,34 @@
       if (!tableBody) return;
       
       try {
-          // 1. Fetch live subscribers from Firestore
+          // 1. Self-healing automatic sync of offline subscribers
+          const offlineSubs = JSON.parse(localStorage.getItem("minara_offline_subscribers") || "[]");
+          if (offlineSubs.length > 0) {
+              console.log("Found pending offline subscribers to sync:", offlineSubs.length);
+              let syncSuccessCount = 0;
+              for (const sub of offlineSubs) {
+                  try {
+                      await addDoc(collection(db, "subscribers"), {
+                          email: sub.email,
+                          timestamp: sub.timestamp
+                      });
+                      syncSuccessCount++;
+                  } catch (syncErr) {
+                      console.warn("Failed to sync offline subscriber email:", sub.email, syncErr);
+                  }
+              }
+              if (syncSuccessCount > 0) {
+                  const remainingSubs = offlineSubs.slice(syncSuccessCount);
+                  if (remainingSubs.length === 0) {
+                      localStorage.removeItem("minara_offline_subscribers");
+                  } else {
+                      localStorage.setItem("minara_offline_subscribers", JSON.stringify(remainingSubs));
+                  }
+                  console.log(`Successfully synced ${syncSuccessCount} offline subscribers to Firestore.`);
+              }
+          }
+
+          // 2. Fetch live subscribers from Firestore
           const q = query(collection(db, "subscribers"), orderBy("timestamp", "desc"));
           const querySnapshot = await getDocs(q);
           
@@ -894,9 +872,9 @@
               });
           });
 
-          // 2. Fetch offline cached subscribers from localStorage
-          const offlineSubs = JSON.parse(localStorage.getItem("minara_offline_subscribers") || "[]");
-          offlineSubs.forEach((sub, index) => {
+          // 3. Fetch offline cached subscribers from localStorage
+          const currentOfflineSubs = JSON.parse(localStorage.getItem("minara_offline_subscribers") || "[]");
+          currentOfflineSubs.forEach((sub, index) => {
               // De-duplicate if already in Firestore
               if (!allSubscribers.some(item => item.email.toLowerCase() === sub.email.toLowerCase())) {
                   allSubscribers.push({
@@ -908,7 +886,7 @@
               }
           });
 
-          // 3. Sort merged list by timestamp descending
+          // 4. Sort merged list by timestamp descending
           allSubscribers.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
           if (allSubscribers.length === 0) {
@@ -946,12 +924,10 @@
           console.error("Error fetching subscribers from Firestore. Raw error object:", error);
           console.error("Firestore error code:", error.code);
           
-          // Fall back gracefully to displaying local storage + mock fallback so admin console works
+          // Fall back gracefully to displaying local storage offline subscribers
           const offlineSubs = JSON.parse(localStorage.getItem("minara_offline_subscribers") || "[]");
-          const mockEmails = ["sub2meboyi@gmail.com", "customer.alex@outlook.com", "zanele.m@gmail.com"];
           
           let mergedSubscribers = [];
-          
           offlineSubs.forEach((sub, index) => {
               mergedSubscribers.push({
                   id: `local_cache_q${index}`,
@@ -961,50 +937,134 @@
               });
           });
           
-          mockEmails.forEach((email, i) => {
-              if (!mergedSubscribers.some(sub => sub.email.toLowerCase() === email.toLowerCase())) {
-                  mergedSubscribers.push({
-                      id: `mock_doc_id_x${i}`,
-                      email: email,
-                      timestamp: new Date(2026, 4, 25, 11, 45, 10 + i).toISOString(),
-                      source: 'mock'
-                  });
-              }
-          });
-          
           // Sort descending
           mergedSubscribers.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
           
           let html = `
               <tr>
                   <td colspan="4" style="text-align: center; color: var(--danger); font-size: 11px; padding: 12px; background: rgba(255, 59, 48, 0.05); border-bottom: 1px solid rgba(255, 59, 48, 0.2);">
-                      ⚠ Firestore Connection Error: ${error.message} (Using local cache & mock fallback)
+                      ⚠ Firestore Connection Error: ${error.message} (Using local cache fallback)
                   </td>
               </tr>
           `;
           
-          mergedSubscribers.forEach((sub) => {
-              const date = new Date(sub.timestamp).toLocaleString();
-              const isOffline = sub.source === 'offline';
-              const badgeClass = isOffline ? 'pending' : 'admin';
-              const badgeText = isOffline ? 'PENDING SYNC' : '5% OFF ACTIVE';
-              const emailColor = isOffline ? '#ff9f0a' : 'var(--accent)';
-              const offlineBadge = isOffline ? ` <span style="font-size: 8px; font-weight: normal; color: #ff9f0a; border: 1px solid rgba(255, 159, 10, 0.3); padding: 1px 4px; margin-left: 5px; border-radius: 2px;">OFFLINE CACHE</span>` : '';
-              
+          if (mergedSubscribers.length === 0) {
               html += `
                   <tr>
-                      <td style="font-weight: bold; color: ${emailColor};">${sub.email}${offlineBadge}</td>
-                      <td>${date}</td>
-                      <td><span class="status-badge ${badgeClass}">${badgeText}</span></td>
-                      <td style="font-family: monospace; opacity: 0.5;">${sub.id}</td>
+                      <td colspan="4" style="text-align: center; opacity: 0.5; padding: 30px;">No offline cached subscribers.</td>
                   </tr>
               `;
-          });
+          } else {
+              mergedSubscribers.forEach((sub) => {
+                  const date = new Date(sub.timestamp).toLocaleString();
+                  const badgeClass = 'pending';
+                  const badgeText = 'PENDING SYNC';
+                  const emailColor = '#ff9f0a';
+                  const offlineBadge = ` <span style="font-size: 8px; font-weight: normal; color: #ff9f0a; border: 1px solid rgba(255, 159, 10, 0.3); padding: 1px 4px; margin-left: 5px; border-radius: 2px;">OFFLINE CACHE</span>`;
+                  
+                  html += `
+                      <tr>
+                          <td style="font-weight: bold; color: ${emailColor};">${sub.email}${offlineBadge}</td>
+                          <td>${date}</td>
+                          <td><span class="status-badge ${badgeClass}">${badgeText}</span></td>
+                          <td style="font-family: monospace; opacity: 0.5;">${sub.id}</td>
+                      </tr>
+                  `;
+              });
+          }
           
           tableBody.innerHTML = html;
           if (feedCount) feedCount.textContent = mergedSubscribers.length + " Cached Subscribers";
       }
     }
+
+    async function fetchUsers() {
+      const tableBody = document.getElementById("usersTableBody");
+      if (!tableBody) return;
+      
+      try {
+          const q = query(collection(db, "users"), orderBy("email", "asc"));
+          const querySnapshot = await getDocs(q);
+          
+          let html = "";
+          querySnapshot.forEach((docSnap) => {
+              const data = docSnap.data();
+              const uid = docSnap.id;
+              const email = data.email || "";
+              const role = data.role || "Customer";
+              const status = data.status || "Active";
+              
+              const isPrimaryOwner = email.toLowerCase() === "sub2meboyi@gmail.com";
+              const roleBadgeClass = role === "Admin" ? "admin" : "user";
+              const roleBadgeText = role === "Admin" ? "ADMIN ID" : "Customer";
+              
+              let actionHtml = "";
+              if (isPrimaryOwner) {
+                  actionHtml = `<button class="btn-action" disabled style="opacity: 0.4; cursor:not-allowed;">Superuser</button>`;
+              } else {
+                  const btnClass = role === "Admin" ? "btn-action danger-btn" : "btn-action accent-btn";
+                  const btnText = role === "Admin" ? "Demote to User" : "Promote to Admin";
+                  actionHtml = `<button class="${btnClass}" onclick="toggleUserRole('${uid}', '${role}')">${btnText}</button>`;
+              }
+              
+              html += `
+                  <tr>
+                      <td style="font-weight: bold; color: ${role === 'Admin' ? 'var(--accent)' : 'var(--text-main)'};">${email}</td>
+                      <td style="font-family: monospace; opacity: 0.5; font-size: 11px;">${uid}</td>
+                      <td><span class="status-badge ${roleBadgeClass}">${roleBadgeText}</span></td>
+                      <td><span style="color: var(--success); font-weight: ${isPrimaryOwner ? '700' : 'normal'};">${isPrimaryOwner ? '✓ Primary Owner' : '✓ Active'}</span></td>
+                      <td>${actionHtml}</td>
+                  </tr>
+              `;
+          });
+          
+          if (html === "") {
+              html = `
+                  <tr>
+                      <td colspan="5" style="text-align: center; opacity: 0.5; padding: 30px;">No registered accounts found in database.</td>
+                  </tr>
+              `;
+          }
+          tableBody.innerHTML = html;
+      } catch (error) {
+          console.error("Error fetching users from Firestore. Raw error object:", error);
+          console.error("Firestore error code:", error.code);
+          tableBody.innerHTML = `
+              <tr>
+                  <td colspan="5" style="text-align: center; color: var(--danger); font-size: 11px; padding: 12px; background: rgba(255, 59, 48, 0.05);">
+                      ⚠ Firestore Connection Error: ${error.message}
+                  </td>
+              </tr>
+          `;
+      }
+    }
+    window.fetchUsers = fetchUsers;
+
+    window.toggleUserRole = async function(uid, currentRole) {
+      if (!window.db || !window.dbDoc || !window.dbUpdateDoc) return;
+      
+      const newRole = currentRole === "Admin" ? "Customer" : "Admin";
+      const confirmMsg = currentRole === "Admin" 
+          ? "Are you sure you want to demote this user from Admin to Customer?" 
+          : "Are you sure you want to promote this user to Admin?";
+          
+      if (!confirm(confirmMsg)) return;
+      
+      try {
+          const userDocRef = window.dbDoc(window.db, "users", uid);
+          await window.dbUpdateDoc(userDocRef, {
+              role: newRole
+          });
+          alert(`Successfully ${currentRole === "Admin" ? 'demoted' : 'promoted'} user!`);
+          if (typeof window.fetchUsers === "function") {
+              window.fetchUsers();
+          }
+      } catch (error) {
+          console.error("Error toggling user role in Firestore. Raw error object:", error);
+          console.error("Firestore error code:", error.code);
+          alert("Failed to update user role: " + error.message);
+      }
+    };
 
     async function loadCatalog() {
       const tableBody = document.querySelector("#catalogTable tbody");
@@ -1239,8 +1299,8 @@
   <!-- INTERACTIVE ADMIN ACTIONS & SCRIPT CONSOLES -->
   <script>
     // 1. ORDER FULFILLMENT INTERACTIVITY
-    let revenue = 164166;
-    let pendingCount = 12;
+    let revenue = 0;
+    let pendingCount = 0;
 
     window.fulfillOrder = function(rowId) {
       const row = document.getElementById("order-row-" + rowId);
@@ -1259,7 +1319,7 @@
       revenue += 749;
 
       document.getElementById("dashboardRevenue").textContent = "R" + revenue.toLocaleString();
-      document.getElementById("dashboardOrdersCount").textContent = "218";
+      document.getElementById("dashboardOrdersCount").textContent = pendingCount;
       document.getElementById("orderFulfillmentStats").textContent = "Fulfillment updated ✓";
       
       alert("Order #" + (1025 - rowId) + " fulfilled successfully! Revenue updated.");
@@ -1477,28 +1537,7 @@
       }
     };
 
-    // 4. USER ROLE TOGGLE (PROMOTION)
-    window.toggleRole = function(rowId) {
-      const badge = document.getElementById("user-role-badge-" + rowId);
-      const btn = document.getElementById("promote-btn-" + rowId);
-      if (!badge || !btn) return;
 
-      const isCurrentCustomer = badge.textContent === "Customer";
-
-      if (isCurrentCustomer) {
-        badge.className = "status-badge admin";
-        badge.textContent = "ADMIN ID";
-        btn.textContent = "Demote to User";
-        btn.className = "btn-action danger-btn";
-        alert("Account has been promoted to Admin ID! Access to panels authorized.");
-      } else {
-        badge.className = "status-badge user";
-        badge.textContent = "Customer";
-        btn.textContent = "Promote to Admin";
-        btn.className = "btn-action accent-btn";
-        alert("Account has been demoted. Access authorization revoked.");
-      }
-    };
 
     // EDIT MODAL JS LOGIC
     window.openEditModal = function(productId) {

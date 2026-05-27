@@ -13,7 +13,10 @@ import {
     initializeFirestore, 
     setLogLevel,
     collection, 
-    addDoc 
+    addDoc,
+    doc,
+    setDoc,
+    getDoc
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -258,6 +261,27 @@ onAuthStateChanged(auth, (user) => {
         let email = user.email;
         if (label) label.textContent = email.length > 12 ? email.substring(0, 12) + "..." : email;
         if (accName) accName.textContent = user.email;
+        
+        // Auto-sync user metadata to Firestore users collection
+        setTimeout(async () => {
+            if (window.db) {
+                try {
+                    const userDocRef = doc(window.db, "users", user.uid);
+                    const userSnap = await getDoc(userDocRef);
+                    if (!userSnap.exists()) {
+                        await setDoc(userDocRef, {
+                            email: user.email,
+                            role: user.email === "sub2meboyi@gmail.com" ? "Admin" : "Customer",
+                            status: "Active",
+                            timestamp: new Date().toISOString()
+                        });
+                        console.log("Automatically synchronized user registration metadata with Firestore.");
+                    }
+                } catch (e) {
+                    console.warn("Failed to auto-sync user registration profile to Firestore:", e);
+                }
+            }
+        }, 0);
     } else {
         if (label) label.textContent = "Account";
         if (accName) accName.textContent = "ACCOUNT";
