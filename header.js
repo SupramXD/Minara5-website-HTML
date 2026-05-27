@@ -26,9 +26,10 @@ const firebaseConfig = {
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
-const db = initializeFirestore(app, {
+const isLocalFile = window.location.protocol === "file:";
+const db = initializeFirestore(app, isLocalFile ? {
     experimentalForceLongPolling: true
-});
+} : {});
 window.auth = auth; // Keeps it accessible for your account.html
 window.db = db;     // Expose globally for newsletter submissions
 let currentUser = null;
@@ -859,7 +860,7 @@ window.submitNewsletter = async function(event, type) {
     try {
         if (window.db) {
             const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error("Timeout waiting for Firestore")), 1500)
+                setTimeout(() => reject(new Error("Timeout waiting for Firestore")), 10000)
             );
             await Promise.race([
                 addDoc(collection(window.db, "subscribers"), {
