@@ -11,6 +11,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { 
     initializeFirestore, 
+    setLogLevel,
     collection, 
     addDoc 
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -30,6 +31,12 @@ const isLocalFile = window.location.protocol === "file:";
 const db = initializeFirestore(app, isLocalFile ? {
     experimentalForceLongPolling: true
 } : {});
+try {
+    setLogLevel('debug');
+    console.log("Firestore verbose debug logging enabled.");
+} catch (e) {
+    console.warn("Failed to set Firestore debug log level:", e);
+}
 window.auth = auth; // Keeps it accessible for your account.html
 window.db = db;     // Expose globally for newsletter submissions
 let currentUser = null;
