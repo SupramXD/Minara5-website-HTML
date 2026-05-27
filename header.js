@@ -42,6 +42,14 @@ try {
 }
 window.auth = auth; // Keeps it accessible for your account.html
 window.db = db;     // Expose globally for newsletter submissions
+window.getThumbnailImageUrl = function(src) {
+    if (!src) return "";
+    const cleanSrc = src.split(',')[0].trim();
+    if (cleanSrc.endsWith("-main.avif")) {
+        return cleanSrc.replace("-main.avif", "-thumb.avif");
+    }
+    return cleanSrc;
+};
 let currentUser = null;
 
 // --- MASTER TRIGGERS (Fixes "Nothing Happening") ---
@@ -587,7 +595,7 @@ const minaraArt = `
 
             html += `
             <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 15px;">
-                <img src="${item.image}" style="width:80px; height:105px; object-fit:cover;">
+                <img src="${window.getThumbnailImageUrl(item.image)}" style="width:80px; height:105px; object-fit:cover;">
                 <div style="flex:1;">
                     <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</div>
                     <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL</div>
