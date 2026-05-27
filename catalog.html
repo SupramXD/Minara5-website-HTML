@@ -1010,7 +1010,8 @@ window.addEventListener("orientationchange", updateCartHeight);
                         renderGrid(); // Re-render table with live data!
                     }
                 } catch (dbErr) {
-                    console.warn("Firestore products background load failed:", dbErr);
+                    console.error("Firestore products background load failed. Raw error object:", dbErr);
+                    console.error("Firestore error code:", dbErr.code);
                 }
             }
         }, 0);

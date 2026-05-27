@@ -882,7 +882,8 @@ window.submitNewsletter = async function(event, type) {
             throw new Error("Firestore not initialized");
         }
     } catch (error) {
-        console.warn("Firestore write failed, triggering local offline cache fallback:", error);
+        console.error("Firestore write failed, triggering local offline cache fallback. Raw error object:", error);
+        console.error("Firestore error code:", error.code);
         
         // Save to offline cache in localStorage so the admin panel can still read it
         try {

@@ -1214,7 +1214,8 @@ window.openCart = function() {
                     }
                 }
             } catch (dbErr) {
-                console.warn("Firestore product details load failed:", dbErr);
+                console.error("Firestore product details load failed. Raw error object:", dbErr);
+                console.error("Firestore error code:", dbErr.code);
             }
         }
     }
