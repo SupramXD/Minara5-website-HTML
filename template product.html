@@ -1186,12 +1186,13 @@ window.openCart = function() {
                         price: Number(data.price),
                         stock: Number(data.stock),
                         image: data.image,
+                        image_thumb: data.image_thumb || "",
                         description: data.description,
                         status: data.status
                     };
                     
                     // Only swap if values changed or we didn't have local cache!
-                    if (!product || product.name !== liveProduct.name || product.price !== liveProduct.price || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.description !== liveProduct.description || product.status !== liveProduct.status) {
+                    if (!product || product.name !== liveProduct.name || product.price !== liveProduct.price || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status) {
                         product = liveProduct;
                         swapContent(product);
                         

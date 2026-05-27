@@ -1454,6 +1454,7 @@
                             price: p.price,
                             stock: p.stock,
                             image: p.image,
+                            image_thumb: p.image_thumb || "",
                             status: p.status,
                             url: `template product.html?id=${p.id}`
                         });
@@ -1468,6 +1469,7 @@
                                 price: p.price,
                                 stock: p.stock,
                                 image: p.image,
+                                image_thumb: p.image_thumb || "",
                                 status: p.status,
                                 url: p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`
                             };
@@ -1478,9 +1480,10 @@
                 console.error("Local storage products read failed:", e);
             }
         };
-
+ 
         // Dynamic image thumbnail switcher (main/thumbnail quality swap)
-        const getThumbnailImageUrl = (src) => {
+        const getThumbnailImageUrl = (src, thumbSrc) => {
+            if (thumbSrc) return thumbSrc;
             if (!src) return "";
             const cleanSrc = src.split(',')[0].trim();
             if (cleanSrc.endsWith("-main.avif")) {
@@ -1488,7 +1491,7 @@
             }
             return cleanSrc;
         };
-
+ 
         // Render function
         const renderGrid = () => {
             const activeProducts = products.filter(p => p.status === 'Active');
@@ -1499,11 +1502,11 @@
                 const displayPrice = hasDiscount
                     ? `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${p.price.toLocaleString()}</span><span style="color: #1106e8; font-weight: bold;">R${Math.round(p.price * 0.95).toLocaleString()}</span>`
                     : `R${p.price.toLocaleString()}`;
-
+ 
                 gridHtml += `
                     <a href="${p.url}" class="home-product-card">
                         <div class="hp-box">
-                            <img src="${getThumbnailImageUrl(p.image)}" alt="${p.name.replace('<br>', ' ')}">
+                            <img src="${getThumbnailImageUrl(p.image, p.image_thumb)}" alt="${p.name.replace('<br>', ' ')}">
                         </div>
                         <div class="hp-info">
                             <div class="hp-name">${p.name}</div>
@@ -1513,7 +1516,7 @@
                     </a>
                 `;
             });
-
+ 
             // Add placeholders if total active items is less than 4
             const placeholdersNeeded = Math.max(0, 4 - activeProducts.length);
             for (let i = 0; i < placeholdersNeeded; i++) {
@@ -1528,14 +1531,14 @@
                     </div>
                 `;
             }
-
+ 
             grid.innerHTML = gridHtml;
         };
-
+ 
         // Load local cache and render instantly!
         loadLocalProducts();
         renderGrid();
-
+ 
         // 2. Fetch custom products from Firestore in background
         setTimeout(async () => {
             let retries = 5;
@@ -1543,7 +1546,7 @@
                 await new Promise(resolve => setTimeout(resolve, 100));
                 retries--;
             }
-
+ 
             if (window.db) {
                 try {
                     const timeoutPromise = new Promise((_, reject) => 
@@ -1553,10 +1556,10 @@
                         getDocs(collection(window.db, "products")),
                         timeoutPromise
                     ]);
-
+ 
                     let updated = false;
                     let firestoreProds = [];
-
+ 
                     querySnapshot.forEach((doc) => {
                         const data = doc.data();
                         const p = {
@@ -1565,22 +1568,24 @@
                             price: Number(data.price),
                             stock: Number(data.stock),
                             image: data.image,
+                            image_thumb: data.image_thumb || "",
                             status: data.status,
                             url: `template product.html?id=${doc.id}`
                         };
                         firestoreProds.push(p);
-
+ 
                         const existingIdx = products.findIndex(item => item.id === p.id);
                         if (existingIdx > -1) {
                             const current = products[existingIdx];
                             const reformattedName = p.name.replace(/\s+/g, ' ').replace(" ", " <br>");
-                            if (current.name !== reformattedName || current.price !== p.price || current.stock !== p.stock || current.image !== p.image || current.status !== p.status) {
+                            if (current.name !== reformattedName || current.price !== p.price || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status) {
                                 products[existingIdx] = {
                                     ...current,
                                     name: reformattedName,
                                     price: p.price,
                                     stock: p.stock,
                                     image: p.image,
+                                    image_thumb: p.image_thumb,
                                     status: p.status
                                 };
                                 updated = true;
@@ -1592,13 +1597,14 @@
                                 price: p.price,
                                 stock: p.stock,
                                 image: p.image,
+                                image_thumb: p.image_thumb,
                                 status: p.status,
                                 url: `template product.html?id=${p.id}`
                             });
                             updated = true;
                         }
                     });
-
+ 
                     // Update localStorage with the latest Firestore state
                     try {
                         const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
@@ -1627,7 +1633,7 @@
                                 }
                                 return true;
                             });
-
+ 
                             if (localUpdated) {
                                 localStorage.setItem("minara_products", JSON.stringify(cleanedLocalProds));
                                 
@@ -1651,6 +1657,7 @@
                                             price: p.price,
                                             stock: p.stock,
                                             image: p.image,
+                                            image_thumb: p.image_thumb || "",
                                             status: p.status,
                                             url: `template product.html?id=${p.id}`
                                         });
@@ -1664,7 +1671,7 @@
                     } catch (err) {
                         console.error("Failed to sync Firestore products back to local storage cache:", err);
                     }
-
+ 
                     if (updated) {
                         renderGrid(); // Re-render grid with live data!
                     }

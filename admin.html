@@ -679,7 +679,9 @@
 
           <div class="form-group">
             <label for="prodImage">Product Image Path / URL</label>
-            <input type="text" id="prodImage" class="form-input" placeholder="e.g. cheetahproduct.avif or URL" required>
+            <input type="text" id="prodImage" class="form-input" placeholder="e.g. cheetahproduct.avif or URL">
+            <div style="margin: 8px 0; text-align: center; font-size: 10px; opacity: 0.5;">— OR UPLOAD & AUTOMATICALLY COMPRESS —</div>
+            <input type="file" id="prodFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
           </div>
 
           <div class="form-group">
@@ -1169,6 +1171,7 @@
                           stock: Number(data.stock),
                           status: data.status,
                           image: data.image,
+                          image_thumb: data.image_thumb || "",
                           description: data.description
                       };
                       firestoreProds.push(p);
@@ -1176,7 +1179,7 @@
                       const existingIdx = products.findIndex(item => item.id === p.id);
                       if (existingIdx > -1) {
                           const current = products[existingIdx];
-                          if (current.name !== p.name || current.price !== p.price || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.description !== p.description) {
+                          if (current.name !== p.name || current.price !== p.price || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.image_thumb !== p.image_thumb || current.description !== p.description) {
                               products[existingIdx] = p; // Override with live Firestore stock / values
                               updated = true;
                           }
@@ -1196,7 +1199,7 @@
                           if (idx > -1) {
                               // Update existing
                               const cur = localProds[idx];
-                              if (cur.name !== fp.name || cur.price !== fp.price || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.description !== fp.description) {
+                              if (cur.name !== fp.name || cur.price !== fp.price || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.image_thumb !== fp.image_thumb || cur.description !== fp.description) {
                                   localProds[idx] = { ...fp, syncStatus: "synced" };
                                   localUpdated = true;
                               }
@@ -1289,6 +1292,91 @@
       alert("Order #" + (1025 - rowId) + " fulfilled successfully! Revenue updated.");
     };
 
+    // Browser-based image compression and resizing pipeline (WebP fallback at 80% & 50% qualities)
+    const compressImage = function(file, maxWidth, quality) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            // Remove transparency by painting a solid white background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Export as WebP data URL. WebP is highly compressed and supported in all modern browsers.
+            const dataUrl = canvas.toDataURL('image/webp', quality);
+            resolve(dataUrl);
+          };
+          img.onerror = function(err) { reject(err); };
+          img.src = event.target.result;
+        };
+        reader.onerror = function(err) { reject(err); };
+        reader.readAsDataURL(file);
+      });
+    };
+
+    // New helper to dynamically compress a URL or relative image path in the browser
+    const compressUrlOrPath = function(urlOrPath, maxWidth, quality) {
+      return new Promise((resolve, reject) => {
+        if (!urlOrPath) {
+          resolve("");
+          return;
+        }
+        // If it's already a base64 data URL, return it directly
+        if (urlOrPath.startsWith('data:')) {
+          resolve(urlOrPath);
+          return;
+        }
+        
+        const img = new Image();
+        img.crossOrigin = "anonymous"; // Try anonymous CORS if it's an external URL
+        img.onload = function() {
+          try {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            const dataUrl = canvas.toDataURL('image/webp', quality);
+            resolve(dataUrl);
+          } catch (canvasErr) {
+            // Tainted canvas or draw failure - reject to let it fall back
+            reject(canvasErr);
+          }
+        };
+        img.onerror = function(err) {
+          reject(err);
+        };
+        img.src = urlOrPath;
+      });
+    };
+
     // 2. PRODUCT ADDITION TO CATALOG WITH DUAL-WRITE SYNCS
     window.handleAddProduct = async function(e) {
       e.preventDefault();
@@ -1296,22 +1384,16 @@
       const name = document.getElementById("prodName").value.trim();
       const price = parseFloat(document.getElementById("prodPrice").value);
       const stock = parseInt(document.getElementById("prodStock").value);
-      const image = document.getElementById("prodImage").value.trim();
+      const imageInput = document.getElementById("prodImage").value.trim();
+      const fileInput = document.getElementById("prodFile").files[0];
       const description = document.getElementById("prodDesc").value.trim();
       const status = document.getElementById("prodStatus").value;
 
-      if (!name || isNaN(price) || isNaN(stock) || !image || !description) return;
-
-      const idStr = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      const newProduct = {
-          id: idStr,
-          name: name,
-          price: price,
-          stock: stock,
-          image: image,
-          description: description,
-          status: status
-      };
+      if (!name || isNaN(price) || isNaN(stock) || !description) return;
+      if (!imageInput && !fileInput) {
+        alert("Please either provide an Image Path/URL or select a file to upload.");
+        return;
+      }
 
       // Lock buttons during submit injection
       const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -1320,6 +1402,49 @@
           submitBtn.disabled = true;
           submitBtn.innerHTML = "INJECTING...";
       }
+
+      let mainImageBase64 = imageInput;
+      let thumbImageBase64 = "";
+
+      // If a file is selected, process it
+      if (fileInput) {
+        try {
+          // 1200px width, 80% quality for main image
+          mainImageBase64 = await compressImage(fileInput, 1200, 0.80);
+          // 600px width, 50% quality for thumbnail
+          thumbImageBase64 = await compressImage(fileInput, 600, 0.50);
+          console.log("Image compressed successfully in browser from file picker!");
+        } catch (compressErr) {
+          console.error("Browser image compression failed:", compressErr);
+          alert("Image compression failed. Falling back to default URL field.");
+          mainImageBase64 = imageInput;
+        }
+      } else if (imageInput && !imageInput.startsWith('data:')) {
+        // If a relative/absolute path or URL is entered, attempt dynamic canvas compression!
+        try {
+          console.log("Attempting browser-side URL/path image compression...");
+          mainImageBase64 = await compressUrlOrPath(imageInput, 1200, 0.80);
+          thumbImageBase64 = await compressUrlOrPath(imageInput, 600, 0.50);
+          console.log("Image compressed successfully in browser from URL/path!");
+        } catch (urlCompressErr) {
+          console.warn("Browser URL/path compression failed (likely due to CORS or local file loading). Keeping original path/URL:", urlCompressErr);
+          // Keep original path/URL as fallback
+          mainImageBase64 = imageInput;
+          thumbImageBase64 = "";
+        }
+      }
+
+      const idStr = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const newProduct = {
+          id: idStr,
+          name: name,
+          price: price,
+          stock: stock,
+          image: mainImageBase64,
+          image_thumb: thumbImageBase64, // Store thumbnail base64 directly
+          description: description,
+          status: status
+      };
 
       // Save to localStorage
       try {
@@ -1343,14 +1468,15 @@
       if (window.db && window.dbDoc && window.dbSetDoc) {
           try {
               const timeoutPromise = new Promise((_, reject) => 
-                  setTimeout(() => reject(new Error("Timeout waiting for Firestore")), 10000)
+                  setTimeout(() => reject(new Error("Timeout waiting for Firestore")), 20000) // 20 seconds for base64 uploads
               );
               await Promise.race([
                   window.dbSetDoc(window.dbDoc(window.db, "products", idStr), {
                       name: name,
                       price: price,
                       stock: stock,
-                      image: image,
+                      image: mainImageBase64,
+                      image_thumb: thumbImageBase64, // Sync to Firestore
                       description: description,
                       status: status,
                       timestamp: new Date().toISOString()
@@ -1386,9 +1512,9 @@
       }
 
       if (firestoreSuccess) {
-          alert("Success! " + name + " has been successfully injected and synced to Firestore.");
+          alert("Success! " + name + " has been successfully injected, compressed, and synced to Firestore.");
       } else {
-          alert("Warning: " + name + " was saved locally, but failed to sync online to Firestore.\nError: " + firestoreErrorMsg + "\n\nIf you are running the files locally using the file:/// protocol on some browsers, this product may not show up on other pages until a successful Firestore sync. Please check your internet connection.");
+          alert("Warning: " + name + " was saved locally, but failed to sync online to Firestore.\nError: " + firestoreErrorMsg);
       }
       
       if (typeof window.loadCatalog === 'function') {
@@ -1535,21 +1661,16 @@
       const name = document.getElementById("editProdName").value.trim();
       const price = parseFloat(document.getElementById("editProdPrice").value);
       const stock = parseInt(document.getElementById("editProdStock").value);
-      const image = document.getElementById("editProdImage").value.trim();
+      const imageInput = document.getElementById("editProdImage").value.trim();
+      const fileInput = document.getElementById("editProdFile").files[0];
       const description = document.getElementById("editProdDesc").value.trim();
       const status = document.getElementById("editProdStatus").value;
 
-      if (!id || !name || isNaN(price) || isNaN(stock) || !image || !description) return;
-
-      const updatedProduct = {
-          id: id,
-          name: name,
-          price: price,
-          stock: stock,
-          image: image,
-          description: description,
-          status: status
-      };
+      if (!id || !name || isNaN(price) || isNaN(stock) || !description) return;
+      if (!imageInput && !fileInput) {
+        alert("Please either provide an Image Path/URL or select a file to upload.");
+        return;
+      }
 
       const submitBtn = e.target.querySelector('button[type="submit"]');
       const originalText = submitBtn ? submitBtn.innerHTML : "";
@@ -1557,6 +1678,66 @@
           submitBtn.disabled = true;
           submitBtn.innerHTML = "SAVING...";
       }
+
+      let mainImageBase64 = imageInput;
+      let thumbImageBase64 = "";
+
+      // Lookup current product to get existing thumb if image URL didn't change and no file is uploaded
+      if (window.minaraProducts) {
+          const existingProd = window.minaraProducts.find(p => p.id === id);
+          if (existingProd) {
+              thumbImageBase64 = existingProd.image_thumb || "";
+              // If image text input has changed and it is different from existingProd.image, clear thumb unless also uploaded
+              if (imageInput !== existingProd.image) {
+                  thumbImageBase64 = "";
+              }
+          }
+      }
+
+      // If a file is selected, process it
+      if (fileInput) {
+        try {
+          // 1200px width, 80% quality for main image
+          mainImageBase64 = await compressImage(fileInput, 1200, 0.80);
+          // 600px width, 50% quality for thumbnail
+          thumbImageBase64 = await compressImage(fileInput, 600, 0.50);
+          console.log("Edit image compressed successfully in browser from file picker!");
+        } catch (compressErr) {
+          console.error("Browser image compression failed during edit:", compressErr);
+          alert("Image compression failed. Falling back to default URL field.");
+          mainImageBase64 = imageInput;
+        }
+      } else if (imageInput && !imageInput.startsWith('data:')) {
+        // If a relative/absolute path or URL is entered, attempt dynamic canvas compression!
+        try {
+          console.log("Attempting browser-side URL/path image compression during edit...");
+          mainImageBase64 = await compressUrlOrPath(imageInput, 1200, 0.80);
+          thumbImageBase64 = await compressUrlOrPath(imageInput, 600, 0.50);
+          console.log("Image compressed successfully in browser from URL/path!");
+        } catch (urlCompressErr) {
+          console.warn("Browser URL/path compression failed (likely due to CORS or local file loading). Keeping original path/URL:", urlCompressErr);
+          // Keep original path/URL as fallback
+          mainImageBase64 = imageInput;
+          // Keep existing thumbnail if URL didn't change
+          if (window.minaraProducts) {
+              const existingProd = window.minaraProducts.find(p => p.id === id);
+              if (existingProd && imageInput === existingProd.image) {
+                  thumbImageBase64 = existingProd.image_thumb || "";
+              }
+          }
+        }
+      }
+
+      const updatedProduct = {
+          id: id,
+          name: name,
+          price: price,
+          stock: stock,
+          image: mainImageBase64,
+          image_thumb: thumbImageBase64,
+          description: description,
+          status: status
+      };
 
       // 1. Save to local storage
       try {
@@ -1580,14 +1761,15 @@
       if (window.db && window.dbDoc && window.dbSetDoc) {
           try {
               const timeoutPromise = new Promise((_, reject) => 
-                  setTimeout(() => reject(new Error("Timeout waiting for Firestore")), 10000)
+                  setTimeout(() => reject(new Error("Timeout waiting for Firestore")), 20000) // 20 seconds for uploads
               );
               await Promise.race([
                   window.dbSetDoc(window.dbDoc(window.db, "products", id), {
                       name: name,
                       price: price,
                       stock: stock,
-                      image: image,
+                      image: mainImageBase64,
+                      image_thumb: thumbImageBase64, // Sync to Firestore
                       description: description,
                       status: status,
                       timestamp: new Date().toISOString()
@@ -1614,6 +1796,10 @@
               console.error("Firestore error code:", dbErr.code);
           }
       }
+
+      // Reset the file input field
+      const editFileEl = document.getElementById("editProdFile");
+      if (editFileEl) editFileEl.value = "";
 
       closeEditModal();
       if (submitBtn) {
@@ -1664,7 +1850,9 @@
 
         <div class="form-group">
           <label for="editProdImage">Product Image Path(s) / URL(s) <span style="text-transform: none; opacity: 0.5;">(comma-separated)</span></label>
-          <input type="text" id="editProdImage" class="form-input" required>
+          <input type="text" id="editProdImage" class="form-input">
+          <div style="margin: 8px 0; text-align: center; font-size: 10px; opacity: 0.5;">— OR UPLOAD & AUTOMATICALLY COMPRESS —</div>
+          <input type="file" id="editProdFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
         </div>
 
         <div class="form-group">

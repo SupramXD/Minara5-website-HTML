@@ -834,7 +834,8 @@ window.addEventListener("orientationchange", updateCartHeight);
         };
 
         // Dynamic image thumbnail switcher (main/thumbnail quality swap)
-        const getThumbnailImageUrl = (src) => {
+        const getThumbnailImageUrl = (src, thumbSrc) => {
+            if (thumbSrc) return thumbSrc;
             if (!src) return "";
             const cleanSrc = src.split(',')[0].trim();
             if (cleanSrc.endsWith("-main.avif")) {
@@ -858,7 +859,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                     <div class="catalog-item">
                         <a href="${p.url}" class="product-link">
                             <div class="product-box">
-                                <img src="${getThumbnailImageUrl(p.image)}" alt="${p.name}">
+                                <img src="${getThumbnailImageUrl(p.image, p.image_thumb)}" alt="${p.name}">
                             </div>
                             <div class="product-info">
                                 <div class="product-name">${p.name}</div>
@@ -923,6 +924,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                             price: Number(data.price),
                             stock: Number(data.stock),
                             image: data.image,
+                            image_thumb: data.image_thumb || "",
                             status: data.status,
                             url: doc.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${doc.id}`
                         };
@@ -932,7 +934,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                         if (existingIdx > -1) {
                             // Check if values have actually changed to avoid unnecessary re-renders
                             const current = products[existingIdx];
-                            if (current.name !== p.name || current.price !== p.price || current.stock !== p.stock || current.image !== p.image || current.status !== p.status) {
+                            if (current.name !== p.name || current.price !== p.price || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status) {
                                 products[existingIdx] = p;
                                 updated = true;
                             }
