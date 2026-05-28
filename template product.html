@@ -1089,7 +1089,16 @@ window.openCart = function() {
             // Title
             const titleEl = document.querySelector('.product-title');
             if (titleEl) {
-                titleEl.innerHTML = p.name || "Product";
+                // Format name dynamically for inspired by prefix
+                const inspiredRegex = /^(inspired\s*by\s*:?|inspire\s*by\s*:?|inspiredby\s*:?|inspireby\s*:?)/i;
+                let prefixHtml = "";
+                let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
+                const match = rawName.match(inspiredRegex);
+                if (match) {
+                    rawName = rawName.substring(match[0].length).trim();
+                    prefixHtml = `<span class="inspired-prefix" style="font-size: 9px; opacity: 0.5; font-weight: normal; text-transform: uppercase; display: block; margin-bottom: 2px; letter-spacing: 0.5px; line-height: 1.1; white-space: nowrap;">Inspired By</span>`;
+                }
+                titleEl.innerHTML = prefixHtml + rawName;
             }
 
             // Retail Price

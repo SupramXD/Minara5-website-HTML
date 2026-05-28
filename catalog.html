@@ -849,16 +849,27 @@ window.addEventListener("orientationchange", updateCartHeight);
                     ? `<div style="display: flex; flex-direction: column; align-items: flex-start;"><span style="color: #1106e8; font-weight: bold; line-height: 1.1;">R${Math.round(p.price * 0.95).toLocaleString()}</span><span style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;">R${p.price.toLocaleString()}</span></div>`
                     : `R${p.price.toLocaleString()}`;
 
-                const retailHtml = p.retailPrice ? `<div class="product-retail-price" style="font-size: 9px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px;">Retail Price: R${Number(p.retailPrice).toLocaleString()}</div>` : '';
+                const retailHtml = p.retailPrice ? `<div class="product-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Retail: R${Number(p.retailPrice).toLocaleString()}</div>` : '';
+
+                // Format name dynamically for inspired by prefix
+                const inspiredRegex = /^(inspired\s*by\s*:?|inspire\s*by\s*:?|inspiredby\s*:?|inspireby\s*:?)/i;
+                let prefixHtml = "";
+                let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
+                const match = rawName.match(inspiredRegex);
+                if (match) {
+                    rawName = rawName.substring(match[0].length).trim();
+                    prefixHtml = `<span class="inspired-prefix" style="font-size: 8px; opacity: 0.5; font-weight: normal; text-transform: uppercase; display: block; margin-bottom: 2px; letter-spacing: 0.5px; line-height: 1.1; white-space: nowrap;">Inspired By</span>`;
+                }
+                const formattedName = prefixHtml + rawName;
 
                 gridHtml += `
                     <div class="catalog-item">
                         <a href="${p.url}" class="product-link">
                             <div class="product-box">
-                                <img src="${getThumbnailImageUrl(p.image, p.image_thumb)}" alt="${p.name}">
+                                <img src="${getThumbnailImageUrl(p.image, p.image_thumb)}" alt="${rawName}">
                             </div>
                             <div class="product-info">
-                                <div class="product-name">${p.name}</div>
+                                <div class="product-name">${formattedName}</div>
                                 ${retailHtml}
                                 <div class="price">${displayPrice}</div>
                             </div>
