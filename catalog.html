@@ -677,16 +677,14 @@ footer{
 
     <div class="catalog-grid">
         <div class="catalog-item">
-            <a href="leopard.html" class="product-link">
-                <div class="product-box">
-                    <img src="cheetahproduct.avif" alt="Léopard Fur Backpack">
-                </div>
+            <div class="product-link">
+                <div class="product-box"></div>
                 <div class="product-info">
-                    <div class="product-name">Léopard fur <br>BACKPACK</div>
-                    <div class="price">R749</div>
+                    <div class="placeholder-name">AWAITING<br>REVEAL</div>
+                    <div class="placeholder-price">R000</div>
                 </div>
-            </a>
-            <button class="add-to-cart-btn" onclick="addToCart('leopard-backpack')">ADD TO BAG</button>
+            </div>
+            <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>
         </div>
 
         <div class="catalog-item">
@@ -799,19 +797,8 @@ window.addEventListener("orientationchange", updateCartHeight);
         const grid = document.querySelector('.catalog-grid');
         if (!grid) return;
 
-        // Default products list starting with the hardcoded Leopard Fur Backpack and Minara fragrances
-        let products = [
-            {
-                id: "leopard-backpack",
-                name: "Léopard Fur Backpack",
-                price: 749,
-                stock: 45,
-                image: "cheetahproduct.avif",
-                status: "Active",
-                description: "Leopard Fur Backpack\n\nCarefully crafted luxury fur backpack designed for high fashion nonconformity.",
-                url: "leopard.html"
-            }
-        ];
+        // Default products list starting empty to load purely dynamic products
+        let products = [];
 
         // 1. Fetch custom products from local storage
         const loadLocalProducts = () => {
@@ -821,7 +808,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                     if (!products.some(item => item.id === p.id)) {
                         products.push({
                             ...p,
-                            url: `template product.html?id=${p.id}`
+                            url: p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`
                         });
                     } else {
                         // Keep current local storage stock/values if already there
@@ -984,18 +971,10 @@ window.addEventListener("orientationchange", updateCartHeight);
                                 localStorage.setItem("minara_products", JSON.stringify(cleanedLocalProds));
                                 
                                 // Clean up our memory array too!
-                                products = [
-                                    {
-                                        id: "leopard-backpack",
-                                        name: "Léopard Fur Backpack",
-                                        price: 749,
-                                        stock: 45,
-                                        image: "cheetahproduct.avif",
-                                        status: "Active",
-                                        url: "leopard.html"
-                                    },
-                                    ...cleanedLocalProds.filter(lp => lp.id !== "leopard-backpack")
-                                ];
+                                products = cleanedLocalProds.map(lp => ({
+                                    ...lp,
+                                    url: lp.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${lp.id}`
+                                }));
                                 updated = true;
                             }
                         } else if (localUpdated) {

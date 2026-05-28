@@ -636,9 +636,9 @@
       margin-right: 0;
       margin-bottom: 5px;
       padding: 8px 16px;
-      background: transparent;
+      background: #000;
       border: 1px solid #000;
-      color: #000;
+      color: #fff;
       font-size: 11px;
       font-weight: 500;
       text-transform: uppercase;
@@ -650,7 +650,8 @@
     }
 
     .add-to-cart:hover {
-      background: rgba(0, 0, 0, 0.05);
+      background: #333;
+      border-color: #333;
       transform: scale(1.01);
     }
 
@@ -1187,16 +1188,14 @@
     </div>
 
     <div class="home-products-list">
-      <a href="leopard.html" class="home-product-card">
-        <div class="hp-box">
-          <img src="cheetahproduct.avif">
-        </div>
+      <div class="home-product-card">
+        <div class="hp-box"></div>
         <div class="hp-info">
-          <div class="hp-name">Léopard fur <br>BACKPACK</div>
-          <div class="hp-price">R749</div>
+          <div class="hp-name placeholder">AWAITING<br>REVEAL</div>
+          <div class="hp-price placeholder">R000</div>
           <button class="add-to-cart">ADD TO BAG</button>
         </div>
-      </a>
+      </div>
 
       <div class="home-product-card">
         <div class="hp-box"></div>
@@ -1233,24 +1232,26 @@
   </section>
 
   <section class="brand-section">
-    <h2 class="brand-title">ThePerfumeHouse</h2>
+    <h2 class="brand-title">The-Perfume-House</h2>
 
     <div class="brand-body luxury-text">
 
-      Nonconformity, is a desire&nbsp;&nbsp;rooted in the heart
-      of this south&nbsp;&nbsp;african generation.
+      History speaks of conquest,&nbsp;&nbsp;of maps redrawn by force.
+      But in the private quarters&nbsp;&nbsp;of Napoleon Bonaparte,
+      victory was born in&nbsp;&nbsp;the scent of rosemary and citrus.
 
 
 
-      Minara is the heart’s quiet&nbsp;&nbsp;awakening,
-      whilst others line up&nbsp;&nbsp;for the approved path,
-      she minara&nbsp;&nbsp;— simply refuses the social norm.
+      Suppressing the stench of battle,&nbsp;&nbsp;he consumed fifty bottles
+      of custom cologne a month&nbsp;&nbsp;— splashing it over his shoulders,
+      drinking it before campaigns,&nbsp;&nbsp;and carrying a cylindrical flask
+      slid neatly inside his military boot.
 
 
 
-      To the world she’s a question&nbsp;&nbsp;without an answer…
-      To herself she is the only version
-      that ever made sense.
+      He did not just conquer Europe;&nbsp;&nbsp;he scented it.
+      For the emperor knew that power&nbsp;&nbsp;is not just seen—
+      it is inhaled, remembered, and feared.
 
     </div>
 
@@ -1434,19 +1435,8 @@
       const grid = document.querySelector('.home-products-list');
       if (!grid) return;
 
-      // Default products list starting with the hardcoded Leopard Fur Backpack
-      let products = [
-        {
-          id: "leopard-backpack",
-          name: "Léopard fur <br>BACKPACK",
-          price: 749,
-          stock: 45,
-          image: "cheetahproduct.avif",
-          status: "Active",
-          description: "Leopard Fur Backpack\n\nCarefully crafted luxury fur backpack designed for high fashion nonconformity.",
-          url: "leopard.html"
-        }
-      ];
+      // Default products list starting empty to load purely dynamic products
+      let products = [];
 
       // 1. Fetch custom products from local storage
       const loadLocalProducts = () => {
@@ -1650,30 +1640,18 @@
                   localStorage.setItem("minara_products", JSON.stringify(cleanedLocalProds));
 
                   // Re-build products list in memory to keep it matched
-                  products = [
-                    {
-                      id: "leopard-backpack",
-                      name: "Léopard fur <br>BACKPACK",
-                      price: 749,
-                      stock: 45,
-                      image: "cheetahproduct.avif",
-                      status: "Active",
-                      url: "leopard.html"
-                    }
-                  ];
+                  products = [];
                   cleanedLocalProds.forEach(p => {
-                    if (p.id !== 'leopard-backpack') {
-                      products.push({
-                        id: p.id,
-                        name: p.name.replace(/\s+/g, ' ').replace(" ", " <br>"),
-                        price: p.price,
-                        stock: p.stock,
-                        image: p.image,
-                        image_thumb: p.image_thumb || "",
-                        status: p.status,
-                        url: `template product.html?id=${p.id}`
-                      });
-                    }
+                    products.push({
+                      id: p.id,
+                      name: p.name.replace(/\s+/g, ' ').replace(" ", " <br>"),
+                      price: p.price,
+                      stock: p.stock,
+                      image: p.image,
+                      image_thumb: p.image_thumb || "",
+                      status: p.status,
+                      url: p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`
+                    });
                   });
                   updated = true;
                 }
