@@ -1453,6 +1453,7 @@
                 id: p.id,
                 name: p.name.replace(/\s+/g, ' ').replace(" ", " <br>"), // break name in two lines for premium look
                 price: p.price,
+                retailPrice: p.retailPrice || null,
                 stock: p.stock,
                 image: p.image,
                 image_thumb: p.image_thumb || "",
@@ -1468,6 +1469,7 @@
                   id: p.id,
                   name: p.name.replace(/\s+/g, ' ').replace(" ", " <br>"),
                   price: p.price,
+                  retailPrice: p.retailPrice || null,
                   stock: p.stock,
                   image: p.image,
                   image_thumb: p.image_thumb || "",
@@ -1504,6 +1506,8 @@
             ? `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${p.price.toLocaleString()}</span><span style="color: #1106e8; font-weight: bold;">R${Math.round(p.price * 0.95).toLocaleString()}</span>`
             : `R${p.price.toLocaleString()}`;
 
+          const retailHtml = p.retailPrice ? `<div class="hp-retail-price" style="font-size: 8.5px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px;">Retail Price: R${Number(p.retailPrice).toLocaleString()}</div>` : '';
+
           gridHtml += `
             <div class="home-product-card">
               <a href="${p.url}" style="text-decoration:none; color:inherit; display:block;">
@@ -1514,6 +1518,7 @@
               <div class="hp-info">
                 <a href="${p.url}" style="text-decoration:none; color:inherit; display:block; grid-area:name;">
                   <div class="hp-name">${p.name}</div>
+                  ${retailHtml}
                 </a>
                 <a href="${p.url}" style="text-decoration:none; color:inherit; display:block; grid-area:price;">
                   <div class="hp-price hp-price-card">${displayPrice}</div>
@@ -1573,6 +1578,7 @@
                 id: doc.id,
                 name: data.name,
                 price: Number(data.price),
+                retailPrice: data.retailPrice !== undefined ? Number(data.retailPrice) : null,
                 stock: Number(data.stock),
                 image: data.image,
                 image_thumb: data.image_thumb || "",
@@ -1585,11 +1591,12 @@
               if (existingIdx > -1) {
                 const current = products[existingIdx];
                 const reformattedName = p.name.replace(/\s+/g, ' ').replace(" ", " <br>");
-                if (current.name !== reformattedName || current.price !== p.price || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status) {
+                if (current.name !== reformattedName || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status) {
                   products[existingIdx] = {
                     ...current,
                     name: reformattedName,
                     price: p.price,
+                    retailPrice: p.retailPrice,
                     stock: p.stock,
                     image: p.image,
                     image_thumb: p.image_thumb,
@@ -1602,6 +1609,7 @@
                   id: p.id,
                   name: p.name.replace(/\s+/g, ' ').replace(" ", " <br>"),
                   price: p.price,
+                  retailPrice: p.retailPrice,
                   stock: p.stock,
                   image: p.image,
                   image_thumb: p.image_thumb,
@@ -1651,6 +1659,7 @@
                       id: p.id,
                       name: p.name.replace(/\s+/g, ' ').replace(" ", " <br>"),
                       price: p.price,
+                      retailPrice: p.retailPrice || null,
                       stock: p.stock,
                       image: p.image,
                       image_thumb: p.image_thumb || "",

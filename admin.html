@@ -673,6 +673,11 @@
           </div>
 
           <div class="form-group">
+            <label for="prodRetailPrice">Retail Price (R)</label>
+            <input type="number" id="prodRetailPrice" class="form-input" placeholder="e.g. 1200" min="0">
+          </div>
+
+          <div class="form-group">
             <label for="prodStock">Initial Stock Level</label>
             <input type="number" id="prodStock" class="form-input" placeholder="45" min="1" required>
           </div>
@@ -715,6 +720,7 @@
                 <th>Product ID</th>
                 <th>Product Title</th>
                 <th>Price</th>
+                <th>Retail Price</th>
                 <th>Stock level</th>
                 <th>Catalog Status</th>
                 <th>Stock adjustment</th>
@@ -726,6 +732,7 @@
                 <td>leopard-backpack</td>
                 <td>Léopard Fur Backpack</td>
                 <td>R749</td>
+                <td>R1,200</td>
                 <td id="stock-level-1">45 units</td>
                 <td><span class="status-badge admin">Active</span></td>
                 <td>
@@ -1090,6 +1097,7 @@
               id: "leopard-backpack",
               name: "Léopard Fur Backpack",
               price: 749,
+              retailPrice: 1200,
               stock: 45,
               status: "Active",
               image: "cheetahproduct.avif",
@@ -1129,6 +1137,7 @@
                       <td style="font-family: monospace; font-size: 11px;">${p.id}</td>
                       <td style="font-weight: bold; color: var(--accent);">${p.name}</td>
                       <td>R${p.price.toLocaleString()}</td>
+                      <td>${p.retailPrice ? 'R' + Number(p.retailPrice).toLocaleString() : '—'}</td>
                       <td id="stock-level-${p.id}">${p.stock} units</td>
                       <td><span class="status-badge ${statusBadgeClass}">${p.status}</span></td>
                       <td style="white-space: nowrap;">
@@ -1179,6 +1188,7 @@
                           id: doc.id,
                           name: data.name,
                           price: Number(data.price),
+                          retailPrice: data.retailPrice !== undefined ? Number(data.retailPrice) : null,
                           stock: Number(data.stock),
                           status: data.status,
                           image: data.image,
@@ -1190,7 +1200,7 @@
                       const existingIdx = products.findIndex(item => item.id === p.id);
                       if (existingIdx > -1) {
                           const current = products[existingIdx];
-                          if (current.name !== p.name || current.price !== p.price || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.image_thumb !== p.image_thumb || current.description !== p.description) {
+                          if (current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.image_thumb !== p.image_thumb || current.description !== p.description) {
                               products[existingIdx] = p; // Override with live Firestore stock / values
                               updated = true;
                           }
@@ -1210,7 +1220,7 @@
                           if (idx > -1) {
                               // Update existing
                               const cur = localProds[idx];
-                              if (cur.name !== fp.name || cur.price !== fp.price || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.image_thumb !== fp.image_thumb || cur.description !== fp.description) {
+                              if (cur.name !== fp.name || cur.price !== fp.price || cur.retailPrice !== fp.retailPrice || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.image_thumb !== fp.image_thumb || cur.description !== fp.description) {
                                   localProds[idx] = { ...fp, syncStatus: "synced" };
                                   localUpdated = true;
                               }
@@ -1243,6 +1253,7 @@
                                       id: "leopard-backpack",
                                       name: "Léopard Fur Backpack",
                                       price: 749,
+                                      retailPrice: 1200,
                                       stock: 45,
                                       status: "Active",
                                       image: "cheetahproduct.avif",
@@ -1394,6 +1405,8 @@
       
       const name = document.getElementById("prodName").value.trim();
       const price = parseFloat(document.getElementById("prodPrice").value);
+      const retailPriceVal = document.getElementById("prodRetailPrice").value.trim();
+      const retailPrice = retailPriceVal !== "" ? parseFloat(retailPriceVal) : null;
       const stock = parseInt(document.getElementById("prodStock").value);
       const imageInput = document.getElementById("prodImage").value.trim();
       const fileInput = document.getElementById("prodFile").files[0];
@@ -1450,6 +1463,7 @@
           id: idStr,
           name: name,
           price: price,
+          retailPrice: retailPrice,
           stock: stock,
           image: mainImageBase64,
           image_thumb: thumbImageBase64, // Store thumbnail base64 directly
@@ -1485,6 +1499,7 @@
                   window.dbSetDoc(window.dbDoc(window.db, "products", idStr), {
                       name: name,
                       price: price,
+                      retailPrice: retailPrice,
                       stock: stock,
                       image: mainImageBase64,
                       image_thumb: thumbImageBase64, // Sync to Firestore
@@ -1649,6 +1664,7 @@
       document.getElementById("editProdId").value = product.id;
       document.getElementById("editProdName").value = product.name;
       document.getElementById("editProdPrice").value = product.price;
+      document.getElementById("editProdRetailPrice").value = product.retailPrice || "";
       document.getElementById("editProdStock").value = product.stock;
       document.getElementById("editProdImage").value = product.image;
       document.getElementById("editProdDesc").value = product.description;
@@ -1671,6 +1687,8 @@
       const id = document.getElementById("editProdId").value;
       const name = document.getElementById("editProdName").value.trim();
       const price = parseFloat(document.getElementById("editProdPrice").value);
+      const retailPriceVal = document.getElementById("editProdRetailPrice").value.trim();
+      const retailPrice = retailPriceVal !== "" ? parseFloat(retailPriceVal) : null;
       const stock = parseInt(document.getElementById("editProdStock").value);
       const imageInput = document.getElementById("editProdImage").value.trim();
       const fileInput = document.getElementById("editProdFile").files[0];
@@ -1743,6 +1761,7 @@
           id: id,
           name: name,
           price: price,
+          retailPrice: retailPrice,
           stock: stock,
           image: mainImageBase64,
           image_thumb: thumbImageBase64,
@@ -1778,6 +1797,7 @@
                   window.dbSetDoc(window.dbDoc(window.db, "products", id), {
                       name: name,
                       price: price,
+                      retailPrice: retailPrice,
                       stock: stock,
                       image: mainImageBase64,
                       image_thumb: thumbImageBase64, // Sync to Firestore
@@ -1852,6 +1872,11 @@
         <div class="form-group">
           <label for="editProdPrice">Price (R)</label>
           <input type="number" id="editProdPrice" class="form-input" min="1" required>
+        </div>
+
+        <div class="form-group">
+          <label for="editProdRetailPrice">Retail Price (R)</label>
+          <input type="number" id="editProdRetailPrice" class="form-input" min="0">
         </div>
 
         <div class="form-group">

@@ -849,6 +849,8 @@ window.addEventListener("orientationchange", updateCartHeight);
                     ? `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${p.price.toLocaleString()}</span><span style="color: #1106e8; font-weight: bold;">R${Math.round(p.price * 0.95).toLocaleString()}</span>`
                     : `R${p.price.toLocaleString()}`;
 
+                const retailHtml = p.retailPrice ? `<div class="product-retail-price" style="font-size: 9px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px;">Retail Price: R${Number(p.retailPrice).toLocaleString()}</div>` : '';
+
                 gridHtml += `
                     <div class="catalog-item">
                         <a href="${p.url}" class="product-link">
@@ -857,6 +859,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                             </div>
                             <div class="product-info">
                                 <div class="product-name">${p.name}</div>
+                                ${retailHtml}
                                 <div class="price">${displayPrice}</div>
                             </div>
                         </a>
@@ -916,6 +919,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                             id: doc.id,
                             name: data.name,
                             price: Number(data.price),
+                            retailPrice: data.retailPrice !== undefined ? Number(data.retailPrice) : null,
                             stock: Number(data.stock),
                             image: data.image,
                             image_thumb: data.image_thumb || "",
@@ -928,7 +932,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                         if (existingIdx > -1) {
                             // Check if values have actually changed to avoid unnecessary re-renders
                             const current = products[existingIdx];
-                            if (current.name !== p.name || current.price !== p.price || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status) {
+                            if (current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status) {
                                 products[existingIdx] = p;
                                 updated = true;
                             }

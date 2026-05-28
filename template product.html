@@ -928,6 +928,7 @@ footer{
 
     <div class="product-info-wrap">
         <div class="product-title">Loading Product...</div>
+        <div class="product-retail-price" style="font-size:11px; opacity:0.5; margin-top: -8px; margin-bottom: 15px; letter-spacing:0.1em; text-transform:uppercase; display:none;"></div>
         <div class="product-price"></div>
         <div class="product-stock" style="font-size:11px; opacity:0.6; margin-bottom:25px; letter-spacing:0.18em; text-transform:uppercase;"></div>
 
@@ -1091,6 +1092,17 @@ window.openCart = function() {
                 titleEl.innerHTML = p.name || "Product";
             }
 
+            // Retail Price
+            const retailEl = document.querySelector('.product-retail-price');
+            if (retailEl) {
+                if (p.retailPrice) {
+                    retailEl.innerHTML = `Retail Price: R${Number(p.retailPrice).toLocaleString()}`;
+                    retailEl.style.display = 'block';
+                } else {
+                    retailEl.style.display = 'none';
+                }
+            }
+
             // Price (handle discount if active)
             const priceEl = document.querySelector('.product-price');
             if (priceEl && p.price !== undefined) {
@@ -1199,6 +1211,7 @@ window.openCart = function() {
                         id: productId,
                         name: data.name,
                         price: Number(data.price),
+                        retailPrice: data.retailPrice !== undefined ? Number(data.retailPrice) : null,
                         stock: Number(data.stock),
                         image: data.image,
                         image_thumb: data.image_thumb || "",
@@ -1207,7 +1220,7 @@ window.openCart = function() {
                     };
                     
                     // Only swap if values changed or we didn't have local cache!
-                    if (!product || product.name !== liveProduct.name || product.price !== liveProduct.price || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status) {
+                    if (!product || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status) {
                         product = liveProduct;
                         swapContent(product);
                         
