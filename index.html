@@ -1504,16 +1504,18 @@
                     : `R${p.price.toLocaleString()}`;
  
                 gridHtml += `
-                    <a href="${p.url}" class="home-product-card">
-                        <div class="hp-box">
-                            <img src="${getThumbnailImageUrl(p.image, p.image_thumb)}" alt="${p.name.replace('<br>', ' ')}">
-                        </div>
-                        <div class="hp-info">
-                            <div class="hp-name">${p.name}</div>
-                            <div class="hp-price hp-price-card">${displayPrice}</div>
-                            <button class="add-to-cart" onclick="event.preventDefault(); event.stopPropagation(); addToCart('${p.id}')">${p.stock > 0 ? 'ADD TO BAG' : 'OUT OF STOCK'}</button>
-                        </div>
-                    </a>
+                    <div class="home-product-card-container" style="display:flex; flex-direction:column; border-right:1px solid #000; padding:10px; height:100%;">
+                        <a href="${p.url}" class="home-product-card" style="border-right:none; padding:0; flex-grow:1; display:block; text-decoration:none; color:inherit;">
+                            <div class="hp-box">
+                                <img src="${getThumbnailImageUrl(p.image, p.image_thumb)}" alt="${p.name.replace('<br>', ' ')}">
+                            </div>
+                            <div class="hp-info" style="margin-top:18px; padding-top:18px; text-align:left; display:grid; grid-template-areas: 'name price'; grid-template-columns: 1fr auto; align-items:flex-start;">
+                                <div class="hp-name" style="grid-area:name;">${p.name}</div>
+                                <div class="hp-price hp-price-card" style="grid-area:price;">${displayPrice}</div>
+                            </div>
+                        </a>
+                        <button class="add-to-cart" onclick="addToCart('${p.id}')" style="width:100%; margin-top:18px; grid-area:auto; background:#000; color:#fff; border:none; padding:12px 0; font-family:'Helvetica',Arial,sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:1px; cursor:pointer;">${p.stock > 0 ? 'ADD TO BAG' : 'OUT OF STOCK'}</button>
+                    </div>
                 `;
             });
  
@@ -1521,13 +1523,15 @@
             const placeholdersNeeded = Math.max(0, 4 - activeProducts.length);
             for (let i = 0; i < placeholdersNeeded; i++) {
                 gridHtml += `
-                    <div class="home-product-card">
-                        <div class="hp-box"></div>
-                        <div class="hp-info">
-                            <div class="hp-name placeholder">AWAITING<br>REVEAL</div>
-                            <div class="hp-price placeholder">R000</div>
-                            <button class="add-to-cart" disabled style="opacity: 0.5; cursor: not-allowed;">COMING SOON</button>
+                    <div class="home-product-card-container" style="display:flex; flex-direction:column; border-right:1px solid #000; padding:10px; height:100%;">
+                        <div class="home-product-card" style="border-right:none; padding:0; flex-grow:1; display:block;">
+                            <div class="hp-box"></div>
+                            <div class="hp-info" style="margin-top:18px; padding-top:18px; text-align:left; display:grid; grid-template-areas: 'name price'; grid-template-columns: 1fr auto; align-items:flex-start;">
+                                <div class="hp-name placeholder" style="grid-area:name;">AWAITING<br>REVEAL</div>
+                                <div class="hp-price placeholder" style="grid-area:price;">R000</div>
+                            </div>
                         </div>
+                        <button class="add-to-cart" disabled style="opacity: 0.5; cursor: not-allowed; width:100%; margin-top:18px; background:#000; color:#fff; border:none; padding:12px 0; font-family:'Helvetica',Arial,sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:1px;">COMING SOON</button>
                     </div>
                 `;
             }
@@ -1679,6 +1683,9 @@
                     console.error("Firestore products background load failed. Raw error object:", dbErr);
                     console.error("Firestore error code:", dbErr.code);
                 }
+            }
+        }, 0);
+
         window.addEventListener("minaraDiscountActivated", () => {
             renderGrid();
         });
