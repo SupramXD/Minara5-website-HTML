@@ -681,7 +681,7 @@ footer{
                 <div class="product-box"></div>
                 <div class="product-info">
                     <div class="placeholder-name">AWAITING<br>REVEAL</div>
-                    <div class="placeholder-price">R000</div>
+                    <div class="placeholder-price">R0.00</div>
                 </div>
             </div>
             <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>
@@ -692,7 +692,7 @@ footer{
                 <div class="product-box"></div>
                 <div class="product-info">
                     <div class="placeholder-name">AWAITING<br>REVEAL</div>
-                    <div class="placeholder-price">R000</div>
+                    <div class="placeholder-price">R0.00</div>
                 </div>
             </div>
             <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>
@@ -703,7 +703,7 @@ footer{
                 <div class="product-box"></div>
                 <div class="product-info">
                     <div class="placeholder-name">AWAITING<br>REVEAL</div>
-                    <div class="placeholder-price">R000</div>
+                    <div class="placeholder-price">R0.00</div>
                 </div>
             </div>
             <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>
@@ -714,7 +714,7 @@ footer{
                 <div class="product-box"></div>
                 <div class="product-info">
                     <div class="placeholder-name">AWAITING<br>REVEAL</div>
-                    <div class="placeholder-price">R000</div>
+                    <div class="placeholder-price">R0.00</div>
                 </div>
             </div>
             <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>
@@ -794,6 +794,12 @@ window.addEventListener("orientationchange", updateCartHeight);
     import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     async function initCatalog() {
+        const formatPrice = window.formatPrice || (val => {
+            if (val === undefined || val === null || isNaN(val)) return "0.00";
+            const parts = Number(val).toFixed(2).split(".");
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            return parts.join(".");
+        });
         const grid = document.querySelector('.catalog-grid');
         if (!grid) return;
 
@@ -846,10 +852,10 @@ window.addEventListener("orientationchange", updateCartHeight);
             activeProducts.forEach(p => {
                 const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
                 const displayPrice = hasDiscount
-                    ? `<div style="display: flex; flex-direction: column; align-items: flex-start;"><span style="color: #1106e8; font-weight: bold; line-height: 1.1;">R${Math.round(p.price * 0.95).toLocaleString()}</span><span style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;">R${p.price.toLocaleString()}</span></div>`
-                    : `R${p.price.toLocaleString()}`;
+                    ? `<div style="display: flex; flex-direction: column; align-items: flex-start;"><span style="color: #1106e8; font-weight: bold; line-height: 1.1;">R${formatPrice(Math.round(p.price * 0.95))}</span><span style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;">R${formatPrice(p.price)}</span></div>`
+                    : `R${formatPrice(p.price)}`;
 
-                const retailHtml = p.retailPrice ? `<div class="product-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Retail: R${Number(p.retailPrice).toLocaleString()}</div>` : '';
+                const retailHtml = p.retailPrice ? `<div class="product-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Retail: R${formatPrice(p.retailPrice)}</div>` : '';
 
                 // Format name dynamically for inspired by prefix
                 const inspiredRegex = /^(inspired\s*by\s*:?|inspire\s*by\s*:?|inspiredby\s*:?|inspireby\s*:?)/i;
@@ -888,7 +894,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                             <div class="product-box"></div>
                             <div class="product-info">
                                 <div class="placeholder-name">AWAITING<br>REVEAL</div>
-                                <div class="placeholder-price">R000</div>
+                                <div class="placeholder-price">R0.00</div>
                             </div>
                         </div>
                         <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>

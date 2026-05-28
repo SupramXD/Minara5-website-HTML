@@ -1082,6 +1082,12 @@ window.openCart = function() {
         // Helper to swap dynamic content
         const swapContent = (p) => {
             if (!p) return;
+            const formatPrice = window.formatPrice || (val => {
+                if (val === undefined || val === null || isNaN(val)) return "0.00";
+                const parts = Number(val).toFixed(2).split(".");
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                return parts.join(".");
+            });
             
             // Tab title
             document.title = (p.name || "Product") + " – MINARA5";
@@ -1105,7 +1111,7 @@ window.openCart = function() {
             const retailEl = document.querySelector('.product-retail-price');
             if (retailEl) {
                 if (p.retailPrice) {
-                    retailEl.innerHTML = `Retail Price: R${Number(p.retailPrice).toLocaleString()}`;
+                    retailEl.innerHTML = `Retail Price: R${formatPrice(p.retailPrice)}`;
                     retailEl.style.display = 'block';
                 } else {
                     retailEl.style.display = 'none';
@@ -1117,9 +1123,9 @@ window.openCart = function() {
             if (priceEl && p.price !== undefined) {
                 const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
                 if (hasDiscount) {
-                    priceEl.innerHTML = `<div style="display: flex; flex-direction: column; align-items: flex-start;"><span style="color: #1106e8; font-weight: bold; line-height: 1.1; font-size: 1.25em;">R${Math.round(p.price * 0.95).toLocaleString()}</span><span style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;">R${p.price.toLocaleString()}</span></div>`;
+                    priceEl.innerHTML = `<div style="display: flex; flex-direction: column; align-items: flex-start;"><span style="color: #1106e8; font-weight: bold; line-height: 1.1; font-size: 1.25em;">R${formatPrice(Math.round(p.price * 0.95))}</span><span style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;">R${formatPrice(p.price)}</span></div>`;
                 } else {
-                    priceEl.innerHTML = `R${p.price.toLocaleString()}`;
+                    priceEl.innerHTML = `R${formatPrice(p.price)}`;
                 }
             }
 

@@ -51,6 +51,13 @@ window.getThumbnailImageUrl = function(src, thumbSrc) {
     }
     return cleanSrc;
 };
+window.formatPrice = function(value) {
+    if (value === undefined || value === null || isNaN(value)) return "0.00";
+    const parts = Number(value).toFixed(2).split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join(".");
+};
+const formatPrice = window.formatPrice;
 let currentUser = null;
 
 // --- MASTER TRIGGERS (Fixes "Nothing Happening") ---
@@ -601,8 +608,8 @@ const minaraArt = `
             const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
             const itemPrice = item.price;
             const displayPrice = hasDiscount 
-                ? `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${itemPrice.toLocaleString()}</span><span style="color: #1106e8; font-weight: bold;">R${Math.round(itemPrice * 0.95).toLocaleString()}</span>` 
-                : `R${itemPrice.toLocaleString()}`;
+                ? `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${formatPrice(itemPrice)}</span><span style="color: #1106e8; font-weight: bold;">R${formatPrice(Math.round(itemPrice * 0.95))}</span>` 
+                : `R${formatPrice(itemPrice)}`;
 
             html += `
             <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 15px;">
@@ -652,9 +659,9 @@ const minaraArt = `
     const paymentPadding = hasItems ? "20px 20px" : "8px 20px"; 
 
     const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
-    let priceDisplay = 'R' + totalPrice.toLocaleString();
+    let priceDisplay = 'R' + formatPrice(totalPrice);
     if (hasDiscount) {
-        priceDisplay = `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${totalPrice.toLocaleString()}</span><span style="color: #1106e8; font-weight: bold;">R${Math.round(totalPrice * 0.95).toLocaleString()}</span>`;
+        priceDisplay = `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${formatPrice(totalPrice)}</span><span style="color: #1106e8; font-weight: bold;">R${formatPrice(Math.round(totalPrice * 0.95))}</span>`;
     }
 
     html += `
@@ -663,7 +670,7 @@ const minaraArt = `
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;">
                     <span>SHIPPING</span><span>FREE</span>
                 </div>
-                ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;"><span>TOTAL</span><span>R0</span></div>` : ''}
+                ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;"><span>TOTAL</span><span>R0.00</span></div>` : ''}
             </div>
             <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:${paymentPadding}; height:${paymentBoxHeight}; min-height:${paymentBoxHeight}; border-bottom:1px solid #000; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box; width:100%;">
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:${hasItems ? '15px' : '4px'};">
@@ -1045,24 +1052,24 @@ window.applyGlobalDiscount = function() {
     // 1. Homepage product cards
     const hpPrices = document.querySelectorAll(".hp-price");
     hpPrices.forEach(el => {
-        if (el.textContent.includes("R749") && !el.querySelector(".old-price")) {
-            el.innerHTML = `<span class="old-price" style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R749</span><span style="color: #1106e8; font-weight: bold;">R712</span>`;
+        if ((el.textContent.includes("R749") || el.textContent.includes("R749.00")) && !el.querySelector(".old-price")) {
+            el.innerHTML = `<span class="old-price" style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R749.00</span><span style="color: #1106e8; font-weight: bold;">R712.00</span>`;
         }
     });
     
     // 2. Catalog page product cards
     const catPrices = document.querySelectorAll(".price");
     catPrices.forEach(el => {
-        if (el.textContent.includes("R749") && !el.querySelector(".old-price")) {
-            el.innerHTML = `<span class="old-price" style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R749</span><span style="color: #1106e8; font-weight: bold;">R712</span>`;
+        if ((el.textContent.includes("R749") || el.textContent.includes("R749.00")) && !el.querySelector(".old-price")) {
+            el.innerHTML = `<span class="old-price" style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R749.00</span><span style="color: #1106e8; font-weight: bold;">R712.00</span>`;
         }
     });
     
     // 3. Product detail pages
     const productPrices = document.querySelectorAll(".product-price");
     productPrices.forEach(el => {
-        if (el.textContent.includes("R749") && !el.querySelector(".old-price")) {
-            el.innerHTML = `<span class="old-price" style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R749</span><span style="color: #1106e8; font-weight: bold;">R712</span>`;
+        if ((el.textContent.includes("R749") || el.textContent.includes("R749.00")) && !el.querySelector(".old-price")) {
+            el.innerHTML = `<span class="old-price" style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R749.00</span><span style="color: #1106e8; font-weight: bold;">R712.00</span>`;
         }
     });
 

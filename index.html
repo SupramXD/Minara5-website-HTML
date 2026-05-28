@@ -664,6 +664,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 15px;
+      margin-top: 38px;
     }
 
     .home-products-title {
@@ -751,7 +752,7 @@
 
     .view-more-container {
       text-align: center;
-      margin-top: 40px;
+      margin-top: 5px;
     }
 
     .view-more-btn {
@@ -787,6 +788,7 @@
       .home-products-header {
         margin-bottom: 8px;
         padding: 0 20px;
+        margin-top: 22px;
       }
 
       .home-products-list {
@@ -830,7 +832,7 @@
       }
 
       .view-more-container {
-        margin-top: 25px;
+        margin-top: 4px;
       }
     }
 
@@ -1198,7 +1200,7 @@
         <div class="hp-box"></div>
         <div class="hp-info">
           <div class="hp-name placeholder">AWAITING<br>REVEAL</div>
-          <div class="hp-price placeholder">R000</div>
+          <div class="hp-price placeholder">R0.00</div>
           <button class="add-to-cart">ADD TO BAG</button>
         </div>
       </div>
@@ -1207,7 +1209,7 @@
         <div class="hp-box"></div>
         <div class="hp-info">
           <div class="hp-name placeholder">AWAITING<br>REVEAL</div>
-          <div class="hp-price placeholder">R000</div>
+          <div class="hp-price placeholder">R0.00</div>
           <button class="add-to-cart">ADD TO BAG</button>
         </div>
       </div>
@@ -1216,7 +1218,7 @@
         <div class="hp-box"></div>
         <div class="hp-info">
           <div class="hp-name placeholder">AWAITING<br>REVEAL</div>
-          <div class="hp-price placeholder">R000</div>
+          <div class="hp-price placeholder">R0.00</div>
           <button class="add-to-cart">ADD TO BAG</button>
         </div>
       </div>
@@ -1225,7 +1227,7 @@
         <div class="hp-box"></div>
         <div class="hp-info">
           <div class="hp-name placeholder">AWAITING<br>REVEAL</div>
-          <div class="hp-price placeholder">R000</div>
+          <div class="hp-price placeholder">R0.00</div>
           <button class="add-to-cart">ADD TO BAG</button>
         </div>
       </div>
@@ -1437,6 +1439,12 @@
     import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     async function initCatalog() {
+      const formatPrice = window.formatPrice || (val => {
+        if (val === undefined || val === null || isNaN(val)) return "0.00";
+        const parts = Number(val).toFixed(2).split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join(".");
+      });
       const grid = document.querySelector('.home-products-list');
       if (!grid) return;
 
@@ -1503,10 +1511,10 @@
         activeProducts.forEach(p => {
           const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
           const displayPrice = hasDiscount
-            ? `<div style="display: flex; flex-direction: column; align-items: flex-end;"><span style="color: #1106e8; font-weight: bold; line-height: 1.1;">R${Math.round(p.price * 0.95).toLocaleString()}</span><span style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;">R${p.price.toLocaleString()}</span></div>`
-            : `R${p.price.toLocaleString()}`;
+            ? `<div style="display: flex; flex-direction: column; align-items: flex-end;"><span style="color: #1106e8; font-weight: bold; line-height: 1.1;">R${formatPrice(Math.round(p.price * 0.95))}</span><span style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;">R${formatPrice(p.price)}</span></div>`
+            : `R${formatPrice(p.price)}`;
 
-          const retailHtml = p.retailPrice ? `<div class="hp-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Retail: R${Number(p.retailPrice).toLocaleString()}</div>` : '';
+          const retailHtml = p.retailPrice ? `<div class="hp-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Retail: R${formatPrice(p.retailPrice)}</div>` : '';
 
           // Format name dynamically for inspired by prefix
           const inspiredRegex = /^(inspired\s*by\s*:?|inspire\s*by\s*:?|inspiredby\s*:?|inspireby\s*:?)/i;
@@ -1548,7 +1556,7 @@
               <div class="hp-box"></div>
               <div class="hp-info">
                 <div class="hp-name placeholder" style="grid-area:name;">AWAITING<br>REVEAL</div>
-                <div class="hp-price placeholder" style="grid-area:price;">R000</div>
+                <div class="hp-price placeholder" style="grid-area:price;">R0.00</div>
                 <button class="add-to-cart" disabled style="opacity: 0.5; cursor: not-allowed; margin-top: 8px;">COMING SOON</button>
               </div>
             </div>
