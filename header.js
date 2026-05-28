@@ -971,6 +971,7 @@ window.submitNewsletter = async function(event, type) {
 
     // Activate the discount
     localStorage.setItem("minara_discount_5", "active");
+    localStorage.setItem("minara_discount_email", email);
 
     // Clean inputs and reset button state
     if (emailInput) {
@@ -1007,7 +1008,7 @@ window.submitNewsletter = async function(event, type) {
             successEl.innerHTML = `
                 <div style="margin-top: 14px; padding: 16px; background: rgba(52, 199, 89, 0.06); border: 1px solid #34c759; border-radius: 2px; animation: fadeIn 0.4s ease;">
                     <div style="color: #34c759; font-size: 11px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase;">✓ DISCOUNT ACTIVATED</div>
-                    <div style="color: #000; font-size: 10px; margin-top: 6px; letter-spacing: 0.5px; opacity: 0.8; text-transform: uppercase; font-family: inherit; line-height: 1.4;">You've unlocked 5% off your first order! Your discount has been applied to your bag.</div>
+                    <div style="color: #000; font-size: 10px; margin-top: 6px; letter-spacing: 0.5px; opacity: 0.8; text-transform: uppercase; font-family: inherit; line-height: 1.4;">5% discount has been successfully applied to your bag for <span style="text-transform:none; font-weight:bold;">${email}</span>.</div>
                     <a href="catalog.html" style="display: inline-block; margin-top: 12px; background: #000; color: #ccff00; font-size: 9px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; padding: 9px 18px; text-decoration: none; border: 1px solid #000;">SHOP THE CATALOG →</a>
                 </div>
             `;
@@ -1022,7 +1023,7 @@ window.submitNewsletter = async function(event, type) {
             successEl.innerHTML = `
                 <div style="margin-top: 18px; padding: 22px; background: rgba(52, 199, 89, 0.06); border: 1px solid #34c759; border-radius: 2px; animation: fadeIn 0.4s ease;">
                     <div style="color: #34c759; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 13px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase;">✓ DISCOUNT ACTIVATED: 5% OFF FIRST ORDER</div>
-                    <div style="color: #000; font-size: 11px; margin-top: 6px; opacity: 0.8; letter-spacing: 0.5px; text-transform: uppercase; font-family: inherit; line-height: 1.5;">You've unlocked 5% off your first order! Your discount has been successfully applied to your bag. Use the button below to explore our exclusive collection.</div>
+                    <div style="color: #000; font-size: 11px; margin-top: 6px; opacity: 0.8; letter-spacing: 0.5px; text-transform: uppercase; font-family: inherit; line-height: 1.5;">5% discount has been successfully applied to your bag for <span style="text-transform:none; font-weight:bold;">${email}</span>. Use the button below to explore our exclusive collection.</div>
                     <a href="catalog.html" style="display: inline-block; margin-top: 16px; background: #000; color: #ccff00; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; padding: 12px 24px; text-decoration: none; border: 1px solid #000; transition: all 0.2s ease; cursor: pointer;">EXPLORE THE CATALOG →</a>
                 </div>
             `;
@@ -1064,6 +1065,9 @@ window.applyGlobalDiscount = function() {
             el.innerHTML = `<span class="old-price" style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R749</span><span style="color: #1106e8; font-weight: bold;">R712</span>`;
         }
     });
+
+    // 4. Dispatch re-render event for dynamic products
+    window.dispatchEvent(new Event("minaraDiscountActivated"));
 };
 
 function setupMobileNewsletter() {
@@ -1080,12 +1084,12 @@ function setupMobileNewsletter() {
             padding-top: 20px;
         `;
         
+        // Mobile newsletter is now ALWAYS open and has NO arrow
         mobileNews.innerHTML = `
-            <div id="mobileNewsletterPromo" style="font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+            <div id="mobileNewsletterPromo" style="font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center;">
                 <span>SIGN UP FOR 5% OFF</span>
-                <span id="mobileNewsletterArrow" style="transition: transform 0.25s ease;">▸</span>
             </div>
-            <div id="mobileNewsletterFormWrap" style="display: none; margin-top: 15px;">
+            <div id="mobileNewsletterFormWrap" style="display: block; margin-top: 15px;">
                 <p style="font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;">Get 5% off your first order by subscribing.</p>
                 <form id="mobileNewsletterForm" style="display: flex; border-bottom: 1px solid #000; padding-bottom: 5px;">
                     <input type="email" id="mobileNewsletterEmail" placeholder="Enter your email" required style="border: none; background: transparent; font-size: 11px; width: 100%; outline: none; text-transform: none; font-family: inherit;">
@@ -1096,16 +1100,6 @@ function setupMobileNewsletter() {
         `;
         
         menuPanel.appendChild(mobileNews);
-        
-        const promo = mobileNews.querySelector("#mobileNewsletterPromo");
-        const formWrap = mobileNews.querySelector("#mobileNewsletterFormWrap");
-        const arrow = mobileNews.querySelector("#mobileNewsletterArrow");
-        
-        promo.onclick = () => {
-            const isHidden = formWrap.style.display === "none";
-            formWrap.style.display = isHidden ? "block" : "none";
-            arrow.style.transform = isHidden ? "rotate(90deg)" : "rotate(0deg)";
-        };
         
         const form = mobileNews.querySelector("#mobileNewsletterForm");
         form.onsubmit = (e) => {
@@ -1118,7 +1112,17 @@ function setupMobileNewsletter() {
         const formWrap = document.getElementById("mobileNewsletterFormWrap");
         const successEl = document.getElementById("mobileNewsletterSuccess");
         if (formWrap) formWrap.style.display = "none";
-        if (successEl) successEl.style.display = "block";
+        if (successEl) {
+            const savedEmail = localStorage.getItem("minara_discount_email") || "your email";
+            successEl.innerHTML = `
+                <div style="margin-top: 14px; padding: 16px; background: rgba(52, 199, 89, 0.06); border: 1px solid #34c759; border-radius: 2px; animation: fadeIn 0.4s ease;">
+                    <div style="color: #34c759; font-size: 11px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase;">✓ DISCOUNT ACTIVATED</div>
+                    <div style="color: #000; font-size: 10px; margin-top: 6px; letter-spacing: 0.5px; opacity: 0.8; text-transform: uppercase; font-family: inherit; line-height: 1.4;">5% discount has been successfully applied to your bag for <span style="text-transform:none; font-weight:bold;">${savedEmail}</span>.</div>
+                    <a href="catalog.html" style="display: inline-block; margin-top: 12px; background: #000; color: #ccff00; font-size: 9px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; padding: 9px 18px; text-decoration: none; border: 1px solid #000;">SHOP THE CATALOG →</a>
+                </div>
+            `;
+            successEl.style.display = "block";
+        }
         const promoText = document.querySelector("#mobileNewsletterPromo span");
         if (promoText) promoText.textContent = "5% DISCOUNT ACTIVE";
     }
@@ -1130,6 +1134,17 @@ function setupDesktopNewsletter() {
         const form = document.getElementById("desktopSignupForm");
         const successEl = document.getElementById("desktopSignupSuccess");
         if (form) form.style.display = "none";
-        if (successEl) successEl.style.display = "block";
+        if (successEl) {
+            const savedEmail = localStorage.getItem("minara_discount_email") || "your email";
+            successEl.innerHTML = `
+                <div style="margin-top: 18px; padding: 22px; background: rgba(52, 199, 89, 0.06); border: 1px solid #34c759; border-radius: 2px; animation: fadeIn 0.4s ease;">
+                    <div style="color: #34c759; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 13px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase;">✓ DISCOUNT ACTIVATED: 5% OFF FIRST ORDER</div>
+                    <div style="color: #000; font-size: 11px; margin-top: 6px; opacity: 0.8; letter-spacing: 0.5px; text-transform: uppercase; font-family: inherit; line-height: 1.5;">5% discount has been successfully applied to your bag for <span style="text-transform:none; font-weight:bold;">${savedEmail}</span>. Use the button below to explore our exclusive collection.</div>
+                    <a href="catalog.html" style="display: inline-block; margin-top: 16px; background: #000; color: #ccff00; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; padding: 12px 24px; text-decoration: none; border: 1px solid #000; transition: all 0.2s ease; cursor: pointer;">EXPLORE THE CATALOG →</a>
+                </div>
+            `;
+            successEl.style.display = "block";
+        }
     }
 }
+

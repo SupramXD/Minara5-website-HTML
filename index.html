@@ -1679,8 +1679,9 @@
                     console.error("Firestore products background load failed. Raw error object:", dbErr);
                     console.error("Firestore error code:", dbErr.code);
                 }
-            }
-        }, 0);
+        window.addEventListener("minaraDiscountActivated", () => {
+            renderGrid();
+        });
     }
 
     if (document.readyState === "loading") {
