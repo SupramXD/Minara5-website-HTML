@@ -846,7 +846,7 @@ window.addEventListener("orientationchange", updateCartHeight);
             activeProducts.forEach(p => {
                 const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
                 const displayPrice = hasDiscount
-                    ? `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${p.price.toLocaleString()}</span><span style="color: #1106e8; font-weight: bold;">R${Math.round(p.price * 0.95).toLocaleString()}</span>`
+                    ? `<div style="display: flex; flex-direction: column; align-items: flex-start;"><span style="color: #1106e8; font-weight: bold; line-height: 1.1;">R${Math.round(p.price * 0.95).toLocaleString()}</span><span style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;">R${p.price.toLocaleString()}</span></div>`
                     : `R${p.price.toLocaleString()}`;
 
                 const retailHtml = p.retailPrice ? `<div class="product-retail-price" style="font-size: 9px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px;">Retail Price: R${Number(p.retailPrice).toLocaleString()}</div>` : '';

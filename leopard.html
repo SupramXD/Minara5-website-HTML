@@ -1110,7 +1110,7 @@ window.openCart = function() {
             if (priceEl && p.price !== undefined) {
                 const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
                 if (hasDiscount) {
-                    priceEl.innerHTML = `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${p.price.toLocaleString()}</span><span style="color: #1106e8; font-weight: bold;">R${Math.round(p.price * 0.95).toLocaleString()}</span>`;
+                    priceEl.innerHTML = `<div style="display: flex; flex-direction: column; align-items: flex-start;"><span style="color: #1106e8; font-weight: bold; line-height: 1.1; font-size: 1.25em;">R${Math.round(p.price * 0.95).toLocaleString()}</span><span style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;">R${p.price.toLocaleString()}</span></div>`;
                 } else {
                     priceEl.innerHTML = `R${p.price.toLocaleString()}`;
                 }
