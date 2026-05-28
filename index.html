@@ -412,7 +412,7 @@
     #bagsBtn {
       position: fixed;
       top: 48px;
-      left: 335px;
+      left: 30px;
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -445,7 +445,7 @@
       display: none;
       position: absolute;
       top: 20px;
-      left: 59px;
+      left: 20px;
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -756,17 +756,21 @@
 
     .view-more-btn {
       display: inline-block;
-      font-size: 11px;
+      font-size: 9.5px;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.15em;
+      letter-spacing: 3px;
       color: #000;
-      text-decoration: underline;
-      transition: opacity 0.25s ease;
+      text-decoration: none;
+      border: 1px solid #000;
+      padding: 12px 30px;
+      transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
       cursor: pointer;
     }
 
     .view-more-btn:hover {
-      opacity: 0.6;
+      background: #000;
+      color: #fff;
     }
 
     @media(min-width: 901px) {
@@ -799,9 +803,9 @@
       }
 
       .home-product-card {
-        flex: 0 0 calc(100% / 2.5);
-        width: calc(100% / 2.5);
-        min-width: calc(100% / 2.5);
+        flex: 0 0 calc(100% / 2.7);
+        width: calc(100% / 2.7);
+        min-width: calc(100% / 2.7);
         scroll-snap-align: start;
       }
 
@@ -1228,8 +1232,7 @@
     </div>
 
     <div class="view-more-container">
-      <a href="catalog.html" class="view-more-btn">BROWSE FULL CATALOG <span
-          style="font-size:13px; margin-left:3px;">→</span></a>
+      <a href="catalog.html" class="view-more-btn">DISCOVER ALL</a>
     </div>
   </section>
 
@@ -1359,17 +1362,17 @@
         }
 
         const br = topbar.getBoundingClientRect();
-        let top = y + br.bottom + 60 - 180;
+        let top = y + br.bottom + 60 - 180 + 150;
 
         const r2 = logo.getBoundingClientRect();
-        const lockPt = imgRBottom - r2.height - 70;
+        const lockPt = imgRBottom - r2.height - 70 + 150;
 
         if (top > lockPt) top = lockPt;
 
         logo.style.position = 'absolute';
         logo.style.top = top + 'px';
         logo.style.left = '50%';
-        logo.style.transform = 'translateX(calc(-50% - 90px))';
+        logo.style.transform = 'translateX(calc(-50% - 40px))';
       }
 
       window.addEventListener('scroll', update);
