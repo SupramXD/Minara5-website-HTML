@@ -564,7 +564,7 @@
           <span class="stat-label">Total Revenue</span>
           <span style="color: var(--success); font-size: 11px; font-weight:700;">+0.0%</span>
         </div>
-        <div class="stat-value" id="dashboardRevenue">R0.00</div>
+        <div class="stat-value" id="dashboardRevenue">R0</div>
         <div class="stat-change up">vs previous 30 days</div>
       </div>
 
@@ -731,8 +731,8 @@
               <tr id="catalog-row-1">
                 <td>leopard-backpack</td>
                 <td>Léopard Fur Backpack</td>
-                <td>R749.00</td>
-                <td>R1,200.00</td>
+                <td>R749</td>
+                <td>R1,200</td>
                 <td id="stock-level-1">45 units</td>
                 <td><span class="status-badge admin">Active</span></td>
                 <td>
@@ -822,12 +822,16 @@
     window.dbGetDocs = getDocs;
     window.dbAddDoc = addDoc;
     window.formatPrice = function(value) {
-        if (value === undefined || value === null || isNaN(value)) return "0.00";
-        const parts = Number(value).toFixed(2).split(".");
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        return parts.join(".");
+        if (value === undefined || value === null || isNaN(value)) return "0";
+        return Math.round(Number(value)).toString();
+    };
+    window.formatRetailPrice = function(value) {
+        if (value === undefined || value === null || isNaN(value)) return "0";
+        const cleanVal = Math.round(Number(value)).toString();
+        return cleanVal.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     };
     const formatPrice = window.formatPrice;
+    const formatRetailPrice = window.formatRetailPrice;
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -1144,7 +1148,7 @@
                       <td style="font-family: monospace; font-size: 11px;">${p.id}</td>
                       <td style="font-weight: bold; color: var(--accent);">${p.name}</td>
                       <td>R${formatPrice(p.price)}</td>
-                      <td>${p.retailPrice ? 'R' + formatPrice(p.retailPrice) : '—'}</td>
+                      <td>${p.retailPrice ? 'R' + formatRetailPrice(p.retailPrice) : '—'}</td>
                       <td id="stock-level-${p.id}">${p.stock} units</td>
                       <td><span class="status-badge ${statusBadgeClass}">${p.status}</span></td>
                       <td style="white-space: nowrap;">

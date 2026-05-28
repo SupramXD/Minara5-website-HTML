@@ -681,7 +681,7 @@ footer{
                 <div class="product-box"></div>
                 <div class="product-info">
                     <div class="placeholder-name">AWAITING<br>REVEAL</div>
-                    <div class="placeholder-price">R0.00</div>
+                    <div class="placeholder-price">R0</div>
                 </div>
             </div>
             <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>
@@ -692,7 +692,7 @@ footer{
                 <div class="product-box"></div>
                 <div class="product-info">
                     <div class="placeholder-name">AWAITING<br>REVEAL</div>
-                    <div class="placeholder-price">R0.00</div>
+                    <div class="placeholder-price">R0</div>
                 </div>
             </div>
             <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>
@@ -703,7 +703,7 @@ footer{
                 <div class="product-box"></div>
                 <div class="product-info">
                     <div class="placeholder-name">AWAITING<br>REVEAL</div>
-                    <div class="placeholder-price">R0.00</div>
+                    <div class="placeholder-price">R0</div>
                 </div>
             </div>
             <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>
@@ -714,7 +714,7 @@ footer{
                 <div class="product-box"></div>
                 <div class="product-info">
                     <div class="placeholder-name">AWAITING<br>REVEAL</div>
-                    <div class="placeholder-price">R0.00</div>
+                    <div class="placeholder-price">R0</div>
                 </div>
             </div>
             <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>
@@ -795,11 +795,14 @@ window.addEventListener("orientationchange", updateCartHeight);
 
     async function initCatalog() {
         const formatPrice = window.formatPrice || (val => {
-            if (val === undefined || val === null || isNaN(val)) return "0.00";
-            const parts = Number(val).toFixed(2).split(".");
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            return parts.join(".");
+            if (val === undefined || val === null || isNaN(val)) return "0";
+            return Math.round(Number(val)).toString();
         });
+        const formatRetailPrice = val => {
+            if (val === undefined || val === null || isNaN(val)) return "0";
+            const cleanVal = Math.round(Number(val)).toString();
+            return cleanVal.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        };
         const grid = document.querySelector('.catalog-grid');
         if (!grid) return;
 
@@ -855,7 +858,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                     ? `<div style="display: flex; flex-direction: column; align-items: flex-start;"><span style="color: #1106e8; font-weight: bold; line-height: 1.1;">R${formatPrice(Math.round(p.price * 0.95))}</span><span style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;">R${formatPrice(p.price)}</span></div>`
                     : `R${formatPrice(p.price)}`;
 
-                const retailHtml = p.retailPrice ? `<div class="product-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Retail: R${formatPrice(p.retailPrice)}</div>` : '';
+                const retailHtml = p.retailPrice ? `<div class="product-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Retail: R${formatRetailPrice(p.retailPrice)}</div>` : '';
 
                 // Format name dynamically for inspired by prefix
                 const inspiredRegex = /^(inspired\s*by\s*:?|inspire\s*by\s*:?|inspiredby\s*:?|inspireby\s*:?)/i;
@@ -894,7 +897,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                             <div class="product-box"></div>
                             <div class="product-info">
                                 <div class="placeholder-name">AWAITING<br>REVEAL</div>
-                                <div class="placeholder-price">R0.00</div>
+                                <div class="placeholder-price">R0</div>
                             </div>
                         </div>
                         <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>

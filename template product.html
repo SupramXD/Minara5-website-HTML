@@ -1083,11 +1083,14 @@ window.openCart = function() {
         const swapContent = (p) => {
             if (!p) return;
             const formatPrice = window.formatPrice || (val => {
-                if (val === undefined || val === null || isNaN(val)) return "0.00";
-                const parts = Number(val).toFixed(2).split(".");
-                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                return parts.join(".");
+                if (val === undefined || val === null || isNaN(val)) return "0";
+                return Math.round(Number(val)).toString();
             });
+            const formatRetailPrice = val => {
+                if (val === undefined || val === null || isNaN(val)) return "0";
+                const cleanVal = Math.round(Number(val)).toString();
+                return cleanVal.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            };
             
             // Tab title
             document.title = (p.name || "Product") + " – MINARA5";
@@ -1111,7 +1114,7 @@ window.openCart = function() {
             const retailEl = document.querySelector('.product-retail-price');
             if (retailEl) {
                 if (p.retailPrice) {
-                    retailEl.innerHTML = `Retail Price: R${formatPrice(p.retailPrice)}`;
+                    retailEl.innerHTML = `Retail Price: R${formatRetailPrice(p.retailPrice)}`;
                     retailEl.style.display = 'block';
                 } else {
                     retailEl.style.display = 'none';

@@ -932,8 +932,8 @@ footer{
 
     <div class="product-info-wrap">
         <div class="product-title">Léopard Fur Backpack</div>
-        <div class="product-retail-price" style="font-size:11px; opacity:0.5; margin-top: -8px; margin-bottom: 15px; letter-spacing:0.1em; text-transform:uppercase;">Retail Price: R1,200.00</div>
-        <div class="product-price">R749.00</div>
+        <div class="product-retail-price" style="font-size:11px; opacity:0.5; margin-top: -8px; margin-bottom: 15px; letter-spacing:0.1em; text-transform:uppercase;">Retail Price: R1,200</div>
+        <div class="product-price">R749</div>
         <div class="product-stock" style="font-size:11px; opacity:0.6; margin-bottom:25px; letter-spacing:0.18em; text-transform:uppercase;">IN STOCK: 45 UNITS</div>
 
         <button class="add-to-cart" onclick="addToCart('leopard-backpack')">ADD TO BAG</button>
@@ -1085,11 +1085,14 @@ window.openCart = function() {
         const swapContent = (p) => {
             if (!p) return;
             const formatPrice = window.formatPrice || (val => {
-                if (val === undefined || val === null || isNaN(val)) return "0.00";
-                const parts = Number(val).toFixed(2).split(".");
-                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                return parts.join(".");
+                if (val === undefined || val === null || isNaN(val)) return "0";
+                return Math.round(Number(val)).toString();
             });
+            const formatRetailPrice = val => {
+                if (val === undefined || val === null || isNaN(val)) return "0";
+                const cleanVal = Math.round(Number(val)).toString();
+                return cleanVal.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            };
             
             // Tab title
             document.title = (p.name || "Product") + " – MINARA5";
@@ -1113,7 +1116,7 @@ window.openCart = function() {
             const retailEl = document.querySelector('.product-retail-price');
             if (retailEl) {
                 if (p.retailPrice) {
-                    retailEl.innerHTML = `Retail Price: R${formatPrice(p.retailPrice)}`;
+                    retailEl.innerHTML = `Retail Price: R${formatRetailPrice(p.retailPrice)}`;
                     retailEl.style.display = 'block';
                 } else {
                     retailEl.style.display = 'none';
