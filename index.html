@@ -352,7 +352,7 @@
       margin-top: 45px;
       position: relative;
       width: 100vw;
-      height: 120vh;
+      height: 90vh;
       display: flex;
       overflow: hidden;
     }
@@ -656,14 +656,14 @@
     }
 
     .home-products-section {
-      padding: 20px 0 0;
+      padding: 0;
     }
 
     .home-products-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 35px;
+      margin-bottom: 15px;
     }
 
     .home-products-title {
@@ -781,11 +781,11 @@
 
     @media (max-width: 900px) {
       .home-products-section {
-        padding: 10px 0 0;
+        padding: 0;
       }
 
       .home-products-header {
-        margin-bottom: 15px;
+        margin-bottom: 8px;
         padding: 0 20px;
       }
 
@@ -1362,10 +1362,10 @@
         }
 
         const br = topbar.getBoundingClientRect();
-        let top = y + br.bottom + 60 - 180 + 90;
+        let top = y + br.bottom + 60 - 180 + 70;
 
         const r2 = logo.getBoundingClientRect();
-        const lockPt = imgRBottom - r2.height - 70 + 90;
+        const lockPt = imgRBottom - r2.height - 70 + 70;
 
         if (top > lockPt) top = lockPt;
 
