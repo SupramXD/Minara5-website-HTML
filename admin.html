@@ -777,7 +777,7 @@
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-    import { initializeFirestore, setLogLevel, collection, getDocs, query, orderBy, doc, setDoc, updateDoc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { initializeFirestore, setLogLevel, collection, getDocs, query, orderBy, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
     
     // Core Firebase config matching header.js
     const firebaseConfig = {
@@ -807,6 +807,7 @@
     window.db = db;
     window.auth = auth;
     window.dbDoc = doc;
+    window.dbGetDoc = getDoc;
     window.dbSetDoc = setDoc;
     window.dbUpdateDoc = updateDoc;
     window.dbDeleteDoc = deleteDoc;
@@ -814,16 +815,26 @@
     window.dbGetDocs = getDocs;
     window.dbAddDoc = addDoc;
 
-    onAuthStateChanged(auth, (user) => {
-      const adminEmail = "sub2meboyi@gmail.com";
-      if (user && user.email === adminEmail) {
-        document.body.style.display = "block";
-        fetchSubscribers();
-        loadCatalog();
-        fetchUsers();
-      } else {
-        document.body.style.display = "none";
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userDocRef = doc(db, "users", user.uid);
+          const userSnap = await getDoc(userDocRef);
+          if (userSnap.exists() && userSnap.data().role === "Admin") {
+            document.body.style.display = "block";
+            fetchSubscribers();
+            loadCatalog();
+            fetchUsers();
+            return;
+          }
+        } catch (e) {
+          console.error("Authorization check failed:", e);
+        }
       }
+      
+      // Lock down screen and bounce unauthorized users
+      document.body.style.display = "none";
+      window.location.href = "index.html";
     });
 
     async function fetchSubscribers() {

@@ -180,12 +180,40 @@ window.universalForgotPassword = function(e) {
 /* ===============================
    AUTH STATE & UI LOGIC
 ================================ */
-function protectRoutes(user) {
+let currentUserRole = "Customer";
+
+async function getUserRole(user) {
+    if (!user) return "Customer";
+    if (window.db) {
+        try {
+            const userDocRef = doc(window.db, "users", user.uid);
+            const userSnap = await getDoc(userDocRef);
+            if (userSnap.exists()) {
+                return userSnap.data().role || "Customer";
+            } else {
+                const defaultRole = user.email === "sub2meboyi@gmail.com" ? "Admin" : "Customer";
+                await setDoc(userDocRef, {
+                    email: user.email,
+                    role: defaultRole,
+                    status: "Active",
+                    timestamp: new Date().toISOString()
+                });
+                console.log("Automatically synchronized user registration metadata with Firestore.");
+                return defaultRole;
+            }
+        } catch (e) {
+            console.warn("Failed to get/sync user registration profile:", e);
+            return user.email === "sub2meboyi@gmail.com" ? "Admin" : "Customer";
+        }
+    }
+    return user.email === "sub2meboyi@gmail.com" ? "Admin" : "Customer";
+}
+
+async function protectRoutes(user, role) {
     const path = window.location.pathname;
-    const adminEmail = "sub2meboyi@gmail.com";
     
     if (path.includes("admin.html")) {
-        if (!user || user.email !== adminEmail) {
+        if (!user || role !== "Admin") {
             window.location.href = "index.html";
             return true;
         }
@@ -200,9 +228,8 @@ function protectRoutes(user) {
     return false;
 }
 
-function updateAdminHeaderButton(user) {
-    const adminEmails = ["sub2meboyi@gmail.com"];
-    const isAdmin = user && adminEmails.includes(user.email);
+function updateAdminHeaderButton(user, role) {
+    const isAdmin = user && role === "Admin";
     
     // 1. Desktop header button injection
     const headerUl = document.querySelector("header nav ul, header .header-right ul, header ul");
@@ -292,10 +319,13 @@ function updateAdminHeaderButton(user) {
     }
 }
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     
-    if (protectRoutes(user)) return;
+    const role = await getUserRole(user);
+    currentUserRole = role;
+    
+    if (await protectRoutes(user, role)) return;
     
     const headerAccs = document.querySelectorAll(".header-account");
     headerAccs.forEach(el => {
@@ -309,33 +339,12 @@ onAuthStateChanged(auth, (user) => {
         let email = user.email;
         if (label) label.textContent = email.length > 12 ? email.substring(0, 12) + "..." : email;
         if (accName) accName.textContent = user.email;
-        
-        // Auto-sync user metadata to Firestore users collection
-        setTimeout(async () => {
-            if (window.db) {
-                try {
-                    const userDocRef = doc(window.db, "users", user.uid);
-                    const userSnap = await getDoc(userDocRef);
-                    if (!userSnap.exists()) {
-                        await setDoc(userDocRef, {
-                            email: user.email,
-                            role: user.email === "sub2meboyi@gmail.com" ? "Admin" : "Customer",
-                            status: "Active",
-                            timestamp: new Date().toISOString()
-                        });
-                        console.log("Automatically synchronized user registration metadata with Firestore.");
-                    }
-                } catch (e) {
-                    console.warn("Failed to auto-sync user registration profile to Firestore:", e);
-                }
-            }
-        }, 0);
     } else {
         if (label) label.textContent = "Account";
         if (accName) accName.textContent = "ACCOUNT";
     }
     setupMobileAccount(user);
-    updateAdminHeaderButton(user);
+    updateAdminHeaderButton(user, role);
 });
 
 /* ===============================
@@ -703,12 +712,16 @@ window.undoRemove = function() {
 };
 
 // --- AUTH STATE SYNC ---
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     currentUser = user;
-    if (protectRoutes(user)) return;
+    
+    const role = await getUserRole(user);
+    currentUserRole = role;
+    
+    if (await protectRoutes(user, role)) return;
     
     setupMobileAccount(user);
-    updateAdminHeaderButton(user);
+    updateAdminHeaderButton(user, role);
     renderCartUI(); 
 });
 
