@@ -1,6 +1,5 @@
 let lastRemovedItem = null;
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app-check.js";
 import { 
     getAuth, 
     onAuthStateChanged, 
@@ -30,19 +29,6 @@ const firebaseConfig = {
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-
-// Initialize Firebase App Check with reCAPTCHA v3 provider
-if (typeof window !== "undefined" && window.location.hostname !== "localhost") {
-    try {
-        initializeAppCheck(app, {
-            provider: new ReCaptchaV3Provider('YOUR_RECAPTCHA_V3_SITE_KEY'),
-            isTokenAutoRefreshEnabled: true
-        });
-        console.log("Firebase App Check initialized.");
-    } catch (e) {
-        console.warn("Firebase App Check failed to initialize:", e);
-    }
-}
 
 const auth = getAuth(app);
 const isLocalFile = window.location.protocol === "file:";
