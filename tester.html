@@ -144,7 +144,8 @@ header{
 
 #cartPanel{
   position:fixed;
-  top:0; right:-100%;
+  top:0; right:0;
+  transform:translateX(100%);
   height:100vh;
   width:65vw;
   background:#fff;
@@ -152,11 +153,12 @@ header{
   z-index:10000;
   display:flex;
   flex-direction:column;
-  transition:right .35s ease;
+  transition:transform .35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change:transform;
   overflow:hidden;
 }
 @media(min-width:901px){#cartPanel{width:26vw;}}
-#cartPanel.open{right:0;}
+#cartPanel.open{transform:translateX(0);}
 
 .cart-header-row{
   background:#fff;
