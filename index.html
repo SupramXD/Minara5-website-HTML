@@ -251,7 +251,8 @@
       top: 0;
       /* cover from very top, over header */
       right: 0;
-      transform: translateX(100%);
+      transform: translate3d(100%, 0, 0);
+      transform-style: preserve-3d;
       height: 100dvh;
       /* full screen height */
       width: 85vw;
@@ -264,7 +265,7 @@
       flex-direction: column;
       justify-content: space-between;
       /* FIX: Pushes bottom content to the bottom */
-      transition: transform .35s cubic-bezier(0.16, 1, 0.3, 1), height .25s ease;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), height .25s ease;
       will-change: transform;
     }
 
@@ -281,7 +282,7 @@
     }
 
     #cartPanel.open {
-      transform: translateX(0);
+      transform: translate3d(0, 0, 0) rotate(0.01deg);
     }
 
     .cart-header-row {
