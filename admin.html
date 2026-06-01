@@ -523,262 +523,11 @@
 </head>
 
 <body>
-  <!-- BACKGROUND GRADIENTS -->
-  <div class="glow-bg"></div>
-  <div class="glow-bg-2"></div>
-
-  <!-- NAVIGATION HEADER -->
-  <header class="admin-header">
-    <div class="brand-group">
-      <a href="index.html"><img src="minara 5 transparent 2.svg" alt="Minara5 Logo"></a>
-      <span class="brand-badge">Admin console</span>
-    </div>
-
-    <ul class="admin-nav-links">
-      <li><a href="index.html">Live Website</a></li>
-      <li><a href="#" class="active">Overview</a></li>
-      <li><a href="#" onclick="logout(); return false;">Log out</a></li>
-    </ul>
-  </header>
-
-  <!-- DASHBOARD WORKSPACE -->
-  <div class="admin-container">
-    
-    <!-- DASHBOARD TOP HEADER -->
-    <div class="hero-panel">
-      <div class="hero-title">
-        <h1>Overview</h1>
-        <p>Operational control center and catalog management dashboard</p>
-      </div>
-
-      <div class="live-indicator">
-        <div class="pulse-dot"></div>
-        System Active
-      </div>
-    </div>
-
-    <!-- STATS CARDS -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-header">
-          <span class="stat-label">Total Revenue</span>
-          <span style="color: var(--success); font-size: 11px; font-weight:700;">+0.0%</span>
-        </div>
-        <div class="stat-value" id="dashboardRevenue">R0</div>
-        <div class="stat-change up">vs previous 30 days</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-header">
-          <span class="stat-label">Active Orders</span>
-          <span style="color: var(--accent); font-size: 11px; font-weight:700;">Live</span>
-        </div>
-        <div class="stat-value" id="dashboardOrdersCount">0</div>
-        <div class="stat-change up">0 pending shipment</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-header">
-          <span class="stat-label">Catalog Items</span>
-          <span style="color: var(--text-muted); font-size: 11px;">Standard</span>
-        </div>
-        <div class="stat-value" id="dashboardCatalogCount">1</div>
-        <div class="stat-change">4 slots awaiting reveal</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-header">
-          <span class="stat-label">System Admins</span>
-          <span style="color: var(--accent); font-size: 11px; font-weight: 700;">Secure</span>
-        </div>
-        <div class="stat-value">1</div>
-        <div class="stat-change">sub2meboyi@gmail.com</div>
-      </div>
-    </div>
-
-    <!-- MAIN TWO-COLUMN DASHBOARD CONTENT -->
-    <div class="dashboard-layout">
-      
-      <!-- COLUMN 0: NEWSLETTER SUBSCRIBERS FEED (FULL WIDTH INTERACTIVE) -->
-      <div class="console-panel full-width-panel" style="margin-bottom: 20px;">
-        <div class="panel-header">
-          <h2 class="panel-title">Newsletter Subscriptions & 5% Off Activations</h2>
-          <span class="stat-label" style="font-size: 10px;" id="subscribersFeedCount">Live Firebase Feed</span>
-        </div>
-
-        <div class="admin-table-container">
-          <table class="admin-table" id="subscribersTable">
-            <thead>
-              <tr>
-                <th>Subscriber Email</th>
-                <th>Joined Date</th>
-                <th>Discount Status</th>
-                <th>Firebase Firestore ID</th>
-              </tr>
-            </thead>
-            <tbody id="subscribersTableBody">
-              <!-- RENDERED DYNAMICALLY BY JAVASCRIPT -->
-              <tr>
-                <td colspan="4" style="text-align: center; opacity: 0.5; padding: 30px;">Loading subscribers from Firestore...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      
-      <!-- COLUMN 1: LIVE ORDERS MANAGER (INTERACTIVE) -->
-      <div class="console-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">Active Orders & Fullfillment</h2>
-          <span class="stat-label" style="font-size: 10px;" id="orderFulfillmentStats">Live Feed</span>
-        </div>
-
-        <div class="admin-table-container">
-          <table class="admin-table" id="ordersTable">
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Customer</th>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- RENDERED DYNAMICALLY BY JAVASCRIPT -->
-              <tr>
-                <td colspan="6" style="text-align: center; opacity: 0.5; padding: 30px;">No active orders in system.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- COLUMN 2: ADD PRODUCT INTERFACE -->
-      <div class="console-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">Add Catalog Product</h2>
-        </div>
-
-        <form id="productForm" onsubmit="handleAddProduct(event)">
-          <div class="form-group">
-            <label for="prodName">Product Name</label>
-            <input type="text" id="prodName" class="form-input" placeholder="e.g. Léopard Fur Backpack" required>
-          </div>
-          
-          <div class="form-group">
-            <label for="prodPrice">Price (R)</label>
-            <input type="number" id="prodPrice" class="form-input" placeholder="749" min="1" required>
-          </div>
-
-          <div class="form-group">
-            <label for="prodRetailPrice">Retail Price (R)</label>
-            <input type="number" id="prodRetailPrice" class="form-input" placeholder="e.g. 1200" min="0">
-          </div>
-
-          <div class="form-group">
-            <label for="prodStock">Initial Stock Level</label>
-            <input type="number" id="prodStock" class="form-input" placeholder="45" min="1" required>
-          </div>
-
-          <div class="form-group">
-            <label for="prodImage">Product Image Path / URL</label>
-            <input type="text" id="prodImage" class="form-input" placeholder="e.g. cheetahproduct.avif or URL">
-            <div style="margin: 8px 0; text-align: center; font-size: 10px; opacity: 0.5;">— OR UPLOAD & AUTOMATICALLY COMPRESS —</div>
-            <input type="file" id="prodFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
-          </div>
-
-          <div class="form-group">
-            <label for="prodDesc">Product Description / Bio</label>
-            <textarea id="prodDesc" class="form-input" placeholder="Luxury product details & biography..." style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: #fff; width: 100%; min-height: 80px; padding: 12px; font-family: inherit; font-size: 13px; outline: none; border-radius: 4px; resize: vertical;" required></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="prodStatus">Catalog Status</label>
-            <select id="prodStatus" class="form-input" style="background:#1a1a24;">
-              <option value="Active">Active / Revealed</option>
-              <option value="Awaiting">Awaiting Reveal</option>
-            </select>
-          </div>
-
-          <button type="submit" class="btn-action accent-btn" style="width: 100%; padding: 14px; margin-top: 10px;">Inject Product into Catalog</button>
-        </form>
-      </div>
-
-      <!-- COLUMN 3: CATALOG INVENTORY MANAGER (FULL WIDTH INTERACTIVE) -->
-      <div class="console-panel full-width-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">Catalog Inventory Management</h2>
-          <span class="stat-label" style="font-size: 10px;" id="inventoryFulfillmentStats">1 Item Active</span>
-        </div>
-
-        <div class="admin-table-container">
-          <table class="admin-table" id="catalogTable">
-            <thead>
-              <tr>
-                <th>Product ID</th>
-                <th>Product Title</th>
-                <th>Price</th>
-                <th>Retail Price</th>
-                <th>Stock level</th>
-                <th>Catalog Status</th>
-                <th>Stock adjustment</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- CATALOG PRODUCTS RENDERED DYNAMICALLY -->
-              <tr id="catalog-row-1">
-                <td>leopard-backpack</td>
-                <td>Léopard Fur Backpack</td>
-                <td>R749</td>
-                <td>R1,200</td>
-                <td id="stock-level-1">45 units</td>
-                <td><span class="status-badge admin">Active</span></td>
-                <td>
-                  <button class="btn-action" onclick="adjustStock('1', 5)" style="margin-right: 5px;">+5</button>
-                  <button class="btn-action" onclick="adjustStock('1', -5)">-5</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- COLUMN 4: USER & PERMISSIONS DATABASE (FULL WIDTH INTERACTIVE) -->
-      <div class="console-panel full-width-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">Registered Accounts & Privileges</h2>
-          <span class="stat-label" style="font-size: 10px;">Security Console</span>
-        </div>
-
-        <div class="admin-table-container">
-          <table class="admin-table" id="usersTable">
-            <thead>
-              <tr>
-                <th>Account Email</th>
-                <th>Firebase UID</th>
-                <th>Role Assignment</th>
-                <th>Status</th>
-                <th>Privileges Control</th>
-              </tr>
-            </thead>
-            <tbody id="usersTableBody">
-              <tr>
-                <td colspan="5" style="text-align: center; opacity: 0.5; padding: 30px;">Loading registered accounts from Firestore...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-
+  <!-- Dynamic admin console initialization portal -->
+  <div id="admin-security-guard" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #0a0a0c; color: rgba(255,255,255,0.6); font-family: 'Outfit', sans-serif;">
+    <div style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 10px; letter-spacing: 1.5px; text-transform: uppercase;">Security Gateway</div>
+    <div style="font-size: 11px; letter-spacing: 0.5px; opacity: 0.8; text-transform: uppercase;">Verifying authorized security credentials...</div>
   </div>
-
-  <footer class="admin-footer">
-    © 2026 MINARA5 ADMIN CONSOLE • EXCLUSIVE CONTROL PORTAL
-  </footer>
 
   <!-- LOAD FIREBASE ROUTE CHECK & SYSTEM MODULES -->
   <script type="module">
@@ -786,7 +535,6 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
     import { initializeFirestore, setLogLevel, collection, getDocs, query, orderBy, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
     
-    // Core Firebase config matching header.js
     const firebaseConfig = {
         apiKey: "AIzaSyC8srbzH_DcCYQJXe9MNOyy2OHZSaLidIo",
         authDomain: "minara5.firebaseapp.com",
@@ -796,7 +544,6 @@
         appId: "1:860405871052:web:2aead90773c24721f72d69"
     };
 
-    // Safe initialization guard to avoid "App already exists" errors
     const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     const auth = getAuth(app);
     const isLocalFile = window.location.protocol === "file:";
@@ -805,12 +552,8 @@
     } : {});
     try {
         setLogLevel('debug');
-        console.log("Firestore verbose debug logging enabled.");
-    } catch (e) {
-        console.warn("Failed to set Firestore debug log level:", e);
-    }
+    } catch (e) {}
 
-    // Expose Firebase tools globally for other standard scripts on this page
     window.db = db;
     window.auth = auth;
     window.dbDoc = doc;
@@ -833,12 +576,16 @@
     const formatPrice = window.formatPrice;
     const formatRetailPrice = window.formatRetailPrice;
 
+    // Secure router / rendering engine
     onAuthStateChanged(auth, async (user) => {
-      if (user) {
+      if (user && user.email === 'sub2meboyi@gmail.com') {
         try {
           const userDocRef = doc(db, "users", user.uid);
           const userSnap = await getDoc(userDocRef);
           if (userSnap.exists() && userSnap.data().role === "Admin") {
+            // Setup the Admin Console UI DOM nodes dynamically - NEVER appended unless user is sub2meboyi@gmail.com
+            renderAdminDashboard();
+            
             document.body.style.display = "block";
             fetchSubscribers();
             loadCatalog();
@@ -850,10 +597,328 @@
         }
       }
       
-      // Lock down screen and bounce unauthorized users
-      document.body.style.display = "none";
+      // Clean up DOM completely and bounce unauthorized attempts
+      document.body.innerHTML = "";
       window.location.href = "index.html";
     });
+
+    // Dynamic dashboard markup injector
+    function renderAdminDashboard() {
+        document.body.innerHTML = `
+          <!-- BACKGROUND GRADIENTS -->
+          <div class="glow-bg"></div>
+          <div class="glow-bg-2"></div>
+
+          <!-- NAVIGATION HEADER -->
+          <header class="admin-header">
+            <div class="brand-group">
+              <a href="index.html"><img src="minara 5 transparent 2.svg" alt="Minara5 Logo"></a>
+              <span class="brand-badge">Admin console</span>
+            </div>
+
+            <ul class="admin-nav-links">
+              <li><a href="index.html">Live Website</a></li>
+              <li><a href="#" class="active">Overview</a></li>
+              <li><a href="#" onclick="logout(); return false;">Log out</a></li>
+            </ul>
+          </header>
+
+          <!-- DASHBOARD WORKSPACE -->
+          <div class="admin-container">
+            
+            <!-- DASHBOARD TOP HEADER -->
+            <div class="hero-panel">
+              <div class="hero-title">
+                <h1>Overview</h1>
+                <p>Operational control center and catalog management dashboard</p>
+              </div>
+
+              <div class="live-indicator">
+                <div class="pulse-dot"></div>
+                System Active
+              </div>
+            </div>
+
+            <!-- STATS CARDS -->
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-header">
+                  <span class="stat-label">Total Revenue</span>
+                  <span style="color: var(--success); font-size: 11px; font-weight:700;">+0.0%</span>
+                </div>
+                <div class="stat-value" id="dashboardRevenue">R0</div>
+                <div class="stat-change up">vs previous 30 days</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-header">
+                  <span class="stat-label">Active Orders</span>
+                  <span style="color: var(--accent); font-size: 11px; font-weight:700;">Live</span>
+                </div>
+                <div class="stat-value" id="dashboardOrdersCount">0</div>
+                <div class="stat-change up">0 pending shipment</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-header">
+                  <span class="stat-label">Catalog Items</span>
+                  <span style="color: var(--text-muted); font-size: 11px;">Standard</span>
+                </div>
+                <div class="stat-value" id="dashboardCatalogCount">1</div>
+                <div class="stat-change">4 slots awaiting reveal</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-header">
+                  <span class="stat-label">System Admins</span>
+                  <span style="color: var(--accent); font-size: 11px; font-weight: 700;">Secure</span>
+                </div>
+                <div class="stat-value">1</div>
+                <div class="stat-change">sub2meboyi@gmail.com</div>
+              </div>
+            </div>
+
+            <!-- MAIN TWO-COLUMN DASHBOARD CONTENT -->
+            <div class="dashboard-layout">
+              
+              <!-- COLUMN 0: NEWSLETTER SUBSCRIBERS FEED (FULL WIDTH INTERACTIVE) -->
+              <div class="console-panel full-width-panel" style="margin-bottom: 20px;">
+                <div class="panel-header">
+                  <h2 class="panel-title">Newsletter Subscriptions & 5% Off Activations</h2>
+                  <span class="stat-label" style="font-size: 10px;" id="subscribersFeedCount">Live Firebase Feed</span>
+                </div>
+
+                <div class="admin-table-container">
+                  <table class="admin-table" id="subscribersTable">
+                    <thead>
+                      <tr>
+                        <th>Subscriber Email</th>
+                        <th>Joined Date</th>
+                        <th>Discount Status</th>
+                        <th>Firebase Firestore ID</th>
+                      </tr>
+                    </thead>
+                    <tbody id="subscribersTableBody">
+                      <tr>
+                        <td colspan="4" style="text-align: center; opacity: 0.5; padding: 30px;">Loading subscribers from Firestore...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+              <!-- COLUMN 1: LIVE ORDERS MANAGER (INTERACTIVE) -->
+              <div class="console-panel">
+                <div class="panel-header">
+                  <h2 class="panel-title">Active Orders & Fullfillment</h2>
+                  <span class="stat-label" style="font-size: 10px;" id="orderFulfillmentStats">Live Feed</span>
+                </div>
+
+                <div class="admin-table-container">
+                  <table class="admin-table" id="ordersTable">
+                    <thead>
+                      <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td colspan="6" style="text-align: center; opacity: 0.5; padding: 30px;">No active orders in system.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- COLUMN 2: ADD PRODUCT INTERFACE -->
+              <div class="console-panel">
+                <div class="panel-header">
+                  <h2 class="panel-title">Add Catalog Product</h2>
+                </div>
+
+                <form id="productForm" onsubmit="handleAddProduct(event)">
+                  <div class="form-group">
+                    <label for="prodName">Product Name</label>
+                    <input type="text" id="prodName" class="form-input" placeholder="e.g. Léopard Fur Backpack" required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="prodPrice">Price (R)</label>
+                    <input type="number" id="prodPrice" class="form-input" placeholder="749" min="1" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prodRetailPrice">Retail Price (R)</label>
+                    <input type="number" id="prodRetailPrice" class="form-input" placeholder="e.g. 1200" min="0">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prodStock">Initial Stock Level</label>
+                    <input type="number" id="prodStock" class="form-input" placeholder="45" min="1" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prodImage">Product Image Path / URL</label>
+                    <input type="text" id="prodImage" class="form-input" placeholder="e.g. cheetahproduct.avif or URL">
+                    <div style="margin: 8px 0; text-align: center; font-size: 10px; opacity: 0.5;">— OR UPLOAD & AUTOMATICALLY COMPRESS —</div>
+                    <input type="file" id="prodFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prodDesc">Product Description / Bio</label>
+                    <textarea id="prodDesc" class="form-input" placeholder="Luxury product details & biography..." style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: #fff; width: 100%; min-height: 80px; padding: 12px; font-family: inherit; font-size: 13px; outline: none; border-radius: 4px; resize: vertical;" required></textarea>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prodStatus">Catalog Status</label>
+                    <select id="prodStatus" class="form-input" style="background:#1a1a24; color: #fff;">
+                      <option value="Active">Active / Revealed</option>
+                      <option value="Awaiting">Awaiting Reveal</option>
+                    </select>
+                  </div>
+
+                  <button type="submit" class="btn-action accent-btn" style="width: 100%; padding: 14px; margin-top: 10px;">Inject Product into Catalog</button>
+                </form>
+              </div>
+
+              <!-- COLUMN 3: CATALOG INVENTORY MANAGER (FULL WIDTH INTERACTIVE) -->
+              <div class="console-panel full-width-panel">
+                <div class="panel-header">
+                  <h2 class="panel-title">Catalog Inventory Management</h2>
+                  <span class="stat-label" style="font-size: 10px;" id="inventoryFulfillmentStats">1 Item Active</span>
+                </div>
+
+                <div class="admin-table-container">
+                  <table class="admin-table" id="catalogTable">
+                    <thead>
+                      <tr>
+                        <th>Product ID</th>
+                        <th>Product Title</th>
+                        <th>Price</th>
+                        <th>Retail Price</th>
+                        <th>Stock level</th>
+                        <th>Catalog Status</th>
+                        <th>Stock adjustment</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr id="catalog-row-1">
+                        <td>leopard-backpack</td>
+                        <td>Léopard Fur Backpack</td>
+                        <td>R749</td>
+                        <td>R1,200</td>
+                        <td id="stock-level-1">45 units</td>
+                        <td><span class="status-badge admin">Active</span></td>
+                        <td>
+                          <button class="btn-action" onclick="adjustStock('1', 5)" style="margin-right: 5px;">+5</button>
+                          <button class="btn-action" onclick="adjustStock('1', -5)">-5</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- COLUMN 4: USER & PERMISSIONS DATABASE (FULL WIDTH INTERACTIVE) -->
+              <div class="console-panel full-width-panel">
+                <div class="panel-header">
+                  <h2 class="panel-title">Registered Accounts & Privileges</h2>
+                  <span class="stat-label" style="font-size: 10px;">Security Console</span>
+                </div>
+
+                <div class="admin-table-container">
+                  <table class="admin-table" id="usersTable">
+                    <thead>
+                      <tr>
+                        <th>Account Email</th>
+                        <th>Firebase UID</th>
+                        <th>Role Assignment</th>
+                        <th>Status</th>
+                        <th>Privileges Control</th>
+                      </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                      <tr>
+                        <td colspan="5" style="text-align: center; opacity: 0.5; padding: 30px;">Loading registered accounts from Firestore...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <footer class="admin-footer">
+            © 2026 MINARA5 ADMIN CONSOLE • EXCLUSIVE CONTROL PORTAL
+          </footer>
+
+          <!-- EDIT PRODUCT MODAL -->
+          <div id="editProductModal" class="edit-modal">
+            <div class="edit-modal-content">
+              <div class="edit-modal-header">
+                <h3 class="edit-modal-title">Edit Product Details</h3>
+                <span class="edit-modal-close" onclick="closeEditModal()">✕ Close</span>
+              </div>
+              
+              <form id="editProductForm" onsubmit="handleSaveEdit(event)">
+                <input type="hidden" id="editProdId">
+                
+                <div class="form-group">
+                  <label for="editProdName">Product Title / Name</label>
+                  <input type="text" id="editProdName" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="editProdPrice">Price (R)</label>
+                  <input type="number" id="editProdPrice" class="form-input" min="1" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="editProdRetailPrice">Retail Price (R)</label>
+                  <input type="number" id="editProdRetailPrice" class="form-input" min="0">
+                </div>
+
+                <div class="form-group">
+                  <label for="editProdStock">Stock Level</label>
+                  <input type="number" id="editProdStock" class="form-input" min="0" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="editProdImage">Product Image Path(s) / URL(s) <span style="text-transform: none; opacity: 0.5;">(comma-separated)</span></label>
+                  <input type="text" id="editProdImage" class="form-input">
+                  <div style="margin: 8px 0; text-align: center; font-size: 10px; opacity: 0.5;">— OR UPLOAD & AUTOMATICALLY COMPRESS —</div>
+                  <input type="file" id="editProdFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                </div>
+
+                <div class="form-group">
+                  <label for="editProdDesc">Product Biography / Description</label>
+                  <textarea id="editProdDesc" class="form-input" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: #fff; width: 100%; min-height: 100px; padding: 12px; font-family: inherit; font-size: 13px; outline: none; border-radius: 4px; resize: vertical;" required></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label for="editProdStatus">Catalog Status</label>
+                  <select id="editProdStatus" class="form-input" style="background:#1a1a24; color: #fff;">
+                    <option value="Active">Active / Revealed</option>
+                    <option value="Awaiting">Awaiting Reveal</option>
+                  </select>
+                </div>
+
+                <div class="edit-modal-footer">
+                  <button type="button" class="btn-action" onclick="closeEditModal()" style="padding: 10px 20px;">Cancel</button>
+                  <button type="submit" class="btn-action accent-btn" style="padding: 10px 20px;">Save Changes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `;
+    }
 
     async function fetchSubscribers() {
       const tableBody = document.getElementById("subscribersTableBody");
@@ -861,7 +926,7 @@
       if (!tableBody) return;
       
       try {
-          // 1. Self-healing automatic sync of offline subscribers
+          // Self-healing automatic sync of offline subscribers
           const offlineSubs = JSON.parse(localStorage.getItem("minara_offline_subscribers") || "[]");
           if (offlineSubs.length > 0) {
               console.log("Found pending offline subscribers to sync:", offlineSubs.length);
@@ -888,7 +953,7 @@
               }
           }
 
-          // 2. Fetch live subscribers from Firestore
+          // Fetch live subscribers from Firestore
           const q = query(collection(db, "subscribers"), orderBy("timestamp", "desc"));
           const querySnapshot = await getDocs(q);
           
@@ -903,10 +968,9 @@
               });
           });
 
-          // 3. Fetch offline cached subscribers from localStorage
+          // Fetch offline cached subscribers from localStorage
           const currentOfflineSubs = JSON.parse(localStorage.getItem("minara_offline_subscribers") || "[]");
           currentOfflineSubs.forEach((sub, index) => {
-              // De-duplicate if already in Firestore
               if (!allSubscribers.some(item => item.email.toLowerCase() === sub.email.toLowerCase())) {
                   allSubscribers.push({
                       id: `local_cache_q${index}`,
@@ -917,7 +981,7 @@
               }
           });
 
-          // 4. Sort merged list by timestamp descending
+          // Sort merged list by timestamp descending
           allSubscribers.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
           if (allSubscribers.length === 0) {
@@ -930,34 +994,57 @@
               return;
           }
           
-          let html = "";
+          tableBody.innerHTML = ""; // Clear existing grid items securely
           allSubscribers.forEach((sub) => {
               const date = new Date(sub.timestamp).toLocaleString();
               const isOffline = sub.source === 'offline';
               const badgeClass = isOffline ? 'pending' : 'admin';
               const badgeText = isOffline ? 'PENDING SYNC' : '5% OFF ACTIVE';
               const emailColor = isOffline ? '#ff9f0a' : 'var(--accent)';
-              const offlineBadge = isOffline ? ` <span style="font-size: 8px; font-weight: normal; color: #ff9f0a; border: 1px solid rgba(255, 159, 10, 0.3); padding: 1px 4px; margin-left: 5px; border-radius: 2px;">OFFLINE CACHE</span>` : '';
               
-              html += `
-                  <tr>
-                      <td style="font-weight: bold; color: ${emailColor};">${sub.email}${offlineBadge}</td>
-                      <td>${date}</td>
-                      <td><span class="status-badge ${badgeClass}">${badgeText}</span></td>
-                      <td style="font-family: monospace; opacity: 0.5;">${sub.id}</td>
-                  </tr>
-              `;
+              const tr = document.createElement('tr');
+              
+              // Email cell securely built with textContent
+              const emailTd = document.createElement('td');
+              emailTd.style.fontWeight = 'bold';
+              emailTd.style.color = emailColor;
+              emailTd.textContent = sub.email;
+              
+              if (isOffline) {
+                  const offlineSpan = document.createElement('span');
+                  offlineSpan.style.cssText = "font-size: 8px; font-weight: normal; color: #ff9f0a; border: 1px solid rgba(255, 159, 10, 0.3); padding: 1px 4px; margin-left: 5px; border-radius: 2px;";
+                  offlineSpan.textContent = "OFFLINE CACHE";
+                  emailTd.appendChild(offlineSpan);
+              }
+              tr.appendChild(emailTd);
+              
+              // Date cell
+              const dateTd = document.createElement('td');
+              dateTd.textContent = date;
+              tr.appendChild(dateTd);
+              
+              // Badge cell
+              const badgeTd = document.createElement('td');
+              const badgeSpan = document.createElement('span');
+              badgeSpan.className = `status-badge ${badgeClass}`;
+              badgeSpan.textContent = badgeText;
+              badgeTd.appendChild(badgeSpan);
+              tr.appendChild(badgeTd);
+              
+              // ID cell securely built with textContent
+              const idTd = document.createElement('td');
+              idTd.style.fontFamily = 'monospace';
+              idTd.style.opacity = '0.5';
+              idTd.textContent = sub.id;
+              tr.appendChild(idTd);
+              
+              tableBody.appendChild(tr);
           });
-          
-          tableBody.innerHTML = html;
           if (feedCount) feedCount.textContent = allSubscribers.length + " Active Subscribers";
       } catch (error) {
-          console.error("Error fetching subscribers from Firestore. Raw error object:", error);
-          console.error("Firestore error code:", error.code);
+          console.error("Error fetching subscribers from Firestore:", error);
           
-          // Fall back gracefully to displaying local storage offline subscribers
           const offlineSubs = JSON.parse(localStorage.getItem("minara_offline_subscribers") || "[]");
-          
           let mergedSubscribers = [];
           offlineSubs.forEach((sub, index) => {
               mergedSubscribers.push({
@@ -968,43 +1055,65 @@
               });
           });
           
-          // Sort descending
           mergedSubscribers.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
           
-          let html = `
-              <tr>
-                  <td colspan="4" style="text-align: center; color: var(--danger); font-size: 11px; padding: 12px; background: rgba(255, 59, 48, 0.05); border-bottom: 1px solid rgba(255, 59, 48, 0.2);">
-                      ⚠ Firestore Connection Error: ${error.message} (Using local cache fallback)
-                  </td>
-              </tr>
-          `;
+          tableBody.innerHTML = "";
+          const errorTr = document.createElement('tr');
+          const errorTd = document.createElement('td');
+          errorTd.setAttribute('colspan', '4');
+          errorTd.style.cssText = "text-align: center; color: var(--danger); font-size: 11px; padding: 12px; background: rgba(255, 59, 48, 0.05); border-bottom: 1px solid rgba(255, 59, 48, 0.2);";
+          errorTd.textContent = `⚠ Firestore Connection Error: ${error.message} (Using local cache fallback)`;
+          errorTr.appendChild(errorTd);
+          tableBody.appendChild(errorTr);
           
           if (mergedSubscribers.length === 0) {
-              html += `
-                  <tr>
-                      <td colspan="4" style="text-align: center; opacity: 0.5; padding: 30px;">No offline cached subscribers.</td>
-                  </tr>
-              `;
+              const emptyTr = document.createElement('tr');
+              const emptyTd = document.createElement('td');
+              emptyTd.setAttribute('colspan', '4');
+              emptyTd.style.cssText = "text-align: center; opacity: 0.5; padding: 30px;";
+              emptyTd.textContent = "No offline cached subscribers.";
+              emptyTr.appendChild(emptyTd);
+              tableBody.appendChild(emptyTr);
           } else {
               mergedSubscribers.forEach((sub) => {
                   const date = new Date(sub.timestamp).toLocaleString();
                   const badgeClass = 'pending';
                   const badgeText = 'PENDING SYNC';
                   const emailColor = '#ff9f0a';
-                  const offlineBadge = ` <span style="font-size: 8px; font-weight: normal; color: #ff9f0a; border: 1px solid rgba(255, 159, 10, 0.3); padding: 1px 4px; margin-left: 5px; border-radius: 2px;">OFFLINE CACHE</span>`;
                   
-                  html += `
-                      <tr>
-                          <td style="font-weight: bold; color: ${emailColor};">${sub.email}${offlineBadge}</td>
-                          <td>${date}</td>
-                          <td><span class="status-badge ${badgeClass}">${badgeText}</span></td>
-                          <td style="font-family: monospace; opacity: 0.5;">${sub.id}</td>
-                      </tr>
-                  `;
+                  const tr = document.createElement('tr');
+                  
+                  const emailTd = document.createElement('td');
+                  emailTd.style.fontWeight = 'bold';
+                  emailTd.style.color = emailColor;
+                  emailTd.textContent = sub.email;
+                  
+                  const offlineSpan = document.createElement('span');
+                  offlineSpan.style.cssText = "font-size: 8px; font-weight: normal; color: #ff9f0a; border: 1px solid rgba(255, 159, 10, 0.3); padding: 1px 4px; margin-left: 5px; border-radius: 2px;";
+                  offlineSpan.textContent = "OFFLINE CACHE";
+                  emailTd.appendChild(offlineSpan);
+                  tr.appendChild(emailTd);
+                  
+                  const dateTd = document.createElement('td');
+                  dateTd.textContent = date;
+                  tr.appendChild(dateTd);
+                  
+                  const badgeTd = document.createElement('td');
+                  const badgeSpan = document.createElement('span');
+                  badgeSpan.className = `status-badge ${badgeClass}`;
+                  badgeSpan.textContent = badgeText;
+                  badgeTd.appendChild(badgeSpan);
+                  tr.appendChild(badgeTd);
+                  
+                  const idTd = document.createElement('td');
+                  idTd.style.fontFamily = 'monospace';
+                  idTd.style.opacity = '0.5';
+                  idTd.textContent = sub.id;
+                  tr.appendChild(idTd);
+                  
+                  tableBody.appendChild(tr);
               });
           }
-          
-          tableBody.innerHTML = html;
           if (feedCount) feedCount.textContent = mergedSubscribers.length + " Cached Subscribers";
       }
     }
@@ -1017,56 +1126,85 @@
           const q = query(collection(db, "users"), orderBy("email", "asc"));
           const querySnapshot = await getDocs(q);
           
-          let html = "";
+          tableBody.innerHTML = "";
           querySnapshot.forEach((docSnap) => {
               const data = docSnap.data();
               const uid = docSnap.id;
               const email = data.email || "";
               const role = data.role || "Customer";
-              const status = data.status || "Active";
               
               const isPrimaryOwner = email.toLowerCase() === "sub2meboyi@gmail.com";
               const roleBadgeClass = role === "Admin" ? "admin" : "user";
               const roleBadgeText = role === "Admin" ? "ADMIN ID" : "Customer";
               
-              let actionHtml = "";
-              if (isPrimaryOwner) {
-                  actionHtml = `<button class="btn-action" disabled style="opacity: 0.4; cursor:not-allowed;">Superuser</button>`;
-              } else {
-                  const btnClass = role === "Admin" ? "btn-action danger-btn" : "btn-action accent-btn";
-                  const btnText = role === "Admin" ? "Demote to User" : "Promote to Admin";
-                  actionHtml = `<button class="${btnClass}" onclick="toggleUserRole('${uid}', '${role}')">${btnText}</button>`;
-              }
+              const tr = document.createElement('tr');
               
-              html += `
-                  <tr>
-                      <td style="font-weight: bold; color: ${role === 'Admin' ? 'var(--accent)' : 'var(--text-main)'};">${email}</td>
-                      <td style="font-family: monospace; opacity: 0.5; font-size: 11px;">${uid}</td>
-                      <td><span class="status-badge ${roleBadgeClass}">${roleBadgeText}</span></td>
-                      <td><span style="color: var(--success); font-weight: ${isPrimaryOwner ? '700' : 'normal'};">${isPrimaryOwner ? '✓ Primary Owner' : '✓ Active'}</span></td>
-                      <td>${actionHtml}</td>
-                  </tr>
-              `;
+              const emailTd = document.createElement('td');
+              emailTd.style.fontWeight = 'bold';
+              emailTd.style.color = role === 'Admin' ? 'var(--accent)' : 'var(--text-main)';
+              emailTd.textContent = email;
+              tr.appendChild(emailTd);
+              
+              const uidTd = document.createElement('td');
+              uidTd.style.fontFamily = 'monospace';
+              uidTd.style.opacity = '0.5';
+              uidTd.style.fontSize = '11px';
+              uidTd.textContent = uid;
+              tr.appendChild(uidTd);
+              
+              const roleTd = document.createElement('td');
+              const roleSpan = document.createElement('span');
+              roleSpan.className = `status-badge ${roleBadgeClass}`;
+              roleSpan.textContent = roleBadgeText;
+              roleTd.appendChild(roleSpan);
+              tr.appendChild(roleTd);
+              
+              const statusTd = document.createElement('td');
+              const statusSpan = document.createElement('span');
+              statusSpan.style.color = 'var(--success)';
+              statusSpan.style.fontWeight = isPrimaryOwner ? '700' : 'normal';
+              statusSpan.textContent = isPrimaryOwner ? '✓ Primary Owner' : '✓ Active';
+              statusTd.appendChild(statusSpan);
+              tr.appendChild(statusTd);
+              
+              const controlTd = document.createElement('td');
+              if (isPrimaryOwner) {
+                  const btn = document.createElement('button');
+                  btn.className = 'btn-action';
+                  btn.disabled = true;
+                  btn.style.opacity = '0.4';
+                  btn.style.cursor = 'not-allowed';
+                  btn.textContent = 'Superuser';
+                  controlTd.appendChild(btn);
+              } else {
+                  const btn = document.createElement('button');
+                  btn.className = role === "Admin" ? "btn-action danger-btn" : "btn-action accent-btn";
+                  btn.textContent = role === "Admin" ? "Demote to User" : "Promote to Admin";
+                  btn.onclick = () => window.toggleUserRole(uid, role);
+                  controlTd.appendChild(btn);
+              }
+              tr.appendChild(controlTd);
+              
+              tableBody.appendChild(tr);
           });
           
-          if (html === "") {
-              html = `
+          if (tableBody.children.length === 0) {
+              tableBody.innerHTML = `
                   <tr>
                       <td colspan="5" style="text-align: center; opacity: 0.5; padding: 30px;">No registered accounts found in database.</td>
                   </tr>
               `;
           }
-          tableBody.innerHTML = html;
       } catch (error) {
-          console.error("Error fetching users from Firestore. Raw error object:", error);
-          console.error("Firestore error code:", error.code);
-          tableBody.innerHTML = `
-              <tr>
-                  <td colspan="5" style="text-align: center; color: var(--danger); font-size: 11px; padding: 12px; background: rgba(255, 59, 48, 0.05);">
-                      ⚠ Firestore Connection Error: ${error.message}
-                  </td>
-              </tr>
-          `;
+          console.error("Error fetching users from Firestore:", error);
+          tableBody.innerHTML = "";
+          const errorTr = document.createElement('tr');
+          const errorTd = document.createElement('td');
+          errorTd.setAttribute('colspan', '5');
+          errorTd.style.cssText = "text-align: center; color: var(--danger); font-size: 11px; padding: 12px; background: rgba(255, 59, 48, 0.05);";
+          errorTd.textContent = `⚠ Firestore Connection Error: ${error.message}`;
+          errorTr.appendChild(errorTd);
+          tableBody.appendChild(errorTr);
       }
     }
     window.fetchUsers = fetchUsers;
@@ -1091,8 +1229,7 @@
               window.fetchUsers();
           }
       } catch (error) {
-          console.error("Error toggling user role in Firestore. Raw error object:", error);
-          console.error("Firestore error code:", error.code);
+          console.error("Error toggling user role:", error);
           alert("Failed to update user role: " + error.message);
       }
     };
@@ -1116,7 +1253,6 @@
           }
       ];
       
-      // Load custom products from localStorage
       try {
           const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
           localProds.forEach(p => {
@@ -1135,50 +1271,125 @@
       }
       
       const renderTable = () => {
-          let html = "";
+          tableBody.innerHTML = "";
           products.forEach((p) => {
               const statusBadgeClass = p.status === 'Active' ? 'admin' : 'user';
-              const editBtnHtml = `<button class="btn-action accent-btn" onclick="openEditModal('${p.id}')" style="margin-left: 10px; padding: 4px 8px;">✎ Edit</button>`;
-              const deleteBtnHtml = p.id !== 'leopard-backpack' 
-                  ? `<button class="btn-action danger-btn" onclick="deleteProduct('${p.id}')" style="margin-left: 10px; padding: 4px 8px;">✕ Delete</button>` 
-                  : '';
               
-              html += `
-                  <tr id="catalog-row-${p.id}">
-                      <td style="font-family: monospace; font-size: 11px;">${p.id}</td>
-                      <td style="font-weight: bold; color: var(--accent);">${p.name}</td>
-                      <td>R${formatPrice(p.price)}</td>
-                      <td>${p.retailPrice ? 'R' + formatRetailPrice(p.retailPrice) : '—'}</td>
-                      <td id="stock-level-${p.id}">${p.stock} units</td>
-                      <td><span class="status-badge ${statusBadgeClass}">${p.status}</span></td>
-                      <td style="white-space: nowrap;">
-                          <button class="btn-action" onclick="adjustStock('${p.id}', 1)" style="margin-right: 2px; padding: 4px 8px;">+1</button>
-                          <button class="btn-action" onclick="adjustStock('${p.id}', -1)" style="margin-right: 6px; padding: 4px 8px;">-1</button>
-                          
-                          <button class="btn-action" onclick="adjustStock('${p.id}', 10)" style="margin-right: 2px; padding: 4px 8px;">+10</button>
-                          <button class="btn-action" onclick="adjustStock('${p.id}', -10)" style="margin-right: 6px; padding: 4px 8px;">-10</button>
-                          
-                          <button class="btn-action" onclick="adjustStock('${p.id}', 50)" style="margin-right: 2px; padding: 4px 8px;">+50</button>
-                          <button class="btn-action" onclick="adjustStock('${p.id}', -50)" style="padding: 4px 8px;">-50</button>
-                          ${editBtnHtml}
-                          ${deleteBtnHtml}
-                      </td>
-                  </tr>
-              `;
+              const tr = document.createElement('tr');
+              tr.id = `catalog-row-${p.id}`;
+              
+              const idTd = document.createElement('td');
+              idTd.style.fontFamily = 'monospace';
+              idTd.style.fontSize = '11px';
+              idTd.textContent = p.id;
+              tr.appendChild(idTd);
+              
+              const nameTd = document.createElement('td');
+              nameTd.style.fontWeight = 'bold';
+              nameTd.style.color = 'var(--accent)';
+              nameTd.textContent = p.name;
+              tr.appendChild(nameTd);
+              
+              const priceTd = document.createElement('td');
+              priceTd.textContent = `R${formatPrice(p.price)}`;
+              tr.appendChild(priceTd);
+              
+              const retailTd = document.createElement('td');
+              retailTd.textContent = p.retailPrice ? 'R' + formatRetailPrice(p.retailPrice) : '—';
+              tr.appendChild(retailTd);
+              
+              const stockTd = document.createElement('td');
+              stockTd.id = `stock-level-${p.id}`;
+              stockTd.textContent = `${p.stock} units`;
+              tr.appendChild(stockTd);
+              
+              const statusTd = document.createElement('td');
+              const statusSpan = document.createElement('span');
+              statusSpan.className = `status-badge ${statusBadgeClass}`;
+              statusSpan.textContent = p.status;
+              statusTd.appendChild(statusSpan);
+              tr.appendChild(statusTd);
+              
+              const actionsTd = document.createElement('td');
+              actionsTd.style.whiteSpace = 'nowrap';
+              
+              const add1 = document.createElement('button');
+              add1.className = 'btn-action';
+              add1.style.marginRight = '2px';
+              add1.style.padding = '4px 8px';
+              add1.textContent = '+1';
+              add1.onclick = () => window.adjustStock(p.id, 1);
+              actionsTd.appendChild(add1);
+              
+              const sub1 = document.createElement('button');
+              sub1.className = 'btn-action';
+              sub1.style.marginRight = '6px';
+              sub1.style.padding = '4px 8px';
+              sub1.textContent = '-1';
+              sub1.onclick = () => window.adjustStock(p.id, -1);
+              actionsTd.appendChild(sub1);
+              
+              const add10 = document.createElement('button');
+              add10.className = 'btn-action';
+              add10.style.marginRight = '2px';
+              add10.style.padding = '4px 8px';
+              add10.textContent = '+10';
+              add10.onclick = () => window.adjustStock(p.id, 10);
+              actionsTd.appendChild(add10);
+              
+              const sub10 = document.createElement('button');
+              sub10.className = 'btn-action';
+              sub10.style.marginRight = '6px';
+              sub10.style.padding = '4px 8px';
+              sub10.textContent = '-10';
+              sub10.onclick = () => window.adjustStock(p.id, -10);
+              actionsTd.appendChild(sub10);
+              
+              const add50 = document.createElement('button');
+              add50.className = 'btn-action';
+              add50.style.marginRight = '2px';
+              add50.style.padding = '4px 8px';
+              add50.textContent = '+50';
+              add50.onclick = () => window.adjustStock(p.id, 50);
+              actionsTd.appendChild(add50);
+              
+              const sub50 = document.createElement('button');
+              sub50.className = 'btn-action';
+              sub50.style.padding = '4px 8px';
+              sub50.textContent = '-50';
+              sub50.onclick = () => window.adjustStock(p.id, -50);
+              actionsTd.appendChild(sub50);
+              
+              const editBtn = document.createElement('button');
+              editBtn.className = 'btn-action accent-btn';
+              editBtn.style.marginLeft = '10px';
+              editBtn.style.padding = '4px 8px';
+              editBtn.textContent = '✎ Edit';
+              editBtn.onclick = () => window.openEditModal(p.id);
+              actionsTd.appendChild(editBtn);
+              
+              if (p.id !== 'leopard-backpack') {
+                  const deleteBtn = document.createElement('button');
+                  deleteBtn.className = 'btn-action danger-btn';
+                  deleteBtn.style.marginLeft = '10px';
+                  deleteBtn.style.padding = '4px 8px';
+                  deleteBtn.textContent = '✕ Delete';
+                  deleteBtn.onclick = () => window.deleteProduct(p.id);
+                  actionsTd.appendChild(deleteBtn);
+              }
+              
+              tr.appendChild(actionsTd);
+              tableBody.appendChild(tr);
           });
           
-          tableBody.innerHTML = html;
           if (statsEl) statsEl.textContent = products.length + " Items in System";
           if (dashCountEl) dashCountEl.textContent = products.length;
           
-          // Sync products globally
           window.minaraProducts = products;
       };
 
-      // 1. Instant Render from hardcoded + localStorage
       renderTable();
       
-      // 2. Fetch custom products from Firestore in background
       setTimeout(async () => {
           if (window.db && window.dbCollection && window.dbGetDocs) {
               try {
@@ -1212,7 +1423,7 @@
                       if (existingIdx > -1) {
                           const current = products[existingIdx];
                           if (current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.image_thumb !== p.image_thumb || current.description !== p.description) {
-                              products[existingIdx] = p; // Override with live Firestore stock / values
+                              products[existingIdx] = p;
                               updated = true;
                           }
                       } else {
@@ -1221,7 +1432,6 @@
                       }
                   });
                   
-                  // Sync Firestore products back to localStorage cache to prevent disappearing on reload!
                   try {
                       const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
                       let localUpdated = false;
@@ -1229,24 +1439,21 @@
                       firestoreProds.forEach(fp => {
                           const idx = localProds.findIndex(lp => lp.id === fp.id);
                           if (idx > -1) {
-                              // Update existing
                               const cur = localProds[idx];
                               if (cur.name !== fp.name || cur.price !== fp.price || cur.retailPrice !== fp.retailPrice || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.image_thumb !== fp.image_thumb || cur.description !== fp.description) {
                                   localProds[idx] = { ...fp, syncStatus: "synced" };
                                   localUpdated = true;
                               }
                           } else {
-                              // Insert new
                               localProds.push({ ...fp, syncStatus: "synced" });
                               localUpdated = true;
                           }
                       });
                       
-                      // Remove local products deleted in Firestore ONLY if firestoreProds has items (to prevent wiping on empty server responses or security blockouts)
                       if (firestoreProds.length > 0) {
                           const cleanedLocalProds = localProds.filter(lp => {
                               if (lp.id === 'leopard-backpack') return true;
-                              if (lp.syncStatus === 'pending') return true; // Keep local-only pending items
+                              if (lp.syncStatus === 'pending') return true;
                               
                               const existsInFirestore = firestoreProds.some(fp => fp.id === lp.id);
                               if (!existsInFirestore) {
@@ -1258,7 +1465,6 @@
                           
                           if (localUpdated) {
                               localStorage.setItem("minara_products", JSON.stringify(cleanedLocalProds));
-                              // Keep products array in sync too!
                               products = [
                                   {
                                       id: "leopard-backpack",
@@ -1278,27 +1484,23 @@
                           localStorage.setItem("minara_products", JSON.stringify(localProds));
                       }
                   } catch (cacheErr) {
-                      console.error("Failed to sync Firestore products back to local storage cache:", cacheErr);
+                      console.error("Failed to sync products cache:", cacheErr);
                   }
                   
                   if (updated) {
-                      renderTable(); // Re-render table with live data!
+                      renderTable();
                   }
               } catch (firestoreErr) {
-                  console.error("Firestore products background load timed out or failed. Raw error object:", firestoreErr);
-                  console.error("Firestore error code:", firestoreErr.code);
+                  console.error("Firestore products background load failed:", firestoreErr);
               }
           }
       }, 0);
     }
-
-    // Bind to window for dynamic calls
     window.loadCatalog = loadCatalog;
   </script>
 
   <!-- INTERACTIVE ADMIN ACTIONS & SCRIPT CONSOLES -->
   <script>
-    // 1. ORDER FULFILLMENT INTERACTIVITY
     let revenue = 0;
     let pendingCount = 0;
 
@@ -1306,15 +1508,12 @@
       const row = document.getElementById("order-row-" + rowId);
       if (!row) return;
 
-      // Update badge to Shipped
       const statusTd = row.cells[4];
       statusTd.innerHTML = `<span class="status-badge shipped">Shipped</span>`;
 
-      // Update actions to Completed
       const actionTd = row.cells[5];
       actionTd.innerHTML = `<button class="btn-action" disabled style="opacity: 0.5; cursor: not-allowed;">Completed</button>`;
 
-      // Adjust metrics
       pendingCount = Math.max(0, pendingCount - 1);
       revenue += 749;
 
@@ -1325,7 +1524,6 @@
       alert("Order #" + (1025 - rowId) + " fulfilled successfully! Revenue updated.");
     };
 
-    // Browser-based image compression and resizing pipeline (WebP fallback at 80% & 50% qualities)
     const compressImage = function(file, maxWidth, quality) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -1345,12 +1543,10 @@
             canvas.height = height;
             
             const ctx = canvas.getContext('2d');
-            // Remove transparency by painting a solid white background
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, width, height);
             ctx.drawImage(img, 0, 0, width, height);
             
-            // Export as WebP data URL. WebP is highly compressed and supported in all modern browsers.
             const dataUrl = canvas.toDataURL('image/webp', quality);
             resolve(dataUrl);
           };
@@ -1362,21 +1558,19 @@
       });
     };
 
-    // New helper to dynamically compress a URL or relative image path in the browser
     const compressUrlOrPath = function(urlOrPath, maxWidth, quality) {
       return new Promise((resolve, reject) => {
         if (!urlOrPath) {
           resolve("");
           return;
         }
-        // If it's already a base64 data URL, return it directly
         if (urlOrPath.startsWith('data:')) {
           resolve(urlOrPath);
           return;
         }
         
         const img = new Image();
-        img.crossOrigin = "anonymous"; // Try anonymous CORS if it's an external URL
+        img.crossOrigin = "anonymous";
         img.onload = function() {
           try {
             const canvas = document.createElement('canvas');
@@ -1399,7 +1593,6 @@
             const dataUrl = canvas.toDataURL('image/webp', quality);
             resolve(dataUrl);
           } catch (canvasErr) {
-            // Tainted canvas or draw failure - reject to let it fall back
             reject(canvasErr);
           }
         };
@@ -1410,7 +1603,6 @@
       });
     };
 
-    // 2. PRODUCT ADDITION TO CATALOG WITH DUAL-WRITE SYNCS
     window.handleAddProduct = async function(e) {
       e.preventDefault();
       
@@ -1430,7 +1622,6 @@
         return;
       }
 
-      // Lock buttons during submit injection
       const submitBtn = e.target.querySelector('button[type="submit"]');
       const originalText = submitBtn ? submitBtn.innerHTML : "";
       if (submitBtn) {
@@ -1441,29 +1632,19 @@
       let mainImageBase64 = imageInput;
       let thumbImageBase64 = "";
 
-      // If a file is selected, process it
       if (fileInput) {
         try {
-          // 1200px width, 80% quality for main image
           mainImageBase64 = await compressImage(fileInput, 1200, 0.80);
-          // 600px width, 50% quality for thumbnail
           thumbImageBase64 = await compressImage(fileInput, 600, 0.50);
-          console.log("Image compressed successfully in browser from file picker!");
         } catch (compressErr) {
-          console.error("Browser image compression failed:", compressErr);
-          alert("Image compression failed. Falling back to default URL field.");
+          console.error(compressErr);
           mainImageBase64 = imageInput;
         }
       } else if (imageInput && !imageInput.startsWith('data:')) {
-        // If a relative/absolute path or URL is entered, attempt dynamic canvas compression!
         try {
-          console.log("Attempting browser-side URL/path image compression...");
           mainImageBase64 = await compressUrlOrPath(imageInput, 1200, 0.80);
           thumbImageBase64 = await compressUrlOrPath(imageInput, 600, 0.50);
-          console.log("Image compressed successfully in browser from URL/path!");
         } catch (urlCompressErr) {
-          console.warn("Browser URL/path compression failed (likely due to CORS or local file loading). Keeping original path/URL:", urlCompressErr);
-          // Keep original path/URL as fallback
           mainImageBase64 = imageInput;
           thumbImageBase64 = "";
         }
@@ -1477,16 +1658,15 @@
           retailPrice: retailPrice,
           stock: stock,
           image: mainImageBase64,
-          image_thumb: thumbImageBase64, // Store thumbnail base64 directly
+          image_thumb: thumbImageBase64,
           description: description,
           status: status
       };
 
-      // Save to localStorage
       try {
           const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
           const idx = localProds.findIndex(p => p.id === idStr);
-          newProduct.syncStatus = "pending"; // Mark as pending initially
+          newProduct.syncStatus = "pending";
           if (idx > -1) {
               localProds[idx] = newProduct;
           } else {
@@ -1494,17 +1674,16 @@
           }
           localStorage.setItem("minara_products", JSON.stringify(localProds));
       } catch (err) {
-          console.error("Local storage product save failed:", err);
+          console.error(err);
       }
 
       let firestoreSuccess = false;
       let firestoreErrorMsg = "";
 
-      // Save to Firestore `"products"` collection using preloaded global window.db
       if (window.db && window.dbDoc && window.dbSetDoc) {
           try {
               const timeoutPromise = new Promise((_, reject) => 
-                  setTimeout(() => reject(new Error("Timeout waiting for Firestore")), 20000) // 20 seconds for base64 uploads
+                  setTimeout(() => reject(new Error("Timeout")), 20000)
               );
               await Promise.race([
                   window.dbSetDoc(window.dbDoc(window.db, "products", idStr), {
@@ -1513,17 +1692,15 @@
                       retailPrice: retailPrice,
                       stock: stock,
                       image: mainImageBase64,
-                      image_thumb: thumbImageBase64, // Sync to Firestore
+                      image_thumb: thumbImageBase64,
                       description: description,
                       status: status,
                       timestamp: new Date().toISOString()
                   }),
                   timeoutPromise
               ]);
-              console.log("Dynamic product injected into Firestore successfully!");
               firestoreSuccess = true;
               
-              // Update status to synced in local cache
               try {
                   const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
                   const idx = localProds.findIndex(p => p.id === idStr);
@@ -1531,17 +1708,12 @@
                       localProds[idx].syncStatus = "synced";
                       localStorage.setItem("minara_products", JSON.stringify(localProds));
                   }
-              } catch (cacheErr) {
-                  console.error("Failed to update sync status in local cache:", cacheErr);
-              }
+              } catch (cacheErr) {}
           } catch (dbErr) {
               firestoreErrorMsg = dbErr.message || dbErr;
-              console.error("Firestore product injection timed out or failed. Raw error object:", dbErr);
-              console.error("Firestore error code:", dbErr.code);
           }
       }
 
-      // Unlock submit button and reset form
       document.getElementById("productForm").reset();
       if (submitBtn) {
           submitBtn.disabled = false;
@@ -1549,9 +1721,9 @@
       }
 
       if (firestoreSuccess) {
-          alert("Success! " + name + " has been successfully injected, compressed, and synced to Firestore.");
+          alert("Success! " + name + " has been successfully injected and synced.");
       } else {
-          alert("Warning: " + name + " was saved locally, but failed to sync online to Firestore.\nError: " + firestoreErrorMsg);
+          alert("Warning: " + name + " was saved locally, but failed to sync online.\nError: " + firestoreErrorMsg);
       }
       
       if (typeof window.loadCatalog === 'function') {
@@ -1559,7 +1731,6 @@
       }
     };
 
-    // 3. EXPANDED STOCK LEVEL ADJUSTMENT WITH DUAL-WRITE SYNCS
     window.adjustStock = async function(productId, amount) {
       const stockTd = document.getElementById("stock-level-" + productId);
       if (!stockTd) return;
@@ -1570,13 +1741,11 @@
       const newStock = Math.max(0, currentStock + amount);
       stockTd.textContent = newStock + " units";
 
-      // Sync and adjust in global storage
       if (window.minaraProducts) {
           const product = window.minaraProducts.find(p => p.id === productId);
           if (product) {
               product.stock = newStock;
               
-              // 1. Sync local storage cache
               try {
                   const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
                   const idx = localProds.findIndex(p => p.id === productId);
@@ -1586,21 +1755,14 @@
                       localProds.push({ ...product, stock: newStock });
                   }
                   localStorage.setItem("minara_products", JSON.stringify(localProds));
-              } catch (err) {
-                  console.error("Local storage stock update failed:", err);
-              }
+              } catch (err) {}
               
-              // 2. Sync Firebase Firestore database
               if (window.db && window.dbDoc && window.dbUpdateDoc && productId !== 'leopard-backpack') {
                   try {
                       await window.dbUpdateDoc(window.dbDoc(window.db, "products", productId), {
                           stock: newStock
                       });
-                      console.log("Firestore stock sync completed!");
-                  } catch (dbErr) {
-                      console.error("Firestore stock sync failed. Raw error object:", dbErr);
-                      console.error("Firestore error code:", dbErr.code);
-                  }
+                  } catch (dbErr) {}
               }
           }
       }
@@ -1611,52 +1773,44 @@
       }
     };
 
-    // 3.5. PRODUCT DELETION SYSTEM
     window.deleteProduct = async function(productId) {
       if (productId === 'leopard-backpack') {
-          alert("Cannot delete the core Leopard Fur Backpack product!");
+          alert("Cannot delete Leopard Backpack!");
           return;
       }
 
-      if (!confirm("Are you sure you want to permanently delete this product from the catalog?")) {
+      if (!confirm("Are you sure you want to permanently delete this product?")) {
           return;
       }
 
-      // 1. Sync local storage cache
       try {
           const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
           const filteredProds = localProds.filter(p => p.id !== productId);
           localStorage.setItem("minara_products", JSON.stringify(filteredProds));
-      } catch (err) {
-          console.error("Local storage product deletion failed:", err);
-      }
+      } catch (err) {}
 
       let firestoreDelSuccess = false;
       let firestoreDelErrorMsg = "";
 
-      // 2. Sync Firebase Firestore database
       if (window.db && window.dbDoc && window.dbDeleteDoc) {
           try {
               const timeoutPromise = new Promise((_, reject) => 
-                  setTimeout(() => reject(new Error("Timeout waiting for Firestore deletion")), 10000)
+                  setTimeout(() => reject(new Error("Timeout")), 10000)
               );
               await Promise.race([
                   window.dbDeleteDoc(window.dbDoc(window.db, "products", productId)),
                   timeoutPromise
               ]);
-              console.log("Firestore product deletion completed successfully!");
               firestoreDelSuccess = true;
           } catch (dbErr) {
               firestoreDelErrorMsg = dbErr.message || dbErr;
-              console.error("Firestore product deletion failed or timed out. Raw error object:", dbErr);
-              console.error("Firestore error code:", dbErr.code);
           }
       }
 
       if (firestoreDelSuccess) {
-          alert("Success! The product has been permanently removed from the catalog and Firestore.");
+          alert("Success! The product has been permanently removed.");
       } else {
-          alert("Warning: The product was removed locally, but failed to sync the deletion to Firestore.\nError: " + firestoreDelErrorMsg);
+          alert("Warning: The product was removed locally, but failed to sync deletion.\nError: " + firestoreDelErrorMsg);
       }
       
       if (typeof window.loadCatalog === 'function') {
@@ -1664,9 +1818,6 @@
       }
     };
 
-
-
-    // EDIT MODAL JS LOGIC
     window.openEditModal = function(productId) {
       if (!window.minaraProducts) return;
       const product = window.minaraProducts.find(p => p.id === productId);
@@ -1722,49 +1873,29 @@
       let mainImageBase64 = imageInput;
       let thumbImageBase64 = "";
 
-      // Lookup current product to get existing thumb if image URL didn't change and no file is uploaded
       if (window.minaraProducts) {
           const existingProd = window.minaraProducts.find(p => p.id === id);
           if (existingProd) {
               thumbImageBase64 = existingProd.image_thumb || "";
-              // If image text input has changed and it is different from existingProd.image, clear thumb unless also uploaded
               if (imageInput !== existingProd.image) {
                   thumbImageBase64 = "";
               }
           }
       }
 
-      // If a file is selected, process it
       if (fileInput) {
         try {
-          // 1200px width, 80% quality for main image
           mainImageBase64 = await compressImage(fileInput, 1200, 0.80);
-          // 600px width, 50% quality for thumbnail
           thumbImageBase64 = await compressImage(fileInput, 600, 0.50);
-          console.log("Edit image compressed successfully in browser from file picker!");
         } catch (compressErr) {
-          console.error("Browser image compression failed during edit:", compressErr);
-          alert("Image compression failed. Falling back to default URL field.");
           mainImageBase64 = imageInput;
         }
       } else if (imageInput && !imageInput.startsWith('data:')) {
-        // If a relative/absolute path or URL is entered, attempt dynamic canvas compression!
         try {
-          console.log("Attempting browser-side URL/path image compression during edit...");
           mainImageBase64 = await compressUrlOrPath(imageInput, 1200, 0.80);
           thumbImageBase64 = await compressUrlOrPath(imageInput, 600, 0.50);
-          console.log("Image compressed successfully in browser from URL/path!");
         } catch (urlCompressErr) {
-          console.warn("Browser URL/path compression failed (likely due to CORS or local file loading). Keeping original path/URL:", urlCompressErr);
-          // Keep original path/URL as fallback
           mainImageBase64 = imageInput;
-          // Keep existing thumbnail if URL didn't change
-          if (window.minaraProducts) {
-              const existingProd = window.minaraProducts.find(p => p.id === id);
-              if (existingProd && imageInput === existingProd.image) {
-                  thumbImageBase64 = existingProd.image_thumb || "";
-              }
-          }
         }
       }
 
@@ -1780,29 +1911,25 @@
           status: status
       };
 
-      // 1. Save to local storage
       try {
           const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
           const idx = localProds.findIndex(p => p.id === id);
-          updatedProduct.syncStatus = "pending"; // Mark as pending initially
+          updatedProduct.syncStatus = "pending";
           if (idx > -1) {
               localProds[idx] = updatedProduct;
           } else {
               localProds.push(updatedProduct);
           }
           localStorage.setItem("minara_products", JSON.stringify(localProds));
-      } catch (err) {
-          console.error("Local storage edit update failed:", err);
-      }
+      } catch (err) {}
 
       let firestoreSuccess = false;
       let firestoreErrorMsg = "";
 
-      // 2. Save to Firestore
       if (window.db && window.dbDoc && window.dbSetDoc) {
           try {
               const timeoutPromise = new Promise((_, reject) => 
-                  setTimeout(() => reject(new Error("Timeout waiting for Firestore")), 20000) // 20 seconds for uploads
+                  setTimeout(() => reject(new Error("Timeout")), 20000)
               );
               await Promise.race([
                   window.dbSetDoc(window.dbDoc(window.db, "products", id), {
@@ -1811,17 +1938,15 @@
                       retailPrice: retailPrice,
                       stock: stock,
                       image: mainImageBase64,
-                      image_thumb: thumbImageBase64, // Sync to Firestore
+                      image_thumb: thumbImageBase64,
                       description: description,
                       status: status,
                       timestamp: new Date().toISOString()
                   }),
                   timeoutPromise
               ]);
-              console.log("Product edits saved to Firestore successfully!");
               firestoreSuccess = true;
               
-              // Update status to synced in local cache
               try {
                   const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
                   const idx = localProds.findIndex(p => p.id === id);
@@ -1829,17 +1954,12 @@
                       localProds[idx].syncStatus = "synced";
                       localStorage.setItem("minara_products", JSON.stringify(localProds));
                   }
-              } catch (cacheErr) {
-                  console.error("Failed to update sync status in local cache:", cacheErr);
-              }
+              } catch (cacheErr) {}
           } catch (dbErr) {
               firestoreErrorMsg = dbErr.message || dbErr;
-              console.error("Firestore product edits save timed out or failed. Raw error object:", dbErr);
-              console.error("Firestore error code:", dbErr.code);
           }
       }
 
-      // Reset the file input field
       const editFileEl = document.getElementById("editProdFile");
       if (editFileEl) editFileEl.value = "";
 
@@ -1850,9 +1970,9 @@
       }
 
       if (firestoreSuccess) {
-          alert("Success! " + name + " has been successfully updated and synced to Firestore.");
+          alert("Success! " + name + " has been successfully updated and synced.");
       } else {
-          alert("Warning: " + name + " was updated locally, but failed to sync online to Firestore.\nError: " + firestoreErrorMsg);
+          alert("Warning: " + name + " was updated locally, but failed to sync online.\nError: " + firestoreErrorMsg);
       }
       
       if (typeof window.loadCatalog === 'function') {
@@ -1861,67 +1981,6 @@
     };
   </script>
 
-  <!-- DYNAMIC IMPORT FOR LOGOUT SYSTEM -->
   <script type="module" src="header.js"></script>
-
-  <!-- EDIT PRODUCT MODAL -->
-  <div id="editProductModal" class="edit-modal">
-    <div class="edit-modal-content">
-      <div class="edit-modal-header">
-        <h3 class="edit-modal-title">Edit Product Details</h3>
-        <span class="edit-modal-close" onclick="closeEditModal()">✕ Close</span>
-      </div>
-      
-      <form id="editProductForm" onsubmit="handleSaveEdit(event)">
-        <input type="hidden" id="editProdId">
-        
-        <div class="form-group">
-          <label for="editProdName">Product Title / Name</label>
-          <input type="text" id="editProdName" class="form-input" required>
-        </div>
-        
-        <div class="form-group">
-          <label for="editProdPrice">Price (R)</label>
-          <input type="number" id="editProdPrice" class="form-input" min="1" required>
-        </div>
-
-        <div class="form-group">
-          <label for="editProdRetailPrice">Retail Price (R)</label>
-          <input type="number" id="editProdRetailPrice" class="form-input" min="0">
-        </div>
-
-        <div class="form-group">
-          <label for="editProdStock">Stock Level</label>
-          <input type="number" id="editProdStock" class="form-input" min="0" required>
-        </div>
-
-        <div class="form-group">
-          <label for="editProdImage">Product Image Path(s) / URL(s) <span style="text-transform: none; opacity: 0.5;">(comma-separated)</span></label>
-          <input type="text" id="editProdImage" class="form-input">
-          <div style="margin: 8px 0; text-align: center; font-size: 10px; opacity: 0.5;">— OR UPLOAD & AUTOMATICALLY COMPRESS —</div>
-          <input type="file" id="editProdFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
-        </div>
-
-        <div class="form-group">
-          <label for="editProdDesc">Product Biography / Description</label>
-          <textarea id="editProdDesc" class="form-input" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: #fff; width: 100%; min-height: 100px; padding: 12px; font-family: inherit; font-size: 13px; outline: none; border-radius: 4px; resize: vertical;" required></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="editProdStatus">Catalog Status</label>
-          <select id="editProdStatus" class="form-input" style="background:#1a1a24; color: #fff;">
-            <option value="Active">Active / Revealed</option>
-            <option value="Awaiting">Awaiting Reveal</option>
-          </select>
-        </div>
-
-        <div class="edit-modal-footer">
-          <button type="button" class="btn-action" onclick="closeEditModal()" style="padding: 10px 20px;">Cancel</button>
-          <button type="submit" class="btn-action accent-btn" style="padding: 10px 20px;">Save Changes</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
 </body>
 </html>

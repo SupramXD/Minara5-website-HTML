@@ -850,62 +850,107 @@ window.addEventListener("orientationchange", updateCartHeight);
         // Render function
         const renderGrid = () => {
             const activeProducts = products.filter(p => p.status === 'Active');
-            let gridHtml = "";
+            grid.innerHTML = ""; // Clear existing grid items securely
             
             activeProducts.forEach(p => {
-                const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
-                const displayPrice = hasDiscount
-                    ? `<div style="display: flex; flex-direction: column; align-items: flex-start;"><span style="color: #1106e8; font-weight: bold; line-height: 1.1;">R${formatPrice(Math.round(p.price * 0.95))}</span><span style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;">R${formatPrice(p.price)}</span></div>`
-                    : `R${formatPrice(p.price)}`;
-
-                const retailHtml = p.retailPrice ? `<div class="product-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Retail: R${formatRetailPrice(p.retailPrice)}</div>` : '';
-
-                // Format name dynamically for inspired by prefix
+                const item = document.createElement('div');
+                item.className = "catalog-item";
+                
+                item.innerHTML = `
+                    <a class="product-link">
+                        <div class="product-box">
+                            <img class="product-img" src="" alt="">
+                        </div>
+                        <div class="product-info">
+                            <div class="product-name"></div>
+                            <div class="product-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; display: none;"></div>
+                            <div class="price"></div>
+                        </div>
+                    </a>
+                    <button class="add-to-cart-btn"></button>
+                `;
+                
+                // Bind static URL safely
+                item.querySelector('.product-link').href = p.url;
+                
                 const inspiredRegex = /^(inspired\s*by\s*:?|inspire\s*by\s*:?|inspiredby\s*:?|inspireby\s*:?)/i;
-                let prefixHtml = "";
                 let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
                 const match = rawName.match(inspiredRegex);
                 if (match) {
                     rawName = rawName.substring(match[0].length).trim();
-                    prefixHtml = `<span class="inspired-prefix" style="font-size: 8px; opacity: 0.5; font-weight: normal; text-transform: uppercase; display: block; margin-bottom: 2px; letter-spacing: 0.5px; line-height: 1.1; white-space: nowrap;">Inspired By</span>`;
                 }
-                const formattedName = prefixHtml + rawName;
-
-                gridHtml += `
-                    <div class="catalog-item">
-                        <a href="${p.url}" class="product-link">
-                            <div class="product-box">
-                                <img src="${getThumbnailImageUrl(p.image, p.image_thumb)}" alt="${rawName}">
-                            </div>
-                            <div class="product-info">
-                                <div class="product-name">${formattedName}</div>
-                                ${retailHtml}
-                                <div class="price">${displayPrice}</div>
-                            </div>
-                        </a>
-                        <button class="add-to-cart-btn" onclick="addToCart('${p.id}')">${p.stock > 0 ? 'ADD TO BAG' : 'OUT OF STOCK'}</button>
-                    </div>
-                `;
+                
+                // Safe image properties assignment
+                const img = item.querySelector('.product-img');
+                img.src = getThumbnailImageUrl(p.image, p.image_thumb);
+                img.setAttribute('alt', rawName);
+                
+                // Safe product name text assignments
+                const nameEl = item.querySelector('.product-name');
+                nameEl.innerHTML = "";
+                if (match) {
+                    const prefix = document.createElement('span');
+                    prefix.className = "inspired-prefix";
+                    prefix.style.cssText = "font-size: 8px; opacity: 0.5; font-weight: normal; text-transform: uppercase; display: block; margin-bottom: 2px; letter-spacing: 0.5px; line-height: 1.1; white-space: nowrap;";
+                    prefix.textContent = "Inspired By";
+                    nameEl.appendChild(prefix);
+                }
+                nameEl.appendChild(document.createTextNode(rawName));
+                
+                // Safe retail price assignment
+                const retailEl = item.querySelector('.product-retail-price');
+                if (p.retailPrice) {
+                    retailEl.textContent = `Retail: R${formatRetailPrice(p.retailPrice)}`;
+                    retailEl.style.display = 'block';
+                }
+                
+                // Safe price text element configuration (handles discount layout)
+                const priceEl = item.querySelector('.price');
+                const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
+                if (hasDiscount) {
+                    priceEl.innerHTML = `
+                        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                            <span class="discounted-price" style="color: #1106e8; font-weight: bold; line-height: 1.1;"></span>
+                            <span class="original-price" style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;"></span>
+                        </div>
+                    `;
+                    priceEl.querySelector('.discounted-price').textContent = `R${formatPrice(Math.round(p.price * 0.95))}`;
+                    priceEl.querySelector('.original-price').textContent = `R${formatPrice(p.price)}`;
+                } else {
+                    priceEl.textContent = `R${formatPrice(p.price)}`;
+                }
+                
+                // Safe button actions mapping
+                const btn = item.querySelector('.add-to-cart-btn');
+                btn.textContent = p.stock > 0 ? 'ADD TO BAG' : 'OUT OF STOCK';
+                if (p.stock <= 0) {
+                    btn.disabled = true;
+                    btn.style.opacity = "0.5";
+                    btn.style.cursor = "not-allowed";
+                } else {
+                    btn.setAttribute('onclick', `addToCart('${p.id}')`);
+                }
+                
+                grid.appendChild(item);
             });
-
-            // Add placeholders if total active items is less than 4
+            
+            // Safe placeholder items mapping
             const placeholdersNeeded = Math.max(0, 4 - activeProducts.length);
             for (let i = 0; i < placeholdersNeeded; i++) {
-                gridHtml += `
-                    <div class="catalog-item">
-                        <div class="product-link">
-                            <div class="product-box"></div>
-                            <div class="product-info">
-                                <div class="placeholder-name">AWAITING<br>REVEAL</div>
-                                <div class="placeholder-price">R0</div>
-                            </div>
+                const item = document.createElement('div');
+                item.className = "catalog-item";
+                item.innerHTML = `
+                    <div class="product-link">
+                        <div class="product-box"></div>
+                        <div class="product-info">
+                            <div class="placeholder-name">AWAITING<br>REVEAL</div>
+                            <div class="placeholder-price">R0</div>
                         </div>
-                        <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>
                     </div>
+                    <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>
                 `;
+                grid.appendChild(item);
             }
-
-            grid.innerHTML = gridHtml;
         };
 
         // Load local cache and render instantly!
@@ -937,7 +982,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                         const data = doc.data();
                         const p = {
                             id: doc.id,
-                            name: data.name,
+                            name: window.escapeHTML(data.name),
                             price: Number(data.price),
                             retailPrice: data.retailPrice !== undefined ? Number(data.retailPrice) : null,
                             stock: Number(data.stock),

@@ -1100,21 +1100,28 @@ window.openCart = function() {
             if (titleEl) {
                 // Format name dynamically for inspired by prefix
                 const inspiredRegex = /^(inspired\s*by\s*:?|inspire\s*by\s*:?|inspiredby\s*:?|inspireby\s*:?)/i;
-                let prefixHtml = "";
                 let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
                 const match = rawName.match(inspiredRegex);
                 if (match) {
                     rawName = rawName.substring(match[0].length).trim();
-                    prefixHtml = `<span class="inspired-prefix" style="font-size: 9px; opacity: 0.5; font-weight: normal; text-transform: uppercase; display: block; margin-bottom: 2px; letter-spacing: 0.5px; line-height: 1.1; white-space: nowrap;">Inspired By</span>`;
                 }
-                titleEl.innerHTML = prefixHtml + rawName;
+                
+                titleEl.innerHTML = ""; // Clear existing safely
+                if (match) {
+                    const prefix = document.createElement('span');
+                    prefix.className = "inspired-prefix";
+                    prefix.style.cssText = "font-size: 9px; opacity: 0.5; font-weight: normal; text-transform: uppercase; display: block; margin-bottom: 2px; letter-spacing: 0.5px; line-height: 1.1; white-space: nowrap;";
+                    prefix.textContent = "Inspired By";
+                    titleEl.appendChild(prefix);
+                }
+                titleEl.appendChild(document.createTextNode(rawName));
             }
 
             // Retail Price
             const retailEl = document.querySelector('.product-retail-price');
             if (retailEl) {
                 if (p.retailPrice) {
-                    retailEl.innerHTML = `Retail Price: R${formatRetailPrice(p.retailPrice)}`;
+                    retailEl.textContent = `Retail Price: R${formatRetailPrice(p.retailPrice)}`;
                     retailEl.style.display = 'block';
                 } else {
                     retailEl.style.display = 'none';
@@ -1126,35 +1133,50 @@ window.openCart = function() {
             if (priceEl && p.price !== undefined) {
                 const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
                 if (hasDiscount) {
-                    priceEl.innerHTML = `<div style="display: flex; flex-direction: column; align-items: flex-start;"><span style="color: #1106e8; font-weight: bold; line-height: 1.1; font-size: 1.25em;">R${formatPrice(Math.round(p.price * 0.95))}</span><span style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;">R${formatPrice(p.price)}</span></div>`;
+                    priceEl.innerHTML = `
+                        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                            <span class="discounted-price" style="color: #1106e8; font-weight: bold; line-height: 1.1; font-size: 1.25em;"></span>
+                            <span class="original-price" style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;"></span>
+                        </div>
+                    `;
+                    priceEl.querySelector('.discounted-price').textContent = `R${formatPrice(Math.round(p.price * 0.95))}`;
+                    priceEl.querySelector('.original-price').textContent = `R${formatPrice(p.price)}`;
                 } else {
-                    priceEl.innerHTML = `R${formatPrice(p.price)}`;
+                    priceEl.textContent = `R${formatPrice(p.price)}`;
                 }
             }
 
             // Stock Level display
             const stockEl = document.querySelector('.product-stock');
             if (stockEl && p.stock !== undefined) {
+                stockEl.innerHTML = ""; // Clear existing safely
                 if (p.stock <= 0) {
-                    stockEl.innerHTML = `<span style="color: #ff3b30; font-weight: bold;">OUT OF STOCK</span>`;
+                    const span = document.createElement('span');
+                    span.style.cssText = "color: #ff3b30; font-weight: bold;";
+                    span.textContent = "OUT OF STOCK";
+                    stockEl.appendChild(span);
                 } else if (p.stock <= 5) {
-                    stockEl.innerHTML = `<span style="color: #ff9500; font-weight: bold;">ONLY ${p.stock} LEFT - ORDER SOON</span>`;
+                    const span = document.createElement('span');
+                    span.style.cssText = "color: #ff9500; font-weight: bold;";
+                    span.textContent = `ONLY ${p.stock} LEFT - ORDER SOON`;
+                    stockEl.appendChild(span);
                 } else {
-                    stockEl.innerHTML = `IN STOCK: ${p.stock} UNITS`;
+                    stockEl.textContent = `IN STOCK: ${p.stock} UNITS`;
                 }
             }
 
             // Image slider
             const track = document.querySelector('.slider-track');
             if (track && p.image) {
-                // Support multiple comma separated images, or just one (unless base64)
+                track.innerHTML = ""; // Clear safely
                 const images = p.image.startsWith('data:') ? [p.image] : p.image.split(',');
-                let imageHtml = "";
                 images.forEach(img => {
                     const src = img.trim();
-                    imageHtml += `<img src="${src}" alt="${p.name || 'Product'}">`;
+                    const imgEl = document.createElement('img');
+                    imgEl.src = src;
+                    imgEl.setAttribute('alt', p.name || 'Product');
+                    track.appendChild(imgEl);
                 });
-                track.innerHTML = imageHtml;
                 
                 // Re-setup slider dots if there are multiple images
                 const dotsContainer = document.querySelector('.slider-dots');
@@ -1186,7 +1208,14 @@ window.openCart = function() {
             // Description (bio)
             const descEl = document.querySelector('.desc');
             if (descEl) {
-                descEl.innerHTML = (p.description || "").replace(/\n/g, '<br>');
+                descEl.innerHTML = ""; // Clear existing safely
+                const lines = (p.description || "").split('\n');
+                lines.forEach((line, index) => {
+                    descEl.appendChild(document.createTextNode(line));
+                    if (index < lines.length - 1) {
+                        descEl.appendChild(document.createElement('br'));
+                    }
+                });
             }
 
             // ADD TO BAG button action
@@ -1227,13 +1256,13 @@ window.openCart = function() {
                     const data = docSnap.data();
                     const liveProduct = {
                         id: productId,
-                        name: data.name,
+                        name: window.escapeHTML(data.name),
                         price: Number(data.price),
                         retailPrice: data.retailPrice !== undefined ? Number(data.retailPrice) : null,
                         stock: Number(data.stock),
                         image: data.image,
                         image_thumb: data.image_thumb || "",
-                        description: data.description,
+                        description: window.escapeHTML(data.description),
                         status: data.status
                     };
                     

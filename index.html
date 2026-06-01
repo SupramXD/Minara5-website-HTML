@@ -1509,64 +1509,123 @@
       // Render function
       const renderGrid = () => {
         const activeProducts = products.filter(p => p.status === 'Active');
-        let gridHtml = "";
+        grid.innerHTML = ""; // Clear existing grid items securely
 
         activeProducts.forEach(p => {
-          const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
-          const displayPrice = hasDiscount
-            ? `<div style="display: flex; flex-direction: column; align-items: flex-end;"><span style="color: #1106e8; font-weight: bold; line-height: 1.1;">R${formatPrice(Math.round(p.price * 0.95))}</span><span style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;">R${formatPrice(p.price)}</span></div>`
-            : `R${formatPrice(p.price)}`;
+          const card = document.createElement('div');
+          card.className = "home-product-card";
 
-          const retailHtml = p.retailPrice ? `<div class="hp-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Retail: R${formatRetailPrice(p.retailPrice)}</div>` : '';
+          // Create structure with safe static markup
+          card.innerHTML = `
+            <a class="product-link-anchor" style="text-decoration:none; color:inherit; display:block;">
+              <div class="hp-box">
+                <img class="product-img" src="" alt="">
+              </div>
+            </a>
+            <div class="hp-info">
+              <a class="product-link-anchor-2" style="text-decoration:none; color:inherit; display:block; grid-area:name;">
+                <div class="hp-name"></div>
+                <div class="hp-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; display:none;"></div>
+              </a>
+              <a class="product-link-anchor-3" style="text-decoration:none; color:inherit; display:block; grid-area:price;">
+                <div class="hp-price hp-price-card"></div>
+              </a>
+              <button class="add-to-cart" style="margin-top: 8px;"></button>
+            </div>
+          `;
 
-          // Format name dynamically for inspired by prefix
+          // Bind static URLs safely
+          card.querySelectorAll('.product-link-anchor, .product-link-anchor-2, .product-link-anchor-3').forEach(a => {
+            a.href = p.url;
+          });
+
           const inspiredRegex = /^(inspired\s*by\s*:?|inspire\s*by\s*:?|inspiredby\s*:?|inspireby\s*:?)/i;
-          let prefixHtml = "";
           let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
           const match = rawName.match(inspiredRegex);
           if (match) {
             rawName = rawName.substring(match[0].length).trim();
-            prefixHtml = `<span class="inspired-prefix" style="font-size: 8px; opacity: 0.5; font-weight: normal; text-transform: uppercase; display: block; margin-bottom: 2px; letter-spacing: 0.5px; line-height: 1.1; white-space: nowrap;">Inspired By</span>`;
           }
-          const formattedName = prefixHtml + rawName.replace(" ", " <br>");
 
-          gridHtml += `
-            <div class="home-product-card">
-              <a href="${p.url}" style="text-decoration:none; color:inherit; display:block;">
-                <div class="hp-box">
-                  <img src="${getThumbnailImageUrl(p.image, p.image_thumb)}" alt="${rawName}">
-                </div>
-              </a>
-              <div class="hp-info">
-                <a href="${p.url}" style="text-decoration:none; color:inherit; display:block; grid-area:name;">
-                  <div class="hp-name">${formattedName}</div>
-                  ${retailHtml}
-                </a>
-                <a href="${p.url}" style="text-decoration:none; color:inherit; display:block; grid-area:price;">
-                  <div class="hp-price hp-price-card">${displayPrice}</div>
-                </a>
-                <button class="add-to-cart" onclick="addToCart('${p.id}')" style="margin-top: 8px;">${p.stock > 0 ? 'ADD TO BAG' : 'OUT OF STOCK'}</button>
+          // Safe image properties assignment
+          const img = card.querySelector('.product-img');
+          img.src = getThumbnailImageUrl(p.image, p.image_thumb);
+          img.setAttribute('alt', rawName);
+
+          // Safe product name text assignments
+          const nameEl = card.querySelector('.hp-name');
+          nameEl.innerHTML = "";
+          if (match) {
+            const prefix = document.createElement('span');
+            prefix.className = "inspired-prefix";
+            prefix.style.cssText = "font-size: 8px; opacity: 0.5; font-weight: normal; text-transform: uppercase; display: block; margin-bottom: 2px; letter-spacing: 0.5px; line-height: 1.1; white-space: nowrap;";
+            prefix.textContent = "Inspired By";
+            nameEl.appendChild(prefix);
+          }
+
+          // Retain premium visual split in index page name formatting safely
+          const spaceIdx = rawName.indexOf(" ");
+          if (spaceIdx > -1) {
+            const part1 = rawName.substring(0, spaceIdx);
+            const part2 = rawName.substring(spaceIdx + 1);
+            nameEl.appendChild(document.createTextNode(part1));
+            nameEl.appendChild(document.createElement('br'));
+            nameEl.appendChild(document.createTextNode(part2));
+          } else {
+            nameEl.appendChild(document.createTextNode(rawName));
+          }
+
+          // Safe retail price assignment
+          const retailEl = card.querySelector('.hp-retail-price');
+          if (p.retailPrice) {
+            retailEl.textContent = `Retail: R${formatRetailPrice(p.retailPrice)}`;
+            retailEl.style.display = 'block';
+          }
+
+          // Safe price text element configuration (handles discount layout)
+          const priceEl = card.querySelector('.hp-price');
+          const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
+          if (hasDiscount) {
+            priceEl.innerHTML = `
+              <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                <span class="discounted-price" style="color: #1106e8; font-weight: bold; line-height: 1.1;"></span>
+                <span class="original-price" style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;"></span>
               </div>
-            </div>
-          `;
+            `;
+            priceEl.querySelector('.discounted-price').textContent = `R${formatPrice(Math.round(p.price * 0.95))}`;
+            priceEl.querySelector('.original-price').textContent = `R${formatPrice(p.price)}`;
+          } else {
+            priceEl.textContent = `R${formatPrice(p.price)}`;
+          }
+
+          // Safe button actions mapping
+          const btn = card.querySelector('.add-to-cart');
+          btn.textContent = p.stock > 0 ? 'ADD TO BAG' : 'OUT OF STOCK';
+          if (p.stock <= 0) {
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+            btn.style.cursor = "not-allowed";
+          } else {
+            btn.setAttribute('onclick', `addToCart('${p.id}')`);
+          }
+
+          grid.appendChild(card);
         });
 
-        // Add placeholders if total active items is less than 4
+        // Safe placeholder items mapping
         const placeholdersNeeded = Math.max(0, 4 - activeProducts.length);
         for (let i = 0; i < placeholdersNeeded; i++) {
-          gridHtml += `
-            <div class="home-product-card">
-              <div class="hp-box"></div>
-              <div class="hp-info">
-                <div class="hp-name placeholder" style="grid-area:name;">AWAITING<br>REVEAL</div>
-                <div class="hp-price placeholder" style="grid-area:price;">R0</div>
-                <button class="add-to-cart" disabled style="opacity: 0.5; cursor: not-allowed; margin-top: 8px;">COMING SOON</button>
-              </div>
+          const card = document.createElement('div');
+          card.className = "home-product-card";
+          card.innerHTML = `
+            <div class="hp-box"></div>
+            <div class="hp-info">
+              <div class="hp-name placeholder" style="grid-area:name;">AWAITING<br>REVEAL</div>
+              <div class="hp-price placeholder" style="grid-area:price;">R0</div>
+              <button class="add-to-cart" disabled style="opacity: 0.5; cursor: not-allowed; margin-top: 8px;">COMING SOON</button>
             </div>
           `;
+          grid.appendChild(card);
         }
-
-        grid.innerHTML = gridHtml;
       };
 
       // Load local cache and render instantly!
@@ -1598,7 +1657,7 @@
               const data = doc.data();
               const p = {
                 id: doc.id,
-                name: data.name,
+                name: window.escapeHTML(data.name),
                 price: Number(data.price),
                 retailPrice: data.retailPrice !== undefined ? Number(data.retailPrice) : null,
                 stock: Number(data.stock),
