@@ -275,7 +275,7 @@ nav ul li a:hover{opacity:0.6;}
 .product-box {
     width: 100%;
     aspect-ratio: 3 / 4;
-    background: #f7f7f7;
+    background: #ffffff;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -865,13 +865,22 @@ window.addEventListener("orientationchange", updateCartHeight);
                             <img class="product-img" src="" alt="">
                         </div>
                         <div class="product-info">
+                            <div class="product-flair" style="font-size: 8px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; display: none; color: #1a1a1a;"></div>
                             <div class="product-name"></div>
                             <div class="product-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; display: none;"></div>
                             <div class="price"></div>
+                            <div class="catalog-stock-status" style="font-size: 8px; text-transform: uppercase; letter-spacing: 1.2px; margin-top: 8px; font-weight: bold; display: none; text-align: left;"></div>
                         </div>
                     </a>
                     <button class="add-to-cart-btn"></button>
                 `;
+                
+                // Safe product flair assignment
+                const flairEl = item.querySelector('.product-flair');
+                if (p.flair) {
+                    flairEl.textContent = p.flair;
+                    flairEl.style.display = 'block';
+                }
                 
                 // Bind static URL safely
                 item.querySelector('.product-link').href = p.url;
@@ -933,6 +942,26 @@ window.addEventListener("orientationchange", updateCartHeight);
                 } else {
                     btn.setAttribute('onclick', `addToCart('${p.id}')`);
                 }
+
+                // Safe stock status / urgency mapping
+                const stockStatusEl = item.querySelector('.catalog-stock-status');
+                if (stockStatusEl && p.stock !== undefined) {
+                    if (p.stock <= 0) {
+                        stockStatusEl.textContent = "SOLD OUT";
+                        stockStatusEl.style.color = "#ff3b30";
+                        stockStatusEl.style.display = "block";
+                    } else if (p.stock <= 5) {
+                        stockStatusEl.textContent = `🔴 ONLY ${p.stock} BOTTLES LEFT`;
+                        stockStatusEl.style.color = "#b82d2d";
+                        stockStatusEl.style.display = "block";
+                    } else if (p.stock <= 15) {
+                        stockStatusEl.textContent = `⚡ SELLING FAST / LOW STOCK`;
+                        stockStatusEl.style.color = "#8f6400";
+                        stockStatusEl.style.display = "block";
+                    } else {
+                        stockStatusEl.style.display = "none";
+                    }
+                }
                 
                 grid.appendChild(item);
             });
@@ -992,6 +1021,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                             image: data.image,
                             image_thumb: data.image_thumb || "",
                             status: data.status,
+                            flair: data.flair || "",
                             url: doc.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${doc.id}`
                         };
                         firestoreProds.push(p);
@@ -1000,7 +1030,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                         if (existingIdx > -1) {
                             // Check if values have actually changed to avoid unnecessary re-renders
                             const current = products[existingIdx];
-                            if (current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status) {
+                            if (current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair) {
                                 products[existingIdx] = p;
                                 updated = true;
                             }
