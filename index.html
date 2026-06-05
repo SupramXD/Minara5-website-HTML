@@ -601,7 +601,7 @@
       }
 
       #imgR {
-        content: url('test3 mobile.avif');
+        /* content: url('test3 mobile.avif'); */
       }
     }
 
@@ -748,9 +748,10 @@
 
     .hp-price {
       grid-area: price;
-      font-size: 11.5px;
+      font-size: 14px;
       margin-top: 0;
-      color: #000;
+      color: #00008B;
+      font-weight: bold;
     }
 
     .view-more-container {
@@ -808,9 +809,9 @@
       }
 
       .home-product-card {
-        flex: 0 0 calc(100% / 2.7);
-        width: calc(100% / 2.7);
-        min-width: calc(100% / 2.7);
+        flex: 0 0 calc(100% / 2.2);
+        width: calc(100% / 2.2);
+        min-width: calc(100% / 2.2);
         scroll-snap-align: start;
       }
 
@@ -825,12 +826,12 @@
       }
 
       .hp-name {
-        font-size: 9.5px;
+        font-size: 11px;
         letter-spacing: 0.1em;
       }
 
       .hp-price {
-        font-size: 9.5px;
+        font-size: 11px;
         margin-top: 0;
       }
 
@@ -1085,7 +1086,7 @@
     <div class="left-nav">
 
       <a href="catalog.html" class="desktop-only">CATALOG</a>
-      <a href="catalog.html" class="desktop-only" style="margin-left:22px;">BAGS</a>
+      <a href="catalog.html" class="desktop-only" style="margin-left:22px;">PERFUMES</a>
       <a href="social media.html" class="desktop-only" style="margin-left:22px;">SOCIALS</a>
       <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
     </div>
@@ -1191,6 +1192,111 @@
       <div class="mobile-bags"><a href="catalog.html">GIFTS 'SHOP NOW</a></div>
     </div>
   </section>
+
+  <script>
+    (function() {
+      let settings = {
+        leftImage: "test3.avif",
+        rightImage: "number23.avif",
+        mobileImage: "test3 mobile.avif",
+        leftFlex: 1.3,
+        leftScale: 1.0,
+        leftX: 50,
+        leftY: 50,
+        rightScale: 1.0,
+        rightX: 80,
+        rightY: 50,
+        mobileHeight: "auto",
+        mobileScale: 1.0,
+        mobileX: 50,
+        mobileY: 50
+      };
+
+      try {
+        const cached = localStorage.getItem("minara_hero_settings");
+        if (cached) {
+          settings = Object.assign({}, settings, JSON.parse(cached));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+
+      function applyHeroSettings() {
+        const isMobile = window.matchMedia("(max-width: 900px)").matches;
+        const imgL = document.getElementById("imgL");
+        const imgR = document.getElementById("imgR");
+        const hero = document.getElementById("hero");
+        const imgRWrapper = imgR ? imgR.parentElement : null;
+
+        if (!imgL || !imgR || !hero) return;
+
+        if (isMobile) {
+          imgR.src = settings.mobileImage || "test3 mobile.avif";
+          imgL.style.display = "none";
+          
+          if (settings.mobileHeight === "auto") {
+            hero.style.height = "auto";
+            if (imgRWrapper) {
+              imgRWrapper.style.height = "auto";
+              imgRWrapper.style.flex = "";
+            }
+            imgR.style.height = "auto";
+            imgR.style.width = "100%";
+            imgR.style.objectFit = "cover";
+          } else {
+            hero.style.height = settings.mobileHeight;
+            if (imgRWrapper) {
+              imgRWrapper.style.height = "100%";
+              imgRWrapper.style.flex = "";
+            }
+            imgR.style.height = "100%";
+            imgR.style.width = "100%";
+            imgR.style.objectFit = "cover";
+          }
+          
+          imgR.style.transform = `scale(${settings.mobileScale || 1.0})`;
+          imgR.style.objectPosition = `${settings.mobileX || 50}% ${settings.mobileY || 50}%`;
+          imgR.style.transformOrigin = `${settings.mobileX || 50}% ${settings.mobileY || 50}%`;
+        } else {
+          imgL.style.display = "block";
+          imgL.src = settings.leftImage || "test3.avif";
+          imgR.src = settings.rightImage || "number23.avif";
+
+          hero.style.height = "90vh";
+          
+          const leftFlex = settings.leftFlex !== undefined ? parseFloat(settings.leftFlex) : 1.3;
+          const rightFlex = 2.0 - leftFlex;
+          
+          imgL.style.flex = leftFlex;
+          if (imgRWrapper) {
+            imgRWrapper.style.flex = rightFlex;
+            imgRWrapper.style.height = "100%";
+          }
+
+          imgL.style.transform = `scale(${settings.leftScale || 1.0})`;
+          imgL.style.objectPosition = `${settings.leftX || 50}% ${settings.leftY || 50}%`;
+          imgL.style.transformOrigin = `${settings.leftX || 50}% ${settings.leftY || 50}%`;
+
+          imgR.style.transform = `scale(${settings.rightScale || 1.0})`;
+          imgR.style.objectPosition = `${settings.rightX || 80}% ${settings.rightY || 50}%`;
+          imgR.style.transformOrigin = `${settings.rightX || 80}% ${settings.rightY || 50}%`;
+          imgR.style.height = "100%";
+          imgR.style.width = "100%";
+          imgR.style.objectFit = "cover";
+        }
+      }
+
+      window.addEventListener("resize", applyHeroSettings);
+      document.addEventListener("DOMContentLoaded", applyHeroSettings);
+      
+      window.applyHeroSettings = function(newSettings) {
+        settings = Object.assign({}, settings, newSettings);
+        applyHeroSettings();
+      };
+      
+      applyHeroSettings();
+    })();
+  </script>
 
   <section class="home-products-section">
     <div class="home-products-header">
@@ -1471,7 +1577,7 @@
 
   <script type="module" src="header.js"></script>
   <script type="module">
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     async function initCatalog() {
       const formatPrice = window.formatPrice || (val => {
@@ -1497,7 +1603,8 @@
             if (!products.some(item => item.id === p.id)) {
               products.push({
                 id: p.id,
-                name: p.name.replace(/\s+/g, ' ').replace(" ", " <br>"), // break name in two lines for premium look
+                nameShort: p.nameShort || "",
+                name: p.name,
                 price: p.price,
                 retailPrice: p.retailPrice || null,
                 stock: p.stock,
@@ -1514,7 +1621,8 @@
                 products[existingIdx] = {
                   ...products[existingIdx],
                   id: p.id,
-                  name: p.name.replace(/\s+/g, ' ').replace(" ", " <br>"),
+                  nameShort: p.nameShort || "",
+                  name: p.name,
                   price: p.price,
                   retailPrice: p.retailPrice || null,
                   stock: p.stock,
@@ -1562,6 +1670,7 @@
             <div class="hp-info">
               <a class="product-link-anchor-2" style="text-decoration:none; color:inherit; display:block; grid-area:name;">
                 <div class="hp-flair" style="font-size: 8px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; display: none; color: #1a1a1a;"></div>
+                <div class="hp-name-short" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: bold; margin-bottom: 3px; display: none; color: #000;"></div>
                 <div class="hp-name"></div>
                 <div class="hp-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; display:none;"></div>
                 <div class="hp-stock-status" style="font-size: 8px; text-transform: uppercase; letter-spacing: 1.2px; margin-top: 8px; font-weight: bold; display: none; text-align: left;"></div>
@@ -1580,17 +1689,21 @@
             flairEl.style.display = 'block';
           }
 
+          // Safe short fragrance name assignment
+          const nameShortEl = card.querySelector('.hp-name-short');
+          if (nameShortEl && p.nameShort) {
+            nameShortEl.textContent = p.nameShort;
+            nameShortEl.style.display = 'block';
+          } else if (nameShortEl) {
+            nameShortEl.style.display = 'none';
+          }
+
           // Bind static URLs safely
           card.querySelectorAll('.product-link-anchor, .product-link-anchor-2, .product-link-anchor-3').forEach(a => {
             a.href = p.url;
           });
 
-          const inspiredRegex = /^(inspired\s*by\s*:?|inspire\s*by\s*:?|inspiredby\s*:?|inspireby\s*:?)/i;
           let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
-          const match = rawName.match(inspiredRegex);
-          if (match) {
-            rawName = rawName.substring(match[0].length).trim();
-          }
 
           // Safe image properties assignment
           const img = card.querySelector('.product-img');
@@ -1600,25 +1713,10 @@
           // Safe product name text assignments
           const nameEl = card.querySelector('.hp-name');
           nameEl.innerHTML = "";
-          if (match) {
-            const prefix = document.createElement('span');
-            prefix.className = "inspired-prefix";
-            prefix.style.cssText = "font-size: 8px; opacity: 0.5; font-weight: normal; text-transform: uppercase; display: block; margin-bottom: 2px; letter-spacing: 0.5px; line-height: 1.1; white-space: nowrap;";
-            prefix.textContent = "Inspired By";
-            nameEl.appendChild(prefix);
-          }
-
-          // Retain premium visual split in index page name formatting safely
-          const spaceIdx = rawName.indexOf(" ");
-          if (spaceIdx > -1) {
-            const part1 = rawName.substring(0, spaceIdx);
-            const part2 = rawName.substring(spaceIdx + 1);
-            nameEl.appendChild(document.createTextNode(part1));
-            nameEl.appendChild(document.createElement('br'));
-            nameEl.appendChild(document.createTextNode(part2));
-          } else {
-            nameEl.appendChild(document.createTextNode(rawName));
-          }
+          
+          let escapedName = window.escapeHTML ? window.escapeHTML(rawName) : rawName;
+          escapedName = escapedName.replace(/Inspired\s+By\s*/i, "Inspired By<br>");
+          nameEl.innerHTML = escapedName;
 
           // Safe retail price assignment
           const retailEl = card.querySelector('.hp-retail-price');
@@ -1633,7 +1731,7 @@
           if (hasDiscount) {
             priceEl.innerHTML = `
               <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                <span class="discounted-price" style="color: #1106e8; font-weight: bold; line-height: 1.1;"></span>
+                <span class="discounted-price" style="color: #00008B; font-weight: bold; line-height: 1.1; font-size: 1.1em;"></span>
                 <span class="original-price" style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;"></span>
               </div>
             `;
@@ -1662,7 +1760,7 @@
               stockStatusEl.style.color = "#ff3b30";
               stockStatusEl.style.display = "block";
             } else if (p.stock <= 5) {
-              stockStatusEl.textContent = `🔴 ONLY ${p.stock} BOTTLES LEFT`;
+              stockStatusEl.textContent = `ONLY ${p.stock} BOTTLES LEFT`;
               stockStatusEl.style.color = "#b82d2d";
               stockStatusEl.style.display = "block";
             } else if (p.stock <= 15) {
@@ -1723,6 +1821,7 @@
               const data = doc.data();
               const p = {
                 id: doc.id,
+                nameShort: data.nameShort || "",
                 name: window.escapeHTML(data.name),
                 price: Number(data.price),
                 retailPrice: data.retailPrice !== undefined ? Number(data.retailPrice) : null,
@@ -1738,11 +1837,11 @@
               const existingIdx = products.findIndex(item => item.id === p.id);
               if (existingIdx > -1) {
                 const current = products[existingIdx];
-                const reformattedName = p.name.replace(/\s+/g, ' ').replace(" ", " <br>");
-                if (current.name !== reformattedName || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair) {
+                if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair) {
                   products[existingIdx] = {
                     ...current,
-                    name: reformattedName,
+                    nameShort: p.nameShort,
+                    name: p.name,
                     price: p.price,
                     retailPrice: p.retailPrice,
                     stock: p.stock,
@@ -1756,7 +1855,8 @@
               } else {
                 products.push({
                   id: p.id,
-                  name: p.name.replace(/\s+/g, ' ').replace(" ", " <br>"),
+                  nameShort: p.nameShort,
+                  name: p.name,
                   price: p.price,
                   retailPrice: p.retailPrice,
                   stock: p.stock,
@@ -1807,7 +1907,8 @@
                   cleanedLocalProds.forEach(p => {
                     products.push({
                       id: p.id,
-                      name: p.name.replace(/\s+/g, ' ').replace(" ", " <br>"),
+                      nameShort: p.nameShort || "",
+                      name: p.name,
                       price: p.price,
                       retailPrice: p.retailPrice || null,
                       stock: p.stock,
@@ -1832,6 +1933,46 @@
           } catch (dbErr) {
             console.error("Firestore products background load failed. Raw error object:", dbErr);
             console.error("Firestore error code:", dbErr.code);
+          }
+        }
+      }, 0);
+
+      // 3. Fetch hero settings from Firestore in background
+      setTimeout(async () => {
+        let retries = 5;
+        while (!window.db && retries > 0) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          retries--;
+        }
+
+        if (window.db) {
+          try {
+            const docSnap = await getDoc(doc(window.db, "settings", "hero"));
+            if (docSnap.exists()) {
+              const data = docSnap.data();
+              const liveSettings = {
+                leftImage: data.leftImage || "test3.avif",
+                rightImage: data.rightImage || "number23.avif",
+                mobileImage: data.mobileImage || "test3 mobile.avif",
+                leftFlex: data.leftFlex !== undefined ? Number(data.leftFlex) : 1.3,
+                leftScale: data.leftScale !== undefined ? Number(data.leftScale) : 1.0,
+                leftX: data.leftX !== undefined ? Number(data.leftX) : 50,
+                leftY: data.leftY !== undefined ? Number(data.leftY) : 50,
+                rightScale: data.rightScale !== undefined ? Number(data.rightScale) : 1.0,
+                rightX: data.rightX !== undefined ? Number(data.rightX) : 80,
+                rightY: data.rightY !== undefined ? Number(data.rightY) : 50,
+                mobileHeight: data.mobileHeight || "auto",
+                mobileScale: data.mobileScale !== undefined ? Number(data.mobileScale) : 1.0,
+                mobileX: data.mobileX !== undefined ? Number(data.mobileX) : 50,
+                mobileY: data.mobileY !== undefined ? Number(data.mobileY) : 50
+              };
+              localStorage.setItem("minara_hero_settings", JSON.stringify(liveSettings));
+              if (window.applyHeroSettings) {
+                window.applyHeroSettings(liveSettings);
+              }
+            }
+          } catch (err) {
+            console.warn("Failed to fetch live hero settings:", err);
           }
         }
       }, 0);

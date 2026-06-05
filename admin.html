@@ -590,6 +590,7 @@
             fetchSubscribers();
             loadCatalog();
             fetchUsers();
+            loadHeroSettings();
             return;
           }
         } catch (e) {
@@ -678,9 +679,141 @@
               </div>
             </div>
 
+            <!-- HERO IMAGE & CUSTOMIZATION EDITOR -->
+            <div class="console-panel full-width-panel" style="margin-bottom: 30px;">
+              <div class="panel-header">
+                <h2 class="panel-title">Hero Section Media & Layout Settings</h2>
+                <span class="stat-label" style="font-size: 10px;">Visual Editor</span>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px;">
+                <!-- Visual Editor Controls -->
+                <div>
+                  <form id="heroSettingsForm" onsubmit="handleSaveHeroSettings(event)">
+                    <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 15px;">1. Hero Image Sources</h3>
+                    
+                    <div class="form-group">
+                      <label for="heroLeftImage">Desktop Left Image (Path or URL)</label>
+                      <input type="text" id="heroLeftImage" class="form-input" placeholder="e.g. test3.avif">
+                      <div style="margin: 5px 0; font-size: 10px; opacity: 0.5;">— OR UPLOAD FILE —</div>
+                      <input type="file" id="heroLeftFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="heroRightImage">Desktop Right Image (Path or URL)</label>
+                      <input type="text" id="heroRightImage" class="form-input" placeholder="e.g. number23.avif">
+                      <div style="margin: 5px 0; font-size: 10px; opacity: 0.5;">— OR UPLOAD FILE —</div>
+                      <input type="file" id="heroRightFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="heroMobileImage">Mobile Hero Image (Path or URL)</label>
+                      <input type="text" id="heroMobileImage" class="form-input" placeholder="e.g. test3 mobile.avif">
+                      <div style="margin: 5px 0; font-size: 10px; opacity: 0.5;">— OR UPLOAD FILE —</div>
+                      <input type="file" id="heroMobileFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                    </div>
+
+                    <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-top: 25px; margin-bottom: 15px;">2. Desktop Image Split & Space Crop</h3>
+                    
+                    <div class="form-group">
+                      <label for="heroLeftFlex">Desktop Width Split Ratio (Left Image width vs Right Image width)</label>
+                      <div style="display: flex; align-items: center; gap: 15px;">
+                        <input type="range" id="heroLeftFlex" min="0.4" max="1.6" step="0.05" value="1.3" style="flex: 1;" oninput="updateHeroPreview()">
+                        <span id="heroLeftFlexVal" style="font-size: 12px; font-family: monospace; width: 40px; text-align: right; color: var(--accent);">1.30</span>
+                      </div>
+                    </div>
+
+                    <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #fff; margin-top: 15px; margin-bottom: 10px;">Left Image Alignments (Desktop)</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Zoom (Scale)</label>
+                        <input type="range" id="heroLeftScale" min="1.0" max="3.0" step="0.05" value="1.0" oninput="updateHeroPreview()">
+                      </div>
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Align X (%)</label>
+                        <input type="range" id="heroLeftX" min="0" max="100" step="1" value="50" oninput="updateHeroPreview()">
+                      </div>
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Align Y (%)</label>
+                        <input type="range" id="heroLeftY" min="0" max="100" step="1" value="50" oninput="updateHeroPreview()">
+                      </div>
+                    </div>
+
+                    <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #fff; margin-top: 15px; margin-bottom: 10px;">Right Image Alignments (Desktop)</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Zoom (Scale)</label>
+                        <input type="range" id="heroRightScale" min="1.0" max="3.0" step="0.05" value="1.0" oninput="updateHeroPreview()">
+                      </div>
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Align X (%)</label>
+                        <input type="range" id="heroRightX" min="0" max="100" step="1" value="80" oninput="updateHeroPreview()">
+                      </div>
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Align Y (%)</label>
+                        <input type="range" id="heroRightY" min="0" max="100" step="1" value="50" oninput="updateHeroPreview()">
+                      </div>
+                    </div>
+
+                    <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-top: 25px; margin-bottom: 15px;">3. Mobile Adjustments</h3>
+                    
+                    <div class="form-group">
+                      <label for="heroMobileHeight">Mobile Container Crop Height</label>
+                      <select id="heroMobileHeight" class="form-input" style="background:#1a1a24; color: #fff;" onchange="updateHeroPreview()">
+                        <option value="auto">Auto (Full Height aspect-ratio)</option>
+                        <option value="300px">300px (Sleek Crop)</option>
+                        <option value="400px">400px (Medium Crop)</option>
+                        <option value="500px">500px (Large Crop)</option>
+                        <option value="60vh">60vh (Tall Screen Crop)</option>
+                      </select>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Zoom (Scale)</label>
+                        <input type="range" id="heroMobileScale" min="1.0" max="3.0" step="0.05" value="1.0" oninput="updateHeroPreview()">
+                      </div>
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Align X (%)</label>
+                        <input type="range" id="heroMobileX" min="0" max="100" step="1" value="50" oninput="updateHeroPreview()">
+                      </div>
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Align Y (%)</label>
+                        <input type="range" id="heroMobileY" min="0" max="100" step="1" value="50" oninput="updateHeroPreview()">
+                      </div>
+                    </div>
+
+                    <button type="submit" class="btn-action accent-btn" style="width: 100%; padding: 14px; margin-top: 25px; font-weight: bold;">Publish Hero Configuration</button>
+                  </form>
+                </div>
+
+                <!-- Previews -->
+                <div style="border-left: 1px solid var(--border-color); padding-left: 30px; display: flex; flex-direction: column; gap: 30px;">
+                  <div>
+                    <h3 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px;">Desktop Real-Time Preview</h3>
+                    <div id="previewDesktopContainer" style="width: 100%; height: 180px; background: #000; display: flex; overflow: hidden; border: 1px solid var(--border-color);">
+                      <img id="previewImgL" src="test3.avif" style="height: 100%; object-fit: cover; transition: none;">
+                      <div id="previewImgRParent" style="position: relative; height: 100%; overflow: hidden; display: block;">
+                        <img id="previewImgR" src="number23.avif" style="width: 100%; height: 100%; object-fit: cover; transition: none; display: block;">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px;">Mobile Real-Time Preview</h3>
+                    <div style="width: 140px; margin: 0 auto; background: #0a0a0c; border: 1px solid var(--border-color); padding: 6px; border-radius: 8px;">
+                      <div id="previewMobileContainer" style="width: 100%; overflow: hidden; background: #000; position: relative;">
+                        <img id="previewImgMobile" src="test3 mobile.avif" style="width: 100%; display: block; transition: none;">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- MAIN TWO-COLUMN DASHBOARD CONTENT -->
             <div class="dashboard-layout">
-              
+
               <!-- COLUMN 0: NEWSLETTER SUBSCRIBERS FEED (FULL WIDTH INTERACTIVE) -->
               <div class="console-panel full-width-panel" style="margin-bottom: 20px;">
                 <div class="panel-header">
@@ -743,8 +876,13 @@
 
                 <form id="productForm" onsubmit="handleAddProduct(event)">
                   <div class="form-group">
-                    <label for="prodName">Product Name</label>
-                    <input type="text" id="prodName" class="form-input" placeholder="e.g. Léopard Fur Backpack" required>
+                    <label for="prodNameShort">Fragrance Name Short (e.g. No21)</label>
+                    <input type="text" id="prodNameShort" class="form-input" placeholder="e.g. No23">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prodName">Product Title / Name</label>
+                    <input type="text" id="prodName" class="form-input" placeholder="e.g. Inspired By JPG LE MALE" required>
                   </div>
                   
                   <div class="form-group">
@@ -880,6 +1018,11 @@
               <form id="editProductForm" onsubmit="handleSaveEdit(event)">
                 <input type="hidden" id="editProdId">
                 
+                <div class="form-group">
+                  <label for="editProdNameShort">Fragrance Name Short (e.g. No21)</label>
+                  <input type="text" id="editProdNameShort" class="form-input" placeholder="e.g. No23">
+                </div>
+
                 <div class="form-group">
                   <label for="editProdName">Product Title / Name</label>
                   <input type="text" id="editProdName" class="form-input" required>
@@ -1263,6 +1406,7 @@
       let products = [
           {
               id: "leopard-backpack",
+              nameShort: "",
               name: "Léopard Fur Backpack",
               price: 749,
               retailPrice: 1200,
@@ -1307,7 +1451,7 @@
               const nameTd = document.createElement('td');
               nameTd.style.fontWeight = 'bold';
               nameTd.style.color = 'var(--accent)';
-              nameTd.textContent = p.name;
+              nameTd.textContent = p.nameShort ? p.nameShort + ' - ' + p.name : p.name;
               tr.appendChild(nameTd);
               
               const priceTd = document.createElement('td');
@@ -1428,6 +1572,7 @@
                       const data = doc.data();
                       const p = {
                           id: doc.id,
+                          nameShort: data.nameShort || "",
                           name: data.name,
                           price: Number(data.price),
                           retailPrice: data.retailPrice !== undefined ? Number(data.retailPrice) : null,
@@ -1443,7 +1588,7 @@
                       const existingIdx = products.findIndex(item => item.id === p.id);
                       if (existingIdx > -1) {
                           const current = products[existingIdx];
-                          if (current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.image_thumb !== p.image_thumb || current.description !== p.description || current.flair !== p.flair) {
+                          if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.image_thumb !== p.image_thumb || current.description !== p.description || current.flair !== p.flair) {
                               products[existingIdx] = p;
                               updated = true;
                           }
@@ -1461,7 +1606,7 @@
                           const idx = localProds.findIndex(lp => lp.id === fp.id);
                           if (idx > -1) {
                               const cur = localProds[idx];
-                              if (cur.name !== fp.name || cur.price !== fp.price || cur.retailPrice !== fp.retailPrice || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.image_thumb !== fp.image_thumb || cur.description !== fp.description || cur.flair !== fp.flair) {
+                              if (cur.nameShort !== fp.nameShort || cur.name !== fp.name || cur.price !== fp.price || cur.retailPrice !== fp.retailPrice || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.image_thumb !== fp.image_thumb || cur.description !== fp.description || cur.flair !== fp.flair) {
                                   localProds[idx] = { ...fp, syncStatus: "synced" };
                                   localUpdated = true;
                               }
@@ -1489,6 +1634,7 @@
                               products = [
                                   {
                                       id: "leopard-backpack",
+                                      nameShort: "",
                                       name: "Léopard Fur Backpack",
                                       price: 749,
                                       retailPrice: 1200,
@@ -1627,6 +1773,7 @@
     window.handleAddProduct = async function(e) {
       e.preventDefault();
       
+      const nameShort = document.getElementById("prodNameShort").value.trim();
       const name = document.getElementById("prodName").value.trim();
       const price = parseFloat(document.getElementById("prodPrice").value);
       const retailPriceVal = document.getElementById("prodRetailPrice").value.trim();
@@ -1675,6 +1822,7 @@
       const idStr = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       const newProduct = {
           id: idStr,
+          nameShort: nameShort,
           name: name,
           price: price,
           retailPrice: retailPrice,
@@ -1710,6 +1858,7 @@
               );
               await Promise.race([
                   window.dbSetDoc(window.dbDoc(window.db, "products", idStr), {
+                      nameShort: nameShort,
                       name: name,
                       price: price,
                       retailPrice: retailPrice,
@@ -1848,6 +1997,7 @@
       if (!product) return;
 
       document.getElementById("editProdId").value = product.id;
+      document.getElementById("editProdNameShort").value = product.nameShort || "";
       document.getElementById("editProdName").value = product.name;
       document.getElementById("editProdPrice").value = product.price;
       document.getElementById("editProdRetailPrice").value = product.retailPrice || "";
@@ -1872,6 +2022,7 @@
       e.preventDefault();
       
       const id = document.getElementById("editProdId").value;
+      const nameShort = document.getElementById("editProdNameShort").value.trim();
       const name = document.getElementById("editProdName").value.trim();
       const price = parseFloat(document.getElementById("editProdPrice").value);
       const retailPriceVal = document.getElementById("editProdRetailPrice").value.trim();
@@ -1927,6 +2078,7 @@
 
       const updatedProduct = {
           id: id,
+          nameShort: nameShort,
           name: name,
           price: price,
           retailPrice: retailPrice,
@@ -1960,6 +2112,7 @@
               );
               await Promise.race([
                   window.dbSetDoc(window.dbDoc(window.db, "products", id), {
+                      nameShort: nameShort,
                       name: name,
                       price: price,
                       retailPrice: retailPrice,
@@ -2006,6 +2159,311 @@
       if (typeof window.loadCatalog === 'function') {
           window.loadCatalog();
       }
+    };
+
+    window.updateHeroPreview = function() {
+      const leftFlex = parseFloat(document.getElementById("heroLeftFlex").value);
+      const rightFlex = 2.0 - leftFlex;
+      document.getElementById("heroLeftFlexVal").textContent = leftFlex.toFixed(2);
+
+      const leftScale = document.getElementById("heroLeftScale").value;
+      const leftX = document.getElementById("heroLeftX").value;
+      const leftY = document.getElementById("heroLeftY").value;
+      
+      const rightScale = document.getElementById("heroRightScale").value;
+      const rightX = document.getElementById("heroRightX").value;
+      const rightY = document.getElementById("heroRightY").value;
+
+      const mobileHeight = document.getElementById("heroMobileHeight").value;
+      const mobileScale = document.getElementById("heroMobileScale").value;
+      const mobileX = document.getElementById("heroMobileX").value;
+      const mobileY = document.getElementById("heroMobileY").value;
+
+      const previewImgL = document.getElementById("previewImgL");
+      if (previewImgL) {
+        previewImgL.style.flex = leftFlex;
+        previewImgL.style.transform = `scale(${leftScale})`;
+        previewImgL.style.objectPosition = `${leftX}% ${leftY}%`;
+        previewImgL.style.transformOrigin = `${leftX}% ${leftY}%`;
+      }
+
+      const previewImgRParent = document.getElementById("previewImgRParent");
+      if (previewImgRParent) {
+        previewImgRParent.style.flex = rightFlex;
+      }
+      const previewImgR = document.getElementById("previewImgR");
+      if (previewImgR) {
+        previewImgR.style.transform = `scale(${rightScale})`;
+        previewImgR.style.objectPosition = `${rightX}% ${rightY}%`;
+        previewImgR.style.transformOrigin = `${rightX}% ${rightY}%`;
+      }
+
+      const previewImgMobile = document.getElementById("previewImgMobile");
+      const previewMobileContainer = document.getElementById("previewMobileContainer");
+      if (previewImgMobile && previewMobileContainer) {
+        previewImgMobile.style.transform = `scale(${mobileScale})`;
+        previewImgMobile.style.objectPosition = `${mobileX}% ${mobileY}%`;
+        previewImgMobile.style.transformOrigin = `${mobileX}% ${mobileY}%`;
+        
+        if (mobileHeight === "auto") {
+          previewMobileContainer.style.height = "auto";
+          previewImgMobile.style.height = "auto";
+          previewImgMobile.style.objectFit = "fill";
+        } else {
+          const pixelVal = parseInt(mobileHeight);
+          const previewHeight = Math.round(pixelVal * 0.46) + "px";
+          previewMobileContainer.style.height = previewHeight;
+          previewImgMobile.style.height = "100%";
+          previewImgMobile.style.objectFit = "cover";
+        }
+      }
+    };
+
+    window.loadHeroSettings = async function() {
+      let settings = {
+        leftImage: "test3.avif",
+        rightImage: "number23.avif",
+        mobileImage: "test3 mobile.avif",
+        leftFlex: 1.3,
+        leftScale: 1.0,
+        leftX: 50,
+        leftY: 50,
+        rightScale: 1.0,
+        rightX: 80,
+        rightY: 50,
+        mobileHeight: "auto",
+        mobileScale: 1.0,
+        mobileX: 50,
+        mobileY: 50
+      };
+
+      try {
+        const cached = localStorage.getItem("minara_hero_settings");
+        if (cached) {
+          settings = { ...settings, ...JSON.parse(cached) };
+        }
+      } catch (e) {
+        console.error("Failed to load local hero cache:", e);
+      }
+
+      const populateFields = (s) => {
+        if (!document.getElementById("heroLeftImage")) return;
+        document.getElementById("heroLeftImage").value = s.leftImage || "";
+        document.getElementById("heroRightImage").value = s.rightImage || "";
+        document.getElementById("heroMobileImage").value = s.mobileImage || "";
+        
+        document.getElementById("heroLeftFlex").value = s.leftFlex !== undefined ? s.leftFlex : 1.3;
+        document.getElementById("heroLeftScale").value = s.leftScale !== undefined ? s.leftScale : 1.0;
+        document.getElementById("heroLeftX").value = s.leftX !== undefined ? s.leftX : 50;
+        document.getElementById("heroLeftY").value = s.leftY !== undefined ? s.leftY : 50;
+        
+        document.getElementById("heroRightScale").value = s.rightScale !== undefined ? s.rightScale : 1.0;
+        document.getElementById("heroRightX").value = s.rightX !== undefined ? s.rightX : 80;
+        document.getElementById("heroRightY").value = s.rightY !== undefined ? s.rightY : 50;
+        
+        document.getElementById("heroMobileHeight").value = s.mobileHeight || "auto";
+        document.getElementById("heroMobileScale").value = s.mobileScale !== undefined ? s.mobileScale : 1.0;
+        document.getElementById("heroMobileX").value = s.mobileX !== undefined ? s.mobileX : 50;
+        document.getElementById("heroMobileY").value = s.mobileY !== undefined ? s.mobileY : 50;
+
+        const previewL = document.getElementById("previewImgL");
+        if (previewL) previewL.src = s.leftImage || "test3.avif";
+        const previewR = document.getElementById("previewImgR");
+        if (previewR) previewR.src = s.rightImage || "number23.avif";
+        const previewM = document.getElementById("previewImgMobile");
+        if (previewM) previewM.src = s.mobileImage || "test3 mobile.avif";
+
+        window.updateHeroPreview();
+      };
+
+      populateFields(settings);
+
+      // Listeners for file changes
+      const fileL = document.getElementById("heroLeftFile");
+      if (fileL) {
+        fileL.addEventListener("change", function(ev) {
+          const file = ev.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              const previewL = document.getElementById("previewImgL");
+              if (previewL) previewL.src = e.target.result;
+              window.updateHeroPreview();
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      const fileR = document.getElementById("heroRightFile");
+      if (fileR) {
+        fileR.addEventListener("change", function(ev) {
+          const file = ev.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              const previewR = document.getElementById("previewImgR");
+              if (previewR) previewR.src = e.target.result;
+              window.updateHeroPreview();
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      const fileM = document.getElementById("heroMobileFile");
+      if (fileM) {
+        fileM.addEventListener("change", function(ev) {
+          const file = ev.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              const previewM = document.getElementById("previewImgMobile");
+              if (previewM) previewM.src = e.target.result;
+              window.updateHeroPreview();
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      setTimeout(async () => {
+        if (window.db && window.dbDoc && window.dbGetDoc) {
+          try {
+            const docSnap = await window.dbGetDoc(window.dbDoc(window.db, "settings", "hero"));
+            if (docSnap.exists()) {
+              const data = docSnap.data();
+              const liveSettings = {
+                leftImage: data.leftImage || "test3.avif",
+                rightImage: data.rightImage || "number23.avif",
+                mobileImage: data.mobileImage || "test3 mobile.avif",
+                leftFlex: data.leftFlex !== undefined ? Number(data.leftFlex) : 1.3,
+                leftScale: data.leftScale !== undefined ? Number(data.leftScale) : 1.0,
+                leftX: data.leftX !== undefined ? Number(data.leftX) : 50,
+                leftY: data.leftY !== undefined ? Number(data.leftY) : 50,
+                rightScale: data.rightScale !== undefined ? Number(data.rightScale) : 1.0,
+                rightX: data.rightX !== undefined ? Number(data.rightX) : 80,
+                rightY: data.rightY !== undefined ? Number(data.rightY) : 50,
+                mobileHeight: data.mobileHeight || "auto",
+                mobileScale: data.mobileScale !== undefined ? Number(data.mobileScale) : 1.0,
+                mobileX: data.mobileX !== undefined ? Number(data.mobileX) : 50,
+                mobileY: data.mobileY !== undefined ? Number(data.mobileY) : 50
+              };
+              localStorage.setItem("minara_hero_settings", JSON.stringify(liveSettings));
+              populateFields(liveSettings);
+            }
+          } catch (err) {
+            console.warn("Failed to fetch live hero settings:", err);
+          }
+        }
+      }, 0);
+    };
+
+    window.handleSaveHeroSettings = async function(e) {
+      e.preventDefault();
+      
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn ? submitBtn.innerHTML : "";
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "PUBLISHING HERO...";
+      }
+
+      const leftImageText = document.getElementById("heroLeftImage").value.trim();
+      const rightImageText = document.getElementById("heroRightImage").value.trim();
+      const mobileImageText = document.getElementById("heroMobileImage").value.trim();
+
+      const leftFile = document.getElementById("heroLeftFile").files[0];
+      const rightFile = document.getElementById("heroRightFile").files[0];
+      const mobileFile = document.getElementById("heroMobileFile").files[0];
+
+      let leftImage = leftImageText || "test3.avif";
+      let rightImage = rightImageText || "number23.avif";
+      let mobileImage = mobileImageText || "test3 mobile.avif";
+
+      try {
+        if (leftFile) {
+          leftImage = await compressImage(leftFile, 1600, 0.82);
+        } else if (leftImageText && !leftImageText.startsWith("data:")) {
+          try {
+            leftImage = await compressUrlOrPath(leftImageText, 1600, 0.82);
+          } catch (ex) {}
+        }
+        
+        if (rightFile) {
+          rightImage = await compressImage(rightFile, 1600, 0.82);
+        } else if (rightImageText && !rightImageText.startsWith("data:")) {
+          try {
+            rightImage = await compressUrlOrPath(rightImageText, 1600, 0.82);
+          } catch (ex) {}
+        }
+
+        if (mobileFile) {
+          mobileImage = await compressImage(mobileFile, 1000, 0.80);
+        } else if (mobileImageText && !mobileImageText.startsWith("data:")) {
+          try {
+            mobileImage = await compressUrlOrPath(mobileImageText, 1000, 0.80);
+          } catch (ex) {}
+        }
+      } catch (err) {
+        console.error("Error compressing hero image:", err);
+      }
+
+      const settingsData = {
+        leftImage: leftImage,
+        rightImage: rightImage,
+        mobileImage: mobileImage,
+        leftFlex: parseFloat(document.getElementById("heroLeftFlex").value),
+        leftScale: parseFloat(document.getElementById("heroLeftScale").value),
+        leftX: parseInt(document.getElementById("heroLeftX").value),
+        leftY: parseInt(document.getElementById("heroLeftY").value),
+        rightScale: parseFloat(document.getElementById("heroRightScale").value),
+        rightX: parseInt(document.getElementById("heroRightX").value),
+        rightY: parseInt(document.getElementById("heroRightY").value),
+        mobileHeight: document.getElementById("heroMobileHeight").value,
+        mobileScale: parseFloat(document.getElementById("heroMobileScale").value),
+        mobileX: parseInt(document.getElementById("heroMobileX").value),
+        mobileY: parseInt(document.getElementById("heroMobileY").value),
+        timestamp: new Date().toISOString()
+      };
+
+      localStorage.setItem("minara_hero_settings", JSON.stringify(settingsData));
+
+      let firestoreSuccess = false;
+      let errorMsg = "";
+
+      if (window.db && window.dbDoc && window.dbSetDoc) {
+        try {
+          await window.dbSetDoc(window.dbDoc(window.db, "settings", "hero"), settingsData);
+          firestoreSuccess = true;
+        } catch (dbErr) {
+          errorMsg = dbErr.message || dbErr;
+        }
+      }
+
+      document.getElementById("heroLeftFile").value = "";
+      document.getElementById("heroRightFile").value = "";
+      document.getElementById("heroMobileFile").value = "";
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+
+      if (firestoreSuccess) {
+        alert("Success! Hero section settings published and synchronized.");
+      } else {
+        alert("Warning: Hero settings saved locally, but failed to sync online.\nError: " + errorMsg);
+      }
+
+      const previewL = document.getElementById("previewImgL");
+      if (previewL) previewL.src = leftImage;
+      const previewR = document.getElementById("previewImgR");
+      if (previewR) previewR.src = rightImage;
+      const previewM = document.getElementById("previewImgMobile");
+      if (previewM) previewM.src = mobileImage;
+
+      window.updateHeroPreview();
     };
   </script>
 
