@@ -925,6 +925,13 @@
                       </div>
                     </div>
 
+                    <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-top: 25px; margin-bottom: 15px;">5. Gift Button Settings</h3>
+
+                    <div class="form-group" style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px;">
+                      <input type="checkbox" id="heroShowGiftsButton" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);">
+                      <label for="heroShowGiftsButton" style="font-size: 13px; cursor: pointer; margin-bottom: 0;">Show 'GIFTS SHOP NOW' Button (on Desktop & Mobile)</label>
+                    </div>
+
                     <button type="submit" class="btn-action accent-btn" style="width: 100%; padding: 14px; margin-top: 25px; font-weight: bold;">Publish Hero Configuration</button>
                   </form>
                 </div>
@@ -2425,7 +2432,8 @@
         logoDesktopSpawn: 50,
         logoDesktopStick: 0,
         logoMobileSpawn: -50,
-        logoMobileStick: 0
+        logoMobileStick: 0,
+        showGiftsButton: true
       };
 
       try {
@@ -2464,6 +2472,8 @@
         document.getElementById("logoDesktopStick").value = s.logoDesktopStick !== undefined ? s.logoDesktopStick : 0;
         document.getElementById("logoMobileSpawn").value = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -50;
         document.getElementById("logoMobileStick").value = s.logoMobileStick !== undefined ? s.logoMobileStick : 0;
+        
+        document.getElementById("heroShowGiftsButton").checked = s.showGiftsButton !== false;
         
         if (window.updateLogoSliders) {
           window.updateLogoSliders();
@@ -2555,7 +2565,8 @@
                 logoDesktopSpawn: data.logoDesktopSpawn !== undefined ? Number(data.logoDesktopSpawn) : 50,
                 logoDesktopStick: data.logoDesktopStick !== undefined ? Number(data.logoDesktopStick) : 0,
                 logoMobileSpawn: data.logoMobileSpawn !== undefined ? Number(data.logoMobileSpawn) : -50,
-                logoMobileStick: data.logoMobileStick !== undefined ? Number(data.logoMobileStick) : 0
+                logoMobileStick: data.logoMobileStick !== undefined ? Number(data.logoMobileStick) : 0,
+                showGiftsButton: data.showGiftsButton !== false
               };
               localStorage.setItem("minara_hero_settings", JSON.stringify(liveSettings));
               populateFields(liveSettings);
@@ -2637,6 +2648,7 @@
         logoDesktopStick: parseInt(document.getElementById("logoDesktopStick").value),
         logoMobileSpawn: parseInt(document.getElementById("logoMobileSpawn").value),
         logoMobileStick: parseInt(document.getElementById("logoMobileStick").value),
+        showGiftsButton: document.getElementById("heroShowGiftsButton").checked,
         timestamp: new Date().toISOString()
       };
 

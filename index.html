@@ -1214,7 +1214,8 @@
         logoDesktopSpawn: 50,
         logoDesktopStick: 0,
         logoMobileSpawn: -50,
-        logoMobileStick: 0
+        logoMobileStick: 0,
+        showGiftsButton: true
       };
 
       try {
@@ -1236,6 +1237,12 @@
         const imgRWrapper = imgR ? imgR.parentElement : null;
 
         if (!imgL || !imgR || !hero) return;
+
+        const bagsContainer = document.getElementById("bagsContainer");
+        const mobileBags = document.querySelector(".mobile-bags");
+        const showGifts = settings.showGiftsButton !== false;
+        if (bagsContainer) bagsContainer.style.display = showGifts ? "" : "none";
+        if (mobileBags) mobileBags.style.display = showGifts ? "" : "none";
 
         if (isMobile) {
           imgR.src = settings.mobileImage || "test3 mobile.avif";
@@ -1981,7 +1988,12 @@
                 mobileHeight: data.mobileHeight || "auto",
                 mobileScale: data.mobileScale !== undefined ? Number(data.mobileScale) : 1.0,
                 mobileX: data.mobileX !== undefined ? Number(data.mobileX) : 50,
-                mobileY: data.mobileY !== undefined ? Number(data.mobileY) : 50
+                mobileY: data.mobileY !== undefined ? Number(data.mobileY) : 50,
+                logoDesktopSpawn: data.logoDesktopSpawn !== undefined ? Number(data.logoDesktopSpawn) : 50,
+                logoDesktopStick: data.logoDesktopStick !== undefined ? Number(data.logoDesktopStick) : 0,
+                logoMobileSpawn: data.logoMobileSpawn !== undefined ? Number(data.logoMobileSpawn) : -50,
+                logoMobileStick: data.logoMobileStick !== undefined ? Number(data.logoMobileStick) : 0,
+                showGiftsButton: data.showGiftsButton !== false
               };
               localStorage.setItem("minara_hero_settings", JSON.stringify(liveSettings));
               if (window.applyHeroSettings) {
