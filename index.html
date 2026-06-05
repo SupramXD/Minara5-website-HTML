@@ -1262,7 +1262,7 @@
           imgL.src = settings.leftImage || "test3.avif";
           imgR.src = settings.rightImage || "number23.avif";
 
-          hero.style.height = "90vh";
+          hero.style.height = settings.desktopHeight || "90vh";
           
           const leftFlex = settings.leftFlex !== undefined ? parseFloat(settings.leftFlex) : 1.3;
           const rightFlex = 2.0 - leftFlex;
