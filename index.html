@@ -1210,7 +1210,11 @@
         mobileHeight: "auto",
         mobileScale: 1.0,
         mobileX: 50,
-        mobileY: 50
+        mobileY: 50,
+        logoDesktopSpawn: 50,
+        logoDesktopStick: 0,
+        logoMobileSpawn: -50,
+        logoMobileStick: 0
       };
 
       try {
@@ -1221,6 +1225,8 @@
       } catch (e) {
         console.error(e);
       }
+
+      window.heroSettings = settings;
 
       function applyHeroSettings() {
         const isMobile = window.matchMedia("(max-width: 900px)").matches;
@@ -1292,6 +1298,7 @@
       
       window.applyHeroSettings = function(newSettings) {
         settings = Object.assign({}, settings, newSettings);
+        window.heroSettings = settings;
         applyHeroSettings();
       };
       
@@ -1473,6 +1480,7 @@
 
       function update() {
         const y = window.scrollY;
+        const s = window.heroSettings || {};
 
         if (!isMobile()) {
           const fixed = 48;
@@ -1487,10 +1495,14 @@
             bagsBtn.style.top = fixed + 'px';
           }
 
+          const spawnPercent = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 50;
+          const stickOffset = s.logoDesktopStick !== undefined ? s.logoDesktopStick : 0;
+
           const rect = logo.getBoundingClientRect();
           const H = rect.height;
           const vh = window.innerHeight;
-          const lock = y + vh / 2 + H / 2 >= heroBottom;
+          const spawnY = vh * (spawnPercent / 100);
+          const lock = y + spawnY + H / 2 + stickOffset >= heroBottom;
 
           if (lock) {
             logo.style.position = 'absolute';
@@ -1498,18 +1510,21 @@
             logo.style.transform = 'translateX(-50%)';
           } else {
             logo.style.position = 'fixed';
-            logo.style.top = '50%';
+            logo.style.top = spawnPercent + '%';
             logo.style.transform = 'translate(-50%,-50%)';
           }
 
           return;
         }
 
+        const spawnOffset = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -50;
+        const stickOffset = s.logoMobileStick !== undefined ? s.logoMobileStick : 0;
+
         const br = topbar.getBoundingClientRect();
-        let top = y + br.bottom + 60 - 180 + 70;
+        let top = y + br.bottom + spawnOffset;
 
         const r2 = logo.getBoundingClientRect();
-        const lockPt = imgRBottom - r2.height - 70 + 70;
+        const lockPt = imgRBottom - r2.height + stickOffset;
 
         if (top > lockPt) top = lockPt;
 
