@@ -774,11 +774,13 @@ function openCart(){
   document.getElementById('cartPanel').classList.add('open');
   document.getElementById('pageDimmer').classList.add('active');
   document.body.style.overflow='hidden';
+  document.documentElement.style.overflow='hidden';
 }
 function closeCart(){
   document.getElementById('cartPanel').classList.remove('open');
   document.getElementById('pageDimmer').classList.remove('active');
   document.body.style.overflow='';
+  document.documentElement.style.overflow='';
 }
 document.getElementById('pageDimmer').addEventListener('click', closeCart);
 

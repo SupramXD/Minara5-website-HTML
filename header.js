@@ -623,13 +623,13 @@ const minaraArt = `
 
             html += `
             <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 15px;">
-                <img src="${window.getThumbnailImageUrl(item.image, item.image_thumb)}" style="width:80px; height:105px; object-fit:cover;">
+                <img src="${window.getThumbnailImageUrl(item.image, item.image_thumb)}" style="width:80px; height:105px; object-fit:contain;">
                 <div style="flex:1;">
                     <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</div>
                     <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL</div>
                     <div style="font-size:11px;">${displayPrice}</div>
                     <div class="qty-stepper" style="display:flex; border:1px solid #000; width:fit-content; margin-top:10px;">
-                        <div class="qty-btn" onclick="window.changeQty(${index}, -1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">–</div>
+                        <div class="qty-btn" ${item.quantity <= 1 ? 'style="width:25px; height:25px; display:flex; justify-content:center; align-items:center; opacity:0.3; cursor:not-allowed;"' : `onclick="window.changeQty(${index}, -1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;"`}>–</div>
                         <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #000; border-right:1px solid #000; font-size:11px; display:flex; align-items:center; justify-content:center;">${item.quantity}</div>
                         <div class="qty-btn" onclick="window.changeQty(${index}, 1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">+</div>
                     </div>
@@ -702,12 +702,11 @@ const minaraArt = `
 
 window.changeQty = function(index, delta) {
     if (cart[index]) {
-        cart[index].quantity += delta;
-        if (cart[index].quantity < 1) {
-            window.removeFromCart(index); // Calls our new remove function to trigger Undo
-        } else {
-            saveAndSyncCart();
+        if (delta === -1 && cart[index].quantity <= 1) {
+            return;
         }
+        cart[index].quantity += delta;
+        saveAndSyncCart();
     }
 };
 

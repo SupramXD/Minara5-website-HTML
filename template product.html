@@ -1143,6 +1143,8 @@ window.openCart = function() {
     const dimmer = document.getElementById('pageDimmer');
     if (panel) panel.classList.add('open');
     if (dimmer) dimmer.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     renderCartUI(); 
 };
 </script>
