@@ -283,7 +283,7 @@ nav ul li a:hover{opacity:0.6;}
 .product-price{
   font-size:15px;
   color: #00008B;
-  font-weight: bold;
+  font-weight: 600;
   margin-bottom:35px;
   letter-spacing:0.18em;
 }
@@ -295,7 +295,7 @@ nav ul li a:hover{opacity:0.6;}
 .add-to-cart{
   background:#000;
   color:#fff;
-  padding:12px 40px;
+  padding:12px 75px;
   font-size:11px;
   text-transform:uppercase;
   letter-spacing:0.18em;
@@ -308,7 +308,7 @@ nav ul li a:hover{opacity:0.6;}
 
 @media(max-width:900px){
   .add-to-cart{
-    padding:12px 32px;
+    padding:12px 60px;
     width:auto;
   }
 }
@@ -950,9 +950,7 @@ footer{
         <div class="product-title">Loading Product...</div>
         <div class="product-retail-price" style="font-size:11px; opacity:0.5; margin-top: -8px; margin-bottom: 15px; letter-spacing:0.1em; text-transform:uppercase; display:none;"></div>
         <div class="product-price"></div>
-        <div class="direct-savings-callout" style="font-size: 9px; color: #1106e8; font-weight: bold; letter-spacing: 0.8px; text-transform: uppercase; margin-top: -20px; margin-bottom: 25px; text-align: left;">
-            ✨ Save 15% vs Takealot & Amazon store prices
-        </div>
+
         <div class="product-stock" style="font-size:11px; opacity:0.6; margin-bottom:25px; letter-spacing:0.18em; text-transform:uppercase;"></div>
 
         <button class="add-to-cart" id="addToBagBtn" disabled>ADD TO BAG</button>
@@ -1052,6 +1050,10 @@ footer{
     .trust-container {
       flex-direction: column;
       align-items: center;
+      width: 100%;
+    }
+    .trust-item {
+      margin: 0 auto !important;
     }
   }
 </style>
@@ -1257,7 +1259,7 @@ window.openCart = function() {
                 if (hasDiscount) {
                     priceEl.innerHTML = `
                         <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                            <span class="discounted-price" style="color: #00008B; font-weight: bold; line-height: 1.1; font-size: 1.25em;"></span>
+                            <span class="discounted-price" style="color: #00008B; font-weight: 600; line-height: 1.1; font-size: 1.25em;"></span>
                             <span class="original-price" style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;"></span>
                         </div>
                     `;
@@ -1277,15 +1279,10 @@ window.openCart = function() {
                     span.style.cssText = "color: #ff3b30; font-weight: bold;";
                     span.textContent = "OUT OF STOCK";
                     stockEl.appendChild(span);
-                } else if (p.stock <= 5) {
+                } else if (p.stock <= 4) {
                     const span = document.createElement('span');
                     span.style.cssText = "color: #b82d2d; font-weight: bold;";
-                    span.textContent = `ONLY ${p.stock} BOTTLES LEFT - ORDER SOON`;
-                    stockEl.appendChild(span);
-                } else if (p.stock <= 15) {
-                    const span = document.createElement('span');
-                    span.style.cssText = "color: #8f6400; font-weight: bold;";
-                    span.textContent = `⚡ SELLING FAST - LIMITED QUANTITY`;
+                    span.textContent = `ONLY ${p.stock} BOTTLES LEFT`;
                     stockEl.appendChild(span);
                 } else {
                     stockEl.textContent = `IN STOCK: ${p.stock} UNITS`;

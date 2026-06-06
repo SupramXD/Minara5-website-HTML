@@ -638,7 +638,7 @@
       margin-left: 0;
       margin-right: 0;
       margin-bottom: 5px;
-      padding: 8px 16px;
+      padding: 8px 28px;
       background: #000;
       border: 1px solid #000;
       color: #fff;
@@ -751,7 +751,7 @@
       font-size: 14px;
       margin-top: 0;
       color: #00008B;
-      font-weight: bold;
+      font-weight: 600;
     }
 
     .view-more-container {
@@ -1432,6 +1432,10 @@
       .trust-container {
         flex-direction: column;
         align-items: center;
+        width: 100%;
+      }
+      .trust-item {
+        margin: 0 auto !important;
       }
     }
   </style>
@@ -1754,7 +1758,7 @@
           if (hasDiscount) {
             priceEl.innerHTML = `
               <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                <span class="discounted-price" style="color: #00008B; font-weight: bold; line-height: 1.1; font-size: 1.1em;"></span>
+                <span class="discounted-price" style="color: #00008B; font-weight: 600; line-height: 1.1; font-size: 1.1em;"></span>
                 <span class="original-price" style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;"></span>
               </div>
             `;
@@ -1782,13 +1786,9 @@
               stockStatusEl.textContent = "SOLD OUT";
               stockStatusEl.style.color = "#ff3b30";
               stockStatusEl.style.display = "block";
-            } else if (p.stock <= 5) {
+            } else if (p.stock <= 4) {
               stockStatusEl.textContent = `ONLY ${p.stock} BOTTLES LEFT`;
               stockStatusEl.style.color = "#b82d2d";
-              stockStatusEl.style.display = "block";
-            } else if (p.stock <= 15) {
-              stockStatusEl.textContent = `⚡ SELLING FAST / LOW STOCK`;
-              stockStatusEl.style.color = "#8f6400";
               stockStatusEl.style.display = "block";
             } else {
               stockStatusEl.style.display = "none";

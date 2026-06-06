@@ -319,7 +319,7 @@ nav ul li a:hover{opacity:0.6;}
 .price {
     font-size: 13.5px;
     color: #00008B;
-    font-weight: bold;
+    font-weight: 600;
     margin-top: 8px;
     margin-bottom: 18px; /* Safe space before button */
 }
@@ -749,6 +749,42 @@ footer{
     </div>
 </main>
 
+  <!-- TRUST BANNER -->
+  <div class="trust-banner" style="background: #fafafa; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; padding: 40px 20px; text-align: center; font-family: Helvetica, Arial, sans-serif; width: 100%; margin-top: 40px;">
+    <div class="trust-container" style="max-width: 1000px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-around; align-items: stretch; gap: 30px;">
+      <div class="trust-item" style="display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 280px; flex: 1 1 250px;">
+        <span style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 900; color: #1a1a1a; margin-bottom: 8px;">Buy Direct & Save</span>
+        <span style="font-size: 11px; opacity: 0.6; line-height: 1.45;">Save 15% compared to our Takealot and Amazon prices by ordering directly from our official store.</span>
+      </div>
+      <div class="trust-divider" style="width: 1px; background: #eaeaea; display: block;"></div>
+      <div class="trust-item" style="display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 280px; flex: 1 1 250px;">
+        <span style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 900; color: #1a1a1a; margin-bottom: 8px;">Fast Delivery Nationwide</span>
+        <span style="font-size: 11px; opacity: 0.6; line-height: 1.45;">Courier dispatch direct to your door anywhere in South Africa. Safe and secure checkout options.</span>
+      </div>
+      <div class="trust-divider" style="width: 1px; background: #eaeaea; display: block;"></div>
+      <div class="trust-item" style="display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 280px; flex: 1 1 250px;">
+        <span style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 900; color: #1a1a1a; margin-bottom: 8px;">Trusted Clone Brand</span>
+        <span style="font-size: 11px; opacity: 0.6; line-height: 1.45;">Also selling on Takealot & Amazon. 100% premium quality formulation matching original scents.</span>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @media (max-width: 768px) {
+      .trust-divider {
+        display: none !important;
+      }
+      .trust-container {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+      .trust-item {
+        margin: 0 auto !important;
+      }
+    }
+  </style>
+
 <footer>© 2026 MINARA5</footer>
 
 <script>
@@ -946,7 +982,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                 if (hasDiscount) {
                     priceEl.innerHTML = `
                         <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                            <span class="discounted-price" style="color: #00008B; font-weight: bold; line-height: 1.1; font-size: 1.1em;"></span>
+                            <span class="discounted-price" style="color: #00008B; font-weight: 600; line-height: 1.1; font-size: 1.1em;"></span>
                             <span class="original-price" style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;"></span>
                         </div>
                     `;
@@ -974,13 +1010,9 @@ window.addEventListener("orientationchange", updateCartHeight);
                         stockStatusEl.textContent = "SOLD OUT";
                         stockStatusEl.style.color = "#ff3b30";
                         stockStatusEl.style.display = "block";
-                    } else if (p.stock <= 5) {
+                    } else if (p.stock <= 4) {
                         stockStatusEl.textContent = `ONLY ${p.stock} BOTTLES LEFT`;
                         stockStatusEl.style.color = "#b82d2d";
-                        stockStatusEl.style.display = "block";
-                    } else if (p.stock <= 15) {
-                        stockStatusEl.textContent = `⚡ SELLING FAST / LOW STOCK`;
-                        stockStatusEl.style.color = "#8f6400";
                         stockStatusEl.style.display = "block";
                     } else {
                         stockStatusEl.style.display = "none";
