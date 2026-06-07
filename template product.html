@@ -998,7 +998,11 @@ footer{
         <div class="product-retail-price" style="font-size:11px; opacity:0.5; margin-top: -8px; margin-bottom: 15px; letter-spacing:0.1em; text-transform:uppercase; display:none;"></div>
         <div class="product-price"></div>
 
-        <div class="product-stock" style="font-size:11px; opacity:0.6; margin-bottom:25px; letter-spacing:0.18em; text-transform:uppercase;"></div>
+        <!-- Size Selection Container -->
+        <div id="sizePickerContainer" style="margin-bottom: 25px; display: none;">
+            <div style="font-size: 10px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Select Size:</div>
+            <div id="sizePickerOptions" style="display: flex; gap: 10px;"></div>
+        </div>
 
         <button class="add-to-cart" id="addToBagBtn" disabled>ADD TO BAG</button>
 
@@ -1106,7 +1110,7 @@ footer{
   }
 </style>
 
-<footer>© 2026 MINARA5</footer>
+<footer>© 2026 THEFRAGRANCEHOUSE</footer>
 
 <script>
 
@@ -1394,8 +1398,64 @@ window.openCart = function() {
 
             // ADD TO BAG button action
             const addToBagBtn = document.querySelector('.add-to-cart');
+            const sizeContainer = document.getElementById('sizePickerContainer');
+            const sizeOptionsDiv = document.getElementById('sizePickerOptions');
+            
             if (addToBagBtn) {
-                addToBagBtn.setAttribute('onclick', `addToCart('${p.id}')`);
+                const availableSizes = p.sizes && p.sizes.length > 0 ? p.sizes : ["50ml", "100ml"];
+                let selectedSize = availableSizes[0];
+                
+                if (sizeContainer && sizeOptionsDiv) {
+                    sizeOptionsDiv.innerHTML = "";
+                    sizeContainer.style.display = "block";
+                    
+                    availableSizes.forEach((sz) => {
+                        const btn = document.createElement('button');
+                        btn.textContent = sz.toUpperCase();
+                        btn.style.cssText = "border: 1px solid #000; background: transparent; color: #000; padding: 10px 20px; font-family: inherit; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.2s ease;";
+                        
+                        const updateBtnStyles = () => {
+                            if (selectedSize === sz) {
+                                btn.style.background = "#000";
+                                btn.style.color = "#fff";
+                            } else {
+                                btn.style.background = "transparent";
+                                btn.style.color = "#000";
+                            }
+                        };
+                        
+                        updateBtnStyles();
+                        
+                        if (availableSizes.length > 1) {
+                            btn.onclick = () => {
+                                selectedSize = sz;
+                                const siblings = sizeOptionsDiv.querySelectorAll('button');
+                                siblings.forEach(sib => {
+                                    if (sib.textContent === sz.toUpperCase()) {
+                                        sib.style.background = "#000";
+                                        sib.style.color = "#fff";
+                                    } else {
+                                        sib.style.background = "transparent";
+                                        sib.style.color = "#000";
+                                    }
+                                });
+                                addToBagBtn.onclick = () => {
+                                    window.addToCart(p.id, selectedSize);
+                                };
+                            };
+                        } else {
+                            btn.style.cursor = "default";
+                        }
+                        
+                        sizeOptionsDiv.appendChild(btn);
+                    });
+                }
+                
+                addToBagBtn.onclick = () => {
+                    window.addToCart(p.id, selectedSize);
+                };
+                addToBagBtn.removeAttribute('onclick');
+                
                 if (p.stock <= 0) {
                     addToBagBtn.innerHTML = "OUT OF STOCK";
                     addToBagBtn.disabled = true;
@@ -1439,11 +1499,12 @@ window.openCart = function() {
                         image_thumb: data.image_thumb || "",
                         description: window.escapeHTML(data.description),
                         status: data.status,
-                        flair: data.flair || ""
+                        flair: data.flair || "",
+                        sizes: data.sizes || ["50ml", "100ml"]
                     };
                     
                     // Only swap if values changed or we didn't have local cache!
-                    if (!product || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair) {
+                    if (!product || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair || JSON.stringify(product.sizes) !== JSON.stringify(liveProduct.sizes)) {
                         product = liveProduct;
                         swapContent(product);
                         

@@ -277,7 +277,7 @@ nav ul li a:hover{opacity:0.6;}
     max-width: 185px;
     margin: 0 auto;
     height: auto;
-    background: #2596be;
+    background: #fafafa;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -792,7 +792,7 @@ footer{
     }
   </style>
 
-<footer>© 2026 MINARA5</footer>
+<footer>© 2026 THEFRAGRANCEHOUSE</footer>
 
 <script>
 function openMenu(){
@@ -966,7 +966,13 @@ window.addEventListener("orientationchange", updateCartHeight);
                 
                 // Safe image properties assignment
                 const img = item.querySelector('.product-img');
-                img.src = getThumbnailImageUrl(p.image, p.image_thumb);
+                const tSrc = getThumbnailImageUrl(p.image, p.image_thumb);
+                if (tSrc) {
+                    img.src = tSrc;
+                    img.style.display = 'block';
+                } else {
+                    img.style.display = 'none';
+                }
                 img.setAttribute('alt', rawName);
                 
                 // Safe product name text assignments
@@ -1086,6 +1092,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                             image_thumb: data.image_thumb || "",
                             status: data.status,
                             flair: data.flair || "",
+                            sizes: data.sizes || ["50ml", "100ml"],
                             url: doc.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${doc.id}`
                         };
                         firestoreProds.push(p);
@@ -1094,7 +1101,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                         if (existingIdx > -1) {
                             // Check if values have actually changed to avoid unnecessary re-renders
                             const current = products[existingIdx];
-                            if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair) {
+                            if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair || JSON.stringify(current.sizes) !== JSON.stringify(p.sizes)) {
                                 products[existingIdx] = p;
                                 updated = true;
                             }

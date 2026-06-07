@@ -473,8 +473,9 @@ const products = {
 let cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
 
 // 3. THE ADD FUNCTION
-window.addToCart = function(productId) {
+window.addToCart = function(productId, selectedSize) {
     let product = null;
+    let sizes = ["50ml", "100ml"];
     
     // 1. Check custom local storage products first to pick up any admin edits (name, price, image)
     try {
@@ -488,6 +489,9 @@ window.addToCart = function(productId) {
                 image: found.image.split(',')[0].trim(),
                 image_thumb: found.image_thumb || ""
             };
+            if (found.sizes) {
+                sizes = found.sizes;
+            }
         }
     } catch (e) {
         console.error("Local storage lookup failed in addToCart:", e);
@@ -498,14 +502,15 @@ window.addToCart = function(productId) {
         product = products[productId];
     }
     
-
-    
     if (!product) {
         console.warn("Product not found for addToCart:", productId);
         return;
     }
 
-    const existingItem = cart.find(item => item.id === productId);
+    // Determine target size
+    const sizeToUse = selectedSize || (sizes && sizes.length > 0 ? sizes[0] : "100ml");
+
+    const existingItem = cart.find(item => item.id === productId && item.size === sizeToUse);
     if (existingItem) {
         if (existingItem.removed) {
             delete existingItem.removed;
@@ -514,7 +519,15 @@ window.addToCart = function(productId) {
             existingItem.quantity += 1;
         }
     } else {
-        cart.push({ ...product, quantity: 1 });
+        cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            image_thumb: product.image_thumb || "",
+            size: sizeToUse,
+            quantity: 1
+        });
     }
 
     saveAndSyncCart();
@@ -605,11 +618,21 @@ window.removeFromCart = function(index) {
                                          
                                          `;
 
-    asciiContainer.textContent = hasItems ? minaraArt : emptyArt;
+    const isMobile = window.innerWidth <= 900;
+    if (hasItems) {
+        if (isMobile) {
+            asciiWrap.style.display = "none";
+        } else {
+            asciiContainer.textContent = minaraArt;
+            asciiWrap.style.display = "flex";
+        }
+    } else {
+        asciiContainer.textContent = emptyArt;
+        asciiWrap.style.display = "flex";
+    }
 
     // #2: REMOVE LEFT BORDER
     asciiWrap.style.borderLeft = "none";         
-    asciiWrap.style.display = "flex";
     asciiWrap.style.alignItems = "center";       
     asciiWrap.style.justifyContent = "flex-start"; 
     asciiWrap.style.padding = "0 25px";
@@ -627,7 +650,7 @@ window.removeFromCart = function(index) {
                 html += `
                 <div class="cart-item-row removed-item-row" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #000; padding:15px 20px; background:#fafafa; box-sizing:border-box; width:100%;">
                     <div style="display:flex; flex-direction:column; gap:4px;">
-                        <span style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</span>
+                        <span style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name} ${(item.size ? ' (' + item.size + ')' : '')}</span>
                         <span style="color:red; font-size:9px; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">REMOVED FROM BAG</span>
                     </div>
                     <span onclick="window.undoRemove(${index})" style="color:#1106e8; font-size:11px; font-family:'Gotham Narrow Bold', sans-serif; text-decoration:underline; cursor:pointer; font-weight:bold; text-transform:uppercase;">UNDO</span>
@@ -644,7 +667,7 @@ window.removeFromCart = function(index) {
                     <img src="${window.getThumbnailImageUrl(item.image, item.image_thumb)}" style="width:80px; height:105px; object-fit:contain;">
                     <div style="flex:1;">
                         <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</div>
-                        <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL</div>
+                        <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL &bull; SIZE: ${(item.size || '100ml').toUpperCase()}</div>
                         <div style="font-size:11px;">${displayPrice}</div>
                         <div class="qty-stepper" style="display:flex; border:1px solid #000; width:fit-content; margin-top:10px;">
                             <div class="qty-btn" ${item.quantity <= 1 ? 'style="width:25px; height:25px; display:flex; justify-content:center; align-items:center; opacity:0.3; cursor:not-allowed;"' : `onclick="window.changeQty(${index}, -1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;"`}>–</div>
@@ -659,8 +682,8 @@ window.removeFromCart = function(index) {
         
         // Continue shopping button under the list of items
         html += `
-        <div style="padding: 20px 15px; text-align: center;">
-            <button onclick="closeCart()" style="background: transparent; border: 1px solid #000; color: #000; padding: 12px; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; width: 100%; font-weight: bold; transition: background 0.25s, color 0.25s;">CONTINUE SHOPPING</button>
+        <div class="continue-shopping-row" style="width:100%; box-sizing:border-box; border-bottom:1px solid #000;">
+            <button onclick="closeCart()" onmouseover="this.style.background='#000'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='#000';" style="background: transparent; border: none; color: #000; padding: 16px 0; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; width: 100%; font-weight: bold; display: block; text-align: center; box-sizing: border-box; transition: background 0.25s, color 0.25s;">CONTINUE SHOPPING</button>
         </div>`;
 
         html += '</div>';

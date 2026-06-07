@@ -711,7 +711,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #2596be;
+      background: #fafafa;
     }
 
     .hp-box:empty {
@@ -788,6 +788,20 @@
     @media(min-width: 901px) {
       .desktop-none {
         display: none !important;
+      }
+      .home-products-list {
+        max-width: 900px;
+        margin: 0 auto;
+        border-left: 1px solid #000;
+        border-bottom: 1px solid #000;
+        border-top: 1px solid #000;
+      }
+      .home-products-header {
+        max-width: 900px;
+        margin: 30px auto;
+        padding-left: 10px;
+        padding-right: 10px;
+        box-sizing: border-box;
       }
     }
 
@@ -1453,7 +1467,7 @@
     }
   </style>
 
-  <footer>© 2026 MINARA5</footer>
+  <footer>© 2026 THEFRAGRANCEHOUSE</footer>
 
   <div id="logo" style="cursor: pointer;" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
     <img src="minara 5 transparent.svg" class="mobile-logo">
@@ -1747,7 +1761,13 @@
 
           // Safe image properties assignment
           const img = card.querySelector('.product-img');
-          img.src = getThumbnailImageUrl(p.image, p.image_thumb);
+          const tSrc = getThumbnailImageUrl(p.image, p.image_thumb);
+          if (tSrc) {
+            img.src = tSrc;
+            img.style.display = 'block';
+          } else {
+            img.style.display = 'none';
+          }
           img.setAttribute('alt', rawName);
 
           // Safe product name text assignments

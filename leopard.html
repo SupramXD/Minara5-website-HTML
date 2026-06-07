@@ -1002,7 +1002,13 @@ footer{
         <div class="product-price">R749</div>
         <div class="product-stock" style="font-size:11px; opacity:0.6; margin-bottom:25px; letter-spacing:0.18em; text-transform:uppercase;">IN STOCK: 45 UNITS</div>
 
-        <button class="add-to-cart" onclick="addToCart('leopard-backpack')">ADD TO BAG</button>
+        <!-- Size Selection Container -->
+        <div id="sizePickerContainer" style="margin-bottom: 25px; display: none;">
+            <div style="font-size: 10px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Select Size:</div>
+            <div id="sizePickerOptions" style="display: flex; gap: 10px;"></div>
+        </div>
+
+        <button class="add-to-cart" id="addToBagBtn" onclick="addToCart('leopard-backpack')">ADD TO BAG</button>
 
         <div class="desc">
 Léopard teaches that true transformation arrives in silence.
@@ -1114,7 +1120,7 @@ for many years still unwritten
   }
 </style>
 
-<footer>© 2026 MINARA5</footer>
+<footer>© 2026 THEFRAGRANCEHOUSE</footer>
 
 <script>
 
@@ -1382,8 +1388,64 @@ window.openCart = function() {
 
             // ADD TO BAG button action
             const addToBagBtn = document.querySelector('.add-to-cart');
+            const sizeContainer = document.getElementById('sizePickerContainer');
+            const sizeOptionsDiv = document.getElementById('sizePickerOptions');
+            
             if (addToBagBtn) {
-                addToBagBtn.setAttribute('onclick', `addToCart('${p.id}')`);
+                const availableSizes = p.sizes && p.sizes.length > 0 ? p.sizes : ["50ml", "100ml"];
+                let selectedSize = availableSizes[0];
+                
+                if (sizeContainer && sizeOptionsDiv) {
+                    sizeOptionsDiv.innerHTML = "";
+                    sizeContainer.style.display = "block";
+                    
+                    availableSizes.forEach((sz) => {
+                        const btn = document.createElement('button');
+                        btn.textContent = sz.toUpperCase();
+                        btn.style.cssText = "border: 1px solid #000; background: transparent; color: #000; padding: 10px 20px; font-family: inherit; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.2s ease;";
+                        
+                        const updateBtnStyles = () => {
+                            if (selectedSize === sz) {
+                                btn.style.background = "#000";
+                                btn.style.color = "#fff";
+                            } else {
+                                btn.style.background = "transparent";
+                                btn.style.color = "#000";
+                            }
+                        };
+                        
+                        updateBtnStyles();
+                        
+                        if (availableSizes.length > 1) {
+                            btn.onclick = () => {
+                                selectedSize = sz;
+                                const siblings = sizeOptionsDiv.querySelectorAll('button');
+                                siblings.forEach(sib => {
+                                    if (sib.textContent === sz.toUpperCase()) {
+                                        sib.style.background = "#000";
+                                        sib.style.color = "#fff";
+                                    } else {
+                                        sib.style.background = "transparent";
+                                        sib.style.color = "#000";
+                                    }
+                                });
+                                addToBagBtn.onclick = () => {
+                                    window.addToCart(p.id, selectedSize);
+                                };
+                            };
+                        } else {
+                            btn.style.cursor = "default";
+                        }
+                        
+                        sizeOptionsDiv.appendChild(btn);
+                    });
+                }
+                
+                addToBagBtn.onclick = () => {
+                    window.addToCart(p.id, selectedSize);
+                };
+                addToBagBtn.removeAttribute('onclick');
+                
                 if (p.stock <= 0) {
                     addToBagBtn.innerHTML = "OUT OF STOCK";
                     addToBagBtn.disabled = true;
@@ -1410,6 +1472,51 @@ window.openCart = function() {
             retries--;
         }
 
+        if (window.db) {
+            try {
+                const docRef = doc(window.db, "products", productId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const liveProduct = {
+                        id: productId,
+                        nameShort: data.nameShort || "",
+                        name: window.escapeHTML(data.name),
+                        price: Number(data.price),
+                        retailPrice: data.retailPrice !== undefined ? Number(data.retailPrice) : null,
+                        stock: Number(data.stock),
+                        image: data.image,
+                        image_thumb: data.image_thumb || "",
+                        description: window.escapeHTML(data.description),
+                        status: data.status,
+                        flair: data.flair || "",
+                        sizes: data.sizes || ["50ml", "100ml"]
+                    };
+                    
+                    // Only swap if values changed or we didn't have local cache!
+                    if (!product || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair || JSON.stringify(product.sizes) !== JSON.stringify(liveProduct.sizes)) {
+                        product = liveProduct;
+                        swapContent(product);
+                        
+                        // Keep our local cache fresh too!
+                        try {
+                            const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+                            const idx = localProds.findIndex(lp => lp.id === productId);
+                            const liveProductWithStatus = { ...liveProduct, syncStatus: "synced" };
+                            if (idx > -1) {
+                                localProds[idx] = liveProductWithStatus;
+                            } else {
+                                localProds.push(liveProductWithStatus);
+                            }
+                            localStorage.setItem("minara_products", JSON.stringify(localProds));
+                        } catch (cacheErr) {
+                            console.error("Local storage product update failed inside details view:", cacheErr);
+                        }
+                    }
+                }
+            } catch (dbErr) {
+                console.error("Firestore product details load failed:", dbErr);
+            }
         }
 
         // Load reviews for this product
