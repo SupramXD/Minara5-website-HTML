@@ -507,7 +507,12 @@ window.addToCart = function(productId) {
 
     const existingItem = cart.find(item => item.id === productId);
     if (existingItem) {
-        existingItem.quantity += 1;
+        if (existingItem.removed) {
+            delete existingItem.removed;
+            existingItem.quantity = 1;
+        } else {
+            existingItem.quantity += 1;
+        }
     } else {
         cart.push({ ...product, quantity: 1 });
     }
@@ -525,7 +530,8 @@ window.addToCart = function(productId) {
 function saveAndSyncCart() {
     localStorage.setItem('minara_cart', JSON.stringify(cart));
     
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const activeCartItems = cart.filter(item => !item.removed);
+    const totalItems = activeCartItems.reduce((sum, item) => sum + item.quantity, 0);
     const countStr = totalItems.toString().padStart(2, '0');
     
     // Update every possible counter in the site
@@ -544,11 +550,11 @@ function saveAndSyncCart() {
     renderCartUI();
 }
 
-// Fix #3: Explicitly bind to window so HTML 'onclick' can find it
 window.removeFromCart = function(index) {
-    lastRemovedItem = { ...cart[index] };
-    cart.splice(index, 1);
-    saveAndSyncCart();
+    if (cart[index]) {
+        cart[index].removed = true;
+        saveAndSyncCart();
+    }
 };
 
 /* ===============================
@@ -572,15 +578,17 @@ window.removeFromCart = function(index) {
         staticBottom.style.setProperty('display', 'none', 'important');
     }
 
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const activeCartItems = cart.filter(item => !item.removed);
+    const totalItems = activeCartItems.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPrice = activeCartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const hasItems = totalItems > 0;
+    const hasAnyCartItems = cart.length > 0;
     const isLoggedIn = !!currentUser;
 
     // YOUR EXACT ASCII ART
-const minaraArt = `
+    const minaraArt = `
  __  __   ___   _   _     _      ____      _     
-|  \\/  | |_ _| | \\ | |   / \\    |  _ \\    / \\    
+| \\/  | |_ _| | \\ | |   / \\    |  _ \\    / \\    
 | |\\/| |  | |  |  \\| |  / _ \\   | |_) |  / _ \\   
 | |  | |  | |  | |\\  | / ___ \\  |  _ <  / ___ \\  
 |_|  |_| |___| |_| \\_|/_/   \\_\\ |_| \\_\\/_/   \\_\\ 
@@ -612,54 +620,53 @@ const minaraArt = `
 
     let html = '<div style="display:flex; flex-direction:column; height:100%; flex-grow:1; overflow:hidden;">';
 
-    if (hasItems) {
+    if (hasAnyCartItems) {
         html += '<div class="items-area" style="flex-grow:1; overflow-y:auto;">';
         cart.forEach((item, index) => {
-            const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
-            const itemPrice = item.price;
-            const displayPrice = hasDiscount 
-                ? `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${formatPrice(itemPrice)}</span><span style="color: #1106e8; font-weight: bold;">R${formatPrice(Math.round(itemPrice * 0.95))}</span>` 
-                : `R${formatPrice(itemPrice)}`;
-
-            html += `
-            <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 15px;">
-                <img src="${window.getThumbnailImageUrl(item.image, item.image_thumb)}" style="width:80px; height:105px; object-fit:contain;">
-                <div style="flex:1;">
-                    <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</div>
-                    <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL</div>
-                    <div style="font-size:11px;">${displayPrice}</div>
-                    <div class="qty-stepper" style="display:flex; border:1px solid #000; width:fit-content; margin-top:10px;">
-                        <div class="qty-btn" ${item.quantity <= 1 ? 'style="width:25px; height:25px; display:flex; justify-content:center; align-items:center; opacity:0.3; cursor:not-allowed;"' : `onclick="window.changeQty(${index}, -1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;"`}>–</div>
-                        <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #000; border-right:1px solid #000; font-size:11px; display:flex; align-items:center; justify-content:center;">${item.quantity}</div>
-                        <div class="qty-btn" onclick="window.changeQty(${index}, 1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">+</div>
+            if (item.removed) {
+                html += `
+                <div class="cart-item-row removed-item-row" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #000; padding:15px 20px; background:#fafafa; box-sizing:border-box; width:100%;">
+                    <div style="display:flex; flex-direction:column; gap:4px;">
+                        <span style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</span>
+                        <span style="color:red; font-size:9px; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">REMOVED FROM BAG</span>
                     </div>
-                    <div onclick="window.removeFromCart(${index})" style="font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; text-decoration:underline; font-weight:bold; text-transform:uppercase;">✕ REMOVE</div>
-                </div>
-            </div>`;
+                    <span onclick="window.undoRemove(${index})" style="color:#1106e8; font-size:11px; font-family:'Gotham Narrow Bold', sans-serif; text-decoration:underline; cursor:pointer; font-weight:bold; text-transform:uppercase;">UNDO</span>
+                </div>`;
+            } else {
+                const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
+                const itemPrice = item.price;
+                const displayPrice = hasDiscount 
+                    ? `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${formatPrice(itemPrice)}</span><span style="color: #1106e8; font-weight: bold;">R${formatPrice(Math.round(itemPrice * 0.95))}</span>` 
+                    : `R${formatPrice(itemPrice)}`;
+
+                html += `
+                <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 15px;">
+                    <img src="${window.getThumbnailImageUrl(item.image, item.image_thumb)}" style="width:80px; height:105px; object-fit:contain;">
+                    <div style="flex:1;">
+                        <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</div>
+                        <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL</div>
+                        <div style="font-size:11px;">${displayPrice}</div>
+                        <div class="qty-stepper" style="display:flex; border:1px solid #000; width:fit-content; margin-top:10px;">
+                            <div class="qty-btn" ${item.quantity <= 1 ? 'style="width:25px; height:25px; display:flex; justify-content:center; align-items:center; opacity:0.3; cursor:not-allowed;"' : `onclick="window.changeQty(${index}, -1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;"`}>–</div>
+                            <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #000; border-right:1px solid #000; font-size:11px; display:flex; align-items:center; justify-content:center;">${item.quantity}</div>
+                            <div class="qty-btn" onclick="window.changeQty(${index}, 1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">+</div>
+                        </div>
+                        <div onclick="window.removeFromCart(${index})" style="font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; text-decoration:underline; font-weight:bold; text-transform:uppercase;">✕ REMOVE</div>
+                    </div>
+                </div>`;
+            }
         });
+        
+        // Continue shopping button under the list of items
+        html += `
+        <div style="padding: 20px 15px; text-align: center;">
+            <button onclick="closeCart()" style="background: transparent; border: 1px solid #000; color: #000; padding: 12px; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; width: 100%; font-weight: bold; transition: background 0.25s, color 0.25s;">CONTINUE SHOPPING</button>
+        </div>`;
+
         html += '</div>';
     } else {
         html += '<div style="padding:10px 25px; flex-grow:1; display:flex; flex-direction:column; align-items:flex-start;">';
-        
-        // #1: LOGGED IN TEXT
-        if (isLoggedIn) {
-            html += `<div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; text-transform:uppercase;">ADD ITEMS TO BAG</div>`;
-        } else {
-            html += `<div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; text-transform:uppercase;">ADD ITEMS TO BAG</div>`;
-        }
-
-        // #3: UNDO BUTTON UI (Based on reference image)
-        if (lastRemovedItem) {
-            html += `
-            <div style="width:100%; margin-top:30px; border-top:1px solid #eee; padding-top:10px;">
-                <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase; margin-bottom:12px;">${lastRemovedItem.name}</div>
-                <div style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid #eee; padding-top:10px;">
-                    <span style="color:red; font-size:11px; font-weight:normal; text-transform:uppercase;">REMOVED</span>
-                    <span onclick="window.undoRemove()" style="color:#1106e8; font-size:11px; text-decoration:underline; cursor:pointer; font-weight:normal; text-transform:uppercase;">UNDO</span>
-                </div>
-            </div>`;
-        }
-        
+        html += `<div style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; text-transform:uppercase;">ADD ITEMS TO BAG</div>`;
         html += '</div>';
     }
 
@@ -710,19 +717,9 @@ window.changeQty = function(index, delta) {
     }
 };
 
-window.removeFromCart = function(index) {
+window.undoRemove = function(index) {
     if (cart[index]) {
-        // This line is required for the Undo button to see the item
-        lastRemovedItem = { ...cart[index] }; 
-        cart.splice(index, 1);
-        saveAndSyncCart();
-    }
-};
-
-window.undoRemove = function() {
-    if (lastRemovedItem) {
-        cart.push(lastRemovedItem);
-        lastRemovedItem = null; // Hide the undo button after use
+        delete cart[index].removed;
         saveAndSyncCart();
     }
 };
@@ -743,6 +740,7 @@ onAuthStateChanged(auth, async (user) => {
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
+    cart = cart.filter(item => !item.removed);
     saveAndSyncCart();
 
     const panel = document.getElementById('cartPanel');
@@ -750,6 +748,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (dimmer) {
         dimmer.addEventListener('click', () => {
+            // Clean up removed items when cart closes
+            cart = cart.filter(item => !item.removed);
+            saveAndSyncCart();
+
             if (panel) panel.classList.remove('open');
             dimmer.classList.remove('active');
             window.closeAccDropdown();
@@ -807,6 +809,10 @@ setTimeout(() => {
     const originalCloseCart = window.closeCart;
     if (typeof originalCloseCart === 'function') {
         window.closeCart = function() {
+            // Clean up removed items
+            cart = cart.filter(item => !item.removed);
+            saveAndSyncCart();
+
             originalCloseCart();
             if (history.state && history.state.cartOpen) {
                 history.back();
@@ -828,6 +834,10 @@ window.addEventListener('popstate', (event) => {
         const cartPanel = document.getElementById("cartPanel");
         const dimmer = document.getElementById("pageDimmer");
         if (cartPanel && cartPanel.classList.contains("open")) {
+            // Clean up removed items
+            cart = cart.filter(item => !item.removed);
+            saveAndSyncCart();
+
             cartPanel.classList.remove("open");
             if (dimmer) dimmer.classList.remove("active");
             document.body.style.overflow = '';

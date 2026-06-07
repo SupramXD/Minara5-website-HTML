@@ -818,6 +818,50 @@ footer{
 .cart-body { 
     border-color: #000 !important; 
 }
+.product-media-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+@media (min-width: 901px) {
+  .page-wrap {
+    transform: none !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 80px auto 100px !important;
+    padding: 0 40px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 50px !important;
+  }
+  .product-media-wrap {
+    width: 50% !important;
+    max-width: 550px !important;
+    position: sticky !important;
+    top: 100px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+  .slider {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 0 !important;
+  }
+  .product-info-wrap {
+    width: 45% !important;
+    max-width: 500px !important;
+    margin-top: 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+}
 </style>
 </head>
 
@@ -930,18 +974,21 @@ footer{
 
 <div class="page-wrap">
 
-    <!-- SLIDER -->
-    <div class="slider" id="slider">
-        <div class="arrow arrow-left" id="arrowLeft" onclick="prevSlide()">&#x2039;</div>
-        <div class="arrow arrow-right" id="arrowRight" onclick="nextSlide()">&#x203A;</div>
+    <!-- LEFT COLUMN: MEDIA WRAP -->
+    <div class="product-media-wrap">
+        <!-- SLIDER -->
+        <div class="slider" id="slider">
+            <div class="arrow arrow-left" id="arrowLeft" onclick="prevSlide()">&#x2039;</div>
+            <div class="arrow arrow-right" id="arrowRight" onclick="nextSlide()">&#x203A;</div>
 
-        <div class="slider-track" id="sliderTrack">
-            <!-- Dynamic Images Injected Here -->
+            <div class="slider-track" id="sliderTrack">
+                <!-- Dynamic Images Injected Here -->
+            </div>
         </div>
-    </div>
 
-    <div class="slider-dots">
-        <!-- Dynamic Dots Injected Here -->
+        <div class="slider-dots">
+            <!-- Dynamic Dots Injected Here -->
+        </div>
     </div>
 
     <div class="product-info-wrap">
@@ -958,6 +1005,8 @@ footer{
         <div class="desc">
             Loading details...
         </div>
+
+        <a class="back-link" href="catalog.html" style="display: inline-block; margin-bottom: 25px; margin-top: 15px;">back</a>
 
         <!-- REVIEWS SECTION -->
         <div class="reviews-section" style="width: 100%; margin-top: 40px; border-top: 1px solid #000; padding-top: 30px; text-align: left;">
@@ -1017,7 +1066,6 @@ footer{
             </form>
         </div>
 
-        <a class="back-link" href="catalog.html">back</a>
     </div>
 
 </div>

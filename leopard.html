@@ -818,6 +818,50 @@ footer{
 .cart-body { 
     border-color: #000 !important; 
 }
+.product-media-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+@media (min-width: 901px) {
+  .page-wrap {
+    transform: none !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 80px auto 100px !important;
+    padding: 0 40px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 50px !important;
+  }
+  .product-media-wrap {
+    width: 50% !important;
+    max-width: 550px !important;
+    position: sticky !important;
+    top: 100px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+  .slider {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 0 !important;
+  }
+  .product-info-wrap {
+    width: 45% !important;
+    max-width: 500px !important;
+    margin-top: 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+}
 </style>
 </head>
 
@@ -930,22 +974,25 @@ footer{
 
 <div class="page-wrap">
 
-    <!-- SLIDER -->
-    <div class="slider" id="slider">
-        <div class="arrow arrow-left" id="arrowLeft" onclick="prevSlide()">&#x2039;</div>
-        <div class="arrow arrow-right" id="arrowRight" onclick="nextSlide()">&#x203A;</div>
+    <!-- LEFT COLUMN: MEDIA WRAP -->
+    <div class="product-media-wrap">
+        <!-- SLIDER -->
+        <div class="slider" id="slider">
+            <div class="arrow arrow-left" id="arrowLeft" onclick="prevSlide()">&#x2039;</div>
+            <div class="arrow arrow-right" id="arrowRight" onclick="nextSlide()">&#x203A;</div>
 
-        <div class="slider-track" id="sliderTrack">
-            <img src="cheetahproduct.avif">
-            <img src="https://via.placeholder.com/900x1100?text=Image+2">
-            <img src="https://via.placeholder.com/900x1100?text=Image+3">
+            <div class="slider-track" id="sliderTrack">
+                <img src="cheetahproduct.avif">
+                <img src="https://via.placeholder.com/900x1100?text=Image+2">
+                <img src="https://via.placeholder.com/900x1100?text=Image+3">
+            </div>
         </div>
-    </div>
 
-    <div class="slider-dots">
-        <div onclick="goToSlide(0)" class="active"></div>
-        <div onclick="goToSlide(1)"></div>
-        <div onclick="goToSlide(2)"></div>
+        <div class="slider-dots">
+            <div onclick="goToSlide(0)" class="active"></div>
+            <div onclick="goToSlide(1)"></div>
+            <div onclick="goToSlide(2)"></div>
+        </div>
     </div>
 
     <div class="product-info-wrap">
@@ -968,7 +1015,65 @@ your signature, signing stolen glances
 for many years still unwritten
         </div>
 
-        <a class="back-link" href="catalog.html">back</a>
+        <a class="back-link" href="catalog.html" style="display: inline-block; margin-bottom: 25px; margin-top: 15px;">back</a>
+
+        <!-- REVIEWS SECTION -->
+        <div class="reviews-section" style="width: 100%; margin-top: 40px; border-top: 1px solid #000; padding-top: 30px; text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
+                <h3 style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0;">Customer Reviews</h3>
+                <span id="reviewsAverage" style="font-size: 10px; opacity: 0.6; letter-spacing: 0.5px;">Loading...</span>
+            </div>
+
+            <div id="reviewsList" style="margin-bottom: 25px; display: flex; flex-direction: column; gap: 20px;">
+                <div style="font-size: 10px; opacity: 0.5; font-style: italic;">Loading reviews...</div>
+            </div>
+
+            <!-- Toggle form button -->
+            <button id="toggleReviewFormBtn" onclick="window.toggleReviewForm()" style="background: transparent; border: 1px solid #000; color: #000; padding: 10px 15px; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; width: 100%; font-family: inherit; font-weight: bold; transition: background 0.25s, color 0.25s;">Write A Review</button>
+
+            <!-- Review Form (hidden by default) -->
+            <form id="reviewForm" onsubmit="window.submitReview(event)" style="display: none; margin-top: 20px; border: 1px solid #eaeaea; padding: 20px; background: #fafafa;">
+                <h4 style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 15px; margin-top: 0;">Submit Your Review</h4>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold;">Your Rating</label>
+                    <div style="display: flex; gap: 6px;" id="starRatingSelector">
+                        <!-- Dynamic Interactive Stars (5 starts loaded as default fill) -->
+                        <span class="star-select" data-value="1" onclick="window.setFormRating(1)" style="cursor: pointer; display: inline-flex;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </span>
+                        <span class="star-select" data-value="2" onclick="window.setFormRating(2)" style="cursor: pointer; display: inline-flex;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </span>
+                        <span class="star-select" data-value="3" onclick="window.setFormRating(3)" style="cursor: pointer; display: inline-flex;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </span>
+                        <span class="star-select" data-value="4" onclick="window.setFormRating(4)" style="cursor: pointer; display: inline-flex;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </span>
+                        <span class="star-select" data-value="5" onclick="window.setFormRating(5)" style="cursor: pointer; display: inline-flex;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </span>
+                    </div>
+                    <input type="hidden" id="reviewRatingInput" value="5" required>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label for="reviewName" style="display: block; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold;">Your Name</label>
+                    <input type="text" id="reviewName" placeholder="e.g. Sarah M." required style="width: 100%; border: 1px solid #ccc; padding: 10px; font-size: 10px; font-family: inherit; outline: none; background: #fff; border-radius: 0;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label for="reviewText" style="display: block; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold;">Review Details</label>
+                    <textarea id="reviewText" rows="4" placeholder="Share your experience with this fragrance..." required style="width: 100%; border: 1px solid #ccc; padding: 10px; font-size: 10px; font-family: inherit; resize: vertical; outline: none; background: #fff; border-radius: 0;"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="window.toggleReviewForm()" style="background: transparent; border: 1px solid #ccc; color: #555; padding: 8px 10px; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; flex: 1; font-family: inherit;">Cancel</button>
+                    <button type="submit" style="background: #000; border: 1px solid #000; color: #fff; padding: 8px 10px; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; flex: 2; font-family: inherit; font-weight: bold;">Submit Review</button>
+                </div>
+            </form>
+        </div>
     </div>
 
 </div>
@@ -1110,7 +1215,7 @@ window.openCart = function() {
     <a href="#" onclick="logout()" class="acc-item">LOG OUT</a>
 </div>
 <script type="module">
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, addDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     async function initProductDetails() {
         const params = new URLSearchParams(window.location.search);
@@ -1305,53 +1410,171 @@ window.openCart = function() {
             retries--;
         }
 
-        if (window.db) {
-            try {
-                const docRef = doc(window.db, "products", productId);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    const liveProduct = {
-                        id: productId,
-                        nameShort: data.nameShort || "",
-                        name: window.escapeHTML(data.name),
-                        price: Number(data.price),
-                        retailPrice: data.retailPrice !== undefined ? Number(data.retailPrice) : null,
-                        stock: Number(data.stock),
-                        image: data.image,
-                        image_thumb: data.image_thumb || "",
-                        description: window.escapeHTML(data.description),
-                        status: data.status,
-                        flair: data.flair || ""
-                    };
-                    
-                    // Only swap if values changed or we didn't have local cache!
-                    if (!product || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair) {
-                        product = liveProduct;
-                        swapContent(product);
-                        
-                        // Keep our local cache fresh too!
-                        try {
-                            const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
-                            const idx = localProds.findIndex(lp => lp.id === productId);
-                            const liveProductWithStatus = { ...liveProduct, syncStatus: "synced" };
-                            if (idx > -1) {
-                                localProds[idx] = liveProductWithStatus;
-                            } else {
-                                localProds.push(liveProductWithStatus);
-                            }
-                            localStorage.setItem("minara_products", JSON.stringify(localProds));
-                        } catch (cacheErr) {
-                            console.error("Local storage product update failed inside details view:", cacheErr);
-                        }
+        }
+
+        // Load reviews for this product
+        loadReviews(productId);
+    }
+
+    // Toggle review form display
+    window.toggleReviewForm = function() {
+        const form = document.getElementById("reviewForm");
+        const btn = document.getElementById("toggleReviewFormBtn");
+        if (form.style.display === "none") {
+            form.style.display = "block";
+            btn.textContent = "Close Review Form";
+        } else {
+            form.style.display = "none";
+            btn.textContent = "Write A Review";
+        }
+    };
+
+    // Set form rating value and update interactive stars visually
+    window.setFormRating = function(rating) {
+        document.getElementById("reviewRatingInput").value = rating;
+        const selector = document.getElementById("starRatingSelector");
+        const stars = selector.querySelectorAll(".star-select");
+        stars.forEach((star, index) => {
+            const starValue = index + 1;
+            if (starValue <= rating) {
+                star.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+            } else {
+                star.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c5a880" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+            }
+        });
+    };
+
+    // Load reviews from Firestore
+    async function loadReviews(prodId) {
+        const reviewsList = document.getElementById("reviewsList");
+        const reviewsAverage = document.getElementById("reviewsAverage");
+        if (!reviewsList) return;
+
+        let retries = 5;
+        while (!window.db && retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            retries--;
+        }
+
+        if (!window.db) {
+            reviewsList.innerHTML = `<div style="font-size: 10px; opacity: 0.5; font-style: italic;">Database offline. Cannot load reviews.</div>`;
+            reviewsAverage.textContent = "";
+            return;
+        }
+
+        try {
+            const q = query(
+                collection(window.db, "reviews"),
+                where("productId", "==", prodId),
+                orderBy("timestamp", "desc")
+            );
+            const querySnapshot = await getDocs(q);
+            
+            let totalRating = 0;
+            let count = 0;
+            let reviewsHTML = "";
+
+            querySnapshot.forEach((doc) => {
+                const review = doc.data();
+                count++;
+                totalRating += Number(review.rating);
+
+                let starsHTML = "";
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= review.rating) {
+                        starsHTML += `<svg width="10" height="10" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                    } else {
+                        starsHTML += `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#c5a880" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
                     }
                 }
-            } catch (dbErr) {
-                console.error("Firestore product details load failed. Raw error object:", dbErr);
-                console.error("Firestore error code:", dbErr.code);
+
+                const cleanName = window.escapeHTML(review.name);
+                const cleanText = window.escapeHTML(review.text);
+                const dateStr = review.timestamp ? new Date(review.timestamp).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "";
+
+                reviewsHTML += `
+                    <div style="border-bottom: 1px solid #f2f2f2; padding-bottom: 15px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+                            <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">${cleanName}</span>
+                            <span style="font-size: 8px; opacity: 0.5;">${dateStr}</span>
+                        </div>
+                        <div style="margin-bottom: 8px; display: flex; align-items: center;">${starsHTML}</div>
+                        <div style="font-size: 10px; opacity: 0.85; line-height: 1.45; white-space: pre-wrap;">${cleanText}</div>
+                    </div>
+                `;
+            });
+
+            if (count > 0) {
+                const avg = (totalRating / count).toFixed(1);
+                reviewsAverage.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-weight: bold;">${avg} / 5.0</span>
+                        <span style="opacity: 0.5;">(${count} ${count === 1 ? 'Review' : 'Reviews'})</span>
+                    </div>
+                `;
+                reviewsList.innerHTML = reviewsHTML;
+            } else {
+                reviewsAverage.innerHTML = "No reviews yet";
+                reviewsList.innerHTML = `<div style="font-size: 10px; opacity: 0.5; font-style: italic;">No reviews yet. Be the first to leave one.</div>`;
             }
+        } catch (err) {
+            console.error("Error fetching reviews:", err);
+            reviewsList.innerHTML = `<div style="font-size: 10px; opacity: 0.5; font-style: italic; color: #ff3b30;">Failed to load reviews.</div>`;
         }
     }
+
+    // Submit review to Firestore
+    window.submitReview = async function(event) {
+        event.preventDefault();
+        
+        const params = new URLSearchParams(window.location.search);
+        const prodId = params.get('id') || 'leopard-backpack';
+
+        const nameInput = document.getElementById("reviewName");
+        const textInput = document.getElementById("reviewText");
+        const ratingInput = document.getElementById("reviewRatingInput");
+
+        const name = nameInput.value.trim();
+        const text = textInput.value.trim();
+        const rating = Number(ratingInput.value);
+
+        if (!name || !text || isNaN(rating)) return;
+
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = "SUBMITTING...";
+        }
+
+        try {
+            if (!window.db) {
+                throw new Error("Firestore not initialized.");
+            }
+
+            await addDoc(collection(window.db, "reviews"), {
+                productId: prodId,
+                name: name,
+                text: text,
+                rating: rating,
+                timestamp: new Date().toISOString()
+            });
+
+            nameInput.value = "";
+            textInput.value = "";
+            window.setFormRating(5);
+            window.toggleReviewForm();
+
+            await loadReviews(prodId);
+        } catch (err) {
+            console.error("Error submitting review:", err);
+            alert("Failed to submit review. Please try again.");
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Submit Review";
+            }
+        }
+    };
 
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", initProductDetails);
