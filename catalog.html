@@ -321,7 +321,7 @@ nav ul li a:hover{opacity:0.6;}
 }
 .price {
     font-size: 13.5px;
-    color: #000000;
+    color: #00008B;
     font-weight: 600;
     margin-top: 8px;
     margin-bottom: 18px; /* Safe space before button */
@@ -339,11 +339,12 @@ nav ul li a:hover{opacity:0.6;}
 /* ADD TO CART BUTTON */
 .add-to-cart-btn {
     margin-top: auto; /* Push button strictly to the very bottom */
-    width: 100%;
+    align-self: flex-start;
+    width: max-content;
     background: #000;
     color: #fff;
     border: none;
-    padding: 13px 0;
+    padding: 12px 35px;
     font-family: 'Gotham Narrow Bold', sans-serif;
     font-size: 11px;
     text-transform: uppercase;
@@ -412,7 +413,9 @@ nav ul li a:hover{opacity:0.6;}
     }
     .add-to-cart-btn {
         margin-top: auto;
-        padding: 12px 0;
+        align-self: flex-start;
+        width: max-content;
+        padding: 9px 20px;
         font-size: 9.5px;
     }
 }
@@ -945,7 +948,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                             <div class="product-name"></div>
                             <div class="product-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; display: none;"></div>
                             <div class="price"></div>
-                            <div class="catalog-stock-status" style="font-size: 8px; text-transform: uppercase; letter-spacing: 1.2px; margin-top: 8px; font-weight: bold; display: none; text-align: left;"></div>
+                            <div class="catalog-stock-status" style="font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 8px; font-weight: bold; display: none; text-align: left; white-space: nowrap;"></div>
                         </div>
                     </a>
                     <button class="add-to-cart-btn"></button>
@@ -1003,7 +1006,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                 if (hasDiscount) {
                     priceEl.innerHTML = `
                         <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                            <span class="discounted-price" style="color: #000000; font-weight: 600; line-height: 1.1; font-size: 1.1em;"></span>
+                            <span class="discounted-price" style="color: #00008B; font-weight: 600; line-height: 1.1; font-size: 1.1em;"></span>
                             <span class="original-price" style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;"></span>
                         </div>
                     `;
@@ -1036,7 +1039,9 @@ window.addEventListener("orientationchange", updateCartHeight);
                         stockStatusEl.style.color = "#b82d2d";
                         stockStatusEl.style.display = "block";
                     } else {
-                        stockStatusEl.style.display = "none";
+                        stockStatusEl.textContent = "IN STOCK";
+                        stockStatusEl.style.color = "#2e7d32";
+                        stockStatusEl.style.display = "block";
                     }
                 }
                 

@@ -750,7 +750,7 @@
     .hp-price {
       font-size: 13.5px;
       margin-top: 0;
-      color: #000000;
+      color: #00008B;
       font-weight: 600;
       letter-spacing: 0.5px;
     }
@@ -859,9 +859,9 @@
         line-height: 1.4;
       }
       .home-product-card .add-to-cart {
-        width: 100%;
-        text-align: center;
-        padding: 13px 0;
+        align-self: flex-start;
+        width: max-content;
+        padding: 12px 35px;
         margin-top: auto;
         border-radius: 0;
         font-weight: bold;
@@ -901,6 +901,7 @@
         width: 45%;
         min-width: 45%;
         scroll-snap-align: start;
+        scroll-margin-left: 20px;
         padding: 0;
         display: flex;
         flex-direction: column;
@@ -945,8 +946,9 @@
       }
       .home-product-card .add-to-cart {
         margin-top: auto;
-        width: 100%;
-        padding: 9px 0;
+        align-self: flex-start;
+        width: max-content;
+        padding: 9px 20px;
         font-size: 10px;
       }
     }
@@ -1811,7 +1813,7 @@
                   <div class="hp-name-short" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: bold; margin-bottom: 3px; display: none; color: #000;"></div>
                   <div class="hp-name"></div>
                   <div class="hp-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; display:none;"></div>
-                  <div class="hp-stock-status" style="font-size: 8px; text-transform: uppercase; letter-spacing: 1.2px; margin-top: 8px; font-weight: bold; display: none; text-align: left;"></div>
+                  <div class="hp-stock-status" style="font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 8px; font-weight: bold; display: none; text-align: left; white-space: nowrap;"></div>
                 </a>
                 <a class="product-link-anchor-3" style="text-decoration:none; color:inherit; display:block; text-align: right; white-space: nowrap;">
                   <div class="hp-price hp-price-card"></div>
@@ -1876,7 +1878,7 @@
           if (hasDiscount) {
             priceEl.innerHTML = `
               <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                <span class="discounted-price" style="color: #000000; font-weight: 600; line-height: 1.1; font-size: 1.1em;"></span>
+                <span class="discounted-price" style="color: #00008B; font-weight: 600; line-height: 1.1; font-size: 1.1em;"></span>
                 <span class="original-price" style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;"></span>
               </div>
             `;
@@ -1909,7 +1911,9 @@
               stockStatusEl.style.color = "#b82d2d";
               stockStatusEl.style.display = "block";
             } else {
-              stockStatusEl.style.display = "none";
+              stockStatusEl.textContent = "IN STOCK";
+              stockStatusEl.style.color = "#2e7d32";
+              stockStatusEl.style.display = "block";
             }
           }
 
