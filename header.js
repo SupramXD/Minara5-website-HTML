@@ -548,7 +548,7 @@ function saveAndSyncCart() {
     const countStr = totalItems.toString().padStart(2, '0');
     
     // Update every possible counter in the site
-    const ids = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel"];
+    const ids = ["cartCountHeader", "cartCountHeaderMobile", "bagCountLabel", "cartCountPanel"];
     ids.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -648,7 +648,7 @@ window.removeFromCart = function(index) {
         cart.forEach((item, index) => {
             if (item.removed) {
                 html += `
-                <div class="cart-item-row removed-item-row" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #000; padding:15px 20px; background:#fafafa; box-sizing:border-box; width:100%;">
+                <div class="cart-item-row removed-item-row" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eaeaea; padding:15px 20px; background:#fafafa; box-sizing:border-box; width:100%;">
                     <div style="display:flex; flex-direction:column; gap:4px;">
                         <span style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name} ${(item.size ? ' (' + item.size + ')' : '')}</span>
                         <span style="color:red; font-size:9px; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">REMOVED FROM BAG</span>
@@ -663,15 +663,15 @@ window.removeFromCart = function(index) {
                     : `R${formatPrice(itemPrice)}`;
 
                 html += `
-                <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #000; padding:20px 15px;">
+                <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #eaeaea; padding:20px 15px;">
                     <img src="${window.getThumbnailImageUrl(item.image, item.image_thumb)}" style="width:80px; height:105px; object-fit:contain;">
                     <div style="flex:1;">
                         <div style="font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; text-transform:uppercase;">${item.name}</div>
                         <div style="font-size:10px; opacity:0.6; margin-bottom:10px;">COLOUR: ORIGINAL &bull; SIZE: ${(item.size || '100ml').toUpperCase()}</div>
                         <div style="font-size:11px;">${displayPrice}</div>
-                        <div class="qty-stepper" style="display:flex; border:1px solid #000; width:fit-content; margin-top:10px;">
+                        <div class="qty-stepper" style="display:flex; border:1px solid #eaeaea; width:fit-content; margin-top:10px;">
                             <div class="qty-btn" ${item.quantity <= 1 ? 'style="width:25px; height:25px; display:flex; justify-content:center; align-items:center; opacity:0.3; cursor:not-allowed;"' : `onclick="window.changeQty(${index}, -1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;"`}>–</div>
-                            <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #000; border-right:1px solid #000; font-size:11px; display:flex; align-items:center; justify-content:center;">${item.quantity}</div>
+                            <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #eaeaea; border-right:1px solid #eaeaea; font-size:11px; display:flex; align-items:center; justify-content:center;">${item.quantity}</div>
                             <div class="qty-btn" onclick="window.changeQty(${index}, 1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">+</div>
                         </div>
                         <div onclick="window.removeFromCart(${index})" style="font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; text-decoration:underline; font-weight:bold; text-transform:uppercase;">✕ REMOVE</div>
@@ -682,8 +682,8 @@ window.removeFromCart = function(index) {
         
         // Continue shopping button under the list of items
         html += `
-        <div class="continue-shopping-row" style="width:100%; box-sizing:border-box; border-bottom:1px solid #000;">
-            <button onclick="closeCart()" onmouseover="this.style.background='#000'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='#000';" style="background: transparent; border: none; color: #000; padding: 16px 0; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; width: 100%; font-weight: bold; display: block; text-align: center; box-sizing: border-box; transition: background 0.25s, color 0.25s;">CONTINUE SHOPPING</button>
+        <div class="continue-shopping-row" style="width:100%; box-sizing:border-box; padding:15px 20px; display:flex; justify-content:center; border-bottom:1px solid #eaeaea;">
+            <button onclick="closeCart()" onmouseover="this.style.background='#000'; this.style.color='#fff'; this.style.borderColor='#000';" onmouseout="this.style.background='transparent'; this.style.color='#000'; this.style.borderColor='#eaeaea';" style="background: transparent; border: 1px solid #eaeaea; color: #000; padding: 12px 24px; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; font-weight: bold; transition: all 0.25s ease; width: 100%; max-width: 280px; text-align: center;">CONTINUE SHOPPING</button>
         </div>`;
 
         html += '</div>';
@@ -706,13 +706,13 @@ window.removeFromCart = function(index) {
 
     html += `
         <div class="cart-footer-area" style="margin-top:auto; width:100%;">
-            <div style="background:#f9f9f9; border-top:1px solid #000; padding:12px 20px; height:${footBoxHeight}; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
+            <div style="background:#f9f9f9; border-top:1px solid #eaeaea; padding:12px 20px; height:${footBoxHeight}; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;">
                     <span>SHIPPING</span><span>FREE</span>
                 </div>
                 ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
-            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #000; padding:${paymentPadding}; height:${paymentBoxHeight}; min-height:${paymentBoxHeight}; border-bottom:1px solid #000; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box; width:100%;">
+            <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #eaeaea; padding:${paymentPadding}; height:${paymentBoxHeight}; min-height:${paymentBoxHeight}; border-bottom:1px solid #eaeaea; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box; width:100%;">
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold',sans-serif; margin-bottom:${hasItems ? '15px' : '4px'};">
                     <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
                     <span>${hasItems ? priceDisplay : ''}</span>
