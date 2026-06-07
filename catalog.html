@@ -257,7 +257,7 @@ nav ul li a:hover{opacity:0.6;}
 .catalog-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 50px 30px;
+    gap: 60px 40px;
 }
 .catalog-item {
     display: flex;
@@ -274,32 +274,31 @@ nav ul li a:hover{opacity:0.6;}
 }
 .product-box {
     width: 100%;
-    max-width: 185px;
     margin: 0 auto;
-    height: auto;
+    aspect-ratio: 3 / 4;
     background: #fafafa;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    transition: opacity 0.3s ease;
 }
 .product-box:empty {
     aspect-ratio: 3 / 4;
 }
-.product-link:hover .product-box {
-    opacity: 0.9;
+.product-link:hover .product-box img {
+    transform: scale(1.05);
 }
 .product-box img {
-    width: 100%;
-    height: auto;
+    max-width: 85%;
+    max-height: 85%;
     display: block;
     object-fit: contain;
+    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 .product-info {
-    margin-top: 18px;
-    padding-top: 15px;
-    border-top: 1px solid #e6e6e6;
+    margin-top: 15px;
+    padding-top: 0;
+    border-top: none;
     text-align: left;
     flex-grow: 1;
     display: flex;
@@ -322,7 +321,7 @@ nav ul li a:hover{opacity:0.6;}
 }
 .price {
     font-size: 13.5px;
-    color: #00008B;
+    color: #000000;
     font-weight: 600;
     margin-top: 8px;
     margin-bottom: 18px; /* Safe space before button */
@@ -344,11 +343,11 @@ nav ul li a:hover{opacity:0.6;}
     background: #000;
     color: #fff;
     border: none;
-    padding: 14px 0;
+    padding: 13px 0;
     font-family: 'Gotham Narrow Bold', sans-serif;
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.25em;
     cursor: pointer;
     transition: background 0.25s ease, opacity 0.25s ease;
 }
@@ -366,10 +365,11 @@ nav ul li a:hover{opacity:0.6;}
 
 @media(max-width: 900px) {
     .product-box {
-        max-width: 135px;
+        max-width: none;
+        aspect-ratio: 3 / 4;
     }
     .catalog-main {
-        padding: 80px 16px 60px;
+        padding: 80px 24px 60px;
     }
     .catalog-title-header {
         margin-bottom: 40px;
@@ -380,11 +380,12 @@ nav ul li a:hover{opacity:0.6;}
     }
     .catalog-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 30px 15px;
+        gap: 40px 20px;
     }
     .product-info {
         margin-top: 12px;
-        padding-top: 12px;
+        padding-top: 0;
+        border-top: none;
     }
     .product-name, .placeholder-name {
         font-size: 10px;
@@ -494,7 +495,7 @@ footer{
     font-size: 10.5px; 
     font-weight: 400;
     letter-spacing: 1.2px;
-    color: #00008B; 
+    color: #000000; 
     text-transform: uppercase;
 }
 
@@ -505,7 +506,7 @@ footer{
     font-size: 10.5px;    
     letter-spacing: 1px;
     text-transform: uppercase;
-    color: #00008B !important; 
+    color: #000000 !important; 
     text-decoration: none !important;
     border-bottom: 1px solid #eee;
 }
@@ -995,7 +996,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                 if (hasDiscount) {
                     priceEl.innerHTML = `
                         <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                            <span class="discounted-price" style="color: #00008B; font-weight: 600; line-height: 1.1; font-size: 1.1em;"></span>
+                            <span class="discounted-price" style="color: #000000; font-weight: 600; line-height: 1.1; font-size: 1.1em;"></span>
                             <span class="original-price" style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;"></span>
                         </div>
                     `;
