@@ -708,7 +708,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #fafafa;
+      background: #2596be;
       overflow: hidden;
     }
 
@@ -718,8 +718,8 @@
     }
 
     .hp-box img {
-      max-width: 85%;
-      max-height: 85%;
+      width: 100%;
+      height: 100%;
       display: block;
       object-fit: contain;
     }
@@ -729,16 +729,12 @@
       padding-top: 0;
       border-top: none;
       text-align: left;
-      display: grid;
-      grid-template-areas:
-        "name price"
-        "button button";
-      grid-template-columns: 1fr auto;
-      align-items: flex-start;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
     }
 
     .hp-name {
-      grid-area: name;
       font-size: 12.5px;
       text-transform: uppercase;
       letter-spacing: 0.16em;
@@ -752,12 +748,19 @@
     }
 
     .hp-price {
-      grid-area: price;
       font-size: 13.5px;
       margin-top: 0;
       color: #000000;
       font-weight: 600;
       letter-spacing: 0.5px;
+    }
+
+    .add-to-cart:disabled {
+      background: #000000 !important;
+      color: #ffffff !important;
+      border-color: #000000 !important;
+      opacity: 0.5 !important;
+      cursor: not-allowed !important;
     }
 
     .view-more-container {
@@ -797,12 +800,15 @@
         grid-template-columns: repeat(4, 1fr);
         gap: 45px;
         border: none;
+        padding-left: 24px;
+        padding-right: 24px;
+        box-sizing: border-box;
       }
       .home-products-header {
         max-width: 1100px;
         margin: 60px auto 30px auto;
-        padding-left: 0;
-        padding-right: 0;
+        padding-left: 24px;
+        padding-right: 24px;
         box-sizing: border-box;
       }
       .home-product-card {
@@ -820,10 +826,10 @@
         /* No card translation or shadow for luxury design */
       }
       .home-product-card .hp-box {
-        background: #f7f7f7;
+        background: #2596be;
         border-radius: 0;
         overflow: hidden;
-        padding: 20px;
+        padding: 0;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -832,8 +838,8 @@
         max-width: none;
       }
       .home-product-card .product-img {
-        max-width: 85%;
-        max-height: 85%;
+        width: 100%;
+        height: 100%;
         object-fit: contain;
         transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
       }
@@ -844,13 +850,8 @@
         margin-top: 15px;
         padding-top: 0;
         border-top: none;
-        display: grid;
-        grid-template-areas:
-          "name price"
-          "button button";
-        grid-template-columns: 1fr auto;
-        grid-template-rows: 1fr auto; /* Force button to the bottom */
-        align-items: start;
+        display: flex;
+        flex-direction: column;
         flex-grow: 1; /* Stretch to fill card remaining height */
       }
       .home-product-card .hp-name {
@@ -861,12 +862,11 @@
         width: 100%;
         text-align: center;
         padding: 13px 0;
-        margin-top: 15px;
+        margin-top: auto;
         border-radius: 0;
         font-weight: bold;
         letter-spacing: 2.5px;
         transition: background 0.25s, color 0.25s;
-        grid-area: button;
       }
     }
 
@@ -902,6 +902,8 @@
         min-width: 45%;
         scroll-snap-align: start;
         padding: 0;
+        display: flex;
+        flex-direction: column;
       }
 
       .hp-box {
@@ -910,6 +912,8 @@
         max-width: none;
         margin: 0;
         border-radius: 0;
+        background: #2596be;
+        padding: 0;
       }
 
       .hp-box:empty {
@@ -921,6 +925,9 @@
         margin-top: 10px;
         padding-top: 0;
         border-top: none;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
       }
 
       .hp-name {
@@ -935,6 +942,12 @@
 
       .view-more-container {
         margin-top: 4px;
+      }
+      .home-product-card .add-to-cart {
+        margin-top: auto;
+        width: 100%;
+        padding: 9px 0;
+        font-size: 10px;
       }
     }
 
@@ -1792,17 +1805,19 @@
               </div>
             </a>
             <div class="hp-info">
-              <a class="product-link-anchor-2" style="text-decoration:none; color:inherit; display:block; grid-area:name;">
-                <div class="hp-flair" style="font-size: 8px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; display: none; color: #1a1a1a;"></div>
-                <div class="hp-name-short" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: bold; margin-bottom: 3px; display: none; color: #000;"></div>
-                <div class="hp-name"></div>
-                <div class="hp-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; display:none;"></div>
-                <div class="hp-stock-status" style="font-size: 8px; text-transform: uppercase; letter-spacing: 1.2px; margin-top: 8px; font-weight: bold; display: none; text-align: left;"></div>
-              </a>
-              <a class="product-link-anchor-3" style="text-decoration:none; color:inherit; display:block; grid-area:price;">
-                <div class="hp-price hp-price-card"></div>
-              </a>
-              <button class="add-to-cart" style="margin-top: 8px;"></button>
+              <div class="hp-details-row" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; flex-grow: 1; margin-bottom: 15px;">
+                <a class="product-link-anchor-2" style="text-decoration:none; color:inherit; display:block; flex: 1; margin-right: 15px;">
+                  <div class="hp-flair" style="font-size: 8px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; display: none; color: #1a1a1a;"></div>
+                  <div class="hp-name-short" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: bold; margin-bottom: 3px; display: none; color: #000;"></div>
+                  <div class="hp-name"></div>
+                  <div class="hp-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; display:none;"></div>
+                  <div class="hp-stock-status" style="font-size: 8px; text-transform: uppercase; letter-spacing: 1.2px; margin-top: 8px; font-weight: bold; display: none; text-align: left;"></div>
+                </a>
+                <a class="product-link-anchor-3" style="text-decoration:none; color:inherit; display:block; text-align: right; white-space: nowrap;">
+                  <div class="hp-price hp-price-card"></div>
+                </a>
+              </div>
+              <button class="add-to-cart"></button>
             </div>
           `;
 
@@ -1909,9 +1924,11 @@
           card.innerHTML = `
             <div class="hp-box"></div>
             <div class="hp-info">
-              <div class="hp-name placeholder" style="grid-area:name;">AWAITING<br>REVEAL</div>
-              <div class="hp-price placeholder" style="grid-area:price;">R0</div>
-              <button class="add-to-cart" disabled style="opacity: 0.5; cursor: not-allowed; margin-top: 8px;">COMING SOON</button>
+              <div class="hp-details-row" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; flex-grow: 1; margin-bottom: 15px;">
+                <div class="hp-name placeholder">AWAITING<br>REVEAL</div>
+                <div class="hp-price placeholder">R0</div>
+              </div>
+              <button class="add-to-cart" disabled>COMING SOON</button>
             </div>
           `;
           grid.appendChild(card);
