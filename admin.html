@@ -903,6 +903,13 @@
                             <span id="logoDesktopStickVal" style="font-size: 12px; font-family: monospace; width: 45px; text-align: right; color: var(--accent);">0px</span>
                           </div>
                         </div>
+                        <div class="form-group">
+                          <label for="logoDesktopX">Horizontal Offset (px from Center)</label>
+                          <div style="display: flex; align-items: center; gap: 15px;">
+                            <input type="range" id="logoDesktopX" min="-300" max="300" step="5" value="0" style="flex: 1;" oninput="updateLogoSliders()">
+                            <span id="logoDesktopXVal" style="font-size: 12px; font-family: monospace; width: 45px; text-align: right; color: var(--accent);">0px</span>
+                          </div>
+                        </div>
                       </div>
 
                       <!-- Mobile Logo settings -->
@@ -920,6 +927,13 @@
                           <div style="display: flex; align-items: center; gap: 15px;">
                             <input type="range" id="logoMobileStick" min="-300" max="300" step="10" value="0" style="flex: 1;" oninput="updateLogoSliders()">
                             <span id="logoMobileStickVal" style="font-size: 12px; font-family: monospace; width: 45px; text-align: right; color: var(--accent);">0px</span>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label for="logoMobileX">Horizontal Offset (px from Center)</label>
+                          <div style="display: flex; align-items: center; gap: 15px;">
+                            <input type="range" id="logoMobileX" min="-300" max="300" step="5" value="-50" style="flex: 1;" oninput="updateLogoSliders()">
+                            <span id="logoMobileXVal" style="font-size: 12px; font-family: monospace; width: 45px; text-align: right; color: var(--accent);">-50px</span>
                           </div>
                         </div>
                       </div>
@@ -2190,13 +2204,17 @@
     window.updateLogoSliders = function() {
       const dSpawn = document.getElementById("logoDesktopSpawn").value;
       const dStick = document.getElementById("logoDesktopStick").value;
+      const dX = document.getElementById("logoDesktopX").value;
       const mSpawn = document.getElementById("logoMobileSpawn").value;
       const mStick = document.getElementById("logoMobileStick").value;
+      const mX = document.getElementById("logoMobileX").value;
 
       document.getElementById("logoDesktopSpawnVal").textContent = dSpawn + "%";
       document.getElementById("logoDesktopStickVal").textContent = dStick + "px";
+      document.getElementById("logoDesktopXVal").textContent = dX + "px";
       document.getElementById("logoMobileSpawnVal").textContent = mSpawn + "px";
       document.getElementById("logoMobileStickVal").textContent = mStick + "px";
+      document.getElementById("logoMobileXVal").textContent = mX + "px";
     };
 
     window.openEditModal = function(productId) {
@@ -2468,8 +2486,10 @@
         mobileY: 50,
         logoDesktopSpawn: 50,
         logoDesktopStick: 0,
+        logoDesktopX: 0,
         logoMobileSpawn: -50,
         logoMobileStick: 0,
+        logoMobileX: -50,
         showGiftsButton: true
       };
 
@@ -2507,8 +2527,10 @@
 
         document.getElementById("logoDesktopSpawn").value = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 50;
         document.getElementById("logoDesktopStick").value = s.logoDesktopStick !== undefined ? s.logoDesktopStick : 0;
+        document.getElementById("logoDesktopX").value = s.logoDesktopX !== undefined ? s.logoDesktopX : 0;
         document.getElementById("logoMobileSpawn").value = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -50;
         document.getElementById("logoMobileStick").value = s.logoMobileStick !== undefined ? s.logoMobileStick : 0;
+        document.getElementById("logoMobileX").value = s.logoMobileX !== undefined ? s.logoMobileX : -50;
         
         document.getElementById("heroShowGiftsButton").checked = s.showGiftsButton !== false;
         
@@ -2601,8 +2623,10 @@
                 mobileY: data.mobileY !== undefined ? Number(data.mobileY) : 50,
                 logoDesktopSpawn: data.logoDesktopSpawn !== undefined ? Number(data.logoDesktopSpawn) : 50,
                 logoDesktopStick: data.logoDesktopStick !== undefined ? Number(data.logoDesktopStick) : 0,
+                logoDesktopX: data.logoDesktopX !== undefined ? Number(data.logoDesktopX) : 0,
                 logoMobileSpawn: data.logoMobileSpawn !== undefined ? Number(data.logoMobileSpawn) : -50,
                 logoMobileStick: data.logoMobileStick !== undefined ? Number(data.logoMobileStick) : 0,
+                logoMobileX: data.logoMobileX !== undefined ? Number(data.logoMobileX) : -50,
                 showGiftsButton: data.showGiftsButton !== false
               };
               localStorage.setItem("minara_hero_settings", JSON.stringify(liveSettings));
@@ -2683,8 +2707,10 @@
         mobileY: parseInt(document.getElementById("heroMobileY").value),
         logoDesktopSpawn: parseInt(document.getElementById("logoDesktopSpawn").value),
         logoDesktopStick: parseInt(document.getElementById("logoDesktopStick").value),
+        logoDesktopX: parseInt(document.getElementById("logoDesktopX").value),
         logoMobileSpawn: parseInt(document.getElementById("logoMobileSpawn").value),
         logoMobileStick: parseInt(document.getElementById("logoMobileStick").value),
+        logoMobileX: parseInt(document.getElementById("logoMobileX").value),
         showGiftsButton: document.getElementById("heroShowGiftsButton").checked,
         timestamp: new Date().toISOString()
       };

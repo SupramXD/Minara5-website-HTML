@@ -1336,8 +1336,10 @@
         mobileY: 50,
         logoDesktopSpawn: 50,
         logoDesktopStick: 0,
+        logoDesktopX: 0,
         logoMobileSpawn: -50,
         logoMobileStick: 0,
+        logoMobileX: -50,
         showGiftsButton: true
       };
 
@@ -1627,6 +1629,7 @@
 
           const spawnPercent = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 50;
           const stickOffset = s.logoDesktopStick !== undefined ? s.logoDesktopStick : 0;
+          const dX = s.logoDesktopX !== undefined ? s.logoDesktopX : 0;
 
           const rect = logo.getBoundingClientRect();
           const H = rect.height;
@@ -1637,11 +1640,11 @@
           if (lock) {
             logo.style.position = 'absolute';
             logo.style.top = (heroBottom - H) + 'px';
-            logo.style.transform = 'translateX(-50%)';
+            logo.style.transform = `translateX(calc(-50% + ${dX}px))`;
           } else {
             logo.style.position = 'fixed';
             logo.style.top = spawnPercent + '%';
-            logo.style.transform = 'translate(-50%,-50%)';
+            logo.style.transform = `translate(calc(-50% + ${dX}px), -50%)`;
           }
 
           return;
@@ -1649,6 +1652,7 @@
 
         const spawnOffset = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -50;
         const stickOffset = s.logoMobileStick !== undefined ? s.logoMobileStick : 0;
+        const mX = s.logoMobileX !== undefined ? s.logoMobileX : -50;
 
         const br = topbar.getBoundingClientRect();
         let top = y + br.bottom + spawnOffset;
@@ -1661,7 +1665,7 @@
         logo.style.position = 'absolute';
         logo.style.top = top + 'px';
         logo.style.left = '50%';
-        logo.style.transform = 'translateX(calc(-50% - 50px))';
+        logo.style.transform = `translateX(calc(-50% + ${mX}px))`;
       }
 
       window.addEventListener('scroll', update);
@@ -2122,8 +2126,10 @@
                 mobileY: data.mobileY !== undefined ? Number(data.mobileY) : 50,
                 logoDesktopSpawn: data.logoDesktopSpawn !== undefined ? Number(data.logoDesktopSpawn) : 50,
                 logoDesktopStick: data.logoDesktopStick !== undefined ? Number(data.logoDesktopStick) : 0,
+                logoDesktopX: data.logoDesktopX !== undefined ? Number(data.logoDesktopX) : 0,
                 logoMobileSpawn: data.logoMobileSpawn !== undefined ? Number(data.logoMobileSpawn) : -50,
                 logoMobileStick: data.logoMobileStick !== undefined ? Number(data.logoMobileStick) : 0,
+                logoMobileX: data.logoMobileX !== undefined ? Number(data.logoMobileX) : -50,
                 showGiftsButton: data.showGiftsButton !== false
               };
               localStorage.setItem("minara_hero_settings", JSON.stringify(liveSettings));
