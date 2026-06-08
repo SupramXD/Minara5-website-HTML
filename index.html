@@ -1953,7 +1953,7 @@
             setTimeout(() => reject(new Error("Static products query timed out")), 10000)
           );
           const response = await Promise.race([
-            fetch("products.json"),
+            fetch("products.json?t=" + Date.now()),
             timeoutPromise
           ]);
           
@@ -2072,7 +2072,7 @@
       // 3. Fetch hero settings from hero_settings.json in background
       setTimeout(async () => {
         try {
-          const response = await fetch("hero_settings.json");
+          const response = await fetch("hero_settings.json?t=" + Date.now());
           if (!response.ok) {
             throw new Error(`Failed to fetch hero_settings.json: Status ${response.status}`);
           }

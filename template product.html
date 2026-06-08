@@ -1478,7 +1478,7 @@ window.openCart = function() {
         // 2. Try loading from products.json in background
         setTimeout(async () => {
             try {
-                const response = await fetch("products.json");
+                const response = await fetch("products.json?t=" + Date.now());
                 if (!response.ok) {
                     throw new Error(`Failed to load products.json: Status ${response.status}`);
                 }

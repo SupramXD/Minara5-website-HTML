@@ -1,16 +1,5 @@
 [
   {
-    "id": "leopard-backpack",
-    "nameShort": "",
-    "name": "Léopard Fur Backpack",
-    "price": 749,
-    "retailPrice": 1200,
-    "stock": 45,
-    "status": "Active",
-    "image": "cheetahproduct.avif",
-    "description": "Leopard Fur Backpack\n\nCarefully crafted luxury fur backpack designed for high fashion nonconformity."
-  },
-  {
     "id": "inspired-by-jpg-le-male",
     "nameShort": "Vanillé",
     "name": "Inspiréd by JPG LE MALE",

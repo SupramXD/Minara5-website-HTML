@@ -803,8 +803,8 @@
                     <div class="form-group">
                       <label for="heroLeftFlex">Desktop Width Split Ratio (Left Image width vs Right Image width)</label>
                       <div style="display: flex; align-items: center; gap: 15px;">
-                        <input type="range" id="heroLeftFlex" min="0.4" max="1.6" step="0.05" value="1.3" style="flex: 1;" oninput="updateHeroPreview()">
-                        <span id="heroLeftFlexVal" style="font-size: 12px; font-family: monospace; width: 40px; text-align: right; color: var(--accent);">1.30</span>
+                        <input type="range" id="heroLeftFlex" min="0.4" max="1.6" step="0.01" value="1.3" style="flex: 1;" oninput="document.getElementById('heroLeftFlexVal').value = Number(this.value).toFixed(2); updateHeroPreview();">
+                        <input type="number" id="heroLeftFlexVal" min="0.4" max="1.6" step="0.01" value="1.30" style="width: 65px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; font-family: monospace; font-size: 12px; text-align: right;" oninput="document.getElementById('heroLeftFlex').value = this.value; updateHeroPreview();">
                       </div>
                     </div>
 
@@ -826,15 +826,24 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                       <div class="form-group">
                         <label style="font-size: 9px; opacity: 0.7;">Zoom (Scale)</label>
-                        <input type="range" id="heroLeftScale" min="1.0" max="3.0" step="0.05" value="1.0" oninput="updateHeroPreview()">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="heroLeftScale" min="1.0" max="3.0" step="0.01" value="1.0" style="flex: 1;" oninput="document.getElementById('heroLeftScaleNum').value = Number(this.value).toFixed(2); updateHeroPreview();">
+                          <input type="number" id="heroLeftScaleNum" min="1.0" max="3.0" step="0.01" value="1.00" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('heroLeftScale').value = this.value; updateHeroPreview();">
+                        </div>
                       </div>
                       <div class="form-group">
                         <label style="font-size: 9px; opacity: 0.7;">Align X (%)</label>
-                        <input type="range" id="heroLeftX" min="0" max="100" step="1" value="50" oninput="updateHeroPreview()">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="heroLeftX" min="0" max="100" step="1" value="50" style="flex: 1;" oninput="document.getElementById('heroLeftXNum').value = this.value; updateHeroPreview();">
+                          <input type="number" id="heroLeftXNum" min="0" max="100" step="1" value="50" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('heroLeftX').value = this.value; updateHeroPreview();">
+                        </div>
                       </div>
                       <div class="form-group">
                         <label style="font-size: 9px; opacity: 0.7;">Align Y (%)</label>
-                        <input type="range" id="heroLeftY" min="0" max="100" step="1" value="50" oninput="updateHeroPreview()">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="heroLeftY" min="0" max="100" step="1" value="50" style="flex: 1;" oninput="document.getElementById('heroLeftYNum').value = this.value; updateHeroPreview();">
+                          <input type="number" id="heroLeftYNum" min="0" max="100" step="1" value="50" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('heroLeftY').value = this.value; updateHeroPreview();">
+                        </div>
                       </div>
                     </div>
 
@@ -842,15 +851,24 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                       <div class="form-group">
                         <label style="font-size: 9px; opacity: 0.7;">Zoom (Scale)</label>
-                        <input type="range" id="heroRightScale" min="1.0" max="3.0" step="0.05" value="1.0" oninput="updateHeroPreview()">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="heroRightScale" min="1.0" max="3.0" step="0.01" value="1.0" style="flex: 1;" oninput="document.getElementById('heroRightScaleNum').value = Number(this.value).toFixed(2); updateHeroPreview();">
+                          <input type="number" id="heroRightScaleNum" min="1.0" max="3.0" step="0.01" value="1.00" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('heroRightScale').value = this.value; updateHeroPreview();">
+                        </div>
                       </div>
                       <div class="form-group">
                         <label style="font-size: 9px; opacity: 0.7;">Align X (%)</label>
-                        <input type="range" id="heroRightX" min="0" max="100" step="1" value="80" oninput="updateHeroPreview()">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="heroRightX" min="0" max="100" step="1" value="80" style="flex: 1;" oninput="document.getElementById('heroRightXNum').value = this.value; updateHeroPreview();">
+                          <input type="number" id="heroRightXNum" min="0" max="100" step="1" value="80" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('heroRightX').value = this.value; updateHeroPreview();">
+                        </div>
                       </div>
                       <div class="form-group">
                         <label style="font-size: 9px; opacity: 0.7;">Align Y (%)</label>
-                        <input type="range" id="heroRightY" min="0" max="100" step="1" value="50" oninput="updateHeroPreview()">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="heroRightY" min="0" max="100" step="1" value="50" style="flex: 1;" oninput="document.getElementById('heroRightYNum').value = this.value; updateHeroPreview();">
+                          <input type="number" id="heroRightYNum" min="0" max="100" step="1" value="50" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('heroRightY').value = this.value; updateHeroPreview();">
+                        </div>
                       </div>
                     </div>
 
@@ -875,15 +893,24 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                       <div class="form-group">
                         <label style="font-size: 9px; opacity: 0.7;">Zoom (Scale)</label>
-                        <input type="range" id="heroMobileScale" min="1.0" max="3.0" step="0.05" value="1.0" oninput="updateHeroPreview()">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="heroMobileScale" min="1.0" max="3.0" step="0.01" value="1.0" style="flex: 1;" oninput="document.getElementById('heroMobileScaleNum').value = Number(this.value).toFixed(2); updateHeroPreview();">
+                          <input type="number" id="heroMobileScaleNum" min="1.0" max="3.0" step="0.01" value="1.00" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('heroMobileScale').value = this.value; updateHeroPreview();">
+                        </div>
                       </div>
                       <div class="form-group">
                         <label style="font-size: 9px; opacity: 0.7;">Align X (%)</label>
-                        <input type="range" id="heroMobileX" min="0" max="100" step="1" value="50" oninput="updateHeroPreview()">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="heroMobileX" min="0" max="100" step="1" value="50" style="flex: 1;" oninput="document.getElementById('heroMobileXNum').value = this.value; updateHeroPreview();">
+                          <input type="number" id="heroMobileXNum" min="0" max="100" step="1" value="50" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('heroMobileX').value = this.value; updateHeroPreview();">
+                        </div>
                       </div>
                       <div class="form-group">
                         <label style="font-size: 9px; opacity: 0.7;">Align Y (%)</label>
-                        <input type="range" id="heroMobileY" min="0" max="100" step="1" value="50" oninput="updateHeroPreview()">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="heroMobileY" min="0" max="100" step="1" value="50" style="flex: 1;" oninput="document.getElementById('heroMobileYNum').value = this.value; updateHeroPreview();">
+                          <input type="number" id="heroMobileYNum" min="0" max="100" step="1" value="50" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('heroMobileY').value = this.value; updateHeroPreview();">
+                        </div>
                       </div>
                     </div>
 
@@ -896,22 +923,31 @@
                         <div class="form-group">
                           <label for="logoDesktopSpawn">Initial Spawn Position (Vertical % from top)</label>
                           <div style="display: flex; align-items: center; gap: 15px;">
-                            <input type="range" id="logoDesktopSpawn" min="10" max="90" step="1" value="50" style="flex: 1;" oninput="updateLogoSliders()">
-                            <span id="logoDesktopSpawnVal" style="font-size: 12px; font-family: monospace; width: 45px; text-align: right; color: var(--accent);">50%</span>
+                            <input type="range" id="logoDesktopSpawn" min="10" max="90" step="1" value="50" style="flex: 1;" oninput="document.getElementById('logoDesktopSpawnVal').value = this.value; updateLogoSliders();">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                              <input type="number" id="logoDesktopSpawnVal" min="10" max="90" step="1" value="50" style="width: 60px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; font-family: monospace; font-size: 12px; text-align: right;" oninput="document.getElementById('logoDesktopSpawn').value = this.value; updateLogoSliders();">
+                              <span style="font-size: 12px; color: var(--text-muted);">%</span>
+                            </div>
                           </div>
                         </div>
                         <div class="form-group">
                           <label for="logoDesktopStick">Stick Threshold Offset (px)</label>
                           <div style="display: flex; align-items: center; gap: 15px;">
-                            <input type="range" id="logoDesktopStick" min="-300" max="300" step="10" value="0" style="flex: 1;" oninput="updateLogoSliders()">
-                            <span id="logoDesktopStickVal" style="font-size: 12px; font-family: monospace; width: 45px; text-align: right; color: var(--accent);">0px</span>
+                            <input type="range" id="logoDesktopStick" min="-300" max="300" step="1" value="0" style="flex: 1;" oninput="document.getElementById('logoDesktopStickVal').value = this.value; updateLogoSliders();">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                              <input type="number" id="logoDesktopStickVal" min="-300" max="300" step="1" value="0" style="width: 60px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; font-family: monospace; font-size: 12px; text-align: right;" oninput="document.getElementById('logoDesktopStick').value = this.value; updateLogoSliders();">
+                              <span style="font-size: 12px; color: var(--text-muted);">px</span>
+                            </div>
                           </div>
                         </div>
                         <div class="form-group">
                           <label for="logoDesktopX">Horizontal Offset (px from Center)</label>
                           <div style="display: flex; align-items: center; gap: 15px;">
-                            <input type="range" id="logoDesktopX" min="-300" max="300" step="5" value="0" style="flex: 1;" oninput="updateLogoSliders()">
-                            <span id="logoDesktopXVal" style="font-size: 12px; font-family: monospace; width: 45px; text-align: right; color: var(--accent);">0px</span>
+                            <input type="range" id="logoDesktopX" min="-300" max="300" step="1" value="0" style="flex: 1;" oninput="document.getElementById('logoDesktopXVal').value = this.value; updateLogoSliders();">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                              <input type="number" id="logoDesktopXVal" min="-300" max="300" step="1" value="0" style="width: 60px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; font-family: monospace; font-size: 12px; text-align: right;" oninput="document.getElementById('logoDesktopX').value = this.value; updateLogoSliders();">
+                              <span style="font-size: 12px; color: var(--text-muted);">px</span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -922,22 +958,31 @@
                         <div class="form-group">
                           <label for="logoMobileSpawn">Initial Spawn Offset (px from Topbar)</label>
                           <div style="display: flex; align-items: center; gap: 15px;">
-                            <input type="range" id="logoMobileSpawn" min="-200" max="200" step="5" value="-50" style="flex: 1;" oninput="updateLogoSliders()">
-                            <span id="logoMobileSpawnVal" style="font-size: 12px; font-family: monospace; width: 45px; text-align: right; color: var(--accent);">-50px</span>
+                            <input type="range" id="logoMobileSpawn" min="-200" max="200" step="1" value="-50" style="flex: 1;" oninput="document.getElementById('logoMobileSpawnVal').value = this.value; updateLogoSliders();">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                              <input type="number" id="logoMobileSpawnVal" min="-200" max="200" step="1" value="-50" style="width: 60px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; font-family: monospace; font-size: 12px; text-align: right;" oninput="document.getElementById('logoMobileSpawn').value = this.value; updateLogoSliders();">
+                              <span style="font-size: 12px; color: var(--text-muted);">px</span>
+                            </div>
                           </div>
                         </div>
                         <div class="form-group">
                           <label for="logoMobileStick">Stick Threshold Offset (px)</label>
                           <div style="display: flex; align-items: center; gap: 15px;">
-                            <input type="range" id="logoMobileStick" min="-300" max="300" step="10" value="0" style="flex: 1;" oninput="updateLogoSliders()">
-                            <span id="logoMobileStickVal" style="font-size: 12px; font-family: monospace; width: 45px; text-align: right; color: var(--accent);">0px</span>
+                            <input type="range" id="logoMobileStick" min="-300" max="300" step="1" value="0" style="flex: 1;" oninput="document.getElementById('logoMobileStickVal').value = this.value; updateLogoSliders();">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                              <input type="number" id="logoMobileStickVal" min="-300" max="300" step="1" value="0" style="width: 60px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; font-family: monospace; font-size: 12px; text-align: right;" oninput="document.getElementById('logoMobileStick').value = this.value; updateLogoSliders();">
+                              <span style="font-size: 12px; color: var(--text-muted);">px</span>
+                            </div>
                           </div>
                         </div>
                         <div class="form-group">
                           <label for="logoMobileX">Horizontal Offset (px from Center)</label>
                           <div style="display: flex; align-items: center; gap: 15px;">
-                            <input type="range" id="logoMobileX" min="-300" max="300" step="5" value="-50" style="flex: 1;" oninput="updateLogoSliders()">
-                            <span id="logoMobileXVal" style="font-size: 12px; font-family: monospace; width: 45px; text-align: right; color: var(--accent);">-50px</span>
+                            <input type="range" id="logoMobileX" min="-300" max="300" step="1" value="-50" style="flex: 1;" oninput="document.getElementById('logoMobileXVal').value = this.value; updateLogoSliders();">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                              <input type="number" id="logoMobileXVal" min="-300" max="300" step="1" value="-50" style="width: 60px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; font-family: monospace; font-size: 12px; text-align: right;" oninput="document.getElementById('logoMobileX').value = this.value; updateLogoSliders();">
+                              <span style="font-size: 12px; color: var(--text-muted);">px</span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -2227,12 +2272,12 @@
       const mStick = document.getElementById("logoMobileStick").value;
       const mX = document.getElementById("logoMobileX").value;
 
-      document.getElementById("logoDesktopSpawnVal").textContent = dSpawn + "%";
-      document.getElementById("logoDesktopStickVal").textContent = dStick + "px";
-      document.getElementById("logoDesktopXVal").textContent = dX + "px";
-      document.getElementById("logoMobileSpawnVal").textContent = mSpawn + "px";
-      document.getElementById("logoMobileStickVal").textContent = mStick + "px";
-      document.getElementById("logoMobileXVal").textContent = mX + "px";
+      document.getElementById("logoDesktopSpawnVal").value = dSpawn;
+      document.getElementById("logoDesktopStickVal").value = dStick;
+      document.getElementById("logoDesktopXVal").value = dX;
+      document.getElementById("logoMobileSpawnVal").value = mSpawn;
+      document.getElementById("logoMobileStickVal").value = mStick;
+      document.getElementById("logoMobileXVal").value = mX;
 
       // Real-time Visual Previews for Logos
       const previewDesktopContainer = document.getElementById("previewDesktopContainer");
@@ -2464,7 +2509,7 @@
     window.updateHeroPreview = function() {
       const leftFlex = parseFloat(document.getElementById("heroLeftFlex").value);
       const rightFlex = 2.0 - leftFlex;
-      document.getElementById("heroLeftFlexVal").textContent = leftFlex.toFixed(2);
+      document.getElementById("heroLeftFlexVal").value = leftFlex.toFixed(2);
 
       const leftScale = document.getElementById("heroLeftScale").value;
       const leftX = document.getElementById("heroLeftX").value;
@@ -2479,6 +2524,17 @@
       const mobileScale = document.getElementById("heroMobileScale").value;
       const mobileX = document.getElementById("heroMobileX").value;
       const mobileY = document.getElementById("heroMobileY").value;
+
+      // Sync range values with exact number inputs
+      if (document.getElementById("heroLeftScaleNum")) document.getElementById("heroLeftScaleNum").value = leftScale;
+      if (document.getElementById("heroLeftXNum")) document.getElementById("heroLeftXNum").value = leftX;
+      if (document.getElementById("heroLeftYNum")) document.getElementById("heroLeftYNum").value = leftY;
+      if (document.getElementById("heroRightScaleNum")) document.getElementById("heroRightScaleNum").value = rightScale;
+      if (document.getElementById("heroRightXNum")) document.getElementById("heroRightXNum").value = rightX;
+      if (document.getElementById("heroRightYNum")) document.getElementById("heroRightYNum").value = rightY;
+      if (document.getElementById("heroMobileScaleNum")) document.getElementById("heroMobileScaleNum").value = mobileScale;
+      if (document.getElementById("heroMobileXNum")) document.getElementById("heroMobileXNum").value = mobileX;
+      if (document.getElementById("heroMobileYNum")) document.getElementById("heroMobileYNum").value = mobileY;
 
       const previewDesktopContainer = document.getElementById("previewDesktopContainer");
       if (previewDesktopContainer) {
