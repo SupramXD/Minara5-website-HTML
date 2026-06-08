@@ -2023,7 +2023,6 @@
             // Check if any product was deleted from GitHub but is still in local cache, remove it!
             if (firestoreProds.length > 0) {
               const cleanedLocalProds = localProds.filter(lp => {
-                if (lp.id === 'leopard-backpack') return true;
                 if (lp.syncStatus === 'pending') return true; // Keep local-only pending items
 
                 const existsInFirestore = firestoreProds.some(fp => fp.id === lp.id);

@@ -958,11 +958,13 @@
                 <div style="border-left: 1px solid var(--border-color); padding-left: 30px; display: flex; flex-direction: column; gap: 30px;">
                   <div>
                     <h3 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px;">Desktop Real-Time Preview</h3>
-                    <div id="previewDesktopContainer" style="width: 100%; height: 180px; background: #000; display: flex; overflow: hidden; border: 1px solid var(--border-color);">
+                    <div id="previewDesktopContainer" style="width: 100%; height: 180px; background: #000; display: flex; overflow: hidden; border: 1px solid var(--border-color); position: relative;">
                       <img id="previewImgL" src="test3.avif" style="height: 100%; object-fit: cover; transition: none;">
                       <div id="previewImgRParent" style="position: relative; height: 100%; overflow: hidden; display: block;">
                         <img id="previewImgR" src="number23.avif" style="width: 100%; height: 100%; object-fit: cover; transition: none; display: block;">
                       </div>
+                      <!-- Desktop Preview Logo -->
+                      <img id="previewLogoDesktop" src="minara 5 transparent 2.svg" style="position: absolute; left: 50%; transform: translate(-50%, -50%); width: 100%; filter: invert(98.04%); pointer-events: none; z-index: 10; transition: none;">
                     </div>
                   </div>
 
@@ -971,6 +973,10 @@
                     <div style="width: 140px; margin: 0 auto; background: #0a0a0c; border: 1px solid var(--border-color); padding: 6px; border-radius: 8px;">
                       <div id="previewMobileContainer" style="width: 100%; overflow: hidden; background: #000; position: relative;">
                         <img id="previewImgMobile" src="test3 mobile.avif" style="width: 100%; display: block; transition: none;">
+                        <!-- Mobile Mock Header -->
+                        <div id="previewMobileHeader" style="position: absolute; top: 0; left: 0; right: 0; height: 15px; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); border-bottom: 0.5px solid #eee; z-index: 9; pointer-events: none;"></div>
+                        <!-- Mobile Preview Logo -->
+                        <img id="previewLogoMobile" src="minara 5 transparent.svg" style="position: absolute; left: 50%; width: 85%; filter: invert(98.04%); pointer-events: none; z-index: 10; transition: none;">
                       </div>
                     </div>
                   </div>
@@ -1076,17 +1082,8 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr id="catalog-row-1">
-                          <td>leopard-backpack</td>
-                          <td>Léopard Fur Backpack</td>
-                          <td>R749</td>
-                          <td>R1,200</td>
-                          <td id="stock-level-1">45 units</td>
-                          <td><span class="status-badge admin">Active</span></td>
-                          <td>
-                            <button class="btn-action" onclick="adjustStock('1', 5)" style="margin-right: 5px;">+5</button>
-                            <button class="btn-action" onclick="adjustStock('1', -5)">-5</button>
-                          </td>
+                        <tr>
+                          <td colspan="7" style="text-align: center; opacity: 0.5;">Loading products...</td>
                         </tr>
                       </tbody>
                     </table>
@@ -1595,20 +1592,7 @@
       const dashCountEl = document.getElementById("dashboardCatalogCount");
       if (!tableBody) return;
       
-      let products = [
-          {
-              id: "leopard-backpack",
-              nameShort: "",
-              name: "Léopard Fur Backpack",
-              price: 749,
-              retailPrice: 1200,
-              stock: 45,
-              status: "Active",
-              image: "cheetahproduct.avif",
-              description: "Leopard Fur Backpack\n\nCarefully crafted luxury fur backpack designed for high fashion nonconformity.",
-              sizes: ["50ml", "100ml"]
-          }
-      ];
+      let products = [];
       
       try {
           const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
@@ -1725,15 +1709,13 @@
               editBtn.onclick = () => window.openEditModal(p.id);
               actionsTd.appendChild(editBtn);
               
-              if (p.id !== 'leopard-backpack') {
-                  const deleteBtn = document.createElement('button');
-                  deleteBtn.className = 'btn-action danger-btn';
-                  deleteBtn.style.marginLeft = '10px';
-                  deleteBtn.style.padding = '4px 8px';
-                  deleteBtn.textContent = '✕ Delete';
-                  deleteBtn.onclick = () => window.deleteProduct(p.id);
-                  actionsTd.appendChild(deleteBtn);
-              }
+              const deleteBtn = document.createElement('button');
+              deleteBtn.className = 'btn-action danger-btn';
+              deleteBtn.style.marginLeft = '10px';
+              deleteBtn.style.padding = '4px 8px';
+              deleteBtn.textContent = '✕ Delete';
+              deleteBtn.onclick = () => window.deleteProduct(p.id);
+              actionsTd.appendChild(deleteBtn);
               
               tr.appendChild(actionsTd);
               tableBody.appendChild(tr);
@@ -1812,7 +1794,6 @@
                       
                       if (firestoreProds.length > 0) {
                           const cleanedLocalProds = localProds.filter(lp => {
-                              if (lp.id === 'leopard-backpack') return true;
                               if (lp.syncStatus === 'pending') return true;
                               
                               const existsInFirestore = firestoreProds.some(fp => fp.id === lp.id);
@@ -1825,20 +1806,7 @@
                           
                           if (localUpdated) {
                               localStorage.setItem("minara_products", JSON.stringify(cleanedLocalProds));
-                              products = [
-                                  {
-                                      id: "leopard-backpack",
-                                      nameShort: "",
-                                      name: "Léopard Fur Backpack",
-                                      price: 749,
-                                      retailPrice: 1200,
-                                      stock: 45,
-                                      status: "Active",
-                                      image: "cheetahproduct.avif",
-                                      description: "Leopard Fur Backpack\n\nCarefully crafted luxury fur backpack designed for high fashion nonconformity."
-                                  },
-                                  ...cleanedLocalProds.filter(lp => lp.id !== "leopard-backpack")
-                              ];
+                              products = [...cleanedLocalProds];
                               updated = true;
                           }
                       } else if (localUpdated) {
@@ -2151,13 +2119,13 @@
                   const idx = localProds.findIndex(p => p.id === productId);
                   if (idx > -1) {
                       localProds[idx].stock = newStock;
-                  } else if (productId !== 'leopard-backpack') {
+                  } else {
                       localProds.push({ ...product, stock: newStock });
                   }
                   localStorage.setItem("minara_products", JSON.stringify(localProds));
               } catch (err) {}
               
-              if (window.db && window.dbDoc && window.dbUpdateDoc && productId !== 'leopard-backpack') {
+              if (window.db && window.dbDoc && window.dbUpdateDoc) {
                   try {
                       await window.dbUpdateDoc(window.dbDoc(window.db, "products", productId), {
                           stock: newStock
@@ -2185,10 +2153,6 @@
     };
 
     window.deleteProduct = async function(productId) {
-      if (productId === 'leopard-backpack') {
-          alert("Cannot delete Leopard Backpack!");
-          return;
-      }
 
       if (!confirm("Are you sure you want to permanently delete this product?")) {
           return;
@@ -2269,6 +2233,25 @@
       document.getElementById("logoMobileSpawnVal").textContent = mSpawn + "px";
       document.getElementById("logoMobileStickVal").textContent = mStick + "px";
       document.getElementById("logoMobileXVal").textContent = mX + "px";
+
+      // Real-time Visual Previews for Logos
+      const previewDesktopContainer = document.getElementById("previewDesktopContainer");
+      const previewLogoDesktop = document.getElementById("previewLogoDesktop");
+      if (previewDesktopContainer && previewLogoDesktop) {
+        const scaleX = previewDesktopContainer.offsetWidth / 1200;
+        previewLogoDesktop.style.top = dSpawn + "%";
+        previewLogoDesktop.style.transform = `translate(calc(-50% + ${dX * scaleX}px), -50%)`;
+      }
+
+      const previewMobileContainer = document.getElementById("previewMobileContainer");
+      const previewLogoMobile = document.getElementById("previewLogoMobile");
+      if (previewMobileContainer && previewLogoMobile) {
+        const scaleMobile = previewMobileContainer.offsetWidth / 375;
+        const headerHeight = 15; // Represents 45px at mobile preview scale
+        const mobileTop = headerHeight + (mSpawn * scaleMobile);
+        previewLogoMobile.style.top = mobileTop + "px";
+        previewLogoMobile.style.transform = `translateX(calc(-50% + ${mX * scaleMobile}px))`;
+      }
     };
 
     window.openEditModal = function(productId) {
@@ -2545,6 +2528,10 @@
           previewImgMobile.style.height = "100%";
           previewImgMobile.style.objectFit = "cover";
         }
+      }
+
+      if (typeof window.updateLogoSliders === "function") {
+        window.updateLogoSliders();
       }
     };
 
