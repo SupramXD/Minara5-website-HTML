@@ -398,6 +398,7 @@
       width: 1200px;
       z-index: 900;
       pointer-events: none;
+      will-change: transform, top, position;
     }
 
     #logo img {
@@ -1208,20 +1209,20 @@
         
         const isMobile = window.innerWidth <= 900;
         let topVal = "0px";
-        let transformVal = "translateX(-50%)";
+        let transformVal = "translate3d(-50%, 0, 0)";
         let positionVal = "fixed";
         
         if (!isMobile) {
           const spawnPercent = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 44;
           const dX = s.logoDesktopX !== undefined ? s.logoDesktopX : 0;
           topVal = spawnPercent + "%";
-          transformVal = `translate(calc(-50% + ${dX}px), -50%)`;
+          transformVal = `translate3d(calc(-50% + ${dX}px), -50%, 0)`;
         } else {
           const spawnOffset = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -100;
           const mX = s.logoMobileX !== undefined ? s.logoMobileX : 0;
           const initialTop = 45 + spawnOffset; 
           topVal = initialTop + "px";
-          transformVal = `translateX(calc(-50% + ${mX}px))`;
+          transformVal = `translate3d(calc(-50% + ${mX}px), 0, 0)`;
         }
         
         const style = document.createElement("style");
@@ -1636,81 +1637,148 @@
       const bagsBtn = document.getElementById('bagsBtn');
       const logo = document.getElementById('logo');
       const topbar = document.getElementById('topbar');
-      const isMobile = () => window.matchMedia('(max-width:900px)').matches;
 
+      // CACHED DIMENSIONS AND STATES
       let heroBottom = 0;
       let imgRBottom = 0;
+      let bagsBtnHeight = 0;
+      let logoHeight = 0;
+      let topbarHeight = 45; // Default header height
+      let windowHeight = 0;
+      let mobileView = false;
+
+      // STATE TRACKING FOR STYLE GUARDS
+      let lastBagsBtnState = ""; // "fixed" or "absolute"
+      let lastLogoState = "";    // "fixed" or "absolute"
 
       function measure() {
+        if (!hero || !imgR) return;
+        
+        mobileView = window.innerWidth <= 900;
+        
+        // Measure heights/positions
         heroBottom = hero.offsetTop + hero.offsetHeight - 45;
         imgRBottom = window.scrollY + imgR.getBoundingClientRect().bottom;
+        
+        if (bagsBtn) {
+          bagsBtnHeight = bagsBtn.offsetHeight;
+        }
+        if (logo) {
+          logoHeight = logo.offsetHeight || logo.getBoundingClientRect().height;
+        }
+        if (topbar) {
+          topbarHeight = topbar.offsetHeight || topbar.getBoundingClientRect().height;
+        }
+        windowHeight = window.innerHeight;
       }
 
       function update() {
         const y = window.scrollY;
         const s = window.heroSettings || {};
 
-        if (!isMobile()) {
-          const fixed = 48;
-          const h = bagsBtn.offsetHeight;
-          const bottom = y + fixed + h;
+        if (!mobileView) {
+          // --- DESKTOP LOGIC ---
+          const fixedOffset = 48;
+          const bottom = y + fixedOffset + bagsBtnHeight;
+          const shouldBeAbsolute = bottom >= heroBottom + 45;
 
-          if (bottom >= heroBottom + 45) {
-            bagsBtn.style.position = 'absolute';
-            bagsBtn.style.top = (heroBottom - h) + 'px';
+          // 1. bagsBtn styling guard
+          if (shouldBeAbsolute) {
+            if (lastBagsBtnState !== "absolute") {
+              bagsBtn.style.position = 'absolute';
+              bagsBtn.style.top = (heroBottom - bagsBtnHeight) + 'px';
+              lastBagsBtnState = "absolute";
+            }
           } else {
-            bagsBtn.style.position = 'fixed';
-            bagsBtn.style.top = fixed + 'px';
+            if (lastBagsBtnState !== "fixed") {
+              bagsBtn.style.position = 'fixed';
+              bagsBtn.style.top = fixedOffset + 'px';
+              lastBagsBtnState = "fixed";
+            }
           }
 
-          const spawnPercent = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 50;
-          const stickOffset = s.logoDesktopStick !== undefined ? s.logoDesktopStick : 0;
+          // 2. logo styling guard
+          const spawnPercent = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 44;
+          const stickOffset = s.logoDesktopStick !== undefined ? s.logoDesktopStick : -34;
           const dX = s.logoDesktopX !== undefined ? s.logoDesktopX : 0;
 
-          const rect = logo.getBoundingClientRect();
-          const H = rect.height;
-          const vh = window.innerHeight;
-          const spawnY = vh * (spawnPercent / 100);
-          const lock = y + spawnY + H / 2 + stickOffset >= heroBottom;
+          const spawnY = windowHeight * (spawnPercent / 100);
+          const shouldLock = y + spawnY + logoHeight / 2 + stickOffset >= heroBottom;
 
-          if (lock) {
-            logo.style.position = 'absolute';
-            logo.style.top = (heroBottom - H) + 'px';
-            logo.style.transform = `translateX(calc(-50% + ${dX}px))`;
+          if (shouldLock) {
+            if (lastLogoState !== "absolute") {
+              logo.style.position = 'absolute';
+              logo.style.top = (heroBottom - logoHeight) + 'px';
+              logo.style.transform = `translate3d(calc(-50% + ${dX}px), 0, 0)`;
+              lastLogoState = "absolute";
+            }
           } else {
-            logo.style.position = 'fixed';
-            logo.style.top = spawnPercent + '%';
-            logo.style.transform = `translate(calc(-50% + ${dX}px), -50%)`;
+            const logoFixedStyle = `fixed-${spawnPercent}-${dX}`;
+            if (lastLogoState !== logoFixedStyle) {
+              logo.style.position = 'fixed';
+              logo.style.top = spawnPercent + '%';
+              logo.style.transform = `translate3d(calc(-50% + ${dX}px), -50%, 0)`;
+              lastLogoState = logoFixedStyle;
+            }
+          }
+
+          // Reset mobile state tracking when on desktop
+          if (lastLogoState === "mobile-absolute" || lastLogoState === "mobile-fixed") {
+            lastLogoState = "";
           }
 
           return;
         }
 
-        const spawnOffset = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -50;
-        const stickOffset = s.logoMobileStick !== undefined ? s.logoMobileStick : 0;
-        const mX = s.logoMobileX !== undefined ? s.logoMobileX : -50;
+        // --- MOBILE LOGIC ---
+        const spawnOffset = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -100;
+        const stickOffset = s.logoMobileStick !== undefined ? s.logoMobileStick : 10;
+        const mX = s.logoMobileX !== undefined ? s.logoMobileX : 0;
 
-        const br = topbar.getBoundingClientRect();
-        const floatTopViewport = br.bottom + spawnOffset;
+        const floatTopViewport = topbarHeight + spawnOffset;
         const currentTopAbsolute = y + floatTopViewport;
+        const lockPt = imgRBottom - logoHeight + stickOffset;
+        const shouldLockMobile = currentTopAbsolute >= lockPt;
 
-        const r2 = logo.getBoundingClientRect();
-        const lockPt = imgRBottom - r2.height + stickOffset;
-
-        if (currentTopAbsolute >= lockPt) {
+        if (shouldLockMobile) {
+          if (lastLogoState !== "mobile-absolute") {
             logo.style.position = 'absolute';
             logo.style.top = lockPt + 'px';
-            logo.style.transform = `translateX(calc(-50% + ${mX}px))`;
+            logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0)`;
+            lastLogoState = "mobile-absolute";
+          }
         } else {
+          const logoMobileFixedStyle = `mobile-fixed-${floatTopViewport}-${mX}`;
+          if (lastLogoState !== logoMobileFixedStyle) {
             logo.style.position = 'fixed';
             logo.style.top = floatTopViewport + 'px';
-            logo.style.transform = `translateX(calc(-50% + ${mX}px))`;
+            logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0)`;
+            lastLogoState = logoMobileFixedStyle;
+          }
+        }
+
+        // Reset desktop state tracking when on mobile
+        lastBagsBtnState = "";
+      }
+
+      window.updateLogoPosition = function() {
+        measure();
+        update();
+      };
+
+      // requestAnimationFrame (rAF) Throttle Wrapper for scroll
+      let scrollTicking = false;
+      function handleScroll() {
+        if (!scrollTicking) {
+          window.requestAnimationFrame(() => {
+            update();
+            scrollTicking = false;
+          });
+          scrollTicking = true;
         }
       }
 
-      window.updateLogoPosition = update;
-
-      window.addEventListener('scroll', update);
+      window.addEventListener('scroll', handleScroll);
       window.addEventListener('resize', () => { measure(); update(); });
       window.addEventListener('load', () => { measure(); update(); });
       setTimeout(() => { measure(); update(); }, 80);
