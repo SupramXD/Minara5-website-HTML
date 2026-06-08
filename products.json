@@ -25,5 +25,21 @@
     "sizes": [
       "50ml"
     ]
+  },
+  {
+    "id": "inspired-by-creed-aventus",
+    "nameShort": "Mousse",
+    "name": "Inspired by Creed aventus",
+    "price": 350,
+    "retailPrice": 5600,
+    "stock": 3,
+    "image": "images/products/inspired-by-creed-aventus.webp",
+    "image_thumb": "images/products/inspired-by-creed-aventus_thumb.webp",
+    "description": "Inspired by Creed's Creed Aventus",
+    "status": "Active",
+    "flair": "",
+    "sizes": [
+      "50ml"
+    ]
   }
 ]
