@@ -927,13 +927,7 @@ footer{
   </div>
 
   <div class="cart-body">
-    <p>MISSING ITEMS IN YOUR CART?</p>
-    <p>Sign in to see items added before.</p>
-
-    <div class="cart-auth-links">
-      <a href="#">Sign in</a>
-      <a href="#">Register</a>
-    </div>
+    <p style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; text-transform:uppercase;">ADD ITEMS TO BAG</p>
   </div>
 
 
@@ -1651,6 +1645,19 @@ window.openCart = function() {
         if (submitBtn) {
             submitBtn.disabled = true;
             submitBtn.textContent = "SUBMITTING...";
+        }
+
+        // Run Cloudflare Turnstile challenge
+        if (typeof window.runTurnstile === 'function') {
+            const token = await window.runTurnstile();
+            if (!token) {
+                alert("Security verification failed. Please try again.");
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Submit Review";
+                }
+                return;
+            }
         }
 
         try {

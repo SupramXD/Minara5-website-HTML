@@ -43,6 +43,62 @@ try {
 }
 window.auth = auth; // Keeps it accessible for your account.html
 window.db = db;     // Expose globally for newsletter submissions
+
+// --- DYNAMICALLY LOAD CLOUDFLARE TURNSTILE ---
+if (!document.getElementById("cloudflare-turnstile-script")) {
+    const script = document.createElement("script");
+    script.id = "cloudflare-turnstile-script";
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+}
+
+// --- PROGRAMMATIC INVISIBLE TURNSTILE CHALLENGE ---
+window.runTurnstile = function() {
+    return new Promise((resolve) => {
+        if (typeof turnstile === 'undefined') {
+            console.error("Turnstile not loaded yet.");
+            resolve(null);
+            return;
+        }
+
+        // Create temporary container for Turnstile
+        let container = document.getElementById("minara-turnstile-container");
+        if (!container) {
+            container = document.createElement("div");
+            container.id = "minara-turnstile-container";
+            container.style.display = "none";
+            document.body.appendChild(container);
+        }
+
+        container.innerHTML = ""; // Clear previous elements
+        const widgetDiv = document.createElement("div");
+        container.appendChild(widgetDiv);
+
+        try {
+            const widgetId = turnstile.render(widgetDiv, {
+                sitekey: "0x4AAAAAADg4x-vWHIwzY7Xu",
+                size: "invisible",
+                callback: function(token) {
+                    resolve(token);
+                },
+                "error-callback": function(err) {
+                    console.error("Turnstile error:", err);
+                    resolve(null);
+                },
+                "expired-callback": function() {
+                    console.warn("Turnstile token expired.");
+                    resolve(null);
+                }
+            });
+            turnstile.execute(widgetId);
+        } catch (e) {
+            console.error("Failed to render/execute Turnstile:", e);
+            resolve(null);
+        }
+    });
+};
 window.getThumbnailImageUrl = function(src, thumbSrc) {
     if (thumbSrc) return thumbSrc;
     if (!src) return "";
@@ -235,13 +291,6 @@ async function protectRoutes(user, role) {
             return true;
         }
     }
-    
-    if (!user) {
-        if (path.includes("account.html") || path.includes("register.html")) {
-            window.location.href = "index.html";
-            return true;
-        }
-    }
     return false;
 }
 
@@ -418,7 +467,7 @@ window.accountClicked = function(event) {
     
     // Check if user is logged in before showing dropdown
     if (!auth.currentUser) {
-        window.location.href = "account.html"; // Redirect to login if not authenticated
+        window.location.href = "index.html"; // Redirect to home if not authenticated
         return;
     }
     
@@ -980,6 +1029,20 @@ window.submitNewsletter = async function(event, type) {
         submitBtn.innerHTML = "SAVING...";
         submitBtn.style.opacity = "0.5";
         submitBtn.style.cursor = "not-allowed";
+    }
+
+    // Run Cloudflare Turnstile challenge
+    const token = await window.runTurnstile();
+    if (!token) {
+        alert("Security verification failed. Please try again.");
+        if (emailInput) emailInput.disabled = false;
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.style.opacity = "";
+            submitBtn.style.cursor = "";
+        }
+        return;
     }
     
     try {
