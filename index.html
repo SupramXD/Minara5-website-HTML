@@ -1192,6 +1192,54 @@
       opacity: 0.5 !important;
     }
   </style>
+  <script>
+    (function() {
+      try {
+        const cached = localStorage.getItem("minara_hero_settings");
+        let s = {
+          logoDesktopSpawn: 44,
+          logoDesktopX: 0,
+          logoMobileSpawn: -100,
+          logoMobileX: 0
+        };
+        if (cached) {
+          s = Object.assign({}, s, JSON.parse(cached));
+        }
+        
+        const isMobile = window.innerWidth <= 900;
+        let topVal = "0px";
+        let transformVal = "translateX(-50%)";
+        let positionVal = "fixed";
+        
+        if (!isMobile) {
+          const spawnPercent = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 44;
+          const dX = s.logoDesktopX !== undefined ? s.logoDesktopX : 0;
+          topVal = spawnPercent + "%";
+          transformVal = `translate(calc(-50% + ${dX}px), -50%)`;
+        } else {
+          const spawnOffset = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -100;
+          const mX = s.logoMobileX !== undefined ? s.logoMobileX : 0;
+          const initialTop = 60 + spawnOffset; 
+          topVal = "0px";
+          transformVal = `translate3d(calc(-50% + ${mX}px), ${initialTop}px, 0)`;
+          positionVal = "absolute";
+        }
+        
+        const style = document.createElement("style");
+        style.id = "minara-logo-init-style";
+        style.innerHTML = `
+          #logo {
+            position: ${positionVal} !important;
+            top: ${topVal} !important;
+            transform: ${transformVal} !important;
+          }
+        `;
+        document.head.appendChild(style);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  </script>
 </head>
 
 <body>
@@ -1305,28 +1353,28 @@
   <script>
     (function() {
       let settings = {
-        leftImage: "test3.avif",
-        rightImage: "number23.avif",
-        mobileImage: "test3 mobile.avif",
-        leftFlex: 1.3,
+        leftImage: "images/hero/left.webp",
+        rightImage: "images/hero/right.webp",
+        mobileImage: "images/hero/mobile.webp",
+        leftFlex: 1.4,
         leftScale: 1.0,
-        leftX: 50,
-        leftY: 50,
+        leftX: 67,
+        leftY: 61,
         rightScale: 1.0,
         rightX: 80,
-        rightY: 50,
-        desktopHeight: "90vh",
-        mobileHeight: "auto",
+        rightY: 92,
+        desktopHeight: "80vh",
+        mobileHeight: "180px",
         mobileScale: 1.0,
         mobileX: 50,
         mobileY: 50,
-        logoDesktopSpawn: 50,
-        logoDesktopStick: 0,
+        logoDesktopSpawn: 44,
+        logoDesktopStick: -34,
         logoDesktopX: 0,
-        logoMobileSpawn: -50,
-        logoMobileStick: 0,
-        logoMobileX: -50,
-        showGiftsButton: true
+        logoMobileSpawn: -100,
+        logoMobileStick: 10,
+        logoMobileX: 0,
+        showGiftsButton: false
       };
 
       try {
@@ -1649,9 +1697,9 @@
         if (top > lockPt) top = lockPt;
 
         logo.style.position = 'absolute';
-        logo.style.top = top + 'px';
+        logo.style.top = '0px';
         logo.style.left = '50%';
-        logo.style.transform = `translateX(calc(-50% + ${mX}px))`;
+        logo.style.transform = `translate3d(calc(-50% + ${mX}px), ${top}px, 0)`;
       }
 
       window.addEventListener('scroll', update);
