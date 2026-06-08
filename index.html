@@ -1916,7 +1916,7 @@
         const floatTopViewport = topbarHeight + spawnOffset;
         const currentTopAbsolute = y + floatTopViewport;
         const lockPt = (secondHeroBottom + topbarHeight) - logoHeight + stickOffset;
-        const shouldLockMobile = currentTopAbsolute >= lockPt;
+        const shouldLockMobile = y + (windowHeight * 0.7) >= lockPt;
 
         if (shouldLockMobile) {
           if (lastLogoState !== "mobile-absolute") {
