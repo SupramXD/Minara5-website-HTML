@@ -358,6 +358,7 @@
       height: 90vh;
       display: flex;
       overflow: hidden;
+      z-index: 1;
     }
 
     .hero img {
@@ -396,7 +397,7 @@
       left: 50%;
       transform: translate(-50%, 0);
       width: 1200px;
-      z-index: 900;
+      z-index: 100;
       pointer-events: none;
       will-change: transform, top, position;
     }
@@ -530,7 +531,7 @@
       }
 
       #logo {
-        width: auto;
+        width: 88vw;
         max-width: 88vw;
         max-height: 36vh;
       }
@@ -558,6 +559,13 @@
     /* BRAND SECTION */
     .brand-section {
       padding: 80px 40px 110px;
+      width: 100%;
+      background: #fff;
+      position: relative;
+      z-index: 200;
+    }
+
+    .brand-section-inner {
       max-width: 900px;
       margin: 0 auto;
     }
@@ -662,6 +670,9 @@
 
     .home-products-section {
       padding: 0;
+      position: relative;
+      z-index: 200;
+      background: #fff;
     }
 
     .home-products-header {
@@ -965,6 +976,8 @@
       color: #000;
       text-transform: uppercase;
       letter-spacing: 0.20em;
+      position: relative;
+      z-index: 200;
     }
 
     /* ================================
@@ -1666,27 +1679,29 @@
   </section>
 
   <section class="brand-section" style="padding-bottom: 40px;">
-    <h2 class="brand-title">The-Perfume-House</h2>
+    <div class="brand-section-inner">
+      <h2 class="brand-title">The-Perfume-House</h2>
 
-    <div class="brand-body luxury-text">
+      <div class="brand-body luxury-text">
 
-      History speaks of conquest,&nbsp;&nbsp;of maps redrawn by force.
-      But in the private quarters&nbsp;&nbsp;of Napoleon Bonaparte,
-      victory was born in&nbsp;&nbsp;the scent of rosemary and citrus.
-
-
-
-      Suppressing the stench of battle,&nbsp;&nbsp;he consumed fifty bottles
-      of custom cologne a month&nbsp;&nbsp;— splashing it over his shoulders,
-      drinking it before campaigns,&nbsp;&nbsp;and carrying a cylindrical flask
-      slid neatly inside his military boot.
+        History speaks of conquest,&nbsp;&nbsp;of maps redrawn by force.
+        But in the private quarters&nbsp;&nbsp;of Napoleon Bonaparte,
+        victory was born in&nbsp;&nbsp;the scent of rosemary and citrus.
 
 
 
-      He did not just conquer Europe;&nbsp;&nbsp;he scented it.
-      For the emperor knew that power&nbsp;&nbsp;is not just seen—
-      it is inhaled, remembered, and feared.
+        Suppressing the stench of battle,&nbsp;&nbsp;he consumed fifty bottles
+        of custom cologne a month&nbsp;&nbsp;— splashing it over his shoulders,
+        drinking it before campaigns,&nbsp;&nbsp;and carrying a cylindrical flask
+        slid neatly inside his military boot.
 
+
+
+        He did not just conquer Europe;&nbsp;&nbsp;he scented it.
+        For the emperor knew that power&nbsp;&nbsp;is not just seen—
+        it is inhaled, remembered, and feared.
+
+      </div>
     </div>
   </section>
 
@@ -1699,27 +1714,27 @@
   </section>
 
   <section class="brand-section" style="padding-top: 40px; padding-bottom: 110px;">
-
-    <!-- DESKTOP NEWSLETTER SIGNUP -->
-    <div class="desktop-signup-container" style="margin-top: 50px; max-width: 500px; text-align: left;">
-      <div
-        style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 11px; letter-spacing: 2.2px; text-transform: uppercase; margin-bottom: 15px;">
-        Sign up for 5% off first order</div>
-      <form id="desktopSignupForm"
-        onsubmit="event.preventDefault(); if(window.submitNewsletter) { window.submitNewsletter(event, 'desktop'); } else { console.warn('Newsletter script not loaded yet.'); }"
-        style="display: flex; border-bottom: 1px solid #000; padding-bottom: 5px;">
-        <input type="email" id="desktopSignupEmail" placeholder="Enter your email" required
-          style="border: none; background: transparent; font-size: 11px; letter-spacing: 1px; width: 100%; outline: none; text-transform: none; font-family: inherit;">
-        <button type="submit"
-          style="background: transparent; border: none; font-size: 11px; font-weight: bold; color: #1106e8; cursor: pointer; padding: 0 10px; width: auto; margin: 0; font-family: inherit; letter-spacing: 1px;">SUBMIT</button>
-      </form>
-      <div id="desktopSignupSuccess" style="display: none;"></div>
+    <div class="brand-section-inner">
+      <!-- DESKTOP NEWSLETTER SIGNUP -->
+      <div class="desktop-signup-container" style="margin-top: 50px; max-width: 500px; text-align: left;">
+        <div
+          style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 11px; letter-spacing: 2.2px; text-transform: uppercase; margin-bottom: 15px;">
+          Sign up for 5% off first order</div>
+        <form id="desktopSignupForm"
+          onsubmit="event.preventDefault(); if(window.submitNewsletter) { window.submitNewsletter(event, 'desktop'); } else { console.warn('Newsletter script not loaded yet.'); }"
+          style="display: flex; border-bottom: 1px solid #000; padding-bottom: 5px;">
+          <input type="email" id="desktopSignupEmail" placeholder="Enter your email" required
+            style="border: none; background: transparent; font-size: 11px; letter-spacing: 1px; width: 100%; outline: none; text-transform: none; font-family: inherit;">
+          <button type="submit"
+            style="background: transparent; border: none; font-size: 11px; font-weight: bold; color: #1106e8; cursor: pointer; padding: 0 10px; width: auto; margin: 0; font-family: inherit; letter-spacing: 1px;">SUBMIT</button>
+        </form>
+        <div id="desktopSignupSuccess" style="display: none;"></div>
+      </div>
     </div>
-
   </section>
 
   <!-- TRUST BANNER -->
-  <div class="trust-banner" style="background: #fafafa; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; padding: 40px 20px; text-align: center; font-family: Helvetica, Arial, sans-serif; width: 100%; margin-top: 40px;">
+  <div class="trust-banner" style="background: #fafafa; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; padding: 40px 20px; text-align: center; font-family: Helvetica, Arial, sans-serif; width: 100%; margin-top: 40px; position: relative; z-index: 200;">
     <div class="trust-container" style="max-width: 1000px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-around; align-items: stretch; gap: 30px;">
       <div class="trust-item" style="display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 280px; flex: 1 1 250px;">
         <span style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 900; color: #1a1a1a; margin-bottom: 8px;">Buy Direct & Save</span>
