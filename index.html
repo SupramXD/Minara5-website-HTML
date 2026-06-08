@@ -1368,9 +1368,9 @@
   <section id="hero" class="hero">
     <div id="mobileShopButton">shop catalog</div>
 
-    <img src="test3.avif" id="imgL">
+    <img src="test3.avif" id="imgL" onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
     <div style="position:relative;flex:0.7%;">
-      <img src="number23.avif" id="imgR" style="width:100%;height:100%;object-fit:cover;">
+      <img src="number23.avif" id="imgR" style="width:100%;height:100%;object-fit:cover;" onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
       <div class="mobile-bags"><a href="catalog.html">GIFTS 'SHOP NOW</a></div>
     </div>
   </section>
@@ -1707,9 +1707,9 @@
 
   <!-- SECOND HERO IMAGE SECTION -->
   <section id="secondHero" class="hero" style="background: #000; position: relative; width: 100vw; display: flex; overflow: hidden; margin-top: 0; margin-bottom: 0;">
-    <img id="secImgL" style="height: 100%; object-fit: cover; transition: opacity .3s ease; display: none;">
+    <img id="secImgL" style="height: 100%; object-fit: cover; transition: opacity .3s ease; display: none;" onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
     <div id="secImgRWrapper" style="position:relative; flex: 0.7; height: 100%; display: none;">
-      <img id="secImgR" style="width:100%; height:100%; object-fit:cover;">
+      <img id="secImgR" style="width:100%; height:100%; object-fit:cover;" onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
     </div>
   </section>
 
@@ -1831,11 +1831,19 @@
         
         mobileView = window.innerWidth <= 900;
         
-        // Measure heights/positions
-        heroBottom = hero.offsetTop + hero.offsetHeight - 45;
+        // Measure heights/positions with fallbacks for loading/collapsed states
+        let firstHeight = hero.offsetHeight;
+        if (firstHeight < 100) {
+          firstHeight = 180;
+        }
+        heroBottom = hero.offsetTop + firstHeight - 45;
         imgRBottom = window.scrollY + imgR.getBoundingClientRect().bottom;
 
-        secondHeroBottom = secondHero.offsetTop + secondHero.offsetHeight - 45;
+        let secHeight = secondHero.offsetHeight;
+        if (secHeight < 100) {
+          secHeight = 180;
+        }
+        secondHeroBottom = secondHero.offsetTop + secHeight - 45;
         secImgRBottom = window.scrollY + secImgR.getBoundingClientRect().bottom;
         
         if (bagsBtn) {
