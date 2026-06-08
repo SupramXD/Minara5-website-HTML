@@ -15,11 +15,13 @@
   "mobileX": 50,
   "mobileY": 50,
   "logoDesktopSpawn": 44,
+  "logoDesktopSpawn2": 60,
   "logoDesktopStick": -34,
   "logoDesktopX": 0,
   "logoMobileSpawn": -100,
+  "logoMobileSpawn2": 70,
   "logoMobileStick": 10,
   "logoMobileX": 0,
   "showGiftsButton": false,
-  "timestamp": "2026-06-08T16:17:23.362Z"
+  "timestamp": "2026-06-08T20:39:44.462Z"
 }
