@@ -495,7 +495,6 @@ function closeMenu(){document.getElementById("menuPanel").classList.remove("open
 ========================================================= -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app-check.js";
 import { 
   getAuth,
   createUserWithEmailAndPassword,
@@ -516,13 +515,6 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase App Check
-const appCheck = initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider('6Lcw4BMtAAAAANZIR_Kb73HOPzn0EfU4XCVrCL__'),
-    isTokenAutoRefreshEnabled: true
-});
-
 const auth = getAuth(app);
 
 function showLogin(){
