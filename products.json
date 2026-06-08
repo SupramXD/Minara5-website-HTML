@@ -9,5 +9,21 @@
     "status": "Active",
     "image": "cheetahproduct.avif",
     "description": "Leopard Fur Backpack\n\nCarefully crafted luxury fur backpack designed for high fashion nonconformity."
+  },
+  {
+    "id": "inspired-by-jpg-le-male",
+    "nameShort": "Vanille",
+    "name": "Inspired by JPG LE MALE",
+    "price": 380,
+    "retailPrice": 2100,
+    "stock": 6,
+    "image": "images/products/inspired-by-jpg-le-male.webp",
+    "image_thumb": "images/products/inspired-by-jpg-le-male_thumb.webp",
+    "description": "JPG LE male\nInspired",
+    "status": "Active",
+    "flair": "",
+    "sizes": [
+      "50ml"
+    ]
   }
 ]
