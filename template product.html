@@ -1475,25 +1475,23 @@ window.openCart = function() {
             swapContent(product);
         }
 
-        // 2. Try loading from Firestore in background
-        let retries = 5;
-        while (!window.db && retries > 0) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            retries--;
-        }
-
-        if (window.db) {
+        // 2. Try loading from products.json in background
+        setTimeout(async () => {
             try {
-                const docRef = doc(window.db, "products", productId);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
+                const response = await fetch("products.json");
+                if (!response.ok) {
+                    throw new Error(`Failed to load products.json: Status ${response.status}`);
+                }
+                const fetchedProds = await response.json();
+                const data = fetchedProds.find(p => p.id === productId);
+                
+                if (data) {
                     const liveProduct = {
                         id: productId,
                         nameShort: data.nameShort || "",
                         name: window.escapeHTML(data.name),
                         price: Number(data.price),
-                        retailPrice: data.retailPrice !== undefined ? Number(data.retailPrice) : null,
+                        retailPrice: data.retailPrice !== undefined && data.retailPrice !== null ? Number(data.retailPrice) : null,
                         stock: Number(data.stock),
                         image: data.image,
                         image_thumb: data.image_thumb || "",
@@ -1525,10 +1523,9 @@ window.openCart = function() {
                     }
                 }
             } catch (dbErr) {
-                console.error("Firestore product details load failed. Raw error object:", dbErr);
-                console.error("Firestore error code:", dbErr.code);
+                console.error("products.json details background load failed:", dbErr);
             }
-        }
+        }, 0);
 
         // Load reviews for this product
         loadReviews(productId);

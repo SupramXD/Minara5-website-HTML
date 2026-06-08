@@ -1946,65 +1946,47 @@
       loadLocalProducts();
       renderGrid();
 
-      // 2. Fetch custom products from Firestore in background
+      // 2. Fetch custom products from products.json in background
       setTimeout(async () => {
-        let retries = 5;
-        while (!window.db && retries > 0) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-          retries--;
-        }
+        try {
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Static products query timed out")), 10000)
+          );
+          const response = await Promise.race([
+            fetch("products.json"),
+            timeoutPromise
+          ]);
+          
+          if (!response.ok) {
+            throw new Error(`Failed to load products.json: Status ${response.status}`);
+          }
 
-        if (window.db) {
-          try {
-            const timeoutPromise = new Promise((_, reject) =>
-              setTimeout(() => reject(new Error("Firestore background query timed out")), 10000)
-            );
-            const querySnapshot = await Promise.race([
-              getDocs(collection(window.db, "products")),
-              timeoutPromise
-            ]);
+          const fetchedProds = await response.json();
+          let updated = false;
+          let firestoreProds = [];
 
-            let updated = false;
-            let firestoreProds = [];
+          fetchedProds.forEach((data) => {
+            const p = {
+              id: data.id,
+              nameShort: data.nameShort || "",
+              name: window.escapeHTML(data.name),
+              price: Number(data.price),
+              retailPrice: data.retailPrice !== undefined && data.retailPrice !== null ? Number(data.retailPrice) : null,
+              stock: Number(data.stock),
+              image: data.image,
+              image_thumb: data.image_thumb || "",
+              status: data.status,
+              flair: data.flair || "",
+              url: data.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${data.id}`
+            };
+            firestoreProds.push(p);
 
-            querySnapshot.forEach((doc) => {
-              const data = doc.data();
-              const p = {
-                id: doc.id,
-                nameShort: data.nameShort || "",
-                name: window.escapeHTML(data.name),
-                price: Number(data.price),
-                retailPrice: data.retailPrice !== undefined ? Number(data.retailPrice) : null,
-                stock: Number(data.stock),
-                image: data.image,
-                image_thumb: data.image_thumb || "",
-                status: data.status,
-                flair: data.flair || "",
-                url: `template product.html?id=${doc.id}`
-              };
-              firestoreProds.push(p);
-
-              const existingIdx = products.findIndex(item => item.id === p.id);
-              if (existingIdx > -1) {
-                const current = products[existingIdx];
-                if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair) {
-                  products[existingIdx] = {
-                    ...current,
-                    nameShort: p.nameShort,
-                    name: p.name,
-                    price: p.price,
-                    retailPrice: p.retailPrice,
-                    stock: p.stock,
-                    image: p.image,
-                    image_thumb: p.image_thumb,
-                    status: p.status,
-                    flair: p.flair
-                  };
-                  updated = true;
-                }
-              } else {
-                products.push({
-                  id: p.id,
+            const existingIdx = products.findIndex(item => item.id === p.id);
+            if (existingIdx > -1) {
+              const current = products[existingIdx];
+              if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair) {
+                products[existingIdx] = {
+                  ...current,
                   nameShort: p.nameShort,
                   name: p.name,
                   price: p.price,
@@ -2013,125 +1995,119 @@
                   image: p.image,
                   image_thumb: p.image_thumb,
                   status: p.status,
-                  flair: p.flair,
-                  url: `template product.html?id=${p.id}`
-                });
+                  flair: p.flair
+                };
                 updated = true;
+              }
+            } else {
+              products.push(p);
+              updated = true;
+            }
+          });
+
+          // Update localStorage with the latest state
+          try {
+            const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+            let localUpdated = false;
+            firestoreProds.forEach(fp => {
+              const idx = localProds.findIndex(lp => lp.id === fp.id);
+              if (idx > -1) {
+                localProds[idx] = { ...fp, syncStatus: "synced" };
+                localUpdated = true;
+              } else {
+                localProds.push({ ...fp, syncStatus: "synced" });
+                localUpdated = true;
               }
             });
 
-            // Update localStorage with the latest Firestore state
-            try {
-              const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
-              let localUpdated = false;
-              firestoreProds.forEach(fp => {
-                const idx = localProds.findIndex(lp => lp.id === fp.id);
-                if (idx > -1) {
-                  localProds[idx] = { ...fp, syncStatus: "synced" };
+            // Check if any product was deleted from GitHub but is still in local cache, remove it!
+            if (firestoreProds.length > 0) {
+              const cleanedLocalProds = localProds.filter(lp => {
+                if (lp.id === 'leopard-backpack') return true;
+                if (lp.syncStatus === 'pending') return true; // Keep local-only pending items
+
+                const existsInFirestore = firestoreProds.some(fp => fp.id === lp.id);
+                if (!existsInFirestore) {
                   localUpdated = true;
-                } else {
-                  localProds.push({ ...fp, syncStatus: "synced" });
-                  localUpdated = true;
+                  return false; // delete from local storage cache
                 }
+                return true;
               });
 
-              // Check if any product was deleted from Firestore but is still in local cache, remove it!
-              if (firestoreProds.length > 0) {
-                const cleanedLocalProds = localProds.filter(lp => {
-                  if (lp.id === 'leopard-backpack') return true;
-                  if (lp.syncStatus === 'pending') return true; // Keep local-only pending items
+              if (localUpdated) {
+                localStorage.setItem("minara_products", JSON.stringify(cleanedLocalProds));
 
-                  const existsInFirestore = firestoreProds.some(fp => fp.id === lp.id);
-                  if (!existsInFirestore) {
-                    localUpdated = true;
-                    return false; // delete from local storage cache
-                  }
-                  return true;
-                });
-
-                if (localUpdated) {
-                  localStorage.setItem("minara_products", JSON.stringify(cleanedLocalProds));
-
-                  // Re-build products list in memory to keep it matched
-                  products = [];
-                  cleanedLocalProds.forEach(p => {
-                    products.push({
-                      id: p.id,
-                      nameShort: p.nameShort || "",
-                      name: p.name,
-                      price: p.price,
-                      retailPrice: p.retailPrice || null,
-                      stock: p.stock,
-                      image: p.image,
-                      image_thumb: p.image_thumb || "",
-                      status: p.status,
-                      url: p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`
-                    });
+                // Re-build products list in memory to keep it matched
+                products = [];
+                cleanedLocalProds.forEach(p => {
+                  products.push({
+                    id: p.id,
+                    nameShort: p.nameShort || "",
+                    name: p.name,
+                    price: p.price,
+                    retailPrice: p.retailPrice || null,
+                    stock: p.stock,
+                    image: p.image,
+                    image_thumb: p.image_thumb || "",
+                    status: p.status,
+                    url: p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`
                   });
-                  updated = true;
-                }
-              } else if (localUpdated) {
-                localStorage.setItem("minara_products", JSON.stringify(localProds));
+                });
+                updated = true;
               }
-            } catch (err) {
-              console.error("Failed to sync Firestore products back to local storage cache:", err);
+            } else if (localUpdated) {
+              localStorage.setItem("minara_products", JSON.stringify(localProds));
             }
-
-            if (updated) {
-              renderGrid(); // Re-render grid with live data!
-            }
-          } catch (dbErr) {
-            console.error("Firestore products background load failed. Raw error object:", dbErr);
-            console.error("Firestore error code:", dbErr.code);
+          } catch (err) {
+            console.error("Failed to sync products back to local storage cache:", err);
           }
+
+          if (updated) {
+            renderGrid(); // Re-render grid with live data!
+          }
+        } catch (dbErr) {
+          console.error("products.json background load failed:", dbErr);
         }
       }, 0);
 
-      // 3. Fetch hero settings from Firestore in background
+      // 3. Fetch hero settings from hero_settings.json in background
       setTimeout(async () => {
-        let retries = 5;
-        while (!window.db && retries > 0) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-          retries--;
-        }
-
-        if (window.db) {
-          try {
-            const docSnap = await getDoc(doc(window.db, "settings", "hero"));
-            if (docSnap.exists()) {
-              const data = docSnap.data();
-              const liveSettings = {
-                leftImage: data.leftImage || "test3.avif",
-                rightImage: data.rightImage || "number23.avif",
-                mobileImage: data.mobileImage || "test3 mobile.avif",
-                leftFlex: data.leftFlex !== undefined ? Number(data.leftFlex) : 1.3,
-                leftScale: data.leftScale !== undefined ? Number(data.leftScale) : 1.0,
-                leftX: data.leftX !== undefined ? Number(data.leftX) : 50,
-                leftY: data.leftY !== undefined ? Number(data.leftY) : 50,
-                rightScale: data.rightScale !== undefined ? Number(data.rightScale) : 1.0,
-                rightX: data.rightX !== undefined ? Number(data.rightX) : 80,
-                rightY: data.rightY !== undefined ? Number(data.rightY) : 50,
-                desktopHeight: data.desktopHeight || "90vh",
-                mobileHeight: data.mobileHeight || "auto",
-                mobileScale: data.mobileScale !== undefined ? Number(data.mobileScale) : 1.0,
-                mobileX: data.mobileX !== undefined ? Number(data.mobileX) : 50,
-                mobileY: data.mobileY !== undefined ? Number(data.mobileY) : 50,
-                logoDesktopSpawn: data.logoDesktopSpawn !== undefined ? Number(data.logoDesktopSpawn) : 50,
-                logoDesktopStick: data.logoDesktopStick !== undefined ? Number(data.logoDesktopStick) : 0,
-                logoDesktopX: data.logoDesktopX !== undefined ? Number(data.logoDesktopX) : 0,
-                logoMobileSpawn: data.logoMobileSpawn !== undefined ? Number(data.logoMobileSpawn) : -50,
-                logoMobileStick: data.logoMobileStick !== undefined ? Number(data.logoMobileStick) : 0,
-                logoMobileX: data.logoMobileX !== undefined ? Number(data.logoMobileX) : -50,
-                showGiftsButton: data.showGiftsButton !== false
-              };
-              localStorage.setItem("minara_hero_settings", JSON.stringify(liveSettings));
-              if (window.applyHeroSettings) {
-                window.applyHeroSettings(liveSettings);
-              }
-            }
-          } catch (err) {
-            console.warn("Failed to fetch live hero settings:", err);
+        try {
+          const response = await fetch("hero_settings.json");
+          if (!response.ok) {
+            throw new Error(`Failed to fetch hero_settings.json: Status ${response.status}`);
           }
+          const data = await response.json();
+          const liveSettings = {
+            leftImage: data.leftImage || "test3.avif",
+            rightImage: data.rightImage || "number23.avif",
+            mobileImage: data.mobileImage || "test3 mobile.avif",
+            leftFlex: data.leftFlex !== undefined ? Number(data.leftFlex) : 1.3,
+            leftScale: data.leftScale !== undefined ? Number(data.leftScale) : 1.0,
+            leftX: data.leftX !== undefined ? Number(data.leftX) : 50,
+            leftY: data.leftY !== undefined ? Number(data.leftY) : 50,
+            rightScale: data.rightScale !== undefined ? Number(data.rightScale) : 1.0,
+            rightX: data.rightX !== undefined ? Number(data.rightX) : 80,
+            rightY: data.rightY !== undefined ? Number(data.rightY) : 50,
+            desktopHeight: data.desktopHeight || "90vh",
+            mobileHeight: data.mobileHeight || "auto",
+            mobileScale: data.mobileScale !== undefined ? Number(data.mobileScale) : 1.0,
+            mobileX: data.mobileX !== undefined ? Number(data.mobileX) : 50,
+            mobileY: data.mobileY !== undefined ? Number(data.mobileY) : 50,
+            logoDesktopSpawn: data.logoDesktopSpawn !== undefined ? Number(data.logoDesktopSpawn) : 50,
+            logoDesktopStick: data.logoDesktopStick !== undefined ? Number(data.logoDesktopStick) : 0,
+            logoDesktopX: data.logoDesktopX !== undefined ? Number(data.logoDesktopX) : 0,
+            logoMobileSpawn: data.logoMobileSpawn !== undefined ? Number(data.logoMobileSpawn) : -50,
+            logoMobileStick: data.logoMobileStick !== undefined ? Number(data.logoMobileStick) : 0,
+            logoMobileX: data.logoMobileX !== undefined ? Number(data.logoMobileX) : -50,
+            showGiftsButton: data.showGiftsButton !== false
+          };
+          localStorage.setItem("minara_hero_settings", JSON.stringify(liveSettings));
+          if (window.applyHeroSettings) {
+            window.applyHeroSettings(liveSettings);
+          }
+        } catch (err) {
+          console.warn("Failed to fetch live hero settings:", err);
         }
       }, 0);
 

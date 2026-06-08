@@ -606,6 +606,7 @@
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
     import { initializeFirestore, setLogLevel, collection, getDocs, query, orderBy, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js";
     
     const firebaseConfig = {
         apiKey: "AIzaSyC8srbzH_DcCYQJXe9MNOyy2OHZSaLidIo",
@@ -622,12 +623,15 @@
     const db = initializeFirestore(app, isLocalFile ? {
         experimentalForceLongPolling: true
     } : {});
+    const functions = getFunctions(app);
     try {
         setLogLevel('debug');
     } catch (e) {}
 
     window.db = db;
     window.auth = auth;
+    window.functions = functions;
+    window.syncToGithubCallable = httpsCallable(functions, "syncToGithub");
     window.dbDoc = doc;
     window.dbGetDoc = getDoc;
     window.dbSetDoc = setDoc;
@@ -2083,6 +2087,33 @@
           }
       }
 
+      // Sync to GitHub static repo
+      if (firestoreSuccess && window.syncToGithubCallable) {
+          try {
+              await window.syncToGithubCallable({
+                  action: "saveProduct",
+                  payload: {
+                      id: idStr,
+                      nameShort: nameShort,
+                      name: name,
+                      price: price,
+                      retailPrice: retailPrice,
+                      stock: stock,
+                      image: mainImageBase64,
+                      image_thumb: thumbImageBase64,
+                      description: description,
+                      status: status,
+                      flair: flair,
+                      sizes: sizes
+                  }
+              });
+              console.log("GitHub sync successful for: " + name);
+          } catch (gitHubErr) {
+              console.error("Failed to sync to GitHub:", gitHubErr);
+              alert("Warning: Product was saved to database, but GitHub sync failed: " + (gitHubErr.message || gitHubErr));
+          }
+      }
+
       document.getElementById("productForm").reset();
       if (submitBtn) {
           submitBtn.disabled = false;
@@ -2131,7 +2162,18 @@
                       await window.dbUpdateDoc(window.dbDoc(window.db, "products", productId), {
                           stock: newStock
                       });
-                  } catch (dbErr) {}
+
+                      // Sync stock level changes to GitHub
+                      if (window.syncToGithubCallable) {
+                          await window.syncToGithubCallable({
+                              action: "adjustStock",
+                              payload: { id: productId, newStock: newStock }
+                          });
+                          console.log(`GitHub stock sync successful for ${productId}`);
+                      }
+                  } catch (dbErr) {
+                      console.error("Stock sync to database or GitHub failed:", dbErr);
+                  }
               }
           }
       }
@@ -2177,6 +2219,18 @@
       }
 
       if (firestoreDelSuccess) {
+          if (window.syncToGithubCallable) {
+              try {
+                  await window.syncToGithubCallable({
+                      action: "deleteProduct",
+                      payload: { id: productId }
+                  });
+                  console.log(`GitHub delete sync successful for ${productId}`);
+              } catch (gitHubErr) {
+                  console.error("GitHub delete sync failed:", gitHubErr);
+                  alert("Warning: Product was deleted from database, but GitHub sync failed: " + (gitHubErr.message || gitHubErr));
+              }
+          }
           alert("Success! The product has been permanently removed.");
       } else {
           alert("Warning: The product was removed locally, but failed to sync deletion.\nError: " + firestoreDelErrorMsg);
@@ -2374,6 +2428,33 @@
               } catch (cacheErr) {}
           } catch (dbErr) {
               firestoreErrorMsg = dbErr.message || dbErr;
+          }
+      }
+
+      // Sync edited product to GitHub static repo
+      if (firestoreSuccess && window.syncToGithubCallable) {
+          try {
+              await window.syncToGithubCallable({
+                  action: "saveProduct",
+                  payload: {
+                      id: id,
+                      nameShort: nameShort,
+                      name: name,
+                      price: price,
+                      retailPrice: retailPrice,
+                      stock: stock,
+                      image: mainImageBase64,
+                      image_thumb: thumbImageBase64,
+                      description: description,
+                      status: status,
+                      flair: flair,
+                      sizes: sizes
+                  }
+              });
+              console.log("GitHub sync successful for edited: " + name);
+          } catch (gitHubErr) {
+              console.error("Failed to sync edited product to GitHub:", gitHubErr);
+              alert("Warning: Product was updated in database, but GitHub sync failed: " + (gitHubErr.message || gitHubErr));
           }
       }
 
@@ -2727,6 +2808,20 @@
         } catch (dbErr) {
           errorMsg = dbErr.message || dbErr;
           console.error("Firestore hero settings save failed:", dbErr);
+        }
+      }
+
+      // Sync hero settings to GitHub static repo
+      if (firestoreSuccess && window.syncToGithubCallable) {
+        try {
+          await window.syncToGithubCallable({
+            action: "saveHero",
+            payload: settingsData
+          });
+          console.log("GitHub hero settings sync successful.");
+        } catch (gitHubErr) {
+          console.error("Failed to sync hero settings to GitHub:", gitHubErr);
+          alert("Warning: Hero settings saved to database, but GitHub sync failed: " + (gitHubErr.message || gitHubErr));
         }
       }
 
