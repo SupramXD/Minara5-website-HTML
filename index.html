@@ -1394,9 +1394,11 @@
         mobileX: 50,
         mobileY: 50,
         logoDesktopSpawn: 44,
+        logoDesktopSpawn2: 65,
         logoDesktopStick: -34,
         logoDesktopX: 0,
         logoMobileSpawn: -100,
+        logoMobileSpawn2: 50,
         logoMobileStick: 10,
         logoMobileX: 0,
         showGiftsButton: false
@@ -1862,6 +1864,44 @@
         const y = window.scrollY;
         const s = window.heroSettings || {};
 
+        let desktopSpawn = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 44;
+        let mobileSpawn = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -100;
+
+        if (hero && secondHero) {
+          const firstHeroEnd = heroBottom + 45;
+          const secondHeroStart = secondHero.offsetTop;
+          
+          if (!mobileView) {
+            const spawnPercent = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 44;
+            const spawnPercent2 = s.logoDesktopSpawn2 !== undefined ? s.logoDesktopSpawn2 : 65;
+            
+            const spawnY = windowHeight * (spawnPercent / 100);
+            const spawnY2 = windowHeight * (spawnPercent2 / 100);
+            
+            const yStart = firstHeroEnd - spawnY;
+            const yEnd = secondHeroStart - spawnY2;
+            
+            if (yEnd > yStart) {
+              const ySwitch = (yStart + yEnd) / 2;
+              desktopSpawn = y < ySwitch ? spawnPercent : spawnPercent2;
+            }
+          } else {
+            const spawnOffset = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -100;
+            const spawnOffset2 = s.logoMobileSpawn2 !== undefined ? s.logoMobileSpawn2 : 50;
+            
+            const spawnY = topbarHeight + spawnOffset;
+            const spawnY2 = topbarHeight + spawnOffset2;
+            
+            const yStart = firstHeroEnd - spawnY;
+            const yEnd = secondHeroStart - spawnY2;
+            
+            if (yEnd > yStart) {
+              const ySwitch = (yStart + yEnd) / 2;
+              mobileSpawn = y < ySwitch ? spawnOffset : spawnOffset2;
+            }
+          }
+        }
+
         if (!mobileView) {
           // --- DESKTOP LOGIC ---
           const fixedOffset = 48;
@@ -1884,7 +1924,7 @@
           }
 
           // 2. logo styling guard (locks at bottom of SECOND hero)
-          const spawnPercent = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 44;
+          const spawnPercent = desktopSpawn;
           const stickOffset = s.logoDesktopStick !== undefined ? s.logoDesktopStick : -34;
           const dX = s.logoDesktopX !== undefined ? s.logoDesktopX : 0;
 
@@ -1917,7 +1957,7 @@
         }
 
         // --- MOBILE LOGIC ---
-        const spawnOffset = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -100;
+        const spawnOffset = mobileSpawn;
         const stickOffset = s.logoMobileStick !== undefined ? s.logoMobileStick : 10;
         const mX = s.logoMobileX !== undefined ? s.logoMobileX : 0;
 
@@ -2452,6 +2492,8 @@
           console.warn("Failed to fetch live second hero settings:", err);
         }
       }, 0);
+
+
 
       window.addEventListener("minaraDiscountActivated", () => {
         renderGrid();

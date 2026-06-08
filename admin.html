@@ -1208,6 +1208,59 @@
                 </div>
               </div>
             </div>
+
+            <!-- SECOND HERO LOGO SPAWN SETTINGS -->
+            <div class="console-panel full-width-panel" style="margin-bottom: 30px; margin-top: 30px;">
+              <div class="panel-header">
+                <h2 class="panel-title">Second Hero Logo Spawn Settings</h2>
+                <span class="stat-label" style="font-size: 10px;">Logo Customizer</span>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px;">
+                <div>
+                  <form id="logoSecondSpawnForm" onsubmit="handleSaveHeroSettings(event)">
+                    <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 15px;">Logo Spawn Position on Second Hero</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
+                      Adjust where the sticky logo is positioned vertically when scrolling through the second hero section. 
+                      These coordinates will be applied seamlessly while the logo is hidden behind the opaque content sections (products and description boxes).
+                    </p>
+
+                    <!-- Desktop Second Spawn -->
+                    <div class="form-group">
+                      <label for="logoDesktopSpawn2">Desktop Second Hero Spawn Position (Vertical % from top)</label>
+                      <div style="display: flex; align-items: center; gap: 15px;">
+                        <input type="range" id="logoDesktopSpawn2" min="10" max="90" step="1" value="65" style="flex: 1;" oninput="document.getElementById('logoDesktopSpawn2Val').value = this.value; updateLogoSliders();">
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                          <input type="number" id="logoDesktopSpawn2Val" min="10" max="90" step="1" value="65" style="width: 60px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; font-family: monospace; font-size: 12px; text-align: right;" oninput="document.getElementById('logoDesktopSpawn2').value = this.value; updateLogoSliders();">
+                          <span style="font-size: 12px; color: var(--text-muted);">%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Mobile Second Spawn -->
+                    <div class="form-group" style="margin-top: 20px;">
+                      <label for="logoMobileSpawn2">Mobile Second Hero Spawn Offset (px from Topbar)</label>
+                      <div style="display: flex; align-items: center; gap: 15px;">
+                        <input type="range" id="logoMobileSpawn2" min="-200" max="200" step="1" value="50" style="flex: 1;" oninput="document.getElementById('logoMobileSpawn2Val').value = this.value; updateLogoSliders();">
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                          <input type="number" id="logoMobileSpawn2Val" min="-200" max="200" step="1" value="50" style="width: 60px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; font-family: monospace; font-size: 12px; text-align: right;" oninput="document.getElementById('logoMobileSpawn2').value = this.value; updateLogoSliders();">
+                          <span style="font-size: 12px; color: var(--text-muted);">px</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button type="submit" class="btn-action accent-btn" style="width: 100%; padding: 14px; margin-top: 25px; font-weight: bold;">Publish Logo Spawn Settings</button>
+                  </form>
+                </div>
+                
+                <div style="border-left: 1px solid var(--border-color); padding-left: 30px; display: flex; flex-direction: column; justify-content: center; gap: 15px;">
+                  <h3 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Information</h3>
+                  <p style="font-size: 11px; color: var(--text-muted); line-height: 1.6;">
+                    The transition between the first hero spawn position and these coordinates occurs exactly in the middle of the scroll range where the logo is hidden under the product and description boxes.
+                  </p>
+                </div>
+              </div>
+            </div>
             </div>
             </div> <!-- End of TAB 1: hero-tab -->
 
@@ -2460,6 +2513,13 @@
       document.getElementById("logoMobileStickVal").value = mStick;
       document.getElementById("logoMobileXVal").value = mX;
 
+      if (document.getElementById("logoDesktopSpawn2") && document.getElementById("logoDesktopSpawn2Val")) {
+        document.getElementById("logoDesktopSpawn2Val").value = document.getElementById("logoDesktopSpawn2").value;
+      }
+      if (document.getElementById("logoMobileSpawn2") && document.getElementById("logoMobileSpawn2Val")) {
+        document.getElementById("logoMobileSpawn2Val").value = document.getElementById("logoMobileSpawn2").value;
+      }
+
       // Real-time Visual Previews for Logos
       const previewDesktopContainer = document.getElementById("previewDesktopContainer");
       const previewLogoDesktop = document.getElementById("previewLogoDesktop");
@@ -2792,9 +2852,11 @@
         mobileX: 50,
         mobileY: 50,
         logoDesktopSpawn: 50,
+        logoDesktopSpawn2: 65,
         logoDesktopStick: 0,
         logoDesktopX: 0,
         logoMobileSpawn: -50,
+        logoMobileSpawn2: 50,
         logoMobileStick: 0,
         logoMobileX: -50,
         showGiftsButton: true
@@ -2860,9 +2922,11 @@
         document.getElementById("heroMobileY").value = s.mobileY !== undefined ? s.mobileY : 50;
 
         document.getElementById("logoDesktopSpawn").value = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 50;
+        document.getElementById("logoDesktopSpawn2").value = s.logoDesktopSpawn2 !== undefined ? s.logoDesktopSpawn2 : 65;
         document.getElementById("logoDesktopStick").value = s.logoDesktopStick !== undefined ? s.logoDesktopStick : 0;
         document.getElementById("logoDesktopX").value = s.logoDesktopX !== undefined ? s.logoDesktopX : 0;
         document.getElementById("logoMobileSpawn").value = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -50;
+        document.getElementById("logoMobileSpawn2").value = s.logoMobileSpawn2 !== undefined ? s.logoMobileSpawn2 : 50;
         document.getElementById("logoMobileStick").value = s.logoMobileStick !== undefined ? s.logoMobileStick : 0;
         document.getElementById("logoMobileX").value = s.logoMobileX !== undefined ? s.logoMobileX : -50;
         
@@ -2988,9 +3052,11 @@
                 mobileX: data.mobileX !== undefined ? Number(data.mobileX) : 50,
                 mobileY: data.mobileY !== undefined ? Number(data.mobileY) : 50,
                 logoDesktopSpawn: data.logoDesktopSpawn !== undefined ? Number(data.logoDesktopSpawn) : 50,
+                logoDesktopSpawn2: data.logoDesktopSpawn2 !== undefined ? Number(data.logoDesktopSpawn2) : 65,
                 logoDesktopStick: data.logoDesktopStick !== undefined ? Number(data.logoDesktopStick) : 0,
                 logoDesktopX: data.logoDesktopX !== undefined ? Number(data.logoDesktopX) : 0,
                 logoMobileSpawn: data.logoMobileSpawn !== undefined ? Number(data.logoMobileSpawn) : -50,
+                logoMobileSpawn2: data.logoMobileSpawn2 !== undefined ? Number(data.logoMobileSpawn2) : 50,
                 logoMobileStick: data.logoMobileStick !== undefined ? Number(data.logoMobileStick) : 0,
                 logoMobileX: data.logoMobileX !== undefined ? Number(data.logoMobileX) : -50,
                 showGiftsButton: data.showGiftsButton !== false
@@ -3100,9 +3166,11 @@
         mobileX: parseInt(document.getElementById("heroMobileX").value),
         mobileY: parseInt(document.getElementById("heroMobileY").value),
         logoDesktopSpawn: parseInt(document.getElementById("logoDesktopSpawn").value),
+        logoDesktopSpawn2: parseInt(document.getElementById("logoDesktopSpawn2").value),
         logoDesktopStick: parseInt(document.getElementById("logoDesktopStick").value),
         logoDesktopX: parseInt(document.getElementById("logoDesktopX").value),
         logoMobileSpawn: parseInt(document.getElementById("logoMobileSpawn").value),
+        logoMobileSpawn2: parseInt(document.getElementById("logoMobileSpawn2").value),
         logoMobileStick: parseInt(document.getElementById("logoMobileStick").value),
         logoMobileX: parseInt(document.getElementById("logoMobileX").value),
         showGiftsButton: document.getElementById("heroShowGiftsButton").checked,
@@ -3285,6 +3353,7 @@
 
       window.updateSecondHeroPreview();
     };
+
   </script>
 
   <script type="module" src="header.js"></script>
