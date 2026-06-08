@@ -531,7 +531,7 @@
       }
 
       #logo {
-        width: 88vw;
+        width: auto;
         max-width: 88vw;
         max-height: 36vh;
       }
@@ -1915,7 +1915,7 @@
 
         const floatTopViewport = topbarHeight + spawnOffset;
         const currentTopAbsolute = y + floatTopViewport;
-        const lockPt = secImgRBottom - logoHeight + stickOffset;
+        const lockPt = (secondHeroBottom + topbarHeight) - logoHeight + stickOffset;
         const shouldLockMobile = currentTopAbsolute >= lockPt;
 
         if (shouldLockMobile) {
