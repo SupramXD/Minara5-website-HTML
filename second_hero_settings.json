@@ -1,0 +1,18 @@
+{
+  "leftImage": "",
+  "rightImage": "",
+  "mobileImage": "",
+  "leftFlex": 1.3,
+  "leftScale": 1,
+  "leftX": 50,
+  "leftY": 50,
+  "rightScale": 1,
+  "rightX": 50,
+  "rightY": 50,
+  "desktopHeight": "80vh",
+  "mobileHeight": "auto",
+  "mobileScale": 1,
+  "mobileX": 50,
+  "mobileY": 50,
+  "timestamp": "2026-06-08T18:00:00.000Z"
+}

@@ -295,6 +295,54 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
       await writeFileToGitHub("hero_settings.json", updatedJsonBase64, "Update hero section settings", settingsSha, token);
 
       return {success: true, message: "Hero settings synced to GitHub."};
+    } else if (action === "saveSecondHero") {
+      const settingsData = payload;
+      const {leftImage, rightImage, mobileImage} = settingsData;
+
+      if (leftImage && leftImage.startsWith("data:image/")) {
+        const parts = leftImage.split(";base64,");
+        const mimeType = parts[0].split(":")[1];
+        const base64Data = parts[1];
+        const ext = mimeType.split("/")[1] || "webp";
+
+        const path = `images/second-hero/left.${ext}`;
+        const {sha: imgSha} = await getFileShaAndContent(path, token);
+        await writeFileToGitHub(path, base64Data, "Update left second hero image", imgSha, token);
+        settingsData.leftImage = path;
+      }
+
+      if (rightImage && rightImage.startsWith("data:image/")) {
+        const parts = rightImage.split(";base64,");
+        const mimeType = parts[0].split(":")[1];
+        const base64Data = parts[1];
+        const ext = mimeType.split("/")[1] || "webp";
+
+        const path = `images/second-hero/right.${ext}`;
+        const {sha: imgSha} = await getFileShaAndContent(path, token);
+        await writeFileToGitHub(path, base64Data, "Update right second hero image", imgSha, token);
+        settingsData.rightImage = path;
+      }
+
+      if (mobileImage && mobileImage.startsWith("data:image/")) {
+        const parts = mobileImage.split(";base64,");
+        const mimeType = parts[0].split(":")[1];
+        const base64Data = parts[1];
+        const ext = mimeType.split("/")[1] || "webp";
+
+        const path = `images/second-hero/mobile.${ext}`;
+        const {sha: imgSha} = await getFileShaAndContent(path, token);
+        await writeFileToGitHub(path, base64Data, "Update mobile second hero image", imgSha, token);
+        settingsData.mobileImage = path;
+      }
+
+      const {sha: settingsSha} = await getFileShaAndContent("second_hero_settings.json", token);
+
+      const updatedJsonStr = JSON.stringify(settingsData, null, 2);
+      const updatedJsonBase64 = Buffer.from(updatedJsonStr, "utf-8").toString("base64");
+
+      await writeFileToGitHub("second_hero_settings.json", updatedJsonBase64, "Update second hero section settings", settingsSha, token);
+
+      return {success: true, message: "Second hero settings synced to GitHub."};
     } else {
       throw new HttpsError("invalid-argument", `Action ${action} is not supported.`);
     }

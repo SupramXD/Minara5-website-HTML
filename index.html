@@ -1206,6 +1206,15 @@
         if (cached) {
           s = Object.assign({}, s, JSON.parse(cached));
         }
+
+        const cachedSec = localStorage.getItem("minara_second_hero_settings");
+        let sSec = {
+          desktopHeight: "80vh",
+          mobileHeight: "auto"
+        };
+        if (cachedSec) {
+          sSec = Object.assign({}, sSec, JSON.parse(cachedSec));
+        }
         
         const isMobile = window.innerWidth <= 900;
         let topVal = "0px";
@@ -1232,6 +1241,9 @@
             position: ${positionVal};
             top: ${topVal};
             transform: ${transformVal};
+          }
+          #secondHero {
+            height: ${isMobile ? (sSec.mobileHeight === "auto" ? "180px" : sSec.mobileHeight) : (sSec.desktopHeight || "80vh")};
           }
         `;
         document.head.appendChild(style);
@@ -1473,6 +1485,139 @@
       
       applyHeroSettings();
     })();
+
+    // SECOND HERO LAYOUT CONTROLLER
+    (function() {
+      let settings = {
+        leftImage: "",
+        rightImage: "",
+        mobileImage: "",
+        leftFlex: 1.3,
+        leftScale: 1.0,
+        leftX: 50,
+        leftY: 50,
+        rightScale: 1.0,
+        rightX: 50,
+        rightY: 50,
+        desktopHeight: "80vh",
+        mobileHeight: "auto",
+        mobileScale: 1.0,
+        mobileX: 50,
+        mobileY: 50
+      };
+
+      try {
+        const cached = localStorage.getItem("minara_second_hero_settings");
+        if (cached) {
+          settings = Object.assign({}, settings, JSON.parse(cached));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+
+      window.secondHeroSettings = settings;
+
+      function applySecondHeroSettings() {
+        const isMobile = window.matchMedia("(max-width: 900px)").matches;
+        const imgL = document.getElementById("secImgL");
+        const imgR = document.getElementById("secImgR");
+        const hero = document.getElementById("secondHero");
+        const imgRWrapper = document.getElementById("secImgRWrapper");
+
+        if (!imgL || !imgR || !hero) return;
+
+        const hasLeft = !!settings.leftImage;
+        const hasRight = !!settings.rightImage;
+        const hasMobile = !!settings.mobileImage;
+
+        if (isMobile) {
+          if (hasMobile) {
+            imgR.src = settings.mobileImage;
+            imgR.style.display = "block";
+            if (imgRWrapper) imgRWrapper.style.display = "block";
+          } else {
+            imgR.style.display = "none";
+            if (imgRWrapper) imgRWrapper.style.display = "none";
+          }
+          imgL.style.display = "none";
+          
+          if (settings.mobileHeight === "auto") {
+            hero.style.height = hasMobile ? "auto" : "180px";
+            if (imgRWrapper) {
+              imgRWrapper.style.height = "auto";
+              imgRWrapper.style.flex = "";
+            }
+            imgR.style.height = "auto";
+            imgR.style.width = "100%";
+            imgR.style.objectFit = "cover";
+          } else {
+            hero.style.height = settings.mobileHeight;
+            if (imgRWrapper) {
+              imgRWrapper.style.height = "100%";
+              imgRWrapper.style.flex = "";
+            }
+            imgR.style.height = "100%";
+            imgR.style.width = "100%";
+            imgR.style.objectFit = "cover";
+          }
+          
+          imgR.style.transform = `scale(${settings.mobileScale || 1.0})`;
+          imgR.style.objectPosition = `${settings.mobileX || 50}% ${settings.mobileY || 50}%`;
+          imgR.style.transformOrigin = `${settings.mobileX || 50}% ${settings.mobileY || 50}%`;
+        } else {
+          if (hasLeft) {
+            imgL.src = settings.leftImage;
+            imgL.style.display = "block";
+          } else {
+            imgL.style.display = "none";
+          }
+          if (hasRight) {
+            imgR.src = settings.rightImage;
+            imgR.style.display = "block";
+            if (imgRWrapper) imgRWrapper.style.display = "block";
+          } else {
+            imgR.style.display = "none";
+            if (imgRWrapper) imgRWrapper.style.display = "none";
+          }
+
+          hero.style.height = settings.desktopHeight || "80vh";
+          
+          const leftFlex = settings.leftFlex !== undefined ? parseFloat(settings.leftFlex) : 1.3;
+          const rightFlex = 2.0 - leftFlex;
+          
+          imgL.style.flex = leftFlex;
+          if (imgRWrapper) {
+            imgRWrapper.style.flex = rightFlex;
+            imgRWrapper.style.height = "100%";
+          }
+
+          imgL.style.transform = `scale(${settings.leftScale || 1.0})`;
+          imgL.style.objectPosition = `${settings.leftX || 50}% ${settings.leftY || 50}%`;
+          imgL.style.transformOrigin = `${settings.leftX || 50}% ${settings.leftY || 50}%`;
+
+          imgR.style.transform = `scale(${settings.rightScale || 1.0})`;
+          imgR.style.objectPosition = `${settings.rightX || 50}% ${settings.rightY || 50}%`;
+          imgR.style.transformOrigin = `${settings.rightX || 50}% ${settings.rightY || 50}%`;
+          imgR.style.height = "100%";
+          imgR.style.width = "100%";
+          imgR.style.objectFit = "cover";
+        }
+      }
+
+      window.addEventListener("resize", applySecondHeroSettings);
+      document.addEventListener("DOMContentLoaded", applySecondHeroSettings);
+      
+      window.applySecondHeroSettings = function(newSettings) {
+        settings = Object.assign({}, settings, newSettings);
+        window.secondHeroSettings = settings;
+        applySecondHeroSettings();
+        if (typeof window.updateLogoPosition === 'function') {
+          window.updateLogoPosition();
+        }
+      };
+      
+      applySecondHeroSettings();
+    })();
   </script>
 
   <section class="home-products-section">
@@ -1520,7 +1665,7 @@
     </div>
   </section>
 
-  <section class="brand-section">
+  <section class="brand-section" style="padding-bottom: 40px;">
     <h2 class="brand-title">The-Perfume-House</h2>
 
     <div class="brand-body luxury-text">
@@ -1543,6 +1688,17 @@
       it is inhaled, remembered, and feared.
 
     </div>
+  </section>
+
+  <!-- SECOND HERO IMAGE SECTION -->
+  <section id="secondHero" class="hero" style="background: #000; position: relative; width: 100vw; display: flex; overflow: hidden; margin-top: 0; margin-bottom: 0;">
+    <img id="secImgL" style="height: 100%; object-fit: cover; transition: opacity .3s ease; display: none;">
+    <div id="secImgRWrapper" style="position:relative; flex: 0.7; height: 100%; display: none;">
+      <img id="secImgR" style="width:100%; height:100%; object-fit:cover;">
+    </div>
+  </section>
+
+  <section class="brand-section" style="padding-top: 40px; padding-bottom: 110px;">
 
     <!-- DESKTOP NEWSLETTER SIGNUP -->
     <div class="desktop-signup-container" style="margin-top: 50px; max-width: 500px; text-align: left;">
@@ -1634,6 +1790,8 @@
     (function () {
       const hero = document.getElementById('hero');
       const imgR = document.getElementById('imgR');
+      const secondHero = document.getElementById('secondHero');
+      const secImgR = document.getElementById('secImgR');
       const bagsBtn = document.getElementById('bagsBtn');
       const logo = document.getElementById('logo');
       const topbar = document.getElementById('topbar');
@@ -1641,6 +1799,8 @@
       // CACHED DIMENSIONS AND STATES
       let heroBottom = 0;
       let imgRBottom = 0;
+      let secondHeroBottom = 0;
+      let secImgRBottom = 0;
       let bagsBtnHeight = 0;
       let logoHeight = 0;
       let topbarHeight = 45; // Default header height
@@ -1652,13 +1812,16 @@
       let lastLogoState = "";    // "fixed" or "absolute"
 
       function measure() {
-        if (!hero || !imgR) return;
+        if (!hero || !imgR || !secondHero || !secImgR) return;
         
         mobileView = window.innerWidth <= 900;
         
         // Measure heights/positions
         heroBottom = hero.offsetTop + hero.offsetHeight - 45;
         imgRBottom = window.scrollY + imgR.getBoundingClientRect().bottom;
+
+        secondHeroBottom = secondHero.offsetTop + secondHero.offsetHeight - 45;
+        secImgRBottom = window.scrollY + secImgR.getBoundingClientRect().bottom;
         
         if (bagsBtn) {
           bagsBtnHeight = bagsBtn.offsetHeight;
@@ -1682,7 +1845,7 @@
           const bottom = y + fixedOffset + bagsBtnHeight;
           const shouldBeAbsolute = bottom >= heroBottom + 45;
 
-          // 1. bagsBtn styling guard
+          // 1. bagsBtn styling guard (locks at first hero bottom)
           if (shouldBeAbsolute) {
             if (lastBagsBtnState !== "absolute") {
               bagsBtn.style.position = 'absolute';
@@ -1697,18 +1860,18 @@
             }
           }
 
-          // 2. logo styling guard
+          // 2. logo styling guard (locks at bottom of SECOND hero)
           const spawnPercent = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 44;
           const stickOffset = s.logoDesktopStick !== undefined ? s.logoDesktopStick : -34;
           const dX = s.logoDesktopX !== undefined ? s.logoDesktopX : 0;
 
           const spawnY = windowHeight * (spawnPercent / 100);
-          const shouldLock = y + spawnY + logoHeight / 2 + stickOffset >= heroBottom;
+          const shouldLock = y + spawnY + logoHeight / 2 + stickOffset >= secondHeroBottom;
 
           if (shouldLock) {
             if (lastLogoState !== "absolute") {
               logo.style.position = 'absolute';
-              logo.style.top = (heroBottom - logoHeight) + 'px';
+              logo.style.top = (secondHeroBottom - logoHeight) + 'px';
               logo.style.transform = `translate3d(calc(-50% + ${dX}px), 0, 0)`;
               lastLogoState = "absolute";
             }
@@ -1737,7 +1900,7 @@
 
         const floatTopViewport = topbarHeight + spawnOffset;
         const currentTopAbsolute = y + floatTopViewport;
-        const lockPt = imgRBottom - logoHeight + stickOffset;
+        const lockPt = secImgRBottom - logoHeight + stickOffset;
         const shouldLockMobile = currentTopAbsolute >= lockPt;
 
         if (shouldLockMobile) {
@@ -2225,6 +2388,40 @@
           }
         } catch (err) {
           console.warn("Failed to fetch live hero settings:", err);
+        }
+      }, 0);
+
+      // Fetch second hero settings from second_hero_settings.json in background
+      setTimeout(async () => {
+        try {
+          const response = await fetch("second_hero_settings.json?t=" + Date.now());
+          if (!response.ok) {
+            throw new Error(`Failed to fetch second_hero_settings.json: Status ${response.status}`);
+          }
+          const data = await response.json();
+          const liveSettings = {
+            leftImage: data.leftImage || "",
+            rightImage: data.rightImage || "",
+            mobileImage: data.mobileImage || "",
+            leftFlex: data.leftFlex !== undefined ? Number(data.leftFlex) : 1.3,
+            leftScale: data.leftScale !== undefined ? Number(data.leftScale) : 1.0,
+            leftX: data.leftX !== undefined ? Number(data.leftX) : 50,
+            leftY: data.leftY !== undefined ? Number(data.leftY) : 50,
+            rightScale: data.rightScale !== undefined ? Number(data.rightScale) : 1.0,
+            rightX: data.rightX !== undefined ? Number(data.rightX) : 50,
+            rightY: data.rightY !== undefined ? Number(data.rightY) : 50,
+            desktopHeight: data.desktopHeight || "80vh",
+            mobileHeight: data.mobileHeight || "auto",
+            mobileScale: data.mobileScale !== undefined ? Number(data.mobileScale) : 1.0,
+            mobileX: data.mobileX !== undefined ? Number(data.mobileX) : 50,
+            mobileY: data.mobileY !== undefined ? Number(data.mobileY) : 50
+          };
+          localStorage.setItem("minara_second_hero_settings", JSON.stringify(liveSettings));
+          if (window.applySecondHeroSettings) {
+            window.applySecondHeroSettings(liveSettings);
+          }
+        } catch (err) {
+          console.warn("Failed to fetch live second hero settings:", err);
         }
       }, 0);
 

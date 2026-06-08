@@ -1026,7 +1026,188 @@
                     </div>
                   </div>
                 </div>
+            </div>
+
+            <!-- SECOND HERO IMAGE & CUSTOMIZATION EDITOR -->
+            <div class="console-panel full-width-panel" style="margin-bottom: 30px; margin-top: 30px;">
+              <div class="panel-header">
+                <h2 class="panel-title">Second Hero Section Media & Layout Settings</h2>
+                <span class="stat-label" style="font-size: 10px;">Visual Editor</span>
               </div>
+
+              <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px;">
+                <!-- Visual Editor Controls -->
+                <div>
+                  <form id="secondHeroSettingsForm" onsubmit="handleSaveSecondHeroSettings(event)">
+                    <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 15px;">1. Second Hero Image Sources</h3>
+                    
+                    <div class="form-group">
+                      <label for="secHeroLeftImage">Desktop Left Image (Path or URL)</label>
+                      <input type="text" id="secHeroLeftImage" class="form-input" placeholder="e.g. images/second-hero/left.webp">
+                      <div style="margin: 5px 0; font-size: 10px; opacity: 0.5;">— OR UPLOAD FILE —</div>
+                      <input type="file" id="secHeroLeftFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="secHeroRightImage">Desktop Right Image (Path or URL)</label>
+                      <input type="text" id="secHeroRightImage" class="form-input" placeholder="e.g. images/second-hero/right.webp">
+                      <div style="margin: 5px 0; font-size: 10px; opacity: 0.5;">— OR UPLOAD FILE —</div>
+                      <input type="file" id="secHeroRightFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="secHeroMobileImage">Mobile Hero Image (Path or URL)</label>
+                      <input type="text" id="secHeroMobileImage" class="form-input" placeholder="e.g. images/second-hero/mobile.webp">
+                      <div style="margin: 5px 0; font-size: 10px; opacity: 0.5;">— OR UPLOAD FILE —</div>
+                      <input type="file" id="secHeroMobileFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                    </div>
+
+                    <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-top: 25px; margin-bottom: 15px;">2. Desktop Image Split & Space Crop</h3>
+                    
+                    <div class="form-group">
+                      <label for="secHeroLeftFlex">Desktop Width Split Ratio (Left Image width vs Right Image width)</label>
+                      <div style="display: flex; align-items: center; gap: 15px;">
+                        <input type="range" id="secHeroLeftFlex" min="0.4" max="1.6" step="0.01" value="1.3" style="flex: 1;" oninput="document.getElementById('secHeroLeftFlexVal').value = Number(this.value).toFixed(2); updateSecondHeroPreview();">
+                        <input type="number" id="secHeroLeftFlexVal" min="0.4" max="1.6" step="0.01" value="1.30" style="width: 65px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; font-family: monospace; font-size: 12px; text-align: right;" oninput="document.getElementById('secHeroLeftFlex').value = this.value; updateSecondHeroPreview();">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="secHeroDesktopHeight">Desktop Hero Container Height (Crop)</label>
+                      <select id="secHeroDesktopHeight" class="form-input" style="background:#1a1a24; color: #fff;" onchange="updateSecondHeroPreview()">
+                        <option value="90vh">90vh (Default Tall)</option>
+                        <option value="80vh">80vh (Slight crop)</option>
+                        <option value="70vh">70vh (Classic Editorial)</option>
+                        <option value="60vh">60vh (Sleek Horizontal Banner)</option>
+                        <option value="50vh">50vh (Cinematic Banner)</option>
+                        <option value="40vh">40vh (Thin Banner)</option>
+                        <option value="400px">400px (Fixed Height)</option>
+                        <option value="500px">500px (Fixed Height)</option>
+                      </select>
+                    </div>
+
+                    <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #fff; margin-top: 15px; margin-bottom: 10px;">Left Image Alignments (Desktop)</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Zoom (Scale)</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="secHeroLeftScale" min="1.0" max="3.0" step="0.01" value="1.0" style="flex: 1;" oninput="document.getElementById('secHeroLeftScaleNum').value = Number(this.value).toFixed(2); updateSecondHeroPreview();">
+                          <input type="number" id="secHeroLeftScaleNum" min="1.0" max="3.0" step="0.01" value="1.00" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('secHeroLeftScale').value = this.value; updateSecondHeroPreview();">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Align X (%)</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="secHeroLeftX" min="0" max="100" step="1" value="50" style="flex: 1;" oninput="document.getElementById('secHeroLeftXNum').value = this.value; updateSecondHeroPreview();">
+                          <input type="number" id="secHeroLeftXNum" min="0" max="100" step="1" value="50" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('secHeroLeftX').value = this.value; updateSecondHeroPreview();">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Align Y (%)</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="secHeroLeftY" min="0" max="100" step="1" value="50" style="flex: 1;" oninput="document.getElementById('secHeroLeftYNum').value = this.value; updateSecondHeroPreview();">
+                          <input type="number" id="secHeroLeftYNum" min="0" max="100" step="1" value="50" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('secHeroLeftY').value = this.value; updateSecondHeroPreview();">
+                        </div>
+                      </div>
+                    </div>
+
+                    <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #fff; margin-top: 15px; margin-bottom: 10px;">Right Image Alignments (Desktop)</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Zoom (Scale)</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="secHeroRightScale" min="1.0" max="3.0" step="0.01" value="1.0" style="flex: 1;" oninput="document.getElementById('secHeroRightScaleNum').value = Number(this.value).toFixed(2); updateSecondHeroPreview();">
+                          <input type="number" id="secHeroRightScaleNum" min="1.0" max="3.0" step="0.01" value="1.00" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('secHeroRightScale').value = this.value; updateSecondHeroPreview();">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Align X (%)</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="secHeroRightX" min="0" max="100" step="1" value="50" style="flex: 1;" oninput="document.getElementById('secHeroRightXNum').value = this.value; updateSecondHeroPreview();">
+                          <input type="number" id="secHeroRightXNum" min="0" max="100" step="1" value="50" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('secHeroRightX').value = this.value; updateSecondHeroPreview();">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Align Y (%)</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="secHeroRightY" min="0" max="100" step="1" value="50" style="flex: 1;" oninput="document.getElementById('secHeroRightYNum').value = this.value; updateSecondHeroPreview();">
+                          <input type="number" id="secHeroRightYNum" min="0" max="100" step="1" value="50" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('secHeroRightY').value = this.value; updateSecondHeroPreview();">
+                        </div>
+                      </div>
+                    </div>
+
+                    <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-top: 25px; margin-bottom: 15px;">3. Mobile Adjustments</h3>
+                    
+                    <div class="form-group">
+                      <label for="secHeroMobileHeight">Mobile Container Crop Height</label>
+                      <select id="secHeroMobileHeight" class="form-input" style="background:#1a1a24; color: #fff;" onchange="updateSecondHeroPreview()">
+                        <option value="auto">Auto (Full Height aspect-ratio)</option>
+                        <option value="180px">180px (Ultra Thin Banner)</option>
+                        <option value="220px">220px (Thin Banner)</option>
+                        <option value="260px">260px (Sleek Banner)</option>
+                        <option value="300px">300px (Sleek Crop)</option>
+                        <option value="350px">350px (Medium Crop)</option>
+                        <option value="400px">400px (Large Crop)</option>
+                        <option value="30vh">30vh (Sleek Banner)</option>
+                        <option value="40vh">40vh (Medium Banner)</option>
+                        <option value="50vh">50vh (Tall Banner)</option>
+                      </select>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Zoom (Scale)</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="secHeroMobileScale" min="1.0" max="3.0" step="0.01" value="1.0" style="flex: 1;" oninput="document.getElementById('secHeroMobileScaleNum').value = Number(this.value).toFixed(2); updateSecondHeroPreview();">
+                          <input type="number" id="secHeroMobileScaleNum" min="1.0" max="3.0" step="0.01" value="1.00" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('secHeroMobileScale').value = this.value; updateSecondHeroPreview();">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Align X (%)</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="secHeroMobileX" min="0" max="100" step="1" value="50" style="flex: 1;" oninput="document.getElementById('secHeroMobileXNum').value = this.value; updateSecondHeroPreview();">
+                          <input type="number" id="secHeroMobileXNum" min="0" max="100" step="1" value="50" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('secHeroMobileX').value = this.value; updateSecondHeroPreview();">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label style="font-size: 9px; opacity: 0.7;">Align Y (%)</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <input type="range" id="secHeroMobileY" min="0" max="100" step="1" value="50" style="flex: 1;" oninput="document.getElementById('secHeroMobileYNum').value = this.value; updateSecondHeroPreview();">
+                          <input type="number" id="secHeroMobileYNum" min="0" max="100" step="1" value="50" style="width: 55px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 2px; font-family: monospace; font-size: 11px; text-align: right;" oninput="document.getElementById('secHeroMobileY').value = this.value; updateSecondHeroPreview();">
+                        </div>
+                      </div>
+                    </div>
+
+                    <button type="submit" class="btn-action accent-btn" style="width: 100%; padding: 14px; margin-top: 25px; font-weight: bold;">Publish Second Hero Configuration</button>
+                  </form>
+                </div>
+
+                <!-- Previews -->
+                <div style="border-left: 1px solid var(--border-color); padding-left: 30px; display: flex; flex-direction: column; gap: 30px;">
+                  <div>
+                    <h3 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px;">Desktop Real-Time Preview</h3>
+                    <div id="previewSecDesktopContainer" style="width: 100%; height: 180px; background: #000; display: flex; overflow: hidden; border: 1px solid var(--border-color); position: relative;">
+                      <img id="previewSecImgL" src="" style="height: 100%; object-fit: cover; transition: none; display: none;">
+                      <div id="previewSecImgRParent" style="position: relative; height: 100%; overflow: hidden; display: none;">
+                        <img id="previewSecImgR" src="" style="width: 100%; height: 100%; object-fit: cover; transition: none; display: block;">
+                      </div>
+                      <!-- Indicator overlay when empty -->
+                      <div id="previewSecEmptyIndicator" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; pointer-events: none;">[ Blank Second Hero Section ]</div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px;">Mobile Real-Time Preview</h3>
+                    <div style="width: 140px; margin: 0 auto; background: #0a0a0c; border: 1px solid var(--border-color); padding: 6px; border-radius: 8px;">
+                      <div id="previewSecMobileContainer" style="width: 100%; overflow: hidden; background: #000; position: relative;">
+                        <img id="previewSecImgMobile" src="" style="width: 100%; display: none; transition: none;">
+                        <div id="previewSecEmptyMobileIndicator" style="height: 70px; display: flex; align-items: center; justify-content: center; font-size: 7px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; text-align: center; pointer-events: none;">[ Blank Mobile Hero ]</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             </div>
             </div> <!-- End of TAB 1: hero-tab -->
 
@@ -2577,17 +2758,19 @@
           previewMobileContainer.style.height = "auto";
           previewImgMobile.style.height = "auto";
           previewImgMobile.style.objectFit = "fill";
+          previewSecMobileContainer.style.height = hasMobile ? "auto" : "70px";
+          previewSecImgMobile.style.height = "auto";
+          previewSecImgMobile.style.objectFit = "fill";
         } else {
           const pixelVal = parseInt(mobileHeight);
           const previewHeight = Math.round(pixelVal * 0.46) + "px";
-          previewMobileContainer.style.height = previewHeight;
-          previewImgMobile.style.height = "100%";
-          previewImgMobile.style.objectFit = "cover";
+          previewSecMobileContainer.style.height = previewHeight;
+          previewSecImgMobile.style.height = "100%";
+          previewSecImgMobile.style.objectFit = "cover";
         }
       }
-
-      if (typeof window.updateLogoSliders === "function") {
-        window.updateLogoSliders();
+      if (emptyMobileIndicator) {
+        emptyMobileIndicator.style.display = hasMobile ? "none" : "flex";
       }
     };
 
@@ -2617,6 +2800,24 @@
         showGiftsButton: true
       };
 
+      let secondHeroSettings = {
+        leftImage: "",
+        rightImage: "",
+        mobileImage: "",
+        leftFlex: 1.3,
+        leftScale: 1.0,
+        leftX: 50,
+        leftY: 50,
+        rightScale: 1.0,
+        rightX: 50,
+        rightY: 50,
+        desktopHeight: "80vh",
+        mobileHeight: "auto",
+        mobileScale: 1.0,
+        mobileX: 50,
+        mobileY: 50
+      };
+
       try {
         const cached = localStorage.getItem("minara_hero_settings");
         if (cached) {
@@ -2624,6 +2825,15 @@
         }
       } catch (e) {
         console.error("Failed to load local hero cache:", e);
+      }
+
+      try {
+        const cachedSec = localStorage.getItem("minara_second_hero_settings");
+        if (cachedSec) {
+          secondHeroSettings = { ...secondHeroSettings, ...JSON.parse(cachedSec) };
+        }
+      } catch (e) {
+        console.error("Failed to load local second hero cache:", e);
       }
 
       const populateFields = (s) => {
@@ -2672,51 +2882,83 @@
         window.updateHeroPreview();
       };
 
+      const populateSecondFields = (s) => {
+        if (!document.getElementById("secHeroLeftImage")) return;
+        document.getElementById("secHeroLeftImage").value = s.leftImage || "";
+        document.getElementById("secHeroRightImage").value = s.rightImage || "";
+        document.getElementById("secHeroMobileImage").value = s.mobileImage || "";
+        
+        document.getElementById("secHeroLeftFlex").value = s.leftFlex !== undefined ? s.leftFlex : 1.3;
+        document.getElementById("secHeroLeftScale").value = s.leftScale !== undefined ? s.leftScale : 1.0;
+        document.getElementById("secHeroLeftX").value = s.leftX !== undefined ? s.leftX : 50;
+        document.getElementById("secHeroLeftY").value = s.leftY !== undefined ? s.leftY : 50;
+        
+        document.getElementById("secHeroRightScale").value = s.rightScale !== undefined ? s.rightScale : 1.0;
+        document.getElementById("secHeroRightX").value = s.rightX !== undefined ? s.rightX : 50;
+        document.getElementById("secHeroRightY").value = s.rightY !== undefined ? s.rightY : 50;
+        
+        document.getElementById("secHeroDesktopHeight").value = s.desktopHeight || "80vh";
+        document.getElementById("secHeroMobileHeight").value = s.mobileHeight || "auto";
+        document.getElementById("secHeroMobileScale").value = s.mobileScale !== undefined ? s.mobileScale : 1.0;
+        document.getElementById("secHeroMobileX").value = s.mobileX !== undefined ? s.mobileX : 50;
+        document.getElementById("secHeroMobileY").value = s.mobileY !== undefined ? s.mobileY : 50;
+
+        const previewSecL = document.getElementById("previewSecImgL");
+        if (previewSecL) previewSecL.src = s.leftImage || "";
+        const previewSecR = document.getElementById("previewSecImgR");
+        if (previewSecR) previewSecR.src = s.rightImage || "";
+        const previewSecM = document.getElementById("previewSecImgMobile");
+        if (previewSecM) previewSecM.src = s.mobileImage || "";
+
+        window.updateSecondHeroPreview();
+      };
+
       populateFields(settings);
+      populateSecondFields(secondHeroSettings);
 
-      // Listeners for file changes
-      const fileL = document.getElementById("heroLeftFile");
-      if (fileL) {
-        fileL.addEventListener("change", function(ev) {
+      // Listeners for second hero file changes
+      const secFileL = document.getElementById("secHeroLeftFile");
+      if (secFileL) {
+        secFileL.addEventListener("change", function(ev) {
           const file = ev.target.files[0];
           if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-              const previewL = document.getElementById("previewImgL");
+              const previewL = document.getElementById("previewSecImgL");
               if (previewL) previewL.src = e.target.result;
-              window.updateHeroPreview();
+              window.updateSecondHeroPreview();
             };
             reader.readAsDataURL(file);
           }
         });
       }
 
-      const fileR = document.getElementById("heroRightFile");
-      if (fileR) {
-        fileR.addEventListener("change", function(ev) {
+      const secFileR = document.getElementById("secHeroRightFile");
+      if (secFileR) {
+        secFileR.addEventListener("change", function(ev) {
           const file = ev.target.files[0];
           if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-              const previewR = document.getElementById("previewImgR");
+              const previewR = document.getElementById("previewSecImgR");
               if (previewR) previewR.src = e.target.result;
-              window.updateHeroPreview();
+              window.updateSecondHeroPreview();
             };
             reader.readAsDataURL(file);
           }
         });
       }
 
-      const fileM = document.getElementById("heroMobileFile");
-      if (fileM) {
-        fileM.addEventListener("change", function(ev) {
+      const secFileM = document.getElementById("secHeroMobileFile");
+      if (secFileM) {
+        secFileM.addEventListener("change", function(ev) {
           const file = ev.target.files[0];
           if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-              const previewM = document.getElementById("previewImgMobile");
+              const previewM = document.getElementById("previewSecImgMobile");
               if (previewM) previewM.src = e.target.result;
-              window.updateHeroPreview();
+              window.updateSecondHeroPreview();
             };
             reader.readAsDataURL(file);
           }
@@ -2758,6 +3000,34 @@
             }
           } catch (err) {
             console.warn("Failed to fetch live hero settings:", err);
+          }
+
+          try {
+            const docSnap = await window.dbGetDoc(window.dbDoc(window.db, "settings", "second_hero"));
+            if (docSnap.exists()) {
+              const data = docSnap.data();
+              const liveSettings = {
+                leftImage: data.leftImage || "",
+                rightImage: data.rightImage || "",
+                mobileImage: data.mobileImage || "",
+                leftFlex: data.leftFlex !== undefined ? Number(data.leftFlex) : 1.3,
+                leftScale: data.leftScale !== undefined ? Number(data.leftScale) : 1.0,
+                leftX: data.leftX !== undefined ? Number(data.leftX) : 50,
+                leftY: data.leftY !== undefined ? Number(data.leftY) : 50,
+                rightScale: data.rightScale !== undefined ? Number(data.rightScale) : 1.0,
+                rightX: data.rightX !== undefined ? Number(data.rightX) : 50,
+                rightY: data.rightY !== undefined ? Number(data.rightY) : 50,
+                desktopHeight: data.desktopHeight || "80vh",
+                mobileHeight: data.mobileHeight || "auto",
+                mobileScale: data.mobileScale !== undefined ? Number(data.mobileScale) : 1.0,
+                mobileX: data.mobileX !== undefined ? Number(data.mobileX) : 50,
+                mobileY: data.mobileY !== undefined ? Number(data.mobileY) : 50
+              };
+              localStorage.setItem("minara_second_hero_settings", JSON.stringify(liveSettings));
+              populateSecondFields(liveSettings);
+            }
+          } catch (err) {
+            console.warn("Failed to fetch live second hero settings:", err);
           }
         }
       }, 0);
@@ -2891,6 +3161,129 @@
       if (previewM) previewM.src = mobileImage;
 
       window.updateHeroPreview();
+    };
+
+    window.handleSaveSecondHeroSettings = async function(e) {
+      e.preventDefault();
+      
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn ? submitBtn.innerHTML : "";
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "PUBLISHING SECOND HERO...";
+      }
+
+      const leftImageText = document.getElementById("secHeroLeftImage").value.trim();
+      const rightImageText = document.getElementById("secHeroRightImage").value.trim();
+      const mobileImageText = document.getElementById("secHeroMobileImage").value.trim();
+
+      const leftFile = document.getElementById("secHeroLeftFile").files[0];
+      const rightFile = document.getElementById("secHeroRightFile").files[0];
+      const mobileFile = document.getElementById("secHeroMobileFile").files[0];
+
+      let leftImage = leftImageText || "";
+      let rightImage = rightImageText || "";
+      let mobileImage = mobileImageText || "";
+
+      try {
+        if (leftFile) {
+          leftImage = await compressImage(leftFile, 1200, 0.70);
+        } else if (leftImageText && !leftImageText.startsWith("data:")) {
+          try {
+            leftImage = await compressUrlOrPath(leftImageText, 1200, 0.70);
+          } catch (ex) {}
+        }
+        
+        if (rightFile) {
+          rightImage = await compressImage(rightFile, 1200, 0.70);
+        } else if (rightImageText && !rightImageText.startsWith("data:")) {
+          try {
+            rightImage = await compressUrlOrPath(rightImageText, 1200, 0.70);
+          } catch (ex) {}
+        }
+
+        if (mobileFile) {
+          mobileImage = await compressImage(mobileFile, 800, 0.65);
+        } else if (mobileImageText && !mobileImageText.startsWith("data:")) {
+          try {
+            mobileImage = await compressUrlOrPath(mobileImageText, 800, 0.65);
+          } catch (ex) {}
+        }
+      } catch (err) {
+        console.error("Error compressing second hero image:", err);
+      }
+
+      const settingsData = {
+        leftImage: leftImage,
+        rightImage: rightImage,
+        mobileImage: mobileImage,
+        leftFlex: parseFloat(document.getElementById("secHeroLeftFlex").value),
+        leftScale: parseFloat(document.getElementById("secHeroLeftScale").value),
+        leftX: parseInt(document.getElementById("secHeroLeftX").value),
+        leftY: parseInt(document.getElementById("secHeroLeftY").value),
+        rightScale: parseFloat(document.getElementById("secHeroRightScale").value),
+        rightX: parseInt(document.getElementById("secHeroRightX").value),
+        rightY: parseInt(document.getElementById("secHeroRightY").value),
+        desktopHeight: document.getElementById("secHeroDesktopHeight").value,
+        mobileHeight: document.getElementById("secHeroMobileHeight").value,
+        mobileScale: parseFloat(document.getElementById("secHeroMobileScale").value),
+        mobileX: parseInt(document.getElementById("secHeroMobileX").value),
+        mobileY: parseInt(document.getElementById("secHeroMobileY").value),
+        timestamp: new Date().toISOString()
+      };
+
+      localStorage.setItem("minara_second_hero_settings", JSON.stringify(settingsData));
+
+      let firestoreSuccess = false;
+      let errorMsg = "";
+
+      if (window.db && window.dbDoc && window.dbSetDoc) {
+        try {
+          await window.dbSetDoc(window.dbDoc(window.db, "settings", "second_hero"), settingsData);
+          firestoreSuccess = true;
+        } catch (dbErr) {
+          errorMsg = dbErr.message || dbErr;
+          console.error("Firestore second hero settings save failed:", dbErr);
+        }
+      }
+
+      // Sync second hero settings to GitHub static repo
+      if (firestoreSuccess && window.syncToGithubCallable) {
+        try {
+          await window.syncToGithubCallable({
+            action: "saveSecondHero",
+            payload: settingsData
+          });
+          console.log("GitHub second hero settings sync successful.");
+        } catch (gitHubErr) {
+          console.error("Failed to sync second hero settings to GitHub:", gitHubErr);
+          alert("Warning: Second hero settings saved to database, but GitHub sync failed: " + (gitHubErr.message || gitHubErr));
+        }
+      }
+
+      document.getElementById("secHeroLeftFile").value = "";
+      document.getElementById("secHeroRightFile").value = "";
+      document.getElementById("secHeroMobileFile").value = "";
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+
+      if (firestoreSuccess) {
+        alert("Success! Second Hero section settings published and synchronized.");
+      } else {
+        alert("Warning: Second Hero settings saved locally, but failed to sync online.\nError: " + errorMsg);
+      }
+
+      const previewSecL = document.getElementById("previewSecImgL");
+      if (previewSecL) previewSecL.src = leftImage;
+      const previewSecR = document.getElementById("previewSecImgR");
+      if (previewSecR) previewSecR.src = rightImage;
+      const previewSecM = document.getElementById("previewSecImgMobile");
+      if (previewSecM) previewSecM.src = mobileImage;
+
+      window.updateSecondHeroPreview();
     };
   </script>
 
