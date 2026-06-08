@@ -1,7 +1,7 @@
 {
-  "leftImage": "images/second-hero/left.webp",
-  "rightImage": "images/second-hero/right.webp",
-  "mobileImage": "images/second-hero/mobile.webp",
+  "leftImage": "",
+  "rightImage": "",
+  "mobileImage": "",
   "leftFlex": 1.3,
   "leftScale": 1,
   "leftX": 50,
@@ -13,6 +13,6 @@
   "mobileHeight": "auto",
   "mobileScale": 1,
   "mobileX": 50,
-  "mobileY": 50,
-  "timestamp": "2026-06-08T19:09:21.200Z"
+  "mobileY": 40,
+  "timestamp": "2026-06-08T19:56:21.851Z"
 }
