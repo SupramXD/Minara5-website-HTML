@@ -249,13 +249,20 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
       }
     } else if (action === "saveHero") {
       const settingsData = payload;
-      const {leftImage, rightImage, mobileImage} = settingsData;
+      const {leftImage, rightImage, mobileImage, leftImageName, rightImageName, mobileImageName} = settingsData;
 
-      if (leftImage && leftImage.startsWith("data:image/")) {
+      if (leftImage && leftImage.startsWith("data:")) {
         const parts = leftImage.split(";base64,");
-        const mimeType = parts[0].split(":")[1];
+        const mimeType = parts[0].includes(":") ? parts[0].split(":")[1] : "image/webp";
         const base64Data = parts[1];
-        const ext = mimeType.split("/")[1] || "webp";
+        let ext = "webp";
+        if (leftImageName) {
+          const extMatch = leftImageName.match(/\.([a-zA-Z0-9]+)$/);
+          if (extMatch) ext = extMatch[1].toLowerCase();
+        } else {
+          ext = mimeType.split("/")[1] || "webp";
+        }
+        if (ext === "jpeg") ext = "jpg";
 
         const path = `images/hero/left.${ext}`;
         const {sha: imgSha} = await getFileShaAndContent(path, token);
@@ -263,11 +270,18 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         settingsData.leftImage = path;
       }
 
-      if (rightImage && rightImage.startsWith("data:image/")) {
+      if (rightImage && rightImage.startsWith("data:")) {
         const parts = rightImage.split(";base64,");
-        const mimeType = parts[0].split(":")[1];
+        const mimeType = parts[0].includes(":") ? parts[0].split(":")[1] : "image/webp";
         const base64Data = parts[1];
-        const ext = mimeType.split("/")[1] || "webp";
+        let ext = "webp";
+        if (rightImageName) {
+          const extMatch = rightImageName.match(/\.([a-zA-Z0-9]+)$/);
+          if (extMatch) ext = extMatch[1].toLowerCase();
+        } else {
+          ext = mimeType.split("/")[1] || "webp";
+        }
+        if (ext === "jpeg") ext = "jpg";
 
         const path = `images/hero/right.${ext}`;
         const {sha: imgSha} = await getFileShaAndContent(path, token);
@@ -275,17 +289,28 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         settingsData.rightImage = path;
       }
 
-      if (mobileImage && mobileImage.startsWith("data:image/")) {
+      if (mobileImage && mobileImage.startsWith("data:")) {
         const parts = mobileImage.split(";base64,");
-        const mimeType = parts[0].split(":")[1];
+        const mimeType = parts[0].includes(":") ? parts[0].split(":")[1] : "image/webp";
         const base64Data = parts[1];
-        const ext = mimeType.split("/")[1] || "webp";
+        let ext = "webp";
+        if (mobileImageName) {
+          const extMatch = mobileImageName.match(/\.([a-zA-Z0-9]+)$/);
+          if (extMatch) ext = extMatch[1].toLowerCase();
+        } else {
+          ext = mimeType.split("/")[1] || "webp";
+        }
+        if (ext === "jpeg") ext = "jpg";
 
         const path = `images/hero/mobile.${ext}`;
         const {sha: imgSha} = await getFileShaAndContent(path, token);
         await writeFileToGitHub(path, base64Data, "Update mobile hero image", imgSha, token);
         settingsData.mobileImage = path;
       }
+
+      delete settingsData.leftImageName;
+      delete settingsData.rightImageName;
+      delete settingsData.mobileImageName;
 
       const {sha: settingsSha} = await getFileShaAndContent("hero_settings.json", token);
 
@@ -297,13 +322,20 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
       return {success: true, message: "Hero settings synced to GitHub."};
     } else if (action === "saveSecondHero") {
       const settingsData = payload;
-      const {leftImage, rightImage, mobileImage} = settingsData;
+      const {leftImage, rightImage, mobileImage, leftImageName, rightImageName, mobileImageName} = settingsData;
 
-      if (leftImage && leftImage.startsWith("data:image/")) {
+      if (leftImage && leftImage.startsWith("data:")) {
         const parts = leftImage.split(";base64,");
-        const mimeType = parts[0].split(":")[1];
+        const mimeType = parts[0].includes(":") ? parts[0].split(":")[1] : "image/webp";
         const base64Data = parts[1];
-        const ext = mimeType.split("/")[1] || "webp";
+        let ext = "webp";
+        if (leftImageName) {
+          const extMatch = leftImageName.match(/\.([a-zA-Z0-9]+)$/);
+          if (extMatch) ext = extMatch[1].toLowerCase();
+        } else {
+          ext = mimeType.split("/")[1] || "webp";
+        }
+        if (ext === "jpeg") ext = "jpg";
 
         const path = `images/second-hero/left.${ext}`;
         const {sha: imgSha} = await getFileShaAndContent(path, token);
@@ -311,11 +343,18 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         settingsData.leftImage = path;
       }
 
-      if (rightImage && rightImage.startsWith("data:image/")) {
+      if (rightImage && rightImage.startsWith("data:")) {
         const parts = rightImage.split(";base64,");
-        const mimeType = parts[0].split(":")[1];
+        const mimeType = parts[0].includes(":") ? parts[0].split(":")[1] : "image/webp";
         const base64Data = parts[1];
-        const ext = mimeType.split("/")[1] || "webp";
+        let ext = "webp";
+        if (rightImageName) {
+          const extMatch = rightImageName.match(/\.([a-zA-Z0-9]+)$/);
+          if (extMatch) ext = extMatch[1].toLowerCase();
+        } else {
+          ext = mimeType.split("/")[1] || "webp";
+        }
+        if (ext === "jpeg") ext = "jpg";
 
         const path = `images/second-hero/right.${ext}`;
         const {sha: imgSha} = await getFileShaAndContent(path, token);
@@ -323,17 +362,28 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         settingsData.rightImage = path;
       }
 
-      if (mobileImage && mobileImage.startsWith("data:image/")) {
+      if (mobileImage && mobileImage.startsWith("data:")) {
         const parts = mobileImage.split(";base64,");
-        const mimeType = parts[0].split(":")[1];
+        const mimeType = parts[0].includes(":") ? parts[0].split(":")[1] : "image/webp";
         const base64Data = parts[1];
-        const ext = mimeType.split("/")[1] || "webp";
+        let ext = "webp";
+        if (mobileImageName) {
+          const extMatch = mobileImageName.match(/\.([a-zA-Z0-9]+)$/);
+          if (extMatch) ext = extMatch[1].toLowerCase();
+        } else {
+          ext = mimeType.split("/")[1] || "webp";
+        }
+        if (ext === "jpeg") ext = "jpg";
 
         const path = `images/second-hero/mobile.${ext}`;
         const {sha: imgSha} = await getFileShaAndContent(path, token);
         await writeFileToGitHub(path, base64Data, "Update mobile second hero image", imgSha, token);
         settingsData.mobileImage = path;
       }
+
+      delete settingsData.leftImageName;
+      delete settingsData.rightImageName;
+      delete settingsData.mobileImageName;
 
       const {sha: settingsSha} = await getFileShaAndContent("second_hero_settings.json", token);
 

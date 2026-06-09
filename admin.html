@@ -2307,6 +2307,25 @@
       });
     };
 
+    const getFileExtension = function(filename, defaultExt = "webp") {
+      if (!filename) return defaultExt;
+      const match = filename.match(/\.([a-zA-Z0-9]+)$/);
+      if (!match) return defaultExt;
+      let ext = match[1].toLowerCase();
+      if (ext === "jpeg") ext = "jpg";
+      return ext;
+    };
+
+    const predictPath = function(file, inputVal, defaultPath) {
+      if (file) {
+        const ext = getFileExtension(file.name);
+        const folder = defaultPath.includes("second-hero") ? "images/second-hero" : "images/hero";
+        const name = defaultPath.includes("left") ? "left" : (defaultPath.includes("right") ? "right" : "mobile");
+        return `${folder}/${name}.${ext}`;
+      }
+      return inputVal || defaultPath;
+    };
+
 
     window.handleAddProduct = async function(e) {
       e.preventDefault();
@@ -3474,30 +3493,27 @@
       const rightFile = document.getElementById("heroRightFile").files[0];
       const mobileFile = document.getElementById("heroMobileFile").files[0];
 
-      let leftImage = leftImageText || "test3.avif";
-      let rightImage = rightImageText || "number23.avif";
-      let mobileImage = mobileImageText || "test3 mobile.avif";
+      // Predict target paths for Firestore and local settings reference
+      const predictedLeft = predictPath(leftFile, leftImageText, "images/hero/left.webp");
+      const predictedRight = predictPath(rightFile, rightImageText, "images/hero/right.webp");
+      const predictedMobile = predictPath(mobileFile, mobileImageText, "images/hero/mobile.webp");
+
+      let leftBase64 = null;
+      let rightBase64 = null;
+      let mobileBase64 = null;
 
       try {
-        if (leftFile) {
-          leftImage = await readFileAsDataURL(leftFile);
-        }
-        
-        if (rightFile) {
-          rightImage = await readFileAsDataURL(rightFile);
-        }
-
-        if (mobileFile) {
-          mobileImage = await readFileAsDataURL(mobileFile);
-        }
+        if (leftFile) leftBase64 = await readFileAsDataURL(leftFile);
+        if (rightFile) rightBase64 = await readFileAsDataURL(rightFile);
+        if (mobileFile) mobileBase64 = await readFileAsDataURL(mobileFile);
       } catch (err) {
         console.error("Error reading hero image file:", err);
       }
 
-      const settingsData = {
-        leftImage: leftImage,
-        rightImage: rightImage,
-        mobileImage: mobileImage,
+      const firestoreData = {
+        leftImage: predictedLeft,
+        rightImage: predictedRight,
+        mobileImage: predictedMobile,
         leftFlex: parseFloat(document.getElementById("heroLeftFlex").value),
         leftScale: parseFloat(document.getElementById("heroLeftScale").value),
         leftX: parseInt(document.getElementById("heroLeftX").value),
@@ -3522,14 +3538,14 @@
         timestamp: new Date().toISOString()
       };
 
-      localStorage.setItem("minara_hero_settings", JSON.stringify(settingsData));
+      localStorage.setItem("minara_hero_settings", JSON.stringify(firestoreData));
 
       let firestoreSuccess = false;
       let errorMsg = "";
 
       if (window.db && window.dbDoc && window.dbSetDoc) {
         try {
-          await window.dbSetDoc(window.dbDoc(window.db, "settings", "hero"), settingsData);
+          await window.dbSetDoc(window.dbDoc(window.db, "settings", "hero"), firestoreData);
           firestoreSuccess = true;
         } catch (dbErr) {
           errorMsg = dbErr.message || dbErr;
@@ -3539,10 +3555,19 @@
 
       // Sync hero settings to GitHub static repo
       if (firestoreSuccess && window.syncToGithubCallable) {
+        const payloadData = Object.assign({}, firestoreData, {
+          leftImage: leftBase64 || predictedLeft,
+          rightImage: rightBase64 || predictedRight,
+          mobileImage: mobileBase64 || predictedMobile,
+          leftImageName: leftFile ? leftFile.name : undefined,
+          rightImageName: rightFile ? rightFile.name : undefined,
+          mobileImageName: mobileFile ? mobileFile.name : undefined
+        });
+
         try {
           await window.syncToGithubCallable({
             action: "saveHero",
-            payload: settingsData
+            payload: payloadData
           });
           console.log("GitHub hero settings sync successful.");
         } catch (gitHubErr) {
@@ -3569,12 +3594,17 @@
         alert("Warning: Hero settings saved locally, but failed to sync online.\nError: " + errorMsg);
       }
 
+      // Update text fields and previews with the predicted paths
+      document.getElementById("heroLeftImage").value = predictedLeft;
+      document.getElementById("heroRightImage").value = predictedRight;
+      document.getElementById("heroMobileImage").value = predictedMobile;
+
       const previewL = document.getElementById("previewImgL");
-      if (previewL) previewL.src = leftImage;
+      if (previewL) previewL.src = leftBase64 || predictedLeft;
       const previewR = document.getElementById("previewImgR");
-      if (previewR) previewR.src = rightImage;
+      if (previewR) previewR.src = rightBase64 || predictedRight;
       const previewM = document.getElementById("previewImgMobile");
-      if (previewM) previewM.src = mobileImage;
+      if (previewM) previewM.src = mobileBase64 || predictedMobile;
 
       window.updateHeroPreview();
     };
@@ -3597,30 +3627,27 @@
       const rightFile = document.getElementById("secHeroRightFile").files[0];
       const mobileFile = document.getElementById("secHeroMobileFile").files[0];
 
-      let leftImage = leftImageText || "";
-      let rightImage = rightImageText || "";
-      let mobileImage = mobileImageText || "";
+      // Predict target paths for Firestore and local settings reference
+      const predictedLeft = predictPath(leftFile, leftImageText, "images/second-hero/left.webp");
+      const predictedRight = predictPath(rightFile, rightImageText, "images/second-hero/right.webp");
+      const predictedMobile = predictPath(mobileFile, mobileImageText, "images/second-hero/mobile.webp");
+
+      let leftBase64 = null;
+      let rightBase64 = null;
+      let mobileBase64 = null;
 
       try {
-        if (leftFile) {
-          leftImage = await readFileAsDataURL(leftFile);
-        }
-        
-        if (rightFile) {
-          rightImage = await readFileAsDataURL(rightFile);
-        }
-
-        if (mobileFile) {
-          mobileImage = await readFileAsDataURL(mobileFile);
-        }
+        if (leftFile) leftBase64 = await readFileAsDataURL(leftFile);
+        if (rightFile) rightBase64 = await readFileAsDataURL(rightFile);
+        if (mobileFile) mobileBase64 = await readFileAsDataURL(mobileFile);
       } catch (err) {
         console.error("Error reading second hero image file:", err);
       }
 
-      const settingsData = {
-        leftImage: leftImage,
-        rightImage: rightImage,
-        mobileImage: mobileImage,
+      const firestoreData = {
+        leftImage: predictedLeft,
+        rightImage: predictedRight,
+        mobileImage: predictedMobile,
         leftFlex: parseFloat(document.getElementById("secHeroLeftFlex").value),
         leftScale: parseFloat(document.getElementById("secHeroLeftScale").value),
         leftX: parseInt(document.getElementById("secHeroLeftX").value),
@@ -3636,14 +3663,14 @@
         timestamp: new Date().toISOString()
       };
 
-      localStorage.setItem("minara_second_hero_settings", JSON.stringify(settingsData));
+      localStorage.setItem("minara_second_hero_settings", JSON.stringify(firestoreData));
 
       let firestoreSuccess = false;
       let errorMsg = "";
 
       if (window.db && window.dbDoc && window.dbSetDoc) {
         try {
-          await window.dbSetDoc(window.dbDoc(window.db, "settings", "second_hero"), settingsData);
+          await window.dbSetDoc(window.dbDoc(window.db, "settings", "second_hero"), firestoreData);
           firestoreSuccess = true;
         } catch (dbErr) {
           errorMsg = dbErr.message || dbErr;
@@ -3653,10 +3680,19 @@
 
       // Sync second hero settings to GitHub static repo
       if (firestoreSuccess && window.syncToGithubCallable) {
+        const payloadData = Object.assign({}, firestoreData, {
+          leftImage: leftBase64 || predictedLeft,
+          rightImage: rightBase64 || predictedRight,
+          mobileImage: mobileBase64 || predictedMobile,
+          leftImageName: leftFile ? leftFile.name : undefined,
+          rightImageName: rightFile ? rightFile.name : undefined,
+          mobileImageName: mobileFile ? mobileFile.name : undefined
+        });
+
         try {
           await window.syncToGithubCallable({
             action: "saveSecondHero",
-            payload: settingsData
+            payload: payloadData
           });
           console.log("GitHub second hero settings sync successful.");
         } catch (gitHubErr) {
@@ -3683,12 +3719,17 @@
         alert("Warning: Second Hero settings saved locally, but failed to sync online.\nError: " + errorMsg);
       }
 
+      // Update text fields and previews with the predicted paths
+      document.getElementById("secHeroLeftImage").value = predictedLeft;
+      document.getElementById("secHeroRightImage").value = predictedRight;
+      document.getElementById("secHeroMobileImage").value = predictedMobile;
+
       const previewSecL = document.getElementById("previewSecImgL");
-      if (previewSecL) previewSecL.src = leftImage;
+      if (previewSecL) previewSecL.src = leftBase64 || predictedLeft;
       const previewSecR = document.getElementById("previewSecImgR");
-      if (previewSecR) previewSecR.src = rightImage;
+      if (previewSecR) previewSecR.src = rightBase64 || predictedRight;
       const previewSecM = document.getElementById("previewSecImgMobile");
-      if (previewSecM) previewSecM.src = mobileImage;
+      if (previewSecM) previewSecM.src = mobileBase64 || predictedMobile;
 
       window.updateSecondHeroPreview();
     };
