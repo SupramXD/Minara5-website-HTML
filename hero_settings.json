@@ -1,5 +1,5 @@
 {
-  "leftImage": "images/hero/left.webp",
+  "leftImage": "images/hero/left.jpeg",
   "rightImage": "images/hero/right.webp",
   "mobileImage": "images/hero/mobile.webp",
   "leftFlex": 1.4,
@@ -19,9 +19,9 @@
   "logoDesktopStick": -34,
   "logoDesktopX": 0,
   "logoMobileSpawn": -100,
-  "logoMobileSpawn2": 80,
+  "logoMobileSpawn2": 105,
   "logoMobileStick": 10,
   "logoMobileX": 0,
   "showGiftsButton": false,
-  "timestamp": "2026-06-09T10:14:56.144Z"
+  "timestamp": "2026-06-09T10:35:36.330Z"
 }
