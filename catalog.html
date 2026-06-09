@@ -1057,17 +1057,20 @@ window.addEventListener("orientationchange", updateCartHeight);
                 // Dynamic reviews loader
                 const reviewsCountEl = item.querySelector('.product-reviews-count');
                 const starsEl = item.querySelector('.product-stars');
-                let hash = 0;
-                const seedStr = p.id || rawName;
-                for (let i = 0; i < seedStr.length; i++) {
-                    hash = seedStr.charCodeAt(i) + ((hash << 5) - hash);
-                }
-                const count = 120 + Math.abs(hash % 260);
-                if (reviewsCountEl) {
-                    reviewsCountEl.textContent = `(${count})`;
-                }
+                const reviewsRowEl = item.querySelector('.product-reviews-row');
+                
+                const emptyStarsHTML = `
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#c5a880" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                `.repeat(5);
+
                 if (starsEl) {
-                    starsEl.textContent = '★★★★★';
+                    starsEl.innerHTML = emptyStarsHTML;
+                }
+                if (reviewsCountEl) {
+                    reviewsCountEl.textContent = '(0)';
+                }
+                if (reviewsRowEl) {
+                    reviewsRowEl.style.opacity = '0.35';
                 }
 
                 const loadCardReviews = async () => {
@@ -1089,8 +1092,24 @@ window.addEventListener("orientationchange", updateCartHeight);
                             }
                         });
                         if (count > 0) {
+                            const avg = totalRating / count;
+                            const rounded = Math.round(avg);
+                            let starsHTML = "";
+                            for (let i = 1; i <= 5; i++) {
+                                if (i <= rounded) {
+                                    starsHTML += `<svg width="10" height="10" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                                } else {
+                                    starsHTML += `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#c5a880" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                                }
+                            }
+                            if (starsEl) {
+                                starsEl.innerHTML = starsHTML;
+                            }
                             if (reviewsCountEl) {
                                 reviewsCountEl.textContent = `(${count})`;
+                            }
+                            if (reviewsRowEl) {
+                                reviewsRowEl.style.opacity = '1';
                             }
                         }
                     } catch (err) {
