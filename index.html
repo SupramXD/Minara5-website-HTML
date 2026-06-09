@@ -640,22 +640,19 @@
 
     /* HOME PRODUCTS SECTION */
     .add-to-cart {
-      grid-area: button;
       display: block;
       width: 100%;
-      margin-top: 8px;
-      margin-left: 0;
-      margin-right: 0;
-      margin-bottom: 5px;
+      margin-top: auto;
       box-sizing: border-box;
-      padding: 8px 28px;
+      padding: 12px 20px;
       background: #000;
       border: 1px solid #000;
       color: #fff;
+      font-family: 'Gotham Narrow Bold', sans-serif;
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
+      letter-spacing: 0.2em;
       border-radius: 1.5px;
       cursor: pointer;
       text-decoration: none;
@@ -747,40 +744,59 @@
       flex-grow: 1;
     }
 
-    .hp-name {
+    .hp-title {
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #111111;
+      margin-bottom: 4px;
+      text-transform: none;
+      letter-spacing: 0.04em;
+    }
+
+    .hp-inspired {
       font-family: Helvetica, Arial, sans-serif;
       font-size: 11px;
-      line-height: 1.45;
-      text-transform: none;
-      letter-spacing: 0.02em;
-      color: #666666;
+      color: #6B7280;
+      margin-bottom: 8px;
+      line-height: 1.4;
     }
 
-    .inspired-by {
-      color: #888888;
-      font-weight: normal;
-      display: block;
-      margin-bottom: 2px;
+    .hp-stock-status {
+      font-size: 8px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    .inspired-target {
-      color: #444444;
-      font-style: italic;
-      font-weight: 500;
-      display: block;
-    }
-
-    .hp-name.placeholder,
-    .hp-price.placeholder {
+    .hp-title.placeholder,
+    .hp-price-block.placeholder {
       opacity: 0.5;
     }
 
-    .hp-price {
+    .hp-price-block {
+      font-family: 'Gotham Narrow Bold', sans-serif;
       font-size: 13.5px;
-      margin-top: 0;
-      color: #00008B;
-      font-weight: 600;
-      letter-spacing: 0.5px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hp-price-block .sale-price {
+      color: #111111;
+    }
+
+    .hp-price-block .original-price {
+      text-decoration: line-through;
+      color: #6B7280;
+      font-weight: 400;
+      font-size: 0.9em;
     }
 
     .add-to-cart:disabled {
@@ -2169,18 +2185,13 @@
               </div>
             </a>
             <div class="hp-info">
-              <div class="hp-details-row" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; flex-grow: 1; margin-bottom: 15px;">
-                <a class="product-link-anchor-2" style="text-decoration:none; color:inherit; display:block; flex: 1; margin-right: 15px;">
-                  <div class="hp-flair" style="font-size: 8px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; display: none; color: #1a1a1a;"></div>
-                  <div class="hp-name-short" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 13.5px; text-transform: none; letter-spacing: 0.04em; font-weight: 800; margin-bottom: 3.5px; display: none; color: #111111;"></div>
-                  <div class="hp-name"></div>
-                  <div class="hp-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; display:none;"></div>
-                  <div class="hp-stock-status" style="font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 8px; font-weight: bold; display: none; text-align: left; white-space: nowrap;"></div>
-                </a>
-                <a class="product-link-anchor-3" style="text-decoration:none; color:inherit; display:block; text-align: right; white-space: nowrap;">
-                  <div class="hp-price hp-price-card"></div>
-                </a>
-              </div>
+              <a class="product-link-anchor-2" style="text-decoration:none; color:inherit; display:block;">
+                <div class="hp-flair" style="font-size: 8px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; display: none; color: #1a1a1a;"></div>
+                <h3 class="hp-title"></h3>
+                <div class="hp-inspired"></div>
+                <div class="hp-stock-status"></div>
+                <div class="hp-price-block"></div>
+              </a>
               <button class="add-to-cart"></button>
             </div>
           `;
@@ -2193,16 +2204,16 @@
           }
 
           // Safe short fragrance name assignment
-          const nameShortEl = card.querySelector('.hp-name-short');
-          if (nameShortEl && p.nameShort) {
-            nameShortEl.textContent = p.nameShort;
-            nameShortEl.style.display = 'block';
-          } else if (nameShortEl) {
-            nameShortEl.style.display = 'none';
+          const titleEl = card.querySelector('.hp-title');
+          if (titleEl && p.nameShort) {
+            titleEl.textContent = p.nameShort;
+            titleEl.style.display = 'block';
+          } else if (titleEl) {
+            titleEl.style.display = 'none';
           }
 
           // Bind static URLs safely
-          card.querySelectorAll('.product-link-anchor, .product-link-anchor-2, .product-link-anchor-3').forEach(a => {
+          card.querySelectorAll('.product-link-anchor, .product-link-anchor-2').forEach(a => {
             a.href = p.url;
           });
 
@@ -2220,38 +2231,39 @@
           img.setAttribute('alt', rawName);
 
           // Safe product name text assignments
-          const nameEl = card.querySelector('.hp-name');
-          nameEl.innerHTML = "";
-          
+          const inspiredEl = card.querySelector('.hp-inspired');
           let escapedName = window.escapeHTML ? window.escapeHTML(rawName) : rawName;
+          
+          const formatBrandName = (brandName) => {
+            if (!brandName) return "";
+            return brandName.replace(/\w\S*/g, (txt) => {
+              const lower = txt.toLowerCase();
+              if (lower === 'jpg') return 'JPG';
+              if (lower === 'le') return 'Le';
+              return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+          };
+
           const inspiredMatch = escapedName.match(/Inspired\s+by\s+(.+)/i);
           if (inspiredMatch) {
-            nameEl.innerHTML = `<span class="inspired-by">Inspired by</span><span class="inspired-target">${inspiredMatch[1]}</span>`;
+            inspiredEl.textContent = `Inspired by ${formatBrandName(inspiredMatch[1])}`;
           } else {
-            nameEl.innerHTML = escapedName;
-          }
-
-          // Safe retail price assignment
-          const retailEl = card.querySelector('.hp-retail-price');
-          if (p.retailPrice) {
-            retailEl.textContent = `Retail: R${formatRetailPrice(p.retailPrice)}`;
-            retailEl.style.display = 'block';
+            inspiredEl.textContent = escapedName;
           }
 
           // Safe price text element configuration (handles discount layout)
-          const priceEl = card.querySelector('.hp-price');
+          const priceBlockEl = card.querySelector('.hp-price-block');
           const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
           if (hasDiscount) {
-            priceEl.innerHTML = `
-              <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                <span class="discounted-price" style="color: #00008B; font-weight: 600; line-height: 1.1; font-size: 1.1em;"></span>
-                <span class="original-price" style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;"></span>
-              </div>
+            const salePrice = Math.round(p.price * 0.95);
+            priceBlockEl.innerHTML = `
+              <span class="sale-price">R${formatPrice(salePrice)}</span>
+              <span class="original-price">R${formatPrice(p.price)}</span>
             `;
-            priceEl.querySelector('.discounted-price').textContent = `R${formatPrice(Math.round(p.price * 0.95))}`;
-            priceEl.querySelector('.original-price').textContent = `R${formatPrice(p.price)}`;
           } else {
-            priceEl.textContent = `R${formatPrice(p.price)}`;
+            priceBlockEl.innerHTML = `
+              <span class="sale-price">R${formatPrice(p.price)}</span>
+            `;
           }
 
           // Safe button actions mapping
@@ -2265,22 +2277,39 @@
             btn.setAttribute('onclick', `addToCart('${p.id}')`);
           }
 
-          // Safe stock status / urgency mapping
+          // Safe stock status / urgency mapping with dot indicator
           const stockStatusEl = card.querySelector('.hp-stock-status');
           if (stockStatusEl && p.stock !== undefined) {
+            stockStatusEl.innerHTML = "";
+            
+            const dot = document.createElement('span');
+            dot.className = "status-dot";
+            dot.style.display = 'inline-block';
+            dot.style.width = '6px';
+            dot.style.height = '6px';
+            dot.style.borderRadius = '50%';
+            
+            const text = document.createElement('span');
+            text.style.fontSize = '8px';
+            text.style.fontWeight = 'bold';
+            text.style.letterSpacing = '0.5px';
+            
             if (p.stock <= 0) {
-              stockStatusEl.textContent = "SOLD OUT";
-              stockStatusEl.style.color = "#ff3b30";
-              stockStatusEl.style.display = "block";
+              dot.style.backgroundColor = '#ff3b30';
+              text.textContent = 'SOLD OUT';
+              text.style.color = '#ff3b30';
             } else if (p.stock <= 4) {
-              stockStatusEl.textContent = `ONLY ${p.stock} BOTTLES LEFT`;
-              stockStatusEl.style.color = "#b82d2d";
-              stockStatusEl.style.display = "block";
+              dot.style.backgroundColor = '#b82d2d';
+              text.textContent = `ONLY ${p.stock} BOTTLES LEFT`;
+              text.style.color = '#b82d2d';
             } else {
-              stockStatusEl.textContent = "IN STOCK";
-              stockStatusEl.style.color = "#2e7d32";
-              stockStatusEl.style.display = "block";
+              dot.style.backgroundColor = '#2e7d32';
+              text.textContent = 'IN STOCK';
+              text.style.color = '#2e7d32';
             }
+            stockStatusEl.appendChild(dot);
+            stockStatusEl.appendChild(text);
+            stockStatusEl.style.display = 'flex';
           }
 
           grid.appendChild(card);
@@ -2294,9 +2323,9 @@
           card.innerHTML = `
             <div class="hp-box"></div>
             <div class="hp-info">
-              <div class="hp-details-row" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; flex-grow: 1; margin-bottom: 15px;">
-                <div class="hp-name placeholder">AWAITING<br>REVEAL</div>
-                <div class="hp-price placeholder">R0</div>
+              <h3 class="hp-title placeholder">AWAITING REVEAL</h3>
+              <div class="hp-price-block placeholder">
+                <span class="sale-price">R0</span>
               </div>
               <button class="add-to-cart" disabled>COMING SOON</button>
             </div>

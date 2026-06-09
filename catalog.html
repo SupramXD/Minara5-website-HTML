@@ -304,68 +304,63 @@ nav ul li a:hover{opacity:0.6;}
     display: flex;
     flex-direction: column;
 }
-.product-name {
-    font-family: Helvetica, Arial, sans-serif;
-    font-size: 11px;
-    line-height: 1.45;
-    text-transform: none;
-    letter-spacing: 0.02em;
-    color: #666666;
-}
-.placeholder-name {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-    line-height: 1.35;
-    opacity: 0.4;
-}
-.product-name-short {
+.product-title {
     font-family: 'Gotham Narrow Bold', sans-serif;
     font-size: 13.5px;
+    font-weight: 700;
+    color: #111111;
+    margin-bottom: 4px;
     text-transform: none;
     letter-spacing: 0.04em;
-    font-weight: 800;
-    margin-bottom: 3.5px;
+}
+.product-inspired {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    color: #6B7280;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+.catalog-stock-status {
+    font-size: 8px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.product-title.placeholder,
+.product-price-block.placeholder {
+    opacity: 0.5;
+}
+.product-price-block {
+    font-family: 'Gotham Narrow Bold', sans-serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.product-price-block .sale-price {
     color: #111111;
 }
-.inspired-by {
-    color: #888888;
-    font-weight: normal;
-    display: block;
-    margin-bottom: 2px;
-}
-.inspired-target {
-    color: #444444;
-    font-style: italic;
-    font-weight: 500;
-    display: block;
-}
-.price {
-    font-size: 13.5px;
-    color: #00008B;
-    font-weight: 600;
-    margin-top: 8px;
-    margin-bottom: 18px; /* Safe space before button */
-}
-.placeholder-price {
-    opacity: 0.4;
-    font-size: 11px;
-    margin-top: 8px;
-    margin-bottom: 18px;
-}
-.placeholder-name {
-    opacity: 0.4;
+.product-price-block .original-price {
+    text-decoration: line-through;
+    color: #6B7280;
+    font-weight: 400;
+    font-size: 0.9em;
 }
 
 /* ADD TO CART BUTTON */
 .add-to-cart-btn {
     margin-top: auto; /* Push button strictly to the very bottom */
-    align-self: flex-start;
-    width: max-content;
+    width: 100%;
     background: #000;
     color: #fff;
     border: none;
-    padding: 12px 35px;
+    padding: 12px 20px;
     font-family: 'Gotham Narrow Bold', sans-serif;
     font-size: 11px;
     text-transform: uppercase;
@@ -416,28 +411,24 @@ nav ul li a:hover{opacity:0.6;}
         padding-top: 0;
         border-top: none;
     }
-    .product-name, .placeholder-name {
-        font-size: 10px;
-        letter-spacing: 0.12em;
-    }
-    .product-name-short {
-        font-size: 9.5px;
+    .product-title {
+        font-size: 12px;
         margin-bottom: 2px;
     }
-    .price {
-        font-size: 11.5px;
-        margin-top: 5px;
-    }
-    .placeholder-price {
+    .product-inspired {
         font-size: 10px;
+        margin-bottom: 6px;
+    }
+    .product-price-block {
+        font-size: 12px;
         margin-top: 5px;
+        margin-bottom: 12px;
     }
     .add-to-cart-btn {
         margin-top: auto;
-        align-self: flex-start;
-        width: max-content;
-        padding: 9px 20px;
-        font-size: 9.5px;
+        width: 100%;
+        padding: 10px 20px;
+        font-size: 10px;
     }
 }
 
@@ -954,17 +945,16 @@ window.addEventListener("orientationchange", updateCartHeight);
                 item.className = "catalog-item";
                 
                 item.innerHTML = `
-                    <a class="product-link">
+                    <a class="product-link" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; flex-grow:1;">
                         <div class="product-box">
                             <img class="product-img" src="" alt="">
                         </div>
-                        <div class="product-info">
+                        <div class="product-info" style="display: flex; flex-direction: column; flex-grow: 1;">
                             <div class="product-flair" style="font-size: 8px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; display: none; color: #1a1a1a;"></div>
-                            <div class="product-name-short" style="display: none;"></div>
-                            <div class="product-name"></div>
-                            <div class="product-retail-price" style="font-size: 8px; opacity: 0.5; margin-top: 3px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; display: none;"></div>
-                            <div class="price"></div>
-                            <div class="catalog-stock-status" style="font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 8px; font-weight: bold; display: none; text-align: left; white-space: nowrap;"></div>
+                            <h3 class="product-title"></h3>
+                            <div class="product-inspired"></div>
+                            <div class="catalog-stock-status"></div>
+                            <div class="product-price-block"></div>
                         </div>
                     </a>
                     <button class="add-to-cart-btn"></button>
@@ -978,12 +968,12 @@ window.addEventListener("orientationchange", updateCartHeight);
                 }
 
                 // Safe short fragrance name assignment
-                const nameShortEl = item.querySelector('.product-name-short');
-                if (nameShortEl && p.nameShort) {
-                    nameShortEl.textContent = p.nameShort;
-                    nameShortEl.style.display = 'block';
-                } else if (nameShortEl) {
-                    nameShortEl.style.display = 'none';
+                const titleEl = item.querySelector('.product-title');
+                if (titleEl && p.nameShort) {
+                    titleEl.textContent = p.nameShort;
+                    titleEl.style.display = 'block';
+                } else if (titleEl) {
+                    titleEl.style.display = 'none';
                 }
                 
                 // Bind static URL safely
@@ -1003,37 +993,39 @@ window.addEventListener("orientationchange", updateCartHeight);
                 img.setAttribute('alt', rawName);
                 
                 // Safe product name text assignments
-                const nameEl = item.querySelector('.product-name');
-                nameEl.innerHTML = "";
+                const inspiredEl = item.querySelector('.product-inspired');
                 let escapedName = window.escapeHTML ? window.escapeHTML(rawName) : rawName;
+                
+                const formatBrandName = (brandName) => {
+                    if (!brandName) return "";
+                    return brandName.replace(/\w\S*/g, (txt) => {
+                        const lower = txt.toLowerCase();
+                        if (lower === 'jpg') return 'JPG';
+                        if (lower === 'le') return 'Le';
+                        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+                    });
+                };
+
                 const inspiredMatch = escapedName.match(/Inspired\s+by\s+(.+)/i);
                 if (inspiredMatch) {
-                    nameEl.innerHTML = `<span class="inspired-by">Inspired by</span><span class="inspired-target">${inspiredMatch[1]}</span>`;
+                    inspiredEl.textContent = `Inspired by ${formatBrandName(inspiredMatch[1])}`;
                 } else {
-                    nameEl.innerHTML = escapedName;
-                }
-                
-                // Safe retail price assignment
-                const retailEl = item.querySelector('.product-retail-price');
-                if (p.retailPrice) {
-                    retailEl.textContent = `Retail: R${formatRetailPrice(p.retailPrice)}`;
-                    retailEl.style.display = 'block';
+                    inspiredEl.textContent = escapedName;
                 }
                 
                 // Safe price text element configuration (handles discount layout)
-                const priceEl = item.querySelector('.price');
+                const priceBlockEl = item.querySelector('.product-price-block');
                 const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
                 if (hasDiscount) {
-                    priceEl.innerHTML = `
-                        <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                            <span class="discounted-price" style="color: #00008B; font-weight: 600; line-height: 1.1; font-size: 1.1em;"></span>
-                            <span class="original-price" style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;"></span>
-                        </div>
+                    const salePrice = Math.round(p.price * 0.95);
+                    priceBlockEl.innerHTML = `
+                        <span class="sale-price">R${formatPrice(salePrice)}</span>
+                        <span class="original-price">R${formatPrice(p.price)}</span>
                     `;
-                    priceEl.querySelector('.discounted-price').textContent = `R${formatPrice(Math.round(p.price * 0.95))}`;
-                    priceEl.querySelector('.original-price').textContent = `R${formatPrice(p.price)}`;
                 } else {
-                    priceEl.textContent = `R${formatPrice(p.price)}`;
+                    priceBlockEl.innerHTML = `
+                        <span class="sale-price">R${formatPrice(p.price)}</span>
+                    `;
                 }
                 
                 // Safe button actions mapping
@@ -1047,22 +1039,39 @@ window.addEventListener("orientationchange", updateCartHeight);
                     btn.setAttribute('onclick', `addToCart('${p.id}')`);
                 }
 
-                // Safe stock status / urgency mapping
+                // Safe stock status / urgency mapping with dot indicator
                 const stockStatusEl = item.querySelector('.catalog-stock-status');
                 if (stockStatusEl && p.stock !== undefined) {
+                    stockStatusEl.innerHTML = "";
+                    
+                    const dot = document.createElement('span');
+                    dot.className = "status-dot";
+                    dot.style.display = 'inline-block';
+                    dot.style.width = '6px';
+                    dot.style.height = '6px';
+                    dot.style.borderRadius = '50%';
+                    
+                    const text = document.createElement('span');
+                    text.style.fontSize = '8px';
+                    text.style.fontWeight = 'bold';
+                    text.style.letterSpacing = '0.5px';
+                    
                     if (p.stock <= 0) {
-                        stockStatusEl.textContent = "SOLD OUT";
-                        stockStatusEl.style.color = "#ff3b30";
-                        stockStatusEl.style.display = "block";
+                        dot.style.backgroundColor = '#ff3b30';
+                        text.textContent = 'SOLD OUT';
+                        text.style.color = '#ff3b30';
                     } else if (p.stock <= 4) {
-                        stockStatusEl.textContent = `ONLY ${p.stock} BOTTLES LEFT`;
-                        stockStatusEl.style.color = "#b82d2d";
-                        stockStatusEl.style.display = "block";
+                        dot.style.backgroundColor = '#b82d2d';
+                        text.textContent = `ONLY ${p.stock} BOTTLES LEFT`;
+                        text.style.color = '#b82d2d';
                     } else {
-                        stockStatusEl.textContent = "IN STOCK";
-                        stockStatusEl.style.color = "#2e7d32";
-                        stockStatusEl.style.display = "block";
+                        dot.style.backgroundColor = '#2e7d32';
+                        text.textContent = 'IN STOCK';
+                        text.style.color = '#2e7d32';
                     }
+                    stockStatusEl.appendChild(dot);
+                    stockStatusEl.appendChild(text);
+                    stockStatusEl.style.display = 'flex';
                 }
                 
                 grid.appendChild(item);
@@ -1074,11 +1083,13 @@ window.addEventListener("orientationchange", updateCartHeight);
                 const item = document.createElement('div');
                 item.className = "catalog-item";
                 item.innerHTML = `
-                    <div class="product-link">
+                    <div class="product-link" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; flex-grow:1;">
                         <div class="product-box"></div>
-                        <div class="product-info">
-                            <div class="placeholder-name">AWAITING<br>REVEAL</div>
-                            <div class="placeholder-price">R0</div>
+                        <div class="product-info" style="display: flex; flex-direction: column; flex-grow: 1;">
+                            <h3 class="product-title placeholder">AWAITING REVEAL</h3>
+                            <div class="product-price-block placeholder">
+                                <span class="sale-price">R0</span>
+                            </div>
                         </div>
                     </div>
                     <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>
