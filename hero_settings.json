@@ -1,7 +1,7 @@
 {
-  "leftImage": "images/hero/left.jpeg",
-  "rightImage": "images/hero/right.webp",
-  "mobileImage": "images/hero/mobile.webp",
+  "leftImage": "images/hero/left.avif",
+  "rightImage": "images/hero/right.png",
+  "mobileImage": "images/hero/mobile.avif",
   "leftFlex": 1.4,
   "leftScale": 1,
   "leftX": 67,
@@ -23,5 +23,5 @@
   "logoMobileStick": 10,
   "logoMobileX": 0,
   "showGiftsButton": false,
-  "timestamp": "2026-06-09T10:39:09.539Z"
+  "timestamp": "2026-06-09T11:12:26.546Z"
 }
