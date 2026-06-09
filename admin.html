@@ -424,6 +424,57 @@
       box-shadow: 0 0 10px rgba(204, 255, 0, 0.05);
     }
 
+    /* Drop Zone */
+    .drop-zone {
+      border: 2px dashed var(--border-color);
+      border-radius: 6px;
+      padding: 20px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.02);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 5px;
+    }
+
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--accent);
+      background: rgba(204, 255, 0, 0.04);
+      box-shadow: 0 0 15px rgba(204, 255, 0, 0.1);
+    }
+
+    .drop-zone__prompt {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      pointer-events: none;
+    }
+
+    .drop-zone__icon {
+      font-size: 24px;
+      opacity: 0.6;
+      transition: transform 0.2s ease;
+      pointer-events: none;
+    }
+    
+    .drop-zone:hover .drop-zone__icon {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+
+    .drop-zone__filename {
+      font-size: 11px;
+      color: var(--accent);
+      font-family: monospace;
+      margin-top: 5px;
+      word-break: break-all;
+    }
+
+
     /* FULL WIDTH WRAPPER */
     .full-width-panel {
       grid-column: 1 / -1;
@@ -781,21 +832,33 @@
                       <label for="heroLeftImage">Desktop Left Image (Path or URL)</label>
                       <input type="text" id="heroLeftImage" class="form-input" placeholder="e.g. test3.avif">
                       <div style="margin: 5px 0; font-size: 10px; opacity: 0.5;">— OR UPLOAD FILE —</div>
-                      <input type="file" id="heroLeftFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                      <div class="drop-zone">
+                        <span class="drop-zone__icon">📤</span>
+                        <span class="drop-zone__prompt">Drag & drop photo here (.avif supported) or click to browse</span>
+                        <input type="file" id="heroLeftFile" accept="image/*,.avif" style="display: none;">
+                      </div>
                     </div>
 
                     <div class="form-group">
                       <label for="heroRightImage">Desktop Right Image (Path or URL)</label>
                       <input type="text" id="heroRightImage" class="form-input" placeholder="e.g. number23.avif">
                       <div style="margin: 5px 0; font-size: 10px; opacity: 0.5;">— OR UPLOAD FILE —</div>
-                      <input type="file" id="heroRightFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                      <div class="drop-zone">
+                        <span class="drop-zone__icon">📤</span>
+                        <span class="drop-zone__prompt">Drag & drop photo here (.avif supported) or click to browse</span>
+                        <input type="file" id="heroRightFile" accept="image/*,.avif" style="display: none;">
+                      </div>
                     </div>
 
                     <div class="form-group">
                       <label for="heroMobileImage">Mobile Hero Image (Path or URL)</label>
                       <input type="text" id="heroMobileImage" class="form-input" placeholder="e.g. test3 mobile.avif">
                       <div style="margin: 5px 0; font-size: 10px; opacity: 0.5;">— OR UPLOAD FILE —</div>
-                      <input type="file" id="heroMobileFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                      <div class="drop-zone">
+                        <span class="drop-zone__icon">📤</span>
+                        <span class="drop-zone__prompt">Drag & drop photo here (.avif supported) or click to browse</span>
+                        <input type="file" id="heroMobileFile" accept="image/*,.avif" style="display: none;">
+                      </div>
                     </div>
 
                     <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-top: 25px; margin-bottom: 15px;">2. Desktop Image Split & Space Crop</h3>
@@ -1045,21 +1108,33 @@
                       <label for="secHeroLeftImage">Desktop Left Image (Path or URL)</label>
                       <input type="text" id="secHeroLeftImage" class="form-input" placeholder="e.g. images/second-hero/left.webp">
                       <div style="margin: 5px 0; font-size: 10px; opacity: 0.5;">— OR UPLOAD FILE —</div>
-                      <input type="file" id="secHeroLeftFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                      <div class="drop-zone">
+                        <span class="drop-zone__icon">📤</span>
+                        <span class="drop-zone__prompt">Drag & drop photo here (.avif supported) or click to browse</span>
+                        <input type="file" id="secHeroLeftFile" accept="image/*,.avif" style="display: none;">
+                      </div>
                     </div>
 
                     <div class="form-group">
                       <label for="secHeroRightImage">Desktop Right Image (Path or URL)</label>
                       <input type="text" id="secHeroRightImage" class="form-input" placeholder="e.g. images/second-hero/right.webp">
                       <div style="margin: 5px 0; font-size: 10px; opacity: 0.5;">— OR UPLOAD FILE —</div>
-                      <input type="file" id="secHeroRightFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                      <div class="drop-zone">
+                        <span class="drop-zone__icon">📤</span>
+                        <span class="drop-zone__prompt">Drag & drop photo here (.avif supported) or click to browse</span>
+                        <input type="file" id="secHeroRightFile" accept="image/*,.avif" style="display: none;">
+                      </div>
                     </div>
 
                     <div class="form-group">
                       <label for="secHeroMobileImage">Mobile Hero Image (Path or URL)</label>
                       <input type="text" id="secHeroMobileImage" class="form-input" placeholder="e.g. images/second-hero/mobile.webp">
                       <div style="margin: 5px 0; font-size: 10px; opacity: 0.5;">— OR UPLOAD FILE —</div>
-                      <input type="file" id="secHeroMobileFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                      <div class="drop-zone">
+                        <span class="drop-zone__icon">📤</span>
+                        <span class="drop-zone__prompt">Drag & drop photo here (.avif supported) or click to browse</span>
+                        <input type="file" id="secHeroMobileFile" accept="image/*,.avif" style="display: none;">
+                      </div>
                     </div>
 
                     <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-top: 25px; margin-bottom: 15px;">2. Desktop Image Split & Space Crop</h3>
@@ -1303,7 +1378,11 @@
                       <label for="prodImage">Product Image Path / URL</label>
                       <input type="text" id="prodImage" class="form-input" placeholder="e.g. cheetahproduct.avif or URL">
                       <div style="margin: 8px 0; text-align: center; font-size: 10px; opacity: 0.5;">— OR UPLOAD & AUTOMATICALLY COMPRESS —</div>
-                      <input type="file" id="prodFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                      <div class="drop-zone">
+                        <span class="drop-zone__icon">📤</span>
+                        <span class="drop-zone__prompt">Drag & drop photo here or click to browse</span>
+                        <input type="file" id="prodFile" accept="image/*,.avif" style="display: none;">
+                      </div>
                     </div>
 
                     <div class="form-group">
@@ -1503,7 +1582,11 @@
                   <label for="editProdImage">Product Image Path(s) / URL(s) <span style="text-transform: none; opacity: 0.5;">(comma-separated)</span></label>
                   <input type="text" id="editProdImage" class="form-input">
                   <div style="margin: 8px 0; text-align: center; font-size: 10px; opacity: 0.5;">— OR UPLOAD & AUTOMATICALLY COMPRESS —</div>
-                  <input type="file" id="editProdFile" class="form-input" accept="image/*" style="padding: 8px; color: #fff;">
+                  <div class="drop-zone">
+                    <span class="drop-zone__icon">📤</span>
+                    <span class="drop-zone__prompt">Drag & drop photo here or click to browse</span>
+                    <input type="file" id="editProdFile" accept="image/*,.avif" style="display: none;">
+                  </div>
                 </div>
 
                 <div class="form-group">
@@ -2742,7 +2825,10 @@
       }
 
       const editFileEl = document.getElementById("editProdFile");
-      if (editFileEl) editFileEl.value = "";
+      if (editFileEl) {
+        editFileEl.value = "";
+        editFileEl.dispatchEvent(new Event("change", { bubbles: true }));
+      }
 
       closeEditModal();
       if (submitBtn) {
@@ -3181,6 +3267,125 @@
         });
       }
 
+      // Listeners for first hero file changes
+      const fileL = document.getElementById("heroLeftFile");
+      if (fileL) {
+        fileL.addEventListener("change", function(ev) {
+          const file = ev.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              const previewL = document.getElementById("previewImgL");
+              if (previewL) previewL.src = e.target.result;
+              window.updateHeroPreview();
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      const fileR = document.getElementById("heroRightFile");
+      if (fileR) {
+        fileR.addEventListener("change", function(ev) {
+          const file = ev.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              const previewR = document.getElementById("previewImgR");
+              if (previewR) previewR.src = e.target.result;
+              window.updateHeroPreview();
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      const fileM = document.getElementById("heroMobileFile");
+      if (fileM) {
+        fileM.addEventListener("change", function(ev) {
+          const file = ev.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              const previewM = document.getElementById("previewImgMobile");
+              if (previewM) previewM.src = e.target.result;
+              window.updateHeroPreview();
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      // Setup Drag-and-Drop Drop Zones
+      document.querySelectorAll(".drop-zone").forEach(dropZone => {
+        const input = dropZone.querySelector("input[type='file']");
+        if (!input) return;
+
+        // Click to browse
+        dropZone.addEventListener("click", (e) => {
+          if (e.target !== input) {
+            input.click();
+          }
+        });
+
+        // Drag over
+        dropZone.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          dropZone.classList.add("drag-over");
+        });
+
+        ["dragleave", "dragend"].forEach(type => {
+          dropZone.addEventListener(type, () => {
+            dropZone.classList.remove("drag-over");
+          });
+        });
+
+        // Drop file
+        dropZone.addEventListener("drop", (e) => {
+          e.preventDefault();
+          dropZone.classList.remove("drag-over");
+
+          if (e.dataTransfer.files.length) {
+            input.files = e.dataTransfer.files;
+            
+            // Trigger change event
+            const event = new Event("change", { bubbles: true });
+            input.dispatchEvent(event);
+          }
+        });
+
+        // Update label/prompt on file change
+        input.addEventListener("change", () => {
+          let filenameSpan = dropZone.querySelector(".drop-zone__filename");
+          if (!filenameSpan) {
+            filenameSpan = document.createElement("span");
+            filenameSpan.className = "drop-zone__filename";
+            dropZone.appendChild(filenameSpan);
+          }
+
+          if (input.files.length) {
+            const file = input.files[0];
+            filenameSpan.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+            const prompt = dropZone.querySelector(".drop-zone__prompt");
+            if (prompt) prompt.style.display = "none";
+          } else {
+            filenameSpan.remove();
+            const prompt = dropZone.querySelector(".drop-zone__prompt");
+            if (prompt) prompt.style.display = "block";
+          }
+        });
+
+        // Handle form reset
+        const form = dropZone.closest("form");
+        if (form) {
+          form.addEventListener("reset", () => {
+            setTimeout(() => {
+              input.dispatchEvent(new Event("change", { bubbles: true }));
+            }, 0);
+          });
+        }
+      });
+
       setTimeout(async () => {
         if (window.db && window.dbDoc && window.dbGetDoc) {
           try {
@@ -3346,9 +3551,12 @@
         }
       }
 
-      document.getElementById("heroLeftFile").value = "";
-      document.getElementById("heroRightFile").value = "";
-      document.getElementById("heroMobileFile").value = "";
+      const hLeft = document.getElementById("heroLeftFile");
+      const hRight = document.getElementById("heroRightFile");
+      const hMobile = document.getElementById("heroMobileFile");
+      if (hLeft) { hLeft.value = ""; hLeft.dispatchEvent(new Event("change", { bubbles: true })); }
+      if (hRight) { hRight.value = ""; hRight.dispatchEvent(new Event("change", { bubbles: true })); }
+      if (hMobile) { hMobile.value = ""; hMobile.dispatchEvent(new Event("change", { bubbles: true })); }
 
       if (submitBtn) {
         submitBtn.disabled = false;
@@ -3457,9 +3665,12 @@
         }
       }
 
-      document.getElementById("secHeroLeftFile").value = "";
-      document.getElementById("secHeroRightFile").value = "";
-      document.getElementById("secHeroMobileFile").value = "";
+      const sLeft = document.getElementById("secHeroLeftFile");
+      const sRight = document.getElementById("secHeroRightFile");
+      const sMobile = document.getElementById("secHeroMobileFile");
+      if (sLeft) { sLeft.value = ""; sLeft.dispatchEvent(new Event("change", { bubbles: true })); }
+      if (sRight) { sRight.value = ""; sRight.dispatchEvent(new Event("change", { bubbles: true })); }
+      if (sMobile) { sMobile.value = ""; sMobile.dispatchEvent(new Event("change", { bubbles: true })); }
 
       if (submitBtn) {
         submitBtn.disabled = false;
