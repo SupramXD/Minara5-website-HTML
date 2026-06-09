@@ -270,11 +270,11 @@ nav ul li a:hover{opacity:0.6;}
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #F3F3F3;
+    background: #fffff6;
     overflow: hidden;
     border-radius: 8px;
     position: relative;
-    padding: 20px;
+    padding: 0;
     box-sizing: border-box;
     transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
@@ -288,7 +288,7 @@ nav ul li a:hover{opacity:0.6;}
     width: 100%;
     height: 100%;
     display: block;
-    object-fit: contain;
+    object-fit: cover;
     transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 .product-discount-badge {
@@ -336,12 +336,14 @@ nav ul li a:hover{opacity:0.6;}
 .inspired-by {
     color: #888888;
     font-weight: normal;
-    margin-right: 4px;
+    display: block;
+    margin-bottom: 2px;
 }
 .inspired-target {
     color: #444444;
     font-style: italic;
     font-weight: 500;
+    display: block;
 }
 .product-reviews-row {
     display: flex;
@@ -442,7 +444,7 @@ nav ul li a:hover{opacity:0.6;}
 
 @media(max-width: 900px) {
     .product-box {
-        padding: 12px !important;
+        padding: 0 !important;
     }
     .catalog-main {
         padding: 80px 24px 60px;
@@ -786,6 +788,7 @@ footer{
                 <div class="product-reviews-row" style="margin-bottom: 12px; opacity: 0.3;">
                     <span class="product-stars">★★★★★</span>
                 </div>
+                <div class="product-retail-price placeholder-name" style="height: 12px; width: 40%; background: #eaeaea; margin-bottom: 8px;"></div>
                 <div class="product-price-action-row">
                     <div class="product-price-container">
                         <span class="product-sale-price placeholder-price">R0</span>
@@ -803,6 +806,7 @@ footer{
                 <div class="product-reviews-row" style="margin-bottom: 12px; opacity: 0.3;">
                     <span class="product-stars">★★★★★</span>
                 </div>
+                <div class="product-retail-price placeholder-name" style="height: 12px; width: 40%; background: #eaeaea; margin-bottom: 8px;"></div>
                 <div class="product-price-action-row">
                     <div class="product-price-container">
                         <span class="product-sale-price placeholder-price">R0</span>
@@ -820,6 +824,7 @@ footer{
                 <div class="product-reviews-row" style="margin-bottom: 12px; opacity: 0.3;">
                     <span class="product-stars">★★★★★</span>
                 </div>
+                <div class="product-retail-price placeholder-name" style="height: 12px; width: 40%; background: #eaeaea; margin-bottom: 8px;"></div>
                 <div class="product-price-action-row">
                     <div class="product-price-container">
                         <span class="product-sale-price placeholder-price">R0</span>
@@ -837,6 +842,7 @@ footer{
                 <div class="product-reviews-row" style="margin-bottom: 12px; opacity: 0.3;">
                     <span class="product-stars">★★★★★</span>
                 </div>
+                <div class="product-retail-price placeholder-name" style="height: 12px; width: 40%; background: #eaeaea; margin-bottom: 8px;"></div>
                 <div class="product-price-action-row">
                     <div class="product-price-container">
                         <span class="product-sale-price placeholder-price">R0</span>
@@ -953,7 +959,7 @@ window.addEventListener("orientationchange", updateCartHeight);
 </script>
 <script type="module" src="header.js"></script>
 <script type="module">
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     async function initCatalog() {
         const formatPrice = window.formatPrice || (val => {
@@ -1035,6 +1041,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                             <span class="product-stars">★★★★★</span>
                             <span class="product-reviews-count"></span>
                         </div>
+                        <div class="product-retail-price" style="font-size: 10px; opacity: 0.55; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase; font-family: Helvetica, Arial, sans-serif; display: none;"></div>
                         <div class="catalog-stock-status" style="font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: bold; display: none; text-align: left; white-space: nowrap;"></div>
                         <div class="product-price-action-row">
                             <a class="product-price-link" style="text-decoration:none; color:inherit; display:block; flex-grow: 1;">
@@ -1095,17 +1102,55 @@ window.addEventListener("orientationchange", updateCartHeight);
                     nameEl.innerHTML = escapedName;
                 }
 
-                // Populate Reviews deterministically based on product ID
+                // Populate Reviews dynamically from Firestore (with fallback)
                 const reviewsCountEl = item.querySelector('.product-reviews-count');
+                const starsEl = item.querySelector('.product-stars');
+                let hash = 0;
+                const seedStr = p.id || rawName;
+                for (let i = 0; i < seedStr.length; i++) {
+                    hash = seedStr.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                const count = 120 + Math.abs(hash % 260);
                 if (reviewsCountEl) {
-                    let hash = 0;
-                    const seedStr = p.id || rawName;
-                    for (let i = 0; i < seedStr.length; i++) {
-                        hash = seedStr.charCodeAt(i) + ((hash << 5) - hash);
-                    }
-                    const count = 120 + Math.abs(hash % 260);
                     reviewsCountEl.textContent = `${count} reviews`;
                 }
+                if (starsEl) {
+                    starsEl.textContent = '★★★★★';
+                }
+
+                const loadCardReviews = async () => {
+                    let retries = 10;
+                    while (!window.db && retries > 0) {
+                        await new Promise(r => setTimeout(r, 100));
+                        retries--;
+                    }
+                    if (!window.db) return;
+                    try {
+                        const qSnapshot = await getDocs(query(collection(window.db, "reviews"), where("productId", "==", p.id)));
+                        let totalRating = 0;
+                        let count = 0;
+                        qSnapshot.forEach(doc => {
+                            const data = doc.data();
+                            if (data.rating) {
+                                totalRating += Number(data.rating);
+                                count++;
+                            }
+                        });
+                        if (count > 0) {
+                            const avg = totalRating / count;
+                            if (reviewsCountEl) {
+                                reviewsCountEl.textContent = `${count} ${count === 1 ? 'review' : 'reviews'}`;
+                            }
+                            if (starsEl) {
+                                const rounded = Math.round(avg);
+                                starsEl.textContent = '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
+                            }
+                        }
+                    } catch (err) {
+                        console.error("Error loading reviews for product card:", err);
+                    }
+                };
+                loadCardReviews();
 
                 // Populate Discount Badge
                 const discountBadge = item.querySelector('.product-discount-badge');
@@ -1124,27 +1169,31 @@ window.addEventListener("orientationchange", updateCartHeight);
                 }
                 
                 // Safe retail price assignment
-                const originalPriceEl = item.querySelector('.product-original-price');
-                if (originalPriceEl) {
+                const retailEl = item.querySelector('.product-retail-price');
+                if (retailEl) {
                     if (p.retailPrice) {
-                        originalPriceEl.textContent = `R${formatRetailPrice(p.retailPrice)}`;
-                        originalPriceEl.style.display = 'inline-block';
+                        retailEl.textContent = `Retail: R${formatRetailPrice(p.retailPrice)}`;
+                        retailEl.style.display = 'block';
                     } else {
-                        originalPriceEl.style.display = 'none';
+                        retailEl.style.display = 'none';
                     }
                 }
                 
                 // Safe price text element configuration (handles discount layout)
+                const originalPriceEl = item.querySelector('.product-original-price');
                 const salePriceEl = item.querySelector('.product-sale-price');
                 const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
                 if (hasDiscount) {
                     salePriceEl.textContent = `R${formatPrice(Math.round(p.price * 0.95))}`;
                     if (originalPriceEl) {
-                        originalPriceEl.textContent = `R${formatRetailPrice(p.price)}`;
+                        originalPriceEl.textContent = `R${formatPrice(p.price)}`;
                         originalPriceEl.style.display = 'inline-block';
                     }
                 } else {
                     salePriceEl.textContent = `R${formatPrice(p.price)}`;
+                    if (originalPriceEl) {
+                        originalPriceEl.style.display = 'none';
+                    }
                 }
                 
                 // Safe button actions mapping
@@ -1203,6 +1252,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                         <div class="product-reviews-row" style="margin-bottom: 12px; opacity: 0.3;">
                             <span class="product-stars">★★★★★</span>
                         </div>
+                        <div class="product-retail-price placeholder-name" style="height: 12px; width: 40%; background: #eaeaea; margin-bottom: 8px;"></div>
                         <div class="product-price-action-row">
                             <div class="product-price-container">
                                 <span class="product-sale-price placeholder-price">R0</span>

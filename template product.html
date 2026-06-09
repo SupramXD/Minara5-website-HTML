@@ -1577,17 +1577,26 @@ window.openCart = function() {
         try {
             const q = query(
                 collection(window.db, "reviews"),
-                where("productId", "==", prodId),
-                orderBy("timestamp", "desc")
+                where("productId", "==", prodId)
             );
             const querySnapshot = await getDocs(q);
+            
+            // Sort client-side to avoid composite index requirements
+            const docs = [];
+            querySnapshot.forEach(doc => {
+                docs.push({ id: doc.id, ...doc.data() });
+            });
+            docs.sort((a, b) => {
+                const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+                const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+                return timeB - timeA;
+            });
             
             let totalRating = 0;
             let count = 0;
             let reviewsHTML = "";
 
-            querySnapshot.forEach((doc) => {
-                const review = doc.data();
+            docs.forEach((review) => {
                 count++;
                 totalRating += Number(review.rating);
 

@@ -723,11 +723,11 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #F3F3F3;
+      background: #fffff6;
       overflow: hidden;
       border-radius: 8px;
       position: relative;
-      padding: 20px;
+      padding: 0;
       box-sizing: border-box;
       transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
@@ -741,7 +741,7 @@
       width: 100%;
       height: 100%;
       display: block;
-      object-fit: contain;
+      object-fit: cover;
       transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
 
@@ -794,13 +794,15 @@
     .inspired-by {
       color: #888888;
       font-weight: normal;
-      margin-right: 4px;
+      display: block;
+      margin-bottom: 2px;
     }
 
     .inspired-target {
       color: #444444;
       font-style: italic;
       font-weight: 500;
+      display: block;
     }
 
     .hp-reviews-row {
@@ -983,7 +985,7 @@
       }
 
       .hp-box {
-        padding: 12px !important;
+        padding: 0 !important;
       }
 
       .hp-name-short {
@@ -2141,7 +2143,7 @@
 
   <script type="module" src="header.js"></script>
   <script type="module">
-    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, query, where } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     async function initCatalog() {
       const formatPrice = window.formatPrice || (val => {
@@ -2242,6 +2244,7 @@
                 <span class="hp-stars">★★★★★</span>
                 <span class="hp-reviews-count"></span>
               </div>
+              <div class="hp-retail-price" style="font-size: 10px; opacity: 0.55; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase; font-family: Helvetica, Arial, sans-serif; display: none;"></div>
               <div class="hp-stock-status" style="font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: bold; display: none; text-align: left; white-space: nowrap;"></div>
               <div class="hp-price-action-row">
                 <a class="product-link-anchor-3" style="text-decoration:none; color:inherit; display:block; flex-grow: 1;">
@@ -2303,17 +2306,55 @@
             nameEl.innerHTML = escapedName;
           }
 
-          // Populate Reviews deterministically based on product ID
+          // Populate Reviews dynamically from Firestore (with fallback)
           const reviewsCountEl = card.querySelector('.hp-reviews-count');
+          const starsEl = card.querySelector('.hp-stars');
+          let hash = 0;
+          const seedStr = p.id || rawName;
+          for (let i = 0; i < seedStr.length; i++) {
+            hash = seedStr.charCodeAt(i) + ((hash << 5) - hash);
+          }
+          const count = 120 + Math.abs(hash % 260);
           if (reviewsCountEl) {
-            let hash = 0;
-            const seedStr = p.id || rawName;
-            for (let i = 0; i < seedStr.length; i++) {
-              hash = seedStr.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            const count = 120 + Math.abs(hash % 260);
             reviewsCountEl.textContent = `${count} reviews`;
           }
+          if (starsEl) {
+            starsEl.textContent = '★★★★★';
+          }
+
+          const loadCardReviews = async () => {
+            let retries = 10;
+            while (!window.db && retries > 0) {
+              await new Promise(r => setTimeout(r, 100));
+              retries--;
+            }
+            if (!window.db) return;
+            try {
+              const qSnapshot = await getDocs(query(collection(window.db, "reviews"), where("productId", "==", p.id)));
+              let totalRating = 0;
+              let count = 0;
+              qSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.rating) {
+                  totalRating += Number(data.rating);
+                  count++;
+                }
+              });
+              if (count > 0) {
+                const avg = totalRating / count;
+                if (reviewsCountEl) {
+                  reviewsCountEl.textContent = `${count} ${count === 1 ? 'review' : 'reviews'}`;
+                }
+                if (starsEl) {
+                  const rounded = Math.round(avg);
+                  starsEl.textContent = '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
+                }
+              }
+            } catch (err) {
+              console.error("Error loading reviews for product card:", err);
+            }
+          };
+          loadCardReviews();
 
           // Populate Discount Badge
           const discountBadge = card.querySelector('.hp-discount-badge');
@@ -2332,27 +2373,31 @@
           }
 
           // Safe retail price assignment
-          const originalPriceEl = card.querySelector('.hp-original-price');
-          if (originalPriceEl) {
+          const retailEl = card.querySelector('.hp-retail-price');
+          if (retailEl) {
             if (p.retailPrice) {
-              originalPriceEl.textContent = `R${formatRetailPrice(p.retailPrice)}`;
-              originalPriceEl.style.display = 'inline-block';
+              retailEl.textContent = `Retail: R${formatRetailPrice(p.retailPrice)}`;
+              retailEl.style.display = 'block';
             } else {
-              originalPriceEl.style.display = 'none';
+              retailEl.style.display = 'none';
             }
           }
 
           // Safe price text element configuration (handles discount layout)
+          const originalPriceEl = card.querySelector('.hp-original-price');
           const salePriceEl = card.querySelector('.hp-sale-price');
           const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
           if (hasDiscount) {
             salePriceEl.textContent = `R${formatPrice(Math.round(p.price * 0.95))}`;
             if (originalPriceEl) {
-              originalPriceEl.textContent = `R${formatRetailPrice(p.price)}`;
+              originalPriceEl.textContent = `R${formatPrice(p.price)}`;
               originalPriceEl.style.display = 'inline-block';
             }
           } else {
             salePriceEl.textContent = `R${formatPrice(p.price)}`;
+            if (originalPriceEl) {
+              originalPriceEl.style.display = 'none';
+            }
           }
 
           // Safe button actions mapping
