@@ -2211,6 +2211,20 @@
       });
     };
 
+    const readFileAsDataURL = function(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          resolve(event.target.result);
+        };
+        reader.onerror = function(err) {
+          reject(err);
+        };
+        reader.readAsDataURL(file);
+      });
+    };
+
+
     window.handleAddProduct = async function(e) {
       e.preventDefault();
       
@@ -2818,6 +2832,110 @@
           previewMobileContainer.style.height = "auto";
           previewImgMobile.style.height = "auto";
           previewImgMobile.style.objectFit = "fill";
+        } else {
+          const pixelVal = parseInt(mobileHeight);
+          const previewHeight = Math.round(pixelVal * 0.46) + "px";
+          previewMobileContainer.style.height = previewHeight;
+          previewImgMobile.style.height = "100%";
+          previewImgMobile.style.objectFit = "cover";
+        }
+      }
+    };
+
+    window.updateSecondHeroPreview = function() {
+      const leftFlex = parseFloat(document.getElementById("secHeroLeftFlex").value);
+      const rightFlex = 2.0 - leftFlex;
+      document.getElementById("secHeroLeftFlexVal").value = leftFlex.toFixed(2);
+
+      const leftScale = document.getElementById("secHeroLeftScale").value;
+      const leftX = document.getElementById("secHeroLeftX").value;
+      const leftY = document.getElementById("secHeroLeftY").value;
+      
+      const rightScale = document.getElementById("secHeroRightScale").value;
+      const rightX = document.getElementById("secHeroRightX").value;
+      const rightY = document.getElementById("secHeroRightY").value;
+
+      const desktopHeight = document.getElementById("secHeroDesktopHeight").value;
+      const mobileHeight = document.getElementById("secHeroMobileHeight").value;
+      const mobileScale = document.getElementById("secHeroMobileScale").value;
+      const mobileX = document.getElementById("secHeroMobileX").value;
+      const mobileY = document.getElementById("secHeroMobileY").value;
+
+      // Sync range values with exact number inputs
+      if (document.getElementById("secHeroLeftScaleNum")) document.getElementById("secHeroLeftScaleNum").value = leftScale;
+      if (document.getElementById("secHeroLeftXNum")) document.getElementById("secHeroLeftXNum").value = leftX;
+      if (document.getElementById("secHeroLeftYNum")) document.getElementById("secHeroLeftYNum").value = leftY;
+      if (document.getElementById("secHeroRightScaleNum")) document.getElementById("secHeroRightScaleNum").value = rightScale;
+      if (document.getElementById("secHeroRightXNum")) document.getElementById("secHeroRightXNum").value = rightX;
+      if (document.getElementById("secHeroRightYNum")) document.getElementById("secHeroRightYNum").value = rightY;
+      if (document.getElementById("secHeroMobileScaleNum")) document.getElementById("secHeroMobileScaleNum").value = mobileScale;
+      if (document.getElementById("secHeroMobileXNum")) document.getElementById("secHeroMobileXNum").value = mobileX;
+      if (document.getElementById("secHeroMobileYNum")) document.getElementById("secHeroMobileYNum").value = mobileY;
+
+      const previewSecDesktopContainer = document.getElementById("previewSecDesktopContainer");
+      if (previewSecDesktopContainer) {
+        if (desktopHeight.endsWith("vh")) {
+          const vhVal = parseInt(desktopHeight);
+          previewSecDesktopContainer.style.height = (vhVal * 2) + "px";
+        } else if (desktopHeight.endsWith("px")) {
+          const pxVal = parseInt(desktopHeight);
+          previewSecDesktopContainer.style.height = Math.round(pxVal * 0.2) + "px";
+        }
+      }
+
+      const previewSecImgL = document.getElementById("previewSecImgL");
+      if (previewSecImgL) {
+        previewSecImgL.style.flex = leftFlex;
+        previewSecImgL.style.transform = `scale(${leftScale})`;
+        previewSecImgL.style.objectPosition = `${leftX}% ${leftY}%`;
+        previewSecImgL.style.transformOrigin = `${leftX}% ${leftY}%`;
+      }
+
+      const previewSecImgRParent = document.getElementById("previewSecImgRParent");
+      if (previewSecImgRParent) {
+        previewSecImgRParent.style.flex = rightFlex;
+      }
+      const previewSecImgR = document.getElementById("previewSecImgR");
+      if (previewSecImgR) {
+        previewSecImgR.style.transform = `scale(${rightScale})`;
+        previewSecImgR.style.objectPosition = `${rightX}% ${rightY}%`;
+        previewSecImgR.style.transformOrigin = `${rightX}% ${rightY}%`;
+      }
+
+      const previewSecImgMobile = document.getElementById("previewSecImgMobile");
+      const previewSecMobileContainer = document.getElementById("previewSecMobileContainer");
+      
+      const leftImageSrc = document.getElementById("secHeroLeftImage") ? document.getElementById("secHeroLeftImage").value.trim() : "";
+      const rightImageSrc = document.getElementById("secHeroRightImage") ? document.getElementById("secHeroRightImage").value.trim() : "";
+      const mobileImageSrc = document.getElementById("secHeroMobileImage") ? document.getElementById("secHeroMobileImage").value.trim() : "";
+      
+      const secFileL = document.getElementById("secHeroLeftFile");
+      const secFileR = document.getElementById("secHeroRightFile");
+      const secFileM = document.getElementById("secHeroMobileFile");
+
+      const hasLeft = leftImageSrc !== "" || (secFileL && secFileL.files && secFileL.files.length > 0);
+      const hasRight = rightImageSrc !== "" || (secFileR && secFileR.files && secFileR.files.length > 0);
+      const hasMobile = mobileImageSrc !== "" || (secFileM && secFileM.files && secFileM.files.length > 0);
+
+      const secDesktopEmpty = document.getElementById("previewSecEmptyIndicator");
+      if (secDesktopEmpty) {
+        secDesktopEmpty.style.display = (hasLeft || hasRight) ? "none" : "flex";
+      }
+      
+      if (previewSecImgL) {
+        previewSecImgL.style.display = hasLeft ? "block" : "none";
+      }
+      if (previewSecImgRParent) {
+        previewSecImgRParent.style.display = hasRight ? "block" : "none";
+      }
+
+      if (previewSecImgMobile && previewSecMobileContainer) {
+        previewSecImgMobile.style.transform = `scale(${mobileScale})`;
+        previewSecImgMobile.style.objectPosition = `${mobileX}% ${mobileY}%`;
+        previewSecImgMobile.style.transformOrigin = `${mobileX}% ${mobileY}%`;
+        previewSecImgMobile.style.display = hasMobile ? "block" : "none";
+        
+        if (mobileHeight === "auto") {
           previewSecMobileContainer.style.height = hasMobile ? "auto" : "70px";
           previewSecImgMobile.style.height = "auto";
           previewSecImgMobile.style.objectFit = "fill";
@@ -2829,8 +2947,9 @@
           previewSecImgMobile.style.objectFit = "cover";
         }
       }
-      if (emptyMobileIndicator) {
-        emptyMobileIndicator.style.display = hasMobile ? "none" : "flex";
+      const emptySecMobileIndicator = document.getElementById("previewSecEmptyMobileIndicator");
+      if (emptySecMobileIndicator) {
+        emptySecMobileIndicator.style.display = hasMobile ? "none" : "flex";
       }
     };
 
@@ -2952,20 +3071,53 @@
         document.getElementById("secHeroRightImage").value = s.rightImage || "";
         document.getElementById("secHeroMobileImage").value = s.mobileImage || "";
         
-        document.getElementById("secHeroLeftFlex").value = s.leftFlex !== undefined ? s.leftFlex : 1.3;
-        document.getElementById("secHeroLeftScale").value = s.leftScale !== undefined ? s.leftScale : 1.0;
-        document.getElementById("secHeroLeftX").value = s.leftX !== undefined ? s.leftX : 50;
-        document.getElementById("secHeroLeftY").value = s.leftY !== undefined ? s.leftY : 50;
+        const leftFlex = s.leftFlex !== undefined ? s.leftFlex : 1.3;
+        const leftScale = s.leftScale !== undefined ? s.leftScale : 1.0;
+        const leftX = s.leftX !== undefined ? s.leftX : 50;
+        const leftY = s.leftY !== undefined ? s.leftY : 50;
         
-        document.getElementById("secHeroRightScale").value = s.rightScale !== undefined ? s.rightScale : 1.0;
-        document.getElementById("secHeroRightX").value = s.rightX !== undefined ? s.rightX : 50;
-        document.getElementById("secHeroRightY").value = s.rightY !== undefined ? s.rightY : 50;
+        const rightScale = s.rightScale !== undefined ? s.rightScale : 1.0;
+        const rightX = s.rightX !== undefined ? s.rightX : 50;
+        const rightY = s.rightY !== undefined ? s.rightY : 50;
         
-        document.getElementById("secHeroDesktopHeight").value = s.desktopHeight || "80vh";
-        document.getElementById("secHeroMobileHeight").value = s.mobileHeight || "auto";
-        document.getElementById("secHeroMobileScale").value = s.mobileScale !== undefined ? s.mobileScale : 1.0;
-        document.getElementById("secHeroMobileX").value = s.mobileX !== undefined ? s.mobileX : 50;
-        document.getElementById("secHeroMobileY").value = s.mobileY !== undefined ? s.mobileY : 50;
+        const desktopHeight = s.desktopHeight || "80vh";
+        const mobileHeight = s.mobileHeight || "auto";
+        const mobileScale = s.mobileScale !== undefined ? s.mobileScale : 1.0;
+        const mobileX = s.mobileX !== undefined ? s.mobileX : 50;
+        const mobileY = s.mobileY !== undefined ? s.mobileY : 50;
+
+        document.getElementById("secHeroLeftFlex").value = leftFlex;
+        document.getElementById("secHeroLeftFlexVal").value = Number(leftFlex).toFixed(2);
+
+        document.getElementById("secHeroLeftScale").value = leftScale;
+        if (document.getElementById("secHeroLeftScaleNum")) document.getElementById("secHeroLeftScaleNum").value = Number(leftScale).toFixed(2);
+
+        document.getElementById("secHeroLeftX").value = leftX;
+        if (document.getElementById("secHeroLeftXNum")) document.getElementById("secHeroLeftXNum").value = leftX;
+
+        document.getElementById("secHeroLeftY").value = leftY;
+        if (document.getElementById("secHeroLeftYNum")) document.getElementById("secHeroLeftYNum").value = leftY;
+
+        document.getElementById("secHeroRightScale").value = rightScale;
+        if (document.getElementById("secHeroRightScaleNum")) document.getElementById("secHeroRightScaleNum").value = Number(rightScale).toFixed(2);
+
+        document.getElementById("secHeroRightX").value = rightX;
+        if (document.getElementById("secHeroRightXNum")) document.getElementById("secHeroRightXNum").value = rightX;
+
+        document.getElementById("secHeroRightY").value = rightY;
+        if (document.getElementById("secHeroRightYNum")) document.getElementById("secHeroRightYNum").value = rightY;
+
+        document.getElementById("secHeroDesktopHeight").value = desktopHeight;
+        document.getElementById("secHeroMobileHeight").value = mobileHeight;
+
+        document.getElementById("secHeroMobileScale").value = mobileScale;
+        if (document.getElementById("secHeroMobileScaleNum")) document.getElementById("secHeroMobileScaleNum").value = Number(mobileScale).toFixed(2);
+
+        document.getElementById("secHeroMobileX").value = mobileX;
+        if (document.getElementById("secHeroMobileXNum")) document.getElementById("secHeroMobileXNum").value = mobileX;
+
+        document.getElementById("secHeroMobileY").value = mobileY;
+        if (document.getElementById("secHeroMobileYNum")) document.getElementById("secHeroMobileYNum").value = mobileY;
 
         const previewSecL = document.getElementById("previewSecImgL");
         if (previewSecL) previewSecL.src = s.leftImage || "";
@@ -3123,30 +3275,18 @@
 
       try {
         if (leftFile) {
-          leftImage = await compressImage(leftFile, 1200, 0.70);
-        } else if (leftImageText && !leftImageText.startsWith("data:")) {
-          try {
-            leftImage = await compressUrlOrPath(leftImageText, 1200, 0.70);
-          } catch (ex) {}
+          leftImage = await readFileAsDataURL(leftFile);
         }
         
         if (rightFile) {
-          rightImage = await compressImage(rightFile, 1200, 0.70);
-        } else if (rightImageText && !rightImageText.startsWith("data:")) {
-          try {
-            rightImage = await compressUrlOrPath(rightImageText, 1200, 0.70);
-          } catch (ex) {}
+          rightImage = await readFileAsDataURL(rightFile);
         }
 
         if (mobileFile) {
-          mobileImage = await compressImage(mobileFile, 800, 0.65);
-        } else if (mobileImageText && !mobileImageText.startsWith("data:")) {
-          try {
-            mobileImage = await compressUrlOrPath(mobileImageText, 800, 0.65);
-          } catch (ex) {}
+          mobileImage = await readFileAsDataURL(mobileFile);
         }
       } catch (err) {
-        console.error("Error compressing hero image:", err);
+        console.error("Error reading hero image file:", err);
       }
 
       const settingsData = {
@@ -3255,30 +3395,18 @@
 
       try {
         if (leftFile) {
-          leftImage = await compressImage(leftFile, 1200, 0.70);
-        } else if (leftImageText && !leftImageText.startsWith("data:")) {
-          try {
-            leftImage = await compressUrlOrPath(leftImageText, 1200, 0.70);
-          } catch (ex) {}
+          leftImage = await readFileAsDataURL(leftFile);
         }
         
         if (rightFile) {
-          rightImage = await compressImage(rightFile, 1200, 0.70);
-        } else if (rightImageText && !rightImageText.startsWith("data:")) {
-          try {
-            rightImage = await compressUrlOrPath(rightImageText, 1200, 0.70);
-          } catch (ex) {}
+          rightImage = await readFileAsDataURL(rightFile);
         }
 
         if (mobileFile) {
-          mobileImage = await compressImage(mobileFile, 800, 0.65);
-        } else if (mobileImageText && !mobileImageText.startsWith("data:")) {
-          try {
-            mobileImage = await compressUrlOrPath(mobileImageText, 800, 0.65);
-          } catch (ex) {}
+          mobileImage = await readFileAsDataURL(mobileFile);
         }
       } catch (err) {
-        console.error("Error compressing second hero image:", err);
+        console.error("Error reading second hero image file:", err);
       }
 
       const settingsData = {
