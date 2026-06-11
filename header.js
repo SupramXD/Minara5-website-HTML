@@ -24,38 +24,46 @@ style.textContent = `
   img:not(.loaded) {
     opacity: 0 !important;
   }
-  img.loaded {
-    animation: imgFadeIn 0.2s ease-in-out forwards;
-  }
-  @keyframes imgFadeIn {
-    from { opacity: 0; }
+  img.loading-fade {
+    transition: opacity 0.45s ease-in-out !important;
   }
 `;
 document.head.appendChild(style);
 
+const markImageLoaded = (img) => {
+    if (img.classList.contains('loaded')) return;
+    img.classList.add('loading-fade');
+    // Force reflow
+    img.offsetWidth;
+    img.classList.add('loaded');
+    setTimeout(() => {
+        img.classList.remove('loading-fade');
+    }, 500);
+};
+
 // --- GLOBAL IMAGE FADE-IN HANDLER (CAPTURED LOAD EVENT) ---
 document.addEventListener('load', (event) => {
     if (event.target && event.target.tagName === 'IMG') {
-        event.target.classList.add('loaded');
+        markImageLoaded(event.target);
     }
 }, true);
 
 // Handle cached/already complete images
-const markLoadedImages = () => {
+const markAllComplete = () => {
     const images = document.querySelectorAll('img');
     images.forEach(img => {
         if (img.complete) {
-            img.classList.add('loaded');
+            markImageLoaded(img);
         }
     });
 };
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', markLoadedImages);
+    document.addEventListener('DOMContentLoaded', markAllComplete);
 } else {
-    markLoadedImages();
+    markAllComplete();
 }
-window.addEventListener('load', markLoadedImages);
+window.addEventListener('load', markAllComplete);
 
 const firebaseConfig = {
     apiKey: "AIzaSyC8srbzH_DcCYQJXe9MNOyy2OHZSaLidIo",
