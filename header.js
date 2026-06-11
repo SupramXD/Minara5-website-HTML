@@ -18,6 +18,45 @@ import {
     getDoc
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+// --- DYNAMICALLY INJECT FADE-IN CSS ---
+const style = document.createElement('style');
+style.textContent = `
+  img:not(.loaded) {
+    opacity: 0 !important;
+  }
+  img.loaded {
+    animation: imgFadeIn 0.2s ease-in-out forwards;
+  }
+  @keyframes imgFadeIn {
+    from { opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
+
+// --- GLOBAL IMAGE FADE-IN HANDLER (CAPTURED LOAD EVENT) ---
+document.addEventListener('load', (event) => {
+    if (event.target && event.target.tagName === 'IMG') {
+        event.target.classList.add('loaded');
+    }
+}, true);
+
+// Handle cached/already complete images
+const markLoadedImages = () => {
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+        if (img.complete) {
+            img.classList.add('loaded');
+        }
+    });
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', markLoadedImages);
+} else {
+    markLoadedImages();
+}
+window.addEventListener('load', markLoadedImages);
+
 const firebaseConfig = {
     apiKey: "AIzaSyC8srbzH_DcCYQJXe9MNOyy2OHZSaLidIo",
     authDomain: "minara5.firebaseapp.com",
