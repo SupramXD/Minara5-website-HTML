@@ -1061,7 +1061,7 @@
 
                     <button type="submit" class="btn-action accent-btn" style="width: 100%; padding: 14px; margin-top: 25px; font-weight: bold;">Publish Hero Configuration</button>
                   </form>
-                </div>\r\n            \r\n            <!-- IMAGE OPTIMIZER TAB -->\r\n            <div id=\"image-optimizer-tab\" class=\"tab-content\">\r\n              <div class=\"panel-header\">\r\n                <h2 class=\"panel-title\">Image Optimizer</h2>\r\n              </div>\r\n              <div id=\"imageOptimizerContainer\" class=\"admin-table-container\"></div>\r\n              <button class=\"btn-action accent-btn\" onclick=\"saveImageNames()\">Save Changes</button>\r\n            </div>
+                </div>
 
                 <!-- Previews -->
                 <div style="border-left: 1px solid var(--border-color); padding-left: 30px; display: flex; flex-direction: column; gap: 30px;">
@@ -1533,6 +1533,44 @@
                       </tbody>
                     </table>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 4: IMAGE OPTIMIZER -->
+            <div id="image-optimizer-tab" class="tab-content">
+              <div class="console-panel full-width-panel">
+                <div class="panel-header">
+                  <h2 class="panel-title">SEO Image Name Optimizer</h2>
+                  <span class="stat-label" style="font-size: 10px;" id="imageOptimizerStats">0 Images Referenced</span>
+                </div>
+                
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
+                  Optimize your image filenames for search engines. This panel scans active images in products, hero settings, and second hero settings. Renaming an image will automatically rename the file in the repository and update all corresponding JSON references.
+                </p>
+
+                <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                  <button class="btn-action accent-btn" onclick="loadImageList()">Load Images List</button>
+                  <button class="btn-action" id="saveImageNamesBtn" onclick="saveImageNames()" style="display: none;">Save Name Changes</button>
+                </div>
+
+                <div class="admin-table-container">
+                  <table class="admin-table" id="imageOptimizerTable">
+                    <thead>
+                      <tr>
+                        <th style="width: 80px;">Preview</th>
+                        <th>Source / Placement</th>
+                        <th>Current File Path</th>
+                        <th>New Target Filename (SEO Optimized)</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="imageOptimizerTableBody">
+                      <tr>
+                        <td colspan="5" style="text-align: center; opacity: 0.5; padding: 30px;">Click "Load Images List" to scan active images.</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -2613,6 +2651,10 @@
         return onClickAttr.includes(tabId);
       });
       if (targetBtn) targetBtn.classList.add('active');
+
+      if (tabId === 'image-optimizer-tab' && typeof window.loadImageList === 'function') {
+        window.loadImageList();
+      }
     };
 
     window.updateLogoSliders = function() {
@@ -3733,6 +3775,272 @@
       if (previewSecM) previewSecM.src = mobileBase64 || predictedMobile;
 
       window.updateSecondHeroPreview();
+    };
+
+    let activeImages = [];
+    window.loadImageList = async function() {
+      const tableBody = document.getElementById("imageOptimizerTableBody");
+      const stats = document.getElementById("imageOptimizerStats");
+      const saveBtn = document.getElementById("saveImageNamesBtn");
+      if (!tableBody) return;
+
+      tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; opacity: 0.5; padding: 30px;">Scanning files and extracting images...</td></tr>`;
+
+      try {
+        let products = [];
+        try {
+          const res = await fetch("products.json?t=" + Date.now());
+          if (res.ok) products = await res.json();
+        } catch (err) { console.error("Error loading products.json for SEO:", err); }
+
+        let hero = {};
+        try {
+          const res = await fetch("hero_settings.json?t=" + Date.now());
+          if (res.ok) hero = await res.json();
+        } catch (err) { console.error("Error loading hero_settings.json for SEO:", err); }
+
+        let secHero = {};
+        try {
+          const res = await fetch("second_hero_settings.json?t=" + Date.now());
+          if (res.ok) secHero = await res.json();
+        } catch (err) { console.error("Error loading second_hero_settings.json for SEO:", err); }
+
+        activeImages = [];
+
+        products.forEach(p => {
+          if (p.image && !p.image.startsWith("data:")) {
+            activeImages.push({
+              src: p.image,
+              sourceName: `Product: ${p.name}`,
+              fileType: "product_main",
+              id: p.id,
+              key: "image"
+            });
+          }
+          if (p.image_thumb && !p.image_thumb.startsWith("data:")) {
+            activeImages.push({
+              src: p.image_thumb,
+              sourceName: `Product Thumbnail: ${p.name}`,
+              fileType: "product_thumb",
+              id: p.id,
+              key: "image_thumb"
+            });
+          }
+        });
+
+        if (hero.leftImage && !hero.leftImage.startsWith("data:")) {
+          activeImages.push({
+            src: hero.leftImage,
+            sourceName: "Hero Left Image",
+            fileType: "hero_left",
+            key: "leftImage"
+          });
+        }
+        if (hero.rightImage && !hero.rightImage.startsWith("data:")) {
+          activeImages.push({
+            src: hero.rightImage,
+            sourceName: "Hero Right Image",
+            fileType: "hero_right",
+            key: "rightImage"
+          });
+        }
+        if (hero.mobileImage && !hero.mobileImage.startsWith("data:")) {
+          activeImages.push({
+            src: hero.mobileImage,
+            sourceName: "Hero Mobile Image",
+            fileType: "hero_mobile",
+            key: "mobileImage"
+          });
+        }
+
+        if (secHero.leftImage && !secHero.leftImage.startsWith("data:")) {
+          activeImages.push({
+            src: secHero.leftImage,
+            sourceName: "Second Hero Left Image",
+            fileType: "second_hero_left",
+            key: "leftImage"
+          });
+        }
+        if (secHero.rightImage && !secHero.rightImage.startsWith("data:")) {
+          activeImages.push({
+            src: secHero.rightImage,
+            sourceName: "Second Hero Right Image",
+            fileType: "second_hero_right",
+            key: "rightImage"
+          });
+        }
+        if (secHero.mobileImage && !secHero.mobileImage.startsWith("data:")) {
+          activeImages.push({
+            src: secHero.mobileImage,
+            sourceName: "Second Hero Mobile Image",
+            fileType: "second_hero_mobile",
+            key: "mobileImage"
+          });
+        }
+
+        if (activeImages.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; opacity: 0.5; padding: 30px;">No active images found in JSON configuration files.</td></tr>`;
+          if (stats) stats.textContent = "0 Images Referenced";
+          if (saveBtn) saveBtn.style.display = "none";
+          return;
+        }
+
+        if (stats) stats.textContent = `${activeImages.length} Images Referenced`;
+        if (saveBtn) saveBtn.style.display = "inline-block";
+        tableBody.innerHTML = "";
+
+        activeImages.forEach((img, idx) => {
+          const pathParts = img.src.split("/");
+          const filename = pathParts[pathParts.length - 1];
+          const folderPath = pathParts.slice(0, -1).join("/");
+
+          const tr = document.createElement("tr");
+
+          const tdPreview = document.createElement("td");
+          const imgEl = document.createElement("img");
+          imgEl.src = img.src;
+          imgEl.style.cssText = "width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border-color);";
+          tdPreview.appendChild(imgEl);
+          tr.appendChild(tdPreview);
+
+          const tdSource = document.createElement("td");
+          tdSource.style.fontWeight = "bold";
+          tdSource.textContent = img.sourceName;
+          tr.appendChild(tdSource);
+
+          const tdPath = document.createElement("td");
+          tdPath.style.fontFamily = "monospace";
+          tdPath.style.fontSize = "11px";
+          tdPath.style.color = "var(--text-muted)";
+          tdPath.textContent = img.src;
+          tr.appendChild(tdPath);
+
+          const tdInput = document.createElement("td");
+          const wrapper = document.createElement("div");
+          wrapper.style.display = "flex";
+          wrapper.style.alignItems = "center";
+          wrapper.style.gap = "4px";
+
+          const folderSpan = document.createElement("span");
+          folderSpan.style.fontFamily = "monospace";
+          folderSpan.style.fontSize = "11px";
+          folderSpan.style.color = "rgba(255,255,255,0.4)";
+          folderSpan.textContent = folderPath + "/";
+          wrapper.appendChild(folderSpan);
+
+          const inputEl = document.createElement("input");
+          inputEl.type = "text";
+          inputEl.className = "form-input";
+          inputEl.style.cssText = "padding: 6px 10px; font-family: monospace; font-size: 11px; width: 220px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #fff;";
+
+          const dotIdx = filename.lastIndexOf(".");
+          const baseName = dotIdx !== -1 ? filename.slice(0, dotIdx) : filename;
+          const ext = dotIdx !== -1 ? filename.slice(dotIdx) : "";
+
+          inputEl.value = baseName;
+          inputEl.dataset.ext = ext;
+          inputEl.dataset.original = filename;
+          inputEl.dataset.index = idx;
+          wrapper.appendChild(inputEl);
+
+          tdInput.appendChild(wrapper);
+          tr.appendChild(tdInput);
+
+          const tdStatus = document.createElement("td");
+          const statusSpan = document.createElement("span");
+          statusSpan.className = "status-badge user";
+          statusSpan.textContent = "READY";
+          statusSpan.id = `img-status-${idx}`;
+          tdStatus.appendChild(statusSpan);
+          tr.appendChild(tdStatus);
+
+          tableBody.appendChild(tr);
+        });
+
+      } catch (err) {
+        console.error("Failed to load active images list:", err);
+        tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--danger); padding: 30px;">Error scanning images: ${err.message || err}</td></tr>`;
+      }
+    };
+
+    window.saveImageNames = async function() {
+      const inputs = document.querySelectorAll("#imageOptimizerTableBody input");
+      const renameList = [];
+
+      inputs.forEach(input => {
+        const idx = parseInt(input.dataset.index);
+        const originalFilename = input.dataset.original;
+        const ext = input.dataset.ext;
+        const newBaseName = input.value.trim().toLowerCase().replace(/[^a-z0-9-_]+/g, "-");
+        const newFilename = newBaseName + ext;
+
+        if (newFilename !== originalFilename) {
+          const img = activeImages[idx];
+          const pathParts = img.src.split("/");
+          const folderPath = pathParts.slice(0, -1).join("/");
+
+          renameList.push({
+            oldPath: img.src,
+            newPath: `${folderPath}/${newFilename}`,
+            inputEl: input,
+            statusSpan: document.getElementById(`img-status-${idx}`)
+          });
+        }
+      });
+
+      if (renameList.length === 0) {
+        alert("No filename changes detected.");
+        return;
+      }
+
+      const saveBtn = document.getElementById("saveImageNamesBtn");
+      const originalText = saveBtn.innerHTML;
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = "SAVING...";
+
+      if (window.syncToGithubCallable) {
+        try {
+          const payload = renameList.map(r => ({ oldPath: r.oldPath, newPath: r.newPath }));
+
+          renameList.forEach(r => {
+            r.statusSpan.className = "status-badge pending";
+            r.statusSpan.textContent = "RENAME PENDING";
+          });
+
+          const response = await window.syncToGithubCallable({
+            action: "renameImages",
+            payload: payload
+          });
+
+          if (response.data && response.data.success) {
+            renameList.forEach(r => {
+              r.statusSpan.className = "status-badge shipped";
+              r.statusSpan.textContent = "RENAMED ✓";
+              const newFilenameOnly = r.newPath.split("/").pop();
+              r.inputEl.dataset.original = newFilenameOnly;
+            });
+            alert("Success! Image files renamed and JSON configurations updated.");
+            loadImageList();
+          } else {
+            throw new Error(response.data ? response.data.message : "Rename failed");
+          }
+        } catch (err) {
+          console.error("Failed to rename images via GitHub sync:", err);
+          renameList.forEach(r => {
+            r.statusSpan.className = "status-badge error";
+            r.statusSpan.style.background = "rgba(255, 59, 48, 0.15)";
+            r.statusSpan.style.color = "var(--danger)";
+            r.statusSpan.style.border = "1px solid rgba(255, 59, 48, 0.25)";
+            r.statusSpan.textContent = "FAILED";
+          });
+          alert("Error renaming images: " + (err.message || err));
+        }
+      } else {
+        alert("Firebase GitHub sync function is not initialized.");
+      }
+
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = originalText;
     };
 
   </script>

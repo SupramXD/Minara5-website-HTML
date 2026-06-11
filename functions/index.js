@@ -46,11 +46,12 @@ async function gitHubRequest(path, options = {}, token) {
 async function getFileShaAndContent(path, token) {
   const res = await gitHubRequest(path, {method: "GET"}, token);
   if (res.status === 404) {
-    return {sha: null, content: null};
+    return {sha: null, content: null, base64: null};
   }
   const data = await res.json();
-  const decodedContent = Buffer.from(data.content, "base64").toString("utf-8");
-  return {sha: data.sha, content: decodedContent};
+  const rawBase64 = data.content ? data.content.replace(/\s/g, "") : "";
+  const decodedContent = data.content ? Buffer.from(rawBase64, "base64").toString("utf-8") : null;
+  return {sha: data.sha, content: decodedContent, base64: rawBase64};
 }
 
 /**
@@ -421,9 +422,9 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         jsonContents[jf] = {sha, content: content ? JSON.parse(content) : null};
       }
       for (const {oldPath, newPath} of renameList) {
-        const {sha: oldSha, content: oldContentBase64} = await getFileShaAndContent(oldPath, token);
+        const {sha: oldSha, base64: oldBase64} = await getFileShaAndContent(oldPath, token);
         if (!oldSha) continue;
-        await writeFileToGitHub(newPath, oldContentBase64, `Rename ${oldPath} to ${newPath}`, null, token);
+        await writeFileToGitHub(newPath, oldBase64, `Rename ${oldPath} to ${newPath}`, null, token);
         await gitHubRequest(oldPath, {
           method: "DELETE",
           headers: {"Content-Type": "application/json"},
