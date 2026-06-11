@@ -5,9 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Minara – Admin Console</title>
   <!-- Google Fonts Outfit and Inter -->
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js">
   
   <style>
     /* Sleek Editorial Style Theme - Glassmorphic Dark Mode */
@@ -1068,9 +1073,9 @@
                   <div>
                     <h3 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px;">Desktop Real-Time Preview</h3>
                     <div id="previewDesktopContainer" style="width: 100%; height: 180px; background: #000; display: flex; overflow: hidden; border: 1px solid var(--border-color); position: relative;">
-                      <img id="previewImgL" src="test3.avif" style="height: 100%; object-fit: cover; transition: none;">
+                      <img id="previewImgL" src="images/hero/left.avif" style="height: 100%; object-fit: cover; transition: none;">
                       <div id="previewImgRParent" style="position: relative; height: 100%; overflow: hidden; display: block;">
-                        <img id="previewImgR" src="number23.avif" style="width: 100%; height: 100%; object-fit: cover; transition: none; display: block;">
+                        <img id="previewImgR" src="images/hero/right.png" style="width: 100%; height: 100%; object-fit: cover; transition: none; display: block;">
                       </div>
                       <!-- Desktop Preview Logo -->
                       <img id="previewLogoDesktop" src="minara 5 transparent 2.svg" style="position: absolute; left: 50%; transform: translate(-50%, -50%); width: 100%; filter: invert(98.04%); pointer-events: none; z-index: 10; transition: none;">
@@ -1081,7 +1086,7 @@
                     <h3 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px;">Mobile Real-Time Preview</h3>
                     <div style="width: 140px; margin: 0 auto; background: #0a0a0c; border: 1px solid var(--border-color); padding: 6px; border-radius: 8px;">
                       <div id="previewMobileContainer" style="width: 100%; overflow: hidden; background: #000; position: relative;">
-                        <img id="previewImgMobile" src="test3 mobile.avif" style="width: 100%; display: block; transition: none;">
+                        <img id="previewImgMobile" src="images/hero/mobile.avif" style="width: 100%; display: block; transition: none;">
                         <!-- Mobile Mock Header -->
                         <div id="previewMobileHeader" style="position: absolute; top: 0; left: 0; right: 0; height: 15px; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); border-bottom: 0.5px solid #eee; z-index: 9; pointer-events: none;"></div>
                         <!-- Mobile Preview Logo -->
@@ -3103,9 +3108,9 @@
 
     window.loadHeroSettings = async function() {
       let settings = {
-        leftImage: "test3.avif",
-        rightImage: "number23.avif",
-        mobileImage: "test3 mobile.avif",
+        leftImage: "images/hero/left.avif",
+        rightImage: "images/hero/right.png",
+        mobileImage: "images/hero/mobile.avif",
         leftFlex: 1.3,
         leftScale: 1.0,
         leftX: 50,
@@ -3204,11 +3209,11 @@
         }
 
         const previewL = document.getElementById("previewImgL");
-        if (previewL) previewL.src = s.leftImage || "test3.avif";
+        if (previewL) previewL.src = s.leftImage || "images/hero/left.avif";
         const previewR = document.getElementById("previewImgR");
-        if (previewR) previewR.src = s.rightImage || "number23.avif";
+        if (previewR) previewR.src = s.rightImage || "images/hero/right.png";
         const previewM = document.getElementById("previewImgMobile");
-        if (previewM) previewM.src = s.mobileImage || "test3 mobile.avif";
+        if (previewM) previewM.src = s.mobileImage || "images/hero/mobile.avif";
 
         window.updateHeroPreview();
       };
@@ -3455,9 +3460,9 @@
             if (docSnap.exists()) {
               const data = docSnap.data();
               const liveSettings = {
-                leftImage: data.leftImage || "test3.avif",
-                rightImage: data.rightImage || "number23.avif",
-                mobileImage: data.mobileImage || "test3 mobile.avif",
+                leftImage: data.leftImage || "images/hero/left.avif",
+                rightImage: data.rightImage || "images/hero/right.png",
+                mobileImage: data.mobileImage || "images/hero/mobile.avif",
                 leftFlex: data.leftFlex !== undefined ? Number(data.leftFlex) : 1.3,
                 leftScale: data.leftScale !== undefined ? Number(data.leftScale) : 1.0,
                 leftX: data.leftX !== undefined ? Number(data.leftX) : 50,

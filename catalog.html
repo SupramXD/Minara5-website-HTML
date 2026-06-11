@@ -4,7 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Minara – Catalog</title>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preload" href="Gotham Narrow Bold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="minara 5 transparent 2.svg" as="image" type="image/svg+xml">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
+<link rel="modulepreload" href="header.js">
 
 <style>
 
@@ -1239,7 +1245,7 @@ window.addEventListener("orientationchange", updateCartHeight);
                     setTimeout(() => reject(new Error("Static products query timed out")), 10000)
                 );
                 const response = await Promise.race([
-                    fetch("products.json?t=" + Date.now()),
+                    fetch("products.json"),
                     timeoutPromise
                 ]);
 
