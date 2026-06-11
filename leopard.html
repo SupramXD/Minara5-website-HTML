@@ -1012,7 +1012,10 @@ footer{
         <div class="product-title">Léopard Fur Backpack</div>
         <div class="product-retail-price" style="font-size:11px; opacity:0.5; margin-top: -8px; margin-bottom: 15px; letter-spacing:0.1em; text-transform:uppercase;">Retail Price: R1,200</div>
         <div class="product-price">R749</div>
-        <div class="product-stock" style="font-size:11px; opacity:0.6; margin-bottom:25px; letter-spacing:0.18em; text-transform:uppercase;">IN STOCK: 45 UNITS</div>
+        <div class="product-stock" style="font-size:11px; margin-bottom:25px; letter-spacing:0.18em; text-transform:uppercase; display:flex; align-items:center; gap:6px;">
+            <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background-color:#2e7d32;"></span>
+            <span style="color:#000;">IN STOCK: 45 UNITS</span>
+        </div>
 
         <!-- Size Selection Container -->
         <div id="sizePickerContainer" style="margin-bottom: 25px; display: none;">
@@ -1058,19 +1061,19 @@ for many years still unwritten
                     <div style="display: flex; gap: 6px;" id="starRatingSelector">
                         <!-- Dynamic Interactive Stars (5 starts loaded as default fill) -->
                         <span class="star-select" data-value="1" onclick="window.setFormRating(1)" style="cursor: pointer; display: inline-flex;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="19" height="19" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                         </span>
                         <span class="star-select" data-value="2" onclick="window.setFormRating(2)" style="cursor: pointer; display: inline-flex;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="19" height="19" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                         </span>
                         <span class="star-select" data-value="3" onclick="window.setFormRating(3)" style="cursor: pointer; display: inline-flex;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="19" height="19" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                         </span>
                         <span class="star-select" data-value="4" onclick="window.setFormRating(4)" style="cursor: pointer; display: inline-flex;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="19" height="19" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                         </span>
                         <span class="star-select" data-value="5" onclick="window.setFormRating(5)" style="cursor: pointer; display: inline-flex;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <svg width="19" height="19" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                         </span>
                     </div>
                     <input type="hidden" id="reviewRatingInput" value="5" required>
@@ -1293,8 +1296,12 @@ window.openCart = function() {
             if (titleEl) {
                 let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
                 let escapedName = window.escapeHTML ? window.escapeHTML(rawName) : rawName;
-                escapedName = escapedName.replace(/Inspired\s+By\s*/i, "Inspired By<br>");
-                titleEl.innerHTML = escapedName;
+                const match = escapedName.match(/Inspired\s+by\s+(.+)/i);
+                if (match) {
+                    titleEl.innerHTML = `Inspired By<br><i>${match[1]}</i>`;
+                } else {
+                    titleEl.innerHTML = escapedName;
+                }
             }
 
             // Retail Price
@@ -1330,19 +1337,33 @@ window.openCart = function() {
             const stockEl = document.querySelector('.product-stock');
             if (stockEl && p.stock !== undefined) {
                 stockEl.innerHTML = ""; // Clear existing safely
+                stockEl.style.display = "flex";
+                stockEl.style.alignItems = "center";
+                stockEl.style.gap = "6px";
+                
+                const dot = document.createElement('span');
+                dot.style.display = 'inline-block';
+                dot.style.width = '6px';
+                dot.style.height = '6px';
+                dot.style.borderRadius = '50%';
+                
+                const text = document.createElement('span');
+                text.style.color = '#000';
+                
                 if (p.stock <= 0) {
-                    const span = document.createElement('span');
-                    span.style.cssText = "color: #ff3b30; font-weight: bold;";
-                    span.textContent = "OUT OF STOCK";
-                    stockEl.appendChild(span);
-                } else if (p.stock <= 5) {
-                    const span = document.createElement('span');
-                    span.style.cssText = "color: #ff9500; font-weight: bold;";
-                    span.textContent = `ONLY ${p.stock} LEFT - ORDER SOON`;
-                    stockEl.appendChild(span);
+                    dot.style.backgroundColor = '#ff3b30';
+                    text.textContent = "OUT OF STOCK";
+                    text.style.fontWeight = "bold";
+                } else if (p.stock <= 4) {
+                    dot.style.backgroundColor = '#b82d2d';
+                    text.textContent = `ONLY ${p.stock} LEFT`;
+                    text.style.fontWeight = "bold";
                 } else {
-                    stockEl.textContent = `IN STOCK: ${p.stock} UNITS`;
+                    dot.style.backgroundColor = '#2e7d32';
+                    text.textContent = `IN STOCK: ${p.stock} UNITS`;
                 }
+                stockEl.appendChild(dot);
+                stockEl.appendChild(text);
             }
 
             // Image slider
@@ -1556,9 +1577,9 @@ window.openCart = function() {
         stars.forEach((star, index) => {
             const starValue = index + 1;
             if (starValue <= rating) {
-                star.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                star.innerHTML = `<svg width="19" height="19" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
             } else {
-                star.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c5a880" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                star.innerHTML = `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
             }
         });
     };
@@ -1610,9 +1631,9 @@ window.openCart = function() {
                 let starsHTML = "";
                 for (let i = 1; i <= 5; i++) {
                     if (i <= review.rating) {
-                        starsHTML += `<svg width="10" height="10" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                        starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
                     } else {
-                        starsHTML += `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#c5a880" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                        starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
                     }
                 }
 

@@ -883,8 +883,8 @@
         grid-template-columns: repeat(5, 1fr);
         gap: 30px 20px;
         border: none;
-        padding-left: 15px;
-        padding-right: 15px;
+        padding-left: 35px;
+        padding-right: 35px;
         box-sizing: border-box;
       }
       .home-products-header {
@@ -2313,9 +2313,9 @@
 
           const inspiredMatch = escapedName.match(/Inspired\s+by\s+(.+)/i);
           if (inspiredMatch) {
-            inspiredEl.textContent = `Inspired by ${formatBrandName(inspiredMatch[1])}`;
+            inspiredEl.innerHTML = `Inspired by <i>${formatBrandName(inspiredMatch[1])}</i>`;
           } else {
-            inspiredEl.textContent = escapedName;
+            inspiredEl.innerHTML = escapedName;
           }
 
           // Dynamic reviews loader
@@ -2324,7 +2324,7 @@
           const reviewsRowEl = card.querySelector('.hp-reviews-row');
           
           const emptyStarsHTML = `
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#c5a880" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           `.repeat(5);
 
           if (starsEl) {
@@ -2361,9 +2361,9 @@
                 let starsHTML = "";
                 for (let i = 1; i <= 5; i++) {
                   if (i <= rounded) {
-                    starsHTML += `<svg width="10" height="10" viewBox="0 0 24 24" fill="#c5a880" stroke="#c5a880" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                    starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
                   } else {
-                    starsHTML += `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#c5a880" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                    starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
                   }
                 }
                 if (starsEl) {
@@ -2439,15 +2439,15 @@
             if (p.stock <= 0) {
               dot.style.backgroundColor = '#ff3b30';
               text.textContent = 'SOLD OUT';
-              text.style.color = '#ff3b30';
+              text.style.color = '#000';
             } else if (p.stock <= 4) {
               dot.style.backgroundColor = '#b82d2d';
               text.textContent = `ONLY ${p.stock} BOTTLES LEFT`;
-              text.style.color = '#b82d2d';
+              text.style.color = '#000';
             } else {
               dot.style.backgroundColor = '#2e7d32';
               text.textContent = 'IN STOCK';
-              text.style.color = '#2e7d32';
+              text.style.color = '#000';
             }
             stockStatusEl.appendChild(dot);
             stockStatusEl.appendChild(text);
