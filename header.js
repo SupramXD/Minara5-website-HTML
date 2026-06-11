@@ -514,7 +514,7 @@ const products = {
         id: "leopard-backpack",
         name: "Léopard Fur Backpack",
         price: 749, 
-        image: "cheetahproduct.avif"
+        image: "https://via.placeholder.com/900x1100?text=Leopard+Backpack"
     }
 };
 
