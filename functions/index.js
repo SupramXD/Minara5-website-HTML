@@ -393,6 +393,63 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
       await writeFileToGitHub("second_hero_settings.json", updatedJsonBase64, "Update second hero section settings", settingsSha, token);
 
       return {success: true, message: "Second hero settings synced to GitHub."};
+    } else if (action === "listImages") {
+      const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/images`;
+      const res = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/vnd.github.v3+json",
+          "User-Agent": "Firebase-Cloud-Function",
+        },
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to list images: ${res.status}`);
+      }
+      const data = await res.json();
+      const images = data.map((item) => ({path: item.path, sha: item.sha}));
+      return {success: true, images};
+    } else if (action === "renameImages") {
+      const renameList = payload;
+      if (!Array.isArray(renameList)) {
+        throw new HttpsError("invalid-argument", "payload must be an array of rename objects");
+      }
+      const jsonFiles = ["products.json", "hero_settings.json", "second_hero_settings.json"];
+      const jsonContents = {};
+      for (const jf of jsonFiles) {
+        const {sha, content} = await getFileShaAndContent(jf, token);
+        jsonContents[jf] = {sha, content: content ? JSON.parse(content) : null};
+      }
+      for (const {oldPath, newPath} of renameList) {
+        const {sha: oldSha, content: oldContentBase64} = await getFileShaAndContent(oldPath, token);
+        if (!oldSha) continue;
+        await writeFileToGitHub(newPath, oldContentBase64, `Rename ${oldPath} to ${newPath}`, null, token);
+        await gitHubRequest(oldPath, {
+          method: "DELETE",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({message: `Delete old image ${oldPath}`, sha: oldSha}),
+        }, token);
+        for (const jf of jsonFiles) {
+          const obj = jsonContents[jf].content;
+          if (obj) {
+            const jsonStr = JSON.stringify(obj);
+            if (jsonStr.includes(oldPath)) {
+              const updatedStr = jsonStr.split(oldPath).join(newPath);
+              jsonContents[jf].content = JSON.parse(updatedStr);
+            }
+          }
+        }
+      }
+      for (const jf of jsonFiles) {
+        const {sha} = jsonContents[jf];
+        const updatedObj = jsonContents[jf].content;
+        if (updatedObj) {
+          const updatedJsonStr = JSON.stringify(updatedObj, null, 2);
+          const updatedBase64 = Buffer.from(updatedJsonStr, "utf-8").toString("base64");
+          await writeFileToGitHub(jf, updatedBase64, "Update references after rename", sha, token);
+        }
+      }
+      return {success: true, message: "Rename operation completed"};
     } else {
       throw new HttpsError("invalid-argument", `Action ${action} is not supported.`);
     }
