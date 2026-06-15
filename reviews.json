@@ -1,1 +1,44 @@
-[]
+[
+  {
+    "productId": "inspired-by-jpg-le-male",
+    "name": "test",
+    "text": "Test review",
+    "rating": 5,
+    "timestamp": "2026-06-15T13:28:58.051Z"
+  },
+  {
+    "productId": "inspired-by-creed-aventus",
+    "name": "indeded",
+    "text": "yes",
+    "rating": 3,
+    "timestamp": "2026-06-11T21:29:10.788Z"
+  },
+  {
+    "productId": "inspired-by-creed-aventus",
+    "name": "not bad mud",
+    "text": "yes",
+    "rating": 5,
+    "timestamp": "2026-06-11T21:28:49.691Z"
+  },
+  {
+    "productId": "inspired-by-jpg-le-male",
+    "name": "yese",
+    "text": "tes",
+    "rating": 4,
+    "timestamp": "2026-06-09T11:31:36.858Z"
+  },
+  {
+    "productId": "inspired-by-jpg-le-male",
+    "name": "Tesr",
+    "text": "Tttttest",
+    "rating": 5,
+    "timestamp": "2026-06-07T15:32:58.328Z"
+  },
+  {
+    "productId": "inspired-by-jpg-le-male",
+    "name": "test",
+    "text": "terstt",
+    "rating": 5,
+    "timestamp": "2026-06-07T15:30:05.625Z"
+  }
+]
