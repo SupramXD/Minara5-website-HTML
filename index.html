@@ -619,6 +619,100 @@
       margin-bottom: 28px;
     }
 
+    .brand-title-large {
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      text-align: center;
+      margin-bottom: 12px;
+      color: #1a1a1a;
+    }
+
+    .brand-subtitle {
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      text-align: center;
+      color: #666;
+      letter-spacing: 0.05em;
+      margin-bottom: 50px;
+    }
+
+    .brand-features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 50px 40px;
+      margin-top: 40px;
+    }
+
+    .brand-feature-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .brand-feature-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+    .brand-feature-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+    }
+
+    .brand-feature-icon svg {
+      width: 100%;
+      height: 100%;
+      stroke-width: 1.5;
+    }
+
+    .brand-feature-title {
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #000;
+      margin: 0;
+    }
+
+    .brand-feature-description {
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 11.5px;
+      line-height: 1.65;
+      color: #555;
+      letter-spacing: 0.03em;
+      margin: 0;
+    }
+
+    @media (max-width: 900px) {
+      .brand-features-grid {
+        grid-template-columns: 1fr;
+        gap: 35px;
+      }
+      .brand-title-large {
+        font-size: 18px;
+        letter-spacing: 0.12em;
+      }
+      .brand-subtitle {
+        font-size: 11px;
+        margin-bottom: 35px;
+      }
+    }
+
+
     /* MOBILE — top hero image */
     @media(max-width:900px) {
       #imgL {
@@ -1784,29 +1878,103 @@
     </div>
   </section>
 
-  <section class="brand-section" style="padding-bottom: 40px;">
+  <section class="brand-section" style="padding-bottom: 60px;">
     <div class="brand-section-inner">
-      <h2 class="brand-title">The-Perfume-House</h2>
+      <h2 class="brand-title-large">Why You'll Love The Perfume House</h2>
+      <p class="brand-subtitle">Selecting your scent has never been easier or more affordable</p>
 
-      <div class="brand-body luxury-text">
+      <div class="brand-features-grid">
+        <!-- Feature 1: Handcrafted with French Oils -->
+        <div class="brand-feature-item">
+          <div class="brand-feature-header">
+            <span class="brand-feature-icon">
+              <!-- Flag / Pennant SVG -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                <line x1="4" y1="22" x2="4" y2="15"></line>
+              </svg>
+            </span>
+            <h3 class="brand-feature-title">Handcrafted with French Oils</h3>
+          </div>
+          <p class="brand-feature-description">Proudly crafted in South Africa, our fragrances are meticulously formulated using premium French oils. We believe great scent-making is both an art and a rigorous process. From formulation to final production, we pour care and craftsmanship into every bottle, creating premium scents you can wear with absolute confidence.</p>
+        </div>
 
-        History speaks of conquest,&nbsp;&nbsp;of maps redrawn by force.
-        But in the private quarters&nbsp;&nbsp;of Napoleon Bonaparte,
-        victory was born in&nbsp;&nbsp;the scent of rosemary and citrus.
+        <!-- Feature 2: Long Lasting -->
+        <div class="brand-feature-item">
+          <div class="brand-feature-header">
+            <span class="brand-feature-icon">
+              <!-- Clock SVG -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </span>
+            <h3 class="brand-feature-title">Long Lasting</h3>
+          </div>
+          <p class="brand-feature-description">Our fragrances are engineered to endure, ensuring that your favorite scent stays with you throughout the day. From morning meetings to evening outings, trust The Perfume House to keep you smelling exceptional, longer.</p>
+        </div>
 
+        <!-- Feature 3: Vegan + Cruelty Free -->
+        <div class="brand-feature-item">
+          <div class="brand-feature-header">
+            <span class="brand-feature-icon">
+              <!-- Leaf SVG -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
+                <line x1="16" y1="8" x2="2" y2="22"></line>
+                <line x1="17.5" y1="15" x2="9" y2="15"></line>
+              </svg>
+            </span>
+            <h3 class="brand-feature-title">Vegan + Cruelty Free</h3>
+          </div>
+          <p class="brand-feature-description">We pledge that all our fragrances are 100% vegan and cruelty-free, ensuring no animals are harmed and no animal byproducts are used in our creations.</p>
+        </div>
 
+        <!-- Feature 4: Crafted with Passion -->
+        <div class="brand-feature-item">
+          <div class="brand-feature-header">
+            <span class="brand-feature-icon">
+              <!-- Heart SVG -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </span>
+            <h3 class="brand-feature-title">Crafted with Passion</h3>
+          </div>
+          <p class="brand-feature-description">Every bottle is a labor of love. We design our fragrances to bring joy and confidence to your daily routine, ensuring that luxury is not just a name, but an everyday experience.</p>
+        </div>
 
-        Suppressing the stench of battle,&nbsp;&nbsp;he consumed fifty bottles
-        of custom cologne a month&nbsp;&nbsp;— splashing it over his shoulders,
-        drinking it before campaigns,&nbsp;&nbsp;and carrying a cylindrical flask
-        slid neatly inside his military boot.
+        <!-- Feature 5: Luxury Scents for Everyone -->
+        <div class="brand-feature-item">
+          <div class="brand-feature-header">
+            <span class="brand-feature-icon">
+              <!-- Diamond SVG -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 3h12l4 6-10 13L2 9z"></path>
+                <path d="M11 3L8 9l4 13 4-13-3-6"></path>
+                <path d="M2 9h20"></path>
+              </svg>
+            </span>
+            <h3 class="brand-feature-title">Luxury Scents For Everyone</h3>
+          </div>
+          <p class="brand-feature-description">Experience world-class scents, traditionally available to a select few, now accessible to everyone. Luxury isn't exclusive—it's universal.</p>
+        </div>
 
-
-
-        He did not just conquer Europe;&nbsp;&nbsp;he scented it.
-        For the emperor knew that power&nbsp;&nbsp;is not just seen—
-        it is inhaled, remembered, and feared.
-
+        <!-- Feature 6: Clean Formulations -->
+        <div class="brand-feature-item">
+          <div class="brand-feature-header">
+            <span class="brand-feature-icon">
+              <!-- Beaker SVG -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 2v7.31L3.37 19c-.83 1.15-.02 2.75 1.37 2.75h14.51c1.39 0 2.21-1.6 1.37-2.75L14 9.31V2z"></path>
+                <path d="M8.5 2h7"></path>
+                <path d="M14 9h-4"></path>
+              </svg>
+            </span>
+            <h3 class="brand-feature-title">Clean Formulations</h3>
+          </div>
+          <p class="brand-feature-description">Pure and safe, our formulations are crafted with transparency in mind. We exclude harmful chemicals and opt for cleaner, healthier ingredients in our scents.</p>
+        </div>
       </div>
     </div>
   </section>
