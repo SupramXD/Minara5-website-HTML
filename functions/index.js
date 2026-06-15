@@ -1,6 +1,7 @@
 /* eslint-disable max-len, camelcase, require-jsdoc, valid-jsdoc */
 const {setGlobalOptions} = require("firebase-functions");
 const {onCall, HttpsError} = require("firebase-functions/v2/https");
+const {onDocumentCreated, onDocumentDeleted} = require("firebase-functions/v2/firestore");
 const {defineSecret} = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
@@ -467,5 +468,71 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
   } catch (error) {
     logger.error("Error in syncToGithub:", error);
     throw new HttpsError("internal", error.message || "Failed to synchronize changes to GitHub.");
+  }
+});
+
+/**
+ * Rebuild the reviews.json array from Firestore and push it to GitHub.
+ */
+async function rebuildAndSyncReviews(token) {
+  const reviewsSnap = await firestore.collection("reviews").get();
+  const reviewsList = [];
+  reviewsSnap.forEach((doc) => {
+    const data = doc.data();
+    reviewsList.push({
+      productId: data.productId || "",
+      name: data.name || "",
+      text: data.text || "",
+      rating: Number(data.rating || 5),
+      timestamp: data.timestamp || new Date().toISOString(),
+    });
+  });
+
+  // Sort by timestamp descending
+  reviewsList.sort((a, b) => {
+    const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+    const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+    return timeB - timeA;
+  });
+
+  const {sha: jsonSha} = await getFileShaAndContent("reviews.json", token);
+  const updatedJsonStr = JSON.stringify(reviewsList, null, 2);
+  const updatedJsonBase64 = Buffer.from(updatedJsonStr, "utf-8").toString("base64");
+  await writeFileToGitHub("reviews.json", updatedJsonBase64, "Auto-sync reviews from Firestore", jsonSha, token);
+}
+
+exports.onReviewCreated = onDocumentCreated({
+  region: "us-central1",
+  document: "reviews/{reviewId}",
+  secrets: [githubTokenSecret],
+}, async (event) => {
+  const token = githubTokenSecret.value();
+  if (!token) {
+    logger.error("GitHub Token secret is missing.");
+    return;
+  }
+  try {
+    await rebuildAndSyncReviews(token);
+    logger.log(`Auto-synced created review ${event.params.reviewId} to GitHub.`);
+  } catch (error) {
+    logger.error("Error in onReviewCreated trigger:", error);
+  }
+});
+
+exports.onReviewDeleted = onDocumentDeleted({
+  region: "us-central1",
+  document: "reviews/{reviewId}",
+  secrets: [githubTokenSecret],
+}, async (event) => {
+  const token = githubTokenSecret.value();
+  if (!token) {
+    logger.error("GitHub Token secret is missing.");
+    return;
+  }
+  try {
+    await rebuildAndSyncReviews(token);
+    logger.log(`Auto-synced deleted review ${event.params.reviewId} to GitHub.`);
+  } catch (error) {
+    logger.error("Error in onReviewDeleted trigger:", error);
   }
 });

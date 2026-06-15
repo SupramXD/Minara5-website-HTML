@@ -946,6 +946,39 @@ function updateCartCount(count){
 
         // Default products list starting empty to load purely dynamic products
         let products = [];
+        let allReviews = [];
+
+        // Fetch reviews from reviews.json once to avoid per-card queries
+        const loadStaticReviews = async () => {
+            try {
+                const res = await fetch("reviews.json?t=" + Date.now());
+                if (res.ok) {
+                    allReviews = await res.json();
+                }
+            } catch (err) {
+                console.warn("Failed to fetch reviews.json for catalog:", err);
+            }
+
+            // Merge local session reviews so user's own submissions show up instantly
+            try {
+                const sessionReviews = JSON.parse(sessionStorage.getItem("my_session_reviews") || "[]");
+                sessionReviews.forEach(sr => {
+                    const isDuplicate = allReviews.some(pr => 
+                        pr.productId === sr.productId &&
+                        pr.name === sr.name && 
+                        pr.text === sr.text && 
+                        pr.rating === sr.rating &&
+                        (sr.timestamp ? pr.timestamp === sr.timestamp : true)
+                    );
+                    if (!isDuplicate) {
+                        allReviews.push(sr);
+                    }
+                });
+            } catch (e) {
+                console.error("Failed to merge session reviews:", e);
+            }
+        };
+        await loadStaticReviews();
 
         // 1. Fetch custom products from local storage
         const loadLocalProducts = () => {
@@ -1088,21 +1121,14 @@ function updateCartCount(count){
                     reviewsRowEl.style.opacity = '0.35';
                 }
 
-                const loadCardReviews = async () => {
-                    let retries = 10;
-                    while (!window.db && retries > 0) {
-                        await new Promise(r => setTimeout(r, 100));
-                        retries--;
-                    }
-                    if (!window.db) return;
+                const loadCardReviews = () => {
                     try {
-                        const qSnapshot = await getDocs(query(collection(window.db, "reviews"), where("productId", "==", p.id)));
+                        const cardReviews = allReviews.filter(r => r.productId === p.id);
                         let totalRating = 0;
                         let count = 0;
-                        qSnapshot.forEach(doc => {
-                            const data = doc.data();
-                            if (data.rating) {
-                                totalRating += Number(data.rating);
+                        cardReviews.forEach(r => {
+                            if (r.rating) {
+                                totalRating += Number(r.rating);
                                 count++;
                             }
                         });
