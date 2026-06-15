@@ -1588,50 +1588,60 @@ window.openCart = function() {
         });
     };
 
-    // Load reviews from Firestore
+    // Load reviews from static reviews.json and session reviews
     async function loadReviews(prodId) {
         const reviewsList = document.getElementById("reviewsList");
         const reviewsAverage = document.getElementById("reviewsAverage");
         if (!reviewsList) return;
 
-        let retries = 5;
-        while (!window.db && retries > 0) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            retries--;
-        }
-
-        if (!window.db) {
-            reviewsList.innerHTML = `<div style="font-size: 10px; opacity: 0.5; font-style: italic;">Database offline. Cannot load reviews.</div>`;
-            reviewsAverage.textContent = "";
-            return;
-        }
-
         try {
-            const q = query(
-                collection(window.db, "reviews"),
-                where("productId", "==", prodId)
-            );
-            const querySnapshot = await getDocs(q);
-            
-            // Sort client-side to avoid composite index requirements
-            const docs = [];
-            querySnapshot.forEach(doc => {
-                docs.push({ id: doc.id, ...doc.data() });
+            let allReviews = [];
+            // Try loading from static reviews.json
+            try {
+                const res = await fetch("reviews.json?t=" + Date.now());
+                if (res.ok) {
+                    allReviews = await res.json();
+                }
+            } catch (fetchErr) {
+                console.warn("Failed to fetch reviews.json, using local session reviews only", fetchErr);
+            }
+
+            // Filter reviews for this product
+            let productReviews = allReviews.filter(r => r.productId === prodId);
+
+            // Get session reviews submitted in this session (so user sees their review immediately)
+            const sessionReviews = JSON.parse(sessionStorage.getItem("my_session_reviews") || "[]");
+            const myProdReviews = sessionReviews.filter(r => r.productId === prodId);
+
+            // Merge and de-duplicate (in case session review is already in reviews.json)
+            myProdReviews.forEach(sr => {
+                const isDuplicate = productReviews.some(pr => 
+                    pr.name === sr.name && 
+                    pr.text === sr.text && 
+                    pr.rating === sr.rating &&
+                    (sr.timestamp ? pr.timestamp === sr.timestamp : true)
+                );
+                if (!isDuplicate) {
+                    productReviews.push(sr);
+                }
             });
-            docs.sort((a, b) => {
+
+            // Sort by timestamp descending
+            productReviews.sort((a, b) => {
                 const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
                 const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
                 return timeB - timeA;
             });
-            
+
             let totalRating = 0;
             let count = 0;
             let reviewsHTML = "";
 
-            docs.forEach((review) => {
+            productReviews.forEach((review) => {
                 count++;
                 totalRating += Number(review.rating);
 
+                // Build stars layout for this review
                 let starsHTML = "";
                 for (let i = 1; i <= 5; i++) {
                     if (i <= review.rating) {
@@ -1671,17 +1681,25 @@ window.openCart = function() {
                 reviewsList.innerHTML = `<div style="font-size: 10px; opacity: 0.5; font-style: italic;">No reviews yet. Be the first to leave one.</div>`;
             }
         } catch (err) {
-            console.error("Error fetching reviews:", err);
+            console.error("Error loading reviews:", err);
             reviewsList.innerHTML = `<div style="font-size: 10px; opacity: 0.5; font-style: italic; color: #ff3b30;">Failed to load reviews.</div>`;
         }
     }
 
-    // Submit review to Firestore
+    // Submit review to Firestore with session-spam protection
     window.submitReview = async function(event) {
         event.preventDefault();
         
         const params = new URLSearchParams(window.location.search);
         const prodId = params.get('id') || 'leopard-backpack';
+
+        // Session-spam check: max 2 reviews per session per product
+        const submittedMap = JSON.parse(sessionStorage.getItem("minara_reviews_submitted") || "{}");
+        const currentCount = submittedMap[prodId] || 0;
+        if (currentCount >= 2) {
+            alert("You have reached the limit of 2 reviews per session for this product.");
+            return;
+        }
 
         const nameInput = document.getElementById("reviewName");
         const textInput = document.getElementById("reviewText");
@@ -1717,19 +1735,39 @@ window.openCart = function() {
                 throw new Error("Firestore not initialized.");
             }
 
+            const timestamp = new Date().toISOString();
+
+            // 1. Save to Firestore
             await addDoc(collection(window.db, "reviews"), {
                 productId: prodId,
                 name: name,
                 text: text,
                 rating: rating,
-                timestamp: new Date().toISOString()
+                timestamp: timestamp
             });
 
+            // 2. Increment session submit count
+            submittedMap[prodId] = currentCount + 1;
+            sessionStorage.setItem("minara_reviews_submitted", JSON.stringify(submittedMap));
+
+            // 3. Save to local session reviews list so it renders immediately
+            const mySessionReviews = JSON.parse(sessionStorage.getItem("my_session_reviews") || "[]");
+            mySessionReviews.push({
+                productId: prodId,
+                name: name,
+                text: text,
+                rating: rating,
+                timestamp: timestamp
+            });
+            sessionStorage.setItem("my_session_reviews", JSON.stringify(mySessionReviews));
+
+            // Reset form inputs and rating selector
             nameInput.value = "";
             textInput.value = "";
             window.setFormRating(5);
             window.toggleReviewForm();
 
+            // Refresh reviews list
             await loadReviews(prodId);
         } catch (err) {
             console.error("Error submitting review:", err);

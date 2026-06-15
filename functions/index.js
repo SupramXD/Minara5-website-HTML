@@ -451,6 +451,16 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         }
       }
       return {success: true, message: "Rename operation completed"};
+    } else if (action === "syncReviews") {
+      const reviewsList = payload;
+      if (!Array.isArray(reviewsList)) {
+        throw new HttpsError("invalid-argument", "payload must be an array of reviews");
+      }
+      const {sha: jsonSha} = await getFileShaAndContent("reviews.json", token);
+      const updatedJsonStr = JSON.stringify(reviewsList, null, 2);
+      const updatedJsonBase64 = Buffer.from(updatedJsonStr, "utf-8").toString("base64");
+      await writeFileToGitHub("reviews.json", updatedJsonBase64, "Sync reviews from Firestore", jsonSha, token);
+      return {success: true, message: "Reviews synced to GitHub."};
     } else {
       throw new HttpsError("invalid-argument", `Action ${action} is not supported.`);
     }
