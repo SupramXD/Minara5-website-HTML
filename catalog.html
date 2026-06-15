@@ -52,10 +52,10 @@ header{
   position:absolute;
   left:50%;
   top:50%;
-  transform:translate(-50%,-50%);
+  transform:translate(-24.17%,-50%);
 }
 .center-logo{
-  height:29px;
+  height:36px;
   opacity:0.92;
   pointer-events:none;
 }
@@ -84,8 +84,14 @@ nav ul li a:hover{opacity:0.6;}
   nav{display:none;}
   header{justify-content:space-between;padding:6px 16px;}
   .menu-icon{display:block;}
-  .center-logo-link{position:static; transform:none; margin-left:auto;}
-  .center-logo{height:22px;}
+  .center-logo-link{
+    position:absolute !important;
+    left:50% !important;
+    top:50% !important;
+    transform:translate(-24.17%, -50%) !important;
+    margin:0 !important;
+  }
+  .center-logo{height:26px;}
 }
 
 /* CART BUTTON */
