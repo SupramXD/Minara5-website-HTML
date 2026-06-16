@@ -28,6 +28,7 @@
     "description": "Inspired by Creed's Creed Aventus",
     "status": "Active",
     "flair": "",
+    "invisibleFlair": "men",
     "sizes": [
       "50ml"
     ]
