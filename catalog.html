@@ -77,11 +77,21 @@ nav ul li a:hover{opacity:0.6;}
 .question-icon{height:14px;}
 .desktop-icon{height:12px;}
 
-.menu-icon{display:none;}
-.menu-icon img{height:14px;}
+.left-nav{display:flex;align-items:center;}
+.left-nav a{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#000;
+  text-decoration:none;
+  margin-top:4px;
+  transition:opacity .25s ease;
+}
+.left-nav a:hover{opacity:0.6;}
 
 @media(max-width:900px){
   nav{display:none;}
+  .desktop-only{display:none !important;}
   header{justify-content:space-between;padding:6px 16px;}
   .menu-icon{display:block;}
   .center-logo-link{
@@ -259,12 +269,13 @@ nav ul li a:hover{opacity:0.6;}
 }
 .slideout a{
   display:block;
-  font-size:14px;
+  font-size:12px;
   text-transform:uppercase;
-  letter-spacing:0.28em;
+  letter-spacing:0.15em;
   margin:26px 0;
   color:#000;
   text-decoration:none;
+  white-space:nowrap;
 }
 
 /* CATALOG REDESIGN */
@@ -680,7 +691,13 @@ footer{
 <header>
 
   
-  <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
+  <div class="left-nav">
+    <a href="catalog.html" class="desktop-only">Shop All Fragrances</a>
+    <a href="catalog.html?gender=men" class="desktop-only" style="margin-left:22px;">Mens</a>
+    <a href="catalog.html?gender=women" class="desktop-only" style="margin-left:22px;">Women's</a>
+    <a href="social media.html" class="desktop-only" style="margin-left:22px;">SOCIALS</a>
+    <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
+  </div>
 
   <a href="index.html" class="center-logo-link">
     <img src="minara 5 transparent 2.svg" class="center-logo">

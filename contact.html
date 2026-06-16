@@ -51,6 +51,10 @@ header{
 }
 
 /* Left nav — desktop only CATALOG */
+.left-nav{
+  display:flex;
+  align-items:center;
+}
 .left-nav a{
   font-size:12px;
   text-transform:uppercase;
@@ -132,12 +136,13 @@ nav ul li a:hover{opacity:0.6;}
 
 .slideout a{
   display:block;
-  font-size:14px;
+  font-size:12px;
   text-transform:uppercase;
-  letter-spacing:0.28em;
+  letter-spacing:0.15em;
   text-decoration:none;
   color:#000;
   margin:26px 0;
+  white-space:nowrap;
 }
 
 /* CONTACT PAGE */
@@ -389,7 +394,9 @@ nav ul li a:hover{opacity:0.6;}
 
   <!-- LEFT (desktop only): CATALOG -->
   <div class="left-nav">
-      <a href="catalog.html">Catalog</a>
+      <a href="catalog.html" class="desktop-only">Shop All Fragrances</a>
+      <a href="catalog.html?gender=men" class="desktop-only" style="margin-left:22px;">Mens</a>
+      <a href="catalog.html?gender=women" class="desktop-only" style="margin-left:22px;">Women's</a>
   </div>
 
   <!-- CENTER LOGO -->
