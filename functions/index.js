@@ -462,6 +462,13 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
       const updatedJsonBase64 = Buffer.from(updatedJsonStr, "utf-8").toString("base64");
       await writeFileToGitHub("reviews.json", updatedJsonBase64, "Sync reviews from Firestore", jsonSha, token);
       return {success: true, message: "Reviews synced to GitHub."};
+    } else if (action === "saveCustomText") {
+      const settingsData = payload;
+      const {sha: settingsSha} = await getFileShaAndContent("custom_text_settings.json", token);
+      const updatedJsonStr = JSON.stringify(settingsData, null, 2);
+      const updatedJsonBase64 = Buffer.from(updatedJsonStr, "utf-8").toString("base64");
+      await writeFileToGitHub("custom_text_settings.json", updatedJsonBase64, "Update custom text settings", settingsSha, token);
+      return {success: true, message: "Custom text settings synced to GitHub."};
     } else {
       throw new HttpsError("invalid-argument", `Action ${action} is not supported.`);
     }

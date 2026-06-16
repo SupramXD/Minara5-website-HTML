@@ -724,6 +724,7 @@
             loadCatalog();
             fetchUsers();
             loadHeroSettings();
+            loadCustomTextSettings();
             return;
           }
         } catch (e) {
@@ -819,6 +820,7 @@
               <button class="tab-btn" onclick="switchTab('users-tab')">Users & Newsletter</button>
               <button class="tab-btn" onclick="switchTab('image-optimizer-tab')">Image Optimizer</button>
               <button class="tab-btn" onclick="switchTab('reviews-tab')">Reviews Manager</button>
+              <button class="tab-btn" onclick="switchTab('features-tab')">Footer & Features Customizer</button>
             </div>
 
             <!-- TAB 1: HERO & LOGO CUSTOMIZER -->
@@ -1619,6 +1621,148 @@
                   </table>
                 </div>
               </div>
+            </div>
+
+            <!-- TAB 6: FOOTER & FEATURES CUSTOMIZER -->
+            <div id="features-tab" class="tab-content">
+              <form id="customTextSettingsForm" onsubmit="handleSaveCustomTextSettings(event)">
+                
+                <!-- PANEL 1: HOMEPAGE FEATURE BOXES -->
+                <div class="console-panel full-width-panel" style="margin-bottom: 30px;">
+                  <div class="panel-header">
+                    <h2 class="panel-title">Homepage Feature Boxes (Icon Text)</h2>
+                    <span class="stat-label" style="font-size: 10px;">6 Blocks</span>
+                  </div>
+                  <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
+                    These 6 text blocks appear with icons on the homepage (Why You'll Love The Perfume House).
+                  </p>
+                  
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- Feature 1 -->
+                    <div style="border: 1px solid var(--border-color); padding: 15px; border-radius: 4px; background: rgba(255,255,255,0.01);">
+                      <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px;">Feature 1 (Flag Icon)</h4>
+                      <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="featureTitle0" class="form-input" required>
+                      </div>
+                      <div class="form-group" style="margin-top: 10px;">
+                        <label>Description</label>
+                        <textarea id="featureDesc0" class="form-input" rows="3" required style="resize: vertical; font-family: inherit;"></textarea>
+                      </div>
+                    </div>
+                    
+                    <!-- Feature 2 -->
+                    <div style="border: 1px solid var(--border-color); padding: 15px; border-radius: 4px; background: rgba(255,255,255,0.01);">
+                      <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px;">Feature 2 (Clock Icon)</h4>
+                      <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="featureTitle1" class="form-input" required>
+                      </div>
+                      <div class="form-group" style="margin-top: 10px;">
+                        <label>Description</label>
+                        <textarea id="featureDesc1" class="form-input" rows="3" required style="resize: vertical; font-family: inherit;"></textarea>
+                      </div>
+                    </div>
+                    
+                    <!-- Feature 3 -->
+                    <div style="border: 1px solid var(--border-color); padding: 15px; border-radius: 4px; background: rgba(255,255,255,0.01);">
+                      <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px;">Feature 3 (Leaf Icon)</h4>
+                      <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="featureTitle2" class="form-input" required>
+                      </div>
+                      <div class="form-group" style="margin-top: 10px;">
+                        <label>Description</label>
+                        <textarea id="featureDesc2" class="form-input" rows="3" required style="resize: vertical; font-family: inherit;"></textarea>
+                      </div>
+                    </div>
+                    
+                    <!-- Feature 4 -->
+                    <div style="border: 1px solid var(--border-color); padding: 15px; border-radius: 4px; background: rgba(255,255,255,0.01);">
+                      <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px;">Feature 4 (Heart Icon)</h4>
+                      <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="featureTitle3" class="form-input" required>
+                      </div>
+                      <div class="form-group" style="margin-top: 10px;">
+                        <label>Description</label>
+                        <textarea id="featureDesc3" class="form-input" rows="3" required style="resize: vertical; font-family: inherit;"></textarea>
+                      </div>
+                    </div>
+                    
+                    <!-- Feature 5 -->
+                    <div style="border: 1px solid var(--border-color); padding: 15px; border-radius: 4px; background: rgba(255,255,255,0.01);">
+                      <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px;">Feature 5 (Diamond Icon)</h4>
+                      <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="featureTitle4" class="form-input" required>
+                      </div>
+                      <div class="form-group" style="margin-top: 10px;">
+                        <label>Description</label>
+                        <textarea id="featureDesc4" class="form-input" rows="3" required style="resize: vertical; font-family: inherit;"></textarea>
+                      </div>
+                    </div>
+                    
+                    <!-- Feature 6 -->
+                    <div style="border: 1px solid var(--border-color); padding: 15px; border-radius: 4px; background: rgba(255,255,255,0.01);">
+                      <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px;">Feature 6 (Beaker Icon)</h4>
+                      <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="featureTitle5" class="form-input" required>
+                      </div>
+                      <div class="form-group" style="margin-top: 10px;">
+                        <label>Description</label>
+                        <textarea id="featureDesc5" class="form-input" rows="3" required style="resize: vertical; font-family: inherit;"></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- PANEL 2: TRUST BANNER (FOOTER) -->
+                <div class="console-panel full-width-panel" style="margin-bottom: 30px;">
+                  <div class="panel-header">
+                    <h2 class="panel-title">Footer Trust Banner Text (Bottom of Pages)</h2>
+                    <span class="stat-label" style="font-size: 10px;">2 Blocks</span>
+                  </div>
+                  <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
+                    These text blocks appear in the light-gray trust section at the bottom of index, catalog, product, leopard, and contact pages.
+                  </p>
+                  
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- Trust 1 -->
+                    <div style="border: 1px solid var(--border-color); padding: 15px; border-radius: 4px; background: rgba(255,255,255,0.01);">
+                      <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px;">Trust Block 1 (Left side)</h4>
+                      <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="trustTitle0" class="form-input" required>
+                      </div>
+                      <div class="form-group" style="margin-top: 10px;">
+                        <label>Description</label>
+                        <textarea id="trustDesc0" class="form-input" rows="3" required style="resize: vertical; font-family: inherit;"></textarea>
+                      </div>
+                    </div>
+                    
+                    <!-- Trust 2 -->
+                    <div style="border: 1px solid var(--border-color); padding: 15px; border-radius: 4px; background: rgba(255,255,255,0.01);">
+                      <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px;">Trust Block 2 (Right side)</h4>
+                      <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="trustTitle1" class="form-input" required>
+                      </div>
+                      <div class="form-group" style="margin-top: 10px;">
+                        <label>Description</label>
+                        <textarea id="trustDesc1" class="form-input" rows="3" required style="resize: vertical; font-family: inherit;"></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- SUBMIT ACTIONS -->
+                <div class="console-panel full-width-panel" style="padding: 20px;">
+                  <button type="submit" id="saveCustomTextBtn" class="btn-action accent-btn" style="width: 100%; padding: 14px; font-weight: bold; font-family: inherit;">Publish Text & Footer Settings</button>
+                </div>
+                
+              </form>
             </div>
 
           </div>
@@ -3615,6 +3759,171 @@
           }
         }
       }, 0);
+    };
+
+    window.loadCustomTextSettings = async function() {
+      let textData = {
+        features: [
+          {
+            title: "Handcrafted with French Oils",
+            description: "Proudly crafted in South Africa, our fragrances are meticulously formulated using premium French oils. We believe great scent-making is both an art and a rigorous process. From formulation to final production, we pour care and craftsmanship into every bottle, creating premium scents you can wear with absolute confidence."
+          },
+          {
+            title: "Long Lasting",
+            description: "Our fragrances are engineered to endure, ensuring that your favorite scent stays with you throughout the day. From morning meetings to evening outings, trust The Perfume House to keep you smelling exceptional, longer."
+          },
+          {
+            title: "Vegan + Cruelty Free",
+            description: "We pledge that all our fragrances are 100% vegan and cruelty-free, ensuring no animals are harmed and no animal byproducts are used in our creations."
+          },
+          {
+            title: "Crafted with Passion",
+            description: "Every bottle is a labor of love. We design our fragrances to bring joy and confidence to your daily routine, ensuring that luxury is not just a name, but an everyday experience."
+          },
+          {
+            title: "Luxury Scents For Everyone",
+            description: "Experience world-class scents, traditionally available to a select few, now accessible to everyone. Luxury isn't exclusive—it's universal."
+          },
+          {
+            title: "Clean Formulations",
+            description: "Pure and safe, our formulations are crafted with transparency in mind. We exclude harmful chemicals and opt for cleaner, healthier ingredients in our scents."
+          }
+        ],
+        trust_banner: [
+          {
+            title: "Fast Delivery Nationwide",
+            description: "Courier dispatch direct to your door anywhere in South Africa. Safe and secure checkout options."
+          },
+          {
+            title: "Trusted Clone Brand",
+            description: "We're currently looking at selling on Takealot And Amazon soon. The Perfume House has 100% premium quality formulation matching original scents."
+          }
+        ]
+      };
+
+      try {
+        const cached = localStorage.getItem("minara_custom_text");
+        if (cached) {
+          textData = { ...textData, ...JSON.parse(cached) };
+        }
+      } catch (e) {
+        console.error("Failed to load local custom text cache:", e);
+      }
+
+      const populateFields = (data) => {
+        if (data.features) {
+          data.features.forEach((feature, idx) => {
+            const titleEl = document.getElementById(`featureTitle${idx}`);
+            const descEl = document.getElementById(`featureDesc${idx}`);
+            if (titleEl) titleEl.value = feature.title || "";
+            if (descEl) descEl.value = feature.description || "";
+          });
+        }
+        if (data.trust_banner) {
+          data.trust_banner.forEach((item, idx) => {
+            const titleEl = document.getElementById(`trustTitle${idx}`);
+            const descEl = document.getElementById(`trustDesc${idx}`);
+            if (titleEl) titleEl.value = item.title || "";
+            if (descEl) descEl.value = item.description || "";
+          });
+        }
+      };
+
+      populateFields(textData);
+
+      setTimeout(async () => {
+        if (window.db && window.dbDoc && window.dbGetDoc) {
+          try {
+            const docSnap = await window.dbGetDoc(window.dbDoc(window.db, "settings", "custom_text"));
+            if (docSnap.exists()) {
+              const liveData = docSnap.data();
+              localStorage.setItem("minara_custom_text", JSON.stringify(liveData));
+              populateFields(liveData);
+            }
+          } catch (err) {
+            console.warn("Failed to fetch live custom text settings:", err);
+          }
+        }
+      }, 0);
+    };
+
+    window.handleSaveCustomTextSettings = async function(e) {
+      if (e) e.preventDefault();
+      
+      const saveBtn = document.getElementById("saveCustomTextBtn");
+      const originalText = saveBtn ? saveBtn.innerHTML : "";
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = "PUBLISHING...";
+      }
+
+      const payload = {
+        features: [],
+        trust_banner: []
+      };
+
+      for (let i = 0; i < 6; i++) {
+        payload.features.push({
+          title: document.getElementById(`featureTitle${i}`).value,
+          description: document.getElementById(`featureDesc${i}`).value
+        });
+      }
+
+      for (let i = 0; i < 2; i++) {
+        payload.trust_banner.push({
+          title: document.getElementById(`trustTitle${i}`).value,
+          description: document.getElementById(`trustDesc${i}`).value
+        });
+      }
+
+      try {
+        localStorage.setItem("minara_custom_text", JSON.stringify(payload));
+
+        let dbSaved = false;
+        if (window.db && window.dbDoc && window.dbSetDoc) {
+          try {
+            await window.dbSetDoc(window.dbDoc(window.db, "settings", "custom_text"), payload);
+            dbSaved = true;
+          } catch (dbErr) {
+            console.error("Firestore custom text settings save failed:", dbErr);
+          }
+        }
+
+        let gitHubSynced = false;
+        if (window.syncToGithubCallable) {
+          try {
+            const response = await window.syncToGithubCallable({
+              action: "saveCustomText",
+              payload: payload
+            });
+            if (response.data && response.data.success) {
+              gitHubSynced = true;
+            } else {
+              throw new Error(response.data ? response.data.message : "GitHub sync failed");
+            }
+          } catch (gitHubErr) {
+            console.error("Failed to sync custom text to GitHub:", gitHubErr);
+            throw gitHubErr;
+          }
+        }
+
+        if (dbSaved && gitHubSynced) {
+          alert("Success! Text & Footer settings published and synchronized to GitHub.");
+        } else if (dbSaved) {
+          alert("Warning: Text settings saved to database, but GitHub sync failed.");
+        } else {
+          alert("Warning: Local changes saved, but database and GitHub updates failed.");
+        }
+
+      } catch (err) {
+        console.error("Failed to publish text settings:", err);
+        alert("Error publishing text settings: " + (err.message || err));
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = originalText;
+        }
+      }
     };
 
     window.handleSaveHeroSettings = async function(e) {

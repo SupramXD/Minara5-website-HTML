@@ -742,12 +742,12 @@ window.removeFromCart = function(index) {
         cart.forEach((item, index) => {
             if (item.removed) {
                 html += `
-                <div class="cart-item-row removed-item-row" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eaeaea; padding:15px 20px; background:#fafafa; box-sizing:border-box; width:100%;">
-                    <div style="display:flex; flex-direction:column; gap:4px;">
-                        <span style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px;">${item.nameShort || item.name} ${(item.size ? ' (' + item.size + ')' : '')}</span>
-                        <span style="color:red; font-size:9px; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">REMOVED FROM BAG</span>
+                <div class="cart-item-row removed-item-row" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eaeaea; padding:10px 15px; background:#fafafa; box-sizing:border-box; width:100%;">
+                    <div style="display:flex; flex-direction:column; gap:2px;">
+                        <span style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1px; color:#000;">${item.nameShort || item.name} ${(item.size ? ' (' + item.size + ')' : '')}</span>
+                        <span style="color:#ff3b30; font-size:9px; font-weight:500; letter-spacing:1px; text-transform:uppercase; opacity:0.8;">REMOVED FROM BAG</span>
                     </div>
-                    <span onclick="window.undoRemove(${index})" style="color:#1106e8; font-size:11px; font-family:Helvetica, Arial, sans-serif; text-decoration:underline; cursor:pointer; font-weight:600; text-transform:uppercase; letter-spacing:1px;">UNDO</span>
+                    <span onclick="window.undoRemove(${index})" style="color:#1106e8; font-size:11px; font-family:Helvetica, Arial, sans-serif; text-decoration:underline; cursor:pointer; font-weight:500; text-transform:uppercase; letter-spacing:1px;">UNDO</span>
                 </div>`;
             } else {
                 const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
@@ -757,19 +757,24 @@ window.removeFromCart = function(index) {
                     : `R${formatPrice(itemPrice)}`;
 
                 html += `
-                <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #eaeaea; padding:20px 15px;">
-                    <img src="${window.getThumbnailImageUrl(item.image, item.image_thumb)}" style="width:80px; height:105px; object-fit:contain;">
+                <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #eaeaea; padding:12px 15px;">
+                    <img src="${window.getThumbnailImageUrl(item.image, item.image_thumb)}" style="width:64px; height:84px; object-fit:contain;">
                     <div style="flex:1;">
-                        <div style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#000;">${item.nameShort || item.name}</div>
-                        ${item.nameShort && item.nameShort !== item.name ? `<div style="font-family:Helvetica, Arial, sans-serif; font-size:10px; opacity:0.6; margin-top:2px; letter-spacing:0.5px;">${item.name}</div>` : ''}
-                        <div style="font-family:Helvetica, Arial, sans-serif; font-size:9.5px; opacity:0.5; margin-top:4px; margin-bottom:10px; letter-spacing:0.5px;">COLOUR: ORIGINAL &bull; SIZE: ${(item.size || '100ml').toUpperCase()}</div>
-                        <div style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:600; letter-spacing:0.5px; color:#000;">${displayPrice}</div>
-                        <div class="qty-stepper" style="display:flex; border:1px solid #eaeaea; width:fit-content; margin-top:10px;">
-                            <div class="qty-btn" ${item.quantity <= 1 ? 'style="width:25px; height:25px; display:flex; justify-content:center; align-items:center; opacity:0.3; cursor:not-allowed;"' : `onclick="window.changeQty(${index}, -1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;"`}>–</div>
-                            <div class="qty-val" style="width:30px; text-align:center; border-left:1px solid #eaeaea; border-right:1px solid #eaeaea; font-size:11px; display:flex; align-items:center; justify-content:center;">${item.quantity}</div>
-                            <div class="qty-btn" onclick="window.changeQty(${index}, 1)" style="width:25px; height:25px; cursor:pointer; display:flex; justify-content:center; align-items:center;">+</div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
+                            <div style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#000;">${item.nameShort || item.name}</div>
+                            <div style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:600; letter-spacing:0.5px; color:#000; margin-left:10px; flex-shrink:0;">${displayPrice}</div>
                         </div>
-                        <div onclick="window.removeFromCart(${index})" style="font-family:Helvetica, Arial, sans-serif; font-size:9px; color:#1106e8; cursor:pointer; margin-top:15px; text-decoration:underline; font-weight:600; letter-spacing:1px; text-transform:uppercase;">✕ REMOVE</div>
+                        ${item.nameShort && item.nameShort !== item.name ? `<div style="font-family:Helvetica, Arial, sans-serif; font-size:10px; opacity:0.6; margin-top:2px; letter-spacing:0.5px;">${item.name}</div>` : ''}
+                        <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; opacity:0.5; margin-top:2px; letter-spacing:0.5px;">SIZE: ${(item.size || '100ml').toUpperCase()}</div>
+                        
+                        <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
+                            <div class="qty-stepper" style="display:flex; border:1px solid #eaeaea; width:fit-content; height:24px;">
+                                <div class="qty-btn" ${item.quantity <= 1 ? 'style="width:24px; height:100%; display:flex; justify-content:center; align-items:center; opacity:0.3; cursor:not-allowed;"' : `onclick="window.changeQty(${index}, -1)" style="width:24px; height:100%; cursor:pointer; display:flex; justify-content:center; align-items:center;"`}>–</div>
+                                <div class="qty-val" style="width:24px; height:100%; text-align:center; border-left:1px solid #eaeaea; border-right:1px solid #eaeaea; font-size:11px; display:flex; align-items:center; justify-content:center;">${item.quantity}</div>
+                                <div class="qty-btn" onclick="window.changeQty(${index}, 1)" style="width:24px; height:100%; cursor:pointer; display:flex; justify-content:center; align-items:center;">+</div>
+                            </div>
+                            <div onclick="window.removeFromCart(${index})" style="font-family:Helvetica, Arial, sans-serif; font-size:9px; color:#1106e8; cursor:pointer; text-decoration:underline; font-weight:600; letter-spacing:1px; text-transform:uppercase;">✕ REMOVE</div>
+                        </div>
                     </div>
                 </div>`;
             }
@@ -788,7 +793,7 @@ window.removeFromCart = function(index) {
         html += '</div>';
     }
 
-    // FOOTER (Restored to your previous working version)
+    // FOOTER (Restored to original Gotham Narrow Bold)
     const footBoxHeight = hasItems ? "45px" : "80px"; 
     const paymentBoxHeight = hasItems ? "auto" : "50px"; 
     const paymentPadding = hasItems ? "20px 20px" : "8px 20px"; 
@@ -802,17 +807,17 @@ window.removeFromCart = function(index) {
     html += `
         <div class="cart-footer-area" style="margin-top:auto; width:100%;">
             <div style="background:#f9f9f9; border-top:1px solid #eaeaea; padding:12px 20px; height:${footBoxHeight}; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
-                <div style="display:flex; justify-content:space-between; font-size:10.5px; font-family:Helvetica, Arial, sans-serif; font-weight:600; letter-spacing:1.5px; color:#000;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold', sans-serif; font-weight:bold; letter-spacing:1.5px; color:#000;">
                     <span>SHIPPING</span><span>FREE</span>
                 </div>
-                ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:10.5px; font-family:Helvetica, Arial, sans-serif; font-weight:600; letter-spacing:1.5px; color:#000;"><span>TOTAL</span><span>R0</span></div>` : ''}
+                ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold', sans-serif; font-weight:bold; letter-spacing:1.5px; color:#000;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
             <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #eaeaea; padding:${paymentPadding}; height:${paymentBoxHeight}; min-height:${paymentBoxHeight}; border-bottom:1px solid #eaeaea; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box; width:100%;">
-                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:Helvetica, Arial, sans-serif; font-weight:600; letter-spacing:1.5px; margin-bottom:${hasItems ? '15px' : '4px'}; color:#000;">
+                <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold', sans-serif; font-weight:bold; letter-spacing:1.5px; margin-bottom:${hasItems ? '15px' : '4px'}; color:#000;">
                     <span>${hasItems ? 'TOTAL' : 'PAYMENT'}</span>
                     <span>${hasItems ? priceDisplay : ''}</span>
                 </div>
-                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:Helvetica, Arial, sans-serif; font-size:11px; cursor:pointer; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;">CONTINUE TO CHECKOUT</button>` : ''}
+                ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; cursor:pointer; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">CONTINUE TO CHECKOUT</button>` : ''}
                 <div style="display:flex; gap:8px; opacity:0.3; margin-top:${hasItems ? '12px' : '0px'};">
                     <div style="width:25px; height:${hasItems ? '15px' : '10px'}; background:#000;"></div>
                     <div style="width:25px; height:${hasItems ? '15px' : '10px'}; background:#000;"></div>
@@ -1305,4 +1310,71 @@ function setupDesktopNewsletter() {
         }
     }
 }
+
+// --- DYNAMIC CUSTOM TEXT LOADER ---
+function applyCustomText(data) {
+    if (!data) return;
+    
+    // 1. Update features if on index page
+    if (data.features) {
+        const titleElms = document.querySelectorAll('.brand-feature-title');
+        const descElms = document.querySelectorAll('.brand-feature-description');
+        data.features.forEach((feature, idx) => {
+            if (titleElms[idx] && feature.title) titleElms[idx].textContent = feature.title;
+            if (descElms[idx] && feature.description) descElms[idx].textContent = feature.description;
+        });
+    }
+    
+    // 2. Update trust banner if exists
+    if (data.trust_banner) {
+        const trustItems = document.querySelectorAll('.trust-item');
+        data.trust_banner.forEach((item, idx) => {
+            if (trustItems[idx]) {
+                const spans = trustItems[idx].querySelectorAll('span');
+                if (spans.length >= 2) {
+                    if (item.title) spans[0].textContent = item.title;
+                    if (item.description) spans[1].textContent = item.description;
+                }
+            }
+        });
+    }
+}
+
+// Immediately load cache and fetch update
+(function() {
+    try {
+        const cached = localStorage.getItem("minara_custom_text");
+        if (cached) {
+            const data = JSON.parse(cached);
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", () => applyCustomText(data));
+            } else {
+                applyCustomText(data);
+            }
+        }
+    } catch (e) {
+        console.error("Failed to load cached custom text:", e);
+    }
+    
+    const fetchLatest = () => {
+        fetch('custom_text_settings.json?t=' + Date.now())
+            .then(res => {
+                if (!res.ok) throw new Error("Status " + res.status);
+                return res.json();
+            })
+            .then(data => {
+                localStorage.setItem("minara_custom_text", JSON.stringify(data));
+                applyCustomText(data);
+            })
+            .catch(err => {
+                console.warn("Could not fetch latest custom text settings:", err);
+            });
+    };
+    
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", fetchLatest);
+    } else {
+        fetchLatest();
+    }
+})();
 
