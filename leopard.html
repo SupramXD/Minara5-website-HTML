@@ -156,7 +156,7 @@ nav ul li a:hover{opacity:0.6;}
 @media(max-width:900px){
   nav{display:none;}
   .desktop-only{display:none !important;}
-  header{justify-content:space-between;padding:6px 16px;}
+  header{justify-content:space-between;align-items:center;padding:6px 16px;}
   .menu-icon{display:block;}
 
   /* MOBILE CENTERED LOGO (same as catalog) */
@@ -230,7 +230,7 @@ nav ul li a:hover{opacity:0.6;}
   display:flex;
   flex-direction:column;
   align-items:center;
-  padding-bottom:120px;
+  padding-bottom:40px;
 }
 
 /* SLIDER */
@@ -899,6 +899,129 @@ footer{
     align-items: flex-start !important;
   }
 }
+
+/* Reviews Modal Overlay */
+.reviews-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 10000;
+    display: none;
+    flex-direction: column;
+    padding: 30px 24px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.reviews-modal-overlay.active {
+    display: flex;
+}
+
+.reviews-modal-content {
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.reviews-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #000;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+}
+
+.reviews-modal-title {
+    font-family: 'Gotham Narrow Bold', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0;
+    font-weight: bold;
+}
+
+.reviews-modal-close {
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: #000;
+    padding: 8px 0;
+    transition: opacity 0.2s ease;
+}
+
+.reviews-modal-close:hover {
+    opacity: 0.6;
+}
+
+.reviews-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.reviews-modal-body::-webkit-scrollbar {
+    width: 4px;
+}
+.reviews-modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+.reviews-modal-body::-webkit-scrollbar-thumb {
+    background: #000;
+}
+
+/* Pagination buttons styling */
+.reviews-btn-outline {
+    background: transparent;
+    border: 1px solid #000;
+    color: #000;
+    padding: 12px;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    width: 100%;
+    font-family: inherit;
+    font-weight: bold;
+    transition: background 0.25s, color 0.25s;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.reviews-btn-outline:hover {
+    background: #000;
+    color: #fff;
+}
+
+.reviews-btn-solid {
+    background: #000;
+    border: 1px solid #000;
+    color: #fff;
+    padding: 12px;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    width: 100%;
+    font-family: inherit;
+    font-weight: bold;
+    transition: background 0.25s, color 0.25s;
+    text-align: center;
+}
+.reviews-btn-solid:hover {
+    background: transparent;
+    color: #000;
+}
 </style>
 </head>
 
@@ -1074,6 +1197,12 @@ for many years still unwritten
 
             <div id="reviewsList" style="margin-bottom: 25px; display: flex; flex-direction: column; gap: 20px;">
                 <div style="font-size: 10px; opacity: 0.5; font-style: italic;">Loading reviews...</div>
+            </div>
+
+            <!-- Reviews Pagination Section -->
+            <div id="reviewsPagination" style="display: none; margin-bottom: 25px; flex-direction: column; gap: 10px; width: 100%;">
+                <button id="seeMoreReviewsBtn" class="reviews-btn-outline" onclick="window.seeMoreReviews()">See More</button>
+                <button id="viewAllReviewsBtn" class="reviews-btn-solid" onclick="window.viewAllReviews()">View All Reviews</button>
             </div>
 
             <!-- Toggle form button -->
@@ -1259,6 +1388,9 @@ window.openCart = function() {
 </div>
 <script type="module">
     import { getFirestore, doc, getDoc, collection, addDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    let currentProductReviews = [];
+    let visibleReviewsCount = 3;
 
     async function initProductDetails() {
         const params = new URLSearchParams(window.location.search);
@@ -1575,6 +1707,12 @@ window.openCart = function() {
             }
         }
 
+        window.addEventListener("minaraDiscountActivated", () => {
+            if (product) {
+                swapContent(product);
+            }
+        });
+
         // Load reviews for this product
         loadReviews(productId);
     }
@@ -1608,6 +1746,68 @@ window.openCart = function() {
     };
 
     // Load reviews from static reviews.json and session reviews
+    function buildReviewHTML(review) {
+        let starsHTML = "";
+        for (let i = 1; i <= 5; i++) {
+            if (i <= review.rating) {
+                starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+            } else {
+                starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+            }
+        }
+
+        const cleanName = window.escapeHTML ? window.escapeHTML(review.name) : review.name;
+        const cleanText = window.escapeHTML ? window.escapeHTML(review.text) : review.text;
+        const dateStr = review.timestamp ? new Date(review.timestamp).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "";
+
+        return `
+            <div style="border-bottom: 1px solid #f2f2f2; padding-bottom: 15px; margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+                    <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">${cleanName}</span>
+                    <span style="font-size: 8px; opacity: 0.5;">${dateStr}</span>
+                </div>
+                <div style="margin-bottom: 8px; display: flex; align-items: center;">${starsHTML}</div>
+                <div style="font-size: 10px; opacity: 0.85; line-height: 1.45; white-space: pre-wrap;">${cleanText}</div>
+            </div>
+        `;
+    }
+
+    function renderReviewsList() {
+        const reviewsList = document.getElementById("reviewsList");
+        const paginationContainer = document.getElementById("reviewsPagination");
+        const seeMoreBtn = document.getElementById("seeMoreReviewsBtn");
+        
+        if (!reviewsList) return;
+
+        if (currentProductReviews.length === 0) {
+            reviewsList.innerHTML = `<div style="font-size: 10px; opacity: 0.5; font-style: italic;">No reviews yet. Be the first to leave one.</div>`;
+            if (paginationContainer) paginationContainer.style.display = "none";
+            return;
+        }
+
+        // Render top N reviews
+        const sliced = currentProductReviews.slice(0, visibleReviewsCount);
+        let reviewsHTML = "";
+        sliced.forEach(review => {
+            reviewsHTML += buildReviewHTML(review);
+        });
+        reviewsList.innerHTML = reviewsHTML;
+
+        // Manage pagination buttons
+        if (paginationContainer) {
+            if (currentProductReviews.length > 3) {
+                paginationContainer.style.display = "flex";
+                if (visibleReviewsCount >= currentProductReviews.length) {
+                    if (seeMoreBtn) seeMoreBtn.style.display = "none";
+                } else {
+                    if (seeMoreBtn) seeMoreBtn.style.display = "block";
+                }
+            } else {
+                paginationContainer.style.display = "none";
+            }
+        }
+    }
+
     async function loadReviews(prodId) {
         const reviewsList = document.getElementById("reviewsList");
         const reviewsAverage = document.getElementById("reviewsAverage");
@@ -1615,7 +1815,6 @@ window.openCart = function() {
 
         try {
             let allReviews = [];
-            // Try loading from static reviews.json
             try {
                 const res = await fetch("reviews.json?t=" + Date.now());
                 if (res.ok) {
@@ -1625,14 +1824,11 @@ window.openCart = function() {
                 console.warn("Failed to fetch reviews.json, using local session reviews only", fetchErr);
             }
 
-            // Filter reviews for this product
             let productReviews = allReviews.filter(r => r.productId === prodId);
 
-            // Get session reviews submitted in this session (so user sees their review immediately)
             const sessionReviews = JSON.parse(sessionStorage.getItem("my_session_reviews") || "[]");
             const myProdReviews = sessionReviews.filter(r => r.productId === prodId);
 
-            // Merge and de-duplicate (in case session review is already in reviews.json)
             myProdReviews.forEach(sr => {
                 const isDuplicate = productReviews.some(pr => 
                     pr.name === sr.name && 
@@ -1645,45 +1841,18 @@ window.openCart = function() {
                 }
             });
 
-            // Sort by timestamp descending
             productReviews.sort((a, b) => {
                 const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
                 const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
                 return timeB - timeA;
             });
 
+            currentProductReviews = productReviews;
+
             let totalRating = 0;
-            let count = 0;
-            let reviewsHTML = "";
-
+            let count = productReviews.length;
             productReviews.forEach((review) => {
-                count++;
                 totalRating += Number(review.rating);
-
-                // Build stars layout for this review
-                let starsHTML = "";
-                for (let i = 1; i <= 5; i++) {
-                    if (i <= review.rating) {
-                        starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-                    } else {
-                        starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-                    }
-                }
-
-                const cleanName = window.escapeHTML(review.name);
-                const cleanText = window.escapeHTML(review.text);
-                const dateStr = review.timestamp ? new Date(review.timestamp).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "";
-
-                reviewsHTML += `
-                    <div style="border-bottom: 1px solid #f2f2f2; padding-bottom: 15px; margin-bottom: 15px;">
-                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
-                            <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">${cleanName}</span>
-                            <span style="font-size: 8px; opacity: 0.5;">${dateStr}</span>
-                        </div>
-                        <div style="margin-bottom: 8px; display: flex; align-items: center;">${starsHTML}</div>
-                        <div style="font-size: 10px; opacity: 0.85; line-height: 1.45; white-space: pre-wrap;">${cleanText}</div>
-                    </div>
-                `;
             });
 
             if (count > 0) {
@@ -1694,16 +1863,56 @@ window.openCart = function() {
                         <span style="opacity: 0.5;">(${count} ${count === 1 ? 'Review' : 'Reviews'})</span>
                     </div>
                 `;
-                reviewsList.innerHTML = reviewsHTML;
             } else {
                 reviewsAverage.innerHTML = "No reviews yet";
-                reviewsList.innerHTML = `<div style="font-size: 10px; opacity: 0.5; font-style: italic;">No reviews yet. Be the first to leave one.</div>`;
             }
+
+            renderReviewsList();
+
         } catch (err) {
             console.error("Error loading reviews:", err);
             reviewsList.innerHTML = `<div style="font-size: 10px; opacity: 0.5; font-style: italic; color: #ff3b30;">Failed to load reviews.</div>`;
         }
     }
+
+    window.seeMoreReviews = function() {
+        visibleReviewsCount += 4;
+        renderReviewsList();
+    };
+
+    window.viewAllReviews = function() {
+        const modal = document.getElementById("reviewsModal");
+        const modalBody = document.getElementById("reviewsModalBody");
+        if (!modal || !modalBody) return;
+
+        let modalHTML = "";
+        currentProductReviews.forEach(review => {
+            modalHTML += buildReviewHTML(review);
+        });
+        modalBody.innerHTML = modalHTML;
+        
+        modal.classList.add("active");
+        document.body.style.overflow = "hidden";
+        document.documentElement.style.overflow = "hidden";
+    };
+
+    window.closeReviewsModal = function() {
+        const modal = document.getElementById("reviewsModal");
+        if (modal) {
+            modal.classList.remove("active");
+        }
+        const cartPanel = document.getElementById("cartPanel");
+        if (!cartPanel || !cartPanel.classList.contains("open")) {
+            document.body.style.overflow = "";
+            document.documentElement.style.overflow = "";
+        }
+    };
+
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            window.closeReviewsModal();
+        }
+    });
 
     // Submit review to Firestore with session-spam protection
     window.submitReview = async function(event) {
@@ -1805,6 +2014,20 @@ window.openCart = function() {
         initProductDetails();
     }
 </script>
+
+<!-- Reviews Modal Overlay -->
+<div class="reviews-modal-overlay" id="reviewsModal">
+    <div class="reviews-modal-content">
+        <div class="reviews-modal-header">
+            <h3 class="reviews-modal-title">All Customer Reviews</h3>
+            <button class="reviews-modal-close" onclick="window.closeReviewsModal()">✕ Close</button>
+        </div>
+        <div class="reviews-modal-body" id="reviewsModalBody">
+            <!-- All reviews populated dynamically -->
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
 
