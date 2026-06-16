@@ -960,7 +960,9 @@ footer{
 <div class="slideout" id="menuPanel">
   <div class="close-btn" onclick="closeMenu()">×</div>
   <a href="index.html">Home</a>
-  <a href="catalog.html">Catalog</a>
+  <a href="catalog.html">Shop all Fragrances</a>
+  <a href="catalog.html?gender=men">Shop Men's Fragrances</a>
+  <a href="catalog.html?gender=women">Shop Women's Fragrances</a>
   <a href="social media.html">Social Media</a>
   <a href="contact.html">Contact</a>
   <div class="mobile-account-block">
@@ -1528,11 +1530,12 @@ window.openCart = function() {
                         description: window.escapeHTML(data.description),
                         status: data.status,
                         flair: data.flair || "",
+                        invisibleFlair: data.invisibleFlair || "",
                         sizes: data.sizes || ["50ml", "100ml"]
                     };
                     
                     // Only swap if values changed or we didn't have local cache!
-                    if (!product || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair || JSON.stringify(product.sizes) !== JSON.stringify(liveProduct.sizes)) {
+                    if (!product || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair || product.invisibleFlair !== liveProduct.invisibleFlair || JSON.stringify(product.sizes) !== JSON.stringify(liveProduct.sizes)) {
                         product = liveProduct;
                         swapContent(product);
                         

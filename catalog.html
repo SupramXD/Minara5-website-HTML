@@ -756,6 +756,9 @@ footer{
 <div class="slideout" id="menuPanel">
   <div class="close-btn" onclick="closeMenu()">×</div>
   <a href="index.html">Home</a>
+  <a href="catalog.html">Shop all Fragrances</a>
+  <a href="catalog.html?gender=men">Shop Men's Fragrances</a>
+  <a href="catalog.html?gender=women">Shop Women's Fragrances</a>
   <a href="social media.html">Social Media</a>
   <a href="contact.html">Contact</a>
 <div class="mobile-account-block">
@@ -1012,7 +1015,35 @@ function updateCartCount(count){
 
         // Render function
         const renderGrid = () => {
-            const activeProducts = products.filter(p => p.status === 'Active');
+            const urlParams = new URLSearchParams(window.location.search);
+            const genderFilter = urlParams.get('gender');
+            const heading = document.querySelector('.catalog-title-header h1');
+            if (heading) {
+                if (genderFilter === 'men') {
+                    heading.textContent = "MEN'S FRAGRANCES";
+                    document.title = "Minara5 - Shop Men's Fragrances";
+                } else if (genderFilter === 'women') {
+                    heading.textContent = "WOMEN'S FRAGRANCES";
+                    document.title = "Minara5 - Shop Women's Fragrances";
+                } else {
+                    heading.textContent = "CATALOG";
+                    document.title = "Minara5 - Shop the official store";
+                }
+            }
+
+            let activeProducts = products.filter(p => p.status === 'Active');
+            if (genderFilter === 'men') {
+                activeProducts = activeProducts.filter(p => {
+                    const f = (p.invisibleFlair || '').toLowerCase();
+                    return f === 'men' || f === 'unisex';
+                });
+            } else if (genderFilter === 'women') {
+                activeProducts = activeProducts.filter(p => {
+                    const f = (p.invisibleFlair || '').toLowerCase();
+                    return f === 'women' || f === 'feminine' || f === 'unisex';
+                });
+            }
+
             grid.innerHTML = ""; // Clear existing grid items securely
             
             activeProducts.forEach(p => {
@@ -1283,6 +1314,7 @@ function updateCartCount(count){
                         image_thumb: data.image_thumb || "",
                         status: data.status,
                         flair: data.flair || "",
+                        invisibleFlair: data.invisibleFlair || "",
                         sizes: data.sizes || ["50ml", "100ml"],
                         url: data.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${data.id}`
                     };
@@ -1291,7 +1323,7 @@ function updateCartCount(count){
                     const existingIdx = products.findIndex(item => item.id === p.id);
                     if (existingIdx > -1) {
                         const current = products[existingIdx];
-                        if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair || JSON.stringify(current.sizes) !== JSON.stringify(p.sizes)) {
+                        if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair || current.invisibleFlair !== p.invisibleFlair || JSON.stringify(current.sizes) !== JSON.stringify(p.sizes)) {
                             products[existingIdx] = p;
                             updated = true;
                         }

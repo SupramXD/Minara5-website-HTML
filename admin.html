@@ -1403,6 +1403,11 @@
                     <div class="form-group">
                       <label for="prodStatus">Catalog Status</label>
                       <select id="prodStatus" class="form-input" style="background:#1a1a24; color: #fff;">
+                        <option value="Active">Active / Revealed</option>
+                        <option value="Awaiting">Awaiting Reveal</option>
+                      </select>
+                    </div>
+
                     <div class="form-group">
                       <label for="prodFlair">Product Flair / Classification</label>
                       <select id="prodFlair" class="form-input" style="background:#1a1a24; color: #fff;">
@@ -1410,6 +1415,16 @@
                         <option value="Masculine">Masculine</option>
                         <option value="Unisex">Unisex</option>
                         <option value="Feminine">Feminine</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="prodInvisibleFlair">Invisible Gender Flair (Filtering)</label>
+                      <select id="prodInvisibleFlair" class="form-input" style="background:#1a1a24; color: #fff;">
+                        <option value="">None / Unspecified</option>
+                        <option value="men">Men</option>
+                        <option value="women">Women</option>
+                        <option value="unisex">Unisex</option>
                       </select>
                     </div>
 
@@ -1838,6 +1853,16 @@
                     <option value="Masculine">Masculine</option>
                     <option value="Unisex">Unisex</option>
                     <option value="Feminine">Feminine</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="editProdInvisibleFlair">Invisible Gender Flair (Filtering)</label>
+                  <select id="editProdInvisibleFlair" class="form-input" style="background:#1a1a24; color: #fff;">
+                    <option value="">None / Unspecified</option>
+                    <option value="men">Men</option>
+                    <option value="women">Women</option>
+                    <option value="unisex">Unisex</option>
                   </select>
                 </div>
 
@@ -2620,6 +2645,7 @@
       const description = document.getElementById("prodDesc").value.trim();
       const status = document.getElementById("prodStatus").value;
       const flair = document.getElementById("prodFlair").value;
+      const invisibleFlair = document.getElementById("prodInvisibleFlair").value;
 
       if (!name || isNaN(price) || isNaN(stock) || !description) return;
       if (!imageInput && !fileInput) {
@@ -2709,6 +2735,7 @@
                       description: description,
                       status: status,
                       flair: flair,
+                      invisibleFlair: invisibleFlair,
                       sizes: sizes,
                       timestamp: new Date().toISOString()
                   }),
@@ -2746,6 +2773,7 @@
                       description: description,
                       status: status,
                       flair: flair,
+                      invisibleFlair: invisibleFlair,
                       sizes: sizes
                   }
               });
@@ -2957,6 +2985,7 @@
       document.getElementById("editProdDesc").value = product.description;
       document.getElementById("editProdStatus").value = product.status;
       document.getElementById("editProdFlair").value = product.flair || "";
+      document.getElementById("editProdInvisibleFlair").value = product.invisibleFlair || "";
 
       const pSizes = product.sizes || ["50ml", "100ml"];
       document.getElementById("editProdSize50").checked = pSizes.includes("50ml");
@@ -2988,6 +3017,7 @@
       const description = document.getElementById("editProdDesc").value.trim();
       const status = document.getElementById("editProdStatus").value;
       const flair = document.getElementById("editProdFlair").value;
+      const invisibleFlair = document.getElementById("editProdInvisibleFlair").value;
 
       if (!id || !name || isNaN(price) || isNaN(stock) || !description) return;
       if (!imageInput && !fileInput) {
@@ -3047,6 +3077,7 @@
           description: description,
           status: status,
           flair: flair,
+          invisibleFlair: invisibleFlair,
           sizes: sizes
       };
 
@@ -3082,6 +3113,7 @@
                       description: description,
                       status: status,
                       flair: flair,
+                      invisibleFlair: invisibleFlair,
                       sizes: sizes,
                       timestamp: new Date().toISOString()
                   }),
@@ -3119,6 +3151,7 @@
                       description: description,
                       status: status,
                       flair: flair,
+                      invisibleFlair: invisibleFlair,
                       sizes: sizes
                   }
               });

@@ -744,7 +744,7 @@ window.removeFromCart = function(index) {
                 html += `
                 <div class="cart-item-row removed-item-row" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eaeaea; padding:10px 15px; background:#fafafa; box-sizing:border-box; width:100%;">
                     <div style="display:flex; flex-direction:column; gap:2px;">
-                        <span style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1px; color:#000;">${item.nameShort || item.name} ${(item.size ? ' (' + item.size + ')' : '')}</span>
+                        <span style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1px; color:#000;">${item.name} ${(item.size ? ' (' + item.size + ')' : '')}</span>
                         <span style="color:#ff3b30; font-size:9px; font-weight:500; letter-spacing:1px; text-transform:uppercase; opacity:0.8;">REMOVED FROM BAG</span>
                     </div>
                     <span onclick="window.undoRemove(${index})" style="color:#1106e8; font-size:11px; font-family:Helvetica, Arial, sans-serif; text-decoration:underline; cursor:pointer; font-weight:500; text-transform:uppercase; letter-spacing:1px;">UNDO</span>
@@ -782,8 +782,8 @@ window.removeFromCart = function(index) {
         
         // Continue shopping button under the list of items
         html += `
-        <div class="continue-shopping-row" style="width:100%; box-sizing:border-box; padding:20px 20px; display:flex; justify-content:center; border-bottom:1px solid #eaeaea;">
-            <span onclick="closeCart()" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'" style="font-family:Helvetica, Arial, sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; font-weight:600; opacity:0.6; transition:opacity 0.25s ease;">← Continue Shopping</span>
+        <div class="continue-shopping-row" style="width:100%; box-sizing:border-box; padding:15px 20px; display:flex; justify-content:center; border-bottom:1px solid #eaeaea;">
+            <span onclick="closeCart()" onmouseover="this.style.background='#000'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='#000';" style="font-family:Helvetica, Arial, sans-serif; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; font-weight:600; transition:all 0.25s ease; border:1px solid #000; padding:10px 20px; display:inline-block; text-align:center; width:100%; max-width:250px;">← Continue Shopping</span>
         </div>`;
 
         html += '</div>';

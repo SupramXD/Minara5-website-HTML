@@ -102,7 +102,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
 
   try {
     if (action === "saveProduct") {
-      const {id, nameShort, name, price, retailPrice, stock, image, image_thumb, description, status, flair, sizes} = payload;
+      const {id, nameShort, name, price, retailPrice, stock, image, image_thumb, description, status, flair, invisibleFlair, sizes} = payload;
 
       let mainImagePath = image;
       let thumbImagePath = image_thumb;
@@ -154,6 +154,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         description: description || "",
         status: status || "Active",
         flair: flair || "",
+        invisibleFlair: invisibleFlair || "",
         sizes: sizes || ["50ml", "100ml"],
       };
 
