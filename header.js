@@ -1024,12 +1024,20 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     document.head.appendChild(style);
 
-    // Active Navigation Highlighting
+    // Active Navigation Highlighting (Includes query parameter checks for Men's and Women's)
     const currentPage = window.location.pathname.split("/").pop() || "index.html";
+    const currentQuery = window.location.search;
+    const currentFull = currentPage + currentQuery;
+    
     document.querySelectorAll('.left-nav a, nav ul li a').forEach(link => {
         const linkHref = link.getAttribute('href');
-        if (linkHref && linkHref === currentPage) {
+        if (!linkHref) return;
+        
+        // Match the full relative href including query, or fallback to exact page matching if no query is active
+        if (linkHref === currentFull || (currentQuery === "" && linkHref === currentPage)) {
             link.classList.add('active-nav');
+        } else {
+            link.classList.remove('active-nav');
         }
     });
 
@@ -1825,6 +1833,21 @@ function applyCustomText(data) {
                 background: transparent;
                 color: #000000;
             }
+            @media (max-width: 480px) {
+                .search-notify-form {
+                    flex-direction: column;
+                    border-bottom: none !important;
+                    gap: 10px;
+                }
+                .search-notify-input {
+                    border-bottom: 1px solid #000000;
+                    padding-bottom: 8px;
+                }
+                .search-notify-submit {
+                    align-self: flex-start;
+                    padding: 8px 0 !important;
+                }
+            }
         `;
         document.head.appendChild(styleEl);
 
@@ -1986,12 +2009,17 @@ function applyCustomText(data) {
             }
             renderDefaultGrid();
             
+            // Push history state so back button closes overlay
+            if (!history.state || !history.state.searchOpen) {
+                history.pushState({ searchOpen: true }, "");
+            }
+            
             // Defer loading until overlay is opened
             fetchPopularFragrances();
         }
     };
 
-    window.closeSearch = function() {
+    window.closeSearch = function(isFromPopState = false) {
         const overlay = document.getElementById("searchOverlay");
         if (overlay) {
             overlay.classList.remove("active");
@@ -2009,8 +2037,21 @@ function applyCustomText(data) {
             }, 400);
             document.body.style.overflow = "";
             document.documentElement.style.overflow = "";
+            
+            // If closed manually via click/dimmer, sync browser history state
+            if (!isFromPopState && history.state && history.state.searchOpen) {
+                history.back();
+            }
         }
     };
+
+    window.addEventListener("popstate", (e) => {
+        const overlay = document.getElementById("searchOverlay");
+        if (overlay && overlay.classList.contains("active")) {
+            window.closeSearch(true);
+        }
+    });
+
     const closeSearch = window.closeSearch;
     const openSearch = window.openSearch;
 
@@ -2060,7 +2101,7 @@ function applyCustomText(data) {
                 align-items: center;
                 gap: 4px;
                 position: absolute;
-                right: 56px;
+                right: 86px;
                 top: 10px;
                 cursor: pointer;
                 transition: opacity 0.3s ease;
