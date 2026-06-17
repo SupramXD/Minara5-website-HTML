@@ -1377,4 +1377,730 @@ function applyCustomText(data) {
         fetchLatest();
     }
 })();
+
+// ==========================================
+// DYNAMIC FRAGRANCE SEARCH DRAWER & LOGIC
+// ==========================================
+(function() {
+    let siteProducts = [];
+    let popularFragrancesList = [];
+
+    // Load site products from cache first
+    try {
+        const cached = localStorage.getItem("minara_products");
+        if (cached) {
+            siteProducts = JSON.parse(cached);
+        }
+    } catch (e) {
+        console.error("Error reading cache in search:", e);
+    }
+
+    // Load active products in background
+    fetch("products.json?t=" + Date.now())
+        .then(res => res.json())
+        .then(data => {
+            siteProducts = data;
+        })
+        .catch(err => {
+            console.warn("Could not fetch products.json for search:", err);
+        });
+
+    function fetchPopularFragrances() {
+        fetch("popular_fragrances.json?t=" + Date.now())
+            .then(res => {
+                if (!res.ok) throw new Error("Status " + res.status);
+                return res.json();
+            })
+            .then(data => {
+                popularFragrancesList = data;
+            })
+            .catch(err => {
+                console.warn("Could not load popular_fragrances.json:", err);
+            });
+    }
+
+    function injectSearchUI() {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = `
+            #searchOverlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(10, 10, 12, 0.95);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                z-index: 15000;
+                display: none;
+                flex-direction: column;
+                padding: 40px;
+                color: #fff;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                overflow-y: auto;
+                font-family: Helvetica, Arial, sans-serif;
+            }
+            #searchOverlay.active {
+                display: flex;
+                opacity: 1;
+            }
+            .search-top-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 50px;
+                width: 100%;
+                max-width: 800px;
+                margin-inline: auto;
+            }
+            .search-close-btn {
+                background: transparent;
+                border: none;
+                color: #fff;
+                font-size: 11px;
+                font-weight: bold;
+                letter-spacing: 1.5px;
+                cursor: pointer;
+                text-transform: uppercase;
+                padding: 8px 0;
+                transition: opacity 0.2s;
+            }
+            .search-close-btn:hover {
+                opacity: 0.6;
+            }
+            .search-input-wrap {
+                width: 100%;
+                max-width: 800px;
+                margin: 0 auto 40px;
+                position: relative;
+            }
+            .search-input-field {
+                width: 100%;
+                background: transparent;
+                border: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                color: #fff;
+                font-size: 20px;
+                letter-spacing: 1px;
+                padding: 15px 0;
+                outline: none;
+                font-family: inherit;
+                transition: border-bottom-color 0.3s;
+            }
+            .search-input-field:focus {
+                border-bottom-color: #ccff00;
+            }
+            .search-results-container {
+                width: 100%;
+                max-width: 800px;
+                margin: 0 auto;
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 30px;
+            }
+            .search-section-title {
+                font-family: 'Gotham Narrow Bold', sans-serif;
+                font-size: 11px;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                color: rgba(255, 255, 255, 0.4);
+                margin-bottom: 15px;
+                font-weight: bold;
+            }
+            .search-card {
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                padding: 20px;
+                display: flex;
+                gap: 20px;
+                align-items: center;
+                border-radius: 4px;
+                transition: border-color 0.2s;
+            }
+            .search-card:hover {
+                border-color: rgba(204, 255, 0, 0.3);
+            }
+            .search-card-img {
+                width: 80px;
+                height: 80px;
+                object-fit: contain;
+                background: #fffff6;
+                border-radius: 2px;
+                padding: 5px;
+            }
+            .search-card-info {
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            .search-card-title {
+                font-family: 'Gotham Narrow Bold', sans-serif;
+                font-size: 14px;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                color: #fff;
+                text-decoration: none;
+            }
+            .search-card-title:hover {
+                text-decoration: underline;
+            }
+            .search-card-desc {
+                font-size: 11px;
+                color: rgba(255, 255, 255, 0.6);
+                line-height: 1.4;
+            }
+            .search-card-price {
+                font-size: 13px;
+                font-weight: bold;
+                color: #ccff00;
+            }
+            .search-notify-box {
+                background: rgba(204, 255, 0, 0.04);
+                border: 1px dashed rgba(204, 255, 0, 0.25);
+                padding: 20px;
+                border-radius: 4px;
+                margin-top: 15px;
+            }
+            .search-notify-title {
+                font-family: 'Gotham Narrow Bold', sans-serif;
+                font-size: 11px;
+                font-weight: 900;
+                letter-spacing: 1.5px;
+                color: #ccff00;
+                text-transform: uppercase;
+                margin-bottom: 8px;
+            }
+            .search-notify-text {
+                font-size: 11px;
+                color: rgba(255, 255, 255, 0.8);
+                margin-bottom: 15px;
+                line-height: 1.5;
+            }
+            .search-notify-form {
+                display: flex;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                padding-bottom: 5px;
+                max-width: 400px;
+            }
+            .search-notify-input {
+                border: none;
+                background: transparent;
+                font-size: 11px;
+                color: #fff;
+                width: 100%;
+                outline: none;
+                font-family: inherit;
+            }
+            .search-notify-submit {
+                background: transparent;
+                border: none;
+                font-size: 11px;
+                font-weight: bold;
+                color: #ccff00;
+                cursor: pointer;
+                padding: 0 10px;
+                letter-spacing: 1px;
+                font-family: inherit;
+            }
+            .search-notify-submit:hover {
+                opacity: 0.8;
+            }
+            .search-link-btn {
+                display: inline-block;
+                margin-top: 10px;
+                background: #ccff00;
+                color: #000;
+                font-family: 'Gotham Narrow Bold', sans-serif;
+                font-size: 9px;
+                font-weight: bold;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                padding: 8px 16px;
+                text-decoration: none;
+                border: 1px solid #ccff00;
+                transition: all 0.2s ease;
+                cursor: pointer;
+                align-self: flex-start;
+            }
+            .search-link-btn:hover {
+                background: transparent;
+                color: #ccff00;
+            }
+            .quick-searches {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-top: 10px;
+            }
+            .quick-search-tag {
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                color: rgba(255,255,255,0.8);
+                padding: 6px 12px;
+                font-size: 10px;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+                cursor: pointer;
+                border-radius: 100px;
+                transition: all 0.2s;
+            }
+            .quick-search-tag:hover {
+                background: rgba(204, 255, 0, 0.1);
+                border-color: #ccff00;
+                color: #ccff00;
+            }
+            @media(max-width: 900px) {
+                #searchOverlay {
+                    padding: 20px;
+                }
+                .search-top-row {
+                    margin-bottom: 30px;
+                }
+                .search-input-field {
+                    font-size: 16px;
+                    padding: 10px 0;
+                }
+                .search-card {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 15px;
+                }
+                .search-card-img {
+                    width: 100%;
+                    height: 150px;
+                }
+            }
+        `;
+        document.head.appendChild(styleEl);
+
+        const overlay = document.createElement("div");
+        overlay.id = "searchOverlay";
+        overlay.innerHTML = `
+            <div class="search-top-row">
+                <span style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #ccff00; font-weight: 900;">Search</span>
+                <button class="search-close-btn" id="searchCloseBtn">✕ Close</button>
+            </div>
+            <div class="search-input-wrap">
+                <input type="text" class="search-input-field" id="searchInput" placeholder="Search our catalog or type any fragrance..." autocomplete="off">
+                <div id="quickSearchWrap" style="margin-top: 20px;">
+                    <div style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); margin-bottom: 8px;">Popular Searches</div>
+                    <div class="quick-searches">
+                        <span class="quick-search-tag" id="tag1">Creed Aventus</span>
+                        <span class="quick-search-tag" id="tag2">Dior Sauvage</span>
+                        <span class="quick-search-tag" id="tag3">Bleu de Chanel</span>
+                        <span class="quick-search-tag" id="tag4">JPG Le Male</span>
+                        <span class="quick-search-tag" id="tag5">Black Opium</span>
+                    </div>
+                </div>
+            </div>
+            <div class="search-results-container" id="searchResults"></div>
+        `;
+        document.body.appendChild(overlay);
+
+        document.getElementById("searchCloseBtn").onclick = closeSearch;
+        
+        const input = document.getElementById("searchInput");
+        input.oninput = (e) => {
+            runSearch(e.target.value);
+        };
+
+        const triggerQuickSearch = (queryStr) => {
+            input.value = queryStr;
+            runSearch(queryStr);
+        };
+
+        document.getElementById("tag1").onclick = () => triggerQuickSearch("Creed Aventus");
+        document.getElementById("tag2").onclick = () => triggerQuickSearch("Dior Sauvage");
+        document.getElementById("tag3").onclick = () => triggerQuickSearch("Bleu de Chanel");
+        document.getElementById("tag4").onclick = () => triggerQuickSearch("Jean Paul Gaultier Le Male");
+        document.getElementById("tag5").onclick = () => triggerQuickSearch("Black Opium");
+    }
+
+    window.openSearch = function() {
+        const overlay = document.getElementById("searchOverlay");
+        if (overlay) {
+            overlay.classList.add("active");
+            overlay.style.display = "flex";
+            document.body.style.overflow = "hidden";
+            document.documentElement.style.overflow = "hidden";
+            const input = document.getElementById("searchInput");
+            if (input) {
+                input.value = "";
+                input.focus();
+            }
+            const results = document.getElementById("searchResults");
+            if (results) results.innerHTML = "";
+        }
+    };
+
+    window.closeSearch = function() {
+        const overlay = document.getElementById("searchOverlay");
+        if (overlay) {
+            overlay.classList.remove("active");
+            setTimeout(() => {
+                overlay.style.display = "none";
+            }, 300);
+            document.body.style.overflow = "";
+            document.documentElement.style.overflow = "";
+        }
+    };
+    const closeSearch = window.closeSearch;
+    const openSearch = window.openSearch;
+
+    function injectSearchButtons() {
+        const headerUl = document.querySelector("header nav ul, header .header-right ul, header ul");
+        let searchLi = document.getElementById("searchHeaderLi");
+        
+        if (headerUl && !searchLi) {
+            searchLi = document.createElement("li");
+            searchLi.id = "searchHeaderLi";
+            searchLi.innerHTML = `
+                <a href="#" id="searchHeaderBtn" style="display: flex; align-items: center; gap: 6px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <span>Search</span>
+                </a>
+            `;
+            
+            const accountLi = headerUl.querySelector(".header-account");
+            if (accountLi) {
+                headerUl.insertBefore(searchLi, accountLi);
+            } else {
+                headerUl.appendChild(searchLi);
+            }
+            
+            const btn = document.getElementById("searchHeaderBtn");
+            if (btn) {
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    openSearch();
+                };
+            }
+        }
+
+        const mobileCart = document.querySelector(".mobile-cart, .cart-btn.mobile-cart, .cart-header-btn.mobile-cart");
+        let mobileSearch = document.getElementById("mobileSearchBtn");
+        
+        if (mobileCart && !mobileSearch) {
+            mobileSearch = document.createElement("span");
+            mobileSearch.id = "mobileSearchBtn";
+            mobileSearch.className = mobileCart.className;
+            mobileSearch.classList.remove("mobile-cart");
+            mobileSearch.style.cssText = `
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                position: absolute;
+                right: 56px;
+                top: 10px;
+                cursor: pointer;
+                transition: opacity 0.3s ease;
+            `;
+            mobileSearch.innerHTML = `
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            `;
+            
+            mobileCart.parentNode.insertBefore(mobileSearch, mobileCart);
+            
+            mobileSearch.onclick = (e) => {
+                e.preventDefault();
+                openSearch();
+            };
+            
+            mobileSearch.onmouseenter = () => { mobileSearch.style.opacity = "0.5"; };
+            mobileSearch.onmouseleave = () => { mobileSearch.style.opacity = "1"; };
+        }
+    }
+
+    function normalizeString(str) {
+        if (!str) return "";
+        return str.toLowerCase()
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .replace(/[^a-z0-9\s]/g, "")
+                  .replace(/\s+/g, " ")
+                  .trim();
+    }
+
+    function getLevenshteinDistance(a, b) {
+        if (a.length === 0) return b.length;
+        if (b.length === 0) return a.length;
+        const matrix = [];
+        for (let i = 0; i <= b.length; i++) {
+            matrix[i] = [i];
+        }
+        for (let j = 0; j <= a.length; j++) {
+            matrix[0][j] = j;
+        }
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j - 1] + 1,
+                        matrix[i][j - 1] + 1,
+                        matrix[i - 1][j] + 1
+                    );
+                }
+            }
+        }
+        return matrix[b.length][a.length];
+    }
+
+    function runSearch(queryText) {
+        const resultsContainer = document.getElementById("searchResults");
+        if (!resultsContainer) return;
+        
+        const cleanQuery = normalizeString(queryText);
+        if (!cleanQuery) {
+            resultsContainer.innerHTML = "";
+            return;
+        }
+        
+        resultsContainer.innerHTML = "";
+        
+        // 1. Direct Site Product Match
+        const directMatches = siteProducts.filter(p => {
+            if (p.status !== 'Active') return false;
+            const nName = normalizeString(p.name);
+            const nShort = normalizeString(p.nameShort);
+            return nName.includes(cleanQuery) || nShort.includes(cleanQuery) || cleanQuery.includes(nShort);
+        });
+        
+        if (directMatches.length > 0) {
+            const title = document.createElement("div");
+            title.className = "search-section-title";
+            title.textContent = "Direct Matches in Store";
+            resultsContainer.appendChild(title);
+            
+            directMatches.forEach(p => {
+                const card = document.createElement("div");
+                card.className = "search-card";
+                
+                const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(p.image, p.image_thumb) : p.image;
+                const detailUrl = p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`;
+                const formattedPrice = window.formatPrice ? window.formatPrice(p.price) : p.price;
+                
+                card.innerHTML = `
+                    <img src="${imgUrl}" class="search-card-img" alt="${p.name}">
+                    <div class="search-card-info">
+                        <a href="${detailUrl}" class="search-card-title">${p.nameShort || p.name}</a>
+                        <span class="search-card-desc">${p.name}</span>
+                        <span class="search-card-price">R${formattedPrice}</span>
+                        <a href="${detailUrl}" class="search-link-btn" style="margin-top: 10px; width: fit-content;">VIEW FRAGRANCE</a>
+                    </div>
+                `;
+                resultsContainer.appendChild(card);
+            });
+            return;
+        }
+        
+        // 2. Exact match in popular_fragrances.json database
+        const exactPopMatches = popularFragrancesList.filter(f => {
+            return f.aliases.some(alias => {
+                const nAlias = normalizeString(alias);
+                return nAlias === cleanQuery || nAlias.includes(cleanQuery) || cleanQuery.includes(nAlias);
+            }) || normalizeString(f.name).includes(cleanQuery) || normalizeString(f.brand).includes(cleanQuery);
+        });
+        
+        if (exactPopMatches.length > 0) {
+            displayClosestMatch(exactPopMatches[0], queryText);
+            return;
+        }
+        
+        // 3. Fuzzy search match in popular_fragrances.json database
+        let bestMatch = null;
+        let minDistance = Infinity;
+        
+        popularFragrancesList.forEach(f => {
+            f.aliases.forEach(alias => {
+                const nAlias = normalizeString(alias);
+                const dist = getLevenshteinDistance(cleanQuery, nAlias);
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    bestMatch = f;
+                }
+            });
+            const nameDist = getLevenshteinDistance(cleanQuery, normalizeString(f.name));
+            if (nameDist < minDistance) {
+                minDistance = nameDist;
+                bestMatch = f;
+            }
+        });
+        
+        const maxAllowedDistance = Math.max(3, Math.floor(cleanQuery.length / 2));
+        if (bestMatch && minDistance <= maxAllowedDistance) {
+            displayClosestMatch(bestMatch, queryText, true);
+            return;
+        }
+        
+        // 4. Complete Fallback (Best Seller)
+        displayFallback(queryText);
+    }
+
+    function displayClosestMatch(popFrag, originalQuery, isFuzzy = false) {
+        const resultsContainer = document.getElementById("searchResults");
+        if (!resultsContainer) return;
+        
+        const closestProduct = siteProducts.find(p => p.id === popFrag.closestOurSite);
+        if (!closestProduct) return;
+        
+        const formattedPrice = window.formatPrice ? window.formatPrice(closestProduct.price) : closestProduct.price;
+        const detailUrl = closestProduct.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${closestProduct.id}`;
+        const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(closestProduct.image, closestProduct.image_thumb) : closestProduct.image;
+        
+        const matchLabel = isFuzzy ? `Did you mean <strong>${popFrag.brand} ${popFrag.name}</strong>?` : `We found <strong>${popFrag.brand} ${popFrag.name}</strong> in our database.`;
+        
+        resultsContainer.innerHTML = `
+            <div class="search-section-title">Closest Scents We Carry</div>
+            <div style="font-size: 13px; color: rgba(255,255,255,0.8); margin-bottom: 20px; line-height: 1.5;">
+                ${matchLabel} We don't carry this exact fragrance in our collection yet, but we recommend checking out our closest matching scent:
+            </div>
+            
+            <div class="search-card">
+                <img src="${imgUrl}" class="search-card-img" alt="${closestProduct.name}">
+                <div class="search-card-info">
+                    <a href="${detailUrl}" class="search-card-title">${closestProduct.nameShort || closestProduct.name}</a>
+                    <span class="search-card-desc">${closestProduct.name}</span>
+                    <span class="search-card-price">R${formattedPrice}</span>
+                    <a href="${detailUrl}" class="search-link-btn" style="margin-top: 10px; width: fit-content;">EXPLORE RECOMMENDATION</a>
+                </div>
+            </div>
+            
+            <div class="search-notify-box">
+                <div class="search-notify-title">Notify Me when available</div>
+                <div class="search-notify-text">
+                    Would you like to be notified as soon as we launch our own version of <strong>${popFrag.brand} ${popFrag.name}</strong>? Enter your email address below.
+                </div>
+                <form class="search-notify-form" id="unsupportedNotifyForm">
+                    <input type="email" class="search-notify-input" id="unsupportedNotifyEmail" placeholder="Enter your email address" required>
+                    <button type="submit" class="search-notify-submit">NOTIFY ME</button>
+                </form>
+                <div class="search-notify-success" id="unsupportedNotifySuccess" style="display: none; margin-top: 10px; color: #ccff00; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+                    ✓ Request saved successfully! We'll notify you.
+                </div>
+            </div>
+        `;
+
+        const form = document.getElementById("unsupportedNotifyForm");
+        if (form) {
+            form.onsubmit = (e) => {
+                window.submitUnsupportedRequest(e, `${popFrag.brand} ${popFrag.name}`, closestProduct.id);
+            };
+        }
+    }
+
+    function displayFallback(originalQuery) {
+        const resultsContainer = document.getElementById("searchResults");
+        if (!resultsContainer) return;
+        
+        const bestSeller = siteProducts.find(p => p.id === 'inspired-by-creed-aventus') || siteProducts[0];
+        if (!bestSeller) return;
+        
+        const formattedPrice = window.formatPrice ? window.formatPrice(bestSeller.price) : bestSeller.price;
+        const detailUrl = bestSeller.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${bestSeller.id}`;
+        const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(bestSeller.image, bestSeller.image_thumb) : bestSeller.image;
+        const escapedQuery = window.escapeHTML ? window.escapeHTML(originalQuery) : originalQuery;
+
+        resultsContainer.innerHTML = `
+            <div class="search-section-title">No direct match found</div>
+            <div style="font-size: 13px; color: rgba(255,255,255,0.8); margin-bottom: 20px; line-height: 1.5;">
+                We couldn't find a direct match for "<strong>${escapedQuery}</strong>". You might be interested in our best-selling signature scent:
+            </div>
+            
+            <div class="search-card">
+                <img src="${imgUrl}" class="search-card-img" alt="${bestSeller.name}">
+                <div class="search-card-info">
+                    <a href="${detailUrl}" class="search-card-title">${bestSeller.nameShort || bestSeller.name}</a>
+                    <span class="search-card-desc">${bestSeller.name}</span>
+                    <span class="search-card-price">R${formattedPrice}</span>
+                    <a href="${detailUrl}" class="search-link-btn" style="margin-top: 10px; width: fit-content;">EXPLORE BEST SELLER</a>
+                </div>
+            </div>
+            
+            <div class="search-notify-box">
+                <div class="search-notify-title">Request this fragrance</div>
+                <div class="search-notify-text">
+                    Enter your email address below, and we will look into stocking our own clone formulation of "<strong>${escapedQuery}</strong>" in the future!
+                </div>
+                <form class="search-notify-form" id="unsupportedNotifyForm">
+                    <input type="email" class="search-notify-input" id="unsupportedNotifyEmail" placeholder="Enter your email address" required>
+                    <button type="submit" class="search-notify-submit">SUBMIT REQUEST</button>
+                </form>
+                <div class="search-notify-success" id="unsupportedNotifySuccess" style="display: none; margin-top: 10px; color: #ccff00; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+                    ✓ Scent request saved! We will notify you when we launch it.
+                </div>
+            </div>
+        `;
+
+        const form = document.getElementById("unsupportedNotifyForm");
+        if (form) {
+            form.onsubmit = (e) => {
+                window.submitUnsupportedRequest(e, originalQuery, bestSeller.id);
+            };
+        }
+    }
+
+    // Secure import of addDoc and collection from firebase-firestore
+    import { addDoc, collection } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    window.submitUnsupportedRequest = async function(e, queryVal, closestId) {
+        e.preventDefault();
+        const form = e.target;
+        const emailInput = form.querySelector('input[type="email"]');
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const successEl = document.getElementById("unsupportedNotifySuccess");
+        
+        if (!emailInput || !window.db) return;
+        
+        const email = emailInput.value.trim();
+        if (!email) return;
+        
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = "SAVING...";
+        }
+        
+        try {
+            await addDoc(collection(window.db, "unsupported_requests"), {
+                email: email,
+                query: queryVal,
+                closest: closestId,
+                timestamp: new Date().toISOString()
+            });
+            
+            form.style.display = "none";
+            if (successEl) {
+                successEl.style.display = "block";
+            }
+        } catch (error) {
+            console.error("Error saving unsupported request to Firestore:", error);
+            alert("Failed to submit request: " + error.message);
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "NOTIFY ME";
+            }
+        }
+    };
+
+    const initSearchSystem = () => {
+        injectSearchUI();
+        injectSearchButtons();
+        fetchPopularFragrances();
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initSearchSystem);
+    } else {
+        initSearchSystem();
+    }
+    window.addEventListener("load", injectSearchButtons);
+})();
+
 

@@ -818,6 +818,7 @@
               <button class="tab-btn active" onclick="switchTab('hero-tab')">Hero & Logo Customizer</button>
               <button class="tab-btn" onclick="switchTab('catalog-tab')">Catalog & Inventory</button>
               <button class="tab-btn" onclick="switchTab('users-tab')">Users & Newsletter</button>
+              <button class="tab-btn" onclick="switchTab('notifications-tab')">Notifications & Requests</button>
               <button class="tab-btn" onclick="switchTab('image-optimizer-tab')">Image Optimizer</button>
               <button class="tab-btn" onclick="switchTab('reviews-tab')">Reviews Manager</button>
               <button class="tab-btn" onclick="switchTab('features-tab')">Footer & Features Customizer</button>
@@ -1561,6 +1562,80 @@
               </div>
             </div>
 
+            <!-- TAB: NOTIFICATIONS & REQUESTS -->
+            <div id="notifications-tab" class="tab-content">
+              <!-- Column 1: Unsupported Fragrance Requests -->
+              <div class="console-panel full-width-panel" style="margin-bottom: 30px;">
+                <div class="panel-header">
+                  <h2 class="panel-title">Unsupported Fragrance Requests</h2>
+                  <span class="stat-label" style="font-size: 10px;" id="unsupportedRequestsCount">Live Firebase Feed</span>
+                </div>
+                
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
+                  Fragrances typed by users that we do not carry. They are matched against our database of 500 popular scents and recommend the closest match.
+                </p>
+
+                <div style="margin-bottom: 20px;">
+                  <button class="btn-action accent-btn" onclick="fetchUnsupportedRequests()">Refresh List</button>
+                </div>
+
+                <div class="admin-table-container">
+                  <table class="admin-table" id="unsupportedRequestsTable">
+                    <thead>
+                      <tr>
+                        <th>Requested Fragrance</th>
+                        <th>Closest Recommendation</th>
+                        <th>User Email</th>
+                        <th>Date Submitted</th>
+                        <th>Firebase Firestore ID</th>
+                      </tr>
+                    </thead>
+                    <tbody id="unsupportedRequestsTableBody">
+                      <tr>
+                        <td colspan="5" style="text-align: center; opacity: 0.5; padding: 30px;">Click Refresh to load list...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Column 2: Out of Stock Notifications -->
+              <div class="console-panel full-width-panel">
+                <div class="panel-header">
+                  <h2 class="panel-title">Out of Stock Notifications</h2>
+                  <span class="stat-label" style="font-size: 10px;" id="stockNotificationsCount">Live Firebase Feed</span>
+                </div>
+
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
+                  Notifications submitted by customers when an active product goes out of stock. They are grouped by product and selected size.
+                </p>
+
+                <div style="margin-bottom: 20px;">
+                  <button class="btn-action accent-btn" onclick="fetchStockNotifications()">Refresh List</button>
+                </div>
+
+                <div class="admin-table-container">
+                  <table class="admin-table" id="stockNotificationsTable">
+                    <thead>
+                      <tr>
+                        <th>Product ID / Scent</th>
+                        <th>Product Name</th>
+                        <th>Selected Size</th>
+                        <th>User Email</th>
+                        <th>Date Submitted</th>
+                        <th>Firebase Firestore ID</th>
+                      </tr>
+                    </thead>
+                    <tbody id="stockNotificationsTableBody">
+                      <tr>
+                        <td colspan="6" style="text-align: center; opacity: 0.5; padding: 30px;">Click Refresh to load list...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
             <!-- TAB 4: IMAGE OPTIMIZER -->
             <div id="image-optimizer-tab" class="tab-content">
               <div class="console-panel full-width-panel">
@@ -2226,6 +2301,180 @@
       }
     }
     window.fetchUsers = fetchUsers;
+
+    async function fetchUnsupportedRequests() {
+      const tableBody = document.getElementById("unsupportedRequestsTableBody");
+      const feedCount = document.getElementById("unsupportedRequestsCount");
+      if (!tableBody) return;
+
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align: center; opacity: 0.5; padding: 30px;">Loading unsupported fragrance requests from Firestore...</td>
+        </tr>
+      `;
+
+      try {
+        const q = query(collection(db, "unsupported_requests"), orderBy("timestamp", "desc"));
+        const querySnapshot = await getDocs(q);
+        
+        tableBody.innerHTML = "";
+        let count = 0;
+        
+        querySnapshot.forEach((docSnap) => {
+          count++;
+          const data = docSnap.data();
+          const id = docSnap.id;
+          const queryText = data.query || "";
+          const closestText = data.closest || "";
+          const email = data.email || "";
+          const timestamp = data.timestamp ? new Date(data.timestamp).toLocaleString() : "N/A";
+          
+          const tr = document.createElement('tr');
+          
+          // Requested Fragrance
+          const queryTd = document.createElement('td');
+          queryTd.style.fontWeight = 'bold';
+          queryTd.textContent = queryText;
+          tr.appendChild(queryTd);
+          
+          // Closest Recommendation
+          const closestTd = document.createElement('td');
+          closestTd.textContent = closestText;
+          tr.appendChild(closestTd);
+          
+          // User Email
+          const emailTd = document.createElement('td');
+          emailTd.style.color = 'var(--accent)';
+          emailTd.textContent = email;
+          tr.appendChild(emailTd);
+          
+          // Date Submitted
+          const dateTd = document.createElement('td');
+          dateTd.textContent = timestamp;
+          tr.appendChild(dateTd);
+          
+          // Firestore ID
+          const idTd = document.createElement('td');
+          idTd.style.fontFamily = 'monospace';
+          idTd.style.opacity = '0.5';
+          idTd.textContent = id;
+          tr.appendChild(idTd);
+          
+          tableBody.appendChild(tr);
+        });
+        
+        if (count === 0) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="5" style="text-align: center; opacity: 0.5; padding: 30px;">No unsupported fragrance requests registered yet.</td>
+            </tr>
+          `;
+        }
+        if (feedCount) feedCount.textContent = count + " Requests";
+      } catch (error) {
+        console.error("Error fetching unsupported requests:", error);
+        tableBody.innerHTML = "";
+        const errorTr = document.createElement('tr');
+        const errorTd = document.createElement('td');
+        errorTd.setAttribute('colspan', '5');
+        errorTd.style.cssText = "text-align: center; color: var(--danger); font-size: 11px; padding: 12px; background: rgba(255, 59, 48, 0.05);";
+        errorTd.textContent = `⚠ Firestore Connection Error: ${error.message}`;
+        errorTr.appendChild(errorTd);
+        tableBody.appendChild(errorTr);
+      }
+    }
+    window.fetchUnsupportedRequests = fetchUnsupportedRequests;
+
+    async function fetchStockNotifications() {
+      const tableBody = document.getElementById("stockNotificationsTableBody");
+      const feedCount = document.getElementById("stockNotificationsCount");
+      if (!tableBody) return;
+
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align: center; opacity: 0.5; padding: 30px;">Loading out of stock notifications from Firestore...</td>
+        </tr>
+      `;
+
+      try {
+        const q = query(collection(db, "stock_notifications"), orderBy("timestamp", "desc"));
+        const querySnapshot = await getDocs(q);
+        
+        tableBody.innerHTML = "";
+        let count = 0;
+        
+        querySnapshot.forEach((docSnap) => {
+          count++;
+          const data = docSnap.data();
+          const id = docSnap.id;
+          const productId = data.productId || "";
+          const productName = data.productName || "";
+          const size = data.size || "";
+          const email = data.email || "";
+          const timestamp = data.timestamp ? new Date(data.timestamp).toLocaleString() : "N/A";
+          
+          const tr = document.createElement('tr');
+          
+          // Product ID
+          const productIdTd = document.createElement('td');
+          productIdTd.style.fontFamily = 'monospace';
+          productIdTd.style.fontSize = '11px';
+          productIdTd.textContent = productId;
+          tr.appendChild(productIdTd);
+          
+          // Product Name
+          const productNameTd = document.createElement('td');
+          productNameTd.style.fontWeight = 'bold';
+          productNameTd.textContent = productName;
+          tr.appendChild(productNameTd);
+          
+          // Selected Size
+          const sizeTd = document.createElement('td');
+          sizeTd.textContent = size;
+          tr.appendChild(sizeTd);
+          
+          // User Email
+          const emailTd = document.createElement('td');
+          emailTd.style.color = 'var(--accent)';
+          emailTd.textContent = email;
+          tr.appendChild(emailTd);
+          
+          // Date Submitted
+          const dateTd = document.createElement('td');
+          dateTd.textContent = timestamp;
+          tr.appendChild(dateTd);
+          
+          // Firestore ID
+          const idTd = document.createElement('td');
+          idTd.style.fontFamily = 'monospace';
+          idTd.style.opacity = '0.5';
+          idTd.textContent = id;
+          tr.appendChild(idTd);
+          
+          tableBody.appendChild(tr);
+        });
+        
+        if (count === 0) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="6" style="text-align: center; opacity: 0.5; padding: 30px;">No out of stock notifications registered yet.</td>
+            </tr>
+          `;
+        }
+        if (feedCount) feedCount.textContent = count + " Notifications";
+      } catch (error) {
+        console.error("Error fetching stock notifications:", error);
+        tableBody.innerHTML = "";
+        const errorTr = document.createElement('tr');
+        const errorTd = document.createElement('td');
+        errorTd.setAttribute('colspan', '6');
+        errorTd.style.cssText = "text-align: center; color: var(--danger); font-size: 11px; padding: 12px; background: rgba(255, 59, 48, 0.05);";
+        errorTd.textContent = `⚠ Firestore Connection Error: ${error.message}`;
+        errorTr.appendChild(errorTd);
+        tableBody.appendChild(errorTr);
+      }
+    }
+    window.fetchStockNotifications = fetchStockNotifications;
 
     window.toggleUserRole = async function(uid, currentRole) {
       if (!window.db || !window.dbDoc || !window.dbUpdateDoc) return;
@@ -2925,6 +3174,14 @@
       }
       if (tabId === 'reviews-tab' && typeof window.loadAdminReviews === 'function') {
         window.loadAdminReviews();
+      }
+      if (tabId === 'notifications-tab') {
+        if (typeof window.fetchUnsupportedRequests === 'function') {
+          window.fetchUnsupportedRequests();
+        }
+        if (typeof window.fetchStockNotifications === 'function') {
+          window.fetchStockNotifications();
+        }
       }
     };
 

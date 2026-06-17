@@ -1175,6 +1175,16 @@ footer{
 
         <button class="add-to-cart" id="addToBagBtn" onclick="addToCart('leopard-backpack')">ADD TO BAG</button>
 
+        <div id="outOfStockNotifyContainer" style="display: none; width: 100%; margin-top: -30px; margin-bottom: 35px; background: #fafafa; border: 1px dashed #000; padding: 15px; box-sizing: border-box;">
+            <div style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px;">Notify Me When In Stock</div>
+            <div style="font-size: 10px; opacity: 0.6; margin-bottom: 12px; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.5px;">Get notified via email as soon as this item is restocked.</div>
+            <form id="outOfStockNotifyForm" style="display: flex; border-bottom: 1px solid #000; padding-bottom: 4px;">
+                <input type="email" id="outOfStockNotifyEmail" placeholder="ENTER YOUR EMAIL" required style="border: none; background: transparent; font-size: 10px; width: 100%; outline: none; font-family: inherit; letter-spacing: 0.5px;">
+                <button type="submit" style="background: transparent; border: none; font-size: 10px; font-weight: bold; color: #1106e8; cursor: pointer; padding: 0 5px; font-family: inherit; letter-spacing: 1px;">SUBMIT</button>
+            </form>
+            <div id="outOfStockNotifySuccess" style="display: none; color: #2e7d32; font-size: 9px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; margin-top: 8px;">✓ Thank you! We will notify you.</div>
+        </div>
+
         <div class="desc">
 Léopard teaches that true transformation arrives in silence.
 
@@ -1638,11 +1648,56 @@ window.openCart = function() {
                     addToBagBtn.disabled = true;
                     addToBagBtn.style.opacity = "0.5";
                     addToBagBtn.style.cursor = "not-allowed";
+                    
+                    const notifyContainer = document.getElementById("outOfStockNotifyContainer");
+                    const notifyForm = document.getElementById("outOfStockNotifyForm");
+                    const notifySuccess = document.getElementById("outOfStockNotifySuccess");
+                    
+                    if (notifyContainer) {
+                        notifyContainer.style.display = "block";
+                        if (notifyForm) notifyForm.style.display = "flex";
+                        if (notifySuccess) notifySuccess.style.display = "none";
+                        
+                        notifyForm.onsubmit = async (e) => {
+                            e.preventDefault();
+                            const emailInput = document.getElementById("outOfStockNotifyEmail");
+                            if (!emailInput || !emailInput.value.trim() || !window.db) return;
+                            
+                            const email = emailInput.value.trim();
+                            const submitBtn = notifyForm.querySelector('button[type="submit"]');
+                            if (submitBtn) {
+                                submitBtn.disabled = true;
+                                submitBtn.textContent = "SAVING...";
+                            }
+                            
+                            try {
+                                await addDoc(collection(window.db, "stock_notifications"), {
+                                    email: email,
+                                    productId: p.id,
+                                    productName: p.name,
+                                    size: selectedSize || "50ml",
+                                    timestamp: new Date().toISOString()
+                                });
+                                notifyForm.style.display = "none";
+                                if (notifySuccess) notifySuccess.style.display = "block";
+                            } catch (err) {
+                                console.error("Error saving stock notification request:", err);
+                                alert("Failed to submit request: " + err.message);
+                                if (submitBtn) {
+                                    submitBtn.disabled = false;
+                                    submitBtn.textContent = "SUBMIT";
+                                }
+                            }
+                        };
+                    }
                 } else {
                     addToBagBtn.innerHTML = "ADD TO BAG";
                     addToBagBtn.disabled = false;
                     addToBagBtn.style.opacity = "";
                     addToBagBtn.style.cursor = "";
+                    
+                    const notifyContainer = document.getElementById("outOfStockNotifyContainer");
+                    if (notifyContainer) notifyContainer.style.display = "none";
                 }
             }
         };

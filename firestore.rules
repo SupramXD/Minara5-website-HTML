@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Check if user is Admin
+    function isAdmin() {
+      return request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+    }
+
+    // Users collection rules
+    match /users/{userId} {
+      // Users can read/write their own record
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Admins can read/write all records
+      allow read, write: if isAdmin();
+    }
+
+    // Subscribers collection rules
+    match /subscribers/{subscriberId} {
+      // Anyone can subscribe (write)
+      allow create: if true;
+      // Only admins can read/update/delete subscribers
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Reviews collection rules
+    match /reviews/{reviewId} {
+      // Anyone can create a review
+      allow create: if true;
+      // Only admins can read/update/delete directly (Cloud Functions bypass rules)
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Products collection rules
+    match /products/{productId} {
+      // Anyone can read products
+      allow read: if true;
+      // Only admins can write/update/delete products
+      allow write: if isAdmin();
+    }
+
+    // Unsupported requests (fragrance search notifier)
+    match /unsupported_requests/{requestId} {
+      // Anyone can submit an unsupported request (create)
+      allow create: if true;
+      // Only admins can read/update/delete
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Out of stock notifications
+    match /stock_notifications/{notificationId} {
+      // Anyone can submit a stock notification (create)
+      allow create: if true;
+      // Only admins can read/update/delete
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}
