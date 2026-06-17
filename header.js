@@ -1401,7 +1401,7 @@ function applyCustomText(data) {
 
         if (match || (id && id.startsWith("inspired-by-"))) {
             const fragranceName = match ? match[1] : clean;
-            return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 2px;">INSPIRED BY</span><i style="font-family: Georgia, serif; font-style: italic; font-weight: normal; font-size: 13.5px; color: #111111; display: block; text-transform: none; letter-spacing: 0.2px;">${formatBrandName(fragranceName)}</i>`;
+            return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 2px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block; letter-spacing: 0.5px;">${formatBrandName(fragranceName)}</i>`;
         }
         return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block;">${clean}</span>`;
     };
@@ -1423,7 +1423,7 @@ function applyCustomText(data) {
 
         if (match || (id && id.startsWith("inspired-by-"))) {
             const fragranceName = match ? match[1] : clean;
-            return `<span style="font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1px; display: block; margin-bottom: 2px;">INSPIRED BY</span><i style="font-family: Georgia, serif; font-style: italic; font-weight: normal; font-size: 13px; display: block; color: #111111; text-transform: none; letter-spacing: 0.2px;">${formatBrandName(fragranceName)}</i>`;
+            return `<span style="font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1px; display: block; margin-bottom: 2px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11px; display: block; text-transform: uppercase; color: #111111; letter-spacing: 0.5px;">${formatBrandName(fragranceName)}</i>`;
         }
         return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11px; display: block; text-transform: uppercase; color: #111111;">${clean}</span>`;
     };
@@ -1951,7 +1951,6 @@ function applyCustomText(data) {
                     ${window.formatInspiredNameHTML(p.name, p.id)}
                     <span class="search-grid-card-price" style="display: block; margin-top: 4px;">R${formattedPrice}</span>
                 </div>
-            `;       </div>
             `;
             grid.appendChild(card);
         });
