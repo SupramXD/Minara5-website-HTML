@@ -1476,7 +1476,7 @@ window.openCart = function() {
                 const match = escapedName.match(/Inspired\s+by\s+(.+)/i);
                 if (match || (p.id && p.id.startsWith("inspired-by-"))) {
                     const fragranceName = match ? match[1] : escapedName;
-                    titleEl.innerHTML = `Inspired By<br><i>${formatBrandName(fragranceName)}</i>`;
+                    titleEl.innerHTML = `Inspired By<br><i style="font-family: Georgia, serif; font-style: italic; font-weight: normal; text-transform: none; letter-spacing: 0.2px;">${formatBrandName(fragranceName)}</i>`;
                 } else {
                     titleEl.innerHTML = escapedName;
                 }

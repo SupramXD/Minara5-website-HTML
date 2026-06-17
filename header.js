@@ -1401,7 +1401,7 @@ function applyCustomText(data) {
 
         if (match || (id && id.startsWith("inspired-by-"))) {
             const fragranceName = match ? match[1] : clean;
-            return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 2px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 700; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block;">${formatBrandName(fragranceName)}</i>`;
+            return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 2px;">INSPIRED BY</span><i style="font-family: Georgia, serif; font-style: italic; font-weight: normal; font-size: 13.5px; color: #111111; display: block; text-transform: none; letter-spacing: 0.2px;">${formatBrandName(fragranceName)}</i>`;
         }
         return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block;">${clean}</span>`;
     };
@@ -1423,7 +1423,7 @@ function applyCustomText(data) {
 
         if (match || (id && id.startsWith("inspired-by-"))) {
             const fragranceName = match ? match[1] : clean;
-            return `<span style="font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1px; display: block; margin-bottom: 2px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 700; font-size: 11px; display: block; text-transform: uppercase; color: #111111;">${formatBrandName(fragranceName)}</i>`;
+            return `<span style="font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1px; display: block; margin-bottom: 2px;">INSPIRED BY</span><i style="font-family: Georgia, serif; font-style: italic; font-weight: normal; font-size: 13px; display: block; color: #111111; text-transform: none; letter-spacing: 0.2px;">${formatBrandName(fragranceName)}</i>`;
         }
         return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11px; display: block; text-transform: uppercase; color: #111111;">${clean}</span>`;
     };
@@ -1511,6 +1511,9 @@ function applyCustomText(data) {
             @media (min-width: 901px) {
                 #searchOverlay {
                     width: 55vw;
+                }
+                #mobileSearchBtn {
+                    display: none !important;
                 }
             }
             .search-top-row {
@@ -2045,7 +2048,7 @@ function applyCustomText(data) {
             }
         }
 
-        const mobileCart = document.querySelector(".mobile-cart, .cart-btn.mobile-cart, .cart-header-btn.mobile-cart");
+        const mobileCart = document.querySelector(".mobile-cart, .cart-btn.mobile-cart, .cart-header-btn.mobile-cart, .cart-btn");
         let mobileSearch = document.getElementById("mobileSearchBtn");
         
         if (mobileCart && !mobileSearch) {
@@ -2219,6 +2222,80 @@ function applyCustomText(data) {
         }
         return null;
     }
+
+    window.fetchPopularFragrances = fetchPopularFragrances;
+
+    window.findSearchMatchedProductIds = function(queryText) {
+        if (!queryText) return [];
+        const cleanQuery = normalizeString(queryText);
+        if (!cleanQuery) return [];
+
+        let matchedIds = [];
+
+        // 1. Direct stocked match keywords
+        const directProduct = findDirectStockedProductByQuery(queryText);
+        if (directProduct) {
+            matchedIds.push(directProduct.id);
+        }
+
+        // 2. Exact/Combined match in popular_fragrances.json database
+        if (popularFragrancesList.length > 0) {
+            const exactPopMatches = popularFragrancesList.filter(f => {
+                const normBrand = normalizeString(f.brand);
+                const normName = normalizeString(f.name);
+                const combined = `${normBrand} ${normName}`;
+                
+                const aliasMatch = f.aliases && f.aliases.some(alias => {
+                    const nAlias = normalizeString(alias);
+                    return nAlias === cleanQuery || nAlias.includes(cleanQuery) || cleanQuery.includes(nAlias);
+                });
+                if (aliasMatch) return true;
+                if (combined.includes(cleanQuery) || cleanQuery.includes(combined)) return true;
+                if (cleanQuery.includes(normBrand) && cleanQuery.includes(normName)) return true;
+                return false;
+            });
+
+            if (exactPopMatches.length > 0) {
+                exactPopMatches.forEach(f => {
+                    if (f.closestOurSite && !matchedIds.includes(f.closestOurSite)) {
+                        matchedIds.push(f.closestOurSite);
+                    }
+                });
+            } else {
+                // Fuzzy search match in popular_fragrances.json database
+                let bestDistance = Infinity;
+                let bestPopMatch = null;
+                
+                popularFragrancesList.forEach(f => {
+                    f.aliases && f.aliases.forEach(alias => {
+                        const nAlias = normalizeString(alias);
+                        const dist = getLevenshteinDistance(cleanQuery, nAlias);
+                        if (dist < bestDistance) {
+                            bestDistance = dist;
+                            bestPopMatch = f;
+                        }
+                    });
+                    const nameDist = getLevenshteinDistance(cleanQuery, normalizeString(f.name));
+                    if (nameDist < bestDistance) {
+                        bestDistance = nameDist;
+                        bestPopMatch = f;
+                    }
+                    const combinedDist = getLevenshteinDistance(cleanQuery, `${normalizeString(f.brand)} ${normalizeString(f.name)}`);
+                    if (combinedDist < bestDistance) {
+                        bestDistance = combinedDist;
+                        bestPopMatch = f;
+                    }
+                });
+                
+                const maxAllowedDistance = Math.max(3, Math.floor(cleanQuery.length / 2));
+                if (bestDistance <= maxAllowedDistance && bestPopMatch && bestPopMatch.closestOurSite) {
+                    matchedIds.push(bestPopMatch.closestOurSite);
+                }
+            }
+        }
+
+        return matchedIds;
+    };
 
       function displayDirectProductCard(product, popFrag) {
         const resultsContainer = document.getElementById("searchResults");
@@ -2482,7 +2559,6 @@ function applyCustomText(data) {
     const initSearchSystem = () => {
         injectSearchUI();
         injectSearchButtons();
-        fetchPopularFragrances();
         
         const dimmer = document.getElementById("pageDimmer");
         if (dimmer) {

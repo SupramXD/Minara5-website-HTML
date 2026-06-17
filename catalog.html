@@ -1077,19 +1077,34 @@ function updateCartCount(count){
             const searchInput = document.getElementById("catalogSearchInput");
             const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
             if (query) {
-                activeProducts = activeProducts.filter(p => {
-                    const name = (p.name || "").toLowerCase();
-                    const nameShort = (p.nameShort || "").toLowerCase();
-                    const description = (p.description || "").toLowerCase();
-                    const invisibleFlair = (p.invisibleFlair || "").toLowerCase();
-                    const flair = (p.flair || "").toLowerCase();
-                    
-                    return name.includes(query) || 
-                           nameShort.includes(query) || 
-                           description.includes(query) || 
-                           invisibleFlair.includes(query) ||
-                           flair.includes(query);
-                });
+                if (window.fetchPopularFragrances) {
+                    let sync = true;
+                    window.fetchPopularFragrances(() => {
+                        if (!sync) {
+                            renderGrid();
+                        }
+                    });
+                    sync = false;
+                }
+
+                const advancedMatchedIds = window.findSearchMatchedProductIds ? window.findSearchMatchedProductIds(query) : [];
+                if (advancedMatchedIds.length > 0) {
+                    activeProducts = activeProducts.filter(p => advancedMatchedIds.includes(p.id));
+                } else {
+                    activeProducts = activeProducts.filter(p => {
+                        const name = (p.name || "").toLowerCase();
+                        const nameShort = (p.nameShort || "").toLowerCase();
+                        const description = (p.description || "").toLowerCase();
+                        const invisibleFlair = (p.invisibleFlair || "").toLowerCase();
+                        const flair = (p.flair || "").toLowerCase();
+                        
+                        return name.includes(query) || 
+                               nameShort.includes(query) || 
+                               description.includes(query) || 
+                               invisibleFlair.includes(query) ||
+                               flair.includes(query);
+                    });
+                }
             }
 
             grid.innerHTML = ""; // Clear existing grid items securely
@@ -1163,8 +1178,11 @@ function updateCartCount(count){
                     inspiredEl.innerHTML = `<i>${formatBrandName(fragranceName)}</i>`;
                     inspiredEl.style.fontSize = "13.5px";
                     inspiredEl.style.color = "#111111";
-                    inspiredEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";
-                    inspiredEl.style.fontWeight = "700";
+                    inspiredEl.style.fontFamily = "Georgia, serif";
+                    inspiredEl.style.fontStyle = "italic";
+                    inspiredEl.style.fontWeight = "normal";
+                    inspiredEl.style.textTransform = "none";
+                    inspiredEl.style.letterSpacing = "0.2px";
                     inspiredEl.style.display = 'block';
                 } else {
                     titleEl.textContent = rawName;
