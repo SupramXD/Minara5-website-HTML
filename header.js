@@ -2047,9 +2047,6 @@ function applyCustomText(data) {
         }
     }
 
-    // Secure import of addDoc and collection from firebase-firestore
-    import { addDoc, collection } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-
     window.submitUnsupportedRequest = async function(e, queryVal, closestId) {
         e.preventDefault();
         const form = e.target;
