@@ -1620,6 +1620,7 @@
                       <tr>
                         <th>Product ID / Scent</th>
                         <th>Product Name</th>
+                        <th>Matched Fragrance</th>
                         <th>Selected Size</th>
                         <th>User Email</th>
                         <th>Date Submitted</th>
@@ -1628,7 +1629,7 @@
                     </thead>
                     <tbody id="stockNotificationsTableBody">
                       <tr>
-                        <td colspan="6" style="text-align: center; opacity: 0.5; padding: 30px;">Click Refresh to load list...</td>
+                        <td colspan="7" style="text-align: center; opacity: 0.5; padding: 30px;">Click Refresh to load list...</td>
                       </tr>
                     </tbody>
                   </table>
@@ -2392,7 +2393,7 @@
 
       tableBody.innerHTML = `
         <tr>
-          <td colspan="6" style="text-align: center; opacity: 0.5; padding: 30px;">Loading out of stock notifications from Firestore...</td>
+          <td colspan="7" style="text-align: center; opacity: 0.5; padding: 30px;">Loading out of stock notifications from Firestore...</td>
         </tr>
       `;
 
@@ -2409,6 +2410,7 @@
           const id = docSnap.id;
           const productId = data.productId || "";
           const productName = data.productName || "";
+          const matchedFragrance = data.matchedFragrance || "";
           const size = data.size || "";
           const email = data.email || "";
           const timestamp = data.timestamp ? new Date(data.timestamp).toLocaleString() : "N/A";
@@ -2427,6 +2429,13 @@
           productNameTd.style.fontWeight = 'bold';
           productNameTd.textContent = productName;
           tr.appendChild(productNameTd);
+          
+          // Matched Fragrance
+          const matchedFragranceTd = document.createElement('td');
+          matchedFragranceTd.style.fontWeight = 'bold';
+          matchedFragranceTd.style.color = 'var(--text-muted)';
+          matchedFragranceTd.textContent = matchedFragrance || productName;
+          tr.appendChild(matchedFragranceTd);
           
           // Selected Size
           const sizeTd = document.createElement('td');
@@ -2457,7 +2466,7 @@
         if (count === 0) {
           tableBody.innerHTML = `
             <tr>
-              <td colspan="6" style="text-align: center; opacity: 0.5; padding: 30px;">No out of stock notifications registered yet.</td>
+              <td colspan="7" style="text-align: center; opacity: 0.5; padding: 30px;">No out of stock notifications registered yet.</td>
             </tr>
           `;
         }
@@ -2467,7 +2476,7 @@
         tableBody.innerHTML = "";
         const errorTr = document.createElement('tr');
         const errorTd = document.createElement('td');
-        errorTd.setAttribute('colspan', '6');
+        errorTd.setAttribute('colspan', '7');
         errorTd.style.cssText = "text-align: center; color: var(--danger); font-size: 11px; padding: 12px; background: rgba(255, 59, 48, 0.05);";
         errorTd.textContent = `⚠ Firestore Connection Error: ${error.message}`;
         errorTr.appendChild(errorTd);
