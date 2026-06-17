@@ -1424,21 +1424,30 @@ function applyCustomText(data) {
         styleEl.textContent = `
             #searchOverlay {
                 position: fixed;
-                inset: 0;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                width: 85vw;
                 background: #ffffff;
                 z-index: 15000;
                 display: none;
                 flex-direction: column;
                 padding: 20px 40px;
                 color: #000000;
-                opacity: 0;
-                transition: opacity 0.3s ease;
+                border-left: 1px solid #000000;
+                transform: translate3d(100%, 0, 0);
+                transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
                 overflow-y: auto;
                 font-family: Helvetica, Arial, sans-serif;
             }
             #searchOverlay.active {
                 display: flex;
-                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+            @media (min-width: 901px) {
+                #searchOverlay {
+                    width: 55vw;
+                }
             }
             .search-top-row {
                 display: flex;
@@ -1550,14 +1559,14 @@ function applyCustomText(data) {
             }
             .search-grid {
                 display: grid;
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
                 gap: 24px;
                 margin-top: 20px;
                 margin-bottom: 30px;
             }
             @media (max-width: 900px) {
                 .search-grid {
-                    grid-template-columns: repeat(2, 1fr);
+                    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
                     gap: 15px;
                 }
                 #searchOverlay {
@@ -1877,8 +1886,22 @@ function applyCustomText(data) {
     window.openSearch = function() {
         const overlay = document.getElementById("searchOverlay");
         if (overlay) {
-            overlay.classList.add("active");
+            if (typeof window.closeCart === "function") {
+                window.closeCart();
+            } else {
+                const cartPanel = document.getElementById("cartPanel");
+                if (cartPanel) cartPanel.classList.remove("open");
+            }
+
             overlay.style.display = "flex";
+            overlay.offsetHeight; // Force reflow
+            overlay.classList.add("active");
+
+            const dimmer = document.getElementById("pageDimmer");
+            if (dimmer) {
+                dimmer.classList.add("active");
+            }
+
             document.body.style.overflow = "hidden";
             document.documentElement.style.overflow = "hidden";
             const input = document.getElementById("searchInput");
@@ -1894,9 +1917,18 @@ function applyCustomText(data) {
         const overlay = document.getElementById("searchOverlay");
         if (overlay) {
             overlay.classList.remove("active");
+            
+            const dimmer = document.getElementById("pageDimmer");
+            if (dimmer) {
+                const cartPanel = document.getElementById("cartPanel");
+                if (!cartPanel || !cartPanel.classList.contains("open")) {
+                    dimmer.classList.remove("active");
+                }
+            }
+
             setTimeout(() => {
                 overlay.style.display = "none";
-            }, 300);
+            }, 400);
             document.body.style.overflow = "";
             document.documentElement.style.overflow = "";
         }
@@ -2174,12 +2206,14 @@ function applyCustomText(data) {
         const detailUrl = closestProduct.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${closestProduct.id}`;
         const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(closestProduct.image, closestProduct.image_thumb) : closestProduct.image;
         
-        const matchLabel = isFuzzy ? `Did you mean <strong>${popFrag.brand} ${popFrag.name}</strong>?` : `We found <strong>${popFrag.brand} ${popFrag.name}</strong> in our database.`;
+        const matchLabel = isFuzzy 
+            ? `DID YOU MEAN <strong>${popFrag.brand.toUpperCase()} ${popFrag.name.toUpperCase()}</strong>?` 
+            : `<strong>${popFrag.brand.toUpperCase()} ${popFrag.name.toUpperCase()}</strong> IS IN OUR DATABASE.`;
         
         resultsContainer.innerHTML = `
-            <div class="search-section-title">Closest Scents We Carry</div>
-            <div style="font-size: 13px; color: #4a5568; margin-bottom: 20px; line-height: 1.5;">
-                ${matchLabel} We don't carry this exact fragrance in our collection yet, but we recommend checking out our closest matching scent:
+            <div class="search-section-title">RECOMMENDED MATCH</div>
+            <div style="font-size: 11px; color: #000000; margin-bottom: 20px; line-height: 1.5; text-transform: uppercase; letter-spacing: 0.5px;">
+                ${matchLabel} WE DO NOT STOCK THIS SCENT YET. OUR CLOSEST MATCH:
             </div>
             
             <div class="search-card">
@@ -2188,14 +2222,14 @@ function applyCustomText(data) {
                     <a href="${detailUrl}" class="search-card-title">${closestProduct.nameShort || closestProduct.name}</a>
                     <span class="search-card-desc">${closestProduct.name}</span>
                     <span class="search-card-price">R${formattedPrice}</span>
-                    <a href="${detailUrl}" class="search-link-btn" style="margin-top: 10px; width: fit-content;">EXPLORE RECOMMENDATION</a>
+                    <a href="${detailUrl}" class="search-link-btn" style="margin-top: 10px; width: fit-content;">EXPLORE MATCH</a>
                 </div>
             </div>
             
             <div class="search-notify-box">
-                <div class="search-notify-title">Notify Me when available</div>
+                <div class="search-notify-title">GET NOTIFIED</div>
                 <div class="search-notify-text">
-                    Would you like to be notified as soon as we launch our own version of <strong>${popFrag.brand} ${popFrag.name}</strong>? Enter your email address below.
+                    ENTER YOUR EMAIL TO BE NOTIFIED WHEN OUR VERSION OF <strong>${popFrag.brand.toUpperCase()} ${popFrag.name.toUpperCase()}</strong> IS AVAILABLE.
                 </div>
                 <form class="search-notify-form" id="unsupportedNotifyForm">
                     <input type="email" class="search-notify-input" id="unsupportedNotifyEmail" placeholder="Enter your email address" required>
@@ -2228,9 +2262,9 @@ function applyCustomText(data) {
         const escapedQuery = window.escapeHTML ? window.escapeHTML(originalQuery) : originalQuery;
 
         resultsContainer.innerHTML = `
-            <div class="search-section-title">No direct match found</div>
-            <div style="font-size: 13px; color: #4a5568; margin-bottom: 20px; line-height: 1.5;">
-                We couldn't find a direct match for "<strong>${escapedQuery}</strong>". You might be interested in our best-selling signature scent:
+            <div class="search-section-title">NO MATCH FOUND</div>
+            <div style="font-size: 11px; color: #000000; margin-bottom: 20px; line-height: 1.5; text-transform: uppercase; letter-spacing: 0.5px;">
+                WE COULD NOT FIND A MATCH FOR "<strong>${escapedQuery.toUpperCase()}</strong>". OUR BEST SELLER:
             </div>
             
             <div class="search-card">
@@ -2244,9 +2278,9 @@ function applyCustomText(data) {
             </div>
             
             <div class="search-notify-box">
-                <div class="search-notify-title">Request this fragrance</div>
+                <div class="search-notify-title">REQUEST FORMULATION</div>
                 <div class="search-notify-text">
-                    Enter your email address below, and we will look into stocking our own clone formulation of "<strong>${escapedQuery}</strong>" in the future!
+                    ENTER YOUR EMAIL TO REQUEST A CLONE FORMULATION OF "<strong>${escapedQuery.toUpperCase()}</strong>".
                 </div>
                 <form class="search-notify-form" id="unsupportedNotifyForm">
                     <input type="email" class="search-notify-input" id="unsupportedNotifyEmail" placeholder="Enter your email address" required>
@@ -2346,6 +2380,16 @@ function applyCustomText(data) {
         injectSearchUI();
         injectSearchButtons();
         fetchPopularFragrances();
+        
+        const dimmer = document.getElementById("pageDimmer");
+        if (dimmer) {
+            dimmer.addEventListener("click", () => {
+                const overlay = document.getElementById("searchOverlay");
+                if (overlay && overlay.classList.contains("active")) {
+                    window.closeSearch();
+                }
+            });
+        }
     };
 
     if (document.readyState === "loading") {
