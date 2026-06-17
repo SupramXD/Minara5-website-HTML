@@ -2483,15 +2483,6 @@
             flairEl.style.display = 'block';
           }
 
-          // Safe short fragrance name assignment
-          const titleEl = card.querySelector('.hp-title');
-          if (titleEl && p.nameShort) {
-            titleEl.textContent = p.nameShort;
-            titleEl.style.display = 'block';
-          } else if (titleEl) {
-            titleEl.style.display = 'none';
-          }
-
           // Bind static URLs safely
           card.querySelectorAll('.product-link-anchor, .product-link-anchor-2').forEach(a => {
             a.href = p.url;
@@ -2511,8 +2502,8 @@
           img.setAttribute('alt', rawName);
 
           // Safe product name text assignments
+          const titleEl = card.querySelector('.hp-title');
           const inspiredEl = card.querySelector('.hp-inspired');
-          let escapedName = window.escapeHTML ? window.escapeHTML(rawName) : rawName;
           
           const formatBrandName = (brandName) => {
             if (!brandName) return "";
@@ -2524,11 +2515,37 @@
             });
           };
 
-          const inspiredMatch = escapedName.match(/Inspired\s+by\s+(.+)/i);
-          if (inspiredMatch) {
-            inspiredEl.innerHTML = `Inspired by <i>${formatBrandName(inspiredMatch[1])}</i>`;
-          } else {
-            inspiredEl.innerHTML = escapedName;
+          const inspiredMatch = rawName.match(/^inspired\s+by\s+(.+)/i);
+          if (titleEl && inspiredEl) {
+            if (inspiredMatch || p.id.startsWith("inspired-by-")) {
+              const fragranceName = inspiredMatch ? inspiredMatch[1] : rawName;
+              
+              titleEl.textContent = "INSPIRED BY";
+              titleEl.style.fontSize = "8px";
+              titleEl.style.color = "#777777";
+              titleEl.style.letterSpacing = "1.2px";
+              titleEl.style.textTransform = "uppercase";
+              titleEl.style.fontWeight = "bold";
+              titleEl.style.display = 'block';
+              titleEl.style.marginBottom = "2px";
+              
+              inspiredEl.innerHTML = `<i>${formatBrandName(fragranceName)}</i>`;
+              inspiredEl.style.fontSize = "13.5px";
+              inspiredEl.style.color = "#111111";
+              inspiredEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";
+              inspiredEl.style.fontWeight = "700";
+              inspiredEl.style.display = 'block';
+            } else {
+              titleEl.textContent = rawName;
+              titleEl.style.fontSize = "13.5px";
+              titleEl.style.color = "#111111";
+              titleEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";
+              titleEl.style.fontWeight = "700";
+              titleEl.style.display = 'block';
+              
+              inspiredEl.innerHTML = "";
+              inspiredEl.style.display = 'none';
+            }
           }
 
           // Dynamic reviews loader

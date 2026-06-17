@@ -809,6 +809,17 @@ footer{
     <div class="catalog-title-header">
         <h1>CATALOG</h1>
     </div>
+    
+    <!-- Dedicated Catalog Search -->
+    <div class="catalog-search-wrap" style="max-width: 400px; margin: 0 auto 30px; position: relative; display: flex; align-items: center; background: #fafafa; border: 1px solid #000; padding: 10px 14px;">
+        <span style="color: #000; margin-right: 10px; display: flex; align-items: center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+        </span>
+        <input type="text" id="catalogSearchInput" placeholder="SEARCH CATALOG..." style="width: 100%; background: transparent; border: none; outline: none; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 1.5px; color: #000; text-transform: uppercase;">
+    </div>
 
     <div class="catalog-grid">
         <div class="catalog-item">
@@ -1062,7 +1073,31 @@ function updateCartCount(count){
                 });
             }
 
+            // Filter by search query if present
+            const searchInput = document.getElementById("catalogSearchInput");
+            const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
+            if (query) {
+                activeProducts = activeProducts.filter(p => {
+                    const name = (p.name || "").toLowerCase();
+                    const nameShort = (p.nameShort || "").toLowerCase();
+                    const description = (p.description || "").toLowerCase();
+                    const invisibleFlair = (p.invisibleFlair || "").toLowerCase();
+                    const flair = (p.flair || "").toLowerCase();
+                    
+                    return name.includes(query) || 
+                           nameShort.includes(query) || 
+                           description.includes(query) || 
+                           invisibleFlair.includes(query) ||
+                           flair.includes(query);
+                });
+            }
+
             grid.innerHTML = ""; // Clear existing grid items securely
+
+            if (activeProducts.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 60px 0; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; color: #777777;">NO FRAGRANCES FOUND</div>`;
+                return;
+            }
             
             activeProducts.forEach(p => {
                 const item = document.createElement('div');
@@ -1097,34 +1132,12 @@ function updateCartCount(count){
                     flairEl.style.display = 'block';
                 }
 
-                // Safe short fragrance name assignment
+                // Format short fragrance name and inspired-by subtitle dynamically
                 const titleEl = item.querySelector('.product-title');
-                if (titleEl && p.nameShort) {
-                    titleEl.textContent = p.nameShort;
-                    titleEl.style.display = 'block';
-                } else if (titleEl) {
-                    titleEl.style.display = 'none';
-                }
-                
-                // Bind static URL safely
-                item.querySelector('.product-link').href = p.url;
+                const inspiredEl = item.querySelector('.product-inspired');
                 
                 let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
-                
-                // Safe image properties assignment
-                const img = item.querySelector('.product-img');
-                const tSrc = getThumbnailImageUrl(p.image, p.image_thumb);
-                if (tSrc) {
-                    img.src = tSrc;
-                    img.style.display = 'block';
-                } else {
-                    img.style.display = 'none';
-                }
-                img.setAttribute('alt', rawName);
-                
-                // Safe product name text assignments
-                const inspiredEl = item.querySelector('.product-inspired');
-                let escapedName = window.escapeHTML ? window.escapeHTML(rawName) : rawName;
+                const inspiredMatch = rawName.match(/^inspired\s+by\s+(.+)/i);
                 
                 const formatBrandName = (brandName) => {
                     if (!brandName) return "";
@@ -1136,12 +1149,46 @@ function updateCartCount(count){
                     });
                 };
 
-                const inspiredMatch = escapedName.match(/Inspired\s+by\s+(.+)/i);
-                if (inspiredMatch) {
-                    inspiredEl.innerHTML = `Inspired by <i>${formatBrandName(inspiredMatch[1])}</i>`;
+                if (inspiredMatch || p.id.startsWith("inspired-by-")) {
+                    const fragranceName = inspiredMatch ? inspiredMatch[1] : rawName;
+                    
+                    titleEl.textContent = "INSPIRED BY";
+                    titleEl.style.fontSize = "9px";
+                    titleEl.style.color = "#777777";
+                    titleEl.style.letterSpacing = "1.5px";
+                    titleEl.style.textTransform = "uppercase";
+                    titleEl.style.fontWeight = "bold";
+                    titleEl.style.display = 'block';
+                    
+                    inspiredEl.innerHTML = `<i>${formatBrandName(fragranceName)}</i>`;
+                    inspiredEl.style.fontSize = "13.5px";
+                    inspiredEl.style.color = "#111111";
+                    inspiredEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";
+                    inspiredEl.style.fontWeight = "700";
+                    inspiredEl.style.display = 'block';
                 } else {
-                    inspiredEl.innerHTML = escapedName;
+                    titleEl.textContent = rawName;
+                    titleEl.style.fontSize = "13.5px";
+                    titleEl.style.color = "#111111";
+                    titleEl.style.display = 'block';
+                    
+                    inspiredEl.innerHTML = "";
+                    inspiredEl.style.display = 'none';
                 }
+                
+                // Bind static URL safely
+                item.querySelector('.product-link').href = p.url;
+                
+                // Safe image properties assignment
+                const img = item.querySelector('.product-img');
+                const tSrc = getThumbnailImageUrl(p.image, p.image_thumb);
+                if (tSrc) {
+                    img.src = tSrc;
+                    img.style.display = 'block';
+                } else {
+                    img.style.display = 'none';
+                }
+                img.setAttribute('alt', rawName);
                 
                 // Dynamic reviews loader
                 const reviewsCountEl = item.querySelector('.product-reviews-count');
@@ -1403,6 +1450,13 @@ function updateCartCount(count){
                 console.error("products.json background load failed:", dbErr);
             }
         }, 0);
+
+        const searchInput = document.getElementById("catalogSearchInput");
+        if (searchInput) {
+            searchInput.addEventListener("input", () => {
+                renderGrid();
+            });
+        }
 
         window.addEventListener("minaraDiscountActivated", () => {
             renderGrid();

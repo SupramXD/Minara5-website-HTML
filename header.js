@@ -744,8 +744,9 @@ window.removeFromCart = function(index) {
                 html += `
                 <div class="cart-item-row removed-item-row" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eaeaea; padding:10px 15px; background:#fafafa; box-sizing:border-box; width:100%;">
                     <div style="display:flex; flex-direction:column; gap:2px;">
-                        <span style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1px; color:#000;">${item.name} ${(item.size ? ' (' + item.size + ')' : '')}</span>
-                        <span style="color:#ff3b30; font-size:9px; font-weight:500; letter-spacing:1px; text-transform:uppercase; opacity:0.8;">REMOVED FROM BAG</span>
+                        ${window.formatCartInspiredNameHTML ? window.formatCartInspiredNameHTML(item.name, item.id) : `<span style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1px; color:#000;">${item.name}</span>`}
+                        <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; opacity:0.5; letter-spacing:0.5px;">SIZE: ${(item.size || '100ml').toUpperCase()}</div>
+                        <span style="color:#ff3b30; font-size:9px; font-weight:500; letter-spacing:1px; text-transform:uppercase; opacity:0.8; margin-top:2px;">REMOVED FROM BAG</span>
                     </div>
                     <span onclick="window.undoRemove(${index})" style="color:#1106e8; font-size:11px; font-family:Helvetica, Arial, sans-serif; text-decoration:underline; cursor:pointer; font-weight:500; text-transform:uppercase; letter-spacing:1px;">UNDO</span>
                 </div>`;
@@ -761,10 +762,11 @@ window.removeFromCart = function(index) {
                     <img src="${window.getThumbnailImageUrl(item.image, item.image_thumb)}" style="width:64px; height:84px; object-fit:contain;">
                     <div style="flex:1;">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
-                            <div style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#000;">${item.nameShort || item.name}</div>
+                            <div style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#000; margin-bottom: 2px;">
+                                ${window.formatCartInspiredNameHTML ? window.formatCartInspiredNameHTML(item.name, item.id) : (item.nameShort || item.name)}
+                            </div>
                             <div style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:600; letter-spacing:0.5px; color:#000; margin-left:10px; flex-shrink:0;">${displayPrice}</div>
                         </div>
-                        ${item.nameShort && item.nameShort !== item.name ? `<div style="font-family:Helvetica, Arial, sans-serif; font-size:10px; opacity:0.6; margin-top:2px; letter-spacing:0.5px;">${item.name}</div>` : ''}
                         <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; opacity:0.5; margin-top:2px; letter-spacing:0.5px;">SIZE: ${(item.size || '100ml').toUpperCase()}</div>
                         
                         <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
@@ -1382,6 +1384,50 @@ function applyCustomText(data) {
 // DYNAMIC FRAGRANCE SEARCH DRAWER & LOGIC
 // ==========================================
 (function() {
+    window.formatInspiredNameHTML = function(name, id) {
+        if (!name) return "";
+        let clean = name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim();
+        const match = clean.match(/^inspired\s+by\s+(.+)/i);
+        
+        const formatBrandName = (brandName) => {
+            if (!brandName) return "";
+            return brandName.replace(/\w\S*/g, (txt) => {
+                const lower = txt.toLowerCase();
+                if (lower === 'jpg') return 'JPG';
+                if (lower === 'le') return 'Le';
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        };
+
+        if (match || (id && id.startsWith("inspired-by-"))) {
+            const fragranceName = match ? match[1] : clean;
+            return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 2px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 700; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block;">${formatBrandName(fragranceName)}</i>`;
+        }
+        return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block;">${clean}</span>`;
+    };
+
+    window.formatCartInspiredNameHTML = function(name, id) {
+        if (!name) return "";
+        let clean = name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim();
+        const match = clean.match(/^inspired\s+by\s+(.+)/i);
+        
+        const formatBrandName = (brandName) => {
+            if (!brandName) return "";
+            return brandName.replace(/\w\S*/g, (txt) => {
+                const lower = txt.toLowerCase();
+                if (lower === 'jpg') return 'JPG';
+                if (lower === 'le') return 'Le';
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        };
+
+        if (match || (id && id.startsWith("inspired-by-"))) {
+            const fragranceName = match ? match[1] : clean;
+            return `<span style="font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1px; display: block; margin-bottom: 2px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 700; font-size: 11px; display: block; text-transform: uppercase; color: #111111;">${formatBrandName(fragranceName)}</i>`;
+        }
+        return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11px; display: block; text-transform: uppercase; color: #111111;">${clean}</span>`;
+    };
+
     let siteProducts = [];
     let popularFragrancesList = [];
 
@@ -1405,7 +1451,20 @@ function applyCustomText(data) {
             console.warn("Could not fetch products.json for search:", err);
         });
 
-    function fetchPopularFragrances() {
+    let isFetchingPopularFragrances = false;
+    let fetchCallbacks = [];
+
+    function fetchPopularFragrances(callback) {
+        if (popularFragrancesList.length > 0) {
+            if (callback) callback(popularFragrancesList);
+            return;
+        }
+        if (callback) {
+            fetchCallbacks.push(callback);
+        }
+        if (isFetchingPopularFragrances) return;
+        isFetchingPopularFragrances = true;
+
         fetch("popular_fragrances.json?t=" + Date.now())
             .then(res => {
                 if (!res.ok) throw new Error("Status " + res.status);
@@ -1413,9 +1472,14 @@ function applyCustomText(data) {
             })
             .then(data => {
                 popularFragrancesList = data;
+                isFetchingPopularFragrances = false;
+                const callbacks = fetchCallbacks;
+                fetchCallbacks = [];
+                callbacks.forEach(cb => cb(data));
             })
             .catch(err => {
                 console.warn("Could not load popular_fragrances.json:", err);
+                isFetchingPopularFragrances = false;
             });
     }
 
@@ -1566,11 +1630,20 @@ function applyCustomText(data) {
             }
             @media (max-width: 900px) {
                 .search-grid {
-                    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-                    gap: 15px;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 12px;
+                    margin-top: 15px;
+                    margin-bottom: 15px;
                 }
                 #searchOverlay {
                     padding: 20px;
+                }
+                .search-grid-card-img {
+                    height: 100px;
+                    margin-bottom: 5px;
+                }
+                .search-grid-card {
+                    padding: 5px 0;
                 }
             }
             .search-grid-card {
@@ -1831,12 +1904,11 @@ function applyCustomText(data) {
             
             const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(p.image, p.image_thumb) : p.image;
             const formattedPrice = window.formatPrice ? window.formatPrice(p.price) : p.price;
-            
             card.innerHTML = `
                 <img src="${imgUrl}" class="search-grid-card-img" alt="${p.name}">
-                <div class="search-grid-card-info">
-                    <span class="search-grid-card-title">${p.nameShort || p.name}</span>
-                    <span class="search-grid-card-price">R${formattedPrice}</span>
+                <div class="search-grid-card-info" style="width: 100%;">
+                    ${window.formatInspiredNameHTML(p.name, p.id)}
+                    <span class="search-grid-card-price" style="display: block; margin-top: 4px;">R${formattedPrice}</span>
                 </div>
             `;
             grid.appendChild(card);
@@ -1844,7 +1916,7 @@ function applyCustomText(data) {
         
         resultsContainer.appendChild(grid);
     };
-
+ 
     function renderDefaultGrid() {
         const resultsContainer = document.getElementById("searchResults");
         const suggestionsPanel = document.getElementById("searchSuggestionsPanel");
@@ -1872,10 +1944,11 @@ function applyCustomText(data) {
             
             card.innerHTML = `
                 <img src="${imgUrl}" class="search-grid-card-img" alt="${p.name}">
-                <div class="search-grid-card-info">
-                    <span class="search-grid-card-title">${p.nameShort || p.name}</span>
-                    <span class="search-grid-card-price">R${formattedPrice}</span>
+                <div class="search-grid-card-info" style="width: 100%;">
+                    ${window.formatInspiredNameHTML(p.name, p.id)}
+                    <span class="search-grid-card-price" style="display: block; margin-top: 4px;">R${formattedPrice}</span>
                 </div>
+            `;       </div>
             `;
             grid.appendChild(card);
         });
@@ -1910,6 +1983,9 @@ function applyCustomText(data) {
                 input.focus();
             }
             renderDefaultGrid();
+            
+            // Defer loading until overlay is opened
+            fetchPopularFragrances();
         }
     };
 
@@ -2144,7 +2220,7 @@ function applyCustomText(data) {
         return null;
     }
 
-    function displayDirectProductCard(product, popFrag) {
+      function displayDirectProductCard(product, popFrag) {
         const resultsContainer = document.getElementById("searchResults");
         if (!resultsContainer) return;
         
@@ -2156,13 +2232,12 @@ function applyCustomText(data) {
         
         resultsContainer.innerHTML = `
             <div class="search-section-title">Direct Match in Store</div>
-            <div class="search-card">
+            <div class="search-card" style="cursor: pointer;" onclick="window.location.href='${detailUrl}'">
                 <img src="${imgUrl}" class="search-card-img" alt="${product.name}">
                 <div class="search-card-info">
-                    <a href="${detailUrl}" class="search-card-title">${product.nameShort || product.name}</a>
-                    <span class="search-card-desc">${product.name}</span>
-                    <span class="search-card-price">R${formattedPrice}</span>
-                    <a href="${detailUrl}" class="search-link-btn" style="margin-top: 10px; width: fit-content;">VIEW FRAGRANCE</a>
+                    <span class="search-card-title" style="display: block;">${window.formatInspiredNameHTML(product.name, product.id)}</span>
+                    <span class="search-card-price" style="display: block; margin-top: 5px;">R${formattedPrice}</span>
+                    <span class="search-link-btn" style="margin-top: 10px; width: fit-content; display: inline-block;">VIEW FRAGRANCE</span>
                 </div>
             </div>
         `;
@@ -2194,7 +2269,7 @@ function applyCustomText(data) {
             }
         }
     }
-
+ 
     function displayClosestMatch(popFrag, originalQuery, isFuzzy = false) {
         const resultsContainer = document.getElementById("searchResults");
         if (!resultsContainer) return;
@@ -2216,13 +2291,12 @@ function applyCustomText(data) {
                 ${matchLabel} WE DO NOT STOCK THIS SCENT YET. OUR CLOSEST MATCH:
             </div>
             
-            <div class="search-card">
+            <div class="search-card" style="cursor: pointer;" onclick="window.location.href='${detailUrl}'">
                 <img src="${imgUrl}" class="search-card-img" alt="${closestProduct.name}">
                 <div class="search-card-info">
-                    <a href="${detailUrl}" class="search-card-title">${closestProduct.nameShort || closestProduct.name}</a>
-                    <span class="search-card-desc">${closestProduct.name}</span>
-                    <span class="search-card-price">R${formattedPrice}</span>
-                    <a href="${detailUrl}" class="search-link-btn" style="margin-top: 10px; width: fit-content;">EXPLORE MATCH</a>
+                    <span class="search-card-title" style="display: block;">${window.formatInspiredNameHTML(closestProduct.name, closestProduct.id)}</span>
+                    <span class="search-card-price" style="display: block; margin-top: 5px;">R${formattedPrice}</span>
+                    <span class="search-link-btn" style="margin-top: 10px; width: fit-content; display: inline-block;">EXPLORE MATCH</span>
                 </div>
             </div>
             
@@ -2240,7 +2314,7 @@ function applyCustomText(data) {
                 </div>
             </div>
         `;
-
+ 
         const form = document.getElementById("unsupportedNotifyForm");
         if (form) {
             form.onsubmit = (e) => {
@@ -2248,7 +2322,7 @@ function applyCustomText(data) {
             };
         }
     }
-
+ 
     function displayFallback(originalQuery) {
         const resultsContainer = document.getElementById("searchResults");
         if (!resultsContainer) return;
@@ -2260,20 +2334,19 @@ function applyCustomText(data) {
         const detailUrl = bestSeller.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${bestSeller.id}`;
         const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(bestSeller.image, bestSeller.image_thumb) : bestSeller.image;
         const escapedQuery = window.escapeHTML ? window.escapeHTML(originalQuery) : originalQuery;
-
+ 
         resultsContainer.innerHTML = `
             <div class="search-section-title">NO MATCH FOUND</div>
             <div style="font-size: 11px; color: #000000; margin-bottom: 20px; line-height: 1.5; text-transform: uppercase; letter-spacing: 0.5px;">
                 WE COULD NOT FIND A MATCH FOR "<strong>${escapedQuery.toUpperCase()}</strong>". OUR BEST SELLER:
             </div>
             
-            <div class="search-card">
+            <div class="search-card" style="cursor: pointer;" onclick="window.location.href='${detailUrl}'">
                 <img src="${imgUrl}" class="search-card-img" alt="${bestSeller.name}">
                 <div class="search-card-info">
-                    <a href="${detailUrl}" class="search-card-title">${bestSeller.nameShort || bestSeller.name}</a>
-                    <span class="search-card-desc">${bestSeller.name}</span>
-                    <span class="search-card-price">R${formattedPrice}</span>
-                    <a href="${detailUrl}" class="search-link-btn" style="margin-top: 10px; width: fit-content;">EXPLORE BEST SELLER</a>
+                    <span class="search-card-title" style="display: block;">${window.formatInspiredNameHTML(bestSeller.name, bestSeller.id)}</span>
+                    <span class="search-card-price" style="display: block; margin-top: 5px;">R${formattedPrice}</span>
+                    <span class="search-link-btn" style="margin-top: 10px; width: fit-content; display: inline-block;">EXPLORE BEST SELLER</span>
                 </div>
             </div>
             
@@ -2291,7 +2364,7 @@ function applyCustomText(data) {
                 </div>
             </div>
         `;
-
+ 
         const form = document.getElementById("unsupportedNotifyForm");
         if (form) {
             form.onsubmit = (e) => {
@@ -2299,7 +2372,7 @@ function applyCustomText(data) {
             };
         }
     }
-
+ 
     function runSearch(queryText) {
         const resultsContainer = document.getElementById("searchResults");
         const suggestionsPanel = document.getElementById("searchSuggestionsPanel");
@@ -2315,18 +2388,43 @@ function applyCustomText(data) {
         if (suggestionsPanel) suggestionsPanel.style.display = "none";
         if (gridTitle) gridTitle.style.display = "none";
         resultsContainer.innerHTML = "";
+
+        if (popularFragrancesList.length === 0) {
+            resultsContainer.innerHTML = `<div style="font-size: 11px; color: #777777; text-transform: uppercase; letter-spacing: 1px; padding: 20px 0;">SEARCHING...</div>`;
+            fetchPopularFragrances(() => {
+                const currentInput = document.getElementById("searchInput");
+                if (currentInput && normalizeString(currentInput.value) === cleanQuery) {
+                    runSearch(currentInput.value);
+                }
+            });
+            return;
+        }
         
         // Check if query normalized matches direct stocked targets
         let directProduct = findDirectStockedProductByQuery(queryText);
         let bestPopMatch = null;
         let isFuzzy = false;
         
-        // Exact match in popular_fragrances.json database
+        // Exact/Combined match in popular_fragrances.json database
         const exactPopMatches = popularFragrancesList.filter(f => {
-            return f.aliases.some(alias => {
+            const normBrand = normalizeString(f.brand);
+            const normName = normalizeString(f.name);
+            const combined = `${normBrand} ${normName}`;
+            
+            // 1. Check abbreviation aliases
+            const aliasMatch = f.aliases && f.aliases.some(alias => {
                 const nAlias = normalizeString(alias);
                 return nAlias === cleanQuery || nAlias.includes(cleanQuery) || cleanQuery.includes(nAlias);
-            }) || normalizeString(f.name).includes(cleanQuery) || normalizeString(f.brand).includes(cleanQuery);
+            });
+            if (aliasMatch) return true;
+            
+            // 2. Check exact combined or substring matches
+            if (combined.includes(cleanQuery) || cleanQuery.includes(combined)) return true;
+            
+            // 3. Check out-of-order words (e.g. "sauvage dior")
+            if (cleanQuery.includes(normBrand) && cleanQuery.includes(normName)) return true;
+            
+            return false;
         });
         
         if (exactPopMatches.length > 0) {
@@ -2336,7 +2434,7 @@ function applyCustomText(data) {
             let bestDistance = Infinity;
             
             popularFragrancesList.forEach(f => {
-                f.aliases.forEach(alias => {
+                f.aliases && f.aliases.forEach(alias => {
                     const nAlias = normalizeString(alias);
                     const dist = getLevenshteinDistance(cleanQuery, nAlias);
                     if (dist < bestDistance) {
@@ -2347,6 +2445,11 @@ function applyCustomText(data) {
                 const nameDist = getLevenshteinDistance(cleanQuery, normalizeString(f.name));
                 if (nameDist < bestDistance) {
                     bestDistance = nameDist;
+                    bestPopMatch = f;
+                }
+                const combinedDist = getLevenshteinDistance(cleanQuery, `${normalizeString(f.brand)} ${normalizeString(f.name)}`);
+                if (combinedDist < bestDistance) {
+                    bestDistance = combinedDist;
                     bestPopMatch = f;
                 }
             });

@@ -1448,15 +1448,10 @@ window.openCart = function() {
                 }
             }
 
-            // Short Fragrance Name
+            // Short Fragrance Name (Always hidden to remove original custom names)
             const nameShortEl = document.querySelector('.product-name-short');
             if (nameShortEl) {
-                if (p.nameShort) {
-                    nameShortEl.textContent = p.nameShort;
-                    nameShortEl.style.display = 'block';
-                } else {
-                    nameShortEl.style.display = 'none';
-                }
+                nameShortEl.style.display = 'none';
             }
 
             // Tab title
@@ -1467,9 +1462,21 @@ window.openCart = function() {
             if (titleEl) {
                 let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
                 let escapedName = window.escapeHTML ? window.escapeHTML(rawName) : rawName;
+                
+                const formatBrandName = (brandName) => {
+                    if (!brandName) return "";
+                    return brandName.replace(/\w\S*/g, (txt) => {
+                        const lower = txt.toLowerCase();
+                        if (lower === 'jpg') return 'JPG';
+                        if (lower === 'le') return 'Le';
+                        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+                    });
+                };
+
                 const match = escapedName.match(/Inspired\s+by\s+(.+)/i);
-                if (match) {
-                    titleEl.innerHTML = `Inspired By<br><i>${match[1]}</i>`;
+                if (match || (p.id && p.id.startsWith("inspired-by-"))) {
+                    const fragranceName = match ? match[1] : escapedName;
+                    titleEl.innerHTML = `Inspired By<br><i>${formatBrandName(fragranceName)}</i>`;
                 } else {
                     titleEl.innerHTML = escapedName;
                 }
