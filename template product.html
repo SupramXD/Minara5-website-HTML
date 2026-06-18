@@ -1448,10 +1448,15 @@ window.openCart = function() {
                 }
             }
 
-            // Short Fragrance Name (Always hidden to remove original custom names)
+            // Short Fragrance Name (Display if available)
             const nameShortEl = document.querySelector('.product-name-short');
             if (nameShortEl) {
-                nameShortEl.style.display = 'none';
+                if (p.nameShort) {
+                    nameShortEl.textContent = p.nameShort;
+                    nameShortEl.style.display = 'block';
+                } else {
+                    nameShortEl.style.display = 'none';
+                }
             }
 
             // Tab title
@@ -1476,7 +1481,7 @@ window.openCart = function() {
                 const match = escapedName.match(/Inspired\s+by\s+(.+)/i);
                 if (match || (p.id && p.id.startsWith("inspired-by-"))) {
                     const fragranceName = match ? match[1] : escapedName;
-                    titleEl.innerHTML = `Inspired By<br><i style="font-family: 'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">${formatBrandName(fragranceName)}</i>`;
+                    titleEl.innerHTML = `Inspired By <i style="font-family: 'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">${formatBrandName(fragranceName)}</i>`;
                 } else {
                     titleEl.innerHTML = escapedName;
                 }

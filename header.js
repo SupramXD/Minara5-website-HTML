@@ -744,7 +744,7 @@ window.removeFromCart = function(index) {
                 html += `
                 <div class="cart-item-row removed-item-row" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eaeaea; padding:10px 15px; background:#fafafa; box-sizing:border-box; width:100%;">
                     <div style="display:flex; flex-direction:column; gap:2px;">
-                        ${window.formatCartInspiredNameHTML ? window.formatCartInspiredNameHTML(item.name, item.id) : `<span style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1px; color:#000;">${item.name}</span>`}
+                        ${window.formatCartInspiredNameHTML ? window.formatCartInspiredNameHTML(item.name, item.id, item.nameShort) : `<span style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1px; color:#000;">${item.name}</span>`}
                         <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; opacity:0.5; letter-spacing:0.5px;">SIZE: ${(item.size || '100ml').toUpperCase()}</div>
                         <span style="color:#ff3b30; font-size:9px; font-weight:500; letter-spacing:1px; text-transform:uppercase; opacity:0.8; margin-top:2px;">REMOVED FROM BAG</span>
                     </div>
@@ -762,8 +762,8 @@ window.removeFromCart = function(index) {
                     <img src="${window.getThumbnailImageUrl(item.image, item.image_thumb)}" style="width:64px; height:84px; object-fit:contain;">
                     <div style="flex:1;">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
-                            <div style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#000; margin-bottom: 2px;">
-                                ${window.formatCartInspiredNameHTML ? window.formatCartInspiredNameHTML(item.name, item.id) : (item.nameShort || item.name)}
+                            <div style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#000; margin-bottom: 2px; line-height: 1.4;">
+                                ${window.formatCartInspiredNameHTML ? window.formatCartInspiredNameHTML(item.name, item.id, item.nameShort) : (item.nameShort || item.name)}
                             </div>
                             <div style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:600; letter-spacing:0.5px; color:#000; margin-left:10px; flex-shrink:0;">${displayPrice}</div>
                         </div>
@@ -1392,7 +1392,7 @@ function applyCustomText(data) {
 // DYNAMIC FRAGRANCE SEARCH DRAWER & LOGIC
 // ==========================================
 (function() {
-    window.formatInspiredNameHTML = function(name, id) {
+    window.formatInspiredNameHTML = function(name, id, nameShort) {
         if (!name) return "";
         let clean = name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim();
         const match = clean.match(/^inspired\s+by\s+(.+)/i);
@@ -1409,12 +1409,12 @@ function applyCustomText(data) {
 
         if (match || (id && id.startsWith("inspired-by-"))) {
             const fragranceName = match ? match[1] : clean;
-            return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 2px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block; letter-spacing: 0.5px;">${formatBrandName(fragranceName)}</i>`;
+            return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block; margin-bottom: 2px;">${nameShort || clean}</span><span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase; display: block;">INSPIRED BY <i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11.5px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: inline-block;">${formatBrandName(fragranceName)}</i></span>`;
         }
-        return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block;">${clean}</span>`;
+        return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block;">${nameShort || clean}</span>`;
     };
 
-    window.formatCartInspiredNameHTML = function(name, id) {
+    window.formatCartInspiredNameHTML = function(name, id, nameShort) {
         if (!name) return "";
         let clean = name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim();
         const match = clean.match(/^inspired\s+by\s+(.+)/i);
@@ -1431,9 +1431,9 @@ function applyCustomText(data) {
 
         if (match || (id && id.startsWith("inspired-by-"))) {
             const fragranceName = match ? match[1] : clean;
-            return `<span style="font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1px; display: block; margin-bottom: 2px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11px; display: block; text-transform: uppercase; color: #111111; letter-spacing: 0.5px;">${formatBrandName(fragranceName)}</i>`;
+            return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11px; display: block; text-transform: uppercase; color: #111111; margin-bottom: 2px;">${nameShort || clean}</span><span style="font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1px; display: block;">INSPIRED BY <i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: inline-block;">${formatBrandName(fragranceName)}</i></span>`;
         }
-        return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11px; display: block; text-transform: uppercase; color: #111111;">${clean}</span>`;
+        return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11px; display: block; text-transform: uppercase; color: #111111;">${nameShort || clean}</span>`;
     };
 
     let siteProducts = [];
@@ -1933,7 +1933,7 @@ function applyCustomText(data) {
             card.innerHTML = `
                 <img src="${imgUrl}" class="search-grid-card-img" alt="${p.name}">
                 <div class="search-grid-card-info" style="width: 100%;">
-                    ${window.formatInspiredNameHTML(p.name, p.id)}
+                    ${window.formatInspiredNameHTML(p.name, p.id, p.nameShort)}
                     <span class="search-grid-card-price" style="display: block; margin-top: 4px;">R${formattedPrice}</span>
                 </div>
             `;
@@ -1971,7 +1971,7 @@ function applyCustomText(data) {
             card.innerHTML = `
                 <img src="${imgUrl}" class="search-grid-card-img" alt="${p.name}">
                 <div class="search-grid-card-info" style="width: 100%;">
-                    ${window.formatInspiredNameHTML(p.name, p.id)}
+                    ${window.formatInspiredNameHTML(p.name, p.id, p.nameShort)}
                     <span class="search-grid-card-price" style="display: block; margin-top: 4px;">R${formattedPrice}</span>
                 </div>
             `;
@@ -2352,7 +2352,7 @@ function applyCustomText(data) {
             <div class="search-card" style="cursor: pointer;" onclick="window.location.href='${detailUrl}'">
                 <img src="${imgUrl}" class="search-card-img" alt="${product.name}">
                 <div class="search-card-info">
-                    <span class="search-card-title" style="display: block;">${window.formatInspiredNameHTML(product.name, product.id)}</span>
+                    <span class="search-card-title" style="display: block;">${window.formatInspiredNameHTML(product.name, product.id, product.nameShort)}</span>
                     <span class="search-card-price" style="display: block; margin-top: 5px;">R${formattedPrice}</span>
                     <span class="search-link-btn" style="margin-top: 10px; width: fit-content; display: inline-block;">VIEW FRAGRANCE</span>
                 </div>
@@ -2411,7 +2411,7 @@ function applyCustomText(data) {
             <div class="search-card" style="cursor: pointer;" onclick="window.location.href='${detailUrl}'">
                 <img src="${imgUrl}" class="search-card-img" alt="${closestProduct.name}">
                 <div class="search-card-info">
-                    <span class="search-card-title" style="display: block;">${window.formatInspiredNameHTML(closestProduct.name, closestProduct.id)}</span>
+                    <span class="search-card-title" style="display: block;">${window.formatInspiredNameHTML(closestProduct.name, closestProduct.id, closestProduct.nameShort)}</span>
                     <span class="search-card-price" style="display: block; margin-top: 5px;">R${formattedPrice}</span>
                     <span class="search-link-btn" style="margin-top: 10px; width: fit-content; display: inline-block;">EXPLORE MATCH</span>
                 </div>
@@ -2461,7 +2461,7 @@ function applyCustomText(data) {
             <div class="search-card" style="cursor: pointer;" onclick="window.location.href='${detailUrl}'">
                 <img src="${imgUrl}" class="search-card-img" alt="${bestSeller.name}">
                 <div class="search-card-info">
-                    <span class="search-card-title" style="display: block;">${window.formatInspiredNameHTML(bestSeller.name, bestSeller.id)}</span>
+                    <span class="search-card-title" style="display: block;">${window.formatInspiredNameHTML(bestSeller.name, bestSeller.id, bestSeller.nameShort)}</span>
                     <span class="search-card-price" style="display: block; margin-top: 5px;">R${formattedPrice}</span>
                     <span class="search-link-btn" style="margin-top: 10px; width: fit-content; display: inline-block;">EXPLORE BEST SELLER</span>
                 </div>

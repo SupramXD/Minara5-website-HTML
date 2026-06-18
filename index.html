@@ -2520,23 +2520,24 @@
             if (inspiredMatch || p.id.startsWith("inspired-by-")) {
               const fragranceName = inspiredMatch ? inspiredMatch[1] : rawName;
               
-              titleEl.textContent = "INSPIRED BY";
-              titleEl.style.fontSize = "8px";
-              titleEl.style.color = "#777777";
-              titleEl.style.letterSpacing = "1.2px";
-              titleEl.style.textTransform = "uppercase";
-              titleEl.style.fontWeight = "bold";
+              titleEl.textContent = p.nameShort || rawName;
+              titleEl.style.fontSize = "13.5px";
+              titleEl.style.color = "#111111";
+              titleEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";
+              titleEl.style.fontWeight = "700";
               titleEl.style.display = 'block';
-              titleEl.style.marginBottom = "2px";
+              titleEl.style.textTransform = "uppercase";
+              titleEl.style.letterSpacing = "0.04em";
+              titleEl.style.marginBottom = "4px";
               
-              inspiredEl.innerHTML = `<i>${formatBrandName(fragranceName)}</i>`;
-              inspiredEl.style.fontSize = "13.5px";
-              inspiredEl.style.color = "#111111";
-              inspiredEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";
-              inspiredEl.style.fontStyle = "italic";
-              inspiredEl.style.fontWeight = "500";
-              inspiredEl.style.textTransform = "uppercase";
-              inspiredEl.style.letterSpacing = "0.5px";
+              inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase;">INSPIRED BY</span> <i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: inline-block;">${formatBrandName(fragranceName)}</i>`;
+              inspiredEl.style.fontFamily = "";
+              inspiredEl.style.fontStyle = "";
+              inspiredEl.style.fontWeight = "";
+              inspiredEl.style.textTransform = "";
+              inspiredEl.style.letterSpacing = "";
+              inspiredEl.style.color = "";
+              inspiredEl.style.fontSize = "";
               inspiredEl.style.display = 'block';
             } else {
               titleEl.textContent = rawName;
@@ -2545,6 +2546,9 @@
               titleEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";
               titleEl.style.fontWeight = "700";
               titleEl.style.display = 'block';
+              titleEl.style.textTransform = "uppercase";
+              titleEl.style.letterSpacing = "0.04em";
+              titleEl.style.marginBottom = "4px";
               
               inspiredEl.innerHTML = "";
               inspiredEl.style.display = 'none';
@@ -2646,37 +2650,8 @@
 
           // Safe stock status / urgency mapping with dot indicator
           const stockStatusEl = card.querySelector('.hp-stock-status');
-          if (stockStatusEl && p.stock !== undefined) {
-            stockStatusEl.innerHTML = "";
-            
-            const dot = document.createElement('span');
-            dot.className = "status-dot";
-            dot.style.display = 'inline-block';
-            dot.style.width = '6px';
-            dot.style.height = '6px';
-            dot.style.borderRadius = '50%';
-            
-            const text = document.createElement('span');
-            text.style.fontSize = '8px';
-            text.style.fontWeight = 'bold';
-            text.style.letterSpacing = '0.5px';
-            
-            if (p.stock <= 0) {
-              dot.style.backgroundColor = '#ff3b30';
-              text.textContent = 'SOLD OUT';
-              text.style.color = '#000';
-            } else if (p.stock <= 4) {
-              dot.style.backgroundColor = '#b82d2d';
-              text.textContent = `ONLY ${p.stock} BOTTLES LEFT`;
-              text.style.color = '#000';
-            } else {
-              dot.style.backgroundColor = '#2e7d32';
-              text.textContent = 'IN STOCK';
-              text.style.color = '#000';
-            }
-            stockStatusEl.appendChild(dot);
-            stockStatusEl.appendChild(text);
-            stockStatusEl.style.display = 'flex';
+          if (stockStatusEl) {
+            stockStatusEl.style.display = 'none';
           }
 
           grid.appendChild(card);
