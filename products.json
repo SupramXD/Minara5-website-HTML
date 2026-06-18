@@ -1,17 +1,17 @@
 [
   {
     "id": "inspired-by-jpg-le-male",
-    "nameShort": "Inspiration de JPG LE MALE",
+    "nameShort": "Vanilla 31",
     "name": "JPG LE MALE",
     "price": 380,
     "retailPrice": 2100,
-    "stock": 6,
+    "stock": 10,
     "image": "images/products/inspired-by-jpg-le-male.webp",
     "image_thumb": "images/products/inspired-by-jpg-le-male_thumb.webp",
     "description": "JPG LE male\nInspired",
     "status": "Active",
     "flair": "",
-    "invisibleFlair": "men",
+    "invisibleFlair": "",
     "sizes": [
       "50ml"
     ]
