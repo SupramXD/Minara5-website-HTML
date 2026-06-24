@@ -877,23 +877,10 @@
               <input type="date" id="c_delivery_date" class="date-picker-input" style="display: none;" onchange="updateDeliveryDate(this)">
             </div>
 
-            <!-- Address type selector tabs -->
-            <div class="address-type-selector">
-              <div class="address-type-tab active" onclick="selectAddressType(this)">Residential</div>
-              <div class="address-type-tab" onclick="selectAddressType(this)">Business</div>
-              <div class="address-type-tab" onclick="selectAddressType(this)">Locker</div>
-              <div class="address-type-tab" onclick="selectAddressType(this)">Kiosk</div>
-              <div class="address-type-tab" onclick="selectAddressType(this)">Point</div>
-              <div class="address-type-tab" onclick="selectAddressType(this)">International</div>
-            </div>
-            
             <!-- Address field -->
             <div class="form-group">
               <label for="c_address_lookup">Address</label>
-              <div style="position: relative; display: flex; align-items: center;">
-                <span style="position: absolute; left: 14px; color: #888; font-size: 12px; pointer-events: none;">🔍</span>
-                <input type="text" id="c_address_lookup" class="form-input" placeholder="Enter a location" style="padding-left: 36px;">
-              </div>
+              <input type="text" id="c_address_lookup" class="form-input" placeholder="Enter a location">
             </div>
 
             <!-- Building / Floor / Unit field -->
@@ -935,8 +922,11 @@
               </div>
             </div>
 
-            <!-- Hidden postal code input field -->
-            <input type="hidden" id="c_postal" value="0000">
+            <!-- Postal Code field -->
+            <div class="form-group" style="width: 50%;">
+              <label for="c_postal">Postal Code</label>
+              <input type="text" id="c_postal" class="form-input" required pattern="[0-9]{4}" title="Please provide a valid 4-digit South African postal code.">
+            </div>
 
             <!-- Delivery instructions field -->
             <div class="form-group">
@@ -980,17 +970,7 @@
               </div>
             </div>
 
-            <!-- Alternative Contact Number field -->
-            <div class="form-group">
-              <label for="c_phone_alt">Alternative contact number</label>
-              <div style="display: flex; gap: 8px;">
-                <div style="display: flex; align-items: center; border: 1px solid #cfcfcf; padding: 12px; border-radius: 2px; background: #f7f7f7; font-size: 13px; color: #555; font-weight: bold; gap: 4px;">
-                  <span>🇿🇦</span>
-                  <span>+27</span>
-                </div>
-                <input type="tel" id="c_phone_alt" class="form-input" placeholder="e.g. 82 123 4567" style="flex: 1;">
-              </div>
-            </div>
+
 
             <button type="submit" class="submit-order-btn" id="payBtn">Continue to PayFast</button>
           </form>
@@ -1116,8 +1096,7 @@
     const phoneSuffix = document.getElementById("c_phone").value.trim();
     const phone = '+27' + phoneSuffix.replace(/^0+/, ''); // strip leading zero if present and prepend prefix
     
-    const phoneAltSuffix = document.getElementById("c_phone_alt") ? document.getElementById("c_phone_alt").value.trim() : "";
-    const phoneAlt = phoneAltSuffix ? ('+27' + phoneAltSuffix.replace(/^0+/, '')) : '';
+    const phoneAlt = '';
 
     // Split name and surname
     const nameParts = fullName.split(/\s+/);
@@ -1125,15 +1104,13 @@
     const lastName = nameParts.slice(1).join(" ") || "Order";
     
     // Address values
-    const addressLookup = document.getElementById("c_address_lookup").value.trim();
-    const building = document.getElementById("c_building").value.trim();
+    const building = document.getElementById("c_building") ? document.getElementById("c_building").value.trim() : "";
     const street = document.getElementById("c_street").value.trim();
     const suburb = document.getElementById("c_suburb").value.trim();
     const city = document.getElementById("c_city").value.trim();
     const province = document.getElementById("c_province").value;
     const postalCode = document.getElementById("c_postal") ? document.getElementById("c_postal").value.trim() : "0000";
     const instructions = document.getElementById("c_instructions").value.trim();
-    const addressType = document.querySelector(".address-type-tab.active") ? document.querySelector(".address-type-tab.active").textContent.trim() : "Residential";
     const deliveryDate = document.getElementById("displayDeliveryDate") ? document.getElementById("displayDeliveryDate").textContent.trim() : "";
 
     // Calculate dynamic pricing totals
@@ -1156,12 +1133,9 @@
     if (building) {
       compiledAddress += `${building}, `;
     }
-    compiledAddress += `${street}, ${suburb}, ${city}, ${province}, ${postalCode} (${addressType})`;
+    compiledAddress += `${street}, ${suburb}, ${city}, ${province}, ${postalCode}`;
 
     let itemDescription = `Addr: ${compiledAddress}. Delivery Date: ${deliveryDate}. Instructions: ${instructions || 'None'}`;
-    if (phoneAlt) {
-      itemDescription += `. Alt Phone: ${phoneAlt}`;
-    }
     if (emailAlt) {
       itemDescription += `. Alt Email: ${emailAlt}`;
     }
