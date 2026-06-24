@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Minara – Order Successful</title>
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="preload" href="Gotham Narrow Bold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="minara 5 transparent 2.svg" as="image" type="image/svg+xml">
+  
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
+  <link rel="modulepreload" href="header.js">
+
+  <script>
+    // CLEAR CART IMMEDIATELY SO HEADER.JS INITIALIZES WITH EMPTY CART
+    localStorage.setItem('minara_cart', JSON.stringify([]));
+  </script>
+
+  <style>
+    /* --- GLOBAL FONT DECLARATION --- */
+    @font-face {
+      font-family: 'Gotham Narrow Bold';
+      src: url('Gotham Narrow Bold.woff2') format('woff2'),
+           url('Gotham Narrow Bold.woff') format('woff'),
+           url('Gotham Narrow Bold.otf') format('opentype');
+      font-weight: 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* RESET */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      background: #fff;
+      overflow-x: hidden;
+      color: #000;
+      line-height: 1.4;
+    }
+
+    /* HEADER */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 45px;
+      background: rgba(255, 255, 255, 0.75);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 4px 30px;
+      z-index: 1200;
+      border-bottom: 1px solid #eee;
+    }
+
+    /* Left nav */
+    .left-nav {
+      display: flex;
+      align-items: center;
+    }
+    .left-nav a {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #000;
+      margin-top: 4px;
+      text-decoration: none;
+      transition: opacity .25s;
+    }
+    .left-nav a:hover { opacity: 0.6; }
+
+    /* Center logo */
+    .center-logo-link {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-24.17%, -50%);
+    }
+    .center-logo {
+      height: 36px;
+      opacity: 0.92;
+      pointer-events: none;
+    }
+
+    /* Right nav */
+    nav {
+      margin-left: auto;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      margin-top: 2px;
+    }
+    nav ul li { margin-left: 25px; }
+    nav ul li a {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #000;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: opacity .25s;
+    }
+    nav ul li a:hover { opacity: 0.6; }
+
+    .desktop-icon { height: 12px; }
+
+    /* MOBILE MENU */
+    .menu-icon {
+      display: none;
+      cursor: pointer;
+    }
+    .menu-icon img {
+      height: 14px;
+    }
+
+    .slideout {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100vh;
+      background: #fff;
+      z-index: 2000;
+      transition: left .35s ease;
+      padding: 50px 40px 40px;
+    }
+    .slideout.open { left: 0; }
+
+    .close-btn {
+      position: absolute;
+      top: 18px;
+      right: 24px;
+      font-size: 30px;
+      cursor: pointer;
+    }
+
+    .slideout a {
+      display: block;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.28em;
+      text-decoration: none;
+      color: #000;
+      margin: 26px 0;
+    }
+
+    /* SUCCESS CONTAINER */
+    .success-wrap {
+      max-width: 650px;
+      margin: 120px auto 80px;
+      padding: 0 24px;
+      text-align: center;
+    }
+
+    .success-icon {
+      font-size: 48px;
+      color: #34c759;
+      margin-bottom: 24px;
+      display: inline-block;
+      animation: popCheck 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .success-title {
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 12px;
+      color: #1a1a1a;
+    }
+
+    .success-desc {
+      font-size: 14px;
+      color: #555;
+      letter-spacing: 0.5px;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    /* INVOICE RECEIPT */
+    .receipt-card {
+      border: 1px solid #eaeaea;
+      border-radius: 4px;
+      background: #fafafa;
+      padding: 30px;
+      text-align: left;
+      margin-bottom: 40px;
+    }
+
+    .receipt-header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid #eaeaea;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: bold;
+    }
+
+    .receipt-ref {
+      font-family: monospace;
+      font-size: 12px;
+      color: #1106e8;
+    }
+
+    .receipt-section-title {
+      font-size: 10px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #666;
+      margin-bottom: 8px;
+      border-bottom: 1px dashed #eaeaea;
+      padding-bottom: 4px;
+    }
+
+    .receipt-details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 35px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .receipt-label {
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 9px;
+      color: #888;
+      letter-spacing: 0.5px;
+    }
+
+    .receipt-items-list {
+      margin-bottom: 30px;
+    }
+
+    .receipt-item-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px dashed #eee;
+      font-size: 12px;
+    }
+
+    .receipt-item-row:last-child {
+      border-bottom: none;
+    }
+
+    .receipt-total-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 13px;
+      font-weight: bold;
+      border-top: 1px solid #eaeaea;
+      padding-top: 15px;
+      margin-top: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .action-btn {
+      display: inline-block;
+      border: 1px solid #000;
+      background: #000;
+      color: #fff;
+      padding: 14px 35px;
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      text-decoration: none;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    .action-btn:hover {
+      background: transparent;
+      color: #000;
+    }
+
+    @keyframes popCheck {
+      0% { transform: scale(0.4); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      nav { display: none; }
+      
+      header {
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 16px;
+      }
+
+      .menu-icon { display: block; }
+      
+      .left-nav { display: none; }
+
+      .center-logo-link {
+        position: absolute !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-24.17%, -50%) !important;
+        margin: 0 !important;
+      }
+      .center-logo { height: 26px; }
+
+      .success-wrap {
+        margin-top: 90px;
+        padding: 0 16px;
+      }
+
+      .receipt-card {
+        padding: 20px;
+      }
+
+      .receipt-details-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .success-title {
+        font-size: 18px;
+      }
+    }
+    
+    footer {
+      background: #000;
+      color: #fff;
+      padding: 30px;
+      text-align: center;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-top: 1px solid #eaeaea;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="menu-icon" onclick="openMenu()">
+      <img src="menu.svg">
+  </div>
+
+  <!-- LEFT nav -->
+  <div class="left-nav">
+      <a href="catalog.html">Shop All Fragrances</a>
+      <a href="catalog.html?gender=men" style="margin-left:22px;">Men's</a>
+      <a href="catalog.html?gender=women" style="margin-left:22px;">Women's</a>
+  </div>
+
+  <!-- CENTER LOGO -->
+  <a href="index.html" class="center-logo-link">
+      <img src="minara 5 transparent 2.svg" class="center-logo">
+  </a>
+
+  <!-- RIGHT ICONS -->
+  <nav>
+    <ul>
+      <li><a href="social media.html">SOCIALS</a></li>
+      <li class="header-account">
+        <div class="account-trigger" onclick="accountClicked(event)">
+            <img src="head shoulder.svg" class="desktop-icon">
+            <span id="accountLabel" class="account-label">ACCOUNT</span>
+        </div>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<div id="accountDropdown" class="acc-dropdown">
+    <div class="acc-head">
+        <span id="accName">ACCOUNT</span>
+        <span class="acc-close" onclick="closeAccDropdown()">X CLOSE</span>
+    </div>
+    <a href="accountorder.html" class="acc-item">MY ORDERS</a>
+    <a href="#" onclick="logout()" class="acc-item">LOG OUT</a>
+</div>
+
+<!-- SLIDEOUT MENU -->
+<div class="slideout" id="menuPanel">
+  <div class="close-btn" onclick="closeMenu()">×</div>
+  <a href="index.html">Home</a>
+  <a href="catalog.html">Shop all Fragrances</a>
+  <a href="catalog.html?gender=men">Men's Fragrances</a>
+  <a href="catalog.html?gender=women">Women's Fragrances</a>
+  <a href="social media.html">Socials</a>
+  <a href="contact.html">Contact</a>
+  <div class="mobile-account-block">
+    <div id="mobileMyAccount" class="mobile-account-link">LOGIN</div>
+    <div id="mobileAccountDropdown" class="mobile-account-dropdown"></div>
+    <div id="mobileLogout" class="mobile-account-link logout" style="display:none;">LOG OUT</div>
+  </div>
+</div>
+
+<div class="success-wrap">
+  <span class="success-icon">✓</span>
+  <h1 class="success-title">Order Confirmed</h1>
+  <p class="success-desc">
+    Thank you for your order! Your payment was processed successfully. A dispatch confirmation email will be sent once your items are on the way.
+  </p>
+
+  <!-- Dynamic Receipt Card -->
+  <div id="receiptContent">
+    <!-- Receipt will load here dynamically -->
+  </div>
+
+  <a href="catalog.html" class="action-btn">Continue Shopping</a>
+</div>
+
+<footer>© 2026 THEPERFUMEHOUSE</footer>
+
+<script>
+  function openMenu() { document.getElementById("menuPanel").classList.add("open"); }
+  function closeMenu() { document.getElementById("menuPanel").classList.remove("open"); }
+
+  // Load and render receipt
+  document.addEventListener('DOMContentLoaded', () => {
+    // Clear cart a second time to ensure timing didn't interfere
+    localStorage.setItem('minara_cart', JSON.stringify([]));
+
+    const receiptContent = document.getElementById("receiptContent");
+    if (!receiptContent) return;
+
+    let orderData = null;
+    try {
+      orderData = JSON.parse(localStorage.getItem('minara_last_order'));
+    } catch(e) {
+      console.error("Failed to parse order receipt details:", e);
+    }
+
+    if (!orderData) {
+      receiptContent.innerHTML = `
+        <div class="receipt-card" style="text-align: center; opacity: 0.6; padding: 20px;">
+          Receipt details are unavailable.
+        </div>
+      `;
+      return;
+    }
+
+    // Build items rows HTML
+    let itemsRows = '';
+    orderData.items.forEach(item => {
+      itemsRows += `
+        <div class="receipt-item-row">
+          <span>${item.name} (${item.size || '100ml'}) <span style="opacity: 0.6; margin-left: 5px;">x${item.quantity}</span></span>
+          <span style="font-weight: 500;">R${item.price * item.quantity}</span>
+        </div>
+      `;
+    });
+
+    // Build final HTML
+    receiptContent.innerHTML = `
+      <div class="receipt-card">
+        <div class="receipt-header">
+          <span>Receipt</span>
+          <span class="receipt-ref">${orderData.paymentId}</span>
+        </div>
+
+        <div class="receipt-section-title">Shipping Address</div>
+        <div class="receipt-details-grid">
+          <div>
+            <div class="receipt-label">Recipient</div>
+            <div>${orderData.firstName} ${orderData.lastName}</div>
+            <div style="margin-top: 8px;" class="receipt-label">Contact</div>
+            <div>${orderData.phone}</div>
+            <div>${orderData.email}</div>
+          </div>
+          <div>
+            <div class="receipt-label">Delivery Address</div>
+            <div style="white-space: pre-wrap;">${orderData.address}</div>
+          </div>
+        </div>
+
+        <div class="receipt-section-title">Purchased Items</div>
+        <div class="receipt-items-list">
+          ${itemsRows}
+        </div>
+
+        <div class="receipt-total-row">
+          <span>Total Paid</span>
+          <span>R${orderData.total}</span>
+        </div>
+      </div>
+    `;
+
+    // Try to trigger database order insertion if db and auth are globally available (Cloud integrations)
+    setTimeout(async () => {
+      if (window.db && window.dbDoc && window.dbSetDoc) {
+        try {
+          const orderRef = window.dbDoc(window.db, "orders", orderData.paymentId);
+          await window.dbSetDoc(orderRef, {
+            orderId: orderData.paymentId,
+            customerName: `${orderData.firstName} ${orderData.lastName}`,
+            email: orderData.email,
+            phone: orderData.phone,
+            address: orderData.address,
+            items: orderData.items,
+            total: orderData.total,
+            status: "Pending Shipment",
+            timestamp: new Date().toISOString()
+          });
+          console.log("Order saved to Firestore successfully.");
+        } catch(e) {
+          console.warn("Unable to save order to Firestore: ", e);
+        }
+      }
+    }, 2000);
+  });
+</script>
+
+<script type="module" src="header.js"></script>
+
+</body>
+</html>
