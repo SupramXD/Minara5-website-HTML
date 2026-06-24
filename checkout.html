@@ -197,6 +197,7 @@
     }
 
     .section-title {
+    .section-title {
       font-family: 'Gotham Narrow Bold', sans-serif;
       font-size: 11px;
       font-weight: 900;
@@ -209,18 +210,17 @@
       gap: 10px;
     }
 
-    .section-title-icon {
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #eaeaea;
     }
 
     /* COURIER ADDRESS TYPE SELECTOR */
-    /* COURIER ADDRESS TYPE SELECTOR */
     .address-type-selector {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 24px;
       overflow-x: auto;
       padding-bottom: 4px;
@@ -228,24 +228,27 @@
 
     .address-type-tab {
       padding: 8px 16px;
-      border: none;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 500;
+      border: 1px solid #cfcfcf;
+      border-radius: 2px;
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
       cursor: pointer;
-      background: transparent;
+      background: #fff;
       color: #555;
       transition: all 0.2s ease;
       white-space: nowrap;
     }
 
     .address-type-tab.active {
-      background: #5fa1e6;
+      background: #000;
+      border-color: #000;
       color: #fff;
-      font-weight: bold;
     }
 
     .address-type-tab:hover:not(.active) {
+      border-color: #000;
       color: #000;
     }
 
@@ -270,11 +273,12 @@
     }
 
     .form-group label {
-      font-size: 13px;
+      font-size: 10px;
       font-weight: bold;
-      letter-spacing: 0.2px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
       margin-bottom: 6px;
-      color: #000;
+      color: #555;
     }
 
     .form-input {
@@ -283,7 +287,7 @@
       font-size: 13px;
       outline: none;
       transition: border-color 0.25s, box-shadow 0.25s;
-      border-radius: 6px;
+      border-radius: 2px;
       font-family: Helvetica, Arial, sans-serif;
       background: #fff;
       color: #000;
@@ -341,7 +345,7 @@
       gap: 6px;
       padding: 10px 12px;
       border: 1px solid #cfcfcf;
-      border-radius: 6px;
+      border-radius: 2px;
       background: #fff;
       user-select: none;
       font-size: 13px;
@@ -363,7 +367,7 @@
       display: flex;
       align-items: center;
       border: 1px solid #cfcfcf;
-      border-radius: 6px;
+      border-radius: 2px;
       background: #fff;
       flex: 1;
       height: 44px;
@@ -399,19 +403,23 @@
     .earliest-delivery-row {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: #000;
+      gap: 12px;
       margin-bottom: 24px;
     }
 
-    .earliest-delivery-row span:first-child {
+    .earliest-delivery-row .earliest-label {
+      font-size: 10px;
       font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #555;
     }
 
     .delivery-date-text {
-      color: #555;
-      font-weight: normal;
+      color: #000;
+      font-weight: bold;
+      font-size: 13px;
+      letter-spacing: 0.5px;
     }
 
     .edit-date-btn {
@@ -421,37 +429,20 @@
       display: flex;
       align-items: center;
       padding: 2px;
+      transition: opacity 0.2s;
+    }
+    
+    .edit-date-btn:hover {
+      opacity: 0.7;
     }
 
     .date-picker-input {
-      padding: 4px 8px;
+      padding: 6px 10px;
       font-size: 12px;
       border: 1px solid #cfcfcf;
-      border-radius: 6px;
+      border-radius: 2px;
       font-family: Helvetica, Arial, sans-serif;
       outline: none;
-    }
-
-    /* SECTION TITLE BADGES */
-    .section-title-badge {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 10px;
-      flex-shrink: 0;
-    }
-
-    .delivery-badge {
-      background-color: #d1fae5;
-      color: #10b981;
-    }
-
-    .contact-badge {
-      background-color: #fef3c7;
-      color: #f59e0b;
     }
 
     /* Checkout items */
@@ -959,21 +950,11 @@
           <form id="checkoutDetailsForm" onsubmit="handleCheckoutSubmit(event)">
             
             <!-- Section 1: Delivery details -->
-            <div class="section-title">
-              <span class="section-title-badge delivery-badge">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="1" y="3" width="15" height="13"></rect>
-                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
-                </svg>
-              </span>
-              <span>Delivery</span>
-            </div>
+            <div class="section-title">Delivery</div>
 
             <!-- Earliest requested delivery date row -->
             <div class="earliest-delivery-row">
-              <span>Earliest requested delivery</span>
+              <span class="earliest-label">Earliest requested delivery</span>
               <span id="displayDeliveryDate" class="delivery-date-text">${defaultDateStr}</span>
               <button type="button" class="edit-date-btn" onclick="toggleDatePicker()">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#5fa1e6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1052,15 +1033,7 @@
             </div>
 
             <!-- Section 2: Contact Details -->
-            <div class="section-title" style="margin-top: 45px;">
-              <span class="section-title-badge contact-badge">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-              </span>
-              <span>Contact details</span>
-            </div>
+            <div class="section-title" style="margin-top: 45px;">Contact details</div>
 
             <!-- Name and Surname field -->
             <div class="form-group">
@@ -1160,18 +1133,21 @@
                 <!-- Payment Logos Grid inside Trust card -->
                 <div style="display: flex; gap: 8px; align-items: center; margin-top: 10px;">
                   <!-- Visa Logo -->
-                  <svg viewBox="0 0 36 24" width="28" height="19" xmlns="http://www.w3.org/2000/svg" style="border-radius: 1px;">
+                  <svg title="Visa" viewBox="0 0 36 24" width="28" height="19" xmlns="http://www.w3.org/2000/svg" style="border-radius: 1px; cursor: help;">
+                    <title>Visa</title>
                     <rect width="36" height="24" rx="2" fill="#1A1F71"/>
                     <text x="50%" y="60%" font-family="Impact, Arial Black, sans-serif" font-style="italic" font-weight="bold" font-size="10" fill="#F7B600" text-anchor="middle">VISA</text>
                   </svg>
                   <!-- Mastercard Logo -->
-                  <svg viewBox="0 0 36 24" width="28" height="19" xmlns="http://www.w3.org/2000/svg" style="border-radius: 1px;">
+                  <svg title="Mastercard" viewBox="0 0 36 24" width="28" height="19" xmlns="http://www.w3.org/2000/svg" style="border-radius: 1px; cursor: help;">
+                    <title>Mastercard</title>
                     <rect width="36" height="24" rx="2" fill="#222"/>
                     <circle cx="14" cy="12" r="7" fill="#EB001B" opacity="0.95"/>
                     <circle cx="22" cy="12" r="7" fill="#F79E1B" opacity="0.95"/>
                   </svg>
                   <!-- Instant EFT Logo -->
-                  <svg viewBox="0 0 45 24" width="34" height="19" xmlns="http://www.w3.org/2000/svg" style="border-radius: 1px;">
+                  <svg title="Instant EFT" viewBox="0 0 45 24" width="34" height="19" xmlns="http://www.w3.org/2000/svg" style="border-radius: 1px; cursor: help;">
+                    <title>Instant EFT</title>
                     <rect width="45" height="24" rx="2" fill="#000"/>
                     <text x="50%" y="62%" font-family="Helvetica, Arial, sans-serif" font-weight="900" font-size="7" fill="#ccff00" text-anchor="middle">EFT</text>
                   </svg>

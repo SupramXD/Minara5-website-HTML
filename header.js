@@ -822,18 +822,21 @@ window.removeFromCart = function(index) {
                 ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; cursor:pointer; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">CONTINUE TO CHECKOUT</button>` : ''}
                 <div style="display:flex; gap:6px; align-items:center; margin-top:${hasItems ? '12px' : '0px'};">
                     <!-- Visa Logo -->
-                    <svg viewBox="0 0 36 24" width="26" height="17" xmlns="http://www.w3.org/2000/svg" style="border-radius:1px; flex-shrink:0;">
+                    <svg title="Visa" viewBox="0 0 36 24" width="26" height="17" xmlns="http://www.w3.org/2000/svg" style="border-radius:1px; flex-shrink:0; cursor:help;">
+                      <title>Visa</title>
                       <rect width="36" height="24" rx="2" fill="#1A1F71"/>
                       <text x="50%" y="60%" font-family="Impact, Arial Black, sans-serif" font-style="italic" font-weight="bold" font-size="10" fill="#F7B600" text-anchor="middle">VISA</text>
                     </svg>
                     <!-- Mastercard Logo -->
-                    <svg viewBox="0 0 36 24" width="26" height="17" xmlns="http://www.w3.org/2000/svg" style="border-radius:1px; flex-shrink:0;">
+                    <svg title="Mastercard" viewBox="0 0 36 24" width="26" height="17" xmlns="http://www.w3.org/2000/svg" style="border-radius:1px; flex-shrink:0; cursor:help;">
+                      <title>Mastercard</title>
                       <rect width="36" height="24" rx="2" fill="#222"/>
                       <circle cx="14" cy="12" r="7" fill="#EB001B" opacity="0.95"/>
                       <circle cx="22" cy="12" r="7" fill="#F79E1B" opacity="0.95"/>
                     </svg>
                     <!-- Instant EFT Logo -->
-                    <svg viewBox="0 0 45 24" width="32" height="17" xmlns="http://www.w3.org/2000/svg" style="border-radius:1px; flex-shrink:0;">
+                    <svg title="Instant EFT" viewBox="0 0 45 24" width="32" height="17" xmlns="http://www.w3.org/2000/svg" style="border-radius:1px; flex-shrink:0; cursor:help;">
+                      <title>Instant EFT</title>
                       <rect width="45" height="24" rx="2" fill="#000"/>
                       <text x="50%" y="62%" font-family="Helvetica, Arial, sans-serif" font-weight="900" font-size="7" fill="#ccff00" text-anchor="middle">EFT</text>
                     </svg>
