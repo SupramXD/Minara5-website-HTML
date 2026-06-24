@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="preload" href="Gotham Narrow Bold.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="minara 5 transparent 2.svg" as="image" type="image/svg+xml">
+  <link rel="icon" type="image/svg+xml" href="minara 5 transparent 2.svg">
   
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
@@ -481,12 +482,18 @@
             <div class="receipt-label">Recipient</div>
             <div>${orderData.firstName} ${orderData.lastName}</div>
             <div style="margin-top: 8px;" class="receipt-label">Contact</div>
-            <div>${orderData.phone}</div>
-            <div>${orderData.email}</div>
+            <div>Phone: ${orderData.phone}</div>
+            ${orderData.phoneAlt ? `<div>Alt Phone: ${orderData.phoneAlt}</div>` : ''}
+            <div>Email: ${orderData.email}</div>
+            ${orderData.emailAlt ? `<div>Alt Email: ${orderData.emailAlt}</div>` : ''}
           </div>
           <div>
             <div class="receipt-label">Delivery Address</div>
-            <div style="white-space: pre-wrap;">${orderData.address}</div>
+            <div style="white-space: pre-wrap; margin-bottom: 8px;">${orderData.address}</div>
+            ${orderData.deliveryDate ? `
+              <div class="receipt-label" style="margin-top: 8px;">Requested Delivery</div>
+              <div>${orderData.deliveryDate}</div>
+            ` : ''}
           </div>
         </div>
 
@@ -511,8 +518,11 @@
             orderId: orderData.paymentId,
             customerName: `${orderData.firstName} ${orderData.lastName}`,
             email: orderData.email,
+            emailAlt: orderData.emailAlt || "",
             phone: orderData.phone,
+            phoneAlt: orderData.phoneAlt || "",
             address: orderData.address,
+            deliveryDate: orderData.deliveryDate || "",
             items: orderData.items,
             total: orderData.total,
             status: "Pending Shipment",
