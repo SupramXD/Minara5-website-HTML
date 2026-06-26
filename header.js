@@ -712,14 +712,8 @@ window.removeFromCart = function(index) {
                                          
                                          `;
 
-    const isMobile = window.innerWidth <= 900;
     if (hasItems) {
-        if (isMobile) {
-            asciiWrap.style.display = "none";
-        } else {
-            asciiContainer.textContent = minaraArt;
-            asciiWrap.style.display = "flex";
-        }
+        asciiWrap.style.display = "none";
     } else {
         asciiContainer.textContent = emptyArt;
         asciiWrap.style.display = "flex";

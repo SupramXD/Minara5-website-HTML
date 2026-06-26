@@ -171,29 +171,6 @@ nav ul li a:hover{opacity:0.6;}
   .center-logo{height:26px;}
 }
 
-/* =============== PAGE SCALE / OFFSETS (UNCHANGED) =============== */
-.page-wrap {
-    transform: scale(0.9);
-    transform-origin: top center;
-}
-@media(max-width:900px){
-    .page-wrap {
-        transform: scale(0.8);
-        transform-origin: top center;
-    }
-}
-.page-wrap {
-    position: relative;
-    left: -32px;
-    top: -22px;
-}
-@media(max-width:900px){
-    .page-wrap {
-        left: -18px;
-        top: -32px;
-    }
-}
-
 /* CART BUTTON IN HEADER (IDENTICAL TO CATALOG) */
 .cart-header-btn{
   display:flex;
@@ -224,152 +201,553 @@ nav ul li a:hover{opacity:0.6;}
   .mobile-cart img{height:16px;}
 }
 
-/* ===================== PAGE CONTENT ===================== */
-.page-wrap{
-  width:100%;
-  margin-top:65px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding-bottom:40px;
+/* ===================== PAGE CONTENT OVERHAUL ===================== */
+
+/* =============== BREADCRUMB =============== */
+.breadcrumb {
+    font-size: 9.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 24px;
+    width: 100%;
+    text-align: left;
+}
+.breadcrumb a {
+    color: #000;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+.breadcrumb a:hover {
+    opacity: 0.6;
 }
 
-/* SLIDER */
-.slider{
-  width:380px;
-  max-width:80vw;
-  overflow:hidden;
-  position:relative;
-  margin-top:20px;
-  margin-bottom:20px;
+/* =============== BADGES =============== */
+.badge-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    width: 100%;
 }
-.slider-track{
-  display:flex;
-  transition:transform 0.45s cubic-bezier(.45,0,.25,1);
+.badge {
+    font-size: 9px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border: 1px solid #eaeaea;
+    border-radius: 2px;
+    background: #fff;
+    color: #555;
+    display: inline-flex;
+    align-items: center;
 }
-.slider-track img{
-  width:100%;
-  flex:0 0 100%;
-  user-select:none;
-}
-.arrow{
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  font-size:13px;
-  color:#6d6d6d;
-  cursor:pointer;
-  padding:8px;
-  user-select:none;
-  transition:opacity 0.25s ease;
-  z-index:5;
-  opacity:0;
-}
-.arrow-left{ left:0; }
-.arrow-right{ right:0; }
-.arrow.visible{ opacity:1; }
-
-/* DOTS */
-.slider-dots{
-  display:flex;
-  justify-content:center;
-  margin:15px 0 40px;
-  gap:8px;
-}
-.slider-dots div{
-  width:6px;
-  height:6px;
-  border-radius:50%;
-  background:#000;
-  opacity:0.25;
-  cursor:pointer;
-  transition:opacity 0.25s;
-}
-.slider-dots div.active{opacity:0.75;}
-.slider-dots div:hover{opacity:0.55;}
-
-/* PRODUCT INFO */
-.product-info-wrap{
-  width:380px;
-  max-width:80vw;
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-.product-name-short {
-  font-family: 'Gotham Narrow Bold', sans-serif;
-  font-size: 12.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: bold;
-  margin-bottom: 5px;
-  color: #000;
-}
-.product-title{
-  font-size:15px;
-  text-transform:uppercase;
-  letter-spacing:0.28em;
-  margin-bottom:12px;
-}
-.product-price{
-  font-size:15px;
-  color: #00008B;
-  font-weight: 600;
-  margin-bottom:35px;
-  letter-spacing:0.18em;
-}
-@media(max-width:900px){
-  .product-price {
-    font-size: 13.5px;
-  }
-}
-.add-to-cart{
-  background:#000;
-  color:#fff;
-  padding:12px 75px;
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:0.18em;
-  border:1px solid #000;
-  cursor:pointer;
-  transition:opacity .25s ease;
-  margin-bottom:55px;
-}
-.add-to-cart:hover{opacity:0.75;}
-
-@media(max-width:900px){
-  .add-to-cart{
-    padding:12px 60px;
-    width:auto;
-  }
+.badge-accent {
+    background: #fafafa;
+    border-color: #000;
+    color: #000;
 }
 
-/* DESCRIPTION */
-.desc{
-  font-size:13px;
-  line-height:1.8;
-  letter-spacing:0.12em;
-  opacity:0.75;
-  white-space:pre-line;
-  margin-bottom:80px;
-  margin-left:4px;
+/* =============== REVIEWS STARS SUMMARY =============== */
+.reviews-stars-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
 }
-@media(max-width:900px){
-  .desc { margin-top:-14px; }
+.reviews-stars-summary:hover {
+    opacity: 0.7;
+}
+.stars-gold {
+    color: #cea44c;
+    letter-spacing: 1.5px;
+    font-size: 13px;
+    display: inline-flex;
+}
+.reviews-count-text {
+    font-size: 10px;
+    font-weight: bold;
+    opacity: 0.6;
+    letter-spacing: 0.5px;
 }
 
-/* BACK BUTTON */
-.back-link{
-  font-size:11px;
-  letter-spacing:0.20em;
-  text-transform:uppercase;
-  opacity:0.65;
-  padding:6px 18px;
-  color:#000;
-  text-decoration:none;
-  border:1px solid #000;
+/* =============== PRICE CONTAINER =============== */
+.price-container {
+    margin-bottom: 25px;
+    width: 100%;
+    text-align: left;
 }
-.back-link:hover{opacity:0.45;}
+.price-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.product-price {
+    font-family: 'Gotham Narrow Bold', sans-serif;
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    color: #000;
+    margin-bottom: 0;
+}
+.discount-badge {
+    background: #ff3b30;
+    color: #fff;
+    font-size: 9px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 4px 8px;
+    border-radius: 2px;
+    text-transform: uppercase;
+}
+.retail-price-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    font-size: 11px;
+    opacity: 0.6;
+    letter-spacing: 0.5px;
+}
+.product-retail-price {
+    text-decoration: line-through;
+}
+.comparison-note {
+    font-size: 9.5px;
+    color: #2e7d32;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* =============== SIZE SELECTOR =============== */
+#sizePickerContainer {
+    margin-bottom: 25px;
+    width: 100%;
+}
+#sizePickerOptions {
+    display: flex;
+    gap: 12px;
+}
+.size-picker-btn {
+    border: 1px solid #000;
+    background: transparent;
+    color: #000;
+    padding: 12px 24px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border-radius: 2px;
+}
+.size-picker-btn.active {
+    background: #000;
+    color: #fff;
+}
+.size-picker-btn:hover:not(.active) {
+    background: #f5f5f5;
+}
+
+/* =============== ADD TO BAG / OUT OF STOCK =============== */
+.add-to-cart {
+    width: 100%;
+    background: #000;
+    color: #fff;
+    border: 1px solid #000;
+    padding: 16px 20px;
+    font-family: 'Gotham Narrow Bold', sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border-radius: 2px;
+    margin-bottom: 14px;
+    display: block;
+    text-align: center;
+}
+.add-to-cart:hover:not(:disabled) {
+    background: #333;
+    border-color: #333;
+    transform: translateY(-1px);
+}
+.add-to-cart:disabled {
+    background: #eaeaea;
+    border-color: #eaeaea;
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* =============== CONFIDENCE / TRUST LINE =============== */
+.trust-badge-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    color: #2e7d32;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 25px;
+    width: 100%;
+}
+.trust-badge-line svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+    flex-shrink: 0;
+}
+
+/* =============== DELIVERY ESTIMATE & TIMELINE =============== */
+.delivery-estimate-card {
+    border: 1px solid #eaeaea;
+    background: #fcfcfc;
+    padding: 20px;
+    border-radius: 4px;
+    width: 100%;
+    margin-bottom: 30px;
+}
+.estimate-text {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #333;
+    margin-bottom: 18px;
+    letter-spacing: 0.3px;
+    text-align: left;
+}
+.estimate-text strong {
+    color: #000;
+}
+.clock-icon {
+    width: 15px;
+    height: 15px;
+    stroke: #000;
+    stroke-width: 2;
+    fill: none;
+    margin-top: 1px;
+    flex-shrink: 0;
+}
+.timeline-visual {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+    padding: 0 10px;
+}
+.timeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    width: 70px;
+}
+.step-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #eaeaea;
+    border: 2px solid #eaeaea;
+    transition: all 0.3s ease;
+}
+.timeline-step.active .step-dot {
+    background: #000;
+    border-color: #000;
+    box-shadow: 0 0 0 4px rgba(0,0,0,0.1);
+}
+.step-dot-delivery {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2.5px solid #eaeaea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.step-dot-delivery::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #eaeaea;
+}
+.timeline-step.active .step-dot-delivery {
+    border-color: #000;
+}
+.timeline-step.active .step-dot-delivery::after {
+    background: #000;
+}
+.step-label {
+    font-family: 'Gotham Narrow Bold', sans-serif;
+    font-size: 8.5px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: 8px;
+    color: #999;
+}
+.timeline-step.active .step-label {
+    color: #000;
+}
+.step-date {
+    font-size: 8px;
+    color: #888;
+    margin-top: 2px;
+    white-space: nowrap;
+}
+.timeline-step.active .step-date {
+    color: #555;
+    font-weight: 500;
+}
+.timeline-line {
+    flex-grow: 1;
+    height: 1px;
+    background: #eaeaea;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 1;
+}
+
+/* =============== ACCORDIONS =============== */
+.accordion-container {
+    width: 100%;
+    border-top: 1px solid #eaeaea;
+    margin-bottom: 40px;
+    text-align: left;
+}
+.accordion-item {
+    border-bottom: 1px solid #eaeaea;
+    width: 100%;
+}
+.accordion-header {
+    width: 100%;
+    background: transparent;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    font-family: 'Gotham Narrow Bold', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 900;
+    cursor: pointer;
+    text-align: left;
+    color: #000;
+    outline: none;
+}
+.accordion-header:hover {
+    opacity: 0.7;
+}
+.accordion-icon {
+    font-size: 14px;
+    font-weight: normal;
+    color: #000;
+}
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), padding 0.35s ease;
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: #555;
+    letter-spacing: 0.5px;
+    padding-bottom: 0;
+}
+.accordion-content.active {
+    max-height: 500px;
+    padding-bottom: 18px;
+}
+.accordion-content p {
+    margin: 0;
+}
+.lab-badges {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.lab-badge {
+    font-size: 8px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    padding: 3px 6px;
+    border: 1px solid #000;
+    background: #fff;
+    color: #000;
+}
+.ingredients-list {
+    font-size: 10.5px;
+    opacity: 0.8;
+}
+
+/* =============== IMAGE SLIDER & DOTS =============== */
+.slider {
+    width: 380px;
+    max-width: 80vw;
+    overflow: hidden;
+    position: relative;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.slider-track {
+    display: flex;
+    transition: transform 0.45s cubic-bezier(.45,0,.25,1);
+}
+.slider-track img {
+    width: 100%;
+    flex: 0 0 100%;
+    user-select: none;
+}
+.arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    color: #000;
+    background: rgba(255, 255, 255, 0.8);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.25s ease;
+    z-index: 5;
+    opacity: 0;
+    border: 1px solid #eaeaea;
+}
+.arrow:hover {
+    background: #000;
+    color: #fff;
+    border-color: #000;
+}
+.arrow-left { left: 15px; }
+.arrow-right { right: 15px; }
+.arrow.visible { opacity: 1; }
+
+.slider-dots {
+    display: flex;
+    justify-content: center;
+    margin: 15px 0 0px;
+    gap: 8px;
+}
+.slider-dots div {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #000;
+    opacity: 0.25;
+    cursor: pointer;
+    transition: opacity 0.25s;
+}
+.slider-dots div.active { opacity: 0.75; }
+.slider-dots div:hover { opacity: 0.55; }
+
+/* =============== PRODUCT DESCRIPTION & BACK =============== */
+.desc {
+    font-size: 12.5px;
+    line-height: 1.7;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+    white-space: pre-line;
+    margin-bottom: 25px;
+    text-align: left;
+    color: #333;
+}
+.back-link {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.65;
+    padding: 10px 20px;
+    color: #000;
+    text-decoration: none;
+    border: 1px solid #000;
+    font-weight: bold;
+    transition: all 0.25s ease;
+    display: inline-block;
+    border-radius: 2px;
+}
+.back-link:hover {
+    background: #000;
+    color: #fff;
+    opacity: 1;
+}
+
+/* =============== PAGE LAYOUT STRUCTURE =============== */
+.page-wrap {
+    transform: none !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 1100px !important;
+    margin: 90px auto 60px !important;
+    padding: 0 40px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 60px !important;
+    box-sizing: border-box;
+}
+.product-media-wrap {
+    width: 50% !important;
+    max-width: 500px !important;
+    position: sticky !important;
+    top: 85px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    box-sizing: border-box;
+}
+.product-info-wrap {
+    width: 45% !important;
+    max-width: 480px !important;
+    margin-top: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    box-sizing: border-box;
+}
+
+@media(max-width: 900px) {
+    .page-wrap {
+        flex-direction: column !important;
+        margin: 70px auto 40px !important;
+        padding: 0 20px !important;
+        gap: 30px !important;
+    }
+    .product-media-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        position: relative !important;
+        top: 0 !important;
+    }
+    .slider {
+        max-width: 380px !important;
+        aspect-ratio: 1 / 1;
+    }
+    .product-info-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
 
 /* FOOTER */
 footer{
@@ -856,50 +1234,7 @@ footer{
 .cart-body { 
     border-color: #000 !important; 
 }
-.product-media-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-}
-@media (min-width: 901px) {
-  .page-wrap {
-    transform: none !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 100% !important;
-    max-width: 1200px !important;
-    margin: 80px auto 100px !important;
-    padding: 0 40px !important;
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: flex-start !important;
-    justify-content: space-between !important;
-    gap: 50px !important;
-  }
-  .product-media-wrap {
-    width: 50% !important;
-    max-width: 550px !important;
-    position: sticky !important;
-    top: 100px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-  }
-  .slider {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-bottom: 0 !important;
-  }
-  .product-info-wrap {
-    width: 45% !important;
-    max-width: 500px !important;
-    margin-top: 20px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-  }
-}
+/* Conflicting layout block removed. Managed in main style block above. */
 
 /* Reviews Modal Overlay */
 .reviews-modal-overlay {
@@ -1139,6 +1474,11 @@ footer{
 
     <!-- LEFT COLUMN: MEDIA WRAP -->
     <div class="product-media-wrap">
+        <!-- BREADCRUMB (Desktop) -->
+        <div class="breadcrumb desktop-only">
+            <a href="index.html">Home</a> / <a href="catalog.html">Catalog</a> / <span id="breadcrumbActive">Product</span>
+        </div>
+
         <!-- SLIDER -->
         <div class="slider" id="slider">
             <div class="arrow arrow-left" id="arrowLeft" onclick="prevSlide()">&#x2039;</div>
@@ -1154,22 +1494,60 @@ footer{
         </div>
     </div>
 
+    <!-- RIGHT COLUMN: INFO WRAP -->
     <div class="product-info-wrap">
+        <!-- BREADCRUMB (Mobile) -->
+        <div class="breadcrumb mobile-only" style="display: none;">
+            <a href="index.html">Home</a> / <a href="catalog.html">Catalog</a> / <span id="breadcrumbActiveMobile">Product</span>
+        </div>
+
+        <div class="badge-container">
+            <span class="badge badge-accent" id="badgeInspired" style="display: none;">Inspired Scent</span>
+            <span class="badge">Extrait de Parfum</span>
+            <span class="badge" id="badgeGender">Unisex</span>
+            <span class="badge">Premium Formulation</span>
+        </div>
+
         <div class="product-flair" style="font-size: 10px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; display: none; color: #1a1a1a;"></div>
         <div class="product-name-short" style="display: none;"></div>
-        <div class="product-title">Loading Product...</div>
-        <div class="product-retail-price" style="font-size:11px; opacity:0.5; margin-top: -8px; margin-bottom: 15px; letter-spacing:0.1em; text-transform:uppercase; display:none;"></div>
-        <div class="product-price"></div>
+        <h1 class="product-title" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 0; margin-bottom: 8px; color: #000; line-height: 1.2; text-align: left;">Loading Product...</h1>
+        
+        <!-- Star Rating summary under title -->
+        <div class="reviews-stars-summary" onclick="document.querySelector('.reviews-section').scrollIntoView({behavior: 'smooth'})">
+            <span class="stars-gold">★★★★★</span>
+            <span class="reviews-count-text" id="reviewsCountSummary">0 reviews</span>
+        </div>
+
+        <!-- Price container -->
+        <div class="price-container">
+            <div class="price-row">
+                <span class="product-price">R0</span>
+                <span class="discount-badge" id="discountBadge" style="display: none;">SAVE 5%</span>
+            </div>
+            <div class="retail-price-row" id="retailPriceRow" style="display: none;">
+                <span class="product-retail-price">R0</span>
+                <span class="comparison-note" id="comparisonNote">SAVE 80%</span>
+            </div>
+        </div>
+
+        <!-- Stock Level Indicator -->
+        <div class="product-stock" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 9px; letter-spacing: 1.5px; margin-bottom: 20px; display: none;"></div>
 
         <!-- Size Selection Container -->
-        <div id="sizePickerContainer" style="margin-bottom: 25px; display: none;">
+        <div id="sizePickerContainer" style="display: none;">
             <div style="font-size: 10px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Select Size:</div>
-            <div id="sizePickerOptions" style="display: flex; gap: 10px;"></div>
+            <div id="sizePickerOptions"></div>
         </div>
 
         <button class="add-to-cart" id="addToBagBtn" disabled>ADD TO BAG</button>
 
-        <div id="outOfStockNotifyContainer" style="display: none; width: 100%; margin-top: -30px; margin-bottom: 35px; background: #fafafa; border: 1px dashed #000; padding: 15px; box-sizing: border-box;">
+        <div class="trust-badge-line">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            <span>Try it for 30 days. Not in love? Return it.</span>
+        </div>
+
+        <!-- outOfStockNotifyContainer (kept intact) -->
+        <div id="outOfStockNotifyContainer" style="display: none; width: 100%; margin-top: 10px; margin-bottom: 30px; background: #fafafa; border: 1px dashed #000; padding: 15px; box-sizing: border-box;">
             <div style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px;">Notify Me When In Stock</div>
             <div style="font-size: 10px; opacity: 0.6; margin-bottom: 12px; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.5px;">Get notified via email as soon as this item is restocked.</div>
             <form id="outOfStockNotifyForm" style="display: flex; border-bottom: 1px solid #000; padding-bottom: 4px;">
@@ -1179,11 +1557,85 @@ footer{
             <div id="outOfStockNotifySuccess" style="display: none; color: #2e7d32; font-size: 9px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; margin-top: 8px;">✓ Thank you! We will notify you.</div>
         </div>
 
-        <div class="desc">
-            Loading details...
+        <!-- Dynamic Timeline Estimate Card -->
+        <div class="delivery-estimate-card">
+            <div class="estimate-text">
+                <svg class="clock-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                <span>Order within <strong id="deliveryTimer">12 hours</strong>, receive your package between <strong id="deliveryDates">Loading...</strong></span>
+            </div>
+            <div class="timeline-visual">
+                <div class="timeline-step active">
+                    <div class="step-dot"></div>
+                    <div class="step-label">Ordered</div>
+                    <div class="step-date" id="timelineDate1">Jun 26</div>
+                </div>
+                <div class="timeline-line"></div>
+                <div class="timeline-step active">
+                    <div class="step-dot"></div>
+                    <div class="step-label">Processing</div>
+                    <div class="step-date" id="timelineDate2">Jun 27-29</div>
+                </div>
+                <div class="timeline-line"></div>
+                <div class="timeline-step">
+                    <div class="step-dot-delivery"></div>
+                    <div class="step-label">Delivered</div>
+                    <div class="step-date" id="timelineDate3">Jun 30</div>
+                </div>
+            </div>
         </div>
 
-        <a class="back-link" href="catalog.html" style="display: inline-block; margin-bottom: 25px; margin-top: 15px;">back</a>
+        <!-- Custom Collapsible Accordions -->
+        <div class="accordion-container">
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>When to Wear It</span>
+                    <span class="accordion-icon">+</span>
+                </button>
+                <div class="accordion-content">
+                    <p id="wearingOccasion">Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.</p>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>Honest Comparison</span>
+                    <span class="accordion-icon">+</span>
+                </button>
+                <div class="accordion-content">
+                    <p id="honestComparisonText">Our expert formulation mirrors the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity without paying the designer brand premium.</p>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>Scent Profile & Ingredients</span>
+                    <span class="accordion-icon">+</span>
+                </button>
+                <div class="accordion-content">
+                    <div class="lab-badges">
+                        <span class="lab-badge">VEGAN</span>
+                        <span class="lab-badge">CRUELTY-FREE</span>
+                        <span class="lab-badge">CLEAN INGREDIENTS</span>
+                    </div>
+                    <p class="ingredients-list"><strong>INGREDIENTS:</strong> Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>Shipping & Returns</span>
+                    <span class="accordion-icon">+</span>
+                </button>
+                <div class="accordion-content">
+                    <p>Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- description element (kept as hidden/original mapping fallback) -->
+        <div class="desc" style="display: none;"></div>
+
+        <a class="back-link" href="catalog.html" style="margin-bottom: 25px; margin-top: 15px;">← back to catalog</a>
 
         <!-- REVIEWS SECTION -->
         <div class="reviews-section" style="width: 100%; margin-top: 40px; border-top: 1px solid #000; padding-top: 30px; text-align: left;">
@@ -1291,6 +1743,29 @@ footer{
 /* MENU */
 function openMenu(){ document.getElementById("menuPanel").classList.add("open"); }
 function closeMenu(){ document.getElementById("menuPanel").classList.remove("open"); }
+
+/* ACCORDIONS */
+window.toggleAccordion = function(element) {
+    const content = element.nextElementSibling;
+    const icon = element.querySelector('.accordion-icon');
+    const allItems = document.querySelectorAll('.accordion-content');
+    const allIcons = document.querySelectorAll('.accordion-icon');
+    
+    allItems.forEach((item, index) => {
+        if (item !== content) {
+            item.classList.remove('active');
+            if (allIcons[index]) allIcons[index].textContent = '+';
+        }
+    });
+    
+    if (content.classList.contains('active')) {
+        content.classList.remove('active');
+        icon.textContent = '+';
+    } else {
+        content.classList.add('active');
+        icon.textContent = '−';
+    }
+};
 
 /* CART OPEN */
 /* CART OPEN */
@@ -1438,6 +1913,17 @@ window.openCart = function() {
                 return cleanVal.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             };
             
+            // Format Brand Scent Title helper
+            const formatBrandName = (brandName) => {
+                if (!brandName) return "";
+                return brandName.replace(/\w\S*/g, (txt) => {
+                    const lower = txt.toLowerCase();
+                    if (lower === 'jpg') return 'JPG';
+                    if (lower === 'le') return 'Le';
+                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+                });
+            };
+            
             // Product Flair
             const flairEl = document.querySelector('.product-flair');
             if (flairEl) {
@@ -1460,6 +1946,45 @@ window.openCart = function() {
                 }
             }
 
+            // Breadcrumbs active element
+            const breadcrumbActive = document.getElementById('breadcrumbActive');
+            const breadcrumbActiveMobile = document.getElementById('breadcrumbActiveMobile');
+            const activeBreadcrumbText = p.nameShort || p.name || "Product";
+            if (breadcrumbActive) breadcrumbActive.textContent = activeBreadcrumbText.toUpperCase();
+            if (breadcrumbActiveMobile) {
+                breadcrumbActiveMobile.textContent = activeBreadcrumbText.toUpperCase();
+                // Show mobile breadcrumb on mobile screen sizes
+                const breadcrumbMobileWrap = document.querySelector('.breadcrumb.mobile-only');
+                if (breadcrumbMobileWrap) breadcrumbMobileWrap.style.display = window.innerWidth <= 900 ? 'block' : 'none';
+            }
+
+            // Dynamic Scent Badges
+            const badgeInspired = document.getElementById('badgeInspired');
+            if (badgeInspired) {
+                const match = p.name ? p.name.match(/Inspired\s+by\s+(.+)/i) : null;
+                if (match || (p.id && p.id.startsWith("inspired-by-"))) {
+                    const fragranceName = match ? match[1] : p.name;
+                    badgeInspired.textContent = `Inspired by ${formatBrandName(fragranceName)}`;
+                    badgeInspired.style.display = 'inline-flex';
+                } else {
+                    badgeInspired.style.display = 'none';
+                }
+            }
+            
+            const badgeGender = document.getElementById('badgeGender');
+            if (badgeGender) {
+                const idLower = (p.id || "").toLowerCase();
+                const nameLower = (p.name || "").toLowerCase();
+                const flairLower = (p.flair || "").toLowerCase();
+                if (idLower.includes("women") || nameLower.includes("women") || flairLower.includes("women") || flairLower.includes("her")) {
+                    badgeGender.textContent = "Women's";
+                } else if (idLower.includes("men") || nameLower.includes("men") || flairLower.includes("men") || flairLower.includes("him")) {
+                    badgeGender.textContent = "Men's";
+                } else {
+                    badgeGender.textContent = "Unisex";
+                }
+            }
+
             // Tab title
             document.title = (p.name || "Product") + " – MINARA5";
 
@@ -1469,16 +1994,6 @@ window.openCart = function() {
                 let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
                 let escapedName = window.escapeHTML ? window.escapeHTML(rawName) : rawName;
                 
-                const formatBrandName = (brandName) => {
-                    if (!brandName) return "";
-                    return brandName.replace(/\w\S*/g, (txt) => {
-                        const lower = txt.toLowerCase();
-                        if (lower === 'jpg') return 'JPG';
-                        if (lower === 'le') return 'Le';
-                        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-                    });
-                };
-
                 const match = escapedName.match(/Inspired\s+by\s+(.+)/i);
                 if (match || (p.id && p.id.startsWith("inspired-by-"))) {
                     const fragranceName = match ? match[1] : escapedName;
@@ -1488,32 +2003,55 @@ window.openCart = function() {
                 }
             }
 
-            // Retail Price
-            const retailEl = document.querySelector('.product-retail-price');
-            if (retailEl) {
-                if (p.retailPrice) {
-                    retailEl.textContent = `Retail Price: R${formatRetailPrice(p.retailPrice)}`;
-                    retailEl.style.display = 'block';
-                } else {
-                    retailEl.style.display = 'none';
-                }
-            }
-
-            // Price (handle discount if active)
+            // Price & Retail Price Layout
             const priceEl = document.querySelector('.product-price');
+            const discountBadge = document.getElementById('discountBadge');
+            const retailPriceRow = document.getElementById('retailPriceRow');
+            const comparisonNote = document.getElementById('comparisonNote');
+            
             if (priceEl && p.price !== undefined) {
                 const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
                 if (hasDiscount) {
-                    priceEl.innerHTML = `
-                        <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                            <span class="discounted-price" style="color: #00008B; font-weight: 600; line-height: 1.1; font-size: 1.25em;"></span>
-                            <span class="original-price" style="text-decoration: line-through; opacity: 0.5; font-size: 0.85em; margin-top: 2px; line-height: 1.1;"></span>
-                        </div>
-                    `;
-                    priceEl.querySelector('.discounted-price').textContent = `R${formatPrice(Math.round(p.price * 0.95))}`;
-                    priceEl.querySelector('.original-price').textContent = `R${formatPrice(p.price)}`;
+                    priceEl.textContent = `R${formatPrice(Math.round(p.price * 0.95))}`;
+                    if (discountBadge) {
+                        discountBadge.textContent = "SAVE 5%";
+                        discountBadge.style.display = 'inline-flex';
+                    }
                 } else {
                     priceEl.textContent = `R${formatPrice(p.price)}`;
+                    if (discountBadge) discountBadge.style.display = 'none';
+                }
+                
+                if (retailPriceRow && p.retailPrice) {
+                    const retailPriceValEl = retailPriceRow.querySelector('.product-retail-price');
+                    if (retailPriceValEl) {
+                        retailPriceValEl.textContent = `Retail Price: R${formatRetailPrice(p.retailPrice)}`;
+                    }
+                    retailPriceRow.style.display = 'flex';
+                    
+                    if (comparisonNote) {
+                        const savingsPercent = Math.round((1 - p.price / p.retailPrice) * 100);
+                        if (savingsPercent > 0) {
+                            comparisonNote.textContent = `Save ${savingsPercent}% compared to designer retail`;
+                            comparisonNote.style.display = 'inline';
+                        } else {
+                            comparisonNote.style.display = 'none';
+                        }
+                    }
+                } else {
+                    if (retailPriceRow) retailPriceRow.style.display = 'none';
+                }
+            }
+
+            // Scent comparison accordion content
+            const honestComparisonText = document.getElementById('honestComparisonText');
+            if (honestComparisonText) {
+                const match = p.name ? p.name.match(/Inspired\s+by\s+(.+)/i) : null;
+                if (match || (p.id && p.id.startsWith("inspired-by-"))) {
+                    const fragranceName = match ? match[1] : p.name;
+                    honestComparisonText.innerHTML = `Our expert formulation matches <strong>${formatBrandName(fragranceName)}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.`;
+                } else {
+                    honestComparisonText.innerHTML = `Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.`;
                 }
             }
 
@@ -1548,6 +2086,55 @@ window.openCart = function() {
                 }
                 stockEl.appendChild(dot);
                 stockEl.appendChild(text);
+            }
+
+            // Delivery estimate countdown timer and timeline dates
+            const deliveryTimer = document.getElementById('deliveryTimer');
+            const deliveryDates = document.getElementById('deliveryDates');
+            if (deliveryTimer && deliveryDates) {
+                const updateCountdown = () => {
+                    const now = new Date();
+                    const target = new Date();
+                    target.setHours(17, 0, 0, 0);
+                    if (now > target) {
+                        target.setDate(target.getDate() + 1);
+                    }
+                    const diffMs = target - now;
+                    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    deliveryTimer.textContent = `${hours}h ${minutes}m`;
+                };
+                updateCountdown();
+                
+                const monthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                const formatDate = (d) => `${monthsShort[d.getMonth()]} ${d.getDate()}`;
+                const formatDateRange = (ds, de) => {
+                    if (ds.getMonth() === de.getMonth()) {
+                        return `${monthsShort[ds.getMonth()]} ${ds.getDate()}-${de.getDate()}`;
+                    } else {
+                        return `${monthsShort[ds.getMonth()]} ${ds.getDate()} - ${monthsShort[de.getMonth()]} ${de.getDate()}`;
+                    }
+                };
+                
+                const d1 = new Date();
+                const d2 = new Date();
+                if (d1.getHours() >= 17) {
+                    d2.setDate(d2.getDate() + 1);
+                }
+                
+                const d3_start = new Date();
+                d3_start.setDate(d2.getDate() + 2);
+                const d3_end = new Date();
+                d3_end.setDate(d2.getDate() + 4);
+                
+                const t1 = document.getElementById('timelineDate1');
+                const t2 = document.getElementById('timelineDate2');
+                const t3 = document.getElementById('timelineDate3');
+                if (t1) t1.textContent = formatDate(d1);
+                if (t2) t2.textContent = formatDate(d2);
+                if (t3) t3.textContent = formatDateRange(d3_start, d3_end);
+                
+                deliveryDates.textContent = `${formatDate(d3_start)} to ${formatDate(d3_end)}`;
             }
 
             // Image slider
@@ -1619,15 +2206,13 @@ window.openCart = function() {
                     availableSizes.forEach((sz) => {
                         const btn = document.createElement('button');
                         btn.textContent = sz.toUpperCase();
-                        btn.style.cssText = "border: 1px solid #000; background: transparent; color: #000; padding: 10px 20px; font-family: inherit; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.2s ease;";
+                        btn.className = "size-picker-btn";
                         
                         const updateBtnStyles = () => {
                             if (selectedSize === sz) {
-                                btn.style.background = "#000";
-                                btn.style.color = "#fff";
+                                btn.classList.add('active');
                             } else {
-                                btn.style.background = "transparent";
-                                btn.style.color = "#000";
+                                btn.classList.remove('active');
                             }
                         };
                         
@@ -1639,11 +2224,9 @@ window.openCart = function() {
                                 const siblings = sizeOptionsDiv.querySelectorAll('button');
                                 siblings.forEach(sib => {
                                     if (sib.textContent === sz.toUpperCase()) {
-                                        sib.style.background = "#000";
-                                        sib.style.color = "#fff";
+                                        sib.classList.add('active');
                                     } else {
-                                        sib.style.background = "transparent";
-                                        sib.style.color = "#000";
+                                        sib.classList.remove('active');
                                     }
                                 });
                                 addToBagBtn.onclick = () => {
@@ -1938,8 +2521,16 @@ window.openCart = function() {
                         <span style="opacity: 0.5;">(${count} ${count === 1 ? 'Review' : 'Reviews'})</span>
                     </div>
                 `;
+                const reviewsCountSummary = document.getElementById('reviewsCountSummary');
+                if (reviewsCountSummary) {
+                    reviewsCountSummary.textContent = `${count} ${count === 1 ? 'review' : 'reviews'}`;
+                }
             } else {
                 reviewsAverage.innerHTML = "No reviews yet";
+                const reviewsCountSummary = document.getElementById('reviewsCountSummary');
+                if (reviewsCountSummary) {
+                    reviewsCountSummary.textContent = "0 reviews";
+                }
             }
 
             renderReviewsList();
