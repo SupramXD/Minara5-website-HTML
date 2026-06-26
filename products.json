@@ -27,11 +27,10 @@
     "image_thumb": "images/products/inspired-by-creed-aventus_thumb.webp",
     "description": "undefined",
     "status": "Active",
-    "flair": "",
-    "invisibleFlair": "",
+    "flair": "Masculine",
+    "invisibleFlair": "men",
     "sizes": [
-      "50ml",
-      "100ml"
+      "50ml"
     ]
   },
   {
