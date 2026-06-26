@@ -1927,12 +1927,7 @@ window.openCart = function() {
             // Product Flair
             const flairEl = document.querySelector('.product-flair');
             if (flairEl) {
-                if (p.flair) {
-                    flairEl.textContent = p.flair;
-                    flairEl.style.display = 'block';
-                } else {
-                    flairEl.style.display = 'none';
-                }
+                flairEl.style.display = 'none';
             }
 
             // Short Fragrance Name (Display if available)
@@ -1973,15 +1968,19 @@ window.openCart = function() {
             
             const badgeGender = document.getElementById('badgeGender');
             if (badgeGender) {
-                const idLower = (p.id || "").toLowerCase();
-                const nameLower = (p.name || "").toLowerCase();
-                const flairLower = (p.flair || "").toLowerCase();
-                if (idLower.includes("women") || nameLower.includes("women") || flairLower.includes("women") || flairLower.includes("her")) {
-                    badgeGender.textContent = "Women's";
-                } else if (idLower.includes("men") || nameLower.includes("men") || flairLower.includes("men") || flairLower.includes("him")) {
-                    badgeGender.textContent = "Men's";
+                if (p.flair) {
+                    badgeGender.textContent = p.flair;
                 } else {
-                    badgeGender.textContent = "Unisex";
+                    const idLower = (p.id || "").toLowerCase();
+                    const nameLower = (p.name || "").toLowerCase();
+                    const flairLower = (p.flair || "").toLowerCase();
+                    if (idLower.includes("women") || nameLower.includes("women") || flairLower.includes("women") || flairLower.includes("her")) {
+                        badgeGender.textContent = "Women's";
+                    } else if (idLower.includes("men") || nameLower.includes("men") || flairLower.includes("men") || flairLower.includes("him")) {
+                        badgeGender.textContent = "Men's";
+                    } else {
+                        badgeGender.textContent = "Unisex";
+                    }
                 }
             }
 
