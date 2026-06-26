@@ -3,17 +3,18 @@
     "id": "inspired-by-jpg-le-male",
     "nameShort": "Vanille",
     "name": "JPG LE MALE",
-    "price": 380,
+    "price": 465,
     "retailPrice": 2100,
     "stock": 10,
     "image": "images/products/inspired-by-jpg-le-male.webp",
     "image_thumb": "images/products/inspired-by-jpg-le-male_thumb.webp",
-    "description": "JPG LE male\nInspired",
+    "description": "undefined",
     "status": "Active",
     "flair": "",
     "invisibleFlair": "",
     "sizes": [
-      "50ml"
+      "50ml",
+      "100ml"
     ]
   },
   {
