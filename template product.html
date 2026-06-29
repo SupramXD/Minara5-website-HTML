@@ -603,6 +603,9 @@ nav ul li a:hover{opacity:0.6;}
     margin-top: 0;
     margin-bottom: 0;
 }
+.slider.bundle-slider {
+    height: 100px !important;
+}
 .slider-track {
     display: flex;
     transition: transform 0.45s cubic-bezier(.45,0,.25,1);
@@ -611,6 +614,11 @@ nav ul li a:hover{opacity:0.6;}
     width: 100%;
     flex: 0 0 100%;
     user-select: none;
+}
+.slider.bundle-slider .slider-track img {
+    height: 100px !important;
+    object-fit: cover !important;
+    object-position: center !important;
 }
 .arrow {
     position: absolute;
@@ -1587,6 +1595,15 @@ footer{
                     overflow-y: auto;
                     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
                 }
+                @media (max-width: 900px) {
+                    .bundle-dropdown {
+                        top: auto !important;
+                        bottom: 100% !important;
+                        border-top: 1px solid #000 !important;
+                        border-bottom: none !important;
+                        box-shadow: 0 -4px 12px rgba(0,0,0,0.1) !important;
+                    }
+                }
                 .bundle-dropdown-item {
                     display: flex;
                     align-items: center;
@@ -1969,7 +1986,7 @@ window.openCart = function() {
                 product.isBundle = false;
                 product.bundleSize = 0;
             }
-            activeCatalogFragrances = localProds.filter(p => p.status === "Active" && !p.isBundle && p.id !== "leopard-backpack");
+            activeCatalogFragrances = localProds.filter(p => p.status === "Active" && p.isBundle !== true && p.isBundle !== "true" && p.id !== "leopard-backpack");
         } catch (e) {
             console.error("Local storage product read failed:", e);
         }
@@ -1985,6 +2002,19 @@ window.openCart = function() {
 
             const bundleSize = Number(p.bundleSize) || 1;
             const selectedScents = Array(bundleSize).fill(null);
+
+            // Load pending selections from sessionStorage (e.g. from bundleView redirects)
+            try {
+                const pending = JSON.parse(sessionStorage.getItem("bundle_selections_pending") || "{}");
+                Object.keys(pending).forEach(slotIdx => {
+                    const idx = Number(slotIdx);
+                    if (idx >= 0 && idx < bundleSize) {
+                        selectedScents[idx] = pending[idx];
+                    }
+                });
+            } catch (err) {
+                console.error("Error reading pending bundle selections:", err);
+            }
 
             // Fetch popular fragrances for search algorithm mapping fallback in background
             let popularFragrances = [];
@@ -2057,10 +2087,19 @@ window.openCart = function() {
                     return;
                 }
 
+                // Inject POPULAR PICKS small header if no query is entered
+                if (!queryText.trim()) {
+                    const headerEl = document.createElement("div");
+                    headerEl.style.cssText = "font-size: 8px; font-weight: bold; opacity: 0.4; padding: 10px 14px 4px 14px; text-transform: uppercase; letter-spacing: 1px; color: #000; border-bottom: 1px solid #f2f2f2;";
+                    headerEl.textContent = "POPULAR PICKS";
+                    dropdownEl.appendChild(headerEl);
+                }
+
                 matches.forEach(match => {
                     const prod = match.product;
                     const itemEl = document.createElement("div");
                     itemEl.className = "bundle-dropdown-item";
+                    itemEl.style.cssText = "display: flex; align-items: center; padding: 8px 12px; border-bottom: 1px solid #f9f9f9; cursor: pointer; justify-content: space-between; width: 100%; box-sizing: border-box;";
                     
                     const thumb = getThumbnailUrl(prod);
                     const displayName = prod.nameShort || prod.name;
@@ -2081,7 +2120,9 @@ window.openCart = function() {
                         descHtml = `<span style="font-size: 8px; color: #1106e8; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">RECOMMENDED MATCH</span>`;
                     }
 
-                    itemEl.innerHTML = `
+                    const leftContainer = document.createElement("div");
+                    leftContainer.style.cssText = "display: flex; align-items: center; gap: 10px; min-width: 0; flex-grow: 1;";
+                    leftContainer.innerHTML = `
                         <img src="${thumb}" style="width: 28px; height: 38px; object-fit: contain; flex-shrink: 0; border: 1px solid #eaeaea; background: #fff;">
                         <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
                             <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</span>
@@ -2089,7 +2130,18 @@ window.openCart = function() {
                         </div>
                     `;
 
-                    itemEl.onclick = (e) => {
+                    const viewLink = document.createElement("a");
+                    viewLink.href = `template product.html?id=${prod.id}&bundleView=true&bundleParent=${p.id}&bundleSlot=${index}`;
+                    viewLink.textContent = "VIEW";
+                    viewLink.style.cssText = "font-size: 9px; color: #1106e8; font-weight: bold; letter-spacing: 1px; text-decoration: underline; padding: 8px; flex-shrink: 0; user-select: none; z-index: 10;";
+                    viewLink.onclick = (e) => {
+                        e.stopPropagation();
+                    };
+
+                    itemEl.appendChild(leftContainer);
+                    itemEl.appendChild(viewLink);
+
+                    leftContainer.onclick = (e) => {
                         e.stopPropagation();
                         selectedScents[index] = {
                             id: prod.id,
@@ -2128,7 +2180,11 @@ window.openCart = function() {
                 const allSelected = selectedScents.every(s => s !== null);
                 if (allSelected) {
                     addToBagBtn.style.display = originalDisplay;
-                    addToBagBtn.innerHTML = "ADD TO BAG";
+                    
+                    // Dynamic text visual connection cue
+                    const selectionsLabel = selectedScents.map(s => s.name.toUpperCase()).join(" + ");
+                    addToBagBtn.innerHTML = `ADD TO BAG (${selectionsLabel})`;
+                    
                     addToBagBtn.disabled = false;
                     addToBagBtn.style.opacity = "";
                     addToBagBtn.style.cursor = "";
@@ -2141,20 +2197,22 @@ window.openCart = function() {
             for (let i = 0; i < bundleSize; i++) {
                 const slot = document.createElement("div");
                 slot.className = "bundle-choice-slot";
+                
+                const hasPreselected = selectedScents[i] !== null;
 
                 slot.innerHTML = `
                     <div style="font-size: 9px; opacity: 0.5; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Choice ${i + 1}</div>
                     
-                    <div class="bundle-scent-display-box" style="display: none; align-items: center; gap: 12px; border: 1px solid #000; padding: 8px 12px; border-radius: 2px; background: #fafafa; min-height: 48px; box-sizing: border-box; width: 100%;">
-                        <img class="selected-scent-img" src="" style="width: 24px; height: 32px; object-fit: contain; flex-shrink: 0; border: 1px solid #eaeaea; background: #fff;">
+                    <div class="bundle-scent-display-box" style="display: ${hasPreselected ? 'flex' : 'none'}; align-items: center; gap: 12px; border: 1px solid #000; padding: 8px 12px; border-radius: 2px; background: #fafafa; min-height: 48px; box-sizing: border-box; width: 100%;">
+                        <img class="selected-scent-img" src="${hasPreselected ? selectedScents[i].image : ''}" style="width: 24px; height: 32px; object-fit: contain; flex-shrink: 0; border: 1px solid #eaeaea; background: #fff;">
                         <div style="display: flex; flex-direction: column; flex-grow: 1; min-width: 0;">
-                            <span class="selected-scent-name" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
-                            <span class="selected-scent-inspired" style="font-size: 8.5px; color: #777; font-weight: bold; letter-spacing: 0.8px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;"></span>
+                            <span class="selected-scent-name" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${hasPreselected ? selectedScents[i].name.toUpperCase() : ''}</span>
+                            <span class="selected-scent-inspired" style="font-size: 8.5px; color: #777; font-weight: bold; letter-spacing: 0.8px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">${hasPreselected && selectedScents[i].inspiredBy ? `<span style="opacity: 0.6; font-size: 8px;">INSPIRED BY</span> ` + selectedScents[i].inspiredBy.toUpperCase() : ''}</span>
                         </div>
                         <span class="bundle-scent-switch" style="cursor: pointer; font-size: 9px; color: #1106e8; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; user-select: none;">SWITCH</span>
                     </div>
 
-                    <div class="bundle-scent-input-box" style="position: relative; display: flex; align-items: center; border: 1px solid #000; padding: 10px 12px; border-radius: 2px; background: #fff; min-height: 48px; box-sizing: border-box; width: 100%;">
+                    <div class="bundle-scent-input-box" style="position: relative; display: ${hasPreselected ? 'none' : 'flex'}; align-items: center; border: 1px solid #000; padding: 10px 12px; border-radius: 2px; background: #fff; min-height: 48px; box-sizing: border-box; width: 100%;">
                         <input type="text" class="bundle-scent-input" placeholder="CLICK TO SELECT OR TYPE TO SEARCH..." autocomplete="off" style="border: none; width: 100%; font-size: 10.5px; outline: none; font-family: inherit; letter-spacing: 1.5px; text-transform: uppercase; background: transparent; color: #000;">
                     </div>
                     
@@ -2192,12 +2250,18 @@ window.openCart = function() {
                 switchBtn.onclick = (e) => {
                     e.stopPropagation();
                     selectedScents[i] = null;
+
+                    try {
+                        const pending = JSON.parse(sessionStorage.getItem("bundle_selections_pending") || "{}");
+                        delete pending[i];
+                        sessionStorage.setItem("bundle_selections_pending", JSON.stringify(pending));
+                    } catch (err) {}
+
                     inputEl.value = "";
                     displayBox.style.display = "none";
                     inputBox.style.display = "flex";
                     updateAddToBagBtnState();
                     
-                    // Automatically trigger dropdown choices re-open
                     setTimeout(() => {
                         inputEl.click();
                     }, 50);
@@ -2215,6 +2279,7 @@ window.openCart = function() {
             addToBagBtn.onclick = () => {
                 if (selectedScents.some(s => s === null)) return;
                 window.addToCart(p.id, "100ml", selectedScents);
+                sessionStorage.removeItem("bundle_selections_pending");
             };
             
             updateAddToBagBtnState();
@@ -2458,6 +2523,14 @@ window.openCart = function() {
 
             // Image slider
             const track = document.querySelector('.slider-track');
+            const sliderWrap = document.getElementById('slider');
+            if (sliderWrap) {
+                if (p.isBundle) {
+                    sliderWrap.classList.add('bundle-slider');
+                } else {
+                    sliderWrap.classList.remove('bundle-slider');
+                }
+            }
             if (track && p.image) {
                 track.innerHTML = ""; // Clear safely
                 const images = p.image.startsWith('data:') ? [p.image] : p.image.split(',');
@@ -2518,13 +2591,53 @@ window.openCart = function() {
             if (bundleContainer) bundleContainer.style.display = "none";
 
             if (addToBagBtn) {
+                addToBagBtn.removeAttribute('onclick');
                 addToBagBtn.disabled = false;
                 addToBagBtn.style.opacity = "";
                 addToBagBtn.style.cursor = "";
 
-                if (p.isBundle) {
+                if (bundleView) {
+                    addToBagBtn.innerHTML = "ADD TO BUNDLE";
+                    
+                    const oldBackLink = document.getElementById("returnToBundleLink");
+                    if (oldBackLink) oldBackLink.remove();
+
+                    const returnLink = document.createElement("a");
+                    returnLink.id = "returnToBundleLink";
+                    returnLink.href = `template product.html?id=${bundleParent}`;
+                    returnLink.textContent = "← RETURN TO BUNDLE SELECTION";
+                    returnLink.style.cssText = "display: block; text-align: center; margin-top: 15px; font-size: 10px; font-weight: bold; letter-spacing: 1px; color: #1106e8; text-decoration: underline; text-transform: uppercase;";
+                    
+                    addToBagBtn.parentNode.insertBefore(returnLink, addToBagBtn.nextSibling);
+
+                    addToBagBtn.onclick = () => {
+                        let inspiredByText = "";
+                        const inspiredMatch = p.name ? p.name.match(/Inspired\s+by\s+(.+)/i) : null;
+                        if (inspiredMatch) {
+                            inspiredByText = inspiredMatch[1];
+                        } else if (p.id.startsWith("inspired-by-")) {
+                            inspiredByText = p.name;
+                        }
+
+                        const pending = JSON.parse(sessionStorage.getItem("bundle_selections_pending") || "{}");
+                        pending[bundleSlot] = {
+                            id: p.id,
+                            name: p.nameShort || p.name,
+                            image: p.image_thumb || p.image,
+                            inspiredBy: inspiredByText
+                        };
+                        sessionStorage.setItem("bundle_selections_pending", JSON.stringify(pending));
+                        
+                        window.location.href = `template product.html?id=${bundleParent}`;
+                    };
+                } else if (p.isBundle) {
+                    const oldBackLink = document.getElementById("returnToBundleLink");
+                    if (oldBackLink) oldBackLink.remove();
                     setupBundleSelectors(p);
                 } else {
+                    const oldBackLink = document.getElementById("returnToBundleLink");
+                    if (oldBackLink) oldBackLink.remove();
+
                     const availableSizes = p.sizes && p.sizes.length > 0 ? p.sizes : ["50ml", "100ml"];
                     let selectedSize = availableSizes[0];
                     
@@ -2574,7 +2687,6 @@ window.openCart = function() {
                         window.addToCart(p.id, selectedSize);
                     };
                 }
-                addToBagBtn.removeAttribute('onclick');
                 addToBagBtn.style.display = "";
                 
                 if (p.stock <= 0) {
@@ -2684,7 +2796,7 @@ window.openCart = function() {
                 }
 
                 if (fetchedProds && fetchedProds.length > 0) {
-                    activeCatalogFragrances = fetchedProds.filter(p => p.status === "Active" && !p.isBundle && p.id !== "leopard-backpack");
+                    activeCatalogFragrances = fetchedProds.filter(p => p.status === "Active" && p.isBundle !== true && p.isBundle !== "true" && p.id !== "leopard-backpack");
                 }
 
                 let data = null;
