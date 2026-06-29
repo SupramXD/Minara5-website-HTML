@@ -565,7 +565,7 @@ const products = {
 let cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
 
 // 3. THE ADD FUNCTION
-window.addToCart = function(productId, selectedSize) {
+window.addToCart = function(productId, selectedSize, selectedScents) {
     let product = null;
     let sizes = ["50ml", "100ml"];
     
@@ -603,7 +603,20 @@ window.addToCart = function(productId, selectedSize) {
     // Determine target size
     const sizeToUse = selectedSize || (sizes && sizes.length > 0 ? sizes[0] : "100ml");
 
-    const existingItem = cart.find(item => item.id === productId && item.size === sizeToUse);
+    const existingItem = cart.find(item => {
+        const idMatches = item.id === productId;
+        const sizeMatches = item.size === sizeToUse;
+        
+        let scentsMatches = false;
+        if (!item.selectedScents && !selectedScents) {
+            scentsMatches = true;
+        } else if (item.selectedScents && selectedScents && item.selectedScents.length === selectedScents.length) {
+            scentsMatches = item.selectedScents.every((scent, idx) => scent === selectedScents[idx]);
+        }
+        
+        return idMatches && sizeMatches && scentsMatches;
+    });
+
     if (existingItem) {
         if (existingItem.removed) {
             delete existingItem.removed;
@@ -620,7 +633,8 @@ window.addToCart = function(productId, selectedSize) {
             image: product.image,
             image_thumb: product.image_thumb || "",
             size: sizeToUse,
-            quantity: 1
+            quantity: 1,
+            selectedScents: selectedScents || null
         });
     }
 
@@ -735,11 +749,16 @@ window.removeFromCart = function(index) {
         html += '<div class="items-area" style="flex-grow:1; overflow-y:auto;">';
         cart.forEach((item, index) => {
             if (item.removed) {
+                let removedScentsHtml = "";
+                if (item.selectedScents && item.selectedScents.length > 0) {
+                    removedScentsHtml = `<div style="font-family:Helvetica, Arial, sans-serif; font-size:9.5px; color:#ff3b30; opacity:0.7; margin-top:3px; letter-spacing:0.5px; text-transform:uppercase; font-weight:500;">Selections: ${item.selectedScents.join(', ')}</div>`;
+                }
                 html += `
                 <div class="cart-item-row removed-item-row" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eaeaea; padding:10px 15px; background:#fafafa; box-sizing:border-box; width:100%;">
                     <div style="display:flex; flex-direction:column; gap:2px;">
                         ${window.formatCartInspiredNameHTML ? window.formatCartInspiredNameHTML(item.name, item.id, item.nameShort) : `<span style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1px; color:#000;">${item.name}</span>`}
                         <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; opacity:0.5; letter-spacing:0.5px;">SIZE: ${(item.size || '100ml').toUpperCase()}</div>
+                        ${removedScentsHtml}
                         <span style="color:#ff3b30; font-size:9px; font-weight:500; letter-spacing:1px; text-transform:uppercase; opacity:0.8; margin-top:2px;">REMOVED FROM BAG</span>
                     </div>
                     <span onclick="window.undoRemove(${index})" style="color:#1106e8; font-size:11px; font-family:Helvetica, Arial, sans-serif; text-decoration:underline; cursor:pointer; font-weight:500; text-transform:uppercase; letter-spacing:1px;">UNDO</span>
@@ -750,6 +769,11 @@ window.removeFromCart = function(index) {
                 const displayPrice = hasDiscount 
                     ? `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${formatPrice(itemPrice)}</span><span style="color: #1106e8; font-weight: bold;">R${formatPrice(Math.round(itemPrice * 0.95))}</span>` 
                     : `R${formatPrice(itemPrice)}`;
+
+                let scentsHtml = "";
+                if (item.selectedScents && item.selectedScents.length > 0) {
+                    scentsHtml = `<div style="font-family:Helvetica, Arial, sans-serif; font-size:9.5px; color:#1106e8; margin-top:3px; letter-spacing:0.5px; text-transform:uppercase; font-weight:500;">Selections: ${item.selectedScents.join(', ')}</div>`;
+                }
 
                 html += `
                 <div class="cart-item-row" style="display:flex; gap:15px; border-bottom:1px solid #eaeaea; padding:12px 15px;">
@@ -762,6 +786,7 @@ window.removeFromCart = function(index) {
                             <div style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:600; letter-spacing:0.5px; color:#000; margin-left:10px; flex-shrink:0;">${displayPrice}</div>
                         </div>
                         <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; opacity:0.5; margin-top:2px; letter-spacing:0.5px;">SIZE: ${(item.size || '100ml').toUpperCase()}</div>
+                        ${scentsHtml}
                         
                         <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
                             <div class="qty-stepper" style="display:flex; border:1px solid #eaeaea; width:fit-content; height:24px;">

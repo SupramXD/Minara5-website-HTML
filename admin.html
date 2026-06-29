@@ -1430,6 +1430,21 @@
                       </select>
                     </div>
 
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                      <input type="checkbox" id="prodIsBundle" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);" onchange="toggleBundleSizeInput('add')">
+                      <label for="prodIsBundle" style="margin-bottom: 0; cursor: pointer; font-size: 13px;">This is a Scent Bundle</label>
+                    </div>
+
+                    <div class="form-group" id="prodBundleSizeGroup" style="display: none;">
+                      <label for="prodBundleSize">Number of Fragrance Choices for Customer (1-4)</label>
+                      <select id="prodBundleSize" class="form-input" style="background:#1a1a24; color: #fff;">
+                        <option value="1">1 Choice</option>
+                        <option value="2">2 Choices</option>
+                        <option value="3">3 Choices</option>
+                        <option value="4">4 Choices</option>
+                      </select>
+                    </div>
+
                     <div class="form-group">
                       <label>Available Sizes</label>
                       <div style="display: flex; gap: 20px; align-items: center; margin-top: 8px;">
@@ -1940,6 +1955,21 @@
                     <option value="men">Men</option>
                     <option value="women">Women</option>
                     <option value="unisex">Unisex</option>
+                  </select>
+                </div>
+
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                  <input type="checkbox" id="editProdIsBundle" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);" onchange="toggleBundleSizeInput('edit')">
+                  <label for="editProdIsBundle" style="margin-bottom: 0; cursor: pointer; font-size: 13px;">This is a Scent Bundle</label>
+                </div>
+
+                <div class="form-group" id="editProdBundleSizeGroup" style="display: none;">
+                  <label for="editProdBundleSize">Number of Fragrance Choices for Customer (1-4)</label>
+                  <select id="editProdBundleSize" class="form-input" style="background:#1a1a24; color: #fff;">
+                    <option value="1">1 Choice</option>
+                    <option value="2">2 Choices</option>
+                    <option value="3">3 Choices</option>
+                    <option value="4">4 Choices</option>
                   </select>
                 </div>
 
@@ -2682,14 +2712,16 @@
                           image_thumb: data.image_thumb || "",
                           description: data.description,
                           flair: data.flair || "",
-                          sizes: data.sizes || ["50ml", "100ml"]
+                          sizes: data.sizes || ["50ml", "100ml"],
+                          isBundle: !!data.isBundle,
+                          bundleSize: Number(data.bundleSize) || 0
                       };
                       firestoreProds.push(p);
                       
                       const existingIdx = products.findIndex(item => item.id === p.id);
                       if (existingIdx > -1) {
                           const current = products[existingIdx];
-                          if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.image_thumb !== p.image_thumb || current.description !== p.description || current.flair !== p.flair || JSON.stringify(current.sizes) !== JSON.stringify(p.sizes)) {
+                          if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.image_thumb !== p.image_thumb || current.description !== p.description || current.flair !== p.flair || JSON.stringify(current.sizes) !== JSON.stringify(p.sizes) || current.isBundle !== p.isBundle || current.bundleSize !== p.bundleSize) {
                               products[existingIdx] = p;
                               updated = true;
                           }
@@ -2707,7 +2739,7 @@
                           const idx = localProds.findIndex(lp => lp.id === fp.id);
                           if (idx > -1) {
                               const cur = localProds[idx];
-                              if (cur.nameShort !== fp.nameShort || cur.name !== fp.name || cur.price !== fp.price || cur.retailPrice !== fp.retailPrice || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.image_thumb !== fp.image_thumb || cur.description !== fp.description || cur.flair !== fp.flair || JSON.stringify(cur.sizes) !== JSON.stringify(fp.sizes)) {
+                              if (cur.nameShort !== fp.nameShort || cur.name !== fp.name || cur.price !== fp.price || cur.retailPrice !== fp.retailPrice || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.image_thumb !== fp.image_thumb || cur.description !== fp.description || cur.flair !== fp.flair || JSON.stringify(cur.sizes) !== JSON.stringify(fp.sizes) || cur.isBundle !== fp.isBundle || cur.bundleSize !== fp.bundleSize) {
                                   localProds[idx] = { ...fp, syncStatus: "synced" };
                                   localUpdated = true;
                               }
@@ -2905,6 +2937,8 @@
       const status = document.getElementById("prodStatus").value;
       const flair = document.getElementById("prodFlair").value;
       const invisibleFlair = document.getElementById("prodInvisibleFlair").value;
+      const isBundle = document.getElementById("prodIsBundle").checked;
+      const bundleSize = isBundle ? parseInt(document.getElementById("prodBundleSize").value) : 0;
 
       if (!name || isNaN(price) || isNaN(stock) || !description) return;
       if (!imageInput && !fileInput) {
@@ -2957,7 +2991,9 @@
           description: description,
           status: status,
           flair: flair,
-          sizes: sizes
+          sizes: sizes,
+          isBundle: isBundle,
+          bundleSize: bundleSize
       };
 
       try {
@@ -2996,6 +3032,8 @@
                       flair: flair,
                       invisibleFlair: invisibleFlair,
                       sizes: sizes,
+                      isBundle: isBundle,
+                      bundleSize: bundleSize,
                       timestamp: new Date().toISOString()
                   }),
                   timeoutPromise
@@ -3033,7 +3071,9 @@
                       status: status,
                       flair: flair,
                       invisibleFlair: invisibleFlair,
-                      sizes: sizes
+                      sizes: sizes,
+                      isBundle: isBundle,
+                      bundleSize: bundleSize
                   }
               });
               console.log("GitHub sync successful for: " + name);
@@ -3195,6 +3235,16 @@
       }
     };
 
+    window.toggleBundleSizeInput = function(action) {
+      if (action === 'add') {
+        const isBundle = document.getElementById("prodIsBundle").checked;
+        document.getElementById("prodBundleSizeGroup").style.display = isBundle ? "block" : "none";
+      } else {
+        const isBundle = document.getElementById("editProdIsBundle").checked;
+        document.getElementById("editProdBundleSizeGroup").style.display = isBundle ? "block" : "none";
+      }
+    };
+
     window.updateLogoSliders = function() {
       const dSpawn = document.getElementById("logoDesktopSpawn").value;
       const dStick = document.getElementById("logoDesktopStick").value;
@@ -3254,6 +3304,11 @@
       document.getElementById("editProdFlair").value = product.flair || "";
       document.getElementById("editProdInvisibleFlair").value = product.invisibleFlair || "";
 
+      const isBundle = !!product.isBundle;
+      document.getElementById("editProdIsBundle").checked = isBundle;
+      document.getElementById("editProdBundleSize").value = product.bundleSize || "1";
+      document.getElementById("editProdBundleSizeGroup").style.display = isBundle ? "block" : "none";
+
       const pSizes = product.sizes || ["50ml", "100ml"];
       document.getElementById("editProdSize50").checked = pSizes.includes("50ml");
       document.getElementById("editProdSize100").checked = pSizes.includes("100ml");
@@ -3285,6 +3340,8 @@
       const status = document.getElementById("editProdStatus").value;
       const flair = document.getElementById("editProdFlair").value;
       const invisibleFlair = document.getElementById("editProdInvisibleFlair").value;
+      const isBundle = document.getElementById("editProdIsBundle").checked;
+      const bundleSize = isBundle ? parseInt(document.getElementById("editProdBundleSize").value) : 0;
 
       if (!id || !name || isNaN(price) || isNaN(stock) || !description) return;
       if (!imageInput && !fileInput) {
@@ -3345,7 +3402,9 @@
           status: status,
           flair: flair,
           invisibleFlair: invisibleFlair,
-          sizes: sizes
+          sizes: sizes,
+          isBundle: isBundle,
+          bundleSize: bundleSize
       };
 
       try {
@@ -3382,6 +3441,8 @@
                       flair: flair,
                       invisibleFlair: invisibleFlair,
                       sizes: sizes,
+                      isBundle: isBundle,
+                      bundleSize: bundleSize,
                       timestamp: new Date().toISOString()
                   }),
                   timeoutPromise
@@ -3419,7 +3480,9 @@
                       status: status,
                       flair: flair,
                       invisibleFlair: invisibleFlair,
-                      sizes: sizes
+                      sizes: sizes,
+                      isBundle: isBundle,
+                      bundleSize: bundleSize
                   }
               });
               console.log("GitHub sync successful for edited: " + name);

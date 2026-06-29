@@ -1013,6 +1013,8 @@ function updateCartCount(count){
                     if (!products.some(item => item.id === p.id)) {
                         products.push({
                             ...p,
+                            isBundle: !!p.isBundle,
+                            bundleSize: Number(p.bundleSize) || 0,
                             url: p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`
                         });
                     } else {
@@ -1022,6 +1024,8 @@ function updateCartCount(count){
                             products[existingIdx] = {
                                 ...products[existingIdx],
                                 ...p,
+                                isBundle: !!p.isBundle,
+                                bundleSize: Number(p.bundleSize) || 0,
                                 url: p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`
                             };
                         }
@@ -1258,17 +1262,25 @@ function updateCartCount(count){
                 // Safe button actions mapping
                 const btn = item.querySelector('.add-to-cart-btn');
                 if (p.stock > 0) {
-                    btn.innerHTML = `
-                        <svg class="cart-icon" style="width: 12px; height: 12px;" viewBox="0 0 30 30" fill="none">
-                            <rect x="7" y="12" width="16" height="11" fill="none" stroke="currentColor" stroke-width="2"/>
-                            <path d="M10 12 V7 H20 V12" fill="none" stroke="currentColor" stroke-width="2"/>
-                        </svg>
-                        <span>ADD TO BAG</span>
-                    `;
-                    btn.disabled = false;
-                    btn.style.opacity = "";
-                    btn.style.cursor = "";
-                    btn.setAttribute('onclick', `addToCart('${p.id}')`);
+                    if (p.isBundle) {
+                        btn.innerHTML = `<span>SELECT SCENTS</span>`;
+                        btn.disabled = false;
+                        btn.style.opacity = "";
+                        btn.style.cursor = "pointer";
+                        btn.setAttribute('onclick', `window.location.href='${p.url}'`);
+                    } else {
+                        btn.innerHTML = `
+                            <svg class="cart-icon" style="width: 12px; height: 12px;" viewBox="0 0 30 30" fill="none">
+                                <rect x="7" y="12" width="16" height="11" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <path d="M10 12 V7 H20 V12" fill="none" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span>ADD TO BAG</span>
+                        `;
+                        btn.disabled = false;
+                        btn.style.opacity = "";
+                        btn.style.cursor = "";
+                        btn.setAttribute('onclick', `addToCart('${p.id}')`);
+                    }
                 } else {
                     btn.innerHTML = `<span>OUT OF STOCK</span>`;
                     btn.disabled = true;
@@ -1344,7 +1356,8 @@ function updateCartCount(count){
                         status: data.status,
                         flair: data.flair || "",
                         invisibleFlair: data.invisibleFlair || "",
-                        sizes: data.sizes || ["50ml", "100ml"],
+                        isBundle: !!data.isBundle,
+                        bundleSize: Number(data.bundleSize) || 0,
                         url: data.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${data.id}`
                     };
                     firestoreProds.push(p);
@@ -1352,7 +1365,7 @@ function updateCartCount(count){
                     const existingIdx = products.findIndex(item => item.id === p.id);
                     if (existingIdx > -1) {
                         const current = products[existingIdx];
-                        if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair || current.invisibleFlair !== p.invisibleFlair || JSON.stringify(current.sizes) !== JSON.stringify(p.sizes)) {
+                        if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair || current.invisibleFlair !== p.invisibleFlair || current.isBundle !== p.isBundle || current.bundleSize !== p.bundleSize) {
                             products[existingIdx] = p;
                             updated = true;
                         }

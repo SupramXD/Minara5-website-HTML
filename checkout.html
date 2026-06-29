@@ -822,6 +822,11 @@
         cleanImage = 'https://via.placeholder.com/150x200?text=Minara5';
       }
 
+      let selectionsHtml = '';
+      if (item.selectedScents && item.selectedScents.length > 0) {
+        selectionsHtml = `<div class="summary-item-meta" style="color: #1106e8; font-weight: 500;">Selections: ${item.selectedScents.join(', ')}</div>`;
+      }
+
       itemsHtml += `
         <div class="summary-item-row">
           <img src="${cleanImage}" class="summary-item-img" alt="${item.nameShort || item.name}">
@@ -829,6 +834,7 @@
             <div>
               <div class="summary-item-name">${item.nameShort || item.name}</div>
               <div class="summary-item-meta">Size: ${item.size || '100ml'}</div>
+              ${selectionsHtml}
               <div class="summary-item-meta">Qty: ${item.quantity}</div>
             </div>
             <div class="summary-item-price">R${item.price * item.quantity}</div>
@@ -1123,7 +1129,13 @@
     const paymentId = 'MINARA-' + Math.floor(Math.random() * 900000 + 100000) + '-' + Date.now().toString().slice(-4);
 
     // Compile items name
-    let compiledItemsName = activeItems.map(item => `${item.nameShort || item.name} (${item.size || '100ml'}) x${item.quantity}`).join(', ');
+    let compiledItemsName = activeItems.map(item => {
+      let suffix = '';
+      if (item.selectedScents && item.selectedScents.length > 0) {
+        suffix = ` [${item.selectedScents.join(', ')}]`;
+      }
+      return `${item.nameShort || item.name}${suffix} (${item.size || '100ml'}) x${item.quantity}`;
+    }).join(', ');
     if (compiledItemsName.length > 95) {
       compiledItemsName = compiledItemsName.substring(0, 92) + '...';
     }
@@ -1177,7 +1189,13 @@
         address: compiledAddress,
         deliveryDate: deliveryDate,
         total: finalTotal,
-        items: activeItems.map(item => ({ name: item.nameShort || item.name, quantity: item.quantity, price: item.price, size: item.size }))
+        items: activeItems.map(item => ({
+          name: item.nameShort || item.name,
+          quantity: item.quantity,
+          price: item.price,
+          size: item.size,
+          selectedScents: item.selectedScents || null
+        }))
       }));
     } catch(e) {
       console.warn("Failed to store checkout details locally:", e);

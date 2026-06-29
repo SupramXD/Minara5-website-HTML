@@ -1539,6 +1539,74 @@ footer{
             <div id="sizePickerOptions"></div>
         </div>
 
+        <!-- Bundle Selection Container -->
+        <div id="bundlePickerContainer" style="display: none; margin-bottom: 25px; width: 100%;">
+            <style>
+                .bundle-choice-slot {
+                    position: relative;
+                    width: 100%;
+                    margin-bottom: 12px;
+                }
+                .bundle-scent-input {
+                    border: none;
+                    width: 100%;
+                    font-size: 11px;
+                    outline: none;
+                    font-family: inherit;
+                    letter-spacing: 1.5px;
+                    text-transform: uppercase;
+                    background: transparent;
+                    color: #000;
+                }
+                .bundle-scent-clear {
+                    cursor: pointer;
+                    font-size: 9px;
+                    color: #1106e8;
+                    font-weight: bold;
+                    display: none;
+                    margin-left: 8px;
+                    letter-spacing: 1px;
+                    text-transform: uppercase;
+                    flex-shrink: 0;
+                    user-select: none;
+                }
+                .bundle-scent-clear:hover {
+                    text-decoration: underline;
+                }
+                .bundle-dropdown {
+                    display: none;
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    top: 100%;
+                    background: #fff;
+                    border: 1px solid #000;
+                    border-top: none;
+                    z-index: 1000;
+                    max-height: 220px;
+                    overflow-y: auto;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                }
+                .bundle-dropdown-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 10px 14px;
+                    cursor: pointer;
+                    transition: background 0.2s ease;
+                    border-bottom: 1px solid #eee;
+                }
+                .bundle-dropdown-item:last-child {
+                    border-bottom: none;
+                }
+                .bundle-dropdown-item:hover {
+                    background: #f9f9f9;
+                }
+            </style>
+            <div style="font-size: 10px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px;">Customize Your Bundle:</div>
+            <div id="bundleChoicesWrap" style="display: flex; flex-direction: column; gap: 12px; position: relative;"></div>
+        </div>
+
         <button class="add-to-cart" id="addToBagBtn" disabled>ADD TO BAG</button>
 
         <div class="trust-badge-line">
@@ -1864,6 +1932,7 @@ window.openCart = function() {
 
     let currentProductReviews = [];
     let visibleReviewsCount = 3;
+    let activeCatalogFragrances = [];
 
     async function initProductDetails() {
         const params = new URLSearchParams(window.location.search);
@@ -1896,9 +1965,214 @@ window.openCart = function() {
         try {
             const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
             product = localProds.find(p => p.id === productId);
+            if (product && !product.hasOwnProperty('isBundle')) {
+                product.isBundle = false;
+                product.bundleSize = 0;
+            }
+            activeCatalogFragrances = localProds.filter(p => p.status === "Active" && !p.isBundle && p.id !== "leopard-backpack");
         } catch (e) {
             console.error("Local storage product read failed:", e);
         }
+
+        // Setup scent bundle selectors
+        const setupBundleSelectors = (p) => {
+            const container = document.getElementById("bundlePickerContainer");
+            const wrap = document.getElementById("bundleChoicesWrap");
+            if (!container || !wrap) return;
+
+            container.style.display = "block";
+            wrap.innerHTML = "";
+
+            const bundleSize = Number(p.bundleSize) || 1;
+            const selectedScents = Array(bundleSize).fill(null);
+
+            // Fetch popular fragrances for search algorithm mapping fallback in background
+            let popularFragrances = [];
+            if (typeof window.fetchPopularFragrances === 'function') {
+                window.fetchPopularFragrances().then(data => {
+                    popularFragrances = data || [];
+                }).catch(err => console.error("Error fetching popular fragrances: ", err));
+            }
+
+            const getThumbnailUrl = (item) => {
+                let img = '';
+                if (item.image_thumb) {
+                    img = item.image_thumb;
+                } else if (item.image) {
+                    img = item.image.split(',')[0].trim();
+                }
+                return img ? img : 'https://via.placeholder.com/150x200?text=Minara5';
+            };
+
+            const renderDropdownList = (dropdownEl, queryText, index, inputEl, clearBtn) => {
+                dropdownEl.innerHTML = "";
+                
+                let matches = [];
+
+                if (!queryText.trim()) {
+                    // Show our top sold fragrances
+                    matches = activeCatalogFragrances.map(prod => ({
+                        type: 'direct',
+                        product: prod
+                    }));
+                } else {
+                    const query = queryText.toLowerCase().trim();
+                    
+                    // 1. Direct match on our site products
+                    const matchedStoreProds = activeCatalogFragrances.filter(prod => {
+                        const nameMatches = (prod.name || "").toLowerCase().includes(query) || (prod.nameShort || "").toLowerCase().includes(query);
+                        const idMatches = (prod.id || "").toLowerCase().includes(query);
+                        const flairMatches = (prod.flair || "").toLowerCase().includes(query) || (prod.invisibleFlair || "").toLowerCase().includes(query);
+                        return nameMatches || idMatches || flairMatches;
+                    });
+
+                    // 2. Fuzzy/mapping search using popular_fragrances.json matching algorithm
+                    let matchedFromPopular = [];
+                    if (window.findSearchMatchedProductIds) {
+                        try {
+                            const matchedIds = window.findSearchMatchedProductIds(queryText);
+                            if (matchedIds && matchedIds.length > 0) {
+                                matchedIds.forEach(id => {
+                                    const foundProd = activeCatalogFragrances.find(p => p.id === id);
+                                    if (foundProd && !matchedStoreProds.some(sp => sp.id === foundProd.id)) {
+                                        matchedFromPopular.push(foundProd);
+                                    }
+                                });
+                            }
+                        } catch (err) {
+                            console.error("Search algorithm execution error:", err);
+                        }
+                    }
+
+                    matchedStoreProds.forEach(prod => {
+                        matches.push({ type: 'direct', product: prod });
+                    });
+                    matchedFromPopular.forEach(prod => {
+                        matches.push({ type: 'recommendation', product: prod });
+                    });
+                }
+
+                if (matches.length === 0) {
+                    dropdownEl.innerHTML = `<div style="font-size: 10px; opacity: 0.5; padding: 12px; font-style: italic; text-transform: uppercase; letter-spacing: 0.5px;">No matches found</div>`;
+                    return;
+                }
+
+                matches.forEach(match => {
+                    const prod = match.product;
+                    const itemEl = document.createElement("div");
+                    itemEl.className = "bundle-dropdown-item";
+                    
+                    const thumb = getThumbnailUrl(prod);
+                    const displayName = prod.nameShort || prod.name;
+                    
+                    let descHtml = `<span style="font-size: 9px; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.5px;">${prod.flair || "Extrait de Parfum"}</span>`;
+                    if (match.type === 'recommendation') {
+                        descHtml = `<span style="font-size: 8px; color: #1106e8; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">RECOMMENDED MATCH</span>`;
+                    }
+
+                    itemEl.innerHTML = `
+                        <img src="${thumb}" style="width: 32px; height: 42px; object-fit: contain; flex-shrink: 0;">
+                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                            <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #000;">${displayName}</span>
+                            ${descHtml}
+                        </div>
+                    `;
+
+                    itemEl.onclick = (e) => {
+                        e.stopPropagation();
+                        selectedScents[index] = prod.nameShort || prod.name;
+                        inputEl.value = (prod.nameShort || prod.name).toUpperCase();
+                        inputEl.style.fontWeight = "bold";
+                        clearBtn.style.display = "block";
+                        dropdownEl.style.display = "none";
+                        
+                        updateAddToBagBtnState();
+                    };
+
+                    dropdownEl.appendChild(itemEl);
+                });
+            };
+
+            const updateAddToBagBtnState = () => {
+                if (p.stock <= 0) return; // Out of stock takes precedence
+
+                const allSelected = selectedScents.every(s => s !== null);
+                if (allSelected) {
+                    addToBagBtn.innerHTML = "ADD TO BAG";
+                    addToBagBtn.disabled = false;
+                    addToBagBtn.style.opacity = "";
+                    addToBagBtn.style.cursor = "";
+                } else {
+                    addToBagBtn.innerHTML = "SELECT ALL FRAGRANCES";
+                    addToBagBtn.disabled = true;
+                    addToBagBtn.style.opacity = "0.5";
+                    addToBagBtn.style.cursor = "not-allowed";
+                }
+            };
+
+            for (let i = 0; i < bundleSize; i++) {
+                const slot = document.createElement("div");
+                slot.className = "bundle-choice-slot";
+
+                slot.innerHTML = `
+                    <div style="font-size: 9px; opacity: 0.5; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Choice ${i + 1}</div>
+                    <div style="position: relative; display: flex; align-items: center; border: 1px solid #000; padding: 10px 12px; border-radius: 2px; background: #fff;">
+                        <input type="text" class="bundle-scent-input" placeholder="CLICK TO SELECT OR TYPE TO SEARCH..." autocomplete="off" style="border: none; width: 100%; font-size: 11px; outline: none; font-family: inherit; letter-spacing: 1.5px; text-transform: uppercase; background: transparent; color: #000;">
+                        <span class="bundle-scent-clear" style="cursor: pointer; font-size: 9px; color: #1106e8; font-weight: bold; display: none; margin-left: 8px; letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; user-select: none;">CLEAR</span>
+                    </div>
+                    <div class="bundle-dropdown" style="display: none; position: absolute; left: 0; right: 0; top: 100%; background: #fff; border: 1px solid #000; border-top: none; z-index: 1000; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.15);"></div>
+                `;
+
+                const inputEl = slot.querySelector(".bundle-scent-input");
+                const dropdownEl = slot.querySelector(".bundle-dropdown");
+                const clearBtn = slot.querySelector(".bundle-scent-clear");
+
+                inputEl.onclick = (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll(".bundle-dropdown").forEach(d => {
+                        if (d !== dropdownEl) d.style.display = "none";
+                    });
+                    renderDropdownList(dropdownEl, inputEl.value, i, inputEl, clearBtn);
+                    dropdownEl.style.display = "block";
+                };
+
+                inputEl.oninput = () => {
+                    renderDropdownList(dropdownEl, inputEl.value, i, inputEl, clearBtn);
+                    dropdownEl.style.display = "block";
+                    if (!inputEl.value.trim()) {
+                        selectedScents[i] = null;
+                        clearBtn.style.display = "none";
+                        inputEl.style.fontWeight = "";
+                        updateAddToBagBtnState();
+                    }
+                };
+
+                clearBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    selectedScents[i] = null;
+                    inputEl.value = "";
+                    inputEl.style.fontWeight = "";
+                    clearBtn.style.display = "none";
+                    dropdownEl.style.display = "none";
+                    updateAddToBagBtnState();
+                };
+
+                wrap.appendChild(slot);
+            }
+
+            const handleDocClick = () => {
+                document.querySelectorAll(".bundle-dropdown").forEach(d => d.style.display = "none");
+            };
+            document.removeEventListener("click", handleDocClick);
+            document.addEventListener("click", handleDocClick);
+
+            addToBagBtn.onclick = () => {
+                if (selectedScents.some(s => s === null)) return;
+                window.addToCart(p.id, "100ml", selectedScents);
+            };
+            
+            updateAddToBagBtnState();
+        };
 
         // Helper to swap dynamic content
         const swapContent = (p) => {
@@ -2193,56 +2467,68 @@ window.openCart = function() {
             const addToBagBtn = document.querySelector('.add-to-cart');
             const sizeContainer = document.getElementById('sizePickerContainer');
             const sizeOptionsDiv = document.getElementById('sizePickerOptions');
+            const bundleContainer = document.getElementById('bundlePickerContainer');
             
+            if (sizeContainer) sizeContainer.style.display = "none";
+            if (bundleContainer) bundleContainer.style.display = "none";
+
             if (addToBagBtn) {
-                const availableSizes = p.sizes && p.sizes.length > 0 ? p.sizes : ["50ml", "100ml"];
-                let selectedSize = availableSizes[0];
-                
-                if (sizeContainer && sizeOptionsDiv) {
-                    sizeOptionsDiv.innerHTML = "";
-                    sizeContainer.style.display = "block";
+                addToBagBtn.disabled = false;
+                addToBagBtn.style.opacity = "";
+                addToBagBtn.style.cursor = "";
+
+                if (p.isBundle) {
+                    setupBundleSelectors(p);
+                } else {
+                    const availableSizes = p.sizes && p.sizes.length > 0 ? p.sizes : ["50ml", "100ml"];
+                    let selectedSize = availableSizes[0];
                     
-                    availableSizes.forEach((sz) => {
-                        const btn = document.createElement('button');
-                        btn.textContent = sz.toUpperCase();
-                        btn.className = "size-picker-btn";
+                    if (sizeContainer && sizeOptionsDiv) {
+                        sizeOptionsDiv.innerHTML = "";
+                        sizeContainer.style.display = "block";
                         
-                        const updateBtnStyles = () => {
-                            if (selectedSize === sz) {
-                                btn.classList.add('active');
-                            } else {
-                                btn.classList.remove('active');
-                            }
-                        };
-                        
-                        updateBtnStyles();
-                        
-                        if (availableSizes.length > 1) {
-                            btn.onclick = () => {
-                                selectedSize = sz;
-                                const siblings = sizeOptionsDiv.querySelectorAll('button');
-                                siblings.forEach(sib => {
-                                    if (sib.textContent === sz.toUpperCase()) {
-                                        sib.classList.add('active');
-                                    } else {
-                                        sib.classList.remove('active');
-                                    }
-                                });
-                                addToBagBtn.onclick = () => {
-                                    window.addToCart(p.id, selectedSize);
-                                };
+                        availableSizes.forEach((sz) => {
+                            const btn = document.createElement('button');
+                            btn.textContent = sz.toUpperCase();
+                            btn.className = "size-picker-btn";
+                            
+                            const updateBtnStyles = () => {
+                                if (selectedSize === sz) {
+                                    btn.classList.add('active');
+                                } else {
+                                    btn.classList.remove('active');
+                                }
                             };
-                        } else {
-                            btn.style.cursor = "default";
-                        }
-                        
-                        sizeOptionsDiv.appendChild(btn);
-                    });
+                            
+                            updateBtnStyles();
+                            
+                            if (availableSizes.length > 1) {
+                                btn.onclick = () => {
+                                    selectedSize = sz;
+                                    const siblings = sizeOptionsDiv.querySelectorAll('button');
+                                    siblings.forEach(sib => {
+                                        if (sib.textContent === sz.toUpperCase()) {
+                                            sib.classList.add('active');
+                                        } else {
+                                            sib.classList.remove('active');
+                                        }
+                                    });
+                                    addToBagBtn.onclick = () => {
+                                        window.addToCart(p.id, selectedSize);
+                                    };
+                                };
+                            } else {
+                                btn.style.cursor = "default";
+                            }
+                            
+                            sizeOptionsDiv.appendChild(btn);
+                        });
+                    }
+                    
+                    addToBagBtn.onclick = () => {
+                        window.addToCart(p.id, selectedSize);
+                    };
                 }
-                
-                addToBagBtn.onclick = () => {
-                    window.addToCart(p.id, selectedSize);
-                };
                 addToBagBtn.removeAttribute('onclick');
                 
                 if (p.stock <= 0) {
@@ -2317,6 +2603,9 @@ window.openCart = function() {
                     throw new Error(`Failed to load products.json: Status ${response.status}`);
                 }
                 const fetchedProds = await response.json();
+                if (fetchedProds) {
+                    activeCatalogFragrances = fetchedProds.filter(p => p.status === "Active" && !p.isBundle && p.id !== "leopard-backpack");
+                }
                 const data = fetchedProds.find(p => p.id === productId);
                 
                 if (data) {
@@ -2333,11 +2622,13 @@ window.openCart = function() {
                         status: data.status,
                         flair: data.flair || "",
                         invisibleFlair: data.invisibleFlair || "",
-                        sizes: data.sizes || ["50ml", "100ml"]
+                        sizes: data.sizes || ["50ml", "100ml"],
+                        isBundle: !!data.isBundle,
+                        bundleSize: Number(data.bundleSize) || 0
                     };
                     
                     // Only swap if values changed or we didn't have local cache!
-                    if (!product || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair || product.invisibleFlair !== liveProduct.invisibleFlair || JSON.stringify(product.sizes) !== JSON.stringify(liveProduct.sizes)) {
+                    if (!product || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair || product.invisibleFlair !== liveProduct.invisibleFlair || JSON.stringify(product.sizes) !== JSON.stringify(liveProduct.sizes) || product.isBundle !== liveProduct.isBundle || product.bundleSize !== liveProduct.bundleSize) {
                         product = liveProduct;
                         swapContent(product);
                         

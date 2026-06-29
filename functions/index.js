@@ -102,7 +102,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
 
   try {
     if (action === "saveProduct") {
-      const {id, nameShort, name, price, retailPrice, stock, image, image_thumb, description, status, flair, invisibleFlair, sizes} = payload;
+      const {id, nameShort, name, price, retailPrice, stock, image, image_thumb, description, status, flair, invisibleFlair, sizes, isBundle, bundleSize} = payload;
 
       let mainImagePath = image;
       let thumbImagePath = image_thumb;
@@ -156,6 +156,8 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         flair: flair || "",
         invisibleFlair: invisibleFlair || "",
         sizes: sizes || ["50ml", "100ml"],
+        isBundle: isBundle !== undefined ? !!isBundle : false,
+        bundleSize: bundleSize !== undefined ? Number(bundleSize) : 0,
       };
 
       const existingIdx = productsList.findIndex((p) => p.id === id);
