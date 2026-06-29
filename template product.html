@@ -3045,10 +3045,22 @@ window.openCart = function() {
         }
     };
 
+    const runInitSafe = async () => {
+        try {
+            await initProductDetails();
+        } catch (globalErr) {
+            console.error("Fatal error in initProductDetails:", globalErr);
+            const descEl = document.querySelector('.desc');
+            if (descEl) {
+                descEl.innerHTML = `<div style="color:red; font-family:monospace; padding:15px; border:1px solid red; background:#fff1f1; font-size:12px; text-transform:none; letter-spacing:0; margin-top:20px; line-height:1.5;">Fatal initialization error: ${globalErr.message}<br><pre style="margin-top:10px; white-space:pre-wrap;">${globalErr.stack}</pre></div>`;
+            }
+        }
+    };
+
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initProductDetails);
+        document.addEventListener("DOMContentLoaded", runInitSafe);
     } else {
-        initProductDetails();
+        runInitSafe();
     }
 </script>
 
