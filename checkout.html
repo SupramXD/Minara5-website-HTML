@@ -824,7 +824,8 @@
 
       let selectionsHtml = '';
       if (item.selectedScents && item.selectedScents.length > 0) {
-        selectionsHtml = `<div class="summary-item-meta" style="color: #1106e8; font-weight: 500;">Selections: ${item.selectedScents.join(', ')}</div>`;
+        const names = item.selectedScents.map(s => typeof s === 'object' && s ? s.name : s);
+        selectionsHtml = `<div class="summary-item-meta" style="color: #1106e8; font-weight: 500;">Selections: ${names.join(', ')}</div>`;
       }
 
       itemsHtml += `
@@ -1132,7 +1133,8 @@
     let compiledItemsName = activeItems.map(item => {
       let suffix = '';
       if (item.selectedScents && item.selectedScents.length > 0) {
-        suffix = ` [${item.selectedScents.join(', ')}]`;
+        const names = item.selectedScents.map(s => typeof s === 'object' && s ? s.name : s);
+        suffix = ` [${names.join(', ')}]`;
       }
       return `${item.nameShort || item.name}${suffix} (${item.size || '100ml'}) x${item.quantity}`;
     }).join(', ');

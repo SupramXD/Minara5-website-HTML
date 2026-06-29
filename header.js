@@ -751,7 +751,26 @@ window.removeFromCart = function(index) {
             if (item.removed) {
                 let removedScentsHtml = "";
                 if (item.selectedScents && item.selectedScents.length > 0) {
-                    removedScentsHtml = `<div style="font-family:Helvetica, Arial, sans-serif; font-size:9.5px; color:#ff3b30; opacity:0.7; margin-top:3px; letter-spacing:0.5px; text-transform:uppercase; font-weight:500;">Selections: ${item.selectedScents.join(', ')}</div>`;
+                    removedScentsHtml = `<div style="margin-top: 6px; padding-left: 10px; border-left: 2px solid #ff3b30; opacity: 0.7; display: flex; flex-direction: column; gap: 6px;">`;
+                    item.selectedScents.forEach((scent) => {
+                        const name = typeof scent === 'object' && scent ? scent.name : scent;
+                        const inspiredBy = typeof scent === 'object' && scent ? scent.inspiredBy : "";
+                        const img = typeof scent === 'object' && scent ? scent.image : "";
+                        
+                        const imgHtml = img ? `<img src="${img}" style="width: 18px; height: 24px; object-fit: contain; flex-shrink: 0; opacity: 0.7;">` : '';
+                        const inspiredHtml = inspiredBy ? `<div style="font-family:Helvetica, Arial, sans-serif; font-size: 7px; opacity: 0.4; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase;">INSPIRED BY ${inspiredBy}</div>` : '';
+                        
+                        removedScentsHtml += `
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                ${imgHtml}
+                                <div style="display: flex; flex-direction: column; min-width: 0;">
+                                    <div style="font-family: Helvetica, Arial, sans-serif; font-size: 8px; font-weight: 600; color: #555; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</div>
+                                    ${inspiredHtml}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    removedScentsHtml += `</div>`;
                 }
                 html += `
                 <div class="cart-item-row removed-item-row" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eaeaea; padding:10px 15px; background:#fafafa; box-sizing:border-box; width:100%;">
@@ -772,7 +791,26 @@ window.removeFromCart = function(index) {
 
                 let scentsHtml = "";
                 if (item.selectedScents && item.selectedScents.length > 0) {
-                    scentsHtml = `<div style="font-family:Helvetica, Arial, sans-serif; font-size:9.5px; color:#1106e8; margin-top:3px; letter-spacing:0.5px; text-transform:uppercase; font-weight:500;">Selections: ${item.selectedScents.join(', ')}</div>`;
+                    scentsHtml = `<div style="margin-top: 8px; padding-left: 12px; border-left: 2px solid #1106e8; display: flex; flex-direction: column; gap: 8px;">`;
+                    item.selectedScents.forEach((scent) => {
+                        const name = typeof scent === 'object' && scent ? scent.name : scent;
+                        const inspiredBy = typeof scent === 'object' && scent ? scent.inspiredBy : "";
+                        const img = typeof scent === 'object' && scent ? scent.image : "";
+                        
+                        const imgHtml = img ? `<img src="${img}" style="width: 24px; height: 32px; object-fit: contain; flex-shrink: 0; background: #fafafa; border: 1px solid #eaeaea; border-radius: 1px;">` : '';
+                        const inspiredHtml = inspiredBy ? `<div style="font-family:Helvetica, Arial, sans-serif; font-size: 7.5px; opacity: 0.5; font-weight: bold; letter-spacing: 0.5px; margin-top: 1px; text-transform: uppercase;">INSPIRED BY ${inspiredBy}</div>` : '';
+                        
+                        scentsHtml += `
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                ${imgHtml}
+                                <div style="display: flex; flex-direction: column; min-width: 0;">
+                                    <div style="font-family: Helvetica, Arial, sans-serif; font-size: 9px; font-weight: 600; color: #333; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</div>
+                                    ${inspiredHtml}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    scentsHtml += `</div>`;
                 }
 
                 html += `

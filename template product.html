@@ -2004,7 +2004,7 @@ window.openCart = function() {
                 return img ? img : 'https://via.placeholder.com/150x200?text=Minara5';
             };
 
-            const renderDropdownList = (dropdownEl, queryText, index, inputEl, clearBtn) => {
+            const renderDropdownList = (dropdownEl, queryText, index, inputEl, displayBox, inputBox, selectedImgEl, selectedNameEl, selectedInspiredEl) => {
                 dropdownEl.innerHTML = "";
                 
                 let matches = [];
@@ -2065,25 +2065,45 @@ window.openCart = function() {
                     const thumb = getThumbnailUrl(prod);
                     const displayName = prod.nameShort || prod.name;
                     
-                    let descHtml = `<span style="font-size: 9px; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.5px;">${prod.flair || "Extrait de Parfum"}</span>`;
+                    let inspiredByText = "";
+                    const inspiredMatch = prod.name ? prod.name.match(/Inspired\s+by\s+(.+)/i) : null;
+                    if (inspiredMatch) {
+                        inspiredByText = inspiredMatch[1];
+                    } else if (prod.id.startsWith("inspired-by-")) {
+                        inspiredByText = prod.name;
+                    }
+
+                    let descHtml = inspiredByText 
+                        ? `<span style="font-size: 8.5px; color: #777; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">INSPIRED BY ${inspiredByText.toUpperCase()}</span>`
+                        : `<span style="font-size: 9px; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.5px;">${prod.flair || "Extrait de Parfum"}</span>`;
+                        
                     if (match.type === 'recommendation') {
                         descHtml = `<span style="font-size: 8px; color: #1106e8; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">RECOMMENDED MATCH</span>`;
                     }
 
                     itemEl.innerHTML = `
-                        <img src="${thumb}" style="width: 32px; height: 42px; object-fit: contain; flex-shrink: 0;">
-                        <div style="display: flex; flex-direction: column; gap: 2px;">
-                            <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #000;">${displayName}</span>
+                        <img src="${thumb}" style="width: 28px; height: 38px; object-fit: contain; flex-shrink: 0; border: 1px solid #eaeaea; background: #fff;">
+                        <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                            <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</span>
                             ${descHtml}
                         </div>
                     `;
 
                     itemEl.onclick = (e) => {
                         e.stopPropagation();
-                        selectedScents[index] = prod.nameShort || prod.name;
-                        inputEl.value = (prod.nameShort || prod.name).toUpperCase();
-                        inputEl.style.fontWeight = "bold";
-                        clearBtn.style.display = "block";
+                        selectedScents[index] = {
+                            id: prod.id,
+                            name: prod.nameShort || prod.name,
+                            image: thumb,
+                            inspiredBy: inspiredByText
+                        };
+                        
+                        selectedNameEl.textContent = (prod.nameShort || prod.name).toUpperCase();
+                        selectedInspiredEl.innerHTML = inspiredByText ? `<span style="opacity: 0.6; font-size: 8px;">INSPIRED BY</span> ${inspiredByText.toUpperCase()}` : "";
+                        selectedImgEl.src = thumb;
+
+                        inputBox.style.display = "none";
+                        displayBox.style.display = "flex";
                         dropdownEl.style.display = "none";
                         
                         updateAddToBagBtnState();
@@ -2124,45 +2144,63 @@ window.openCart = function() {
 
                 slot.innerHTML = `
                     <div style="font-size: 9px; opacity: 0.5; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Choice ${i + 1}</div>
-                    <div style="position: relative; display: flex; align-items: center; border: 1px solid #000; padding: 10px 12px; border-radius: 2px; background: #fff;">
-                        <input type="text" class="bundle-scent-input" placeholder="CLICK TO SELECT OR TYPE TO SEARCH..." autocomplete="off" style="border: none; width: 100%; font-size: 11px; outline: none; font-family: inherit; letter-spacing: 1.5px; text-transform: uppercase; background: transparent; color: #000;">
-                        <span class="bundle-scent-clear" style="cursor: pointer; font-size: 9px; color: #1106e8; font-weight: bold; display: none; margin-left: 8px; letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; user-select: none;">CLEAR</span>
+                    
+                    <div class="bundle-scent-display-box" style="display: none; align-items: center; gap: 12px; border: 1px solid #000; padding: 8px 12px; border-radius: 2px; background: #fafafa; min-height: 48px; box-sizing: border-box; width: 100%;">
+                        <img class="selected-scent-img" src="" style="width: 24px; height: 32px; object-fit: contain; flex-shrink: 0; border: 1px solid #eaeaea; background: #fff;">
+                        <div style="display: flex; flex-direction: column; flex-grow: 1; min-width: 0;">
+                            <span class="selected-scent-name" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
+                            <span class="selected-scent-inspired" style="font-size: 8.5px; color: #777; font-weight: bold; letter-spacing: 0.8px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;"></span>
+                        </div>
+                        <span class="bundle-scent-switch" style="cursor: pointer; font-size: 9px; color: #1106e8; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; user-select: none;">SWITCH</span>
                     </div>
-                    <div class="bundle-dropdown" style="display: none; position: absolute; left: 0; right: 0; top: 100%; background: #fff; border: 1px solid #000; border-top: none; z-index: 1000; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.15);"></div>
+
+                    <div class="bundle-scent-input-box" style="position: relative; display: flex; align-items: center; border: 1px solid #000; padding: 10px 12px; border-radius: 2px; background: #fff; min-height: 48px; box-sizing: border-box; width: 100%;">
+                        <input type="text" class="bundle-scent-input" placeholder="CLICK TO SELECT OR TYPE TO SEARCH..." autocomplete="off" style="border: none; width: 100%; font-size: 10.5px; outline: none; font-family: inherit; letter-spacing: 1.5px; text-transform: uppercase; background: transparent; color: #000;">
+                    </div>
+                    
+                    <div class="bundle-dropdown" style="display: none; position: absolute; left: 0; right: 0; top: 100%; background: #fff; border: 1px solid #000; border-top: none; z-index: 1000; max-height: 220px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>
                 `;
 
+                const displayBox = slot.querySelector(".bundle-scent-display-box");
+                const selectedImgEl = slot.querySelector(".selected-scent-img");
+                const selectedNameEl = slot.querySelector(".selected-scent-name");
+                const selectedInspiredEl = slot.querySelector(".selected-scent-inspired");
+                const switchBtn = slot.querySelector(".bundle-scent-switch");
+
+                const inputBox = slot.querySelector(".bundle-scent-input-box");
                 const inputEl = slot.querySelector(".bundle-scent-input");
                 const dropdownEl = slot.querySelector(".bundle-dropdown");
-                const clearBtn = slot.querySelector(".bundle-scent-clear");
 
                 inputEl.onclick = (e) => {
                     e.stopPropagation();
                     document.querySelectorAll(".bundle-dropdown").forEach(d => {
                         if (d !== dropdownEl) d.style.display = "none";
                     });
-                    renderDropdownList(dropdownEl, inputEl.value, i, inputEl, clearBtn);
+                    renderDropdownList(dropdownEl, inputEl.value, i, inputEl, displayBox, inputBox, selectedImgEl, selectedNameEl, selectedInspiredEl);
                     dropdownEl.style.display = "block";
                 };
 
                 inputEl.oninput = () => {
-                    renderDropdownList(dropdownEl, inputEl.value, i, inputEl, clearBtn);
+                    renderDropdownList(dropdownEl, inputEl.value, i, inputEl, displayBox, inputBox, selectedImgEl, selectedNameEl, selectedInspiredEl);
                     dropdownEl.style.display = "block";
                     if (!inputEl.value.trim()) {
                         selectedScents[i] = null;
-                        clearBtn.style.display = "none";
-                        inputEl.style.fontWeight = "";
                         updateAddToBagBtnState();
                     }
                 };
 
-                clearBtn.onclick = (e) => {
+                switchBtn.onclick = (e) => {
                     e.stopPropagation();
                     selectedScents[i] = null;
                     inputEl.value = "";
-                    inputEl.style.fontWeight = "";
-                    clearBtn.style.display = "none";
-                    dropdownEl.style.display = "none";
+                    displayBox.style.display = "none";
+                    inputBox.style.display = "flex";
                     updateAddToBagBtnState();
+                    
+                    // Automatically trigger dropdown choices re-open
+                    setTimeout(() => {
+                        inputEl.click();
+                    }, 50);
                 };
 
                 wrap.appendChild(slot);
