@@ -1,7 +1,7 @@
 [
   {
     "id": "inspired-by-jpg-le-male",
-    "nameShort": "Vanille",
+    "nameShort": "Le Male Orange",
     "name": "JPG LE MALE",
     "price": 465,
     "retailPrice": 2100,
@@ -11,7 +11,7 @@
     "description": "undefined",
     "status": "Active",
     "flair": "Masculine",
-    "invisibleFlair": "men",
+    "invisibleFlair": "",
     "sizes": [
       "50ml"
     ]
