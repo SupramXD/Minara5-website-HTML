@@ -2595,7 +2595,7 @@ window.openCart = function() {
             swapContent(product);
         }
 
-        // 2. Try loading from products.json in background
+        // 2. Try loading from Firestore or products.json in background
         setTimeout(async () => {
             try {
                 const response = await fetch("products.json");
@@ -2606,26 +2606,65 @@ window.openCart = function() {
                 if (fetchedProds) {
                     activeCatalogFragrances = fetchedProds.filter(p => p.status === "Active" && !p.isBundle && p.id !== "leopard-backpack");
                 }
-                const data = fetchedProds.find(p => p.id === productId);
+
+                let data = null;
+
+                // Try fetching live product directly from Firestore first for instant updates
+                if (window.db) {
+                    try {
+                        const docRef = doc(window.db, "products", productId);
+                        const docSnap = await getDoc(docRef);
+                        if (docSnap.exists()) {
+                            const fsData = docSnap.data();
+                            data = {
+                                id: productId,
+                                nameShort: fsData.nameShort || "",
+                                name: fsData.name || "",
+                                price: fsData.price,
+                                retailPrice: fsData.retailPrice,
+                                stock: fsData.stock,
+                                image: fsData.image,
+                                image_thumb: fsData.image_thumb || "",
+                                description: fsData.description || "",
+                                status: fsData.status || "Active",
+                                flair: fsData.flair || "",
+                                invisibleFlair: fsData.invisibleFlair || "",
+                                sizes: fsData.sizes || ["50ml", "100ml"],
+                                isBundle: !!fsData.isBundle,
+                                bundleSize: Number(fsData.bundleSize) || 0
+                            };
+                        }
+                    } catch (fsErr) {
+                        console.warn("Failed to fetch product from Firestore directly, using products.json fallback:", fsErr);
+                    }
+                }
+
+                // Fallback to products.json if Firestore fetch was not possible or unsuccessful
+                if (!data) {
+                    const dataInJson = fetchedProds.find(p => p.id === productId);
+                    if (dataInJson) {
+                        data = {
+                            id: productId,
+                            nameShort: dataInJson.nameShort || "",
+                            name: dataInJson.name,
+                            price: Number(dataInJson.price),
+                            retailPrice: dataInJson.retailPrice !== undefined && dataInJson.retailPrice !== null ? Number(dataInJson.retailPrice) : null,
+                            stock: Number(dataInJson.stock),
+                            image: dataInJson.image,
+                            image_thumb: dataInJson.image_thumb || "",
+                            description: dataInJson.description || "",
+                            status: dataInJson.status,
+                            flair: dataInJson.flair || "",
+                            invisibleFlair: dataInJson.invisibleFlair || "",
+                            sizes: dataInJson.sizes || ["50ml", "100ml"],
+                            isBundle: !!dataInJson.isBundle,
+                            bundleSize: Number(dataInJson.bundleSize) || 0
+                        };
+                    }
+                }
                 
                 if (data) {
-                    const liveProduct = {
-                        id: productId,
-                        nameShort: data.nameShort || "",
-                        name: window.escapeHTML(data.name),
-                        price: Number(data.price),
-                        retailPrice: data.retailPrice !== undefined && data.retailPrice !== null ? Number(data.retailPrice) : null,
-                        stock: Number(data.stock),
-                        image: data.image,
-                        image_thumb: data.image_thumb || "",
-                        description: window.escapeHTML(data.description),
-                        status: data.status,
-                        flair: data.flair || "",
-                        invisibleFlair: data.invisibleFlair || "",
-                        sizes: data.sizes || ["50ml", "100ml"],
-                        isBundle: !!data.isBundle,
-                        bundleSize: Number(data.bundleSize) || 0
-                    };
+                    const liveProduct = data;
                     
                     // Only swap if values changed or we didn't have local cache!
                     if (!product || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair || product.invisibleFlair !== liveProduct.invisibleFlair || JSON.stringify(product.sizes) !== JSON.stringify(liveProduct.sizes) || product.isBundle !== liveProduct.isBundle || product.bundleSize !== liveProduct.bundleSize) {
