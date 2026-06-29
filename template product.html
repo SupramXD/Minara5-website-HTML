@@ -1989,9 +1989,9 @@ window.openCart = function() {
             // Fetch popular fragrances for search algorithm mapping fallback in background
             let popularFragrances = [];
             if (typeof window.fetchPopularFragrances === 'function') {
-                window.fetchPopularFragrances().then(data => {
+                window.fetchPopularFragrances((data) => {
                     popularFragrances = data || [];
-                }).catch(err => console.error("Error fetching popular fragrances: ", err));
+                });
             }
 
             const getThumbnailUrl = (item) => {
