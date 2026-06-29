@@ -2093,20 +2093,28 @@ window.openCart = function() {
                 });
             };
 
+            const originalDisplay = addToBagBtn.style.display && addToBagBtn.style.display !== "none" ? addToBagBtn.style.display : "block";
+
             const updateAddToBagBtnState = () => {
-                if (p.stock <= 0) return; // Out of stock takes precedence
+                if (p.stock <= 0) {
+                    addToBagBtn.style.display = originalDisplay;
+                    addToBagBtn.innerHTML = "OUT OF STOCK";
+                    addToBagBtn.disabled = true;
+                    addToBagBtn.style.opacity = "0.5";
+                    addToBagBtn.style.cursor = "not-allowed";
+                    return;
+                }
 
                 const allSelected = selectedScents.every(s => s !== null);
                 if (allSelected) {
+                    addToBagBtn.style.display = originalDisplay;
                     addToBagBtn.innerHTML = "ADD TO BAG";
                     addToBagBtn.disabled = false;
                     addToBagBtn.style.opacity = "";
                     addToBagBtn.style.cursor = "";
                 } else {
-                    addToBagBtn.innerHTML = "SELECT ALL FRAGRANCES";
+                    addToBagBtn.style.display = "none";
                     addToBagBtn.disabled = true;
-                    addToBagBtn.style.opacity = "0.5";
-                    addToBagBtn.style.cursor = "not-allowed";
                 }
             };
 
@@ -2528,8 +2536,8 @@ window.openCart = function() {
                     addToBagBtn.onclick = () => {
                         window.addToCart(p.id, selectedSize);
                     };
-                }
                 addToBagBtn.removeAttribute('onclick');
+                addToBagBtn.style.display = "";
                 
                 if (p.stock <= 0) {
                     addToBagBtn.innerHTML = "OUT OF STOCK";
@@ -2598,12 +2606,46 @@ window.openCart = function() {
         // 2. Try loading from Firestore or products.json in background
         setTimeout(async () => {
             try {
-                const response = await fetch("products.json");
-                if (!response.ok) {
-                    throw new Error(`Failed to load products.json: Status ${response.status}`);
+                let fetchedProds = [];
+                try {
+                    const response = await fetch("products.json");
+                    if (response.ok) {
+                        fetchedProds = await response.json();
+                    }
+                } catch (jsonErr) {
+                    console.warn("Failed to fetch products.json, will try Firestore:", jsonErr);
                 }
-                const fetchedProds = await response.json();
-                if (fetchedProds) {
+
+                // If products.json load failed or returned nothing, and Firestore is available:
+                if ((!fetchedProds || fetchedProds.length === 0) && window.db) {
+                    try {
+                        const q = query(collection(window.db, "products"), where("status", "==", "Active"));
+                        const querySnapshot = await getDocs(q);
+                        fetchedProds = [];
+                        querySnapshot.forEach((docSnap) => {
+                            const d = docSnap.data();
+                            fetchedProds.push({
+                                id: docSnap.id,
+                                name: d.name,
+                                nameShort: d.nameShort || "",
+                                price: Number(d.price),
+                                retailPrice: d.retailPrice !== undefined && d.retailPrice !== null ? Number(d.retailPrice) : null,
+                                stock: Number(d.stock),
+                                image: d.image,
+                                image_thumb: d.image_thumb || "",
+                                status: d.status,
+                                flair: d.flair || "",
+                                invisibleFlair: d.invisibleFlair || "",
+                                isBundle: !!d.isBundle,
+                                bundleSize: Number(d.bundleSize) || 0
+                            });
+                        });
+                    } catch (fsListErr) {
+                        console.error("Failed to query catalog from Firestore:", fsListErr);
+                    }
+                }
+
+                if (fetchedProds && fetchedProds.length > 0) {
                     activeCatalogFragrances = fetchedProds.filter(p => p.status === "Active" && !p.isBundle && p.id !== "leopard-backpack");
                 }
 
