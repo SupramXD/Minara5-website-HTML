@@ -2654,7 +2654,6 @@ function applyCustomText(data) {
     } else {
         initSearchSystem();
     }
-    window.addEventListener("load", injectSearchSystem);
 })();
 
 
