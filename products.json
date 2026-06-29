@@ -18,7 +18,7 @@
   },
   {
     "id": "inspired-by-creed-aventus",
-    "nameShort": "Aventish Blue",
+    "nameShort": "Aventus Blue",
     "name": "Inspired by Creed Aventus",
     "price": 465,
     "retailPrice": 5600,
@@ -28,7 +28,7 @@
     "description": "undefined",
     "status": "Active",
     "flair": "Masculine",
-    "invisibleFlair": "men",
+    "invisibleFlair": "",
     "sizes": [
       "50ml"
     ]
