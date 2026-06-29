@@ -1955,6 +1955,9 @@ window.openCart = function() {
         const addToBagBtn = document.querySelector('.add-to-cart');
         const params = new URLSearchParams(window.location.search);
         const productId = params.get('id');
+        const bundleView = params.get('bundleView') === 'true';
+        const bundleParent = params.get('bundleParent');
+        const bundleSlot = params.get('bundleSlot');
         if (!productId) {
             console.log("No product ID specified in query parameter.");
             // Set all fields to empty/blank canvas
