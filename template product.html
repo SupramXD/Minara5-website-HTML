@@ -1935,6 +1935,7 @@ window.openCart = function() {
     let activeCatalogFragrances = [];
 
     async function initProductDetails() {
+        const addToBagBtn = document.querySelector('.add-to-cart');
         const params = new URLSearchParams(window.location.search);
         const productId = params.get('id');
         if (!productId) {
@@ -1949,7 +1950,6 @@ window.openCart = function() {
             if (descEl) descEl.innerHTML = "Please select a product from the catalog.";
             const track = document.querySelector('.slider-track');
             if (track) track.innerHTML = `<img src="question mark.svg" alt="No product selected">`;
-            const addToBagBtn = document.querySelector('.add-to-cart');
             if (addToBagBtn) {
                 addToBagBtn.disabled = true;
                 addToBagBtn.style.opacity = "0.5";
@@ -2472,7 +2472,6 @@ window.openCart = function() {
             }
 
             // ADD TO BAG button action
-            const addToBagBtn = document.querySelector('.add-to-cart');
             const sizeContainer = document.getElementById('sizePickerContainer');
             const sizeOptionsDiv = document.getElementById('sizePickerOptions');
             const bundleContainer = document.getElementById('bundlePickerContainer');
