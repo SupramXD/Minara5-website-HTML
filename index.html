@@ -706,10 +706,12 @@
         grid-template-columns: 1fr;
         gap: 35px;
       }
+
       .brand-title-large {
         font-size: 18px;
         letter-spacing: 0.12em;
       }
+
       .brand-subtitle {
         font-size: 11px;
         margin-bottom: 35px;
@@ -981,6 +983,7 @@
       .desktop-none {
         display: none !important;
       }
+
       .home-products-list {
         max-width: 100%;
         margin: 0;
@@ -992,6 +995,7 @@
         padding-right: 35px;
         box-sizing: border-box;
       }
+
       .home-products-header {
         max-width: 100%;
         margin: 80px 0 40px 0;
@@ -1000,6 +1004,7 @@
         text-align: center;
         box-sizing: border-box;
       }
+
       .home-products-title {
         font-family: 'Gotham Narrow Bold', sans-serif;
         font-size: 13px;
@@ -1007,6 +1012,7 @@
         font-weight: bold;
         color: #1a1a1a;
       }
+
       .home-product-card {
         background: transparent;
         border: none;
@@ -1018,9 +1024,11 @@
         height: 100%;
         box-sizing: border-box;
       }
+
       .home-product-card:hover {
         /* No card translation or shadow for luxury design */
       }
+
       .home-product-card .hp-box {
         background: #fffff6;
         border-radius: 0;
@@ -1033,27 +1041,33 @@
         width: 100%;
         max-width: none;
       }
+
       .home-product-card .product-img {
         width: 100%;
         height: 100%;
         object-fit: contain;
         transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
       }
+
       .home-product-card:hover .product-img {
         transform: scale(1.05);
       }
+
       .home-product-card .hp-info {
         margin-top: 15px;
         padding-top: 0;
         border-top: none;
         display: flex;
         flex-direction: column;
-        flex-grow: 1; /* Stretch to fill card remaining height */
+        flex-grow: 1;
+        /* Stretch to fill card remaining height */
       }
+
       .home-product-card .hp-name {
         font-weight: 500;
         line-height: 1.4;
       }
+
       .home-product-card .hp-price-action-row {
         flex-direction: row;
         justify-content: space-between;
@@ -1062,6 +1076,7 @@
         margin-top: auto;
         gap: 8px;
       }
+
       .home-product-card .add-to-cart {
         width: auto;
         padding: 6px 14px;
@@ -1152,6 +1167,7 @@
         margin-top: 15px;
         text-align: center;
       }
+
       .home-product-card .add-to-cart {
         margin: 0;
         margin-top: auto;
@@ -1406,7 +1422,7 @@
     }
   </style>
   <script>
-    (function() {
+    (function () {
       try {
         const cached = localStorage.getItem("minara_hero_settings");
         let s = {
@@ -1427,12 +1443,12 @@
         if (cachedSec) {
           sSec = Object.assign({}, sSec, JSON.parse(cachedSec));
         }
-        
+
         const isMobile = window.innerWidth <= 900;
         let topVal = "0px";
         let transformVal = "translate3d(-50%, 0, 0)";
         let positionVal = "fixed";
-        
+
         if (!isMobile) {
           const spawnPercent = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 44;
           const dX = s.logoDesktopX !== undefined ? s.logoDesktopX : 0;
@@ -1441,11 +1457,11 @@
         } else {
           const spawnOffset = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -100;
           const mX = s.logoMobileX !== undefined ? s.logoMobileX : 0;
-          const initialTop = 45 + spawnOffset; 
+          const initialTop = 45 + spawnOffset;
           topVal = initialTop + "px";
           transformVal = `translate3d(calc(-50% + ${mX}px), 0, 0)`;
         }
-        
+
         const style = document.createElement("style");
         style.id = "minara-logo-init-style";
         style.innerHTML = `
@@ -1529,7 +1545,8 @@
     </div>
 
     <div class="cart-body">
-      <p style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; text-transform:uppercase;">ADD ITEMS TO BAG</p>
+      <p style="font-size:10px; color:rgba(0,0,0,0.6); letter-spacing:0.5px; text-transform:uppercase;">ADD ITEMS TO BAG
+      </p>
     </div>
 
     <div class="cart-bottom">
@@ -1569,15 +1586,17 @@
   <section id="hero" class="hero">
     <div id="mobileShopButton">shop catalog</div>
 
-    <img src="images/hero/left.avif" id="imgL" onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
+    <img src="images/hero/left.avif" id="imgL"
+      onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
     <div style="position:relative;flex:0.7%;">
-      <img src="images/hero/right.png" id="imgR" style="width:100%;height:100%;object-fit:cover;" onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
+      <img src="images/hero/right.png" id="imgR" style="width:100%;height:100%;object-fit:cover;"
+        onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
       <div class="mobile-bags"><a href="catalog.html">GIFTS 'SHOP NOW</a></div>
     </div>
   </section>
 
   <script>
-    (function() {
+    (function () {
       let settings = {
         leftImage: "images/hero/left.avif",
         rightImage: "images/hero/right.png",
@@ -1634,7 +1653,7 @@
         if (isMobile) {
           imgR.src = settings.mobileImage || "images/hero/mobile.avif";
           imgL.style.display = "none";
-          
+
           if (settings.mobileHeight === "auto") {
             hero.style.height = "auto";
             if (imgRWrapper) {
@@ -1654,7 +1673,7 @@
             imgR.style.width = "100%";
             imgR.style.objectFit = "cover";
           }
-          
+
           imgR.style.transform = `scale(${settings.mobileScale || 1.0})`;
           imgR.style.objectPosition = `${settings.mobileX || 50}% ${settings.mobileY || 50}%`;
           imgR.style.transformOrigin = `${settings.mobileX || 50}% ${settings.mobileY || 50}%`;
@@ -1664,10 +1683,10 @@
           imgR.src = settings.rightImage || "images/hero/right.png";
 
           hero.style.height = settings.desktopHeight || "90vh";
-          
+
           const leftFlex = settings.leftFlex !== undefined ? parseFloat(settings.leftFlex) : 1.3;
           const rightFlex = 2.0 - leftFlex;
-          
+
           imgL.style.flex = leftFlex;
           if (imgRWrapper) {
             imgRWrapper.style.flex = rightFlex;
@@ -1689,8 +1708,8 @@
 
       window.addEventListener("resize", applyHeroSettings);
       document.addEventListener("DOMContentLoaded", applyHeroSettings);
-      
-      window.applyHeroSettings = function(newSettings) {
+
+      window.applyHeroSettings = function (newSettings) {
         settings = Object.assign({}, settings, newSettings);
         window.heroSettings = settings;
         applyHeroSettings();
@@ -1698,12 +1717,12 @@
           window.updateLogoPosition();
         }
       };
-      
+
       applyHeroSettings();
     })();
 
     // SECOND HERO LAYOUT CONTROLLER
-    (function() {
+    (function () {
       let settings = {
         leftImage: "",
         rightImage: "",
@@ -1756,7 +1775,7 @@
             if (imgRWrapper) imgRWrapper.style.display = "none";
           }
           imgL.style.display = "none";
-          
+
           if (settings.mobileHeight === "auto") {
             hero.style.height = hasMobile ? "auto" : "180px";
             if (imgRWrapper) {
@@ -1776,7 +1795,7 @@
             imgR.style.width = "100%";
             imgR.style.objectFit = "cover";
           }
-          
+
           imgR.style.transform = `scale(${settings.mobileScale || 1.0})`;
           imgR.style.objectPosition = `${settings.mobileX || 50}% ${settings.mobileY || 50}%`;
           imgR.style.transformOrigin = `${settings.mobileX || 50}% ${settings.mobileY || 50}%`;
@@ -1797,10 +1816,10 @@
           }
 
           hero.style.height = settings.desktopHeight || "80vh";
-          
+
           const leftFlex = settings.leftFlex !== undefined ? parseFloat(settings.leftFlex) : 1.3;
           const rightFlex = 2.0 - leftFlex;
-          
+
           imgL.style.flex = leftFlex;
           if (imgRWrapper) {
             imgRWrapper.style.flex = rightFlex;
@@ -1822,8 +1841,8 @@
 
       window.addEventListener("resize", applySecondHeroSettings);
       document.addEventListener("DOMContentLoaded", applySecondHeroSettings);
-      
-      window.applySecondHeroSettings = function(newSettings) {
+
+      window.applySecondHeroSettings = function (newSettings) {
         settings = Object.assign({}, settings, newSettings);
         window.secondHeroSettings = settings;
         applySecondHeroSettings();
@@ -1831,7 +1850,7 @@
           window.updateLogoPosition();
         }
       };
-      
+
       applySecondHeroSettings();
     })();
   </script>
@@ -1895,29 +1914,36 @@
           <div class="brand-feature-header">
             <span class="brand-feature-icon">
               <!-- Flag / Pennant SVG -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
                 <line x1="4" y1="22" x2="4" y2="15"></line>
               </svg>
             </span>
             <h3 class="brand-feature-title">Handcrafted with French Oils</h3>
           </div>
-          <p class="brand-feature-description">Proudly crafted in South Africa, our fragrances are meticulously formulated using premium French oils. We believe great scent-making is both an art and a rigorous process. From formulation to final production, we pour care and craftsmanship into every bottle, creating premium scents you can wear with absolute confidence.</p>
+          <p class="brand-feature-description">Proudly crafted in South Africa, our fragrances are meticulously
+            formulated using premium French oils. We believe great scent-making is both an art and a rigorous process.
+            From formulation to final production, we pour care and craftsmanship into every bottle, creating premium
+            scents you can wear with absolute confidence.</p>
         </div>
 
-        <!-- Feature 2: Long Lasting -->
+        <!-- Feature 2: EXTRAIT DE PARFUM CONCENTRATION -->
         <div class="brand-feature-item">
           <div class="brand-feature-header">
             <span class="brand-feature-icon">
               <!-- Clock SVG -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
             </span>
-            <h3 class="brand-feature-title">Long Lasting</h3>
+            <h3 class="brand-feature-title">EXTRAIT DE PARFUM CONCENTRATION</h3>
           </div>
-          <p class="brand-feature-description">Our fragrances are engineered to endure, ensuring that your favorite scent stays with you throughout the day. From morning meetings to evening outings, trust The Perfume House to keep you smelling exceptional, longer.</p>
+          <p class="brand-feature-description">Most designer originals dilute to a standard 15% Eau de Parfum. We
+            formulate at a dense 20%+ Extrait concentration, anchoring the scent to your skin for powerful projection
+            and longevity that outlasts the original.</p>
         </div>
 
         <!-- Feature 3: Vegan + Cruelty Free -->
@@ -1925,7 +1951,8 @@
           <div class="brand-feature-header">
             <span class="brand-feature-icon">
               <!-- Leaf SVG -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
                 <line x1="16" y1="8" x2="2" y2="22"></line>
                 <line x1="17.5" y1="15" x2="9" y2="15"></line>
@@ -1933,7 +1960,8 @@
             </span>
             <h3 class="brand-feature-title">Vegan + Cruelty Free</h3>
           </div>
-          <p class="brand-feature-description">We pledge that all our fragrances are 100% vegan and cruelty-free, ensuring no animals are harmed and no animal byproducts are used in our creations.</p>
+          <p class="brand-feature-description">We pledge that all our fragrances are 100% vegan and cruelty-free,
+            ensuring no animals are harmed and no animal byproducts are used in our creations.</p>
         </div>
 
         <!-- Feature 4: Crafted with Passion -->
@@ -1941,29 +1969,37 @@
           <div class="brand-feature-header">
             <span class="brand-feature-icon">
               <!-- Heart SVG -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                </path>
               </svg>
             </span>
             <h3 class="brand-feature-title">Crafted with Passion</h3>
           </div>
-          <p class="brand-feature-description">Every bottle is a labor of love. We design our fragrances to bring joy and confidence to your daily routine, ensuring that luxury is not just a name, but an everyday experience.</p>
+          <p class="brand-feature-description">Every bottle is a labor of love. We design our fragrances to bring joy
+            and confidence to your daily routine, ensuring that luxury is not just a name, but an everyday experience.
+          </p>
         </div>
 
-        <!-- Feature 5: Luxury Scents for Everyone -->
+        <!-- Feature 5: OLFACTORY ACCURACY -->
         <div class="brand-feature-item">
           <div class="brand-feature-header">
             <span class="brand-feature-icon">
               <!-- Diamond SVG -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M6 3h12l4 6-10 13L2 9z"></path>
                 <path d="M11 3L8 9l4 13 4-13-3-6"></path>
                 <path d="M2 9h20"></path>
               </svg>
             </span>
-            <h3 class="brand-feature-title">Luxury Scents For Everyone</h3>
+            <h3 class="brand-feature-title">OLFACTORY ACCURACY</h3>
           </div>
-          <p class="brand-feature-description">Experience world-class scents, traditionally available to a select few, now accessible to everyone. Luxury isn't exclusive—it's universal.</p>
+          <p class="brand-feature-description">We go beyond 'inspired' scents by reverse-engineering the exact molecular
+            blueprints of exclusive designer fragrances. Experience a high-fidelity, indistinguishable profile without
+            the premium markup.</p>
         </div>
 
         <!-- Feature 6: Clean Formulations -->
@@ -1971,25 +2007,31 @@
           <div class="brand-feature-header">
             <span class="brand-feature-icon">
               <!-- Beaker SVG -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10 2v7.31L3.37 19c-.83 1.15-.02 2.75 1.37 2.75h14.51c1.39 0 2.21-1.6 1.37-2.75L14 9.31V2z"></path>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M10 2v7.31L3.37 19c-.83 1.15-.02 2.75 1.37 2.75h14.51c1.39 0 2.21-1.6 1.37-2.75L14 9.31V2z">
+                </path>
                 <path d="M8.5 2h7"></path>
                 <path d="M14 9h-4"></path>
               </svg>
             </span>
             <h3 class="brand-feature-title">Clean Formulations</h3>
           </div>
-          <p class="brand-feature-description">Pure and safe, our formulations are crafted with transparency in mind. We exclude harmful chemicals and opt for cleaner, healthier ingredients in our scents.</p>
+          <p class="brand-feature-description">Pure and safe, our formulations are crafted with transparency in mind. We
+            exclude harmful chemicals and opt for cleaner, healthier ingredients in our scents.</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- SECOND HERO IMAGE SECTION -->
-  <section id="secondHero" class="hero" style="background: #000; position: relative; width: 100vw; display: flex; overflow: hidden; margin-top: 0; margin-bottom: 0;">
-    <img id="secImgL" style="height: 100%; object-fit: cover; transition: opacity .3s ease; display: none;" onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
+  <section id="secondHero" class="hero"
+    style="background: #000; position: relative; width: 100vw; display: flex; overflow: hidden; margin-top: 0; margin-bottom: 0;">
+    <img id="secImgL" style="height: 100%; object-fit: cover; transition: opacity .3s ease; display: none;"
+      onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
     <div id="secImgRWrapper" style="position:relative; flex: 0.7; height: 100%; display: none;">
-      <img id="secImgR" style="width:100%; height:100%; object-fit:cover;" onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
+      <img id="secImgR" style="width:100%; height:100%; object-fit:cover;"
+        onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
     </div>
   </section>
 
@@ -2014,16 +2056,26 @@
   </section>
 
   <!-- TRUST BANNER -->
-  <div class="trust-banner" style="background: #fafafa; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; padding: 40px 20px; text-align: center; font-family: Helvetica, Arial, sans-serif; width: 100%; margin-top: 40px; position: relative; z-index: 200;">
-    <div class="trust-container" style="max-width: 700px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; gap: 40px;">
-      <div class="trust-item" style="display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 280px; flex: 1 1 250px;">
-        <span style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 900; color: #1a1a1a; margin-bottom: 8px;">Fast Delivery Nationwide</span>
-        <span style="font-size: 11px; opacity: 0.6; line-height: 1.45;">Courier dispatch direct to your door anywhere in South Africa. Safe and secure checkout options.</span>
+  <div class="trust-banner"
+    style="background: #fafafa; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; padding: 40px 20px; text-align: center; font-family: Helvetica, Arial, sans-serif; width: 100%; margin-top: 40px; position: relative; z-index: 200;">
+    <div class="trust-container"
+      style="max-width: 700px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; gap: 40px;">
+      <div class="trust-item"
+        style="display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 280px; flex: 1 1 250px;">
+        <span
+          style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 900; color: #1a1a1a; margin-bottom: 8px;">Fast
+          Delivery Nationwide</span>
+        <span style="font-size: 11px; opacity: 0.6; line-height: 1.45;">Courier dispatch direct to your door anywhere in
+          South Africa. Safe and secure checkout options.</span>
       </div>
       <div class="trust-divider" style="width: 1px; background: #eaeaea; display: block;"></div>
-      <div class="trust-item" style="display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 280px; flex: 1 1 250px;">
-        <span style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 900; color: #1a1a1a; margin-bottom: 8px;">Trusted Clone Brand</span>
-        <span style="font-size: 11px; opacity: 0.6; line-height: 1.45;">We're currently looking at selling on Takealot And Amazon soon. The Perfume House has 100% premium quality formulation matching original scents.</span>
+      <div class="trust-item"
+        style="display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 280px; flex: 1 1 250px;">
+        <span
+          style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 900; color: #1a1a1a; margin-bottom: 8px;">Trusted
+          Clone Brand</span>
+        <span style="font-size: 11px; opacity: 0.6; line-height: 1.45;">We're currently looking at selling on Takealot
+          And Amazon soon. The Perfume House has 100% premium quality formulation matching original scents.</span>
       </div>
     </div>
   </div>
@@ -2033,11 +2085,13 @@
       .trust-divider {
         display: none !important;
       }
+
       .trust-container {
         flex-direction: column;
         align-items: center;
         width: 100%;
       }
+
       .trust-item {
         margin: 0 auto !important;
       }
@@ -2103,9 +2157,9 @@
 
       function measure() {
         if (!hero || !imgR || !secondHero || !secImgR) return;
-        
+
         mobileView = window.innerWidth <= 900;
-        
+
         // Measure heights/positions with fallbacks for loading/collapsed states
         let firstHeight = hero.offsetHeight;
         if (firstHeight < 100) {
@@ -2120,7 +2174,7 @@
         }
         secondHeroBottom = secondHero.offsetTop + secHeight - 45;
         secImgRBottom = window.scrollY + secImgR.getBoundingClientRect().bottom;
-        
+
         if (bagsBtn) {
           bagsBtnHeight = bagsBtn.offsetHeight;
         }
@@ -2143,17 +2197,17 @@
         if (hero && secondHero) {
           const firstHeroEnd = heroBottom + 45;
           const secondHeroStart = secondHero.offsetTop;
-          
+
           if (!mobileView) {
             const spawnPercent = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 44;
             const spawnPercent2 = s.logoDesktopSpawn2 !== undefined ? s.logoDesktopSpawn2 : 65;
-            
+
             const spawnY = windowHeight * (spawnPercent / 100);
             const spawnY2 = windowHeight * (spawnPercent2 / 100);
-            
+
             const yStart = firstHeroEnd - spawnY;
             const yEnd = secondHeroStart - spawnY2;
-            
+
             if (yEnd > yStart) {
               const ySwitch = (yStart + yEnd) / 2;
               desktopSpawn = y < ySwitch ? spawnPercent : spawnPercent2;
@@ -2161,13 +2215,13 @@
           } else {
             const spawnOffset = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -100;
             const spawnOffset2 = s.logoMobileSpawn2 !== undefined ? s.logoMobileSpawn2 : 50;
-            
+
             const spawnY = topbarHeight + spawnOffset;
             const spawnY2 = topbarHeight + spawnOffset2;
-            
+
             const yStart = firstHeroEnd - spawnY;
             const yEnd = secondHeroStart - spawnY2;
-            
+
             if (yEnd > yStart) {
               const ySwitch = (yStart + yEnd) / 2;
               mobileSpawn = y < ySwitch ? spawnOffset : spawnOffset2;
@@ -2260,7 +2314,7 @@
         lastBagsBtnState = "";
       }
 
-      window.updateLogoPosition = function() {
+      window.updateLogoPosition = function () {
         measure();
         update();
       };
@@ -2370,10 +2424,10 @@
         try {
           const sessionReviews = JSON.parse(sessionStorage.getItem("my_session_reviews") || "[]");
           sessionReviews.forEach(sr => {
-            const isDuplicate = allReviews.some(pr => 
+            const isDuplicate = allReviews.some(pr =>
               pr.productId === sr.productId &&
-              pr.name === sr.name && 
-              pr.text === sr.text && 
+              pr.name === sr.name &&
+              pr.text === sr.text &&
               pr.rating === sr.rating &&
               (sr.timestamp ? pr.timestamp === sr.timestamp : true)
             );
@@ -2509,7 +2563,7 @@
           // Safe product name text assignments
           const titleEl = card.querySelector('.hp-title');
           const inspiredEl = card.querySelector('.hp-inspired');
-          
+
           const formatBrandName = (brandName) => {
             if (!brandName) return "";
             return brandName.replace(/\w\S*/g, (txt) => {
@@ -2524,7 +2578,7 @@
           if (titleEl && inspiredEl) {
             if (inspiredMatch || p.id.startsWith("inspired-by-")) {
               const fragranceName = inspiredMatch ? inspiredMatch[1] : rawName;
-              
+
               titleEl.textContent = p.nameShort || rawName;
               titleEl.style.fontSize = "13.5px";
               titleEl.style.color = "#111111";
@@ -2534,7 +2588,7 @@
               titleEl.style.textTransform = "uppercase";
               titleEl.style.letterSpacing = "0.04em";
               titleEl.style.marginBottom = "4px";
-              
+
               inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase;">INSPIRED BY</span> <i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: inline-block;">${formatBrandName(fragranceName)}</i>`;
               inspiredEl.style.fontFamily = "";
               inspiredEl.style.fontStyle = "";
@@ -2554,7 +2608,7 @@
               titleEl.style.textTransform = "uppercase";
               titleEl.style.letterSpacing = "0.04em";
               titleEl.style.marginBottom = "4px";
-              
+
               inspiredEl.innerHTML = "";
               inspiredEl.style.display = 'none';
             }
@@ -2564,7 +2618,7 @@
           const reviewsCountEl = card.querySelector('.hp-reviews-count');
           const starsEl = card.querySelector('.hp-stars');
           const reviewsRowEl = card.querySelector('.hp-reviews-row');
-          
+
           const emptyStarsHTML = `
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           `.repeat(5);
@@ -2710,7 +2764,7 @@
             fetch("products.json"),
             timeoutPromise
           ]);
-          
+
           if (!response.ok) {
             throw new Error(`Failed to load products.json: Status ${response.status}`);
           }
