@@ -800,9 +800,10 @@
     }
 
     .home-products-title {
-      font-size: 11px;
+      font-size: 12.5px;
       text-transform: uppercase;
-      letter-spacing: 0.28em;
+      letter-spacing: 0.42em;
+      word-spacing: 0.25em;
       margin: 0;
     }
 
@@ -1010,8 +1011,9 @@
 
       .home-products-title {
         font-family: 'Gotham Narrow Bold', sans-serif;
-        font-size: 13px;
-        letter-spacing: 0.32em;
+        font-size: 14.5px;
+        letter-spacing: 0.44em;
+        word-spacing: 0.25em;
         font-weight: bold;
         color: #1a1a1a;
       }
@@ -2227,32 +2229,6 @@
               mobileSpawn = y < ySwitch ? spawnOffset : spawnOffset2;
             }
           }
-        }
-
-        // Dynamic opacity calculation to prevent logo from overlapping white sections
-        let opacity = 0;
-        const currentSpawnY = mobileView 
-          ? (topbarHeight + mobileSpawn) 
-          : (windowHeight * (desktopSpawn / 100));
-        
-        // The first hero ends at heroBottom + 45.
-        // The logo reaches the bottom of the first hero when:
-        // scrollY = (heroBottom + 45) - currentSpawnY.
-        const firstHeroEndLimit = (heroBottom + 45) - currentSpawnY;
-        const secondHeroStartLimit = secondHero.offsetTop - currentSpawnY;
-
-        if (y <= firstHeroEndLimit) {
-          const dist = firstHeroEndLimit - y;
-          opacity = dist >= 120 ? 1 : Math.max(0, dist / 120);
-        } else if (y >= secondHeroStartLimit) {
-          const dist = y - secondHeroStartLimit;
-          opacity = dist >= 120 ? 1 : Math.max(0, dist / 120);
-        } else {
-          opacity = 0;
-        }
-
-        if (logo) {
-          logo.style.opacity = opacity;
         }
 
         if (!mobileView) {
