@@ -2229,6 +2229,32 @@
           }
         }
 
+        // Dynamic opacity calculation to prevent logo from overlapping white sections
+        let opacity = 0;
+        const currentSpawnY = mobileView 
+          ? (topbarHeight + mobileSpawn) 
+          : (windowHeight * (desktopSpawn / 100));
+        
+        // The first hero ends at heroBottom + 45.
+        // The logo reaches the bottom of the first hero when:
+        // scrollY = (heroBottom + 45) - currentSpawnY.
+        const firstHeroEndLimit = (heroBottom + 45) - currentSpawnY;
+        const secondHeroStartLimit = secondHero.offsetTop - currentSpawnY;
+
+        if (y <= firstHeroEndLimit) {
+          const dist = firstHeroEndLimit - y;
+          opacity = dist >= 120 ? 1 : Math.max(0, dist / 120);
+        } else if (y >= secondHeroStartLimit) {
+          const dist = y - secondHeroStartLimit;
+          opacity = dist >= 120 ? 1 : Math.max(0, dist / 120);
+        } else {
+          opacity = 0;
+        }
+
+        if (logo) {
+          logo.style.opacity = opacity;
+        }
+
         if (!mobileView) {
           // --- DESKTOP LOGIC ---
           const fixedOffset = 48;

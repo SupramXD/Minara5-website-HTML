@@ -70,14 +70,17 @@ header{
 /* Center logo */
 .center-logo-link{
   position:absolute;
-  left:50%;
+  left:0;
+  right:0;
+  text-align:center;
   top:50%;
-  transform:translate(-50%,-24%);
+  transform:translateY(-24%);
+  pointer-events:none;
 }
 .center-logo{
   height:50px;
   opacity:0.92;
-  pointer-events:none;
+  pointer-events:auto;
 }
 
 /* Right nav */
@@ -213,12 +216,18 @@ nav ul li a:hover{opacity:0.6;}
 
     .center-logo-link{
         position:absolute !important;
-        left:50% !important;
+        left:0 !important;
+        right:0 !important;
+        text-align:center !important;
         top:50% !important;
-        transform:translate(-50%, -24%) !important;
+        transform:translateY(-24%) !important;
         margin:0 !important;
+        pointer-events:none !important;
     }
-    .center-logo{height:36px;}
+    .center-logo{
+        height:36px;
+        pointer-events:auto !important;
+    }
 
     .contact-wrap{
       padding:90px 26px;
