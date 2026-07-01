@@ -583,6 +583,7 @@
       background: #fff !important;
       position: relative;
       z-index: 200 !important;
+      transform: translate3d(0, 0, 0);
     }
 
     .brand-section-inner {
@@ -786,6 +787,7 @@
       position: relative;
       z-index: 200 !important;
       background: #fff !important;
+      transform: translate3d(0, 0, 0);
     }
 
     .home-products-header {
@@ -2577,7 +2579,12 @@
           if (titleEl && inspiredEl) {
             const typeEl = card.querySelector('.hp-type');
             if (typeEl) {
-              typeEl.style.display = 'none';
+              if (p.id !== 'leopard-backpack') {
+                typeEl.textContent = "Extrait de Parfum";
+                typeEl.style.display = 'block';
+              } else {
+                typeEl.style.display = 'none';
+              }
             }
 
             if (inspiredMatch || p.id.startsWith("inspired-by-")) {

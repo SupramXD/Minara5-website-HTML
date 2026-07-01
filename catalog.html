@@ -1140,7 +1140,12 @@ function updateCartCount(count){
 
                 const typeEl = item.querySelector('.product-type');
                 if (typeEl) {
-                    typeEl.style.display = 'none';
+                    if (p.id !== 'leopard-backpack') {
+                        typeEl.textContent = "Extrait de Parfum";
+                        typeEl.style.display = 'block';
+                    } else {
+                        typeEl.style.display = 'none';
+                    }
                 }
 
                 if (inspiredMatch || p.id.startsWith("inspired-by-")) {
