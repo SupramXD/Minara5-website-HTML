@@ -56,5 +56,11 @@ service cloud.firestore {
       // Only admins can read/update/delete
       allow read, update, delete: if isAdmin();
     }
+
+    // Settings collection rules
+    match /settings/{settingId} {
+      // Only admins can read/write settings
+      allow read, write: if isAdmin();
+    }
   }
 }
