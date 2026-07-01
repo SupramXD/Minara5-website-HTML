@@ -116,15 +116,16 @@ header{
 }
 .center-logo-link{
   position:absolute;
-  left:0;
-  right:0;
-  text-align:center;
+  left:50%;
   top:50%;
-  transform:translateX(25.83%) translateY(-24%);
+  transform:translate(calc(-50% + 25px), -50%);
   pointer-events:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 .center-logo{
-  height:50px;
+  height:28px;
   opacity:0.92;
   pointer-events:auto;
 }
@@ -166,16 +167,17 @@ nav ul li a:hover{opacity:0.6;}
   /* MOBILE CENTERED LOGO (same as catalog) */
   .center-logo-link{
     position:absolute !important;
-    left:0 !important;
-    right:0 !important;
-    text-align:center !important;
+    left:50% !important;
     top:50% !important;
-    transform:translateX(25.83%) translateY(-24%) !important;
+    transform:translate(-50%, -50%) !important;
     margin:0 !important;
     pointer-events:none !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
   }
   .center-logo{
-    height:36px;
+    height:22px !important;
     pointer-events:auto !important;
   }
 }
