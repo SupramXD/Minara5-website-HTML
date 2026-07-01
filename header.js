@@ -18,17 +18,70 @@ import {
     getDoc
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// --- DYNAMICALLY INJECT FADE-IN CSS ---
-const style = document.createElement('style');
-style.textContent = `
-  img:not(.loaded) {
-    opacity: 0 !important;
-  }
-  img.loading-fade {
-    transition: opacity 0.45s ease-in-out !important;
-  }
-`;
-document.head.appendChild(style);
+// --- DYNAMICALLY INJECT FADE-IN & CUSTOM LOGO SIZE CSS ---
+function applyDynamicLogoStyles(settings) {
+    const headerDHeight = settings.logoHeaderDesktopHeight !== undefined ? settings.logoHeaderDesktopHeight : 50;
+    const headerMHeight = settings.logoHeaderMobileHeight !== undefined ? settings.logoHeaderMobileHeight : 36;
+    
+    let styleEl = document.getElementById("minara-custom-logo-style");
+    if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = "minara-custom-logo-style";
+        document.head.appendChild(styleEl);
+    }
+    styleEl.textContent = `
+      img:not(.loaded) {
+        opacity: 0 !important;
+      }
+      img.loading-fade {
+        transition: opacity 0.45s ease-in-out !important;
+      }
+      .center-logo {
+        height: ${headerDHeight}px !important;
+      }
+      @media (max-width: 900px) {
+        .center-logo {
+          height: ${headerMHeight}px !important;
+        }
+      }
+      .header-logo {
+        height: ${Math.round(headerDHeight * 0.7)}px !important;
+      }
+    `;
+}
+
+// Initial application from cache
+let cachedSettings = {};
+try {
+    const cachedHero = localStorage.getItem("minara_hero_settings");
+    if (cachedHero) {
+        cachedSettings = JSON.parse(cachedHero);
+    }
+} catch (e) {
+    console.warn("Failed to load hero logo settings in header.js:", e);
+}
+applyDynamicLogoStyles(cachedSettings);
+
+// Background fetch of latest settings
+setTimeout(async () => {
+    try {
+        const response = await fetch("hero_settings.json?t=" + Date.now());
+        if (response.ok) {
+            const data = await response.json();
+            let currentLocal = {};
+            try {
+                const cached = localStorage.getItem("minara_hero_settings");
+                if (cached) currentLocal = JSON.parse(cached);
+            } catch (e) {}
+            
+            const updated = Object.assign({}, currentLocal, data);
+            localStorage.setItem("minara_hero_settings", JSON.stringify(updated));
+            applyDynamicLogoStyles(updated);
+        }
+    } catch (err) {
+        console.warn("Background fetch of logo settings failed in header.js:", err);
+    }
+}, 100);
 
 const markImageLoaded = (img) => {
     if (img.classList.contains('loaded')) return;

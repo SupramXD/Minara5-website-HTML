@@ -1434,7 +1434,11 @@
           logoDesktopSpawn: 44,
           logoDesktopX: 0,
           logoMobileSpawn: -100,
-          logoMobileX: 0
+          logoMobileX: 0,
+          logoHeaderDesktopHeight: 50,
+          logoHeaderMobileHeight: 36,
+          logoHomeDesktopWidth: 1200,
+          logoHomeMobileWidth: 88
         };
         if (cached) {
           s = Object.assign({}, s, JSON.parse(cached));
@@ -1474,6 +1478,8 @@
             position: ${positionVal};
             top: ${topVal};
             transform: ${transformVal};
+            width: ${!isMobile ? (s.logoHomeDesktopWidth !== undefined ? s.logoHomeDesktopWidth + "px" : "1200px") : "auto"};
+            max-width: ${isMobile ? (s.logoHomeMobileWidth !== undefined ? s.logoHomeMobileWidth + "vw" : "88vw") : "none"};
           }
           #secondHero {
             height: ${isMobile ? (sSec.mobileHeight === "auto" ? "180px" : sSec.mobileHeight) : (sSec.desktopHeight || "80vh")};
@@ -1626,6 +1632,10 @@
         logoMobileSpawn2: 50,
         logoMobileStick: 10,
         logoMobileX: 0,
+        logoHeaderDesktopHeight: 50,
+        logoHeaderMobileHeight: 36,
+        logoHomeDesktopWidth: 1200,
+        logoHomeMobileWidth: 88,
         showGiftsButton: false
       };
 
@@ -2929,6 +2939,10 @@
             logoMobileSpawn2: data.logoMobileSpawn2 !== undefined ? Number(data.logoMobileSpawn2) : 50,
             logoMobileStick: data.logoMobileStick !== undefined ? Number(data.logoMobileStick) : 0,
             logoMobileX: data.logoMobileX !== undefined ? Number(data.logoMobileX) : -50,
+            logoHeaderDesktopHeight: data.logoHeaderDesktopHeight !== undefined ? Number(data.logoHeaderDesktopHeight) : 50,
+            logoHeaderMobileHeight: data.logoHeaderMobileHeight !== undefined ? Number(data.logoHeaderMobileHeight) : 36,
+            logoHomeDesktopWidth: data.logoHomeDesktopWidth !== undefined ? Number(data.logoHomeDesktopWidth) : 1200,
+            logoHomeMobileWidth: data.logoHomeMobileWidth !== undefined ? Number(data.logoHomeMobileWidth) : 88,
             showGiftsButton: data.showGiftsButton !== false
           };
           localStorage.setItem("minara_hero_settings", JSON.stringify(liveSettings));
