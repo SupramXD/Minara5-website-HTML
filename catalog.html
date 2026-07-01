@@ -1099,7 +1099,7 @@ function updateCartCount(count){
                         <div class="product-info" style="display: flex; flex-direction: column; flex-grow: 1;">
                             <div class="product-flair" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; display: none; color: #1a1a1a;"></div>
                             <h3 class="product-title"></h3>
-                            <div class="product-type" style="font-family: Helvetica, Arial, sans-serif; font-size: 7.5px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1.2px; margin-top: 1px; margin-bottom: 4px; display: none;"></div>
+                            <div class="product-type" style="font-family: Georgia, serif; font-style: italic; font-size: 9px; opacity: 0.6; color: #555; text-transform: none; letter-spacing: 0.5px; margin-top: 1px; margin-bottom: 6px; display: none;"></div>
                             <div class="product-inspired"></div>
                             <div class="product-reviews-row">
                                 <span class="product-stars">★★★★★</span>
@@ -1159,8 +1159,9 @@ function updateCartCount(count){
                     titleEl.style.display = 'block';
                     titleEl.style.textTransform = "uppercase";
                     titleEl.style.letterSpacing = "0.04em";
+                    titleEl.style.marginBottom = "2px";
                     
-                    inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 2px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: block;">${formatBrandName(fragranceName)}</i>`;
+                    inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}</i>`;
                     inspiredEl.style.fontFamily = "";
                     inspiredEl.style.fontStyle = "";
                     inspiredEl.style.fontWeight = "";
@@ -1169,7 +1170,6 @@ function updateCartCount(count){
                     inspiredEl.style.color = "";
                     inspiredEl.style.fontSize = "";
                     inspiredEl.style.display = 'block';
-                    inspiredEl.style.marginTop = "2px";
                 } else {
                     titleEl.textContent = rawName;
                     titleEl.style.fontSize = "12px";
