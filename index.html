@@ -790,10 +790,11 @@
 
     .home-products-header {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
       margin-top: 30px;
       margin-bottom: 30px;
+      text-align: center;
     }
 
     .home-products-title {
@@ -862,7 +863,7 @@
 
     .hp-title {
       font-family: 'Gotham Narrow Bold', sans-serif;
-      font-size: 13.5px;
+      font-size: 12px;
       font-weight: 700;
       color: #111111;
       margin-bottom: 4px;
@@ -2518,6 +2519,7 @@
               <a class="product-link-anchor-2" style="text-decoration:none; color:inherit; display:block;">
                 <div class="hp-flair" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; display: none; color: #1a1a1a;"></div>
                 <h3 class="hp-title"></h3>
+                <div class="hp-type" style="font-family: Helvetica, Arial, sans-serif; font-size: 9px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; margin-top: 1px; margin-bottom: 4px; display: none;"></div>
                 <div class="hp-inspired"></div>
                 <div class="hp-reviews-row">
                   <span class="hp-stars">★★★★★</span>
@@ -2573,11 +2575,21 @@
 
           const inspiredMatch = rawName.match(/^inspired\s+by\s+(.+)/i);
           if (titleEl && inspiredEl) {
+            const typeEl = card.querySelector('.hp-type');
+            if (typeEl) {
+              if (p.id !== 'leopard-backpack') {
+                typeEl.textContent = "Extrait de Parfum";
+                typeEl.style.display = 'block';
+              } else {
+                typeEl.style.display = 'none';
+              }
+            }
+
             if (inspiredMatch || p.id.startsWith("inspired-by-")) {
               const fragranceName = inspiredMatch ? inspiredMatch[1] : rawName;
 
               titleEl.textContent = p.nameShort || rawName;
-              titleEl.style.fontSize = "13.5px";
+              titleEl.style.fontSize = "12px";
               titleEl.style.color = "#111111";
               titleEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";
               titleEl.style.fontWeight = "700";
@@ -2586,7 +2598,7 @@
               titleEl.style.letterSpacing = "0.04em";
               titleEl.style.marginBottom = "4px";
 
-              inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase;">INSPIRED BY</span> <i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: inline-block;">${formatBrandName(fragranceName)}</i>`;
+              inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 2px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: block;">${formatBrandName(fragranceName)}</i>`;
               inspiredEl.style.fontFamily = "";
               inspiredEl.style.fontStyle = "";
               inspiredEl.style.fontWeight = "";
@@ -2597,7 +2609,7 @@
               inspiredEl.style.display = 'block';
             } else {
               titleEl.textContent = rawName;
-              titleEl.style.fontSize = "13.5px";
+              titleEl.style.fontSize = "12px";
               titleEl.style.color = "#111111";
               titleEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";
               titleEl.style.fontWeight = "700";

@@ -348,7 +348,7 @@ nav ul li a:hover{opacity:0.6;}
 }
 .product-title {
     font-family: 'Gotham Narrow Bold', sans-serif;
-    font-size: 13.5px;
+    font-size: 12px;
     font-weight: 700;
     color: #111111;
     margin-bottom: 4px;
@@ -485,7 +485,7 @@ nav ul li a:hover{opacity:0.6;}
         border-top: none;
     }
     .product-title {
-        font-size: 12px;
+        font-size: 11px;
         margin-bottom: 2px;
     }
     .product-inspired {
@@ -1099,6 +1099,7 @@ function updateCartCount(count){
                         <div class="product-info" style="display: flex; flex-direction: column; flex-grow: 1;">
                             <div class="product-flair" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; display: none; color: #1a1a1a;"></div>
                             <h3 class="product-title"></h3>
+                            <div class="product-type" style="font-family: Helvetica, Arial, sans-serif; font-size: 9px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; margin-top: 1px; margin-bottom: 4px; display: none;"></div>
                             <div class="product-inspired"></div>
                             <div class="product-reviews-row">
                                 <span class="product-stars">★★★★★</span>
@@ -1137,11 +1138,21 @@ function updateCartCount(count){
                     });
                 };
 
+                const typeEl = item.querySelector('.product-type');
+                if (typeEl) {
+                    if (p.id !== 'leopard-backpack') {
+                        typeEl.textContent = "Extrait de Parfum";
+                        typeEl.style.display = 'block';
+                    } else {
+                        typeEl.style.display = 'none';
+                    }
+                }
+
                 if (inspiredMatch || p.id.startsWith("inspired-by-")) {
                     const fragranceName = inspiredMatch ? inspiredMatch[1] : rawName;
                     
                     titleEl.textContent = p.nameShort || rawName;
-                    titleEl.style.fontSize = "13.5px";
+                    titleEl.style.fontSize = "12px";
                     titleEl.style.color = "#111111";
                     titleEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";
                     titleEl.style.fontWeight = "700";
@@ -1149,7 +1160,7 @@ function updateCartCount(count){
                     titleEl.style.textTransform = "uppercase";
                     titleEl.style.letterSpacing = "0.04em";
                     
-                    inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase;">INSPIRED BY</span> <i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: inline-block;">${formatBrandName(fragranceName)}</i>`;
+                    inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 2px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: block;">${formatBrandName(fragranceName)}</i>`;
                     inspiredEl.style.fontFamily = "";
                     inspiredEl.style.fontStyle = "";
                     inspiredEl.style.fontWeight = "";
@@ -1161,7 +1172,7 @@ function updateCartCount(count){
                     inspiredEl.style.marginTop = "2px";
                 } else {
                     titleEl.textContent = rawName;
-                    titleEl.style.fontSize = "13.5px";
+                    titleEl.style.fontSize = "12px";
                     titleEl.style.color = "#111111";
                     titleEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";
                     titleEl.style.fontWeight = "700";
