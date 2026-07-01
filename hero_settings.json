@@ -14,7 +14,7 @@
   "mobileScale": 1,
   "mobileX": 50,
   "mobileY": 50,
-  "logoDesktopSpawn": 54,
+  "logoDesktopSpawn": 50,
   "logoDesktopSpawn2": 65,
   "logoDesktopStick": -34,
   "logoDesktopX": 0,
@@ -23,5 +23,5 @@
   "logoMobileStick": 10,
   "logoMobileX": 0,
   "showGiftsButton": false,
-  "timestamp": "2026-07-01T12:15:42.252Z"
+  "timestamp": "2026-07-01T13:17:08.993Z"
 }
