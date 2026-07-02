@@ -2924,14 +2924,32 @@
         }
       }, 0);
 
-      // 3. Fetch hero settings from hero_settings.json in background
+      // 3. Fetch hero settings from Firestore (with local JSON fallback)
       setTimeout(async () => {
+        let data = null;
         try {
-          const response = await fetch("hero_settings.json");
-          if (!response.ok) {
-            throw new Error(`Failed to fetch hero_settings.json: Status ${response.status}`);
+          if (window.db) {
+            const docSnap = await getDoc(doc(window.db, "settings", "hero"));
+            if (docSnap.exists()) {
+              data = docSnap.data();
+            }
           }
-          const data = await response.json();
+        } catch (dbErr) {
+          console.warn("Failed to fetch live hero settings from Firestore, trying local file fallback...", dbErr);
+        }
+
+        if (!data) {
+          try {
+            const response = await fetch("hero_settings.json?t=" + Date.now());
+            if (response.ok) {
+              data = await response.json();
+            }
+          } catch (jsonErr) {
+            console.warn("Failed to fetch hero_settings.json fallback:", jsonErr);
+          }
+        }
+
+        if (data) {
           const liveSettings = {
             leftImage: data.leftImage || "images/hero/left.avif",
             rightImage: data.rightImage || "images/hero/right.png",
@@ -2966,19 +2984,35 @@
           if (window.applyHeroSettings) {
             window.applyHeroSettings(liveSettings);
           }
-        } catch (err) {
-          console.warn("Failed to fetch live hero settings:", err);
         }
       }, 0);
 
-      // Fetch second hero settings from second_hero_settings.json in background
+      // Fetch second hero settings from Firestore (with local JSON fallback)
       setTimeout(async () => {
+        let data = null;
         try {
-          const response = await fetch("second_hero_settings.json");
-          if (!response.ok) {
-            throw new Error(`Failed to fetch second_hero_settings.json: Status ${response.status}`);
+          if (window.db) {
+            const docSnap = await getDoc(doc(window.db, "settings", "second_hero"));
+            if (docSnap.exists()) {
+              data = docSnap.data();
+            }
           }
-          const data = await response.json();
+        } catch (dbErr) {
+          console.warn("Failed to fetch live second hero settings from Firestore, trying local file fallback...", dbErr);
+        }
+
+        if (!data) {
+          try {
+            const response = await fetch("second_hero_settings.json?t=" + Date.now());
+            if (response.ok) {
+              data = await response.json();
+            }
+          } catch (jsonErr) {
+            console.warn("Failed to fetch second_hero_settings.json fallback:", jsonErr);
+          }
+        }
+
+        if (data) {
           const liveSettings = {
             leftImage: data.leftImage || "",
             rightImage: data.rightImage || "",
@@ -3000,8 +3034,6 @@
           if (window.applySecondHeroSettings) {
             window.applySecondHeroSettings(liveSettings);
           }
-        } catch (err) {
-          console.warn("Failed to fetch live second hero settings:", err);
         }
       }, 0);
 
