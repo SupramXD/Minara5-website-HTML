@@ -18,7 +18,7 @@
   "logoDesktopSpawn2": 65,
   "logoDesktopStick": -34,
   "logoDesktopX": -232,
-  "logoMobileSpawn": -160,
+  "logoMobileSpawn": -40,
   "logoMobileSpawn2": 180,
   "logoMobileStick": 10,
   "logoMobileX": 0,
@@ -27,5 +27,5 @@
   "logoHomeDesktopWidth": 800,
   "logoHomeMobileWidth": 100,
   "showGiftsButton": false,
-  "timestamp": "2026-07-02T17:04:11.400Z"
+  "timestamp": "2026-07-02T19:15:30.543Z"
 }
