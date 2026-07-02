@@ -2124,6 +2124,17 @@ window.openCart = function() {
     let visibleReviewsCount = 3;
     let activeCatalogFragrances = [];
 
+    // Format Brand Scent Title helper
+    const formatBrandName = (brandName) => {
+        if (!brandName) return "";
+        return brandName.replace(/\w\S*/g, (txt) => {
+            const lower = txt.toLowerCase();
+            if (lower === 'jpg') return 'JPG';
+            if (lower === 'le') return 'Le';
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+    };
+
     async function initProductDetails() {
         const addToBagBtn = document.querySelector('.add-to-cart');
         const params = new URLSearchParams(window.location.search);
@@ -2620,17 +2631,6 @@ window.openCart = function() {
                 if (val === undefined || val === null || isNaN(val)) return "0";
                 const cleanVal = Math.round(Number(val)).toString();
                 return cleanVal.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            };
-            
-            // Format Brand Scent Title helper
-            const formatBrandName = (brandName) => {
-                if (!brandName) return "";
-                return brandName.replace(/\w\S*/g, (txt) => {
-                    const lower = txt.toLowerCase();
-                    if (lower === 'jpg') return 'JPG';
-                    if (lower === 'le') return 'Le';
-                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-                });
             };
             
             // Product Flair
