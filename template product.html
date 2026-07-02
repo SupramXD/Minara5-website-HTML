@@ -237,27 +237,30 @@ nav ul li a:hover{opacity:0.6;}
 .badge-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 16px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
     width: 100%;
 }
 .badge {
-    font-size: 9px;
+    font-size: 9.5px;
     font-weight: bold;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    padding: 5px 10px;
-    border: 1px solid #eaeaea;
-    border-radius: 2px;
-    background: #fff;
-    color: #555;
+    color: #666;
     display: inline-flex;
     align-items: center;
+    padding: 0;
+    border: none;
+    background: transparent;
 }
 .badge-accent {
-    background: #fafafa;
-    border-color: #000;
     color: #000;
+}
+.badge:not([style*="display: none"]):not([style*="display:none"]) ~ .badge:not([style*="display: none"]):not([style*="display:none"])::before {
+    content: "•";
+    margin-right: 12px;
+    color: #ccc;
 }
 
 /* =============== REVIEWS STARS SUMMARY =============== */
@@ -1502,10 +1505,7 @@ footer{
 
     <!-- LEFT COLUMN: MEDIA WRAP -->
     <div class="product-media-wrap">
-        <!-- BREADCRUMB (Desktop) -->
-        <div class="breadcrumb desktop-only">
-            <a href="index.html">Home</a> / <a href="catalog.html">Catalog</a> / <span id="breadcrumbActive">Product</span>
-        </div>
+
 
         <!-- SLIDER -->
         <div class="slider" id="slider">
@@ -1524,10 +1524,7 @@ footer{
 
     <!-- RIGHT COLUMN: INFO WRAP -->
     <div class="product-info-wrap">
-        <!-- BREADCRUMB (Mobile) -->
-        <div class="breadcrumb mobile-only" style="display: none;">
-            <a href="index.html">Home</a> / <a href="catalog.html">Catalog</a> / <span id="breadcrumbActiveMobile">Product</span>
-        </div>
+
 
         <div class="badge-container">
             <span class="badge badge-accent" id="badgeInspired" style="display: none;">Inspired Scent</span>
@@ -1537,9 +1534,9 @@ footer{
         </div>
 
         <div class="product-flair" style="font-size: 10px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; display: none; color: #1a1a1a;"></div>
-        <div class="product-name-short" style="display: none;"></div>
-        <h1 class="product-title" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 0; margin-bottom: 4px; color: #000; line-height: 1.2; text-align: left;">Loading Product...</h1>
-        <div class="product-type-subtitle" style="font-family: Helvetica, Arial, sans-serif; font-size: 11px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; font-weight: bold;">Extrait de Parfum</div>
+        <h1 class="product-name-short" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; margin-bottom: 6px; color: #000; line-height: 1.15; text-align: left; display: none;"></h1>
+        <div class="product-title" style="font-family: Helvetica, Arial, sans-serif; font-size: 10px; font-weight: bold; opacity: 0.6; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 0; margin-bottom: 12px; color: #000; line-height: 1.4; text-align: left;">Loading Product...</div>
+        <div class="product-type-subtitle" style="display: none;">Extrait de Parfum</div>
         
         <!-- Star Rating summary under title -->
         <div class="reviews-stars-summary" onclick="document.querySelector('.reviews-section').scrollIntoView({behavior: 'smooth'})">
@@ -1647,10 +1644,7 @@ footer{
 
         <button class="add-to-cart" id="addToBagBtn" disabled>ADD TO BAG</button>
 
-        <div class="trust-badge-line">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-            <span>Try it for 30 days. Not in love? Return it.</span>
-        </div>
+
 
         <!-- outOfStockNotifyContainer (kept intact) -->
         <div id="outOfStockNotifyContainer" style="display: none; width: 100%; margin-top: 10px; margin-bottom: 30px; background: #fafafa; border: 1px dashed #000; padding: 15px; box-sizing: border-box;">
@@ -2302,7 +2296,8 @@ window.openCart = function() {
 
             addToBagBtn.onclick = () => {
                 if (selectedScents.some(s => s === null)) return;
-                window.addToCart(p.id, "100ml", selectedScents);
+                const bundleSizeText = bundleSize + "x 50ml";
+                window.addToCart(p.id, bundleSizeText, selectedScents);
                 sessionStorage.removeItem("bundle_selections_pending");
             };
             
@@ -2339,27 +2334,11 @@ window.openCart = function() {
                 flairEl.style.display = 'none';
             }
 
-            // Short Fragrance Name (Display if available)
+            // Primary Name (Most prominent)
             const nameShortEl = document.querySelector('.product-name-short');
             if (nameShortEl) {
-                if (p.nameShort) {
-                    nameShortEl.textContent = p.nameShort;
-                    nameShortEl.style.display = 'block';
-                } else {
-                    nameShortEl.style.display = 'none';
-                }
-            }
-
-            // Breadcrumbs active element
-            const breadcrumbActive = document.getElementById('breadcrumbActive');
-            const breadcrumbActiveMobile = document.getElementById('breadcrumbActiveMobile');
-            const activeBreadcrumbText = p.nameShort || p.name || "Product";
-            if (breadcrumbActive) breadcrumbActive.textContent = activeBreadcrumbText.toUpperCase();
-            if (breadcrumbActiveMobile) {
-                breadcrumbActiveMobile.textContent = activeBreadcrumbText.toUpperCase();
-                // Show mobile breadcrumb on mobile screen sizes
-                const breadcrumbMobileWrap = document.querySelector('.breadcrumb.mobile-only');
-                if (breadcrumbMobileWrap) breadcrumbMobileWrap.style.display = window.innerWidth <= 900 ? 'block' : 'none';
+                nameShortEl.textContent = (p.nameShort || p.name).toUpperCase();
+                nameShortEl.style.display = 'block';
             }
 
             // Dynamic Scent Badges
@@ -2377,8 +2356,11 @@ window.openCart = function() {
             
             const badgeGender = document.getElementById('badgeGender');
             if (badgeGender) {
-                if (p.flair) {
+                if (p.isBundle) {
+                    badgeGender.style.display = 'none';
+                } else if (p.flair) {
                     badgeGender.textContent = p.flair;
+                    badgeGender.style.display = 'inline-flex';
                 } else {
                     const idLower = (p.id || "").toLowerCase();
                     const nameLower = (p.name || "").toLowerCase();
@@ -2390,24 +2372,30 @@ window.openCart = function() {
                     } else {
                         badgeGender.textContent = "Unisex";
                     }
+                    badgeGender.style.display = 'inline-flex';
                 }
             }
 
             // Tab title
             document.title = (p.name || "Product") + " – Studio Extrait";
 
-            // Title
+            // Title / Secondary inspired-by subtitle text
             const titleEl = document.querySelector('.product-title');
             if (titleEl) {
-                let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
-                let escapedName = window.escapeHTML ? window.escapeHTML(rawName) : rawName;
-                
-                const match = escapedName.match(/Inspired\s+by\s+(.+)/i);
-                if (match || (p.id && p.id.startsWith("inspired-by-"))) {
-                    const fragranceName = match ? match[1] : escapedName;
-                    titleEl.innerHTML = `Inspired By <i style="font-family: 'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">${formatBrandName(fragranceName)}</i>`;
+                if (p.nameShort) {
+                    let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
+                    let escapedName = window.escapeHTML ? window.escapeHTML(rawName) : rawName;
+                    
+                    const match = escapedName.match(/Inspired\s+by\s+(.+)/i);
+                    if (match || (p.id && p.id.startsWith("inspired-by-"))) {
+                        const fragranceName = match ? match[1] : escapedName;
+                        titleEl.innerHTML = `Inspired By <i style="font-family: inherit; font-style: italic; font-weight: bold; text-transform: uppercase;">${formatBrandName(fragranceName)}</i>`;
+                    } else {
+                        titleEl.innerHTML = escapedName;
+                    }
+                    titleEl.style.display = 'block';
                 } else {
-                    titleEl.innerHTML = escapedName;
+                    titleEl.style.display = 'none';
                 }
             }
 

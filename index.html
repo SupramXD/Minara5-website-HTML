@@ -2902,7 +2902,10 @@
                     image: p.image,
                     image_thumb: p.image_thumb || "",
                     status: p.status,
+                    flair: p.flair || "",
                     invisibleFlair: p.invisibleFlair || "",
+                    isBundle: !!p.isBundle,
+                    bundleSize: Number(p.bundleSize) || 0,
                     sortOrder: p.sortOrder !== undefined && p.sortOrder !== null ? Number(p.sortOrder) : null,
                     url: p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`
                   });
