@@ -1077,6 +1077,11 @@ function updateCartCount(count){
             }
 
             let activeProducts = products.filter(p => p.status === 'Active');
+            activeProducts.sort((a, b) => {
+                const orderA = a.sortOrder !== undefined && a.sortOrder !== null ? Number(a.sortOrder) : 999999;
+                const orderB = b.sortOrder !== undefined && b.sortOrder !== null ? Number(b.sortOrder) : 999999;
+                return orderA - orderB;
+            });
             if (genderFilter === 'men') {
                 activeProducts = activeProducts.filter(p => {
                     const f = (p.invisibleFlair || '').toLowerCase();
@@ -1380,6 +1385,7 @@ function updateCartCount(count){
                         invisibleFlair: data.invisibleFlair || "",
                         isBundle: !!data.isBundle,
                         bundleSize: Number(data.bundleSize) || 0,
+                        sortOrder: data.sortOrder !== undefined && data.sortOrder !== null ? Number(data.sortOrder) : null,
                         url: data.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${data.id}`
                     };
                     firestoreProds.push(p);
@@ -1387,7 +1393,7 @@ function updateCartCount(count){
                     const existingIdx = products.findIndex(item => item.id === p.id);
                     if (existingIdx > -1) {
                         const current = products[existingIdx];
-                        if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair || current.invisibleFlair !== p.invisibleFlair || current.isBundle !== p.isBundle || current.bundleSize !== p.bundleSize) {
+                        if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair || current.invisibleFlair !== p.invisibleFlair || current.isBundle !== p.isBundle || current.bundleSize !== p.bundleSize || current.sortOrder !== p.sortOrder) {
                             products[existingIdx] = p;
                             updated = true;
                         }

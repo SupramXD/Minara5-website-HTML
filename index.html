@@ -783,7 +783,7 @@
     }
 
     .home-products-section {
-      padding: 0;
+      padding: 0 0 60px 0;
       position: relative;
       z-index: 200 !important;
       background: #fff !important;
@@ -2280,7 +2280,7 @@
           if (shouldLock) {
             if (lastLogoState !== "absolute") {
               logo.style.position = 'absolute';
-              logo.style.top = (secondHeroBottom - logoHeight) + 'px';
+              logo.style.top = (secondHeroBottom - logoHeight - stickOffset) + 'px';
               logo.style.transform = `translate3d(calc(-50% + ${dX}px), 0, 0)`;
               lastLogoState = "absolute";
             }
@@ -2479,6 +2479,7 @@
                 flair: p.flair || "",
                 isBundle: !!p.isBundle,
                 bundleSize: Number(p.bundleSize) || 0,
+                sortOrder: p.sortOrder !== undefined && p.sortOrder !== null ? Number(p.sortOrder) : null,
                 url: `template product.html?id=${p.id}`
               });
             } else {
@@ -2499,6 +2500,7 @@
                   flair: p.flair || "",
                   isBundle: !!p.isBundle,
                   bundleSize: Number(p.bundleSize) || 0,
+                  sortOrder: p.sortOrder !== undefined && p.sortOrder !== null ? Number(p.sortOrder) : null,
                   url: p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`
                 };
               }
@@ -2522,7 +2524,12 @@
 
       // Render function
       const renderGrid = () => {
-        const activeProducts = products.filter(p => p.status === 'Active');
+        let activeProducts = products.filter(p => p.status === 'Active');
+        activeProducts.sort((a, b) => {
+          const orderA = a.sortOrder !== undefined && a.sortOrder !== null ? Number(a.sortOrder) : 999999;
+          const orderB = b.sortOrder !== undefined && b.sortOrder !== null ? Number(b.sortOrder) : 999999;
+          return orderA - orderB;
+        });
         grid.innerHTML = ""; // Clear existing grid items securely
 
         activeProducts.forEach(p => {
@@ -2818,6 +2825,7 @@
               invisibleFlair: data.invisibleFlair || "",
               isBundle: !!data.isBundle,
               bundleSize: Number(data.bundleSize) || 0,
+              sortOrder: data.sortOrder !== undefined && data.sortOrder !== null ? Number(data.sortOrder) : null,
               url: data.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${data.id}`
             };
             firestoreProds.push(p);
@@ -2825,7 +2833,7 @@
             const existingIdx = products.findIndex(item => item.id === p.id);
             if (existingIdx > -1) {
               const current = products[existingIdx];
-              if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair || current.invisibleFlair !== p.invisibleFlair || current.isBundle !== p.isBundle || current.bundleSize !== p.bundleSize) {
+              if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair || current.invisibleFlair !== p.invisibleFlair || current.isBundle !== p.isBundle || current.bundleSize !== p.bundleSize || current.sortOrder !== p.sortOrder) {
                 products[existingIdx] = {
                   ...current,
                   nameShort: p.nameShort,
@@ -2839,7 +2847,8 @@
                   flair: p.flair,
                   invisibleFlair: p.invisibleFlair,
                   isBundle: p.isBundle,
-                  bundleSize: p.bundleSize
+                  bundleSize: p.bundleSize,
+                  sortOrder: p.sortOrder
                 };
                 updated = true;
               }
@@ -2894,6 +2903,7 @@
                     image_thumb: p.image_thumb || "",
                     status: p.status,
                     invisibleFlair: p.invisibleFlair || "",
+                    sortOrder: p.sortOrder !== undefined && p.sortOrder !== null ? Number(p.sortOrder) : null,
                     url: p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`
                   });
                 });

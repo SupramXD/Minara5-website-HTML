@@ -1441,6 +1441,11 @@
                     </div>
 
                     <div class="form-group">
+                      <label for="prodSortOrder">Display Order (1 to <span class="total-products-count-badge">1</span>)</label>
+                      <input type="number" id="prodSortOrder" class="form-input" placeholder="e.g. 1" min="1">
+                    </div>
+
+                    <div class="form-group">
                       <label for="prodImage">Product Image Path / URL</label>
                       <input type="text" id="prodImage" class="form-input" placeholder="e.g. images/products/inspired-by-creed-aventus.webp or URL">
                       <div style="margin: 8px 0; text-align: center; font-size: 10px; opacity: 0.5;">— OR UPLOAD & AUTOMATICALLY COMPRESS —</div>
@@ -1531,13 +1536,14 @@
                           <th>Price</th>
                           <th>Retail Price</th>
                           <th>Stock level</th>
+                          <th>Sort Order</th>
                           <th>Catalog Status</th>
                           <th>Stock adjustment</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr>
-                          <td colspan="7" style="text-align: center; opacity: 0.5;">Loading products...</td>
+                          <td colspan="8" style="text-align: center; opacity: 0.5;">Loading products...</td>
                         </tr>
                       </tbody>
                     </table>
@@ -1966,6 +1972,11 @@
                 <div class="form-group">
                   <label for="editProdStock">Stock Level</label>
                   <input type="number" id="editProdStock" class="form-input" min="0" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="editProdSortOrder">Display Order (1 to <span class="total-products-count-badge-edit">1</span>)</label>
+                  <input type="number" id="editProdSortOrder" class="form-input" min="1">
                 </div>
 
                 <div class="form-group">
@@ -2653,6 +2664,11 @@
               stockTd.textContent = `${p.stock} units`;
               tr.appendChild(stockTd);
               
+              // Sort Order cell
+              const orderTd = document.createElement('td');
+              orderTd.textContent = p.sortOrder !== undefined && p.sortOrder !== null ? p.sortOrder : '—';
+              tr.appendChild(orderTd);
+              
               const statusTd = document.createElement('td');
               const statusSpan = document.createElement('span');
               statusSpan.className = `status-badge ${statusBadgeClass}`;
@@ -2733,6 +2749,21 @@
           if (statsEl) statsEl.textContent = products.length + " Items in System";
           if (dashCountEl) dashCountEl.textContent = products.length;
           
+          document.querySelectorAll('.total-products-count-badge, .total-products-count-badge-edit').forEach(badge => {
+              badge.textContent = products.length;
+          });
+          const addSortOrderInput = document.getElementById("prodSortOrder");
+          if (addSortOrderInput && !addSortOrderInput.value) {
+              addSortOrderInput.value = products.length + 1;
+          }
+          if (addSortOrderInput) {
+              addSortOrderInput.max = products.length + 1;
+          }
+          const editSortOrderInput = document.getElementById("editProdSortOrder");
+          if (editSortOrderInput) {
+              editSortOrderInput.max = products.length;
+          }
+          
           window.minaraProducts = products;
       };
 
@@ -2768,14 +2799,15 @@
                           flair: data.flair || "",
                           sizes: data.sizes || ["50ml", "100ml"],
                           isBundle: !!data.isBundle,
-                          bundleSize: Number(data.bundleSize) || 0
+                          bundleSize: Number(data.bundleSize) || 0,
+                          sortOrder: data.sortOrder !== undefined && data.sortOrder !== null ? Number(data.sortOrder) : null
                       };
                       firestoreProds.push(p);
                       
                       const existingIdx = products.findIndex(item => item.id === p.id);
                       if (existingIdx > -1) {
                           const current = products[existingIdx];
-                          if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.image_thumb !== p.image_thumb || current.description !== p.description || current.flair !== p.flair || JSON.stringify(current.sizes) !== JSON.stringify(p.sizes) || current.isBundle !== p.isBundle || current.bundleSize !== p.bundleSize) {
+                          if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.image_thumb !== p.image_thumb || current.description !== p.description || current.flair !== p.flair || JSON.stringify(current.sizes) !== JSON.stringify(p.sizes) || current.isBundle !== p.isBundle || current.bundleSize !== p.bundleSize || current.sortOrder !== p.sortOrder) {
                               products[existingIdx] = p;
                               updated = true;
                           }
@@ -2793,7 +2825,7 @@
                           const idx = localProds.findIndex(lp => lp.id === fp.id);
                           if (idx > -1) {
                               const cur = localProds[idx];
-                              if (cur.nameShort !== fp.nameShort || cur.name !== fp.name || cur.price !== fp.price || cur.retailPrice !== fp.retailPrice || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.image_thumb !== fp.image_thumb || cur.description !== fp.description || cur.flair !== fp.flair || JSON.stringify(cur.sizes) !== JSON.stringify(fp.sizes) || cur.isBundle !== fp.isBundle || cur.bundleSize !== fp.bundleSize) {
+                              if (cur.nameShort !== fp.nameShort || cur.name !== fp.name || cur.price !== fp.price || cur.retailPrice !== fp.retailPrice || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.image_thumb !== fp.image_thumb || cur.description !== fp.description || cur.flair !== fp.flair || JSON.stringify(cur.sizes) !== JSON.stringify(fp.sizes) || cur.isBundle !== fp.isBundle || cur.bundleSize !== fp.bundleSize || cur.sortOrder !== fp.sortOrder) {
                                   localProds[idx] = { ...fp, syncStatus: "synced" };
                                   localUpdated = true;
                               }
@@ -2993,6 +3025,8 @@
       const invisibleFlair = document.getElementById("prodInvisibleFlair").value;
       const isBundle = document.getElementById("prodIsBundle").checked;
       const bundleSize = isBundle ? parseInt(document.getElementById("prodBundleSize").value) : 0;
+      const sortOrderVal = document.getElementById("prodSortOrder").value.trim();
+      const sortOrder = sortOrderVal !== "" ? parseInt(sortOrderVal) : null;
 
       if (!name || isNaN(price) || isNaN(stock) || !description) return;
       if (!imageInput && !fileInput) {
@@ -3047,7 +3081,8 @@
           flair: flair,
           sizes: sizes,
           isBundle: isBundle,
-          bundleSize: bundleSize
+          bundleSize: bundleSize,
+          sortOrder: sortOrder
       };
 
       try {
@@ -3088,6 +3123,7 @@
                       sizes: sizes,
                       isBundle: isBundle,
                       bundleSize: bundleSize,
+                      sortOrder: sortOrder,
                       timestamp: new Date().toISOString()
                   }),
                   timeoutPromise
@@ -3127,7 +3163,8 @@
                       invisibleFlair: invisibleFlair,
                       sizes: sizes,
                       isBundle: isBundle,
-                      bundleSize: bundleSize
+                      bundleSize: bundleSize,
+                      sortOrder: sortOrder
                   }
               });
               console.log("GitHub sync successful for: " + name);
@@ -3364,6 +3401,7 @@
       document.getElementById("editProdPrice").value = product.price;
       document.getElementById("editProdRetailPrice").value = product.retailPrice || "";
       document.getElementById("editProdStock").value = product.stock;
+      document.getElementById("editProdSortOrder").value = product.sortOrder !== undefined && product.sortOrder !== null ? product.sortOrder : "";
       document.getElementById("editProdImage").value = product.image;
       document.getElementById("editProdDesc").value = product.description;
       document.getElementById("editProdStatus").value = product.status;
@@ -3408,6 +3446,8 @@
       const invisibleFlair = document.getElementById("editProdInvisibleFlair").value;
       const isBundle = document.getElementById("editProdIsBundle").checked;
       const bundleSize = isBundle ? parseInt(document.getElementById("editProdBundleSize").value) : 0;
+      const sortOrderVal = document.getElementById("editProdSortOrder").value.trim();
+      const sortOrder = sortOrderVal !== "" ? parseInt(sortOrderVal) : null;
 
       if (!id || !name || isNaN(price) || isNaN(stock) || !description) return;
       if (!imageInput && !fileInput) {
@@ -3470,7 +3510,8 @@
           invisibleFlair: invisibleFlair,
           sizes: sizes,
           isBundle: isBundle,
-          bundleSize: bundleSize
+          bundleSize: bundleSize,
+          sortOrder: sortOrder
       };
 
       try {
@@ -3509,6 +3550,7 @@
                       sizes: sizes,
                       isBundle: isBundle,
                       bundleSize: bundleSize,
+                      sortOrder: sortOrder,
                       timestamp: new Date().toISOString()
                   }),
                   timeoutPromise
@@ -3548,7 +3590,8 @@
                       invisibleFlair: invisibleFlair,
                       sizes: sizes,
                       isBundle: isBundle,
-                      bundleSize: bundleSize
+                      bundleSize: bundleSize,
+                      sortOrder: sortOrder
                   }
               });
               console.log("GitHub sync successful for edited: " + name);
