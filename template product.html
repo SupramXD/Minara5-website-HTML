@@ -1395,6 +1395,158 @@ footer{
     background: transparent;
     color: #000;
 }
+
+/* =============== SCENT DRAWER SLIDE-UP PANEL (MOBILE ONLY) =============== */
+.scent-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+    display: none;
+    pointer-events: none;
+}
+.scent-drawer.active {
+    display: block;
+    pointer-events: auto;
+}
+.scent-drawer-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.scent-drawer.active .scent-drawer-backdrop {
+    opacity: 1;
+}
+.scent-drawer-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 75vh;
+    background: #fff;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-sizing: border-box;
+}
+.scent-drawer.active .scent-drawer-content {
+    transform: translateY(0);
+}
+.scent-drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+}
+.scent-drawer-title {
+    font-family: 'Gotham Narrow Bold', sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+.scent-drawer-close {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #000;
+    padding: 4px;
+}
+.scent-drawer-search-wrap {
+    padding: 12px 20px;
+    border-bottom: 1px solid #eee;
+}
+#drawerSearchInput {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #eaeaea;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: inherit;
+    outline: none;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-sizing: border-box;
+}
+#drawerSearchInput:focus {
+    border-color: #000;
+}
+.scent-drawer-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.drawer-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f9f9f9;
+    cursor: pointer;
+    gap: 12px;
+}
+.drawer-item-img-box {
+    width: 50px;
+    height: 50px;
+    background: #fbfbfb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eaeaea;
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.drawer-item-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+.drawer-item-img.loaded {
+    opacity: 1;
+}
+.drawer-item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.drawer-item-name {
+    font-family: 'Gotham Narrow Bold', sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.drawer-item-inspired {
+    font-size: 9px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 </style>
 </head>
 
@@ -2253,37 +2405,79 @@ window.openCart = function() {
                 const inputEl = slot.querySelector(".bundle-scent-input");
                 const dropdownEl = slot.querySelector(".bundle-dropdown");
 
-                inputEl.onclick = (e) => {
-                    e.stopPropagation();
-                    document.querySelectorAll(".bundle-dropdown").forEach(d => {
-                        if (d !== dropdownEl) d.style.display = "none";
-                    });
-                    renderDropdownList(dropdownEl, inputEl.value, i, inputEl, displayBox, inputBox, selectedImgEl, selectedNameEl, selectedInspiredEl);
-                    dropdownEl.style.display = "block";
+                // Map global callbacks for each slot selection
+                if (!window.selectScentCallbacks) window.selectScentCallbacks = {};
+                window.selectScentCallbacks[i] = (productSelected) => {
+                    selectedScents[i] = {
+                        id: productSelected.id,
+                        name: productSelected.name,
+                        nameShort: productSelected.nameShort || productSelected.name,
+                        image: productSelected.image_thumb || productSelected.image,
+                        inspiredBy: productSelected.name ? (productSelected.name.match(/Inspired\s+by\s+(.+)/i) ? productSelected.name.match(/Inspired\s+by\s+(.+)/i)[1] : "") : ""
+                    };
+                    
+                    try {
+                        const pending = JSON.parse(sessionStorage.getItem("bundle_selections_pending") || "{}");
+                        pending[i] = selectedScents[i];
+                        sessionStorage.setItem("bundle_selections_pending", JSON.stringify(pending));
+                    } catch (err) {}
+
+                    // Update UI for the slot
+                    selectedImgEl.src = productSelected.image_thumb || productSelected.image;
+                    selectedNameEl.textContent = (productSelected.nameShort || productSelected.name).toUpperCase() + " - 50ML";
+                    
+                    let inspiredText = "";
+                    const match = productSelected.name ? productSelected.name.match(/Inspired\s+by\s+(.+)/i) : null;
+                    if (match || (productSelected.id && productSelected.id.startsWith("inspired-by-"))) {
+                        const fragranceName = match ? match[1] : productSelected.name;
+                        inspiredText = `Inspired by ${formatBrandName(fragranceName)}`;
+                    } else {
+                        inspiredText = productSelected.name;
+                    }
+                    selectedInspiredEl.textContent = inspiredText.toUpperCase();
+                    
+                    inputBox.style.display = "none";
+                    displayBox.style.display = "flex";
+                    dropdownEl.style.display = "none";
+                    
+                    updateAddToBagBtnState();
                 };
 
-                inputEl.oninput = () => {
-                    renderDropdownList(dropdownEl, inputEl.value, i, inputEl, displayBox, inputBox, selectedImgEl, selectedNameEl, selectedInspiredEl);
-                    dropdownEl.style.display = "block";
-                    if (!inputEl.value.trim()) {
-                        selectedScents[i] = null;
-                        updateAddToBagBtnState();
+                // Mobile mode: make read-only and open drawer
+                if (window.innerWidth <= 900) {
+                    inputEl.readOnly = true;
+                    inputEl.style.cursor = "pointer";
+                }
+
+                const openSelectorAction = (e) => {
+                    e.stopPropagation();
+                    if (window.innerWidth <= 900) {
+                        window.openScentDrawer(i);
+                    } else {
+                        document.querySelectorAll(".bundle-dropdown").forEach(d => {
+                            if (d !== dropdownEl) d.style.display = "none";
+                        });
+                        renderDropdownList(dropdownEl, inputEl.value, i, inputEl, displayBox, inputBox, selectedImgEl, selectedNameEl, selectedInspiredEl);
+                        dropdownEl.style.display = "block";
                     }
                 };
 
-                inputEl.onfocus = () => {
-                    document.body.classList.add("keyboard-active");
-                    setTimeout(() => {
-                        slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 150);
+                inputEl.onclick = openSelectorAction;
+                inputBox.onclick = (e) => {
+                    if (window.innerWidth <= 900) {
+                        openSelectorAction(e);
+                    }
                 };
 
-                inputEl.onblur = () => {
-                    setTimeout(() => {
-                        if (!document.activeElement || !document.activeElement.classList.contains("bundle-scent-input")) {
-                            document.body.classList.remove("keyboard-active");
+                inputEl.oninput = () => {
+                    if (window.innerWidth > 900) {
+                        renderDropdownList(dropdownEl, inputEl.value, i, inputEl, displayBox, inputBox, selectedImgEl, selectedNameEl, selectedInspiredEl);
+                        dropdownEl.style.display = "block";
+                        if (!inputEl.value.trim()) {
+                            selectedScents[i] = null;
+                            updateAddToBagBtnState();
                         }
-                    }, 150);
+                    }
                 };
 
                 switchBtn.onclick = (e) => {
@@ -2301,9 +2495,15 @@ window.openCart = function() {
                     inputBox.style.display = "flex";
                     updateAddToBagBtnState();
                     
-                    setTimeout(() => {
-                        inputEl.click();
-                    }, 50);
+                    if (window.innerWidth <= 900) {
+                        setTimeout(() => {
+                            window.openScentDrawer(i);
+                        }, 50);
+                    } else {
+                        setTimeout(() => {
+                            inputEl.click();
+                        }, 50);
+                    }
                 };
 
                 wrap.appendChild(slot);
@@ -2323,6 +2523,90 @@ window.openCart = function() {
             };
             
             updateAddToBagBtnState();
+
+            // Drawer Global state and functions
+            let activeSlotIndex = null;
+            
+            const renderDrawerList = (queryStr) => {
+                const listEl = document.getElementById("drawerScentList");
+                if (!listEl) return;
+                listEl.innerHTML = "";
+                
+                const filterText = queryStr.toLowerCase().trim();
+                
+                const matches = activeCatalogFragrances.filter(fp => {
+                    const nameMatch = fp.name && fp.name.toLowerCase().includes(filterText);
+                    const nameShortMatch = fp.nameShort && fp.nameShort.toLowerCase().includes(filterText);
+                    return nameMatch || nameShortMatch;
+                });
+                
+                if (matches.length === 0) {
+                    listEl.innerHTML = `<div style="font-size:10px; opacity:0.5; padding: 20px 0; text-align:center; letter-spacing:1px;">NO FRAGRANCES FOUND</div>`;
+                    return;
+                }
+                
+                matches.forEach(fp => {
+                    const row = document.createElement("div");
+                    row.className = "drawer-item";
+                    
+                    let inspiredText = "";
+                    const match = fp.name ? fp.name.match(/Inspired\s+by\s+(.+)/i) : null;
+                    if (match || (fp.id && fp.id.startsWith("inspired-by-"))) {
+                        const fragranceName = match ? match[1] : fp.name;
+                        inspiredText = `Inspired by ${formatBrandName(fragranceName)}`;
+                    } else {
+                        inspiredText = fp.name;
+                    }
+                    
+                    const imgSrc = fp.image_thumb || fp.image;
+                    
+                    row.innerHTML = `
+                        <div class="drawer-item-img-box">
+                            <img class="drawer-item-img" src="${imgSrc}" alt="${fp.nameShort || fp.name}" onload="this.classList.add('loaded')">
+                        </div>
+                        <div class="drawer-item-info">
+                            <span class="drawer-item-name">${(fp.nameShort || fp.name).toUpperCase()}</span>
+                            <span class="drawer-item-inspired">${inspiredText.toUpperCase()} - 50ML</span>
+                        </div>
+                    `;
+                    
+                    row.onclick = () => {
+                        if (window.selectScentCallbacks && window.selectScentCallbacks[activeSlotIndex]) {
+                            window.selectScentCallbacks[activeSlotIndex](fp);
+                        }
+                        window.closeScentDrawer();
+                    };
+                    
+                    listEl.appendChild(row);
+                });
+            };
+
+            window.openScentDrawer = (index) => {
+                activeSlotIndex = index;
+                const drawer = document.getElementById("mobileScentDrawer");
+                const searchInput = document.getElementById("drawerSearchInput");
+                if (searchInput) searchInput.value = "";
+                
+                // Show list immediately
+                renderDrawerList("");
+                
+                if (drawer) drawer.classList.add("active");
+                document.body.style.overflow = "hidden"; // lock page scroll
+            };
+
+            window.closeScentDrawer = () => {
+                const drawer = document.getElementById("mobileScentDrawer");
+                if (drawer) drawer.classList.remove("active");
+                document.body.style.overflow = ""; // restore page scroll
+                activeSlotIndex = null;
+            };
+
+            const drawerSearchInput = document.getElementById("drawerSearchInput");
+            if (drawerSearchInput) {
+                drawerSearchInput.oninput = () => {
+                    renderDrawerList(drawerSearchInput.value);
+                };
+            }
         };
 
         // Helper to swap dynamic content
@@ -3264,6 +3548,23 @@ window.openCart = function() {
         </div>
         <div class="reviews-modal-body" id="reviewsModalBody">
             <!-- All reviews populated dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Scent Selector Drawer -->
+<div id="mobileScentDrawer" class="scent-drawer">
+    <div class="scent-drawer-backdrop" onclick="window.closeScentDrawer()"></div>
+    <div class="scent-drawer-content">
+        <div class="scent-drawer-header">
+            <span class="scent-drawer-title">SELECT FRAGRANCE</span>
+            <button class="scent-drawer-close" onclick="window.closeScentDrawer()">✕</button>
+        </div>
+        <div class="scent-drawer-search-wrap">
+            <input type="text" id="drawerSearchInput" placeholder="SEARCH FRAGRANCES..." autocomplete="off">
+        </div>
+        <div class="scent-drawer-list" id="drawerScentList">
+            <!-- Items injected dynamically -->
         </div>
     </div>
 </div>
