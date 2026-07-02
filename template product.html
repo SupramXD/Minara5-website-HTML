@@ -631,6 +631,15 @@ nav ul li a:hover{opacity:0.6;}
     object-fit: cover !important;
     object-position: center !important;
 }
+@media (min-width: 901px) {
+    .slider.bundle-slider {
+        height: auto !important;
+    }
+    .slider.bundle-slider .slider-track img {
+        height: auto !important;
+        object-fit: contain !important;
+    }
+}
 .arrow {
     position: absolute;
     top: 50%;
@@ -2140,7 +2149,7 @@ window.openCart = function() {
                     leftContainer.innerHTML = `
                         <img src="${thumb}" style="width: 28px; height: 38px; object-fit: contain; flex-shrink: 0; border: 1px solid #eaeaea; background: #fff;">
                         <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
-                            <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</span>
+                            <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName} - 50ml</span>
                             ${descHtml}
                         </div>
                     `;
@@ -2165,7 +2174,7 @@ window.openCart = function() {
                             inspiredBy: inspiredByText
                         };
                         
-                        selectedNameEl.textContent = (prod.nameShort || prod.name).toUpperCase();
+                        selectedNameEl.textContent = (prod.nameShort || prod.name).toUpperCase() + " - 50ML";
                         selectedInspiredEl.innerHTML = inspiredByText ? `<span style="opacity: 0.6; font-size: 8px;">INSPIRED BY</span> ${inspiredByText.toUpperCase()}` : "";
                         selectedImgEl.src = thumb;
 
@@ -2221,7 +2230,7 @@ window.openCart = function() {
                     <div class="bundle-scent-display-box" style="display: ${hasPreselected ? 'flex' : 'none'}; align-items: center; gap: 12px; border: 1px solid #000; padding: 8px 12px; border-radius: 2px; background: #fafafa; min-height: 48px; box-sizing: border-box; width: 100%;">
                         <img class="selected-scent-img" src="${hasPreselected ? selectedScents[i].image : ''}" style="width: 24px; height: 32px; object-fit: contain; flex-shrink: 0; border: 1px solid #eaeaea; background: #fff;">
                         <div style="display: flex; flex-direction: column; flex-grow: 1; min-width: 0;">
-                            <span class="selected-scent-name" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${hasPreselected ? selectedScents[i].name.toUpperCase() : ''}</span>
+                            <span class="selected-scent-name" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${hasPreselected ? selectedScents[i].name.toUpperCase() + ' - 50ML' : ''}</span>
                             <span class="selected-scent-inspired" style="font-size: 8.5px; color: #777; font-weight: bold; letter-spacing: 0.8px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">${hasPreselected && selectedScents[i].inspiredBy ? `<span style="opacity: 0.6; font-size: 8px;">INSPIRED BY</span> ` + selectedScents[i].inspiredBy.toUpperCase() : ''}</span>
                         </div>
                         <span class="bundle-scent-switch" style="cursor: pointer; font-size: 9px; color: #1106e8; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; user-select: none;">SWITCH</span>
@@ -2752,10 +2761,17 @@ window.openCart = function() {
                         };
                     }
                 } else {
-                    addToBagBtn.innerHTML = "ADD TO BAG";
                     addToBagBtn.disabled = false;
                     addToBagBtn.style.opacity = "";
                     addToBagBtn.style.cursor = "";
+                    
+                    if (bundleView) {
+                        addToBagBtn.innerHTML = "ADD TO BUNDLE";
+                    } else if (p.isBundle) {
+                        // Let updateAddToBagBtnState manage it
+                    } else {
+                        addToBagBtn.innerHTML = "ADD TO BAG";
+                    }
                     
                     const notifyContainer = document.getElementById("outOfStockNotifyContainer");
                     if (notifyContainer) notifyContainer.style.display = "none";
