@@ -113,6 +113,7 @@ header{
   padding:4px 30px;
   z-index:1200;
   border-bottom:1px solid #eee;
+  transition: transform 0.3s ease;
 }
 .center-logo-link{
   position:absolute;
@@ -237,30 +238,27 @@ nav ul li a:hover{opacity:0.6;}
 .badge-container {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 16px;
     width: 100%;
 }
 .badge {
-    font-size: 9.5px;
+    font-size: 9px;
     font-weight: bold;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    color: #666;
+    padding: 5px 10px;
+    border: 1px solid #eaeaea;
+    border-radius: 2px;
+    background: #fff;
+    color: #555;
     display: inline-flex;
     align-items: center;
-    padding: 0;
-    border: none;
-    background: transparent;
 }
 .badge-accent {
+    background: #fafafa;
+    border-color: #000;
     color: #000;
-}
-.badge:not([style*="display: none"]):not([style*="display:none"]) ~ .badge:not([style*="display: none"]):not([style*="display:none"])::before {
-    content: "•";
-    margin-right: 12px;
-    color: #ccc;
 }
 
 /* =============== REVIEWS STARS SUMMARY =============== */
@@ -763,6 +761,7 @@ nav ul li a:hover{opacity:0.6;}
         margin: 70px auto 40px !important;
         padding: 0 20px !important;
         gap: 30px !important;
+        transition: margin-top 0.3s ease;
     }
     .product-media-wrap {
         width: 100% !important;
@@ -771,12 +770,19 @@ nav ul li a:hover{opacity:0.6;}
         top: 0 !important;
     }
     .slider {
+        width: 100% !important;
         max-width: 380px !important;
         aspect-ratio: 1 / 1;
     }
     .product-info-wrap {
         width: 100% !important;
         max-width: 100% !important;
+    }
+    body.keyboard-active header {
+        transform: translateY(-100%);
+    }
+    body.keyboard-active .page-wrap {
+        margin-top: 15px !important;
     }
 }
 
@@ -2263,6 +2269,21 @@ window.openCart = function() {
                         selectedScents[i] = null;
                         updateAddToBagBtnState();
                     }
+                };
+
+                inputEl.onfocus = () => {
+                    document.body.classList.add("keyboard-active");
+                    setTimeout(() => {
+                        slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 150);
+                };
+
+                inputEl.onblur = () => {
+                    setTimeout(() => {
+                        if (!document.activeElement || !document.activeElement.classList.contains("bundle-scent-input")) {
+                            document.body.classList.remove("keyboard-active");
+                        }
+                    }, 150);
                 };
 
                 switchBtn.onclick = (e) => {
