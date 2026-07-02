@@ -48,8 +48,6 @@
     "invisibleFlair": "",
     "sizes": [
       "50ml"
-    ],
-    "isBundle": true,
-    "bundleSize": 2
+    ]
   }
 ]
