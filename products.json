@@ -1,5 +1,25 @@
 [
   {
+    "id": "inspired-by-jpg-le-male",
+    "nameShort": "Le male ambre",
+    "name": "JPG LE MALE",
+    "price": 465,
+    "retailPrice": 2100,
+    "stock": 10,
+    "image": "images/products/inspired-by-jpg-le-male.webp",
+    "image_thumb": "images/products/inspired-by-jpg-le-male_thumb.webp",
+    "description": "undefined",
+    "status": "Active",
+    "flair": "Masculine",
+    "invisibleFlair": "",
+    "sizes": [
+      "50ml"
+    ],
+    "isBundle": false,
+    "bundleSize": 0,
+    "sortOrder": 1
+  },
+  {
     "id": "any-2-50ml-fragrances",
     "nameShort": "The Discovery Duet",
     "name": "Any 2 50ml fragrances",
@@ -17,24 +37,6 @@
     ],
     "isBundle": true,
     "bundleSize": 2,
-    "sortOrder": 1
-  },
-  {
-    "id": "inspired-by-jpg-le-male",
-    "nameShort": "Le male ambre",
-    "name": "JPG LE MALE",
-    "price": 465,
-    "retailPrice": 2100,
-    "stock": 10,
-    "image": "images/products/inspired-by-jpg-le-male.webp",
-    "image_thumb": "images/products/inspired-by-jpg-le-male_thumb.webp",
-    "description": "JPG LE male\nInspired",
-    "status": "Active",
-    "flair": "Masculine",
-    "invisibleFlair": "",
-    "sizes": [
-      "50ml"
-    ],
     "sortOrder": 2
   },
   {
