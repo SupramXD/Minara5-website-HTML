@@ -7,6 +7,9 @@ const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
 
 // Initialize Firebase Admin
+const fs = require("fs");
+const path = require("path");
+
 admin.initializeApp();
 const firestore = admin.firestore();
 
@@ -22,8 +25,22 @@ const REPO = "Minara5-website-HTML";
 /**
  * Utility to make HTTP Requests to GitHub Contents API
  */
-async function gitHubRequest(path, options = {}, token) {
-  const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`;
+async function gitHubRequest(filePath, options = {}, token) {
+  if (process.env.FUNCTIONS_EMULATOR === "true" &&
+      options.method === "DELETE") {
+    try {
+      const absolutePath = path.join(__dirname, "..", filePath);
+      if (fs.existsSync(absolutePath)) {
+        fs.unlinkSync(absolutePath);
+        logger.info(`Locally deleted ${filePath} in emulator environment.`);
+      }
+    } catch (fsErr) {
+      logger.error(`Failed to delete local file ${filePath} in emulator:`,
+          fsErr);
+    }
+  }
+
+  const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${filePath}`;
   const headers = {
     "Authorization": `Bearer ${token}`,
     "Accept": "application/vnd.github.v3+json",
@@ -35,7 +52,8 @@ async function gitHubRequest(path, options = {}, token) {
 
   if (!response.ok && response.status !== 404) {
     const text = await response.text();
-    throw new Error(`GitHub API error on ${url}: Status ${response.status} - ${text}`);
+    throw new Error("GitHub API error on " + url + ": Status " +
+      response.status + " - " + text);
   }
 
   return response;
@@ -58,7 +76,24 @@ async function getFileShaAndContent(path, token) {
 /**
  * Write a file directly to the GitHub repository
  */
-async function writeFileToGitHub(path, contentBase64, commitMessage, sha, token) {
+async function writeFileToGitHub(filePath, contentBase64, commitMessage,
+    sha, token) {
+  if (process.env.FUNCTIONS_EMULATOR === "true") {
+    try {
+      const absolutePath = path.join(__dirname, "..", filePath);
+      const fileContent = Buffer.from(contentBase64, "base64");
+      const dir = path.dirname(absolutePath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, {recursive: true});
+      }
+      fs.writeFileSync(absolutePath, fileContent);
+      logger.info(`Locally updated ${filePath} in emulator environment.`);
+    } catch (fsErr) {
+      logger.error(`Failed to update local file ${filePath} in emulator:`,
+          fsErr);
+    }
+  }
+
   const body = {
     message: commitMessage,
     content: contentBase64,
@@ -67,7 +102,7 @@ async function writeFileToGitHub(path, contentBase64, commitMessage, sha, token)
     body.sha = sha;
   }
 
-  const res = await gitHubRequest(path, {
+  const res = await gitHubRequest(filePath, {
     method: "PUT",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify(body),
