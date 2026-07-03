@@ -2934,6 +2934,67 @@
           if (updated) {
             renderGrid(); // Re-render grid with live data!
           }
+
+          // Fetch dynamic updates from Firestore
+          if (window.db) {
+            try {
+              const querySnapshot = await getDocs(collection(window.db, "products"));
+              let firestoreUpdated = false;
+              
+              querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const p = {
+                  id: doc.id,
+                  nameShort: data.nameShort || "",
+                  name: window.escapeHTML(data.name),
+                  price: Number(data.price),
+                  retailPrice: data.retailPrice !== undefined && data.retailPrice !== null ? Number(data.retailPrice) : null,
+                  stock: Number(data.stock),
+                  image: data.image,
+                  image_thumb: data.image_thumb || "",
+                  status: data.status,
+                  flair: data.flair || "",
+                  invisibleFlair: data.invisibleFlair || "",
+                  isBundle: !!data.isBundle,
+                  bundleSize: Number(data.bundleSize) || 0,
+                  sortOrder: data.sortOrder !== undefined && data.sortOrder !== null ? Number(data.sortOrder) : null,
+                  url: `template product.html?id=${doc.id}`
+                };
+                
+                const existingIdx = products.findIndex(item => item.id === p.id);
+                if (existingIdx > -1) {
+                  const current = products[existingIdx];
+                  if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.image !== p.image || current.image_thumb !== p.image_thumb || current.status !== p.status || current.flair !== p.flair || current.invisibleFlair !== p.invisibleFlair || current.isBundle !== p.isBundle || current.bundleSize !== p.bundleSize || current.sortOrder !== p.sortOrder) {
+                    products[existingIdx] = p;
+                    firestoreUpdated = true;
+                  }
+                } else {
+                  products.push(p);
+                  firestoreUpdated = true;
+                }
+              });
+              
+              // Clean up deleted products
+              const initialLen = products.length;
+              products = products.filter(p => {
+                if (p.syncStatus === 'pending') return true;
+                return querySnapshot.docs.some(doc => doc.id === p.id);
+              });
+              if (products.length !== initialLen) {
+                firestoreUpdated = true;
+              }
+              
+              if (firestoreUpdated) {
+                renderGrid();
+                // Update localStorage cache
+                try {
+                  localStorage.setItem("minara_products", JSON.stringify(products.map(p => ({ ...p, syncStatus: "synced" }))));
+                } catch (e) {}
+              }
+            } catch (fsErr) {
+              console.warn("Background Firestore products load failed:", fsErr);
+            }
+          }
         } catch (dbErr) {
           console.error("products.json background load failed:", dbErr);
         }

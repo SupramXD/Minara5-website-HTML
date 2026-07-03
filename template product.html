@@ -2123,6 +2123,7 @@ window.openCart = function() {
     let currentProductReviews = [];
     let visibleReviewsCount = 3;
     let activeCatalogFragrances = [];
+    let reviewsMap = {};
 
     // Format Brand Scent Title helper
     const formatBrandName = (brandName) => {
@@ -2137,6 +2138,40 @@ window.openCart = function() {
 
     async function initProductDetails() {
         const addToBagBtn = document.querySelector('.add-to-cart');
+        
+        // Fetch reviews.json to build ratings database
+        try {
+            const res = await fetch("reviews.json?t=" + Date.now());
+            if (res.ok) {
+                const allReviews = await res.json();
+                
+                // Merge session reviews
+                try {
+                    const sessionReviews = JSON.parse(sessionStorage.getItem("my_session_reviews") || "[]");
+                    sessionReviews.forEach(sr => {
+                        const isDuplicate = allReviews.some(pr => 
+                            pr.productId === sr.productId &&
+                            pr.name === sr.name && 
+                            pr.text === sr.text && 
+                            pr.rating === sr.rating
+                        );
+                        if (!isDuplicate) {
+                            allReviews.push(sr);
+                        }
+                    });
+                } catch (e) {}
+                
+                allReviews.forEach(r => {
+                    if (!reviewsMap[r.productId]) {
+                        reviewsMap[r.productId] = { total: 0, count: 0 };
+                    }
+                    reviewsMap[r.productId].total += Number(r.rating || 5);
+                    reviewsMap[r.productId].count += 1;
+                });
+            }
+        } catch (err) {
+            console.warn("Failed to build reviewsMap:", err);
+        }
         const params = new URLSearchParams(window.location.search);
         const productId = params.get('id');
         const bundleView = params.get('bundleView') === 'true';
@@ -2391,7 +2426,7 @@ window.openCart = function() {
                 const hasPreselected = selectedScents[i] !== null;
 
                 slot.innerHTML = `
-                    <div style="font-size: 9px; opacity: 0.5; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Choice ${i + 1}</div>
+                    <div style="font-size: 9px; opacity: 0.5; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Fragrance ${i + 1}</div>
                     
                     <div class="bundle-scent-display-box" style="display: ${hasPreselected ? 'flex' : 'none'}; align-items: center; gap: 12px; border: 1px solid #000; padding: 8px 12px; border-radius: 2px; background: #fafafa; min-height: 48px; box-sizing: border-box; width: 100%;">
                         <img class="selected-scent-img" src="${hasPreselected ? selectedScents[i].image : ''}" style="width: 24px; height: 32px; object-fit: contain; flex-shrink: 0; border: 1px solid #eaeaea; background: #fff;">
@@ -2403,7 +2438,7 @@ window.openCart = function() {
                     </div>
 
                     <div class="bundle-scent-input-box" style="position: relative; display: ${hasPreselected ? 'none' : 'flex'}; align-items: center; border: 1px solid #000; padding: 10px 12px; border-radius: 2px; background: #fff; min-height: 48px; box-sizing: border-box; width: 100%;">
-                        <input type="text" class="bundle-scent-input" placeholder="CLICK TO SELECT OR TYPE TO SEARCH..." autocomplete="off" style="border: none; width: 100%; font-size: 10.5px; outline: none; font-family: inherit; letter-spacing: 1.5px; text-transform: uppercase; background: transparent; color: #000;">
+                        <input type="text" class="bundle-scent-input" placeholder="TAP TO SELECT" autocomplete="off" style="border: none; width: 100%; font-size: 10.5px; outline: none; font-family: inherit; letter-spacing: 1.5px; text-transform: uppercase; background: transparent; color: #000;">
                     </div>
                     
                     <div class="bundle-dropdown" style="display: none; position: absolute; left: 0; right: 0; top: 100%; background: #fff; border: 1px solid #000; border-top: none; z-index: 1000; max-height: 220px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>
@@ -2543,18 +2578,12 @@ window.openCart = function() {
             // Drawer Global state and functions
             let activeSlotIndex = null;
             
-            const renderDrawerList = (queryStr) => {
+            const renderDrawerList = () => {
                 const listEl = document.getElementById("drawerScentList");
                 if (!listEl) return;
                 listEl.innerHTML = "";
                 
-                const filterText = queryStr.toLowerCase().trim();
-                
-                const matches = activeCatalogFragrances.filter(fp => {
-                    const nameMatch = fp.name && fp.name.toLowerCase().includes(filterText);
-                    const nameShortMatch = fp.nameShort && fp.nameShort.toLowerCase().includes(filterText);
-                    return nameMatch || nameShortMatch;
-                });
+                const matches = activeCatalogFragrances;
                 
                 if (matches.length === 0) {
                     listEl.innerHTML = `<div style="font-size:10px; opacity:0.5; padding: 20px 0; text-align:center; letter-spacing:1px;">NO FRAGRANCES FOUND</div>`;
@@ -2576,31 +2605,76 @@ window.openCart = function() {
                     
                     const imgSrc = fp.image_thumb || fp.image;
                     
-                    row.style.justifyContent = "space-between";
+                    // Fetch rating data from map
+                    const ratingData = reviewsMap[fp.id];
+                    let reviewsHTML = "";
+                    if (ratingData && ratingData.count > 0) {
+                        const avg = (ratingData.total / ratingData.count).toFixed(1);
+                        reviewsHTML = `
+                            <div class="drawer-item-reviews" style="display: flex; align-items: center; gap: 2px; margin-top: 2px;">
+                                <span style="color: #FFC107; font-size: 9px; letter-spacing: 0.5px; line-height: 1;">★</span>
+                                <span style="font-size: 8px; font-weight: bold; color: #cea44c; line-height: 1;">${avg}</span>
+                                <span style="font-size: 8px; color: #888; line-height: 1;">(${ratingData.count})</span>
+                            </div>
+                        `;
+                    } else {
+                        reviewsHTML = `
+                            <div class="drawer-item-reviews" style="display: flex; align-items: center; gap: 2px; margin-top: 2px;">
+                                <span style="color: #ccc; font-size: 9px; letter-spacing: 0.5px; line-height: 1;">★</span>
+                                <span style="font-size: 8px; color: #888; line-height: 1;">(0)</span>
+                            </div>
+                        `;
+                    }
+                    
+                    row.style.cssText = "display: flex; flex-direction: column; padding: 12px 0; border-bottom: 1px solid #eee; transition: all 0.3s ease;";
                     row.innerHTML = `
-                        <div class="drawer-item-left" style="display: flex; align-items: center; gap: 12px; min-width: 0; flex-grow: 1; cursor: pointer;">
-                            <div class="drawer-item-img-box">
-                                <img class="drawer-item-img" src="${imgSrc}" alt="${fp.nameShort || fp.name}" onload="this.classList.add('loaded')">
+                        <div class="drawer-item-main" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; width: 100%;">
+                            <div class="drawer-item-left" style="display: flex; align-items: center; gap: 12px; min-width: 0; flex-grow: 1;">
+                                <div class="drawer-item-img-box" style="width: 50px; height: 50px; background: #fbfbfb; display: flex; align-items: center; justify-content: center; border: 1px solid #eaeaea; border-radius: 4px; overflow: hidden; flex-shrink: 0;">
+                                    <img class="drawer-item-img loaded" src="${imgSrc}" alt="${fp.nameShort || fp.name}" style="width: 100%; height: 100%; object-fit: contain;">
+                                </div>
+                                <div class="drawer-item-info" style="flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                                    <span class="drawer-item-name" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">${(fp.nameShort || fp.name).toUpperCase()}</span>
+                                    <span class="drawer-item-inspired" style="font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">${inspiredText.toUpperCase()} - 50ML</span>
+                                    ${reviewsHTML}
+                                </div>
                             </div>
-                            <div class="drawer-item-info">
-                                <span class="drawer-item-name">${(fp.nameShort || fp.name).toUpperCase()}</span>
-                                <span class="drawer-item-inspired">${inspiredText.toUpperCase()} - 50ML</span>
-                            </div>
+                            <button class="drawer-item-add-btn" style="background: #000; color: #fff; border: none; padding: 8px 16px; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-weight: bold; border-radius: 2px; transition: background 0.2s; white-space: nowrap; flex-shrink: 0;">ADD</button>
                         </div>
-                        <a href="template product.html?id=${fp.id}&bundleView=true&bundleParent=${p.id}&bundleSlot=${activeSlotIndex}" class="drawer-item-view-btn" style="font-size: 9px; color: #1106e8; font-weight: bold; letter-spacing: 1px; text-decoration: underline; padding: 10px; flex-shrink: 0; user-select: none; z-index: 10; text-transform: uppercase;">VIEW</a>
+                        <div class="drawer-item-expanded" style="max-height: 0; overflow: hidden; transition: max-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); padding-left: 62px;">
+                            <a href="template product.html?id=${fp.id}&bundleView=true&bundleParent=${p.id}&bundleSlot=${activeSlotIndex}" style="display: inline-block; font-size: 10px; color: #1106e8; font-weight: bold; letter-spacing: 1px; text-decoration: underline; text-transform: uppercase; padding: 6px 0 2px 0;">VIEW PRODUCT PAGE</a>
+                        </div>
                     `;
                     
                     const leftSec = row.querySelector('.drawer-item-left');
-                    leftSec.onclick = () => {
+                    const expandedArea = row.querySelector('.drawer-item-expanded');
+                    
+                    leftSec.onclick = (e) => {
+                        e.stopPropagation();
+                        const isCurrentlyExpanded = expandedArea.style.maxHeight === "30px";
+                        
+                        // Collapse all other items
+                        document.querySelectorAll('.drawer-item-expanded').forEach(el => {
+                            el.style.maxHeight = "0px";
+                            el.parentNode.style.paddingBottom = "12px";
+                        });
+                        
+                        if (!isCurrentlyExpanded) {
+                            expandedArea.style.maxHeight = "30px";
+                            row.style.paddingBottom = "18px";
+                        } else {
+                            expandedArea.style.maxHeight = "0px";
+                            row.style.paddingBottom = "12px";
+                        }
+                    };
+                    
+                    const addBtn = row.querySelector('.drawer-item-add-btn');
+                    addBtn.onclick = (e) => {
+                        e.stopPropagation();
                         if (window.selectScentCallbacks && window.selectScentCallbacks[activeSlotIndex]) {
                             window.selectScentCallbacks[activeSlotIndex](fp);
                         }
                         window.closeScentDrawer();
-                    };
-                    
-                    const viewBtn = row.querySelector('.drawer-item-view-btn');
-                    viewBtn.onclick = (e) => {
-                        e.stopPropagation();
                     };
                     
                     listEl.appendChild(row);
@@ -2610,11 +2684,9 @@ window.openCart = function() {
             window.openScentDrawer = (index) => {
                 activeSlotIndex = index;
                 const drawer = document.getElementById("mobileScentDrawer");
-                const searchInput = document.getElementById("drawerSearchInput");
-                if (searchInput) searchInput.value = "";
                 
                 // Show list immediately
-                renderDrawerList("");
+                renderDrawerList();
                 
                 if (drawer) drawer.classList.add("active");
                 document.body.style.overflow = "hidden"; // lock page scroll
@@ -2626,13 +2698,6 @@ window.openCart = function() {
                 document.body.style.overflow = ""; // restore page scroll
                 activeSlotIndex = null;
             };
-
-            const drawerSearchInput = document.getElementById("drawerSearchInput");
-            if (drawerSearchInput) {
-                drawerSearchInput.oninput = () => {
-                    renderDrawerList(drawerSearchInput.value);
-                };
-            }
         };
 
         // Helper to swap dynamic content
@@ -3069,15 +3134,17 @@ window.openCart = function() {
                         };
                     }
                 } else {
-                    addToBagBtn.disabled = false;
-                    addToBagBtn.style.opacity = "";
-                    addToBagBtn.style.cursor = "";
-                    
                     if (bundleView) {
+                        addToBagBtn.disabled = false;
+                        addToBagBtn.style.opacity = "";
+                        addToBagBtn.style.cursor = "";
                         addToBagBtn.innerHTML = "ADD TO BUNDLE";
                     } else if (p.isBundle) {
-                        // Let updateAddToBagBtnState manage it
+                        // Let updateAddToBagBtnState manage it completely, do NOT force enable here!
                     } else {
+                        addToBagBtn.disabled = false;
+                        addToBagBtn.style.opacity = "";
+                        addToBagBtn.style.cursor = "";
                         addToBagBtn.innerHTML = "ADD TO BAG";
                     }
                     
@@ -3574,9 +3641,6 @@ window.openCart = function() {
         <div class="scent-drawer-header">
             <span class="scent-drawer-title">SELECT FRAGRANCE</span>
             <button class="scent-drawer-close" onclick="window.closeScentDrawer()">✕</button>
-        </div>
-        <div class="scent-drawer-search-wrap">
-            <input type="text" id="drawerSearchInput" placeholder="SEARCH FRAGRANCES..." autocomplete="off">
         </div>
         <div class="scent-drawer-list" id="drawerScentList">
             <!-- Items injected dynamically -->
