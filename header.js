@@ -605,14 +605,7 @@ window.logout = function() {
 ================================ */
 
 // 1. PRODUCT DATA
-const products = {
-    "leopard-backpack": {
-        id: "leopard-backpack",
-        name: "Léopard Fur Backpack",
-        price: 749, 
-        image: "https://via.placeholder.com/900x1100?text=Leopard+Backpack"
-    }
-};
+const products = {};
 
 // 2. INITIALIZE CART
 let cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
@@ -693,7 +686,7 @@ window.addToCart = function(productId, selectedSize, selectedScents) {
 
     saveAndSyncCart();
     
-    // Auto-open panel (Function exists in leopard.html)
+    // Auto-open panel (Function exists in pages)
     if (typeof openCart === "function") {
         openCart();
     }
@@ -2071,7 +2064,7 @@ function applyCustomText(data) {
             
             const card = document.createElement("a");
             card.className = "search-grid-card";
-            card.href = p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`;
+            card.href = `template product.html?id=${p.id}`;
             
             const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(p.image, p.image_thumb) : p.image;
             const formattedPrice = window.formatPrice ? window.formatPrice(p.price) : p.price;
@@ -2108,7 +2101,7 @@ function applyCustomText(data) {
             if (p.status !== 'Active') return;
             const card = document.createElement("a");
             card.className = "search-grid-card";
-            card.href = p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`;
+            card.href = `template product.html?id=${p.id}`;
             
             const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(p.image, p.image_thumb) : p.image;
             const formattedPrice = window.formatPrice ? window.formatPrice(p.price) : p.price;
@@ -2487,7 +2480,7 @@ function applyCustomText(data) {
         if (!resultsContainer) return;
         
         const formattedPrice = window.formatPrice ? window.formatPrice(product.price) : product.price;
-        const detailUrl = product.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${product.id}`;
+        const detailUrl = `template product.html?id=${product.id}`;
         const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(product.image, product.image_thumb) : product.image;
         
         const popName = popFrag && popFrag.name ? `${popFrag.brand} ${popFrag.name}` : product.name;
@@ -2540,7 +2533,7 @@ function applyCustomText(data) {
         if (!closestProduct) return;
         
         const formattedPrice = window.formatPrice ? window.formatPrice(closestProduct.price) : closestProduct.price;
-        const detailUrl = closestProduct.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${closestProduct.id}`;
+        const detailUrl = `template product.html?id=${closestProduct.id}`;
         const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(closestProduct.image, closestProduct.image_thumb) : closestProduct.image;
         
         const matchLabel = isFuzzy 
@@ -2593,7 +2586,7 @@ function applyCustomText(data) {
         if (!bestSeller) return;
         
         const formattedPrice = window.formatPrice ? window.formatPrice(bestSeller.price) : bestSeller.price;
-        const detailUrl = bestSeller.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${bestSeller.id}`;
+        const detailUrl = `template product.html?id=${bestSeller.id}`;
         const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(bestSeller.image, bestSeller.image_thumb) : bestSeller.image;
         const escapedQuery = window.escapeHTML ? window.escapeHTML(originalQuery) : originalQuery;
  

@@ -2501,7 +2501,7 @@
                   isBundle: !!p.isBundle,
                   bundleSize: Number(p.bundleSize) || 0,
                   sortOrder: p.sortOrder !== undefined && p.sortOrder !== null ? Number(p.sortOrder) : null,
-                  url: p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`
+                  url: `template product.html?id=${p.id}`
                 };
               }
             }
@@ -2564,9 +2564,8 @@
 
           // Safe product flair assignment
           const flairEl = card.querySelector('.hp-flair');
-          if (p.flair) {
-            flairEl.textContent = p.flair;
-            flairEl.style.display = 'block';
+          if (flairEl) {
+            flairEl.style.display = 'none';
           }
 
           // Bind static URLs safely
@@ -2605,12 +2604,8 @@
           if (titleEl && inspiredEl) {
             const typeEl = card.querySelector('.hp-type');
             if (typeEl) {
-              if (p.id !== 'leopard-backpack') {
-                typeEl.textContent = "Extrait de Parfum";
-                typeEl.style.display = 'block';
-              } else {
-                typeEl.style.display = 'none';
-              }
+              typeEl.textContent = "Extrait de Parfum";
+              typeEl.style.display = 'block';
             }
 
             if (inspiredMatch || p.id.startsWith("inspired-by-")) {
@@ -2727,7 +2722,13 @@
           const btn = card.querySelector('.add-to-cart');
           if (p.stock > 0) {
             if (p.isBundle) {
-              btn.innerHTML = `<span>CREATE BUNDLE</span>`;
+              btn.innerHTML = `
+                <svg class="cart-icon" style="width: 12px; height: 12px;" viewBox="0 0 30 30" fill="none">
+                  <rect x="7" y="12" width="16" height="11" fill="none" stroke="currentColor" stroke-width="2"/>
+                  <path d="M10 12 V7 H20 V12" fill="none" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <span>CREATE BUNDLE</span>
+              `;
               btn.disabled = false;
               btn.style.opacity = "";
               btn.style.cursor = "pointer";
@@ -2826,7 +2827,7 @@
               isBundle: !!data.isBundle,
               bundleSize: Number(data.bundleSize) || 0,
               sortOrder: data.sortOrder !== undefined && data.sortOrder !== null ? Number(data.sortOrder) : null,
-              url: data.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${data.id}`
+              url: `template product.html?id=${data.id}`
             };
             firestoreProds.push(p);
 
@@ -2907,7 +2908,7 @@
                     isBundle: !!p.isBundle,
                     bundleSize: Number(p.bundleSize) || 0,
                     sortOrder: p.sortOrder !== undefined && p.sortOrder !== null ? Number(p.sortOrder) : null,
-                    url: p.id === 'leopard-backpack' ? 'leopard.html' : `template product.html?id=${p.id}`
+                    url: `template product.html?id=${p.id}`
                   });
                 });
                 updated = true;

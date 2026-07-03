@@ -2173,7 +2173,7 @@ window.openCart = function() {
                 product.isBundle = false;
                 product.bundleSize = 0;
             }
-            activeCatalogFragrances = localProds.filter(p => p.status === "Active" && p.isBundle !== true && p.isBundle !== "true" && p.id !== "leopard-backpack");
+            activeCatalogFragrances = localProds.filter(p => p.status === "Active" && p.isBundle !== true && p.isBundle !== "true");
         } catch (e) {
             console.error("Local storage product read failed:", e);
         }
@@ -2376,8 +2376,11 @@ window.openCart = function() {
                     addToBagBtn.style.opacity = "";
                     addToBagBtn.style.cursor = "";
                 } else {
-                    addToBagBtn.style.display = "none";
+                    addToBagBtn.style.display = originalDisplay;
+                    addToBagBtn.innerHTML = "ADD TO BAG (SELECT ITEMS)";
                     addToBagBtn.disabled = true;
+                    addToBagBtn.style.opacity = "0.5";
+                    addToBagBtn.style.cursor = "not-allowed";
                 }
             };
 
@@ -2458,6 +2461,8 @@ window.openCart = function() {
                 if (window.innerWidth <= 900) {
                     inputEl.readOnly = true;
                     inputEl.style.cursor = "pointer";
+                    inputEl.style.pointerEvents = "none";
+                    inputBox.style.cursor = "pointer";
                 }
 
                 const openSelectorAction = (e) => {
@@ -3120,7 +3125,7 @@ window.openCart = function() {
                 }
 
                 if (fetchedProds && fetchedProds.length > 0) {
-                    activeCatalogFragrances = fetchedProds.filter(p => p.status === "Active" && p.isBundle !== true && p.isBundle !== "true" && p.id !== "leopard-backpack");
+                    activeCatalogFragrances = fetchedProds.filter(p => p.status === "Active" && p.isBundle !== true && p.isBundle !== "true");
                 }
 
                 let data = null;
