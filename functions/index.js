@@ -147,7 +147,8 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         nameShort: nameShort || "",
         name,
         price: Number(price),
-        retailPrice: retailPrice !== null && retailPrice !== undefined ? Number(retailPrice) : null,
+        retailPrice: retailPrice !== null && retailPrice !== undefined ?
+          Number(retailPrice) : null,
         stock: Number(stock),
         image: mainImagePath,
         image_thumb: thumbImagePath || "",
@@ -158,20 +159,81 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         sizes: sizes || ["50ml", "100ml"],
         isBundle: isBundle !== undefined ? !!isBundle : false,
         bundleSize: bundleSize !== undefined ? Number(bundleSize) : 0,
-        sortOrder: sortOrder !== undefined && sortOrder !== null ? Number(sortOrder) : null,
+        sortOrder: sortOrder !== undefined && sortOrder !== null ?
+          Number(sortOrder) : null,
       };
 
-      const existingIdx = productsList.findIndex((p) => p.id === id);
-      if (existingIdx > -1) {
-        productsList[existingIdx] = updatedProduct;
+      if (updatedProduct.status === "Active" &&
+          updatedProduct.sortOrder !== null) {
+        const otherActive = productsList
+            .filter((p) => p.id !== id && p.status === "Active")
+            .sort((a, b) => {
+              const valA = a.sortOrder !== undefined && a.sortOrder !== null ?
+              Number(a.sortOrder) : Infinity;
+              const valB = b.sortOrder !== undefined && b.sortOrder !== null ?
+              Number(b.sortOrder) : Infinity;
+              if (valA !== valB) return valA - valB;
+              return (a.name || "").localeCompare(b.name || "");
+            });
+
+        const targetIndex = Math.max(0, Math.min(updatedProduct.sortOrder - 1,
+            otherActive.length));
+        otherActive.splice(targetIndex, 0, updatedProduct);
+
+        otherActive.forEach((p, idx) => {
+          p.sortOrder = idx + 1;
+        });
+
+        const inactiveProds = productsList.filter((p) => p.id !== id &&
+          p.status !== "Active");
+        inactiveProds.forEach((p) => {
+          p.sortOrder = null;
+        });
+        productsList = [...otherActive, ...inactiveProds];
+
+        const batch = firestore.batch();
+        for (const p of productsList) {
+          const docRef = firestore.collection("products").doc(p.id);
+          if (p.id === id) {
+            batch.set(docRef, {
+              nameShort: nameShort || "",
+              name,
+              price: Number(price),
+              retailPrice: retailPrice !== null && retailPrice !== undefined ?
+                Number(retailPrice) : null,
+              stock: Number(stock),
+              image: mainImagePath,
+              image_thumb: thumbImagePath || "",
+              description: description || "",
+              status: status || "Active",
+              flair: flair || "",
+              invisibleFlair: invisibleFlair || "",
+              sizes: sizes || ["50ml", "100ml"],
+              isBundle: isBundle !== undefined ? !!isBundle : false,
+              bundleSize: bundleSize !== undefined ? Number(bundleSize) : 0,
+              sortOrder: p.sortOrder,
+              timestamp: new Date().toISOString(),
+            });
+          } else {
+            batch.update(docRef, {sortOrder: p.sortOrder});
+          }
+        }
+        await batch.commit();
       } else {
-        productsList.push(updatedProduct);
+        const existingIdx = productsList.findIndex((p) => p.id === id);
+        if (existingIdx > -1) {
+          productsList[existingIdx] = updatedProduct;
+        } else {
+          productsList.push(updatedProduct);
+        }
       }
 
       const updatedJsonStr = JSON.stringify(productsList, null, 2);
-      const updatedJsonBase64 = Buffer.from(updatedJsonStr, "utf-8").toString("base64");
+      const updatedJsonBase64 = Buffer.from(updatedJsonStr, "utf-8")
+          .toString("base64");
 
-      await writeFileToGitHub("products.json", updatedJsonBase64, `Update product ${name} (${id})`, jsonSha, token);
+      await writeFileToGitHub("products.json", updatedJsonBase64,
+          `Update product ${name} (${id})`, jsonSha, token);
 
       return {success: true, message: `Product ${name} synced to GitHub.`};
     } else if (action === "deleteProduct") {
