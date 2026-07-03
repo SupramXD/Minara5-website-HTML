@@ -2576,21 +2576,31 @@ window.openCart = function() {
                     
                     const imgSrc = fp.image_thumb || fp.image;
                     
+                    row.style.justifyContent = "space-between";
                     row.innerHTML = `
-                        <div class="drawer-item-img-box">
-                            <img class="drawer-item-img" src="${imgSrc}" alt="${fp.nameShort || fp.name}" onload="this.classList.add('loaded')">
+                        <div class="drawer-item-left" style="display: flex; align-items: center; gap: 12px; min-width: 0; flex-grow: 1; cursor: pointer;">
+                            <div class="drawer-item-img-box">
+                                <img class="drawer-item-img" src="${imgSrc}" alt="${fp.nameShort || fp.name}" onload="this.classList.add('loaded')">
+                            </div>
+                            <div class="drawer-item-info">
+                                <span class="drawer-item-name">${(fp.nameShort || fp.name).toUpperCase()}</span>
+                                <span class="drawer-item-inspired">${inspiredText.toUpperCase()} - 50ML</span>
+                            </div>
                         </div>
-                        <div class="drawer-item-info">
-                            <span class="drawer-item-name">${(fp.nameShort || fp.name).toUpperCase()}</span>
-                            <span class="drawer-item-inspired">${inspiredText.toUpperCase()} - 50ML</span>
-                        </div>
+                        <a href="template product.html?id=${fp.id}&bundleView=true&bundleParent=${p.id}&bundleSlot=${activeSlotIndex}" class="drawer-item-view-btn" style="font-size: 9px; color: #1106e8; font-weight: bold; letter-spacing: 1px; text-decoration: underline; padding: 10px; flex-shrink: 0; user-select: none; z-index: 10; text-transform: uppercase;">VIEW</a>
                     `;
                     
-                    row.onclick = () => {
+                    const leftSec = row.querySelector('.drawer-item-left');
+                    leftSec.onclick = () => {
                         if (window.selectScentCallbacks && window.selectScentCallbacks[activeSlotIndex]) {
                             window.selectScentCallbacks[activeSlotIndex](fp);
                         }
                         window.closeScentDrawer();
+                    };
+                    
+                    const viewBtn = row.querySelector('.drawer-item-view-btn');
+                    viewBtn.onclick = (e) => {
+                        e.stopPropagation();
                     };
                     
                     listEl.appendChild(row);

@@ -1443,6 +1443,7 @@
                     <div class="form-group">
                       <label for="prodSortOrder">Display Order (1 to <span class="total-products-count-badge">1</span>)</label>
                       <input type="number" id="prodSortOrder" class="form-input" placeholder="e.g. 1" min="1">
+                      <div id="prodSortOrderHelp" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"></div>
                     </div>
 
                     <div class="form-group">
@@ -1977,6 +1978,7 @@
                 <div class="form-group">
                   <label for="editProdSortOrder">Display Order (1 to <span class="total-products-count-badge-edit">1</span>)</label>
                   <input type="number" id="editProdSortOrder" class="form-input" min="1">
+                  <div id="editProdSortOrderHelp" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"></div>
                 </div>
 
                 <div class="form-group">
@@ -2633,7 +2635,25 @@
       
       const renderTable = () => {
           tableBody.innerHTML = "";
-          products.forEach((p) => {
+          
+          // Sort products first using display order
+          const sortedProducts = [...products].sort((a, b) => {
+              const hasA = a.sortOrder !== undefined && a.sortOrder !== null && a.sortOrder !== "";
+              const hasB = b.sortOrder !== undefined && b.sortOrder !== null && b.sortOrder !== "";
+              
+              if (hasA && !hasB) return -1;
+              if (!hasA && hasB) return 1;
+              if (hasA && hasB) {
+                  const diff = Number(a.sortOrder) - Number(b.sortOrder);
+                  if (diff !== 0) return diff;
+              }
+              
+              const nameA = (a.nameShort || a.name || "").toLowerCase();
+              const nameB = (b.nameShort || b.name || "").toLowerCase();
+              return nameA.localeCompare(nameB);
+          });
+
+          sortedProducts.forEach((p) => {
               const statusBadgeClass = p.status === 'Active' ? 'admin' : 'user';
               
               const tr = document.createElement('tr');
@@ -2752,6 +2772,20 @@
           document.querySelectorAll('.total-products-count-badge, .total-products-count-badge-edit').forEach(badge => {
               badge.textContent = products.length;
           });
+          
+          // Show sort orders in use
+          const usedOrders = products
+              .map(p => p.sortOrder)
+              .filter(o => o !== undefined && o !== null && o !== "" && !isNaN(o));
+          const uniqueUsed = [...new Set(usedOrders)].sort((a, b) => Number(a) - Number(b));
+          const helpText = uniqueUsed.length > 0 ? "Numbers in use: " + uniqueUsed.join(", ") : "None in use";
+          
+          const addHelpEl = document.getElementById("prodSortOrderHelp");
+          if (addHelpEl) addHelpEl.textContent = helpText;
+          
+          const editHelpEl = document.getElementById("editProdSortOrderHelp");
+          if (editHelpEl) editHelpEl.textContent = helpText;
+
           const addSortOrderInput = document.getElementById("prodSortOrder");
           if (addSortOrderInput && !addSortOrderInput.value) {
               addSortOrderInput.value = products.length + 1;
