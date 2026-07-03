@@ -1,22 +1,5 @@
 [
   {
-    "id": "inspired-by-jpg-le-male",
-    "nameShort": "Le male ambre",
-    "name": "JPG LE MALE",
-    "price": 465,
-    "retailPrice": 2100,
-    "stock": 10,
-    "image": "images/products/inspired-by-jpg-le-male.webp",
-    "image_thumb": "images/products/inspired-by-jpg-le-male_thumb.webp",
-    "description": "JPG LE male\nInspired",
-    "status": "Active",
-    "flair": "Masculine",
-    "invisibleFlair": "",
-    "sizes": [
-      "50ml"
-    ]
-  },
-  {
     "id": "inspired-by-creed-aventus",
     "nameShort": "Aventus Bleu",
     "name": "Inspired by Creed Aventus",
@@ -31,7 +14,8 @@
     "invisibleFlair": "",
     "sizes": [
       "50ml"
-    ]
+    ],
+    "sortOrder": 1
   },
   {
     "id": "any-2-50ml-fragrances",
@@ -48,6 +32,27 @@
     "invisibleFlair": "",
     "sizes": [
       "50ml"
-    ]
+    ],
+    "isBundle": true,
+    "bundleSize": 2,
+    "sortOrder": 2
+  },
+  {
+    "id": "inspired-by-jpg-le-male",
+    "nameShort": "Le male ambre",
+    "name": "JPG LE MALE",
+    "price": 465,
+    "retailPrice": 2100,
+    "stock": 10,
+    "image": "images/products/inspired-by-jpg-le-male.webp",
+    "image_thumb": "images/products/inspired-by-jpg-le-male_thumb.webp",
+    "description": "JPG LE male\nInspired",
+    "status": "Active",
+    "flair": "Masculine",
+    "invisibleFlair": "",
+    "sizes": [
+      "50ml"
+    ],
+    "sortOrder": 3
   }
 ]
