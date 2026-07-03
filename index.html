@@ -416,7 +416,7 @@
       position: fixed;
       left: 50%;
       transform: translate(-50%, 0);
-      width: 1200px;
+      width: 800px;
       z-index: 10;
       pointer-events: none;
       will-change: transform, top, position;
@@ -1439,14 +1439,14 @@
       try {
         const cached = localStorage.getItem("minara_hero_settings");
         let s = {
-          logoDesktopSpawn: 44,
-          logoDesktopX: 0,
-          logoMobileSpawn: -100,
+          logoDesktopSpawn: 50,
+          logoDesktopX: -232,
+          logoMobileSpawn: -95,
           logoMobileX: 0,
           logoHeaderDesktopHeight: 50,
           logoHeaderMobileHeight: 36,
-          logoHomeDesktopWidth: 1200,
-          logoHomeMobileWidth: 88
+          logoHomeDesktopWidth: 800,
+          logoHomeMobileWidth: 100
         };
         if (cached) {
           s = Object.assign({}, s, JSON.parse(cached));
@@ -1632,18 +1632,18 @@
         mobileScale: 1.0,
         mobileX: 50,
         mobileY: 50,
-        logoDesktopSpawn: 44,
+        logoDesktopSpawn: 50,
         logoDesktopSpawn2: 65,
         logoDesktopStick: -34,
-        logoDesktopX: 0,
-        logoMobileSpawn: -100,
-        logoMobileSpawn2: 50,
+        logoDesktopX: -232,
+        logoMobileSpawn: -95,
+        logoMobileSpawn2: 180,
         logoMobileStick: 10,
         logoMobileX: 0,
         logoHeaderDesktopHeight: 50,
         logoHeaderMobileHeight: 36,
-        logoHomeDesktopWidth: 1200,
-        logoHomeMobileWidth: 88,
+        logoHomeDesktopWidth: 800,
+        logoHomeMobileWidth: 100,
         showGiftsButton: false
       };
 
