@@ -1587,7 +1587,8 @@ function applyCustomText(data) {
         console.error("Error reading cache in search:", e);
     }
 
-    // Load active products in background
+    // Load active products in background (Disabled)
+    /*
     fetch("products.json?t=" + Date.now())
         .then(res => res.json())
         .then(data => {
@@ -1596,6 +1597,7 @@ function applyCustomText(data) {
         .catch(err => {
             console.warn("Could not fetch products.json for search:", err);
         });
+    */
 
     let isFetchingPopularFragrances = false;
     let fetchCallbacks = [];
@@ -2735,6 +2737,8 @@ function applyCustomText(data) {
     }
 
     const initSearchSystem = () => {
+        // Search system disabled per user request to speed up site
+        /*
         injectSearchUI();
         injectSearchButtons();
         
@@ -2747,6 +2751,7 @@ function applyCustomText(data) {
                 }
             });
         }
+        */
     };
 
     if (document.readyState === "loading") {

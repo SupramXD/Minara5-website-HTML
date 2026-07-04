@@ -4344,18 +4344,18 @@
         features: [
           {
             title: "EXTRAIT DE PARFUM CONCENTRATION",
-            description: "Most designer originals dilute to a standard 10-15% Eau de Parfum. We formulate at a dense 20%+ Extrait concentration, anchoring the scent to your skin for powerful projection and longevity that outlasts the original."
+            description: "Most designer originals dilute to a standard 15% Eau de Parfum. We formulate at a dense 20%+ Extrait concentration, anchoring the scent to your skin for powerful projection and longevity that outlasts the original."
           },
           {
             title: "OLFACTORY ACCURACY",
-            description: "We don't just create 'inspired' scents; we meticulously reverse-engineer the exact molecular blueprints of the world's most exclusive niche and designer fragrances. Experience a high-fidelity, indistinguishable scent profile without paying for the designer marketing markup."
+            description: "We go beyond 'inspired' scents by reverse-engineering the exact molecular blueprints of exclusive designer fragrances. Experience a high-fidelity, indistinguishable profile without the premium markup."
           },
           {
             title: "IMPORTED FRENCH OILS",
-            description: "Proudly formulated in South Africa, we bypass the mass market by sourcing premium, compound oils directly from Europe. This guarantees a rich, high-grade olfactory experience from the very first spray."
+            description: "Proudly crafted in South Africa, our fragrances are meticulously formulated using premium French oils. We believe great scent-making is both an art and a rigorous process. From formulation to final production, we pour care and craftsmanship into every bottle, creating premium scents you can wear with absolute confidence."
           },
           {
-            title: "SIDE EFFECT: COMPLIMENTS",
+            title: "SIDE EFFECT:COMPLIMENTS",
             description: "Fair warning: our dense formulations leave a powerful, undeniable scent trail. We take absolutely no responsibility for the sheer volume of compliments, double-takes, and 'what are you wearing?' questions you are about to receive."
           },
           {
@@ -4369,12 +4369,12 @@
         ],
         trust_banner: [
           {
-            title: "Fast Delivery Nationwide",
-            description: "Courier dispatch direct to your door anywhere in South Africa. Safe and secure checkout options."
+            title: " Free & Speedy Delivery Nationwide",
+            description: "Courier dispatch direct to your door anywhere in South Africa at no extra costs. "
           },
           {
             title: "Trusted Clone Brand",
-            description: "We're currently looking at selling on Takealot And Amazon soon. Studio Extrait has 100% premium quality formulation matching original scents."
+            description: "Soon to be selling on Takealot and Amazon. Studio Extrait has 100% premium quality formulation matching original scents. Safe and secure checkout options using PayFast, Google and Apple Pay."
           }
         ]
       };
@@ -4383,6 +4383,28 @@
         const cached = localStorage.getItem("minara_custom_text");
         if (cached) {
           textData = { ...textData, ...JSON.parse(cached) };
+          let correctedCached = false;
+          if (textData.features) {
+            if (textData.features[0] && textData.features[0].description && textData.features[0].description.includes("10-15%")) {
+              textData.features[0].description = "Most designer originals dilute to a standard 15% Eau de Parfum. We formulate at a dense 20%+ Extrait concentration, anchoring the scent to your skin for powerful projection and longevity that outlasts the original.";
+              correctedCached = true;
+            }
+            if (textData.features[1] && textData.features[1].description && textData.features[1].description.includes("We don't just create")) {
+              textData.features[1].description = "We go beyond 'inspired' scents by reverse-engineering the exact molecular blueprints of exclusive designer fragrances. Experience a high-fidelity, indistinguishable profile without the premium markup.";
+              correctedCached = true;
+            }
+            if (textData.features[2] && textData.features[2].description && textData.features[2].description.includes("bypass the mass market")) {
+              textData.features[2].description = "Proudly crafted in South Africa, our fragrances are meticulously formulated using premium French oils. We believe great scent-making is both an art and a rigorous process. From formulation to final production, we pour care and craftsmanship into every bottle, creating premium scents you can wear with absolute confidence.";
+              correctedCached = true;
+            }
+            if (textData.features[3] && textData.features[3].title === "SIDE EFFECT: COMPLIMENTS") {
+              textData.features[3].title = "SIDE EFFECT:COMPLIMENTS";
+              correctedCached = true;
+            }
+          }
+          if (correctedCached) {
+            localStorage.setItem("minara_custom_text", JSON.stringify(textData));
+          }
         }
       } catch (e) {
         console.error("Failed to load local custom text cache:", e);
@@ -4415,8 +4437,45 @@
             const docSnap = await window.dbGetDoc(window.dbDoc(window.db, "settings", "custom_text"));
             if (docSnap.exists()) {
               const liveData = docSnap.data();
+              let corrected = false;
+              if (liveData.features) {
+                if (liveData.features[0] && liveData.features[0].description && liveData.features[0].description.includes("10-15%")) {
+                  liveData.features[0].description = textData.features[0].description;
+                  corrected = true;
+                }
+                if (liveData.features[1] && liveData.features[1].description && liveData.features[1].description.includes("We don't just create")) {
+                  liveData.features[1].description = textData.features[1].description;
+                  corrected = true;
+                }
+                if (liveData.features[2] && liveData.features[2].description && liveData.features[2].description.includes("bypass the mass market")) {
+                  liveData.features[2].description = textData.features[2].description;
+                  corrected = true;
+                }
+                if (liveData.features[3] && liveData.features[3].title === "SIDE EFFECT: COMPLIMENTS") {
+                  liveData.features[3].title = "SIDE EFFECT:COMPLIMENTS";
+                  corrected = true;
+                }
+              }
+              
               localStorage.setItem("minara_custom_text", JSON.stringify(liveData));
               populateFields(liveData);
+
+              if (corrected) {
+                console.log("Stale Firestore custom text detected and auto-corrected. Updating Firestore & GitHub...");
+                if (window.dbDoc && window.dbSetDoc) {
+                  try {
+                    await window.dbSetDoc(window.dbDoc(window.db, "settings", "custom_text"), liveData);
+                    if (window.syncToGithubCallable) {
+                      await window.syncToGithubCallable({
+                        action: "saveCustomText",
+                        payload: liveData
+                      });
+                    }
+                  } catch (saveErr) {
+                    console.error("Auto-correction sync failed:", saveErr);
+                  }
+                }
+              }
             }
           } catch (err) {
             console.warn("Failed to fetch live custom text settings:", err);
