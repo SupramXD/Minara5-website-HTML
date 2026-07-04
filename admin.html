@@ -4340,33 +4340,35 @@
     };
 
     window.loadCustomTextSettings = async function() {
+      const defaultFeatures = [
+        {
+          title: "EXTRAIT DE PARFUM CONCENTRATION",
+          description: "Most designer originals dilute to a standard 15% Eau de Parfum. We formulate at a dense 20%+ Extrait concentration, anchoring the scent to your skin for powerful projection and longevity that outlasts the original."
+        },
+        {
+          title: "OLFACTORY ACCURACY",
+          description: "We go beyond 'inspired' scents by reverse-engineering the exact molecular blueprints of exclusive designer fragrances. Experience a high-fidelity, indistinguishable profile without the premium markup."
+        },
+        {
+          title: "IMPORTED FRENCH OILS",
+          description: "Proudly crafted in South Africa, our fragrances are meticulously formulated using premium French oils. We believe great scent-making is both an art and a rigorous process. From formulation to final production, we pour care and craftsmanship into every bottle, creating premium scents you can wear with absolute confidence."
+        },
+        {
+          title: "SIDE EFFECT:COMPLIMENTS",
+          description: "Fair warning: our dense formulations leave a powerful, undeniable scent trail. We take absolutely no responsibility for the sheer volume of compliments, double-takes, and 'what are you wearing?' questions you are about to receive."
+        },
+        {
+          title: "VEGAN + CRUELTY FREE",
+          description: "We pledge that all our fragrances are 100% vegan and cruelty-free, ensuring no animals are harmed and no animal byproducts are used in our creations."
+        },
+        {
+          title: "PROPERLY MACERATED",
+          description: "We don't rush production. Every batch undergoes a strict maceration process, allowing the raw oils and alcohol to perfectly bind and mature. This eliminates harsh alcohol openings and guarantees a smooth, refined profile."
+        }
+      ];
+
       let textData = {
-        features: [
-          {
-            title: "EXTRAIT DE PARFUM CONCENTRATION",
-            description: "Most designer originals dilute to a standard 15% Eau de Parfum. We formulate at a dense 20%+ Extrait concentration, anchoring the scent to your skin for powerful projection and longevity that outlasts the original."
-          },
-          {
-            title: "OLFACTORY ACCURACY",
-            description: "We go beyond 'inspired' scents by reverse-engineering the exact molecular blueprints of exclusive designer fragrances. Experience a high-fidelity, indistinguishable profile without the premium markup."
-          },
-          {
-            title: "IMPORTED FRENCH OILS",
-            description: "Proudly crafted in South Africa, our fragrances are meticulously formulated using premium French oils. We believe great scent-making is both an art and a rigorous process. From formulation to final production, we pour care and craftsmanship into every bottle, creating premium scents you can wear with absolute confidence."
-          },
-          {
-            title: "SIDE EFFECT:COMPLIMENTS",
-            description: "Fair warning: our dense formulations leave a powerful, undeniable scent trail. We take absolutely no responsibility for the sheer volume of compliments, double-takes, and 'what are you wearing?' questions you are about to receive."
-          },
-          {
-            title: "VEGAN + CRUELTY FREE",
-            description: "We pledge that all our fragrances are 100% vegan and cruelty-free, ensuring no animals are harmed and no animal byproducts are used in our creations."
-          },
-          {
-            title: "PROPERLY MACERATED",
-            description: "We don't rush production. Every batch undergoes a strict maceration process, allowing the raw oils and alcohol to perfectly bind and mature. This eliminates harsh alcohol openings and guarantees a smooth, refined profile."
-          }
-        ],
+        features: JSON.parse(JSON.stringify(defaultFeatures)),
         trust_banner: [
           {
             title: " Free & Speedy Delivery Nationwide",
@@ -4385,21 +4387,27 @@
           textData = { ...textData, ...JSON.parse(cached) };
           let correctedCached = false;
           if (textData.features) {
-            if (textData.features[0] && textData.features[0].description && textData.features[0].description.includes("10-15%")) {
-              textData.features[0].description = "Most designer originals dilute to a standard 15% Eau de Parfum. We formulate at a dense 20%+ Extrait concentration, anchoring the scent to your skin for powerful projection and longevity that outlasts the original.";
+            const firstTitle = textData.features[0] ? textData.features[0].title : "";
+            if (firstTitle === "Handcrafted with French Oils" || firstTitle === "Long Lasting" || (firstTitle && !firstTitle.includes("EXTRAIT DE PARFUM"))) {
+              textData.features = JSON.parse(JSON.stringify(defaultFeatures));
               correctedCached = true;
-            }
-            if (textData.features[1] && textData.features[1].description && textData.features[1].description.includes("We don't just create")) {
-              textData.features[1].description = "We go beyond 'inspired' scents by reverse-engineering the exact molecular blueprints of exclusive designer fragrances. Experience a high-fidelity, indistinguishable profile without the premium markup.";
-              correctedCached = true;
-            }
-            if (textData.features[2] && textData.features[2].description && textData.features[2].description.includes("bypass the mass market")) {
-              textData.features[2].description = "Proudly crafted in South Africa, our fragrances are meticulously formulated using premium French oils. We believe great scent-making is both an art and a rigorous process. From formulation to final production, we pour care and craftsmanship into every bottle, creating premium scents you can wear with absolute confidence.";
-              correctedCached = true;
-            }
-            if (textData.features[3] && textData.features[3].title === "SIDE EFFECT: COMPLIMENTS") {
-              textData.features[3].title = "SIDE EFFECT:COMPLIMENTS";
-              correctedCached = true;
+            } else {
+              if (textData.features[0] && textData.features[0].description && textData.features[0].description.includes("10-15%")) {
+                textData.features[0].description = defaultFeatures[0].description;
+                correctedCached = true;
+              }
+              if (textData.features[1] && textData.features[1].description && textData.features[1].description.includes("We don't just create")) {
+                textData.features[1].description = defaultFeatures[1].description;
+                correctedCached = true;
+              }
+              if (textData.features[2] && textData.features[2].description && textData.features[2].description.includes("bypass the mass market")) {
+                textData.features[2].description = defaultFeatures[2].description;
+                correctedCached = true;
+              }
+              if (textData.features[3] && textData.features[3].title === "SIDE EFFECT: COMPLIMENTS") {
+                textData.features[3].title = "SIDE EFFECT:COMPLIMENTS";
+                correctedCached = true;
+              }
             }
           }
           if (correctedCached) {
@@ -4439,21 +4447,27 @@
               const liveData = docSnap.data();
               let corrected = false;
               if (liveData.features) {
-                if (liveData.features[0] && liveData.features[0].description && liveData.features[0].description.includes("10-15%")) {
-                  liveData.features[0].description = textData.features[0].description;
+                const firstTitle = liveData.features[0] ? liveData.features[0].title : "";
+                if (firstTitle === "Handcrafted with French Oils" || firstTitle === "Long Lasting" || (firstTitle && !firstTitle.includes("EXTRAIT DE PARFUM"))) {
+                  liveData.features = JSON.parse(JSON.stringify(defaultFeatures));
                   corrected = true;
-                }
-                if (liveData.features[1] && liveData.features[1].description && liveData.features[1].description.includes("We don't just create")) {
-                  liveData.features[1].description = textData.features[1].description;
-                  corrected = true;
-                }
-                if (liveData.features[2] && liveData.features[2].description && liveData.features[2].description.includes("bypass the mass market")) {
-                  liveData.features[2].description = textData.features[2].description;
-                  corrected = true;
-                }
-                if (liveData.features[3] && liveData.features[3].title === "SIDE EFFECT: COMPLIMENTS") {
-                  liveData.features[3].title = "SIDE EFFECT:COMPLIMENTS";
-                  corrected = true;
+                } else {
+                  if (liveData.features[0] && liveData.features[0].description && liveData.features[0].description.includes("10-15%")) {
+                    liveData.features[0].description = defaultFeatures[0].description;
+                    corrected = true;
+                  }
+                  if (liveData.features[1] && liveData.features[1].description && liveData.features[1].description.includes("We don't just create")) {
+                    liveData.features[1].description = defaultFeatures[1].description;
+                    corrected = true;
+                  }
+                  if (liveData.features[2] && liveData.features[2].description && liveData.features[2].description.includes("bypass the mass market")) {
+                    liveData.features[2].description = defaultFeatures[2].description;
+                    corrected = true;
+                  }
+                  if (liveData.features[3] && liveData.features[3].title === "SIDE EFFECT: COMPLIMENTS") {
+                    liveData.features[3].title = "SIDE EFFECT:COMPLIMENTS";
+                    corrected = true;
+                  }
                 }
               }
               
