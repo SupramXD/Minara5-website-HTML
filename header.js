@@ -1214,18 +1214,15 @@ window.submitNewsletter = async function(event, type) {
         submitBtn.style.cursor = "not-allowed";
     }
 
-    // Run Cloudflare Turnstile challenge
-    const token = await window.runTurnstile();
+    // Run Cloudflare Turnstile challenge (proceed even if verification fails/warns due to domain changes)
+    let token = null;
+    try {
+        token = await window.runTurnstile();
+    } catch (e) {
+        console.warn("Turnstile error:", e);
+    }
     if (!token) {
-        alert("Security verification failed. Please try again.");
-        if (emailInput) emailInput.disabled = false;
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalBtnText;
-            submitBtn.style.opacity = "";
-            submitBtn.style.cursor = "";
-        }
-        return;
+        console.warn("Security verification (Turnstile) returned null or failed. Proceeding with registration anyway.");
     }
     
     try {
@@ -1264,8 +1261,8 @@ window.submitNewsletter = async function(event, type) {
         }
     }
 
-    // Activate the discount
-    localStorage.setItem("minara_discount_5", "active");
+    // Mark as subscribed for early access
+    localStorage.setItem("minara_subscribed_early_access", "active");
     localStorage.setItem("minara_discount_email", email);
 
     // Clean inputs and reset button state
@@ -1293,7 +1290,7 @@ window.submitNewsletter = async function(event, type) {
         document.head.appendChild(style);
     }
     
-    // Show premium styled success alert state with catalog redirection link
+    // Show premium styled success alert state
     if (type === 'mobile') {
         const formWrap = document.getElementById("mobileNewsletterFormWrap");
         const successEl = document.getElementById("mobileNewsletterSuccess");
@@ -1301,40 +1298,36 @@ window.submitNewsletter = async function(event, type) {
         if (formWrap) formWrap.style.display = "none";
         if (successEl) {
             successEl.innerHTML = `
-                <div style="margin-top: 14px; padding: 20px 16px; background: #fbfbfb; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left;">
-                    <div style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                        <span>✓</span> DISCOUNT ACTIVATED
+                <div style="margin-top: 14px; padding: 16px; background: #fbfbfb; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left;">
+                    <div style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                        <span>✓</span> SUBSCRIBED
                     </div>
-                    <div style="color: #333; font-size: 9px; opacity: 0.85; letter-spacing: 1.2px; text-transform: uppercase; font-family: inherit; line-height: 1.6; margin-bottom: 16px;">
-                        Your 5% subscription discount has been successfully applied to your bag for <span style="text-transform:none; font-weight:bold; color:#000;">${email}</span>.
+                    <div style="color: #333; font-size: 9px; opacity: 0.85; letter-spacing: 1.2px; text-transform: uppercase; font-family: inherit; line-height: 1.6;">
+                        You're on the list. We'll keep you updated with early access to new releases and exclusive deals.
                     </div>
-                    <a href="catalog.html" style="display: inline-block; background: #000; color: #fff; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 9px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; padding: 10px 20px; text-decoration: none; border: 1px solid #000; transition: background 0.3s ease, color 0.3s ease; cursor: pointer; text-align: center;" onmouseover="this.style.background='#333'; this.style.borderColor='#333';" onmouseout="this.style.background='#000'; this.style.borderColor='#000';">SHOP THE CATALOG →</a>
                 </div>
             `;
             successEl.style.display = "block";
         }
-        if (promoText) promoText.textContent = "5% DISCOUNT ACTIVE";
+        if (promoText) promoText.textContent = "SUBSCRIBED";
     } else {
         const form = document.getElementById("desktopSignupForm");
         const successEl = document.getElementById("desktopSignupSuccess");
         if (form) form.style.display = "none";
         if (successEl) {
             successEl.innerHTML = `
-                <div style="margin-top: 18px; padding: 28px 24px; background: #fbfbfb; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left;">
+                <div style="margin-top: 18px; padding: 24px; background: #fbfbfb; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left;">
                     <div style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <span>✓</span> DISCOUNT ACTIVATED: 5% OFF FIRST ORDER
+                        <span>✓</span> SUCCESSFULLY SUBSCRIBED
                     </div>
-                    <div style="color: #333; font-size: 10px; opacity: 0.85; letter-spacing: 1.2px; text-transform: uppercase; font-family: inherit; line-height: 1.7; margin-bottom: 20px;">
-                        Your 5% subscription discount has been successfully applied to your bag for <span style="text-transform:none; font-weight:bold; color:#000;">${email}</span>. Use the button below to explore our exclusive collection.
+                    <div style="color: #333; font-size: 10px; opacity: 0.85; letter-spacing: 1.2px; text-transform: uppercase; font-family: inherit; line-height: 1.7;">
+                        You have successfully signed up. We will notify you with early access to new releases and exclusive deals.
                     </div>
-                    <a href="catalog.html" style="display: inline-block; background: #000; color: #fff; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; padding: 12px 28px; text-decoration: none; border: 1px solid #000; transition: background 0.3s ease, color 0.3s ease; cursor: pointer; text-align: center;" onmouseover="this.style.background='#333'; this.style.borderColor='#333';" onmouseout="this.style.background='#000'; this.style.borderColor='#000';">EXPLORE THE CATALOG →</a>
                 </div>
             `;
             successEl.style.display = "block";
         }
     }
-    
-    window.applyGlobalDiscount();
     
     if (typeof renderCartUI === 'function') {
         renderCartUI();
@@ -1387,13 +1380,12 @@ function setupMobileNewsletter() {
             padding-top: 20px;
         `;
         
-        // Mobile newsletter is now ALWAYS open and has NO arrow
         mobileNews.innerHTML = `
             <div id="mobileNewsletterPromo" style="font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center;">
-                <span>SIGN UP FOR 5% OFF</span>
+                <span>SUBSCRIBE FOR EARLY ACCESS</span>
             </div>
             <div id="mobileNewsletterFormWrap" style="display: block; margin-top: 15px;">
-                <p style="font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;">Get 5% off your first order by subscribing.</p>
+                <p style="font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;">Subscribe to receive early access releases and deals.</p>
                 <form id="mobileNewsletterForm" style="display: flex; border-bottom: 1px solid #000; padding-bottom: 5px;">
                     <input type="email" id="mobileNewsletterEmail" placeholder="Enter your email" required style="border: none; background: transparent; font-size: 11px; width: 100%; outline: none; text-transform: none; font-family: inherit;">
                     <button type="submit" style="background: transparent; border: none; font-size: 11px; font-weight: bold; color: #1106e8; cursor: pointer; padding: 0 5px; width: auto; margin: 0; font-family: inherit;">SUBMIT</button>
@@ -1410,48 +1402,44 @@ function setupMobileNewsletter() {
         };
     }
     
-    const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
-    if (hasDiscount) {
+    const isSubscribed = localStorage.getItem("minara_subscribed_early_access") === "active";
+    if (isSubscribed) {
         const formWrap = document.getElementById("mobileNewsletterFormWrap");
         const successEl = document.getElementById("mobileNewsletterSuccess");
         if (formWrap) formWrap.style.display = "none";
         if (successEl) {
-            const savedEmail = localStorage.getItem("minara_discount_email") || "your email";
             successEl.innerHTML = `
-                <div style="margin-top: 14px; padding: 20px 16px; background: #fbfbfb; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left;">
-                    <div style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                        <span>✓</span> DISCOUNT ACTIVATED
+                <div style="margin-top: 14px; padding: 16px; background: #fbfbfb; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left;">
+                    <div style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                        <span>✓</span> SUBSCRIBED
                     </div>
-                    <div style="color: #333; font-size: 9px; opacity: 0.85; letter-spacing: 1.2px; text-transform: uppercase; font-family: inherit; line-height: 1.6; margin-bottom: 16px;">
-                        Your 5% subscription discount has been successfully applied to your bag for <span style="text-transform:none; font-weight:bold; color:#000;">${savedEmail}</span>.
+                    <div style="color: #333; font-size: 9px; opacity: 0.85; letter-spacing: 1.2px; text-transform: uppercase; font-family: inherit; line-height: 1.6;">
+                        You're on the list. We'll keep you updated with early access to new releases and exclusive deals.
                     </div>
-                    <a href="catalog.html" style="display: inline-block; background: #000; color: #fff; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 9px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; padding: 10px 20px; text-decoration: none; border: 1px solid #000; transition: background 0.3s ease, color 0.3s ease; cursor: pointer; text-align: center;" onmouseover="this.style.background='#333'; this.style.borderColor='#333';" onmouseout="this.style.background='#000'; this.style.borderColor='#000';">SHOP THE CATALOG →</a>
                 </div>
             `;
             successEl.style.display = "block";
         }
         const promoText = document.querySelector("#mobileNewsletterPromo span");
-        if (promoText) promoText.textContent = "5% DISCOUNT ACTIVE";
+        if (promoText) promoText.textContent = "SUBSCRIBED";
     }
 }
 
 function setupDesktopNewsletter() {
-    const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
-    if (hasDiscount) {
+    const isSubscribed = localStorage.getItem("minara_subscribed_early_access") === "active";
+    if (isSubscribed) {
         const form = document.getElementById("desktopSignupForm");
         const successEl = document.getElementById("desktopSignupSuccess");
         if (form) form.style.display = "none";
         if (successEl) {
-            const savedEmail = localStorage.getItem("minara_discount_email") || "your email";
             successEl.innerHTML = `
-                <div style="margin-top: 18px; padding: 28px 24px; background: #fbfbfb; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left;">
+                <div style="margin-top: 18px; padding: 24px; background: #fbfbfb; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left;">
                     <div style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <span>✓</span> DISCOUNT ACTIVATED: 5% OFF FIRST ORDER
+                        <span>✓</span> SUCCESSFULLY SUBSCRIBED
                     </div>
-                    <div style="color: #333; font-size: 10px; opacity: 0.85; letter-spacing: 1.2px; text-transform: uppercase; font-family: inherit; line-height: 1.7; margin-bottom: 20px;">
-                        Your 5% subscription discount has been successfully applied to your bag for <span style="text-transform:none; font-weight:bold; color:#000;">${savedEmail}</span>. Use the button below to explore our exclusive collection.
+                    <div style="color: #333; font-size: 10px; opacity: 0.85; letter-spacing: 1.2px; text-transform: uppercase; font-family: inherit; line-height: 1.7;">
+                        You have successfully signed up. We will notify you with early access to new releases and exclusive deals.
                     </div>
-                    <a href="catalog.html" style="display: inline-block; background: #000; color: #fff; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; padding: 12px 28px; text-decoration: none; border: 1px solid #000; transition: background 0.3s ease, color 0.3s ease; cursor: pointer; text-align: center;" onmouseover="this.style.background='#333'; this.style.borderColor='#333';" onmouseout="this.style.background='#000'; this.style.borderColor='#000';">EXPLORE THE CATALOG →</a>
                 </div>
             `;
             successEl.style.display = "block";
