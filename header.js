@@ -1298,13 +1298,8 @@ window.submitNewsletter = async function(event, type) {
         if (formWrap) formWrap.style.display = "none";
         if (successEl) {
             successEl.innerHTML = `
-                <div style="margin-top: 14px; padding: 16px; background: #fbfbfb; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left;">
-                    <div style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                        <span>✓</span> SUBSCRIBED
-                    </div>
-                    <div style="color: #333; font-size: 9px; opacity: 0.85; letter-spacing: 1.2px; text-transform: uppercase; font-family: inherit; line-height: 1.6;">
-                        You're on the list. We'll keep you updated with early access to new releases and exclusive deals.
-                    </div>
+                <div style="margin-top: 14px; padding: 12px; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: center;">
+                    <span style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;">✓ SUBSCRIBED</span>
                 </div>
             `;
             successEl.style.display = "block";
@@ -1316,13 +1311,8 @@ window.submitNewsletter = async function(event, type) {
         if (form) form.style.display = "none";
         if (successEl) {
             successEl.innerHTML = `
-                <div style="margin-top: 18px; padding: 24px; background: #fbfbfb; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left;">
-                    <div style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <span>✓</span> SUCCESSFULLY SUBSCRIBED
-                    </div>
-                    <div style="color: #333; font-size: 10px; opacity: 0.85; letter-spacing: 1.2px; text-transform: uppercase; font-family: inherit; line-height: 1.7;">
-                        You have successfully signed up. We will notify you with early access to new releases and exclusive deals.
-                    </div>
+                <div style="margin-top: 14px; padding: 12px; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: center;">
+                    <span style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase;">✓ SUCCESSFULLY SUBSCRIBED</span>
                 </div>
             `;
             successEl.style.display = "block";
@@ -1385,7 +1375,6 @@ function setupMobileNewsletter() {
                 <span>SUBSCRIBE FOR EARLY ACCESS</span>
             </div>
             <div id="mobileNewsletterFormWrap" style="display: block; margin-top: 15px;">
-                <p style="font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px;">Subscribe to receive early access releases and deals.</p>
                 <form id="mobileNewsletterForm" style="display: flex; border-bottom: 1px solid #000; padding-bottom: 5px;">
                     <input type="email" id="mobileNewsletterEmail" placeholder="Enter your email" required style="border: none; background: transparent; font-size: 11px; width: 100%; outline: none; text-transform: none; font-family: inherit;">
                     <button type="submit" style="background: transparent; border: none; font-size: 11px; font-weight: bold; color: #1106e8; cursor: pointer; padding: 0 5px; width: auto; margin: 0; font-family: inherit;">SUBMIT</button>
@@ -1409,13 +1398,8 @@ function setupMobileNewsletter() {
         if (formWrap) formWrap.style.display = "none";
         if (successEl) {
             successEl.innerHTML = `
-                <div style="margin-top: 14px; padding: 16px; background: #fbfbfb; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left;">
-                    <div style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                        <span>✓</span> SUBSCRIBED
-                    </div>
-                    <div style="color: #333; font-size: 9px; opacity: 0.85; letter-spacing: 1.2px; text-transform: uppercase; font-family: inherit; line-height: 1.6;">
-                        You're on the list. We'll keep you updated with early access to new releases and exclusive deals.
-                    </div>
+                <div style="margin-top: 14px; padding: 12px; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: center;">
+                    <span style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;">✓ SUBSCRIBED</span>
                 </div>
             `;
             successEl.style.display = "block";
@@ -1433,13 +1417,8 @@ function setupDesktopNewsletter() {
         if (form) form.style.display = "none";
         if (successEl) {
             successEl.innerHTML = `
-                <div style="margin-top: 18px; padding: 24px; background: #fbfbfb; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left;">
-                    <div style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <span>✓</span> SUCCESSFULLY SUBSCRIBED
-                    </div>
-                    <div style="color: #333; font-size: 10px; opacity: 0.85; letter-spacing: 1.2px; text-transform: uppercase; font-family: inherit; line-height: 1.7;">
-                        You have successfully signed up. We will notify you with early access to new releases and exclusive deals.
-                    </div>
+                <div style="margin-top: 14px; padding: 12px; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: center;">
+                    <span style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase;">✓ SUCCESSFULLY SUBSCRIBED</span>
                 </div>
             `;
             successEl.style.display = "block";
