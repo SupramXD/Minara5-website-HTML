@@ -1298,8 +1298,8 @@ window.submitNewsletter = async function(event, type) {
         if (formWrap) formWrap.style.display = "none";
         if (successEl) {
             successEl.innerHTML = `
-                <div style="margin-top: 14px; padding: 12px; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: center;">
-                    <span style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;">✓ SUBSCRIBED</span>
+                <div style="margin-top: 14px; padding: 8px 16px; border: 1px solid rgba(0, 0, 0, 0.45); border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left; display: inline-block; opacity: 0.75;">
+                    <span style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">✓ SUBSCRIBED</span>
                 </div>
             `;
             successEl.style.display = "block";
@@ -1311,8 +1311,8 @@ window.submitNewsletter = async function(event, type) {
         if (form) form.style.display = "none";
         if (successEl) {
             successEl.innerHTML = `
-                <div style="margin-top: 14px; padding: 12px; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: center;">
-                    <span style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase;">✓ SUCCESSFULLY SUBSCRIBED</span>
+                <div style="margin-top: 14px; padding: 8px 16px; border: 1px solid rgba(0, 0, 0, 0.45); border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left; display: inline-block; opacity: 0.75;">
+                    <span style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">✓ SUCCESSFULLY SUBSCRIBED</span>
                 </div>
             `;
             successEl.style.display = "block";
@@ -1398,8 +1398,8 @@ function setupMobileNewsletter() {
         if (formWrap) formWrap.style.display = "none";
         if (successEl) {
             successEl.innerHTML = `
-                <div style="margin-top: 14px; padding: 12px; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: center;">
-                    <span style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;">✓ SUBSCRIBED</span>
+                <div style="margin-top: 14px; padding: 8px 16px; border: 1px solid rgba(0, 0, 0, 0.45); border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left; display: inline-block; opacity: 0.75;">
+                    <span style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">✓ SUBSCRIBED</span>
                 </div>
             `;
             successEl.style.display = "block";
@@ -1417,8 +1417,8 @@ function setupDesktopNewsletter() {
         if (form) form.style.display = "none";
         if (successEl) {
             successEl.innerHTML = `
-                <div style="margin-top: 14px; padding: 12px; border: 1px solid #000; border-radius: 0px; animation: fadeIn 0.4s ease; text-align: center;">
-                    <span style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase;">✓ SUCCESSFULLY SUBSCRIBED</span>
+                <div style="margin-top: 14px; padding: 8px 16px; border: 1px solid rgba(0, 0, 0, 0.45); border-radius: 0px; animation: fadeIn 0.4s ease; text-align: left; display: inline-block; opacity: 0.75;">
+                    <span style="color: #000; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">✓ SUCCESSFULLY SUBSCRIBED</span>
                 </div>
             `;
             successEl.style.display = "block";
