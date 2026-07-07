@@ -1159,29 +1159,45 @@ function updateCartCount(count){
             products.forEach(p => delete p.searchMatchMessage);
             
             if (query) {
+                let matchedIds = [];
+                let matches = [];
+                
                 if (typeof window.findSearchMatchedProductIds === 'function') {
-                    const matches = window.findSearchMatchedProductIds(query);
-                    const matchedIds = matches.map(m => m.id);
-                    activeProducts = activeProducts.filter(p => matchedIds.includes(p.id) || p.isBundle);
-                    
-                    // Attach the closest match warning message to products we don't stock directly
-                    matches.forEach(m => {
-                        if (!m.isDirect && m.popularMatch) {
-                            const p = products.find(prod => prod.id === m.id);
-                            if (p) {
-                                p.searchMatchMessage = `<b>${m.popularMatch.brand.toUpperCase()} ${m.popularMatch.name.toUpperCase()}</b> IS IN OUR DATABASE BUT WE DO NOT STOCK IT.<br>HERE IS OUR CLOSEST SCENT MATCH:`;
-                            }
-                        }
-                    });
-                } else {
-                    const cleanQuery = query.toLowerCase();
-                    activeProducts = activeProducts.filter(p => 
-                        p.name.toLowerCase().includes(cleanQuery) || 
-                        p.nameShort.toLowerCase().includes(cleanQuery) || 
-                        (p.flair && p.flair.toLowerCase().includes(cleanQuery)) ||
-                        p.isBundle
-                    );
+                    matches = window.findSearchMatchedProductIds(query);
+                    matchedIds = matches.map(m => m.id);
                 }
+                
+                // Locally scan current products list for name, ID, flair, or short name matches
+                const cleanQuery = query.toLowerCase();
+                products.forEach(p => {
+                    const normName = (p.name || "").toLowerCase();
+                    const normShort = (p.nameShort || "").toLowerCase();
+                    const normId = (p.id || "").toLowerCase();
+                    const normFlair = (p.flair || "").toLowerCase();
+                    
+                    if (normName.includes(cleanQuery) || normShort.includes(cleanQuery) || normId.includes(cleanQuery) || normFlair.includes(cleanQuery)) {
+                        const existingIdx = matches.findIndex(m => m.id === p.id);
+                        if (existingIdx === -1) {
+                            matchedIds.push(p.id);
+                            matches.push({ id: p.id, isDirect: true, popularMatch: null });
+                        } else {
+                            matches[existingIdx].isDirect = true;
+                            matches[existingIdx].popularMatch = null;
+                        }
+                    }
+                });
+                
+                activeProducts = activeProducts.filter(p => matchedIds.includes(p.id) || p.isBundle);
+                
+                // Attach the closest match warning message to products we don't stock directly
+                matches.forEach(m => {
+                    if (!m.isDirect && m.popularMatch) {
+                        const p = products.find(prod => prod.id === m.id);
+                        if (p) {
+                            p.searchMatchMessage = `<b>${m.popularMatch.brand.toUpperCase()} ${m.popularMatch.name.toUpperCase()}</b> IS IN OUR DATABASE BUT WE DO NOT STOCK IT.<br>HERE IS OUR CLOSEST SCENT MATCH:`;
+                        }
+                    }
+                });
             }
 
             // 3. Extract the bundle product

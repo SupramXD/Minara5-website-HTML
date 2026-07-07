@@ -2468,10 +2468,31 @@ function applyCustomText(data) {
 
         // Helper to push match safely without duplicates
         const addMatch = (productId, isDirect, popularMatch) => {
-            if (!matches.some(m => m.id === productId)) {
+            const existingIdx = matches.findIndex(m => m.id === productId);
+            if (existingIdx === -1) {
                 matches.push({ id: productId, isDirect: isDirect, popularMatch: popularMatch });
+            } else {
+                if (isDirect) {
+                    matches[existingIdx].isDirect = true;
+                    matches[existingIdx].popularMatch = null;
+                }
             }
         };
+
+        // 0. Search site products directly by name, nameShort, or ID
+        if (siteProducts && siteProducts.length > 0) {
+            siteProducts.forEach(p => {
+                const normName = normalizeString(p.name);
+                const normShort = normalizeString(p.nameShort);
+                const normId = normalizeString(p.id);
+                
+                if (normName.includes(cleanQuery) || cleanQuery.includes(normName) ||
+                    normShort.includes(cleanQuery) || cleanQuery.includes(normShort) ||
+                    normId.includes(cleanQuery)) {
+                    addMatch(p.id, true, null);
+                }
+            });
+        }
 
         // 1. Direct stocked match keywords
         const directProduct = findDirectStockedProductByQuery(queryText);
