@@ -2479,17 +2479,28 @@ function applyCustomText(data) {
             }
         };
 
-        // 0. Search site products directly by name, nameShort, or ID
+        // 0. Search site products directly by name, nameShort, or ID (exact/substring or fuzzy Levenshtein)
         if (siteProducts && siteProducts.length > 0) {
             siteProducts.forEach(p => {
                 const normName = normalizeString(p.name);
                 const normShort = normalizeString(p.nameShort);
                 const normId = normalizeString(p.id);
                 
+                // Exact/substring match
                 if (normName.includes(cleanQuery) || cleanQuery.includes(normName) ||
                     normShort.includes(cleanQuery) || cleanQuery.includes(normShort) ||
                     normId.includes(cleanQuery)) {
                     addMatch(p.id, true, null);
+                } else {
+                    // Fuzzy match check (allowing small typos on our stocked items)
+                    const nameDist = getLevenshteinDistance(cleanQuery, normName);
+                    const shortDist = getLevenshteinDistance(cleanQuery, normShort);
+                    const idDist = getLevenshteinDistance(cleanQuery, normId.replace("inspiredby", "").replace("inspired", ""));
+                    
+                    const maxAllowed = Math.max(2, Math.floor(cleanQuery.length / 2.5));
+                    if (nameDist <= maxAllowed || shortDist <= maxAllowed || idDist <= maxAllowed) {
+                        addMatch(p.id, true, null);
+                    }
                 }
             });
         }
