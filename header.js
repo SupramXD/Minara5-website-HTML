@@ -2790,39 +2790,6 @@ function applyCustomText(data) {
         }
     }
 
-    function updateSearchOverlayViewport() {
-        const overlay = document.getElementById("searchOverlay");
-        if (!overlay || !overlay.classList.contains("active")) return;
-        
-        if (window.visualViewport) {
-            const vv = window.visualViewport;
-            const keyboardHeight = window.innerHeight - vv.height;
-            const isKeyboard = keyboardHeight > 150 && (document.activeElement && document.activeElement.id === 'searchInput');
-            
-            if (isKeyboard) {
-                overlay.classList.add("keyboard-open");
-                
-                const header = document.querySelector("header");
-                if (header) {
-                    header.style.display = "none";
-                }
-                
-                overlay.style.top = vv.offsetTop + "px";
-                overlay.style.height = vv.height + "px";
-            } else {
-                overlay.classList.remove("keyboard-open");
-                
-                const header = document.querySelector("header");
-                if (header) {
-                    header.style.display = "";
-                }
-                
-                overlay.style.top = "";
-                overlay.style.height = "";
-            }
-        }
-    }
-
     const initSearchSystem = () => {
         const isCatalogPage = window.location.pathname.includes("catalog") || !!document.getElementById("catalogPageSearchBtn");
         if (!isCatalogPage) return;
@@ -2837,23 +2804,8 @@ function applyCustomText(data) {
                 console.warn("Could not fetch products.json for search:", err);
             });
 
-        injectSearchUI();
-        injectSearchButtons();
-        
-        const dimmer = document.getElementById("pageDimmer");
-        if (dimmer) {
-            dimmer.addEventListener("click", () => {
-                const overlay = document.getElementById("searchOverlay");
-                if (overlay && overlay.classList.contains("active")) {
-                    window.closeSearch();
-                }
-            });
-        }
-
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener("resize", updateSearchOverlayViewport);
-            window.visualViewport.addEventListener("scroll", updateSearchOverlayViewport);
-        }
+        // Pre-fetch popular fragrances list for search matching
+        fetchPopularFragrances();
     };
 
     if (document.readyState === "loading") {

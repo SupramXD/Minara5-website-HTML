@@ -823,9 +823,23 @@ footer{
         <h1>CATALOG</h1>
     </div>
     
-    <!-- Dedicated Catalog Search Button -->
-    <div class="catalog-search-btn-wrap" style="text-align: center; margin: 0 auto 35px; max-width: 200px;">
-        <button id="catalogPageSearchBtn" onclick="if(typeof openSearch === 'function'){ openSearch(); } else if (typeof window.openSearch === 'function') { window.openSearch(); }" style="background: transparent; color: #777777; font-family: 'Gotham Narrow Book', Helvetica, Arial, sans-serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; border: none; border-bottom: 1px solid #777777; padding: 4px 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.25s ease;" onmouseover="this.style.color='#000'; this.style.borderColor='#000';" onmouseout="this.style.color='#777777'; this.style.borderColor='#777777';">
+    <!-- Dedicated Catalog Search Area -->
+    <div class="catalog-search-btn-wrap" style="text-align: center; margin: 0 auto 35px; max-width: 280px; position: relative;">
+        <!-- Toggled search input wrap -->
+        <div id="catalogSearchInputWrap" style="display: none; align-items: center; background: #eef3f7; border: 1px solid #000000; padding: 8px 12px; margin: 0 auto; box-sizing: border-box; justify-content: space-between;">
+            <div style="display: flex; align-items: center; flex-grow: 1;">
+                <span style="color: #000000; margin-right: 8px; display: inline-flex; align-items: center;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </span>
+                <input type="text" id="catalogSearchInput" placeholder="SEARCH FRAGRANCES" autocomplete="off" style="width: 100%; background: transparent; border: none; color: #000000; font-size: 11px; font-weight: bold; letter-spacing: 1px; outline: none; font-family: Helvetica, Arial, sans-serif; text-transform: uppercase;">
+            </div>
+            <span id="clearCatalogSearch" style="cursor: pointer; font-size: 11px; font-weight: bold; margin-left: 8px; color: #777; user-select: none;">✕</span>
+        </div>
+        
+        <button id="catalogPageSearchBtn" style="background: transparent; color: #777777; font-family: 'Gotham Narrow Book', Helvetica, Arial, sans-serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; border: none; border-bottom: 1px solid #777777; padding: 4px 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.25s ease;" onmouseover="this.style.color='#000'; this.style.borderColor='#000';" onmouseout="this.style.color='#777777'; this.style.borderColor='#777777';">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -909,6 +923,45 @@ footer{
       .trust-item {
         margin: 0 auto !important;
       }
+    }
+    
+    @media (max-width: 900px) {
+        body.keyboard-open .catalog-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 15px 10px !important;
+        }
+        body.keyboard-open .product-box {
+            aspect-ratio: 1 / 1 !important;
+            height: auto !important;
+        }
+        body.keyboard-open .product-img {
+            max-height: 80px !important;
+            object-fit: contain !important;
+        }
+        body.keyboard-open .product-title {
+            font-size: 8px !important;
+            line-height: 1.1 !important;
+        }
+        body.keyboard-open .product-inspired i {
+            font-size: 7.5px !important;
+        }
+        body.keyboard-open .product-inspired span {
+            font-size: 5px !important;
+        }
+        body.keyboard-open .product-price-block {
+            font-size: 9px !important;
+            margin-top: 2px !important;
+        }
+        body.keyboard-open .add-to-cart-btn {
+            padding: 6px 4px !important;
+            font-size: 7.5px !important;
+        }
+        body.keyboard-open .catalog-title-header {
+            margin-bottom: 15px !important;
+        }
+        body.keyboard-open .catalog-main {
+            padding-top: 20px !important;
+        }
     }
   </style>
 
@@ -1078,7 +1131,44 @@ function updateCartCount(count){
             }
 
             let activeProducts = products.filter(p => p.status === 'Active');
-            activeProducts.sort((a, b) => {
+            
+            // 1. Filter by Gender Classification (flair)
+            if (genderFilter === 'men') {
+                activeProducts = activeProducts.filter(p => {
+                    const f = (p.flair || '').toLowerCase();
+                    return f === 'masculine' || f === 'unisex' || p.isBundle;
+                });
+            } else if (genderFilter === 'women') {
+                activeProducts = activeProducts.filter(p => {
+                    const f = (p.flair || '').toLowerCase();
+                    return f === 'feminine' || f === 'unisex' || p.isBundle;
+                });
+            }
+
+            // 2. Filter by search query if active
+            const searchInput = document.getElementById("catalogSearchInput");
+            const query = searchInput ? searchInput.value.trim() : "";
+            if (query) {
+                if (typeof window.findSearchMatchedProductIds === 'function') {
+                    const matchedIds = window.findSearchMatchedProductIds(query);
+                    activeProducts = activeProducts.filter(p => matchedIds.includes(p.id) || p.isBundle);
+                } else {
+                    const cleanQuery = query.toLowerCase();
+                    activeProducts = activeProducts.filter(p => 
+                        p.name.toLowerCase().includes(cleanQuery) || 
+                        p.nameShort.toLowerCase().includes(cleanQuery) || 
+                        (p.flair && p.flair.toLowerCase().includes(cleanQuery)) ||
+                        p.isBundle
+                    );
+                }
+            }
+
+            // 3. Extract the bundle product
+            const bundleProduct = activeProducts.find(p => p.isBundle);
+            let nonBundleProducts = activeProducts.filter(p => !p.isBundle);
+
+            // Sort non-bundle products
+            nonBundleProducts.sort((a, b) => {
                 const hasA = a.sortOrder !== undefined && a.sortOrder !== null && a.sortOrder !== "";
                 const hasB = b.sortOrder !== undefined && b.sortOrder !== null && b.sortOrder !== "";
                 
@@ -1093,16 +1183,16 @@ function updateCartCount(count){
                 const nameB = (b.nameShort || b.name || "").toLowerCase();
                 return nameA.localeCompare(nameB);
             });
-            if (genderFilter === 'men') {
-                activeProducts = activeProducts.filter(p => {
-                    const f = (p.invisibleFlair || '').toLowerCase();
-                    return f === 'men' || f === 'unisex';
-                });
-            } else if (genderFilter === 'women') {
-                activeProducts = activeProducts.filter(p => {
-                    const f = (p.invisibleFlair || '').toLowerCase();
-                    return f === 'women' || f === 'feminine' || f === 'unisex';
-                });
+
+            // Reconstruct active products list with the bundle product in the second slot
+            if (bundleProduct) {
+                activeProducts = [
+                    ...nonBundleProducts.slice(0, 1),
+                    bundleProduct,
+                    ...nonBundleProducts.slice(1)
+                ];
+            } else {
+                activeProducts = nonBundleProducts;
             }
 
 
@@ -1474,6 +1564,64 @@ function updateCartCount(count){
         window.addEventListener("minaraDiscountActivated", () => {
             renderGrid();
         });
+
+        // Inline Search event bindings & Keyboard adjustments
+        const searchBtn = document.getElementById("catalogPageSearchBtn");
+        const searchInputWrap = document.getElementById("catalogSearchInputWrap");
+        const searchInput = document.getElementById("catalogSearchInput");
+        
+        if (searchBtn && searchInputWrap && searchInput) {
+            searchBtn.onclick = (e) => {
+                e.preventDefault();
+                searchBtn.style.display = "none";
+                searchInputWrap.style.display = "flex";
+                searchInput.focus();
+            };
+            
+            const clearSearch = document.getElementById("clearCatalogSearch");
+            if (clearSearch) {
+                clearSearch.onclick = () => {
+                    searchInput.value = "";
+                    searchInputWrap.style.display = "none";
+                    searchBtn.style.display = "inline-flex";
+                    renderGrid();
+                };
+            }
+            
+            searchInput.oninput = () => {
+                renderGrid();
+            };
+            
+            const updateKeyboardState = () => {
+                if (window.visualViewport) {
+                    const vv = window.visualViewport;
+                    const keyboardHeight = window.innerHeight - vv.height;
+                    const isKeyboard = keyboardHeight > 150 && document.activeElement === searchInput;
+                    
+                    if (isKeyboard) {
+                        document.body.classList.add("keyboard-open");
+                        const header = document.querySelector("header");
+                        if (header) {
+                            header.style.display = "none";
+                        }
+                    } else {
+                        document.body.classList.remove("keyboard-open");
+                        const header = document.querySelector("header");
+                        if (header) {
+                            header.style.display = "";
+                        }
+                    }
+                }
+            };
+            
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener("resize", updateKeyboardState);
+                window.visualViewport.addEventListener("scroll", updateKeyboardState);
+            }
+            
+            searchInput.addEventListener("focus", () => setTimeout(updateKeyboardState, 100));
+            searchInput.addEventListener("blur", () => setTimeout(updateKeyboardState, 100));
+        }
     }
 
     if (document.readyState === "loading") {
