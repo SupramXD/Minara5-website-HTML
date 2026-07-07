@@ -2464,12 +2464,19 @@ function applyCustomText(data) {
         const cleanQuery = normalizeString(queryText);
         if (!cleanQuery) return [];
 
-        let matchedIds = [];
+        let matches = [];
+
+        // Helper to push match safely without duplicates
+        const addMatch = (productId, isDirect, popularMatch) => {
+            if (!matches.some(m => m.id === productId)) {
+                matches.push({ id: productId, isDirect: isDirect, popularMatch: popularMatch });
+            }
+        };
 
         // 1. Direct stocked match keywords
         const directProduct = findDirectStockedProductByQuery(queryText);
         if (directProduct) {
-            matchedIds.push(directProduct.id);
+            addMatch(directProduct.id, true, null);
         }
 
         // 2. Exact/Combined match in popular_fragrances.json database
@@ -2491,8 +2498,9 @@ function applyCustomText(data) {
 
             if (exactPopMatches.length > 0) {
                 exactPopMatches.forEach(f => {
-                    if (f.closestOurSite && !matchedIds.includes(f.closestOurSite)) {
-                        matchedIds.push(f.closestOurSite);
+                    if (f.closestOurSite) {
+                        const isDirect = f.isDirectInspiration === true || (directProduct && directProduct.id === f.closestOurSite);
+                        addMatch(f.closestOurSite, !!isDirect, f);
                     }
                 });
             } else {
@@ -2523,12 +2531,13 @@ function applyCustomText(data) {
                 
                 const maxAllowedDistance = Math.max(3, Math.floor(cleanQuery.length / 2));
                 if (bestDistance <= maxAllowedDistance && bestPopMatch && bestPopMatch.closestOurSite) {
-                    matchedIds.push(bestPopMatch.closestOurSite);
+                    const isDirect = bestPopMatch.isDirectInspiration === true || (directProduct && directProduct.id === bestPopMatch.closestOurSite);
+                    addMatch(bestPopMatch.closestOurSite, !!isDirect, bestPopMatch);
                 }
             }
         }
 
-        return matchedIds;
+        return matches;
     };
 
       function displayDirectProductCard(product, popFrag) {
