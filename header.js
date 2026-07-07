@@ -1955,6 +1955,85 @@ function applyCustomText(data) {
                     padding: 8px 0 !important;
                 }
             }
+            @media (max-width: 900px) {
+                #searchOverlay.keyboard-open {
+                    padding: 10px 15px;
+                }
+                #searchOverlay.keyboard-open .search-top-row {
+                    margin-bottom: 8px;
+                    padding-bottom: 4px;
+                }
+                #searchOverlay.keyboard-open .search-input-wrap {
+                    margin-bottom: 12px;
+                    padding: 8px 12px;
+                }
+                #searchOverlay.keyboard-open .search-header-bar {
+                    padding: 4px 8px;
+                    margin-bottom: 4px;
+                    font-size: 9px;
+                }
+                #searchOverlay.keyboard-open .suggestions-list {
+                    margin-bottom: 12px;
+                }
+                #searchOverlay.keyboard-open .suggestion-item {
+                    padding: 6px 8px;
+                    font-size: 11px;
+                }
+                #searchOverlay.keyboard-open .search-grid {
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 8px;
+                    margin-top: 8px;
+                    margin-bottom: 8px;
+                }
+                #searchOverlay.keyboard-open .search-grid-card {
+                    padding: 4px;
+                    border: 1px solid #eee;
+                    background: #fafafa;
+                }
+                #searchOverlay.keyboard-open .search-grid-card-img {
+                    height: 50px !important;
+                    margin-bottom: 3px;
+                }
+                #searchOverlay.keyboard-open .search-grid-card-title {
+                    font-size: 8px !important;
+                    line-height: 1.1;
+                }
+                #searchOverlay.keyboard-open .search-grid-card-price {
+                    font-size: 8px !important;
+                    margin-top: 2px !important;
+                }
+                #searchOverlay.keyboard-open .search-card {
+                    padding: 8px;
+                    gap: 10px;
+                }
+                #searchOverlay.keyboard-open .search-card-img {
+                    width: 45px;
+                    height: 45px;
+                }
+                #searchOverlay.keyboard-open .search-card-title {
+                    font-size: 10px;
+                }
+                #searchOverlay.keyboard-open .search-card-price {
+                    font-size: 10px;
+                }
+                #searchOverlay.keyboard-open .search-link-btn {
+                    padding: 6px 12px;
+                    font-size: 8px;
+                    margin-top: 6px;
+                }
+                #searchOverlay.keyboard-open .search-notify-box {
+                    padding: 10px;
+                    margin-top: 8px;
+                }
+                #searchOverlay.keyboard-open .search-notify-title {
+                    font-size: 9px;
+                    margin-bottom: 4px;
+                }
+                #searchOverlay.keyboard-open .search-notify-text {
+                    font-size: 9px;
+                    margin-bottom: 8px;
+                }
+            }
         `;
         document.head.appendChild(styleEl);
 
@@ -2130,6 +2209,14 @@ function applyCustomText(data) {
         const overlay = document.getElementById("searchOverlay");
         if (overlay) {
             overlay.classList.remove("active");
+            overlay.classList.remove("keyboard-open");
+            overlay.style.top = "";
+            overlay.style.height = "";
+            
+            const header = document.querySelector("header");
+            if (header) {
+                header.style.display = "";
+            }
             
             const dimmer = document.getElementById("pageDimmer");
             if (dimmer) {
@@ -2703,9 +2790,53 @@ function applyCustomText(data) {
         }
     }
 
+    function updateSearchOverlayViewport() {
+        const overlay = document.getElementById("searchOverlay");
+        if (!overlay || !overlay.classList.contains("active")) return;
+        
+        if (window.visualViewport) {
+            const vv = window.visualViewport;
+            const keyboardHeight = window.innerHeight - vv.height;
+            const isKeyboard = keyboardHeight > 150 && (document.activeElement && document.activeElement.id === 'searchInput');
+            
+            if (isKeyboard) {
+                overlay.classList.add("keyboard-open");
+                
+                const header = document.querySelector("header");
+                if (header) {
+                    header.style.display = "none";
+                }
+                
+                overlay.style.top = vv.offsetTop + "px";
+                overlay.style.height = vv.height + "px";
+            } else {
+                overlay.classList.remove("keyboard-open");
+                
+                const header = document.querySelector("header");
+                if (header) {
+                    header.style.display = "";
+                }
+                
+                overlay.style.top = "";
+                overlay.style.height = "";
+            }
+        }
+    }
+
     const initSearchSystem = () => {
-        // Search system disabled per user request to speed up site
-        /*
+        const isCatalogPage = window.location.pathname.includes("catalog") || !!document.getElementById("catalogPageSearchBtn");
+        if (!isCatalogPage) return;
+
+        // Fetch products in background for search
+        fetch("products.json?t=" + Date.now())
+            .then(res => res.json())
+            .then(data => {
+                siteProducts = data;
+            })
+            .catch(err => {
+                console.warn("Could not fetch products.json for search:", err);
+            });
+
         injectSearchUI();
         injectSearchButtons();
         
@@ -2718,7 +2849,11 @@ function applyCustomText(data) {
                 }
             });
         }
-        */
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener("resize", updateSearchOverlayViewport);
+            window.visualViewport.addEventListener("scroll", updateSearchOverlayViewport);
+        }
     };
 
     if (document.readyState === "loading") {
