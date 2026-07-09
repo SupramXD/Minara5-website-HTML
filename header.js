@@ -2569,6 +2569,10 @@ function applyCustomText(data) {
             }
         }
 
+        if (matches.some(m => m.isDirect)) {
+            matches = matches.filter(m => m.isDirect);
+        }
+
         return matches;
     };
 
