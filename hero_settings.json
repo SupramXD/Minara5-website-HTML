@@ -17,16 +17,16 @@
   "logoDesktopSpawn": 50,
   "logoDesktopSpawn2": 65,
   "logoDesktopStick": -34,
-  "logoDesktopX": -239,
+  "logoDesktopX": 0,
   "logoMobileSpawn": -95,
   "logoMobileSpawn2": 180,
   "logoMobileStick": 10,
   "logoMobileX": 0,
   "logoHeaderDesktopHeight": 50,
   "logoHeaderMobileHeight": 36,
-  "logoHomeDesktopWidth": 800,
+  "logoHomeDesktopWidth": 1200,
   "logoHomeMobileWidth": 100,
   "showGiftsButton": false,
   "hideRightImageDesktop": true,
-  "timestamp": "2026-07-12T14:04:09.286Z"
+  "timestamp": "2026-07-12T14:06:57.786Z"
 }
