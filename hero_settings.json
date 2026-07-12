@@ -9,7 +9,7 @@
   "rightScale": 1,
   "rightX": 80,
   "rightY": 92,
-  "desktopHeight": "calc(100vh - 45px)",
+  "desktopHeight": "calc(115vh - 45px)",
   "mobileHeight": "180px",
   "mobileScale": 1,
   "mobileX": 50,
