@@ -2,7 +2,6 @@
   "leftImage": "images/hero/left.avif",
   "rightImage": "images/hero/right.png",
   "mobileImage": "images/hero/mobile.avif",
-  "hideRightImageDesktop": false,
   "leftFlex": 1.6,
   "leftScale": 1,
   "leftX": 67,
@@ -10,7 +9,7 @@
   "rightScale": 1,
   "rightX": 80,
   "rightY": 92,
-  "desktopHeight": "80vh",
+  "desktopHeight": "calc(100vh - 45px)",
   "mobileHeight": "180px",
   "mobileScale": 1,
   "mobileX": 50,
@@ -28,5 +27,6 @@
   "logoHomeDesktopWidth": 800,
   "logoHomeMobileWidth": 100,
   "showGiftsButton": false,
-  "timestamp": "2026-07-12T13:38:49.161Z"
+  "hideRightImageDesktop": true,
+  "timestamp": "2026-07-12T14:04:09.286Z"
 }
