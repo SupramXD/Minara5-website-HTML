@@ -1680,7 +1680,8 @@
         logoHeaderMobileHeight: 36,
         logoHomeDesktopWidth: 800,
         logoHomeMobileWidth: 100,
-        showGiftsButton: false
+        showGiftsButton: false,
+        hideLeftImageDesktop: false
       };
 
       try {
@@ -1737,24 +1738,32 @@
           imgR.style.objectPosition = `${settings.mobileX || 50}% ${settings.mobileY || 50}%`;
           imgR.style.transformOrigin = `${settings.mobileX || 50}% ${settings.mobileY || 50}%`;
         } else {
-          imgL.style.display = "block";
-          imgL.src = settings.leftImage || "images/hero/left.avif";
-          imgR.src = settings.rightImage || "images/hero/right.png";
+          if (settings.hideLeftImageDesktop) {
+            imgL.style.display = "none";
+            if (imgRWrapper) {
+              imgRWrapper.style.flex = "1";
+              imgRWrapper.style.height = "100%";
+            }
+          } else {
+            imgL.style.display = "block";
+            imgL.src = settings.leftImage || "images/hero/left.avif";
 
-          hero.style.height = settings.desktopHeight || "90vh";
+            const leftFlex = settings.leftFlex !== undefined ? parseFloat(settings.leftFlex) : 1.3;
+            const rightFlex = 2.0 - leftFlex;
 
-          const leftFlex = settings.leftFlex !== undefined ? parseFloat(settings.leftFlex) : 1.3;
-          const rightFlex = 2.0 - leftFlex;
+            imgL.style.flex = leftFlex;
+            if (imgRWrapper) {
+              imgRWrapper.style.flex = rightFlex;
+              imgRWrapper.style.height = "100%";
+            }
 
-          imgL.style.flex = leftFlex;
-          if (imgRWrapper) {
-            imgRWrapper.style.flex = rightFlex;
-            imgRWrapper.style.height = "100%";
+            imgL.style.transform = `scale(${settings.leftScale || 1.0})`;
+            imgL.style.objectPosition = `${settings.leftX || 50}% ${settings.leftY || 50}%`;
+            imgL.style.transformOrigin = `${settings.leftX || 50}% ${settings.leftY || 50}%`;
           }
 
-          imgL.style.transform = `scale(${settings.leftScale || 1.0})`;
-          imgL.style.objectPosition = `${settings.leftX || 50}% ${settings.leftY || 50}%`;
-          imgL.style.transformOrigin = `${settings.leftX || 50}% ${settings.leftY || 50}%`;
+          imgR.src = settings.rightImage || "images/hero/right.png";
+          hero.style.height = settings.desktopHeight || "90vh";
 
           imgR.style.transform = `scale(${settings.rightScale || 1.0})`;
           imgR.style.objectPosition = `${settings.rightX || 80}% ${settings.rightY || 50}%`;
@@ -3054,7 +3063,8 @@
             logoHeaderMobileHeight: data.logoHeaderMobileHeight !== undefined ? Number(data.logoHeaderMobileHeight) : 36,
             logoHomeDesktopWidth: data.logoHomeDesktopWidth !== undefined ? Number(data.logoHomeDesktopWidth) : 1200,
             logoHomeMobileWidth: data.logoHomeMobileWidth !== undefined ? Number(data.logoHomeMobileWidth) : 88,
-            showGiftsButton: data.showGiftsButton !== false
+            showGiftsButton: data.showGiftsButton !== false,
+            hideLeftImageDesktop: !!data.hideLeftImageDesktop
           };
           localStorage.setItem("minara_hero_settings", JSON.stringify(liveSettings));
           if (window.applyHeroSettings) {

@@ -875,6 +875,11 @@
 
                     <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-top: 25px; margin-bottom: 15px;">2. Desktop Image Split & Space Crop</h3>
                     
+                    <div class="form-group" style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                      <input type="checkbox" id="heroHideLeftImageDesktop" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);" onchange="updateHeroPreview(); if(this.checked) { document.getElementById('heroDesktopHeight').value = 'calc(100vh - 45px)'; updateHeroPreview(); }">
+                      <label for="heroHideLeftImageDesktop" style="font-size: 13px; cursor: pointer; margin-bottom: 0;">Hide Left Image on Desktop</label>
+                    </div>
+
                     <div class="form-group">
                       <label for="heroLeftFlex">Desktop Width Split Ratio (Left Image width vs Right Image width)</label>
                       <div style="display: flex; align-items: center; gap: 15px;">
@@ -886,6 +891,7 @@
                     <div class="form-group">
                       <label for="heroDesktopHeight">Desktop Hero Container Height (Crop)</label>
                       <select id="heroDesktopHeight" class="form-input" style="background:#1a1a24; color: #fff;" onchange="updateHeroPreview()">
+                        <option value="calc(100vh - 45px)">Full Screen (Only see image until scroll)</option>
                         <option value="90vh">90vh (Default Tall)</option>
                         <option value="80vh">80vh (Slight crop)</option>
                         <option value="70vh">70vh (Classic Editorial)</option>
@@ -3723,6 +3729,15 @@
     };
 
     window.updateHeroPreview = function() {
+      const hideLeft = document.getElementById("heroHideLeftImageDesktop") ? document.getElementById("heroHideLeftImageDesktop").checked : false;
+
+      // Disable/enable controls based on toggle
+      const leftControls = ["heroLeftFlex", "heroLeftFlexVal", "heroLeftScale", "heroLeftScaleNum", "heroLeftX", "heroLeftXNum", "heroLeftY", "heroLeftYNum"];
+      leftControls.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = hideLeft;
+      });
+
       const leftFlex = parseFloat(document.getElementById("heroLeftFlex").value);
       const rightFlex = 2.0 - leftFlex;
       document.getElementById("heroLeftFlexVal").value = leftFlex.toFixed(2);
@@ -3754,7 +3769,9 @@
 
       const previewDesktopContainer = document.getElementById("previewDesktopContainer");
       if (previewDesktopContainer) {
-        if (desktopHeight.endsWith("vh")) {
+        if (desktopHeight.includes("100vh")) {
+          previewDesktopContainer.style.height = "200px";
+        } else if (desktopHeight.endsWith("vh")) {
           const vhVal = parseInt(desktopHeight);
           previewDesktopContainer.style.height = (vhVal * 2) + "px";
         } else if (desktopHeight.endsWith("px")) {
@@ -3764,16 +3781,21 @@
       }
 
       const previewImgL = document.getElementById("previewImgL");
+      const previewImgRParent = document.getElementById("previewImgRParent");
       if (previewImgL) {
-        previewImgL.style.flex = leftFlex;
-        previewImgL.style.transform = `scale(${leftScale})`;
-        previewImgL.style.objectPosition = `${leftX}% ${leftY}%`;
-        previewImgL.style.transformOrigin = `${leftX}% ${leftY}%`;
+        if (hideLeft) {
+          previewImgL.style.display = "none";
+        } else {
+          previewImgL.style.display = "block";
+          previewImgL.style.flex = leftFlex;
+          previewImgL.style.transform = `scale(${leftScale})`;
+          previewImgL.style.objectPosition = `${leftX}% ${leftY}%`;
+          previewImgL.style.transformOrigin = `${leftX}% ${leftY}%`;
+        }
       }
 
-      const previewImgRParent = document.getElementById("previewImgRParent");
       if (previewImgRParent) {
-        previewImgRParent.style.flex = rightFlex;
+        previewImgRParent.style.flex = hideLeft ? "1" : rightFlex;
       }
       const previewImgR = document.getElementById("previewImgR");
       if (previewImgR) {
@@ -3919,6 +3941,7 @@
         leftImage: "images/hero/left.avif",
         rightImage: "images/hero/right.png",
         mobileImage: "images/hero/mobile.avif",
+        hideLeftImageDesktop: false,
         leftFlex: 1.3,
         leftScale: 1.0,
         leftX: 50,
@@ -4015,6 +4038,7 @@
         document.getElementById("logoHomeMobileWidth").value = s.logoHomeMobileWidth !== undefined ? s.logoHomeMobileWidth : 88;
         
         document.getElementById("heroShowGiftsButton").checked = s.showGiftsButton !== false;
+        document.getElementById("heroHideLeftImageDesktop").checked = !!s.hideLeftImageDesktop;
         
         if (window.updateLogoSliders) {
           window.updateLogoSliders();
@@ -4299,7 +4323,8 @@
                 logoHeaderMobileHeight: data.logoHeaderMobileHeight !== undefined ? Number(data.logoHeaderMobileHeight) : 36,
                 logoHomeDesktopWidth: data.logoHomeDesktopWidth !== undefined ? Number(data.logoHomeDesktopWidth) : 1200,
                 logoHomeMobileWidth: data.logoHomeMobileWidth !== undefined ? Number(data.logoHomeMobileWidth) : 88,
-                showGiftsButton: data.showGiftsButton !== false
+                showGiftsButton: data.showGiftsButton !== false,
+                hideLeftImageDesktop: !!data.hideLeftImageDesktop
               };
               localStorage.setItem("minara_hero_settings", JSON.stringify(liveSettings));
               populateFields(liveSettings);
@@ -4641,6 +4666,7 @@
         logoHomeDesktopWidth: parseInt(document.getElementById("logoHomeDesktopWidth").value),
         logoHomeMobileWidth: parseInt(document.getElementById("logoHomeMobileWidth").value),
         showGiftsButton: document.getElementById("heroShowGiftsButton").checked,
+        hideLeftImageDesktop: document.getElementById("heroHideLeftImageDesktop").checked,
         timestamp: new Date().toISOString()
       };
 
