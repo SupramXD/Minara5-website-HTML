@@ -1517,6 +1517,29 @@
 
         const style = document.createElement("style");
         style.id = "minara-logo-init-style";
+        
+        let heroHeightRule = "";
+        let heroHideRightRule = "";
+        
+        if (!isMobile) {
+          if (s.desktopHeight) {
+            heroHeightRule = `#hero { height: ${s.desktopHeight} !important; }`;
+          }
+          if (s.hideRightImageDesktop) {
+            heroHideRightRule = `
+              #hero #imgL {
+                flex: 1 !important;
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover !important;
+              }
+              #imgRWrapper {
+                display: none !important;
+              }
+            `;
+          }
+        }
+        
         style.innerHTML = `
           body #logo {
             position: ${positionVal};
@@ -1528,6 +1551,8 @@
           #secondHero {
             height: ${isMobile ? (sSec.mobileHeight === "auto" ? "180px" : sSec.mobileHeight) : (sSec.desktopHeight || "80vh")};
           }
+          ${heroHeightRule}
+          ${heroHideRightRule}
         `;
         document.head.appendChild(style);
       } catch (e) {
@@ -1643,7 +1668,7 @@
 
     <img src="images/hero/left.avif" id="imgL"
       onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
-    <div style="position:relative;flex:0.7%;">
+    <div id="imgRWrapper" style="position:relative;flex:0.7%;">
       <img src="images/hero/right.png" id="imgR" style="width:100%;height:100%;object-fit:cover;"
         onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
       <div class="mobile-bags"><a href="catalog.html">GIFTS 'SHOP NOW</a></div>
@@ -3036,28 +3061,28 @@
         }
       }, 0);
 
-      // 3. Fetch hero settings from Firestore (with local JSON fallback)
+      // 3. Fetch hero settings from local json file first, fallback to Firestore
       setTimeout(async () => {
         let data = null;
         try {
-          if (window.db) {
-            const docSnap = await getDoc(doc(window.db, "settings", "hero"));
-            if (docSnap.exists()) {
-              data = docSnap.data();
-            }
+          const response = await fetch("hero_settings.json?t=" + Date.now());
+          if (response.ok) {
+            data = await response.json();
           }
-        } catch (dbErr) {
-          console.warn("Failed to fetch live hero settings from Firestore, trying local file fallback...", dbErr);
+        } catch (jsonErr) {
+          console.warn("Failed to fetch hero_settings.json, trying Firestore fallback...", jsonErr);
         }
 
         if (!data) {
           try {
-            const response = await fetch("hero_settings.json?t=" + Date.now());
-            if (response.ok) {
-              data = await response.json();
+            if (window.db) {
+              const docSnap = await getDoc(doc(window.db, "settings", "hero"));
+              if (docSnap.exists()) {
+                data = docSnap.data();
+              }
             }
-          } catch (jsonErr) {
-            console.warn("Failed to fetch hero_settings.json fallback:", jsonErr);
+          } catch (dbErr) {
+            console.warn("Failed to fetch live hero settings from Firestore fallback:", dbErr);
           }
         }
 
@@ -3100,28 +3125,28 @@
         }
       }, 0);
 
-      // Fetch second hero settings from Firestore (with local JSON fallback)
+      // Fetch second hero settings from local json file first, fallback to Firestore
       setTimeout(async () => {
         let data = null;
         try {
-          if (window.db) {
-            const docSnap = await getDoc(doc(window.db, "settings", "second_hero"));
-            if (docSnap.exists()) {
-              data = docSnap.data();
-            }
+          const response = await fetch("second_hero_settings.json?t=" + Date.now());
+          if (response.ok) {
+            data = await response.json();
           }
-        } catch (dbErr) {
-          console.warn("Failed to fetch live second hero settings from Firestore, trying local file fallback...", dbErr);
+        } catch (jsonErr) {
+          console.warn("Failed to fetch second_hero_settings.json, trying Firestore fallback...", jsonErr);
         }
 
         if (!data) {
           try {
-            const response = await fetch("second_hero_settings.json?t=" + Date.now());
-            if (response.ok) {
-              data = await response.json();
+            if (window.db) {
+              const docSnap = await getDoc(doc(window.db, "settings", "second_hero"));
+              if (docSnap.exists()) {
+                data = docSnap.data();
+              }
             }
-          } catch (jsonErr) {
-            console.warn("Failed to fetch second_hero_settings.json fallback:", jsonErr);
+          } catch (dbErr) {
+            console.warn("Failed to fetch live second hero settings from Firestore fallback:", dbErr);
           }
         }
 

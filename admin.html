@@ -876,7 +876,7 @@
                     <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-top: 25px; margin-bottom: 15px;">2. Desktop Image Split & Space Crop</h3>
                     
                     <div class="form-group" style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-                      <input type="checkbox" id="heroHideRightImageDesktop" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);" onchange="updateHeroPreview(); if(this.checked) { document.getElementById('heroDesktopHeight').value = 'calc(110vh - 45px)'; updateHeroPreview(); }">
+                      <input type="checkbox" id="heroHideRightImageDesktop" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);" onchange="updateHeroPreview(); if(this.checked) { document.getElementById('heroDesktopHeight').value = 'calc(115vh - 45px)'; updateHeroPreview(); }">
                       <label for="heroHideRightImageDesktop" style="font-size: 13px; cursor: pointer; margin-bottom: 0;">Hide Right Image on Desktop</label>
                     </div>
 
@@ -891,7 +891,7 @@
                     <div class="form-group">
                       <label for="heroDesktopHeight">Desktop Hero Container Height (Crop)</label>
                       <select id="heroDesktopHeight" class="form-input" style="background:#1a1a24; color: #fff;" onchange="updateHeroPreview()">
-                        <option value="calc(110vh - 45px)">Full Screen (Only see image until scroll)</option>
+                        <option value="calc(115vh - 45px)">Full Screen (Only see image until scroll)</option>
                         <option value="90vh">90vh (Default Tall)</option>
                         <option value="80vh">80vh (Slight crop)</option>
                         <option value="70vh">70vh (Classic Editorial)</option>
