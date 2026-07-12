@@ -799,18 +799,39 @@ window.removeFromCart = function(index) {
                 if (item.selectedScents && item.selectedScents.length > 0) {
                     removedScentsHtml = `<div style="margin-top: 6px; padding-left: 10px; border-left: 2px solid #ff3b30; opacity: 0.7; display: flex; flex-direction: column; gap: 6px;">`;
                     item.selectedScents.forEach((scent) => {
-                        const name = typeof scent === 'object' && scent ? scent.name : scent;
-                        const inspiredBy = typeof scent === 'object' && scent ? scent.inspiredBy : "";
+                        let scentName = typeof scent === 'object' && scent ? (scent.nameShort || scent.name) : scent;
+                        let inspiredText = "";
                         const img = typeof scent === 'object' && scent ? scent.image : "";
+
+                        if (typeof scent === 'object' && scent) {
+                            let rawName = scent.name || "";
+                            let clean = rawName.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim();
+                            const match = clean.match(/^inspired\s+by\s+(.+)/i);
+                            
+                            const formatBrandName = (brandName) => {
+                                if (!brandName) return "";
+                                return brandName.replace(/\w\S*/g, (txt) => {
+                                    const lower = txt.toLowerCase();
+                                    if (lower === 'jpg') return 'JPG';
+                                    if (lower === 'le') return 'Le';
+                                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+                                });
+                            };
+                            
+                            if (match || (scent.id && scent.id.startsWith("inspired-by-"))) {
+                                const fragranceName = match ? match[1] : clean;
+                                inspiredText = `INSPIRED BY ${formatBrandName(fragranceName)}`;
+                            }
+                        }
                         
                         const imgHtml = img ? `<img src="${img}" style="width: 18px; height: 24px; object-fit: contain; flex-shrink: 0; opacity: 0.7;">` : '';
-                        const inspiredHtml = inspiredBy ? `<div style="font-family:Helvetica, Arial, sans-serif; font-size: 7px; opacity: 0.4; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase;">INSPIRED BY ${inspiredBy}</div>` : '';
+                        const inspiredHtml = inspiredText ? `<div style="font-family:Helvetica, Arial, sans-serif; font-size: 7px; opacity: 0.4; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase;">${inspiredText}</div>` : '';
                         
                         removedScentsHtml += `
                             <div style="display: flex; align-items: center; gap: 6px;">
                                 ${imgHtml}
                                 <div style="display: flex; flex-direction: column; min-width: 0;">
-                                    <div style="font-family: Helvetica, Arial, sans-serif; font-size: 8px; font-weight: 600; color: #555; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</div>
+                                    <div style="font-family: Helvetica, Arial, sans-serif; font-size: 8px; font-weight: 600; color: #555; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${scentName}</div>
                                     ${inspiredHtml}
                                 </div>
                             </div>
@@ -839,18 +860,39 @@ window.removeFromCart = function(index) {
                 if (item.selectedScents && item.selectedScents.length > 0) {
                     scentsHtml = `<div style="margin-top: 8px; padding-left: 12px; border-left: 2px solid #1106e8; display: flex; flex-direction: column; gap: 8px;">`;
                     item.selectedScents.forEach((scent) => {
-                        const name = typeof scent === 'object' && scent ? scent.name : scent;
-                        const inspiredBy = typeof scent === 'object' && scent ? scent.inspiredBy : "";
+                        let scentName = typeof scent === 'object' && scent ? (scent.nameShort || scent.name) : scent;
+                        let inspiredText = "";
                         const img = typeof scent === 'object' && scent ? scent.image : "";
+
+                        if (typeof scent === 'object' && scent) {
+                            let rawName = scent.name || "";
+                            let clean = rawName.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim();
+                            const match = clean.match(/^inspired\s+by\s+(.+)/i);
+                            
+                            const formatBrandName = (brandName) => {
+                                if (!brandName) return "";
+                                return brandName.replace(/\w\S*/g, (txt) => {
+                                    const lower = txt.toLowerCase();
+                                    if (lower === 'jpg') return 'JPG';
+                                    if (lower === 'le') return 'Le';
+                                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+                                });
+                            };
+                            
+                            if (match || (scent.id && scent.id.startsWith("inspired-by-"))) {
+                                const fragranceName = match ? match[1] : clean;
+                                inspiredText = `INSPIRED BY ${formatBrandName(fragranceName)}`;
+                            }
+                        }
                         
                         const imgHtml = img ? `<img src="${img}" style="width: 24px; height: 32px; object-fit: contain; flex-shrink: 0; background: #fafafa; border: 1px solid #eaeaea; border-radius: 1px;">` : '';
-                        const inspiredHtml = inspiredBy ? `<div style="font-family:Helvetica, Arial, sans-serif; font-size: 7.5px; opacity: 0.5; font-weight: bold; letter-spacing: 0.5px; margin-top: 1px; text-transform: uppercase;">INSPIRED BY ${inspiredBy}</div>` : '';
+                        const inspiredHtml = inspiredText ? `<div style="font-family:Helvetica, Arial, sans-serif; font-size: 7.5px; opacity: 0.5; font-weight: bold; letter-spacing: 0.5px; margin-top: 1px; text-transform: uppercase;">${inspiredText}</div>` : '';
                         
                         scentsHtml += `
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 ${imgHtml}
                                 <div style="display: flex; flex-direction: column; min-width: 0;">
-                                    <div style="font-family: Helvetica, Arial, sans-serif; font-size: 9px; font-weight: 600; color: #333; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</div>
+                                    <div style="font-family: Helvetica, Arial, sans-serif; font-size: 9px; font-weight: 600; color: #333; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${scentName}</div>
                                     ${inspiredHtml}
                                 </div>
                             </div>

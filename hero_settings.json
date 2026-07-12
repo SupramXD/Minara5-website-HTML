@@ -2,7 +2,7 @@
   "leftImage": "images/hero/left.avif",
   "rightImage": "images/hero/right.png",
   "mobileImage": "images/hero/mobile.avif",
-  "hideLeftImageDesktop": false,
+  "hideRightImageDesktop": false,
   "leftFlex": 1.6,
   "leftScale": 1,
   "leftX": 67,

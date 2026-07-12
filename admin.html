@@ -876,8 +876,8 @@
                     <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-top: 25px; margin-bottom: 15px;">2. Desktop Image Split & Space Crop</h3>
                     
                     <div class="form-group" style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-                      <input type="checkbox" id="heroHideLeftImageDesktop" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);" onchange="updateHeroPreview(); if(this.checked) { document.getElementById('heroDesktopHeight').value = 'calc(100vh - 45px)'; updateHeroPreview(); }">
-                      <label for="heroHideLeftImageDesktop" style="font-size: 13px; cursor: pointer; margin-bottom: 0;">Hide Left Image on Desktop</label>
+                      <input type="checkbox" id="heroHideRightImageDesktop" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);" onchange="updateHeroPreview(); if(this.checked) { document.getElementById('heroDesktopHeight').value = 'calc(100vh - 45px)'; updateHeroPreview(); }">
+                      <label for="heroHideRightImageDesktop" style="font-size: 13px; cursor: pointer; margin-bottom: 0;">Hide Right Image on Desktop</label>
                     </div>
 
                     <div class="form-group">
@@ -3729,13 +3729,13 @@
     };
 
     window.updateHeroPreview = function() {
-      const hideLeft = document.getElementById("heroHideLeftImageDesktop") ? document.getElementById("heroHideLeftImageDesktop").checked : false;
+      const hideRight = document.getElementById("heroHideRightImageDesktop") ? document.getElementById("heroHideRightImageDesktop").checked : false;
 
       // Disable/enable controls based on toggle
-      const leftControls = ["heroLeftFlex", "heroLeftFlexVal", "heroLeftScale", "heroLeftScaleNum", "heroLeftX", "heroLeftXNum", "heroLeftY", "heroLeftYNum"];
-      leftControls.forEach(id => {
+      const rightControls = ["heroLeftFlex", "heroLeftFlexVal", "heroRightScale", "heroRightScaleNum", "heroRightX", "heroRightXNum", "heroRightY", "heroRightYNum"];
+      rightControls.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.disabled = hideLeft;
+        if (el) el.disabled = hideRight;
       });
 
       const leftFlex = parseFloat(document.getElementById("heroLeftFlex").value);
@@ -3782,20 +3782,21 @@
 
       const previewImgL = document.getElementById("previewImgL");
       const previewImgRParent = document.getElementById("previewImgRParent");
-      if (previewImgL) {
-        if (hideLeft) {
-          previewImgL.style.display = "none";
+      if (previewImgRParent) {
+        if (hideRight) {
+          previewImgRParent.style.display = "none";
         } else {
-          previewImgL.style.display = "block";
-          previewImgL.style.flex = leftFlex;
-          previewImgL.style.transform = `scale(${leftScale})`;
-          previewImgL.style.objectPosition = `${leftX}% ${leftY}%`;
-          previewImgL.style.transformOrigin = `${leftX}% ${leftY}%`;
+          previewImgRParent.style.display = "block";
+          previewImgRParent.style.flex = rightFlex;
         }
       }
 
-      if (previewImgRParent) {
-        previewImgRParent.style.flex = hideLeft ? "1" : rightFlex;
+      if (previewImgL) {
+        previewImgL.style.display = "block";
+        previewImgL.style.flex = hideRight ? "1" : leftFlex;
+        previewImgL.style.transform = `scale(${leftScale})`;
+        previewImgL.style.objectPosition = `${leftX}% ${leftY}%`;
+        previewImgL.style.transformOrigin = `${leftX}% ${leftY}%`;
       }
       const previewImgR = document.getElementById("previewImgR");
       if (previewImgR) {
@@ -3941,7 +3942,7 @@
         leftImage: "images/hero/left.avif",
         rightImage: "images/hero/right.png",
         mobileImage: "images/hero/mobile.avif",
-        hideLeftImageDesktop: false,
+        hideRightImageDesktop: false,
         leftFlex: 1.3,
         leftScale: 1.0,
         leftX: 50,
@@ -4038,7 +4039,7 @@
         document.getElementById("logoHomeMobileWidth").value = s.logoHomeMobileWidth !== undefined ? s.logoHomeMobileWidth : 88;
         
         document.getElementById("heroShowGiftsButton").checked = s.showGiftsButton !== false;
-        document.getElementById("heroHideLeftImageDesktop").checked = !!s.hideLeftImageDesktop;
+        document.getElementById("heroHideRightImageDesktop").checked = !!s.hideRightImageDesktop;
         
         if (window.updateLogoSliders) {
           window.updateLogoSliders();
@@ -4324,7 +4325,7 @@
                 logoHomeDesktopWidth: data.logoHomeDesktopWidth !== undefined ? Number(data.logoHomeDesktopWidth) : 1200,
                 logoHomeMobileWidth: data.logoHomeMobileWidth !== undefined ? Number(data.logoHomeMobileWidth) : 88,
                 showGiftsButton: data.showGiftsButton !== false,
-                hideLeftImageDesktop: !!data.hideLeftImageDesktop
+                hideRightImageDesktop: !!data.hideRightImageDesktop
               };
               localStorage.setItem("minara_hero_settings", JSON.stringify(liveSettings));
               populateFields(liveSettings);
@@ -4666,7 +4667,7 @@
         logoHomeDesktopWidth: parseInt(document.getElementById("logoHomeDesktopWidth").value),
         logoHomeMobileWidth: parseInt(document.getElementById("logoHomeMobileWidth").value),
         showGiftsButton: document.getElementById("heroShowGiftsButton").checked,
-        hideLeftImageDesktop: document.getElementById("heroHideLeftImageDesktop").checked,
+        hideRightImageDesktop: document.getElementById("heroHideRightImageDesktop").checked,
         timestamp: new Date().toISOString()
       };
 
