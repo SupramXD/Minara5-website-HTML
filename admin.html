@@ -4291,6 +4291,9 @@
       });
 
       setTimeout(async () => {
+        if (window.dbPromise) {
+          await window.dbPromise;
+        }
         if (window.db && window.dbDoc && window.dbGetDoc) {
           try {
             const docSnap = await window.dbGetDoc(window.dbDoc(window.db, "settings", "hero"));

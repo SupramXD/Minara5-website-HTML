@@ -530,6 +530,9 @@
 
     // Try to trigger database order insertion if db and auth are globally available (Cloud integrations)
     setTimeout(async () => {
+      if (window.dbPromise) {
+        await window.dbPromise;
+      }
       if (window.db && window.dbDoc && window.dbSetDoc) {
         try {
           const orderRef = window.dbDoc(window.db, "orders", orderData.paymentId);

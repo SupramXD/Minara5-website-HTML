@@ -9,14 +9,7 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { 
-    initializeFirestore, 
-    collection, 
-    addDoc,
-    doc,
-    setDoc,
-    getDoc
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
 
 // --- DYNAMICALLY INJECT FADE-IN & CUSTOM LOGO SIZE CSS ---
 function applyDynamicLogoStyles(settings) {
@@ -131,12 +124,31 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 const auth = getAuth(app);
 const isLocalFile = window.location.protocol === "file:";
-const db = initializeFirestore(app, isLocalFile ? {
-    experimentalForceLongPolling: true
-} : {});
-// Firestore verbose logging removed for production performance
-window.auth = auth; // Keeps it accessible for your account.html
-window.db = db;     // Expose globally for newsletter submissions
+
+window.auth = auth;
+window.db = null;
+
+// Dynamic Firestore Loader Promise
+window.dbPromise = import("https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js")
+    .then(m => {
+        const dbInstance = m.initializeFirestore(app, isLocalFile ? {
+            experimentalForceLongPolling: true
+        } : {});
+        window.db = dbInstance;
+        window.dbDoc = m.doc;
+        window.dbGetDoc = m.getDoc;
+        window.dbSetDoc = m.setDoc;
+        window.dbCollection = m.collection;
+        window.dbAddDoc = m.addDoc;
+        window.dbQuery = m.query;
+        window.dbWhere = m.where;
+        window.dbGetDocs = m.getDocs;
+        window.dbOrderBy = m.orderBy;
+        return dbInstance;
+    })
+    .catch(err => {
+        console.error("Failed to dynamically load Firestore:", err);
+    });
 
 // --- DYNAMICALLY LOAD CLOUDFLARE TURNSTILE DEFERRED ---
 window.addEventListener('load', () => {
@@ -353,15 +365,18 @@ let currentUserRole = "Customer";
 
 async function getUserRole(user) {
     if (!user) return "Customer";
-    if (window.db) {
+    if (window.dbPromise) {
+        await window.dbPromise;
+    }
+    if (window.db && window.dbDoc && window.dbGetDoc && window.dbSetDoc) {
         try {
-            const userDocRef = doc(window.db, "users", user.uid);
-            const userSnap = await getDoc(userDocRef);
+            const userDocRef = window.dbDoc(window.db, "users", user.uid);
+            const userSnap = await window.dbGetDoc(userDocRef);
             if (userSnap.exists()) {
                 return userSnap.data().role || "Customer";
             } else {
                 const defaultRole = user.email === "sub2meboyi@gmail.com" ? "Admin" : "Customer";
-                await setDoc(userDocRef, {
+                await window.dbSetDoc(userDocRef, {
                     email: user.email,
                     role: defaultRole,
                     status: "Active",
@@ -1267,12 +1282,15 @@ window.submitNewsletter = async function(event, type) {
     }
     
     try {
-        if (window.db) {
+        if (window.dbPromise) {
+            await window.dbPromise;
+        }
+        if (window.db && window.dbAddDoc && window.dbCollection) {
             const timeoutPromise = new Promise((_, reject) => 
                 setTimeout(() => reject(new Error("Timeout waiting for Firestore")), 10000)
             );
             await Promise.race([
-                addDoc(collection(window.db, "subscribers"), {
+                window.dbAddDoc(window.dbCollection(window.db, "subscribers"), {
                     email: email,
                     timestamp: new Date().toISOString()
                 }),
@@ -2403,7 +2421,10 @@ function applyCustomText(data) {
         const submitBtn = form.querySelector('button[type="submit"]');
         const successEl = form.parentNode.querySelector('.search-notify-success');
         
-        if (!emailInput || !window.db) return;
+        if (window.dbPromise) {
+            await window.dbPromise;
+        }
+        if (!emailInput || !window.db || !window.dbAddDoc || !window.dbCollection) return;
         const email = emailInput.value.trim();
         if (!email) return;
         
@@ -2413,7 +2434,7 @@ function applyCustomText(data) {
         }
         
         try {
-            await addDoc(collection(window.db, "stock_notifications"), {
+            await window.dbAddDoc(window.dbCollection(window.db, "stock_notifications"), {
                 email: email,
                 productId: productId,
                 productName: productName,
@@ -2440,7 +2461,10 @@ function applyCustomText(data) {
         const submitBtn = form.querySelector('button[type="submit"]');
         const successEl = form.parentNode.querySelector('.search-notify-success');
         
-        if (!emailInput || !window.db) return;
+        if (window.dbPromise) {
+            await window.dbPromise;
+        }
+        if (!emailInput || !window.db || !window.dbAddDoc || !window.dbCollection) return;
         
         const email = emailInput.value.trim();
         if (!email) return;
@@ -2451,7 +2475,7 @@ function applyCustomText(data) {
         }
         
         try {
-            await addDoc(collection(window.db, "unsupported_requests"), {
+            await window.dbAddDoc(window.dbCollection(window.db, "unsupported_requests"), {
                 email: email,
                 query: queryVal,
                 closest: closestId,

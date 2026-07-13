@@ -15,7 +15,7 @@
   <link rel="preload" href="images/hero/mobile.avif" as="image" type="image/avif" media="(max-width: 900px)">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
-  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
+
   <link rel="modulepreload" href="header.js">
 
   <style>
@@ -2512,7 +2512,7 @@
 
   <script type="module" src="header.js"></script>
   <script type="module">
-    import { getFirestore, collection, getDocs, doc, getDoc, query, where } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
 
     async function initCatalog() {
       const formatPrice = window.formatPrice || (val => {

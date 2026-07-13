@@ -10,7 +10,7 @@
 <link rel="preload" href="minara 5 transparent 2.svg" as="image" type="image/svg+xml">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
-<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
+
 <link rel="modulepreload" href="header.js">
 
 <style>
@@ -2118,7 +2118,21 @@ window.openCart = function() {
     <a href="#" onclick="logout()" class="acc-item">LOG OUT</a>
 </div>
 <script type="module">
-    import { getFirestore, doc, getDoc, collection, addDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    let doc, getDoc, collection, addDoc, getDocs, query, where, orderBy;
+
+    const setupFirestoreHelpers = async () => {
+        if (window.dbPromise) {
+            await window.dbPromise;
+        }
+        doc = window.dbDoc;
+        getDoc = window.dbGetDoc;
+        collection = window.dbCollection;
+        addDoc = window.dbAddDoc;
+        getDocs = window.dbGetDocs;
+        query = window.dbQuery;
+        where = window.dbWhere;
+        orderBy = window.dbOrderBy;
+    };
 
     let currentProductReviews = [];
     let visibleReviewsCount = 3;
@@ -3611,6 +3625,7 @@ window.openCart = function() {
 
     const runInitSafe = async () => {
         try {
+            await setupFirestoreHelpers();
             await initProductDetails();
         } catch (globalErr) {
             console.error("Fatal error in initProductDetails:", globalErr);
