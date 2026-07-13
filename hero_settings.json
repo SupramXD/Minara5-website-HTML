@@ -9,7 +9,7 @@
   "rightScale": 1,
   "rightX": 80,
   "rightY": 92,
-  "desktopHeight": "calc(115vh - 45px)",
+  "desktopHeight": "",
   "mobileHeight": "180px",
   "mobileScale": 1,
   "mobileX": 50,
@@ -28,5 +28,5 @@
   "logoHomeMobileWidth": 100,
   "showGiftsButton": false,
   "hideRightImageDesktop": true,
-  "timestamp": "2026-07-12T14:12:40.523Z"
+  "timestamp": "2026-07-13T10:01:22.137Z"
 }
