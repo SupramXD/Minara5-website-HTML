@@ -1776,6 +1776,7 @@
           imgR.style.objectPosition = `${activeSettings.mobileX || 50}% ${activeSettings.mobileY || 50}%`;
           imgR.style.transformOrigin = `${activeSettings.mobileX || 50}% ${activeSettings.mobileY || 50}%`;
         } else {
+          hero.style.height = activeSettings.desktopHeight || "90vh";
           if (activeSettings.hideRightImageDesktop) {
             imgR.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
             if (imgRWrapper) {
@@ -1815,7 +1816,6 @@
             imgL.style.transformOrigin = `${activeSettings.leftX || 50}% ${activeSettings.leftY || 50}%`;
 
             imgR.src = activeSettings.rightImage || "images/hero/right.png";
-            hero.style.height = activeSettings.desktopHeight || "90vh";
 
             imgR.style.transform = `scale(${activeSettings.rightScale || 1.0})`;
             imgR.style.objectPosition = `${activeSettings.rightX || 80}% ${activeSettings.rightY || 50}%`;
