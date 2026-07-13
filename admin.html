@@ -3950,7 +3950,7 @@
         rightScale: 1.0,
         rightX: 80,
         rightY: 50,
-        desktopHeight: "90vh",
+        desktopHeight: "calc(115vh - 45px)",
         mobileHeight: "auto",
         mobileScale: 1.0,
         mobileX: 50,
@@ -4018,7 +4018,7 @@
         document.getElementById("heroRightY").value = s.rightY !== undefined ? s.rightY : 50;
         
         if (document.getElementById("heroDesktopHeight")) {
-          document.getElementById("heroDesktopHeight").value = s.desktopHeight || "90vh";
+          document.getElementById("heroDesktopHeight").value = s.desktopHeight || "calc(115vh - 45px)";
         }
         document.getElementById("heroMobileHeight").value = s.mobileHeight || "auto";
         document.getElementById("heroMobileScale").value = s.mobileScale !== undefined ? s.mobileScale : 1.0;
@@ -4310,7 +4310,7 @@
                 rightScale: data.rightScale !== undefined ? Number(data.rightScale) : 1.0,
                 rightX: data.rightX !== undefined ? Number(data.rightX) : 80,
                 rightY: data.rightY !== undefined ? Number(data.rightY) : 50,
-                desktopHeight: data.desktopHeight || "90vh",
+                desktopHeight: data.desktopHeight || "calc(115vh - 45px)",
                 mobileHeight: data.mobileHeight || "auto",
                 mobileScale: data.mobileScale !== undefined ? Number(data.mobileScale) : 1.0,
                 mobileX: data.mobileX !== undefined ? Number(data.mobileX) : 50,

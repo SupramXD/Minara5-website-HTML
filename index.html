@@ -374,7 +374,7 @@
       margin-top: 45px;
       position: relative;
       width: 100vw;
-      height: 90vh;
+      height: calc(115vh - 45px);
       display: flex;
       overflow: hidden;
       z-index: 1;
@@ -1521,9 +1521,8 @@
         let heroHideRightRule = "";
         
         if (!isMobile) {
-          if (s.desktopHeight) {
-            heroHeightRule = `#hero { height: ${s.desktopHeight} !important; }`;
-          }
+          const dHeight = s.desktopHeight || "calc(115vh - 45px)";
+          heroHeightRule = `#hero { height: ${dHeight} !important; }`;
           if (s.hideRightImageDesktop) {
             heroHideRightRule = `
               #hero #imgL {
@@ -1776,7 +1775,7 @@
           imgR.style.objectPosition = `${activeSettings.mobileX || 50}% ${activeSettings.mobileY || 50}%`;
           imgR.style.transformOrigin = `${activeSettings.mobileX || 50}% ${activeSettings.mobileY || 50}%`;
         } else {
-          hero.style.height = activeSettings.desktopHeight || "90vh";
+          hero.style.height = activeSettings.desktopHeight || "calc(115vh - 45px)";
           if (activeSettings.hideRightImageDesktop) {
             imgR.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
             if (imgRWrapper) {
@@ -3083,7 +3082,7 @@
               rightScale: data.rightScale !== undefined ? Number(data.rightScale) : 1.0,
               rightX: data.rightX !== undefined ? Number(data.rightX) : 80,
               rightY: data.rightY !== undefined ? Number(data.rightY) : 50,
-              desktopHeight: data.desktopHeight || "90vh",
+              desktopHeight: data.desktopHeight || "calc(115vh - 45px)",
               mobileHeight: data.mobileHeight || "auto",
               mobileScale: data.mobileScale !== undefined ? Number(data.mobileScale) : 1.0,
               mobileX: data.mobileX !== undefined ? Number(data.mobileX) : 50,
