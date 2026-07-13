@@ -1567,9 +1567,9 @@
   <header id="topbar">
 
     <div class="left-nav">
-      <a href="catalog.html" class="desktop-only">Shop All Fragrances</a>
-      <a href="catalog.html?gender=men" class="desktop-only" style="margin-left:22px;">Men's</a>
-      <a href="catalog.html?gender=women" class="desktop-only" style="margin-left:22px;">Women's</a>
+      <a href="catalog.html" class="desktop-only">fragrances</a>
+      <a href="catalog.html?gender=men" class="desktop-only" style="margin-left:22px;">men</a>
+      <a href="catalog.html?gender=women" class="desktop-only" style="margin-left:22px;">women</a>
       <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
     </div>
 
@@ -1638,9 +1638,9 @@
 
   <div class="slideout" id="menuPanel">
     <div class="close-btn" onclick="closeMenu()">×</div>
-    <a href="catalog.html">Shop all Fragrances</a>
-    <a href="catalog.html?gender=men">Men's Fragrances</a>
-    <a href="catalog.html?gender=women">Women's Fragrances</a>
+    <a href="catalog.html">shop fragrances</a>
+    <a href="catalog.html?gender=men">men</a>
+    <a href="catalog.html?gender=women">women</a>
     <a href="social media.html">Socials</a>
     <a href="contact.html">Contact</a>
     <div id="mobileAccountBlock" class="mobile-account-block">
@@ -1666,10 +1666,10 @@
   <section id="hero" class="hero">
     <div id="mobileShopButton">shop catalog</div>
 
-    <img src="images/hero/left.avif" id="imgL"
+    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="imgL"
       onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
     <div id="imgRWrapper" style="position:relative;flex:0.7%;">
-      <img src="images/hero/right.png" id="imgR" style="width:100%;height:100%;object-fit:cover;"
+      <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="imgR" style="width:100%;height:100%;object-fit:cover;"
         onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
       <div class="mobile-bags"><a href="catalog.html">GIFTS 'SHOP NOW</a></div>
     </div>
@@ -1749,6 +1749,7 @@
         }
 
         if (isMobile) {
+          imgL.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
           imgR.src = activeSettings.mobileImage || "images/hero/mobile.avif";
           imgL.style.display = "none";
 
@@ -1777,6 +1778,7 @@
           imgR.style.transformOrigin = `${activeSettings.mobileX || 50}% ${activeSettings.mobileY || 50}%`;
         } else {
           if (activeSettings.hideRightImageDesktop) {
+            imgR.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
             if (imgRWrapper) {
               imgRWrapper.style.display = "none";
             }
@@ -1812,17 +1814,17 @@
             imgL.style.transform = `scale(${activeSettings.leftScale || 1.0})`;
             imgL.style.objectPosition = `${activeSettings.leftX || 50}% ${activeSettings.leftY || 50}%`;
             imgL.style.transformOrigin = `${activeSettings.leftX || 50}% ${activeSettings.leftY || 50}%`;
+
+            imgR.src = activeSettings.rightImage || "images/hero/right.png";
+            hero.style.height = activeSettings.desktopHeight || "90vh";
+
+            imgR.style.transform = `scale(${activeSettings.rightScale || 1.0})`;
+            imgR.style.objectPosition = `${activeSettings.rightX || 80}% ${activeSettings.rightY || 50}%`;
+            imgR.style.transformOrigin = `${activeSettings.rightX || 80}% ${activeSettings.rightY || 50}%`;
+            imgR.style.height = "100%";
+            imgR.style.width = "100%";
+            imgR.style.objectFit = "cover";
           }
-
-          imgR.src = activeSettings.rightImage || "images/hero/right.png";
-          hero.style.height = activeSettings.desktopHeight || "90vh";
-
-          imgR.style.transform = `scale(${activeSettings.rightScale || 1.0})`;
-          imgR.style.objectPosition = `${activeSettings.rightX || 80}% ${activeSettings.rightY || 50}%`;
-          imgR.style.transformOrigin = `${activeSettings.rightX || 80}% ${activeSettings.rightY || 50}%`;
-          imgR.style.height = "100%";
-          imgR.style.width = "100%";
-          imgR.style.objectFit = "cover";
         }
       }
 
@@ -2454,18 +2456,22 @@
       setTimeout(() => { measure(); update(); }, 80);
     })();
 
-    /* DESKTOP ONLY — test3 triggers SHOW NOW */
+    /* Click and Hover listeners */
     (function () {
-      if (window.matchMedia("(max-width:900px)").matches) return;
-
       const imgL = document.getElementById('imgL');
       const imgR = document.getElementById('imgR');
+
+      if (imgL) {
+        imgL.addEventListener('click', () => window.location.href = "catalog.html");
+      }
+      if (imgR) {
+        imgR.addEventListener('click', () => window.location.href = "catalog.html");
+      }
+
+      if (window.matchMedia("(max-width:900px)").matches) return;
+
       const shopNow = document.getElementById('shopNow');
-
       if (!shopNow) return;
-
-      imgL.addEventListener('click', () => window.location.href = "catalog.html");
-      imgR.addEventListener('click', () => window.location.href = "catalog.html");
 
       imgL.addEventListener('mouseenter', () => {
         shopNow.style.opacity = "1";
@@ -2507,7 +2513,7 @@
 
   <script type="module" src="header.js"></script>
   <script type="module">
-    import { getFirestore, collection, getDocs, doc, getDoc, query, where } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     async function initCatalog() {
       const formatPrice = window.formatPrice || (val => {
@@ -3061,32 +3067,10 @@
         }
       }, 0);
 
-      // 3. Fetch hero settings from local json file first, fallback to Firestore
-      setTimeout(async () => {
-        let data = null;
-        try {
-          const response = await fetch("hero_settings.json?t=" + Date.now());
-          if (response.ok) {
-            data = await response.json();
-          }
-        } catch (jsonErr) {
-          console.warn("Failed to fetch hero_settings.json, trying Firestore fallback...", jsonErr);
-        }
-
-        if (!data) {
-          try {
-            if (window.db) {
-              const docSnap = await getDoc(doc(window.db, "settings", "hero"));
-              if (docSnap.exists()) {
-                data = docSnap.data();
-              }
-            }
-          } catch (dbErr) {
-            console.warn("Failed to fetch live hero settings from Firestore fallback:", dbErr);
-          }
-        }
-
-        if (data) {
+      // 3. Fetch hero settings from Firestore (real-time), fallback to JSON
+      setTimeout(() => {
+        const handleSettingsUpdate = (data) => {
+          if (!data) return;
           const liveSettings = {
             leftImage: data.leftImage || "images/hero/left.avif",
             rightImage: data.rightImage || "images/hero/right.png",
@@ -3121,6 +3105,36 @@
           localStorage.setItem("minara_hero_settings", JSON.stringify(liveSettings));
           if (window.applyHeroSettings) {
             window.applyHeroSettings(liveSettings);
+          }
+        };
+
+        if (window.db) {
+          try {
+            onSnapshot(doc(window.db, "settings", "hero"), (docSnap) => {
+              if (docSnap.exists()) {
+                handleSettingsUpdate(docSnap.data());
+              }
+            }, (dbErr) => {
+              console.warn("Failed to listen to live hero settings from Firestore, trying fallback fetch...", dbErr);
+              fetchStaticHeroSettings();
+            });
+          } catch (dbErr) {
+            console.warn("Error setting up Firestore listener, trying fallback fetch...", dbErr);
+            fetchStaticHeroSettings();
+          }
+        } else {
+          fetchStaticHeroSettings();
+        }
+
+        async function fetchStaticHeroSettings() {
+          try {
+            const response = await fetch("hero_settings.json?t=" + Date.now());
+            if (response.ok) {
+              const data = await response.json();
+              handleSettingsUpdate(data);
+            }
+          } catch (jsonErr) {
+            console.warn("Failed to fetch static hero settings fallback:", jsonErr);
           }
         }
       }, 0);

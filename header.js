@@ -15,7 +15,8 @@ import {
     addDoc,
     doc,
     setDoc,
-    getDoc
+    getDoc,
+    onSnapshot
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // --- DYNAMICALLY INJECT FADE-IN & CUSTOM LOGO SIZE CSS ---
@@ -64,22 +65,46 @@ applyDynamicLogoStyles(cachedSettings);
 
 // Background fetch of latest settings
 setTimeout(async () => {
-    try {
-        const response = await fetch("hero_settings.json?t=" + Date.now());
-        if (response.ok) {
-            const data = await response.json();
-            let currentLocal = {};
-            try {
-                const cached = localStorage.getItem("minara_hero_settings");
-                if (cached) currentLocal = JSON.parse(cached);
-            } catch (e) {}
-            
-            const updated = Object.assign({}, currentLocal, data);
-            localStorage.setItem("minara_hero_settings", JSON.stringify(updated));
-            applyDynamicLogoStyles(updated);
+    const handleUpdatedSettings = (data) => {
+        let currentLocal = {};
+        try {
+            const cached = localStorage.getItem("minara_hero_settings");
+            if (cached) currentLocal = JSON.parse(cached);
+        } catch (e) {}
+        
+        const updated = Object.assign({}, currentLocal, data);
+        localStorage.setItem("minara_hero_settings", JSON.stringify(updated));
+        applyDynamicLogoStyles(updated);
+    };
+
+    if (window.db) {
+        try {
+            onSnapshot(doc(window.db, "settings", "hero"), (docSnap) => {
+                if (docSnap.exists()) {
+                    handleUpdatedSettings(docSnap.data());
+                }
+            }, (err) => {
+                console.warn("Firestore logo snapshot listener failed, falling back to static fetch:", err);
+                fetchStaticSettings();
+            });
+        } catch (err) {
+            console.warn("Error initializing Firestore logo snapshot:", err);
+            fetchStaticSettings();
         }
-    } catch (err) {
-        console.warn("Background fetch of logo settings failed in header.js:", err);
+    } else {
+        fetchStaticSettings();
+    }
+
+    async function fetchStaticSettings() {
+        try {
+            const response = await fetch("hero_settings.json?t=" + Date.now());
+            if (response.ok) {
+                const data = await response.json();
+                handleUpdatedSettings(data);
+            }
+        } catch (err) {
+            console.warn("Background fetch of logo settings failed in header.js:", err);
+        }
     }
 }, 100);
 
@@ -772,11 +797,11 @@ window.removeFromCart = function(index) {
                                          
                                          `;
 
-    if (hasItems) {
-        asciiWrap.style.display = "none";
-    } else {
+    if (cart.length === 0) {
         asciiContainer.textContent = emptyArt;
         asciiWrap.style.display = "flex";
+    } else {
+        asciiWrap.style.display = "none";
     }
 
     // #2: REMOVE LEFT BORDER
@@ -845,7 +870,6 @@ window.removeFromCart = function(index) {
                         ${window.formatCartInspiredNameHTML ? window.formatCartInspiredNameHTML(item.name, item.id, item.nameShort) : `<span style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1px; color:#000;">${item.name}</span>`}
                         <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; opacity:0.5; letter-spacing:0.5px;">SIZE: ${(item.size || '100ml').toUpperCase()}</div>
                         ${removedScentsHtml}
-                        <span style="color:#ff3b30; font-size:9px; font-weight:500; letter-spacing:1px; text-transform:uppercase; opacity:0.8; margin-top:2px;">REMOVED FROM BAG</span>
                     </div>
                     <span onclick="window.undoRemove(${index})" style="color:#1106e8; font-size:11px; font-family:Helvetica, Arial, sans-serif; text-decoration:underline; cursor:pointer; font-weight:500; text-transform:uppercase; letter-spacing:1px;">UNDO</span>
                 </div>`;
