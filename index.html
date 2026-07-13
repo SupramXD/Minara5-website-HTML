@@ -1720,7 +1720,7 @@
       window.heroSettings = settings;
 
       function applyHeroSettings(s) {
-        const activeSettings = s || window.heroSettings || settings;
+        const activeSettings = (s && typeof s === 'object' && !(s instanceof Event)) ? s : (window.heroSettings || settings);
         const isMobile = window.matchMedia("(max-width: 900px)").matches;
         const imgL = document.getElementById("imgL");
         const imgR = document.getElementById("imgR");
@@ -1827,8 +1827,8 @@
         }
       }
 
-      window.addEventListener("resize", applyHeroSettings);
-      document.addEventListener("DOMContentLoaded", applyHeroSettings);
+      window.addEventListener("resize", () => applyHeroSettings());
+      document.addEventListener("DOMContentLoaded", () => applyHeroSettings());
 
       window.applyHeroSettings = function (newSettings) {
         settings = Object.assign({}, settings, newSettings);
