@@ -15,8 +15,7 @@ import {
     addDoc,
     doc,
     setDoc,
-    getDoc,
-    onSnapshot
+    getDoc
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // --- DYNAMICALLY INJECT FADE-IN & CUSTOM LOGO SIZE CSS ---
@@ -65,46 +64,22 @@ applyDynamicLogoStyles(cachedSettings);
 
 // Background fetch of latest settings
 setTimeout(async () => {
-    const handleUpdatedSettings = (data) => {
-        let currentLocal = {};
-        try {
-            const cached = localStorage.getItem("minara_hero_settings");
-            if (cached) currentLocal = JSON.parse(cached);
-        } catch (e) {}
-        
-        const updated = Object.assign({}, currentLocal, data);
-        localStorage.setItem("minara_hero_settings", JSON.stringify(updated));
-        applyDynamicLogoStyles(updated);
-    };
-
-    if (window.db) {
-        try {
-            onSnapshot(doc(window.db, "settings", "hero"), (docSnap) => {
-                if (docSnap.exists()) {
-                    handleUpdatedSettings(docSnap.data());
-                }
-            }, (err) => {
-                console.warn("Firestore logo snapshot listener failed, falling back to static fetch:", err);
-                fetchStaticSettings();
-            });
-        } catch (err) {
-            console.warn("Error initializing Firestore logo snapshot:", err);
-            fetchStaticSettings();
+    try {
+        const response = await fetch("hero_settings.json?t=" + Date.now());
+        if (response.ok) {
+            const data = await response.json();
+            let currentLocal = {};
+            try {
+                const cached = localStorage.getItem("minara_hero_settings");
+                if (cached) currentLocal = JSON.parse(cached);
+            } catch (e) {}
+            
+            const updated = Object.assign({}, currentLocal, data);
+            localStorage.setItem("minara_hero_settings", JSON.stringify(updated));
+            applyDynamicLogoStyles(updated);
         }
-    } else {
-        fetchStaticSettings();
-    }
-
-    async function fetchStaticSettings() {
-        try {
-            const response = await fetch("hero_settings.json?t=" + Date.now());
-            if (response.ok) {
-                const data = await response.json();
-                handleUpdatedSettings(data);
-            }
-        } catch (err) {
-            console.warn("Background fetch of logo settings failed in header.js:", err);
-        }
+    } catch (err) {
+        console.warn("Background fetch of logo settings failed in header.js:", err);
     }
 }, 100);
 

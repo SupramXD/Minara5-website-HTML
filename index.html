@@ -1681,14 +1681,14 @@
         leftImage: "images/hero/left.avif",
         rightImage: "images/hero/right.png",
         mobileImage: "images/hero/mobile.avif",
-        leftFlex: 1.4,
+        leftFlex: 1.6,
         leftScale: 1.0,
         leftX: 67,
         leftY: 61,
         rightScale: 1.0,
         rightX: 80,
         rightY: 92,
-        desktopHeight: "80vh",
+        desktopHeight: "calc(115vh - 45px)",
         mobileHeight: "180px",
         mobileScale: 1.0,
         mobileX: 50,
@@ -1696,17 +1696,17 @@
         logoDesktopSpawn: 50,
         logoDesktopSpawn2: 65,
         logoDesktopStick: -34,
-        logoDesktopX: -232,
+        logoDesktopX: 0,
         logoMobileSpawn: -95,
         logoMobileSpawn2: 180,
         logoMobileStick: 10,
         logoMobileX: 0,
         logoHeaderDesktopHeight: 50,
         logoHeaderMobileHeight: 36,
-        logoHomeDesktopWidth: 800,
+        logoHomeDesktopWidth: 1200,
         logoHomeMobileWidth: 100,
         showGiftsButton: false,
-        hideRightImageDesktop: false
+        hideRightImageDesktop: true
       };
 
       try {
@@ -2513,7 +2513,7 @@
 
   <script type="module" src="header.js"></script>
   <script type="module">
-    import { getFirestore, collection, getDocs, doc, getDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, query, where } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     async function initCatalog() {
       const formatPrice = window.formatPrice || (val => {
@@ -3067,125 +3067,83 @@
         }
       }, 0);
 
-      // 3. Fetch hero settings from Firestore (real-time), fallback to JSON
-      setTimeout(() => {
-        const handleSettingsUpdate = (data) => {
-          if (!data) return;
-          const liveSettings = {
-            leftImage: data.leftImage || "images/hero/left.avif",
-            rightImage: data.rightImage || "images/hero/right.png",
-            mobileImage: data.mobileImage || "images/hero/mobile.avif",
-            leftFlex: data.leftFlex !== undefined ? Number(data.leftFlex) : 1.3,
-            leftScale: data.leftScale !== undefined ? Number(data.leftScale) : 1.0,
-            leftX: data.leftX !== undefined ? Number(data.leftX) : 50,
-            leftY: data.leftY !== undefined ? Number(data.leftY) : 50,
-            rightScale: data.rightScale !== undefined ? Number(data.rightScale) : 1.0,
-            rightX: data.rightX !== undefined ? Number(data.rightX) : 80,
-            rightY: data.rightY !== undefined ? Number(data.rightY) : 50,
-            desktopHeight: data.desktopHeight || "90vh",
-            mobileHeight: data.mobileHeight || "auto",
-            mobileScale: data.mobileScale !== undefined ? Number(data.mobileScale) : 1.0,
-            mobileX: data.mobileX !== undefined ? Number(data.mobileX) : 50,
-            mobileY: data.mobileY !== undefined ? Number(data.mobileY) : 50,
-            logoDesktopSpawn: data.logoDesktopSpawn !== undefined ? Number(data.logoDesktopSpawn) : 50,
-            logoDesktopSpawn2: data.logoDesktopSpawn2 !== undefined ? Number(data.logoDesktopSpawn2) : 65,
-            logoDesktopStick: data.logoDesktopStick !== undefined ? Number(data.logoDesktopStick) : 0,
-            logoDesktopX: data.logoDesktopX !== undefined ? Number(data.logoDesktopX) : 0,
-            logoMobileSpawn: data.logoMobileSpawn !== undefined ? Number(data.logoMobileSpawn) : -50,
-            logoMobileSpawn2: data.logoMobileSpawn2 !== undefined ? Number(data.logoMobileSpawn2) : 50,
-            logoMobileStick: data.logoMobileStick !== undefined ? Number(data.logoMobileStick) : 0,
-            logoMobileX: data.logoMobileX !== undefined ? Number(data.logoMobileX) : -50,
-            logoHeaderDesktopHeight: data.logoHeaderDesktopHeight !== undefined ? Number(data.logoHeaderDesktopHeight) : 50,
-            logoHeaderMobileHeight: data.logoHeaderMobileHeight !== undefined ? Number(data.logoHeaderMobileHeight) : 36,
-            logoHomeDesktopWidth: data.logoHomeDesktopWidth !== undefined ? Number(data.logoHomeDesktopWidth) : 1200,
-            logoHomeMobileWidth: data.logoHomeMobileWidth !== undefined ? Number(data.logoHomeMobileWidth) : 88,
-            showGiftsButton: data.showGiftsButton !== false,
-            hideRightImageDesktop: !!data.hideRightImageDesktop
-          };
-          localStorage.setItem("minara_hero_settings", JSON.stringify(liveSettings));
-          if (window.applyHeroSettings) {
-            window.applyHeroSettings(liveSettings);
-          }
-        };
-
-        if (window.db) {
-          try {
-            onSnapshot(doc(window.db, "settings", "hero"), (docSnap) => {
-              if (docSnap.exists()) {
-                handleSettingsUpdate(docSnap.data());
-              }
-            }, (dbErr) => {
-              console.warn("Failed to listen to live hero settings from Firestore, trying fallback fetch...", dbErr);
-              fetchStaticHeroSettings();
-            });
-          } catch (dbErr) {
-            console.warn("Error setting up Firestore listener, trying fallback fetch...", dbErr);
-            fetchStaticHeroSettings();
-          }
-        } else {
-          fetchStaticHeroSettings();
-        }
-
-        async function fetchStaticHeroSettings() {
-          try {
-            const response = await fetch("hero_settings.json?t=" + Date.now());
-            if (response.ok) {
-              const data = await response.json();
-              handleSettingsUpdate(data);
+      // 3. Fetch hero settings from local JSON file
+      setTimeout(async () => {
+        try {
+          const response = await fetch("hero_settings.json?t=" + Date.now());
+          if (response.ok) {
+            const data = await response.json();
+            const liveSettings = {
+              leftImage: data.leftImage || "images/hero/left.avif",
+              rightImage: data.rightImage || "images/hero/right.png",
+              mobileImage: data.mobileImage || "images/hero/mobile.avif",
+              leftFlex: data.leftFlex !== undefined ? Number(data.leftFlex) : 1.3,
+              leftScale: data.leftScale !== undefined ? Number(data.leftScale) : 1.0,
+              leftX: data.leftX !== undefined ? Number(data.leftX) : 50,
+              leftY: data.leftY !== undefined ? Number(data.leftY) : 50,
+              rightScale: data.rightScale !== undefined ? Number(data.rightScale) : 1.0,
+              rightX: data.rightX !== undefined ? Number(data.rightX) : 80,
+              rightY: data.rightY !== undefined ? Number(data.rightY) : 50,
+              desktopHeight: data.desktopHeight || "90vh",
+              mobileHeight: data.mobileHeight || "auto",
+              mobileScale: data.mobileScale !== undefined ? Number(data.mobileScale) : 1.0,
+              mobileX: data.mobileX !== undefined ? Number(data.mobileX) : 50,
+              mobileY: data.mobileY !== undefined ? Number(data.mobileY) : 50,
+              logoDesktopSpawn: data.logoDesktopSpawn !== undefined ? Number(data.logoDesktopSpawn) : 50,
+              logoDesktopSpawn2: data.logoDesktopSpawn2 !== undefined ? Number(data.logoDesktopSpawn2) : 65,
+              logoDesktopStick: data.logoDesktopStick !== undefined ? Number(data.logoDesktopStick) : 0,
+              logoDesktopX: data.logoDesktopX !== undefined ? Number(data.logoDesktopX) : 0,
+              logoMobileSpawn: data.logoMobileSpawn !== undefined ? Number(data.logoMobileSpawn) : -50,
+              logoMobileSpawn2: data.logoMobileSpawn2 !== undefined ? Number(data.logoMobileSpawn2) : 50,
+              logoMobileStick: data.logoMobileStick !== undefined ? Number(data.logoMobileStick) : 0,
+              logoMobileX: data.logoMobileX !== undefined ? Number(data.logoMobileX) : -50,
+              logoHeaderDesktopHeight: data.logoHeaderDesktopHeight !== undefined ? Number(data.logoHeaderDesktopHeight) : 50,
+              logoHeaderMobileHeight: data.logoHeaderMobileHeight !== undefined ? Number(data.logoHeaderMobileHeight) : 36,
+              logoHomeDesktopWidth: data.logoHomeDesktopWidth !== undefined ? Number(data.logoHomeDesktopWidth) : 1200,
+              logoHomeMobileWidth: data.logoHomeMobileWidth !== undefined ? Number(data.logoHomeMobileWidth) : 88,
+              showGiftsButton: data.showGiftsButton !== false,
+              hideRightImageDesktop: !!data.hideRightImageDesktop
+            };
+            localStorage.setItem("minara_hero_settings", JSON.stringify(liveSettings));
+            if (window.applyHeroSettings) {
+              window.applyHeroSettings(liveSettings);
             }
-          } catch (jsonErr) {
-            console.warn("Failed to fetch static hero settings fallback:", jsonErr);
           }
+        } catch (jsonErr) {
+          console.warn("Failed to fetch static hero settings:", jsonErr);
         }
       }, 0);
 
-      // Fetch second hero settings from local json file first, fallback to Firestore
+      // Fetch second hero settings from local json file
       setTimeout(async () => {
-        let data = null;
         try {
           const response = await fetch("second_hero_settings.json?t=" + Date.now());
           if (response.ok) {
-            data = await response.json();
+            const data = await response.json();
+            const liveSettings = {
+              leftImage: data.leftImage || "",
+              rightImage: data.rightImage || "",
+              mobileImage: data.mobileImage || "",
+              leftFlex: data.leftFlex !== undefined ? Number(data.leftFlex) : 1.3,
+              leftScale: data.leftScale !== undefined ? Number(data.leftScale) : 1.0,
+              leftX: data.leftX !== undefined ? Number(data.leftX) : 50,
+              leftY: data.leftY !== undefined ? Number(data.leftY) : 50,
+              rightScale: data.rightScale !== undefined ? Number(data.rightScale) : 1.0,
+              rightX: data.rightX !== undefined ? Number(data.rightX) : 50,
+              rightY: data.rightY !== undefined ? Number(data.rightY) : 50,
+              desktopHeight: data.desktopHeight || "80vh",
+              mobileHeight: data.mobileHeight || "auto",
+              mobileScale: data.mobileScale !== undefined ? Number(data.mobileScale) : 1.0,
+              mobileX: data.mobileX !== undefined ? Number(data.mobileX) : 50,
+              mobileY: data.mobileY !== undefined ? Number(data.mobileY) : 50
+            };
+            localStorage.setItem("minara_second_hero_settings", JSON.stringify(liveSettings));
+            if (window.applySecondHeroSettings) {
+              window.applySecondHeroSettings(liveSettings);
+            }
           }
         } catch (jsonErr) {
-          console.warn("Failed to fetch second_hero_settings.json, trying Firestore fallback...", jsonErr);
-        }
-
-        if (!data) {
-          try {
-            if (window.db) {
-              const docSnap = await getDoc(doc(window.db, "settings", "second_hero"));
-              if (docSnap.exists()) {
-                data = docSnap.data();
-              }
-            }
-          } catch (dbErr) {
-            console.warn("Failed to fetch live second hero settings from Firestore fallback:", dbErr);
-          }
-        }
-
-        if (data) {
-          const liveSettings = {
-            leftImage: data.leftImage || "",
-            rightImage: data.rightImage || "",
-            mobileImage: data.mobileImage || "",
-            leftFlex: data.leftFlex !== undefined ? Number(data.leftFlex) : 1.3,
-            leftScale: data.leftScale !== undefined ? Number(data.leftScale) : 1.0,
-            leftX: data.leftX !== undefined ? Number(data.leftX) : 50,
-            leftY: data.leftY !== undefined ? Number(data.leftY) : 50,
-            rightScale: data.rightScale !== undefined ? Number(data.rightScale) : 1.0,
-            rightX: data.rightX !== undefined ? Number(data.rightX) : 50,
-            rightY: data.rightY !== undefined ? Number(data.rightY) : 50,
-            desktopHeight: data.desktopHeight || "80vh",
-            mobileHeight: data.mobileHeight || "auto",
-            mobileScale: data.mobileScale !== undefined ? Number(data.mobileScale) : 1.0,
-            mobileX: data.mobileX !== undefined ? Number(data.mobileX) : 50,
-            mobileY: data.mobileY !== undefined ? Number(data.mobileY) : 50
-          };
-          localStorage.setItem("minara_second_hero_settings", JSON.stringify(liveSettings));
-          if (window.applySecondHeroSettings) {
-            window.applySecondHeroSettings(liveSettings);
-          }
+          console.warn("Failed to fetch second_hero_settings.json:", jsonErr);
         }
       }, 0);
 
