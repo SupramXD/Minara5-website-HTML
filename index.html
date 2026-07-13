@@ -12,7 +12,6 @@
   <link rel="preload" href="minara 5 transparent.svg" as="image" type="image/svg+xml">
   <!-- Preload device-specific hero images to speed up LCP -->
   <link rel="preload" href="images/hero/left.avif" as="image" type="image/avif" media="(min-width: 901px)">
-  <link rel="preload" href="images/hero/right.png" as="image" type="image/png" media="(min-width: 901px)">
   <link rel="preload" href="images/hero/mobile.avif" as="image" type="image/avif" media="(max-width: 900px)">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
@@ -1657,7 +1656,7 @@
 
   </div>
 
-  <div id="bagsContainer">
+  <div id="bagsContainer" style="display: none;">
     <a id="bagsBtn" href="catalog.html">
       GIFTS <span id="shopNow">'SHOP NOW</span>
     </a>
@@ -1671,7 +1670,7 @@
     <div id="imgRWrapper" style="position:relative;flex:0.7%;">
       <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="imgR" style="width:100%;height:100%;object-fit:cover;"
         onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
-      <div class="mobile-bags"><a href="catalog.html">GIFTS 'SHOP NOW</a></div>
+      <div class="mobile-bags" style="display: none;"><a href="catalog.html">GIFTS 'SHOP NOW</a></div>
     </div>
   </section>
 
