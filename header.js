@@ -855,8 +855,9 @@ window.removeFromCart = function(index) {
                     removedScentsHtml += `</div>`;
                 }
                 html += `
-                <div class="cart-item-row removed-item-row" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eaeaea; padding:10px 15px; background:#fafafa; box-sizing:border-box; width:100%;">
+                <div class="cart-item-row removed-item-row" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eaeaea; border-left:3px solid #ff3b30; padding:10px 15px 10px 12px; background:#fafafa; box-sizing:border-box; width:100%;">
                     <div style="display:flex; flex-direction:column; gap:2px;">
+                        <span style="font-family:Helvetica, Arial, sans-serif; font-size:9px; font-weight:bold; color:#ff3b30; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:2px;">REMOVED</span>
                         ${window.formatCartInspiredNameHTML ? window.formatCartInspiredNameHTML(item.name, item.id, item.nameShort) : `<span style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:1px; color:#000;">${item.name}</span>`}
                         <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; opacity:0.5; letter-spacing:0.5px;">SIZE: ${(item.size || '100ml').toUpperCase()}</div>
                         ${removedScentsHtml}
