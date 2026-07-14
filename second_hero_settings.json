@@ -1,7 +1,7 @@
 {
-  "leftImage": "images/second-hero/left.avif",
-  "rightImage": "images/second-hero/right.avif",
-  "mobileImage": "images/second-hero/mobile.avif",
+  "leftImage": "images/second-hero/studio-extrait-perfumes.avif",
+  "rightImage": "images/second-hero/studio-extrait-perfumes-2.avif",
+  "mobileImage": "images/second-hero/studio-extrait-clone-fragrances.avif",
   "leftFlex": 1.4,
   "leftScale": 1,
   "leftX": 50,
