@@ -559,7 +559,7 @@ nav ul li a:hover{opacity:0.6;}
     font-size: 10px;
     letter-spacing: 1px;
     text-transform: uppercase;
-    font-weight: 500;
+    font-weight: bold;
     cursor: pointer;
     text-align: left;
     color: #000;
@@ -570,7 +570,7 @@ nav ul li a:hover{opacity:0.6;}
 }
 .accordion-icon {
     font-size: 11px;
-    font-weight: 300;
+    font-weight: bold;
     color: #000;
 }
 .accordion-content {
@@ -619,9 +619,7 @@ nav ul li a:hover{opacity:0.6;}
     margin-top: 0;
     margin-bottom: 0;
 }
-.slider.bundle-slider {
-    height: 100px !important;
-}
+
 .slider-track {
     display: flex;
     transition: transform 0.45s cubic-bezier(.45,0,.25,1);
@@ -633,20 +631,7 @@ nav ul li a:hover{opacity:0.6;}
     flex: 0 0 100%;
     user-select: none;
 }
-.slider.bundle-slider .slider-track img {
-    height: 100px !important;
-    object-fit: cover !important;
-    object-position: center !important;
-}
-@media (min-width: 901px) {
-    .slider.bundle-slider {
-        height: auto !important;
-    }
-    .slider.bundle-slider .slider-track img {
-        height: auto !important;
-        object-fit: contain !important;
-    }
-}
+
 .arrow {
     position: absolute;
     top: 50%;
@@ -789,7 +774,7 @@ nav ul li a:hover{opacity:0.6;}
 /* =============== REVIEWS BOTTOM SECTION OVERHAUL =============== */
 .reviews-section-wrapper {
     max-width: 1280px;
-    margin: 120px auto 40px;
+    margin: 240px auto 40px;
     padding: 0 60px;
     box-sizing: border-box;
     width: 100%;
@@ -805,7 +790,7 @@ nav ul li a:hover{opacity:0.6;}
 }
 @media (max-width: 900px) {
     .reviews-section-wrapper {
-        margin: 40px auto 30px;
+        margin: 140px auto 30px;
         padding: 0 20px;
         padding-top: 30px;
     }
@@ -1812,7 +1797,7 @@ footer{
             <div style="font-size: 10px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px;">Customize Your Bundle:</div>
             <div id="bundleChoicesWrap" style="display: flex; flex-direction: column; gap: 12px; position: relative;"></div>
         </div>        <button class="add-to-cart" id="addToBagBtn" disabled>ADD TO BAG</button>
-        <div style="font-size: 11px; color: #666; margin-top: 10px; margin-bottom: 25px; text-align: left; letter-spacing: 0.5px;">Complimentary shipping in South Africa. Delivery within 2–4 business days.</div>
+        <div style="font-size: 11px; color: #666; margin-top: 10px; margin-bottom: 25px; text-align: left; letter-spacing: 0.5px; line-height: 1.55;">Complimentary shipping in South Africa.<br>Delivery within 2–4 business days.</div>
 
         <!-- outOfStockNotifyContainer (kept intact) -->
         <div id="outOfStockNotifyContainer" style="display: none; width: 100%; margin-top: 10px; margin-bottom: 30px; background: #fafafa; border: 1px dashed #000; padding: 15px; box-sizing: border-box;">
@@ -1876,7 +1861,7 @@ footer{
         <!-- description element (kept as hidden/original mapping fallback) -->
         <div class="desc" style="display: none;"></div>
 
-        <a class="back-link" href="catalog.html" style="margin-bottom: 25px; margin-top: 15px;">← All Fragrances</a>
+        <a class="back-link" href="catalog.html" style="font-family: inherit; font-size: 10px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; text-decoration: none; color: #000; display: inline-flex; align-items: center; gap: 6px; margin-top: 25px; margin-bottom: 10px; transition: opacity 0.2s ease;">ALL FRAGRANCES ›</a>
 
     </div>
 
@@ -2322,12 +2307,24 @@ window.openCart = function() {
                     `;
 
                     const viewLink = document.createElement("a");
-                    viewLink.href = `template product.html?id=${prod.id}&bundleView=true&bundleParent=${p.id}&bundleSlot=${index}`;
-                    viewLink.textContent = "VIEW";
-                    viewLink.style.cssText = "font-size: 9px; color: #000; font-weight: normal; letter-spacing: 1px; text-decoration: underline; padding: 8px; flex-shrink: 0; user-select: none; z-index: 10;";
-                    viewLink.onclick = (e) => {
-                        e.stopPropagation();
-                    };
+                    const isMobile = window.innerWidth <= 900;
+                    if (isMobile) {
+                        viewLink.href = "#";
+                        viewLink.textContent = "ADD";
+                        viewLink.style.cssText = "font-size: 9px; color: #000; font-weight: bold; letter-spacing: 0.5px; text-decoration: underline; padding: 8px; flex-shrink: 0; user-select: none; z-index: 10;";
+                        viewLink.onclick = (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            leftContainer.click();
+                        };
+                    } else {
+                        viewLink.href = `template product.html?id=${prod.id}&bundleView=true&bundleParent=${p.id}&bundleSlot=${index}`;
+                        viewLink.textContent = "VIEW";
+                        viewLink.style.cssText = "font-size: 9px; color: #000; font-weight: normal; letter-spacing: 0.5px; text-decoration: underline; padding: 8px; flex-shrink: 0; user-select: none; z-index: 10;";
+                        viewLink.onclick = (e) => {
+                            e.stopPropagation();
+                        };
+                    }
 
                     itemEl.appendChild(leftContainer);
                     itemEl.appendChild(viewLink);
@@ -2402,19 +2399,17 @@ window.openCart = function() {
                 const hasPreselected = selectedScents[i] !== null;
 
                 slot.innerHTML = `
-                    <div style="font-size: 8px; opacity: 0.5; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Fragrance ${i + 1}</div>
-                    
-                    <div class="bundle-scent-display-box" style="display: ${hasPreselected ? 'flex' : 'none'}; align-items: center; gap: 12px; border-bottom: 0.5px solid #000; padding: 12px 0; min-height: 48px; box-sizing: border-box; width: 100%;">
+                    <div class="bundle-scent-display-box" style="display: ${hasPreselected ? 'flex' : 'none'}; align-items: center; gap: 12px; border: 0.5px solid #000; padding: 12px 15px; margin-bottom: 12px; min-height: 48px; box-sizing: border-box; width: 100%;">
                         <img class="selected-scent-img" src="${hasPreselected ? selectedScents[i].image : ''}" style="width: 24px; height: 32px; object-fit: contain; flex-shrink: 0; border: none; background: transparent;">
                         <div style="display: flex; flex-direction: column; flex-grow: 1; min-width: 0;">
-                            <span class="selected-scent-name" style="font-size: 11px; font-weight: normal; text-transform: uppercase; letter-spacing: 1px; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${hasPreselected ? (selectedScents[i].nameShort || selectedScents[i].name).toUpperCase() + ' - 50ML' : ''}</span>
-                            <span class="selected-scent-inspired" style="font-size: 8.5px; color: #777; letter-spacing: 0.8px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">${hasPreselected && selectedScents[i].inspiredBy ? `<span style="opacity: 0.6; font-size: 8px;">INSPIRED BY</span> ` + selectedScents[i].inspiredBy.toUpperCase() : ''}</span>
+                            <span class="selected-scent-name" style="font-size: 11px; font-weight: normal; text-transform: uppercase; letter-spacing: 0.5px; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${hasPreselected ? (selectedScents[i].nameShort || selectedScents[i].name).toUpperCase() + ' - 50ML' : ''}</span>
+                            <span class="selected-scent-inspired" style="font-size: 8.5px; color: #777; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">${hasPreselected && selectedScents[i].inspiredBy ? `<span style="opacity: 0.6; font-size: 8px;">INSPIRED BY</span> ` + selectedScents[i].inspiredBy.toUpperCase() : ''}</span>
                         </div>
-                        <span class="bundle-scent-switch" style="cursor: pointer; font-size: 9px; color: #000; font-weight: normal; letter-spacing: 1px; text-transform: uppercase; text-decoration: underline; flex-shrink: 0; user-select: none;">SWITCH</span>
+                        <span class="bundle-scent-switch" style="cursor: pointer; font-size: 9px; color: #000; font-weight: normal; letter-spacing: 0.5px; text-transform: uppercase; text-decoration: underline; flex-shrink: 0; user-select: none;">SWITCH</span>
                     </div>
 
-                    <div class="bundle-scent-input-box" style="position: relative; display: ${hasPreselected ? 'none' : 'flex'}; align-items: center; border-bottom: 0.5px solid #000; padding: 12px 0; min-height: 48px; box-sizing: border-box; width: 100%;">
-                        <input type="text" class="bundle-scent-input" placeholder="SELECT FRAGRANCE ${i + 1} →" autocomplete="off" style="border: none; width: 100%; font-size: 10.5px; outline: none; font-family: inherit; letter-spacing: 1.5px; text-transform: uppercase; background: transparent; color: #000;">
+                    <div class="bundle-scent-input-box" style="position: relative; display: ${hasPreselected ? 'none' : 'flex'}; align-items: center; border: 0.5px solid #000; padding: 12px 15px; margin-bottom: 12px; min-height: 48px; box-sizing: border-box; width: 100%;">
+                        <input type="text" class="bundle-scent-input" placeholder="SELECT FRAGRANCE ${i + 1} →" autocomplete="off" style="border: none; width: 100%; font-size: 10.5px; outline: none; font-family: inherit; letter-spacing: 0.5px; text-transform: uppercase; background: transparent; color: #000;">
                     </div>
                     
                     <div class="bundle-dropdown" style="display: none; position: absolute; left: 0; right: 0; top: 100%; background: #fff; border: 1px solid #000; border-top: none; z-index: 1000; max-height: 220px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>
@@ -2706,7 +2701,11 @@ window.openCart = function() {
 
             const nameShortEl = document.querySelector('.product-name-short');
             if (nameShortEl) {
-                nameShortEl.textContent = (p.nameShort || p.name).toUpperCase();
+                let nameText = (p.nameShort || p.name).toUpperCase();
+                if (p.isBundle) {
+                    nameText += " BUNDLE";
+                }
+                nameShortEl.textContent = nameText;
                 nameShortEl.style.display = 'block';
             }
 
@@ -2779,7 +2778,7 @@ window.openCart = function() {
                     if (discountBadge) discountBadge.style.display = 'none';
                 }
                 
-                if (retailPriceRow && p.retailPrice) {
+                if (retailPriceRow && p.retailPrice && !p.isBundle) {
                     const retailPriceValEl = retailPriceRow.querySelector('.product-retail-price');
                     if (retailPriceValEl) {
                         retailPriceValEl.textContent = `Retail Price: R${formatRetailPrice(p.retailPrice)}`;
