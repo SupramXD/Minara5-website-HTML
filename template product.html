@@ -344,25 +344,27 @@ nav ul li a:hover{opacity:0.6;}
     gap: 12px;
 }
 .size-picker-btn {
-    border: 1px solid #000;
+    border: 0.5px solid #ccc;
     background: transparent;
     color: #000;
-    padding: 12px 24px;
+    padding: 8px 16px;
     font-family: inherit;
-    font-size: 11px;
-    font-weight: bold;
+    font-size: 10px;
+    font-weight: normal;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
-    border-radius: 2px;
+    transition: all 0.2s ease;
+    border-radius: 0;
 }
 .size-picker-btn.active {
     background: #000;
     color: #fff;
+    border-color: #000;
 }
 .size-picker-btn:hover:not(.active) {
-    background: #f5f5f5;
+    background: #fafafa;
+    border-color: #000;
 }
 
 /* =============== ADD TO BAG / OUT OF STOCK =============== */
@@ -536,12 +538,12 @@ nav ul li a:hover{opacity:0.6;}
 /* =============== ACCORDIONS =============== */
 .accordion-container {
     width: 100%;
-    border-top: 1px solid #eaeaea;
+    border-top: 0.5px solid #E5E5E5;
     margin-bottom: 40px;
     text-align: left;
 }
 .accordion-item {
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 0.5px solid #E5E5E5;
     width: 100%;
 }
 .accordion-header {
@@ -551,12 +553,12 @@ nav ul li a:hover{opacity:0.6;}
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 0;
-    font-family: 'Gotham Narrow Bold', sans-serif;
-    font-size: 11px;
-    letter-spacing: 1.5px;
+    padding: 14px 0;
+    font-family: inherit;
+    font-size: 10px;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    font-weight: 900;
+    font-weight: 500;
     cursor: pointer;
     text-align: left;
     color: #000;
@@ -566,9 +568,9 @@ nav ul li a:hover{opacity:0.6;}
     opacity: 0.7;
 }
 .accordion-icon {
-    font-size: 14px;
-    font-weight: normal;
-    color: #000;
+    font-size: 10px;
+    font-weight: 300;
+    color: #999;
 }
 .accordion-content {
     max-height: 0;
@@ -700,23 +702,19 @@ nav ul li a:hover{opacity:0.6;}
     color: #333;
 }
 .back-link {
-    font-size: 10px;
-    letter-spacing: 1.5px;
+    font-size: 9px;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    opacity: 0.65;
-    padding: 10px 20px;
     color: #000;
     text-decoration: none;
-    border: 1px solid #000;
-    font-weight: bold;
-    transition: all 0.25s ease;
+    font-weight: normal;
+    transition: opacity 0.2s ease;
     display: inline-block;
-    border-radius: 2px;
 }
 .back-link:hover {
-    background: #000;
-    color: #fff;
-    opacity: 1;
+    opacity: 0.6;
+    background: transparent;
+    color: #000;
 }
 
 /* =============== PAGE LAYOUT STRUCTURE =============== */
@@ -783,6 +781,37 @@ nav ul li a:hover{opacity:0.6;}
     }
     body.keyboard-active .page-wrap {
         margin-top: 15px !important;
+    }
+}
+
+/* =============== REVIEWS BOTTOM SECTION OVERHAUL =============== */
+.reviews-section-wrapper {
+    max-width: 1100px;
+    margin: 60px auto 40px;
+    padding: 0 40px;
+    box-sizing: border-box;
+    width: 100%;
+    border-top: 0.5px solid #E5E5E5;
+    padding-top: 50px;
+}
+#reviewsList {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px 60px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+@media (max-width: 900px) {
+    .reviews-section-wrapper {
+        margin: 40px auto 30px;
+        padding: 0 20px;
+        padding-top: 30px;
+    }
+}
+@media (max-width: 768px) {
+    #reviewsList {
+        grid-template-columns: 1fr;
+        gap: 30px;
     }
 }
 
@@ -1684,23 +1713,10 @@ footer{
     <div class="product-info-wrap">
 
 
-        <div class="badge-container">
-            <span class="badge badge-accent" id="badgeInspired" style="display: none;">Inspired Scent</span>
-            <span class="badge">Extrait de Parfum</span>
-            <span class="badge" id="badgeGender">Unisex</span>
-            <span class="badge">Premium Formulation</span>
-        </div>
-
         <div class="product-flair" style="font-size: 10px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; display: none; color: #1a1a1a;"></div>
-        <h1 class="product-name-short" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; margin-bottom: 6px; color: #000; line-height: 1.15; text-align: left; display: none;"></h1>
-        <div class="product-title" style="font-family: Helvetica, Arial, sans-serif; font-size: 10px; font-weight: bold; opacity: 0.6; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 0; margin-bottom: 12px; color: #000; line-height: 1.4; text-align: left;">Loading Product...</div>
+        <h1 class="product-name-short" style="font-family: 'Gotham Narrow Bold', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0; margin-bottom: 6px; color: #000; line-height: 1.15; text-align: left; display: none;"></h1>
+        <div class="product-title" style="font-family: inherit; font-size: 9px; font-weight: 500; opacity: 0.5; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; margin-bottom: 15px; color: #000; line-height: 1.4; text-align: left;">Loading Product...</div>
         <div class="product-type-subtitle" style="display: none;">Extrait de Parfum</div>
-        
-        <!-- Star Rating summary under title -->
-        <div class="reviews-stars-summary" onclick="document.querySelector('.reviews-section').scrollIntoView({behavior: 'smooth'})">
-            <span class="stars-gold">★★★★★</span>
-            <span class="reviews-count-text" id="reviewsCountSummary">0 reviews</span>
-        </div>
 
         <!-- Price container -->
         <div class="price-container">
@@ -1710,16 +1726,12 @@ footer{
             </div>
             <div class="retail-price-row" id="retailPriceRow" style="display: none;">
                 <span class="product-retail-price">R0</span>
-                <span class="comparison-note" id="comparisonNote">SAVE 80%</span>
             </div>
         </div>
 
-        <!-- Stock Level Indicator -->
-        <div class="product-stock" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 9px; letter-spacing: 1.5px; margin-bottom: 20px; display: none;"></div>
-
         <!-- Size Selection Container -->
         <div id="sizePickerContainer" style="display: none;">
-            <div style="font-size: 10px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;">Select Size:</div>
+            <div style="font-size: 10px; font-weight: normal; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; color: #666;">Size:</div>
             <div id="sizePickerOptions"></div>
         </div>
 
@@ -1798,11 +1810,8 @@ footer{
             </style>
             <div style="font-size: 10px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px;">Customize Your Bundle:</div>
             <div id="bundleChoicesWrap" style="display: flex; flex-direction: column; gap: 12px; position: relative;"></div>
-        </div>
-
-        <button class="add-to-cart" id="addToBagBtn" disabled>ADD TO BAG</button>
-
-
+        </div>        <button class="add-to-cart" id="addToBagBtn" disabled>ADD TO BAG</button>
+        <div style="font-size: 11px; color: #666; margin-top: 10px; margin-bottom: 25px; text-align: left; letter-spacing: 0.5px;">Complimentary shipping in South Africa. Delivery within 2–4 business days.</div>
 
         <!-- outOfStockNotifyContainer (kept intact) -->
         <div id="outOfStockNotifyContainer" style="display: none; width: 100%; margin-top: 10px; margin-bottom: 30px; background: #fafafa; border: 1px dashed #000; padding: 15px; box-sizing: border-box;">
@@ -1813,33 +1822,6 @@ footer{
                 <button type="submit" style="background: transparent; border: none; font-size: 10px; font-weight: bold; color: #1106e8; cursor: pointer; padding: 0 5px; font-family: inherit; letter-spacing: 1px;">SUBMIT</button>
             </form>
             <div id="outOfStockNotifySuccess" style="display: none; color: #2e7d32; font-size: 9px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; margin-top: 8px;">✓ Thank you! We will notify you.</div>
-        </div>
-
-        <!-- Dynamic Timeline Estimate Card -->
-        <div class="delivery-estimate-card">
-            <div class="estimate-text">
-                <svg class="clock-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                <span>Order within <strong id="deliveryTimer">12 hours</strong>, receive your package between <strong id="deliveryDates">Loading...</strong></span>
-            </div>
-            <div class="timeline-visual">
-                <div class="timeline-step active">
-                    <div class="step-dot"></div>
-                    <div class="step-label">Ordered</div>
-                    <div class="step-date" id="timelineDate1">Jun 26</div>
-                </div>
-                <div class="timeline-line"></div>
-                <div class="timeline-step active">
-                    <div class="step-dot"></div>
-                    <div class="step-label">Processing</div>
-                    <div class="step-date" id="timelineDate2">Jun 27-29</div>
-                </div>
-                <div class="timeline-line"></div>
-                <div class="timeline-step">
-                    <div class="step-dot-delivery"></div>
-                    <div class="step-label">Delivered</div>
-                    <div class="step-date" id="timelineDate3">Jun 30</div>
-                </div>
-            </div>
         </div>
 
         <!-- Custom Collapsible Accordions -->
@@ -1893,74 +1875,76 @@ footer{
         <!-- description element (kept as hidden/original mapping fallback) -->
         <div class="desc" style="display: none;"></div>
 
-        <a class="back-link" href="catalog.html" style="margin-bottom: 25px; margin-top: 15px;">← back to catalog</a>
-
-        <!-- REVIEWS SECTION -->
-        <div class="reviews-section" style="width: 100%; margin-top: 40px; border-top: 1px solid #000; padding-top: 30px; text-align: left;">
-            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
-                <h3 style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; margin: 0;">Customer Reviews</h3>
-                <span id="reviewsAverage" style="font-size: 10px; opacity: 0.6; letter-spacing: 0.5px;">Loading...</span>
-            </div>
-
-            <div id="reviewsList" style="margin-bottom: 25px; display: flex; flex-direction: column; gap: 20px;">
-                <div style="font-size: 10px; opacity: 0.5; font-style: italic;">Loading reviews...</div>
-            </div>
-
-            <!-- Reviews Pagination Section -->
-            <div id="reviewsPagination" style="display: none; margin-bottom: 25px; flex-direction: column; gap: 10px; width: 100%;">
-                <button id="seeMoreReviewsBtn" class="reviews-btn-outline" onclick="window.seeMoreReviews()">See More</button>
-                <button id="viewAllReviewsBtn" class="reviews-btn-solid" onclick="window.viewAllReviews()">View All Reviews</button>
-            </div>
-
-            <!-- Toggle form button -->
-            <button id="toggleReviewFormBtn" onclick="window.toggleReviewForm()" style="background: transparent; border: 1px solid #000; color: #000; padding: 10px 15px; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; width: 100%; font-family: inherit; font-weight: bold; transition: background 0.25s, color 0.25s;">Write A Review</button>
-
-            <!-- Review Form (hidden by default) -->
-            <form id="reviewForm" onsubmit="window.submitReview(event)" style="display: none; margin-top: 20px; border: 1px solid #eaeaea; padding: 20px; background: #fafafa;">
-                <h4 style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 15px; margin-top: 0;">Submit Your Review</h4>
-                
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold;">Your Rating</label>
-                    <div style="display: flex; gap: 6px;" id="starRatingSelector">
-                        <!-- Dynamic Interactive Stars (5 starts loaded as default fill) -->
-                        <span class="star-select" data-value="1" onclick="window.setFormRating(1)" style="cursor: pointer; display: inline-flex;">
-                            <svg width="19" height="19" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        </span>
-                        <span class="star-select" data-value="2" onclick="window.setFormRating(2)" style="cursor: pointer; display: inline-flex;">
-                            <svg width="19" height="19" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        </span>
-                        <span class="star-select" data-value="3" onclick="window.setFormRating(3)" style="cursor: pointer; display: inline-flex;">
-                            <svg width="19" height="19" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        </span>
-                        <span class="star-select" data-value="4" onclick="window.setFormRating(4)" style="cursor: pointer; display: inline-flex;">
-                            <svg width="19" height="19" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        </span>
-                        <span class="star-select" data-value="5" onclick="window.setFormRating(5)" style="cursor: pointer; display: inline-flex;">
-                            <svg width="19" height="19" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                        </span>
-                    </div>
-                    <input type="hidden" id="reviewRatingInput" value="5" required>
-                </div>
-
-                <div style="margin-bottom: 15px;">
-                    <label for="reviewName" style="display: block; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold;">Your Name</label>
-                    <input type="text" id="reviewName" placeholder="e.g. Sarah M." required style="width: 100%; border: 1px solid #ccc; padding: 10px; font-size: 10px; font-family: inherit; outline: none; background: #fff; border-radius: 0;">
-                </div>
-
-                <div style="margin-bottom: 15px;">
-                    <label for="reviewText" style="display: block; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold;">Review Details</label>
-                    <textarea id="reviewText" rows="4" placeholder="Share your experience with this fragrance..." required style="width: 100%; border: 1px solid #ccc; padding: 10px; font-size: 10px; font-family: inherit; resize: vertical; outline: none; background: #fff; border-radius: 0;"></textarea>
-                </div>
-
-                <div style="display: flex; gap: 10px;">
-                    <button type="button" onclick="window.toggleReviewForm()" style="background: transparent; border: 1px solid #ccc; color: #555; padding: 8px 10px; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; flex: 1; font-family: inherit;">Cancel</button>
-                    <button type="submit" style="background: #000; border: 1px solid #000; color: #fff; padding: 8px 10px; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; flex: 2; font-family: inherit; font-weight: bold;">Submit Review</button>
-                </div>
-            </form>
-        </div>
+        <a class="back-link" href="catalog.html" style="margin-bottom: 25px; margin-top: 15px;">← All Fragrances</a>
 
     </div>
 
+</div>
+
+<div class="reviews-section-wrapper">
+    <!-- REVIEWS SECTION -->
+    <div class="reviews-section" style="width: 100%; text-align: left;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; border-bottom: 0.5px solid #E5E5E5; padding-bottom: 15px;">
+            <h3 style="font-family: inherit; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; margin: 0; color: #000;">Customer Reviews</h3>
+            <span id="reviewsAverage" style="font-size: 10px; opacity: 0.6; letter-spacing: 0.5px;">Loading...</span>
+        </div>
+
+        <div id="reviewsList">
+            <div style="font-size: 10px; opacity: 0.5; font-style: italic;">Loading reviews...</div>
+        </div>
+
+        <!-- Reviews Pagination Section -->
+        <div id="reviewsPagination" style="display: none; margin-bottom: 25px; flex-direction: column; gap: 10px; width: 100%;">
+            <button id="seeMoreReviewsBtn" class="reviews-btn-outline" onclick="window.seeMoreReviews()">See More</button>
+            <button id="viewAllReviewsBtn" class="reviews-btn-solid" onclick="window.viewAllReviews()">View All Reviews</button>
+        </div>
+
+        <!-- Toggle form button -->
+        <button id="toggleReviewFormBtn" onclick="window.toggleReviewForm()" style="background: transparent; border: 1px solid #000; color: #000; padding: 10px 15px; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; width: 100%; font-family: inherit; font-weight: bold; transition: background 0.25s, color 0.25s; margin-top: 15px;">Write A Review</button>
+
+        <!-- Review Form (hidden by default) -->
+        <form id="reviewForm" onsubmit="window.submitReview(event)" style="display: none; margin-top: 20px; border: 0.5px solid #E5E5E5; padding: 25px; background: #fff;">
+            <h4 style="font-family: inherit; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 20px; margin-top: 0; color: #000;">Submit Your Review</h4>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold;">Your Rating</label>
+                <div style="display: flex; gap: 6px;" id="starRatingSelector">
+                    <!-- Dynamic Interactive Stars (5 starts loaded as default fill) -->
+                    <span class="star-select" data-value="1" onclick="window.setFormRating(1)" style="cursor: pointer; display: inline-flex;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#000" stroke="#000" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </span>
+                    <span class="star-select" data-value="2" onclick="window.setFormRating(2)" style="cursor: pointer; display: inline-flex;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#000" stroke="#000" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </span>
+                    <span class="star-select" data-value="3" onclick="window.setFormRating(3)" style="cursor: pointer; display: inline-flex;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#000" stroke="#000" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </span>
+                    <span class="star-select" data-value="4" onclick="window.setFormRating(4)" style="cursor: pointer; display: inline-flex;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#000" stroke="#000" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </span>
+                    <span class="star-select" data-value="5" onclick="window.setFormRating(5)" style="cursor: pointer; display: inline-flex;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#000" stroke="#000" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </span>
+                </div>
+                <input type="hidden" id="reviewRatingInput" value="5" required>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label for="reviewName" style="display: block; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold;">Your Name</label>
+                <input type="text" id="reviewName" placeholder="e.g. Sarah M." required style="width: 100%; border: 0.5px solid #ccc; padding: 10px; font-size: 10px; font-family: inherit; outline: none; background: #fff; border-radius: 0;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label for="reviewText" style="display: block; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold;">Review Details</label>
+                <textarea id="reviewText" rows="4" placeholder="Share your experience with this fragrance..." required style="width: 100%; border: 0.5px solid #ccc; padding: 10px; font-size: 10px; font-family: inherit; resize: vertical; outline: none; background: #fff; border-radius: 0;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button type="button" onclick="window.toggleReviewForm()" style="background: transparent; border: 0.5px solid #ccc; color: #555; padding: 8px 10px; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; flex: 1; font-family: inherit;">Cancel</button>
+                <button type="submit" style="background: #000; border: 1px solid #000; color: #fff; padding: 8px 10px; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; flex: 2; font-family: inherit; font-weight: bold;">Submit Review</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- TRUST BANNER -->
@@ -2633,8 +2617,8 @@ window.openCart = function() {
                         const avg = (ratingData.total / ratingData.count).toFixed(1);
                         reviewsHTML = `
                             <div class="drawer-item-reviews" style="display: flex; align-items: center; gap: 2px; margin-top: 2px;">
-                                <span style="color: #FFC107; font-size: 9px; letter-spacing: 0.5px; line-height: 1;">★</span>
-                                <span style="font-size: 8px; font-weight: bold; color: #cea44c; line-height: 1;">${avg}</span>
+                                <span style="color: #000; font-size: 9px; letter-spacing: 0.5px; line-height: 1;">★</span>
+                                <span style="font-size: 8px; font-weight: bold; color: #000; line-height: 1;">${avg}</span>
                                 <span style="font-size: 8px; color: #888; line-height: 1;">(${ratingData.count})</span>
                             </div>
                         `;
@@ -2795,9 +2779,9 @@ window.openCart = function() {
                     const match = escapedName.match(/Inspired\s+by\s+(.+)/i);
                     if (match || (p.id && p.id.startsWith("inspired-by-"))) {
                         const fragranceName = match ? match[1] : escapedName;
-                        titleEl.innerHTML = `Inspired By <i style="font-family: inherit; font-style: italic; font-weight: bold; text-transform: uppercase;">${formatBrandName(fragranceName)}</i>`;
+                        titleEl.innerHTML = `COLLECTION: INSPIRED BY ${formatBrandName(fragranceName).toUpperCase()}`;
                     } else {
-                        titleEl.innerHTML = escapedName;
+                        titleEl.innerHTML = escapedName.toUpperCase();
                     }
                     titleEl.style.display = 'block';
                 } else {
@@ -3343,10 +3327,10 @@ window.openCart = function() {
             const starValue = index + 1;
             if (starValue <= rating) {
                 // Filled star SVG
-                star.innerHTML = `<svg width="19" height="19" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                star.innerHTML = `<svg width="19" height="19" viewBox="0 0 24 24" fill="#000" stroke="#000" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
             } else {
                 // Outline star SVG
-                star.innerHTML = `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                star.innerHTML = `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
             }
         });
     };
@@ -3356,9 +3340,9 @@ window.openCart = function() {
         let starsHTML = "";
         for (let i = 1; i <= 5; i++) {
             if (i <= review.rating) {
-                starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                starsHTML += `<svg width="11" height="11" viewBox="0 0 24 24" fill="#000" stroke="#000" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
             } else {
-                starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                starsHTML += `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
             }
         }
 
@@ -3367,13 +3351,13 @@ window.openCart = function() {
         const dateStr = review.timestamp ? new Date(review.timestamp).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "";
 
         return `
-            <div style="border-bottom: 1px solid #f2f2f2; padding-bottom: 15px; margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
-                    <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">${cleanName}</span>
-                    <span style="font-size: 8px; opacity: 0.5;">${dateStr}</span>
+            <div class="review-item-card" style="border-bottom: 0.5px solid #E5E5E5; padding-bottom: 25px; margin-bottom: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+                    <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #000;">${cleanName}</span>
+                    <span style="font-size: 8px; opacity: 0.4; letter-spacing: 0.5px;">${dateStr}</span>
                 </div>
-                <div style="margin-bottom: 8px; display: flex; align-items: center;">${starsHTML}</div>
-                <div style="font-size: 10px; opacity: 0.85; line-height: 1.45; white-space: pre-wrap;">${cleanText}</div>
+                <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 2px;">${starsHTML}</div>
+                <div style="font-size: 11px; opacity: 0.8; line-height: 1.6; white-space: pre-wrap; font-family: inherit; color: #333;">${cleanText}</div>
             </div>
         `;
     }
