@@ -759,6 +759,15 @@ nav ul li a:hover{opacity:0.6;}
         max-width: 380px !important;
         aspect-ratio: 1 / 1;
     }
+    .slider.bundle-slider {
+        height: 40vh !important;
+        aspect-ratio: auto !important;
+        max-height: 260px !important;
+    }
+    .slider.bundle-slider .slider-track img {
+        height: 100% !important;
+        object-fit: contain !important;
+    }
     .product-info-wrap {
         width: 100% !important;
         max-width: 100% !important;
@@ -1861,7 +1870,7 @@ footer{
         <!-- description element (kept as hidden/original mapping fallback) -->
         <div class="desc" style="display: none;"></div>
 
-        <a class="back-link" href="catalog.html" style="font-family: inherit; font-size: 10px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; text-decoration: none; color: #000; display: inline-flex; align-items: center; gap: 6px; margin-top: 25px; margin-bottom: 10px; transition: opacity 0.2s ease;">ALL FRAGRANCES ›</a>
+        <a class="back-link" href="catalog.html" style="font-family: inherit; font-size: 10px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; text-decoration: none; color: #000; display: inline-flex; align-items: center; gap: 6px; margin-top: 25px; margin-bottom: 10px; transition: opacity 0.2s ease;">‹ ALL FRAGRANCES</a>
 
     </div>
 
@@ -2307,24 +2316,14 @@ window.openCart = function() {
                     `;
 
                     const viewLink = document.createElement("a");
-                    const isMobile = window.innerWidth <= 900;
-                    if (isMobile) {
-                        viewLink.href = "#";
-                        viewLink.textContent = "ADD";
-                        viewLink.style.cssText = "font-size: 9px; color: #000; font-weight: bold; letter-spacing: 0.5px; text-decoration: underline; padding: 8px; flex-shrink: 0; user-select: none; z-index: 10;";
-                        viewLink.onclick = (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            leftContainer.click();
-                        };
-                    } else {
-                        viewLink.href = `template product.html?id=${prod.id}&bundleView=true&bundleParent=${p.id}&bundleSlot=${index}`;
-                        viewLink.textContent = "VIEW";
-                        viewLink.style.cssText = "font-size: 9px; color: #000; font-weight: normal; letter-spacing: 0.5px; text-decoration: underline; padding: 8px; flex-shrink: 0; user-select: none; z-index: 10;";
-                        viewLink.onclick = (e) => {
-                            e.stopPropagation();
-                        };
-                    }
+                    viewLink.href = "#";
+                    viewLink.textContent = "ADD";
+                    viewLink.style.cssText = "font-size: 9px; color: #000; font-weight: bold; letter-spacing: 0.5px; text-decoration: underline; padding: 8px; flex-shrink: 0; user-select: none; z-index: 10;";
+                    viewLink.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        leftContainer.click();
+                    };
 
                     itemEl.appendChild(leftContainer);
                     itemEl.appendChild(viewLink);
@@ -2377,7 +2376,7 @@ window.openCart = function() {
                     addToBagBtn.style.display = originalDisplay;
                     
                     // Dynamic text visual connection cue
-                    const selectionsLabel = selectedScents.map(s => s.name.toUpperCase()).join(" + ");
+                    const selectionsLabel = selectedScents.map(s => s.nameShort.toUpperCase()).join(" + ");
                     addToBagBtn.innerHTML = `ADD TO BAG (${selectionsLabel})`;
                     
                     addToBagBtn.disabled = false;
