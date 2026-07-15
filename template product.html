@@ -760,9 +760,12 @@ nav ul li a:hover{opacity:0.6;}
         aspect-ratio: 1 / 1;
     }
     .slider.bundle-slider {
-        height: 40vh !important;
+        height: 25vh !important;
         aspect-ratio: auto !important;
-        max-height: 260px !important;
+        max-height: 180px !important;
+    }
+    .slider.bundle-slider .slider-track {
+        height: 100% !important;
     }
     .slider.bundle-slider .slider-track img {
         height: 100% !important;
@@ -1725,6 +1728,13 @@ footer{
             </div>
         </div>
 
+        <!-- Top Rating Summary Link -->
+        <div id="topRatingSummary" style="display: none; align-items: center; gap: 6px; font-size: 11px; cursor: pointer; margin-top: -10px; margin-bottom: 20px; user-select: none;" onclick="window.scrollToReviews()">
+            <span id="topRatingValue" style="font-weight: bold; color: #000; font-size: 11px; letter-spacing: 0.2px;">0.0</span>
+            <span id="topRatingStars" style="display: inline-flex; align-items: center; vertical-align: middle;"></span>
+            <span id="topRatingCount" style="opacity: 0.5; font-size: 11px; letter-spacing: 0.2px;">(0 reviews)</span>
+        </div>
+
         <!-- Size Selection Container -->
         <div id="sizePickerContainer" style="display: none; margin-bottom: 15px;">
             <div id="sizePickerOptions" style="display: flex; gap: 15px;"></div>
@@ -1950,6 +1960,13 @@ footer{
 <footer>© 2026 STUDIO EXTRAIT</footer>
 
 <script>
+
+window.scrollToReviews = function() {
+    const reviewsSec = document.querySelector(".reviews-section-wrapper");
+    if (reviewsSec) {
+        reviewsSec.scrollIntoView({ behavior: "smooth" });
+    }
+};
 
 /* MENU */
 function openMenu(){ document.getElementById("menuPanel").classList.add("open"); }
@@ -2322,7 +2339,7 @@ window.openCart = function() {
                     const viewLink = document.createElement("a");
                     viewLink.href = "#";
                     viewLink.textContent = "ADD";
-                    viewLink.style.cssText = "font-size: 9px; color: #000; font-weight: bold; letter-spacing: 0.5px; text-decoration: underline; padding: 8px; flex-shrink: 0; user-select: none; z-index: 10;";
+                    viewLink.style.cssText = "font-size: 9px; color: #fff; background: #000; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; text-decoration: none; padding: 5px 12px; flex-shrink: 0; user-select: none; z-index: 10; border: none; text-align: center; display: inline-flex; align-items: center; justify-content: center; min-width: 45px; height: 24px; box-sizing: border-box; border-radius: 0;";
                     viewLink.onclick = (e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -3312,7 +3329,11 @@ window.openCart = function() {
     function buildReviewHTML(review) {
         let starsHTML = "";
         for (let i = 1; i <= 5; i++) {
-            starsHTML += i <= review.rating ? "★" : "☆";
+            if (i <= review.rating) {
+                starsHTML += `<svg width="11" height="11" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+            } else {
+                starsHTML += `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+            }
         }
 
         const cleanName = window.escapeHTML ? window.escapeHTML(review.name) : review.name;
@@ -3323,8 +3344,8 @@ window.openCart = function() {
             <div class="review-item-card" style="border-bottom: 0.5px solid #eee; padding: 20px 0; margin-bottom: 0; box-sizing: border-box;">
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
                     <div style="display: flex; align-items: baseline; gap: 8px;">
-                        <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #000;">${cleanName}</span>
-                        <span style="font-size: 9px; letter-spacing: 1px; color: #000;">${starsHTML}</span>
+                        <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #000;">${cleanName}</span>
+                        <span style="display: inline-flex; align-items: center;">${starsHTML}</span>
                     </div>
                     <span style="font-size: 8px; opacity: 0.4; letter-spacing: 0.5px;">${dateStr}</span>
                 </div>
@@ -3417,12 +3438,42 @@ window.openCart = function() {
 
             if (count > 0) {
                 reviewsAverage.textContent = `(${count})`;
+                const avg = (totalRating / count).toFixed(1);
+                
+                // Update top summary
+                const topRatingSummary = document.getElementById("topRatingSummary");
+                const topRatingValue = document.getElementById("topRatingValue");
+                const topRatingStars = document.getElementById("topRatingStars");
+                const topRatingCount = document.getElementById("topRatingCount");
+                
+                if (topRatingSummary) {
+                    if (topRatingValue) topRatingValue.textContent = avg;
+                    if (topRatingCount) topRatingCount.textContent = `(${count} ${count === 1 ? 'review' : 'reviews'})`;
+                    
+                    if (topRatingStars) {
+                        let starsHTML = "";
+                        const roundedAvg = Math.round(avg);
+                        for (let i = 1; i <= 5; i++) {
+                            if (i <= roundedAvg) {
+                                starsHTML += `<svg width="11" height="11" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                            } else {
+                                starsHTML += `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                            }
+                        }
+                        topRatingStars.innerHTML = starsHTML;
+                    }
+                    topRatingSummary.style.display = "inline-flex";
+                }
+                
                 const reviewsCountSummary = document.getElementById('reviewsCountSummary');
                 if (reviewsCountSummary) {
                     reviewsCountSummary.textContent = `${count} ${count === 1 ? 'review' : 'reviews'}`;
                 }
             } else {
                 reviewsAverage.textContent = "(0)";
+                const topRatingSummary = document.getElementById("topRatingSummary");
+                if (topRatingSummary) topRatingSummary.style.display = "none";
+                
                 const reviewsCountSummary = document.getElementById('reviewsCountSummary');
                 if (reviewsCountSummary) {
                     reviewsCountSummary.textContent = "0 reviews";
