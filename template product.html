@@ -344,57 +344,60 @@ nav ul li a:hover{opacity:0.6;}
     gap: 12px;
 }
 .size-picker-btn {
-    border: 0.5px solid #ccc;
+    border: none;
     background: transparent;
     color: #000;
-    padding: 8px 16px;
+    padding: 0;
     font-family: inherit;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: normal;
     text-transform: uppercase;
     letter-spacing: 1px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    margin-right: 18px;
     border-radius: 0;
+    transition: none;
+    text-decoration: none;
 }
 .size-picker-btn.active {
-    background: #000;
-    color: #fff;
-    border-color: #000;
+    font-weight: bold;
+    text-decoration: underline;
+    background: transparent;
+    color: #000;
 }
 .size-picker-btn:hover:not(.active) {
-    background: #fafafa;
-    border-color: #000;
+    text-decoration: underline;
+    background: transparent;
 }
 
 /* =============== ADD TO BAG / OUT OF STOCK =============== */
 .add-to-cart {
     width: 100%;
+    height: 48px;
     background: #000;
     color: #fff;
-    border: 1px solid #000;
-    padding: 16px 20px;
-    font-family: 'Gotham Narrow Bold', sans-serif;
-    font-size: 12px;
-    font-weight: 900;
+    border: none;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 2.5px;
+    letter-spacing: 1.5px;
     cursor: pointer;
-    transition: all 0.25s ease;
-    border-radius: 2px;
-    margin-bottom: 14px;
+    transition: opacity 0.2s ease;
+    border-radius: 0;
+    margin-top: 15px;
+    margin-bottom: 12px;
     display: block;
     text-align: center;
+    line-height: 48px;
+    padding: 0;
 }
 .add-to-cart:hover:not(:disabled) {
-    background: #333;
-    border-color: #333;
-    transform: translateY(-1px);
+    opacity: 0.8;
 }
 .add-to-cart:disabled {
-    background: #eaeaea;
-    border-color: #eaeaea;
-    color: #999;
+    background: #f5f5f5;
+    color: #ccc;
     cursor: not-allowed;
 }
 
@@ -539,11 +542,12 @@ nav ul li a:hover{opacity:0.6;}
 .accordion-container {
     width: 100%;
     border-top: 0.5px solid #E5E5E5;
+    border-bottom: 0.5px solid #E5E5E5;
     margin-bottom: 40px;
     text-align: left;
+    padding: 10px 0;
 }
 .accordion-item {
-    border-bottom: 0.5px solid #E5E5E5;
     width: 100%;
 }
 .accordion-header {
@@ -553,7 +557,7 @@ nav ul li a:hover{opacity:0.6;}
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 0;
+    padding: 10px 0;
     font-family: inherit;
     font-size: 10px;
     letter-spacing: 1px;
@@ -568,9 +572,9 @@ nav ul li a:hover{opacity:0.6;}
     opacity: 0.7;
 }
 .accordion-icon {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 300;
-    color: #999;
+    color: #000;
 }
 .accordion-content {
     max-height: 0;
@@ -610,10 +614,11 @@ nav ul li a:hover{opacity:0.6;}
 
 /* =============== IMAGE SLIDER & DOTS =============== */
 .slider {
-    width: 380px;
-    max-width: 80vw;
+    width: 100%;
+    aspect-ratio: 1 / 1;
     overflow: hidden;
     position: relative;
+    background: #fafafa;
     margin-top: 0;
     margin-bottom: 0;
 }
@@ -626,6 +631,8 @@ nav ul li a:hover{opacity:0.6;}
 }
 .slider-track img {
     width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
     flex: 0 0 100%;
     user-select: none;
 }
@@ -647,26 +654,24 @@ nav ul li a:hover{opacity:0.6;}
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 24px;
+    font-size: 32px;
     color: #000;
-    background: rgba(255, 255, 255, 0.8);
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+    background: transparent;
+    width: auto;
+    height: auto;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     user-select: none;
-    transition: all 0.25s ease;
+    transition: opacity 0.2s ease;
     z-index: 5;
     opacity: 0;
-    border: 1px solid #eaeaea;
+    border: none;
+    padding: 0 10px;
 }
 .arrow:hover {
-    background: #000;
-    color: #fff;
-    border-color: #000;
+    opacity: 0.6;
 }
 .arrow-left { left: 15px; }
 .arrow-right { right: 15px; }
@@ -675,20 +680,20 @@ nav ul li a:hover{opacity:0.6;}
 .slider-dots {
     display: flex;
     justify-content: center;
-    margin: 15px 0 0px;
-    gap: 8px;
+    margin: 12px 0 0px;
+    gap: 6px;
 }
 .slider-dots div {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
     background: #000;
-    opacity: 0.25;
+    opacity: 0.15;
     cursor: pointer;
-    transition: opacity 0.25s;
+    transition: opacity 0.2s;
 }
-.slider-dots div.active { opacity: 0.75; }
-.slider-dots div:hover { opacity: 0.55; }
+.slider-dots div.active { opacity: 0.6; }
+.slider-dots div:hover { opacity: 0.4; }
 
 /* =============== PRODUCT DESCRIPTION & BACK =============== */
 .desc {
@@ -730,7 +735,7 @@ nav ul li a:hover{opacity:0.6;}
     flex-direction: row !important;
     align-items: flex-start !important;
     justify-content: space-between !important;
-    gap: 60px !important;
+    gap: 100px !important;
     box-sizing: border-box;
 }
 .product-media-wrap {
@@ -1884,30 +1889,20 @@ footer{
 <div class="reviews-section-wrapper">
     <!-- REVIEWS SECTION -->
     <div class="reviews-section" style="width: 100%; text-align: left;">
-        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; border-bottom: 0.5px solid #E5E5E5; padding-bottom: 15px;">
-            <h3 style="font-family: inherit; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; margin: 0; color: #000;">Customer Reviews</h3>
-            <span id="reviewsAverage" style="font-size: 10px; opacity: 0.6; letter-spacing: 0.5px;">Loading...</span>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 25px; border-bottom: 0.5px solid #E5E5E5; padding-bottom: 15px;">
+            <div style="display: flex; align-items: baseline; gap: 15px;">
+                <h3 style="font-family: inherit; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; margin: 0; color: #000;">Customer Reviews</h3>
+                <span id="reviewsAverage" style="font-size: 10px; opacity: 0.6; letter-spacing: 0.5px;">Loading...</span>
+            </div>
+            <span id="toggleReviewFormBtn" onclick="window.toggleReviewForm()" style="font-size: 9px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; text-decoration: underline; color: #000; font-weight: 500; user-select: none;">+ WRITE A REVIEW</span>
         </div>
-
-        <div id="reviewsList">
-            <div style="font-size: 10px; opacity: 0.5; font-style: italic;">Loading reviews...</div>
-        </div>
-
-        <!-- Reviews Pagination Section -->
-        <div id="reviewsPagination" style="display: none; margin-bottom: 25px; flex-direction: column; gap: 10px; width: 100%;">
-            <button id="seeMoreReviewsBtn" class="reviews-btn-outline" onclick="window.seeMoreReviews()">See More</button>
-            <button id="viewAllReviewsBtn" class="reviews-btn-solid" onclick="window.viewAllReviews()">View All Reviews</button>
-        </div>
-
-        <!-- Toggle form button -->
-        <button id="toggleReviewFormBtn" onclick="window.toggleReviewForm()" style="background: transparent; border: 1px solid #000; color: #000; padding: 10px 15px; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; width: 100%; font-family: inherit; font-weight: bold; transition: background 0.25s, color 0.25s; margin-top: 15px;">Write A Review</button>
 
         <!-- Review Form (hidden by default) -->
-        <form id="reviewForm" onsubmit="window.submitReview(event)" style="display: none; margin-top: 20px; border: 0.5px solid #E5E5E5; padding: 25px; background: #fff;">
+        <form id="reviewForm" onsubmit="window.submitReview(event)" style="display: none; margin-top: 20px; margin-bottom: 40px; border: 0.5px solid #E5E5E5; padding: 25px; background: #fff;">
             <h4 style="font-family: inherit; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 20px; margin-top: 0; color: #000;">Submit Your Review</h4>
             
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold;">Your Rating</label>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold; opacity: 0.5;">Your Rating</label>
                 <div style="display: flex; gap: 6px;" id="starRatingSelector">
                     <!-- Dynamic Interactive Stars (5 starts loaded as default fill) -->
                     <span class="star-select" data-value="1" onclick="window.setFormRating(1)" style="cursor: pointer; display: inline-flex;">
@@ -1929,21 +1924,30 @@ footer{
                 <input type="hidden" id="reviewRatingInput" value="5" required>
             </div>
 
-            <div style="margin-bottom: 15px;">
-                <label for="reviewName" style="display: block; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold;">Your Name</label>
-                <input type="text" id="reviewName" placeholder="e.g. Sarah M." required style="width: 100%; border: 0.5px solid #ccc; padding: 10px; font-size: 10px; font-family: inherit; outline: none; background: #fff; border-radius: 0;">
+            <div style="margin-bottom: 20px;">
+                <input type="text" id="reviewName" placeholder="YOUR NAME" required style="width: 100%; border: none; border-bottom: 0.5px solid #ccc; padding: 10px 0; font-size: 10px; font-family: inherit; outline: none; background: transparent;">
             </div>
 
-            <div style="margin-bottom: 15px;">
-                <label for="reviewText" style="display: block; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold;">Review Details</label>
-                <textarea id="reviewText" rows="4" placeholder="Share your experience with this fragrance..." required style="width: 100%; border: 0.5px solid #ccc; padding: 10px; font-size: 10px; font-family: inherit; resize: vertical; outline: none; background: #fff; border-radius: 0;"></textarea>
+            <div style="margin-bottom: 20px;">
+                <textarea id="reviewText" rows="3" placeholder="YOUR REVIEW" required style="width: 100%; border: none; border-bottom: 0.5px solid #ccc; padding: 10px 0; font-size: 10px; font-family: inherit; resize: vertical; outline: none; background: transparent;"></textarea>
             </div>
 
-            <div style="display: flex; gap: 10px;">
-                <button type="button" onclick="window.toggleReviewForm()" style="background: transparent; border: 0.5px solid #ccc; color: #555; padding: 8px 10px; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; flex: 1; font-family: inherit;">Cancel</button>
-                <button type="submit" style="background: #000; border: 1px solid #000; color: #fff; padding: 8px 10px; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; flex: 2; font-family: inherit; font-weight: bold;">Submit Review</button>
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <button type="submit" style="background: #000; border: none; color: #fff; padding: 10px 24px; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: inherit; font-weight: bold;">Submit Review</button>
+                <span onclick="window.toggleReviewForm()" style="font-size: 9px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; text-decoration: underline; color: #666; user-select: none;">Cancel</span>
             </div>
         </form>
+
+        <div id="reviewsList">
+            <div style="font-size: 10px; opacity: 0.5; font-style: italic;">Loading reviews...</div>
+        </div>
+
+        <!-- Reviews Pagination Section -->
+        <div id="reviewsPagination" style="display: none; justify-content: center; align-items: center; gap: 15px; margin-top: 30px; margin-bottom: 10px; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500;">
+            <span id="seeMoreReviewsBtn" onclick="window.seeMoreReviews()" style="cursor: pointer; text-decoration: underline; user-select: none;">Show More</span>
+            <span style="opacity: 0.3;">/</span>
+            <span id="viewAllReviewsBtn" onclick="window.viewAllReviews()" style="cursor: pointer; text-decoration: underline; user-select: none;">View All</span>
+        </div>
     </div>
 </div>
 
@@ -2353,7 +2357,7 @@ window.openCart = function() {
                     const viewLink = document.createElement("a");
                     viewLink.href = `template product.html?id=${prod.id}&bundleView=true&bundleParent=${p.id}&bundleSlot=${index}`;
                     viewLink.textContent = "VIEW";
-                    viewLink.style.cssText = "font-size: 9px; color: #1106e8; font-weight: bold; letter-spacing: 1px; text-decoration: underline; padding: 8px; flex-shrink: 0; user-select: none; z-index: 10;";
+                    viewLink.style.cssText = "font-size: 9px; color: #000; font-weight: normal; letter-spacing: 1px; text-decoration: underline; padding: 8px; flex-shrink: 0; user-select: none; z-index: 10;";
                     viewLink.onclick = (e) => {
                         e.stopPropagation();
                     };
@@ -2431,19 +2435,19 @@ window.openCart = function() {
                 const hasPreselected = selectedScents[i] !== null;
 
                 slot.innerHTML = `
-                    <div style="font-size: 9px; opacity: 0.5; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Fragrance ${i + 1}</div>
+                    <div style="font-size: 8px; opacity: 0.5; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Fragrance ${i + 1}</div>
                     
-                    <div class="bundle-scent-display-box" style="display: ${hasPreselected ? 'flex' : 'none'}; align-items: center; gap: 12px; border: 1px solid #000; padding: 8px 12px; border-radius: 2px; background: #fafafa; min-height: 48px; box-sizing: border-box; width: 100%;">
-                        <img class="selected-scent-img" src="${hasPreselected ? selectedScents[i].image : ''}" style="width: 24px; height: 32px; object-fit: contain; flex-shrink: 0; border: 1px solid #eaeaea; background: #fff;">
+                    <div class="bundle-scent-display-box" style="display: ${hasPreselected ? 'flex' : 'none'}; align-items: center; gap: 12px; border-bottom: 0.5px solid #000; padding: 12px 0; min-height: 48px; box-sizing: border-box; width: 100%;">
+                        <img class="selected-scent-img" src="${hasPreselected ? selectedScents[i].image : ''}" style="width: 24px; height: 32px; object-fit: contain; flex-shrink: 0; border: none; background: transparent;">
                         <div style="display: flex; flex-direction: column; flex-grow: 1; min-width: 0;">
-                            <span class="selected-scent-name" style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${hasPreselected ? (selectedScents[i].nameShort || selectedScents[i].name).toUpperCase() + ' - 50ML' : ''}</span>
-                            <span class="selected-scent-inspired" style="font-size: 8.5px; color: #777; font-weight: bold; letter-spacing: 0.8px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">${hasPreselected && selectedScents[i].inspiredBy ? `<span style="opacity: 0.6; font-size: 8px;">INSPIRED BY</span> ` + selectedScents[i].inspiredBy.toUpperCase() : ''}</span>
+                            <span class="selected-scent-name" style="font-size: 11px; font-weight: normal; text-transform: uppercase; letter-spacing: 1px; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${hasPreselected ? (selectedScents[i].nameShort || selectedScents[i].name).toUpperCase() + ' - 50ML' : ''}</span>
+                            <span class="selected-scent-inspired" style="font-size: 8.5px; color: #777; letter-spacing: 0.8px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">${hasPreselected && selectedScents[i].inspiredBy ? `<span style="opacity: 0.6; font-size: 8px;">INSPIRED BY</span> ` + selectedScents[i].inspiredBy.toUpperCase() : ''}</span>
                         </div>
-                        <span class="bundle-scent-switch" style="cursor: pointer; font-size: 9px; color: #1106e8; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; user-select: none;">SWITCH</span>
+                        <span class="bundle-scent-switch" style="cursor: pointer; font-size: 9px; color: #000; font-weight: normal; letter-spacing: 1px; text-transform: uppercase; text-decoration: underline; flex-shrink: 0; user-select: none;">SWITCH</span>
                     </div>
 
-                    <div class="bundle-scent-input-box" style="position: relative; display: ${hasPreselected ? 'none' : 'flex'}; align-items: center; border: 1px solid #000; padding: 10px 12px; border-radius: 2px; background: #fff; min-height: 48px; box-sizing: border-box; width: 100%;">
-                        <input type="text" class="bundle-scent-input" placeholder="TAP TO SELECT" autocomplete="off" style="border: none; width: 100%; font-size: 10.5px; outline: none; font-family: inherit; letter-spacing: 1.5px; text-transform: uppercase; background: transparent; color: #000;">
+                    <div class="bundle-scent-input-box" style="position: relative; display: ${hasPreselected ? 'none' : 'flex'}; align-items: center; border-bottom: 0.5px solid #000; padding: 12px 0; min-height: 48px; box-sizing: border-box; width: 100%;">
+                        <input type="text" class="bundle-scent-input" placeholder="SELECT FRAGRANCE ${i + 1} →" autocomplete="off" style="border: none; width: 100%; font-size: 10.5px; outline: none; font-family: inherit; letter-spacing: 1.5px; text-transform: uppercase; background: transparent; color: #000;">
                     </div>
                     
                     <div class="bundle-dropdown" style="display: none; position: absolute; left: 0; right: 0; top: 100%; background: #fff; border: 1px solid #000; border-top: none; z-index: 1000; max-height: 220px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>
@@ -2484,11 +2488,11 @@ window.openCart = function() {
                     const match = productSelected.name ? productSelected.name.match(/Inspired\s+by\s+(.+)/i) : null;
                     if (match || (productSelected.id && productSelected.id.startsWith("inspired-by-"))) {
                         const fragranceName = match ? match[1] : productSelected.name;
-                        inspiredText = `Inspired by ${formatBrandName(fragranceName)}`;
+                        inspiredText = formatBrandName(fragranceName);
                     } else {
                         inspiredText = productSelected.name;
                     }
-                    selectedInspiredEl.textContent = inspiredText.toUpperCase();
+                    selectedInspiredEl.innerHTML = inspiredText ? `<span style="opacity: 0.6; font-size: 8px;">INSPIRED BY</span> ${inspiredText.toUpperCase()}` : "";
                     
                     inputBox.style.display = "none";
                     displayBox.style.display = "flex";
@@ -3311,10 +3315,10 @@ window.openCart = function() {
         const btn = document.getElementById("toggleReviewFormBtn");
         if (form.style.display === "none") {
             form.style.display = "block";
-            btn.textContent = "Close Review Form";
+            btn.textContent = "- CLOSE FORM";
         } else {
             form.style.display = "none";
-            btn.textContent = "Write A Review";
+            btn.textContent = "+ WRITE A REVIEW";
         }
     };
 
@@ -3386,11 +3390,10 @@ window.openCart = function() {
         // Manage pagination buttons
         if (paginationContainer) {
             if (currentProductReviews.length > 3) {
-                paginationContainer.style.display = "flex";
                 if (visibleReviewsCount >= currentProductReviews.length) {
-                    if (seeMoreBtn) seeMoreBtn.style.display = "none";
+                    paginationContainer.style.display = "none";
                 } else {
-                    if (seeMoreBtn) seeMoreBtn.style.display = "block";
+                    paginationContainer.style.display = "flex";
                 }
             } else {
                 paginationContainer.style.display = "none";
