@@ -740,6 +740,16 @@ nav ul li a:hover{opacity:0.6;}
     box-sizing: border-box;
 }
 
+#topRatingSummary {
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    margin-top: 15px;
+    margin-bottom: 25px;
+    user-select: none;
+}
+
 @media(max-width: 900px) {
     .page-wrap {
         flex-direction: column !important;
@@ -780,6 +790,19 @@ nav ul li a:hover{opacity:0.6;}
     }
     body.keyboard-active .page-wrap {
         margin-top: 15px !important;
+    }
+    .product-info-wrap {
+        position: relative !important;
+    }
+    #topRatingSummary {
+        position: absolute !important;
+        right: 0 !important;
+        top: 2px !important;
+        margin: 0 !important;
+        z-index: 10;
+    }
+    .product-title, .product-name-short {
+        padding-right: 140px !important;
     }
 }
 
@@ -1728,12 +1751,7 @@ footer{
             </div>
         </div>
 
-        <!-- Top Rating Summary Link -->
-        <div id="topRatingSummary" style="display: none; align-items: center; gap: 6px; font-size: 11px; cursor: pointer; margin-top: -10px; margin-bottom: 20px; user-select: none;" onclick="window.scrollToReviews()">
-            <span id="topRatingValue" style="font-weight: bold; color: #000; font-size: 11px; letter-spacing: 0.2px;">0.0</span>
-            <span id="topRatingStars" style="display: inline-flex; align-items: center; vertical-align: middle;"></span>
-            <span id="topRatingCount" style="opacity: 0.5; font-size: 11px; letter-spacing: 0.2px;">(0 reviews)</span>
-        </div>
+
 
         <!-- Size Selection Container -->
         <div id="sizePickerContainer" style="display: none; margin-bottom: 15px;">
@@ -1884,6 +1902,13 @@ footer{
 
         <div style="font-size: 8px; opacity: 0.4; letter-spacing: 0.5px; margin-top: 30px; text-transform: uppercase; text-align: left; line-height: 1.4; color: #000; font-weight: normal;">
             Complimentary SA Shipping • Delivery in 2–4 Days
+        </div>
+
+        <!-- Top Rating Summary Link -->
+        <div id="topRatingSummary" style="display: none;" onclick="window.scrollToReviews()">
+            <span id="topRatingValue" style="font-weight: bold; color: #000; font-size: 11px; letter-spacing: 0.2px;">0.0</span>
+            <span id="topRatingStars" style="display: inline-flex; align-items: center; vertical-align: middle;"></span>
+            <span id="topRatingCount" style="opacity: 0.5; font-size: 11px; letter-spacing: 0.2px;">(0 reviews)</span>
         </div>
 
     </div>
