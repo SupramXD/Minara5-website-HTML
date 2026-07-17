@@ -34,5 +34,12 @@
       "title": "Trusted Clone Brand",
       "description": "Soon to be selling on Takealot and Amazon. Studio Extrait has 100% premium quality formulation matching original scents. Safe and secure checkout options using PayFast, Google and Apple Pay."
     }
-  ]
+  ],
+  "accordions": {
+    "wearingOccasion": "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.",
+    "honestComparisonInspired": "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.",
+    "honestComparisonNonInspired": "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.",
+    "ingredients": "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.",
+    "shippingReturns": "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns."
+  }
 }

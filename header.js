@@ -501,6 +501,7 @@ onAuthStateChanged(auth, async (user) => {
     
     const role = await getUserRole(user);
     currentUserRole = role;
+    window.currentUserRole = role;
     
     if (await protectRoutes(user, role)) return;
     
@@ -1034,6 +1035,7 @@ onAuthStateChanged(auth, async (user) => {
     
     const role = await getUserRole(user);
     currentUserRole = role;
+    window.currentUserRole = role;
     
     if (await protectRoutes(user, role)) return;
     

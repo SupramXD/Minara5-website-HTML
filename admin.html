@@ -1931,6 +1931,40 @@
                     </div>
                   </div>
                 </div>
+
+                <!-- PANEL 3: PRODUCT PAGE ACCORDIONS -->
+                <div class="console-panel full-width-panel" style="margin-bottom: 30px;">
+                  <div class="panel-header">
+                    <h2 class="panel-title">Product Page Accordions (Text with Arrows)</h2>
+                    <span class="stat-label" style="font-size: 10px;">5 Blocks</span>
+                  </div>
+                  <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
+                    These text blocks appear inside the collapsible accordions (with arrow › icons) on all product detail pages.
+                  </p>
+                  
+                  <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="form-group">
+                      <label>When to Wear It</label>
+                      <textarea id="accordionWearing" class="form-input" rows="2" required style="resize: vertical; font-family: inherit;"></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label>Honest Comparison (Inspired Scents - use {brand} as placeholder)</label>
+                      <textarea id="accordionHonestInspired" class="form-input" rows="3" required style="resize: vertical; font-family: inherit;"></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label>Honest Comparison (Non-Inspired Scents)</label>
+                      <textarea id="accordionHonestNonInspired" class="form-input" rows="2" required style="resize: vertical; font-family: inherit;"></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label>Ingredients (Exclude 'INGREDIENTS:' prefix)</label>
+                      <textarea id="accordionIngredients" class="form-input" rows="2" required style="resize: vertical; font-family: inherit;"></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label>Shipping & Returns</label>
+                      <textarea id="accordionShippingReturns" class="form-input" rows="3" required style="resize: vertical; font-family: inherit;"></textarea>
+                    </div>
+                  </div>
+                </div>
                 
                 <!-- SUBMIT ACTIONS -->
                 <div class="console-panel full-width-panel" style="padding: 20px;">
@@ -4464,6 +4498,20 @@
             if (descEl) descEl.value = item.description || "";
           });
         }
+        if (data.accordions) {
+          const accs = data.accordions;
+          const wearing = document.getElementById("accordionWearing");
+          const inspired = document.getElementById("accordionHonestInspired");
+          const nonInspired = document.getElementById("accordionHonestNonInspired");
+          const ing = document.getElementById("accordionIngredients");
+          const shipping = document.getElementById("accordionShippingReturns");
+          
+          if (wearing) wearing.value = accs.wearingOccasion || "";
+          if (inspired) inspired.value = accs.honestComparisonInspired || "";
+          if (nonInspired) nonInspired.value = accs.honestComparisonNonInspired || "";
+          if (ing) ing.value = accs.ingredients || "";
+          if (shipping) shipping.value = accs.shippingReturns || "";
+        }
       };
 
       populateFields(textData);
@@ -4539,7 +4587,14 @@
 
       const payload = {
         features: [],
-        trust_banner: []
+        trust_banner: [],
+        accordions: {
+          wearingOccasion: document.getElementById("accordionWearing").value,
+          honestComparisonInspired: document.getElementById("accordionHonestInspired").value,
+          honestComparisonNonInspired: document.getElementById("accordionHonestNonInspired").value,
+          ingredients: document.getElementById("accordionIngredients").value,
+          shippingReturns: document.getElementById("accordionShippingReturns").value
+        }
       };
 
       for (let i = 0; i < 6; i++) {

@@ -770,16 +770,16 @@ nav ul li a:hover{opacity:0.6;}
         aspect-ratio: 1 / 1;
     }
     .slider.bundle-slider {
-        height: 25vh !important;
+        height: 30vh !important;
         aspect-ratio: auto !important;
-        max-height: 180px !important;
+        max-height: none !important;
     }
     .slider.bundle-slider .slider-track {
         height: 100% !important;
     }
     .slider.bundle-slider .slider-track img {
         height: 100% !important;
-        object-fit: contain !important;
+        object-fit: cover !important;
     }
     .product-info-wrap {
         width: 100% !important;
@@ -817,9 +817,9 @@ nav ul li a:hover{opacity:0.6;}
     padding-top: 50px;
 }
 #reviewsList {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px 60px;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0px;
     margin-top: 30px;
     margin-bottom: 30px;
 }
@@ -828,12 +828,6 @@ nav ul li a:hover{opacity:0.6;}
         margin: 140px auto 30px;
         padding: 0 20px;
         padding-top: 30px;
-    }
-}
-@media (max-width: 768px) {
-    #reviewsList {
-        grid-template-columns: 1fr;
-        gap: 30px;
     }
 }
 
@@ -1848,6 +1842,36 @@ footer{
         </div>
 
         <!-- Custom Collapsible Accordions -->
+        <!-- Admin Accordion Editor Panel -->
+        <div id="adminAccordionEditPanel" style="display: none; border: 1px solid #000; background: #fdfdfd; padding: 20px; margin-bottom: 25px; box-sizing: border-box; width: 100%;">
+            <div style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 15px; color: #000; display: flex; justify-content: space-between; align-items: center;">
+                <span>⚙ Admin: Edit Accordion Texts</span>
+                <button id="saveAccordionTextsBtn" onclick="window.saveAdminAccordionTexts()" style="background: #000; color: #fff; border: none; padding: 7px 14px; font-size: 9px; font-family: inherit; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: opacity 0.2s;">Save Changes</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                    <label style="display: block; font-size: 8px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.5; letter-spacing: 0.5px;">When to Wear It</label>
+                    <textarea id="editWearingOccasion" style="width: 100%; font-size: 11px; font-family: inherit; border: 0.5px solid #ccc; padding: 8px; box-sizing: border-box; resize: vertical; outline: none;" rows="2"></textarea>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 8px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.5; letter-spacing: 0.5px;">Honest Comparison (Inspired - use {brand} placeholder)</label>
+                    <textarea id="editHonestInspired" style="width: 100%; font-size: 11px; font-family: inherit; border: 0.5px solid #ccc; padding: 8px; box-sizing: border-box; resize: vertical; outline: none;" rows="3"></textarea>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 8px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.5; letter-spacing: 0.5px;">Honest Comparison (Non-Inspired)</label>
+                    <textarea id="editHonestNonInspired" style="width: 100%; font-size: 11px; font-family: inherit; border: 0.5px solid #ccc; padding: 8px; box-sizing: border-box; resize: vertical; outline: none;" rows="2"></textarea>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 8px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.5; letter-spacing: 0.5px;">Ingredients (Exclude 'INGREDIENTS:' label prefix)</label>
+                    <textarea id="editIngredients" style="width: 100%; font-size: 11px; font-family: inherit; border: 0.5px solid #ccc; padding: 8px; box-sizing: border-box; resize: vertical; outline: none;" rows="2"></textarea>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 8px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.5; letter-spacing: 0.5px;">Shipping & Returns</label>
+                    <textarea id="editShippingReturns" style="width: 100%; font-size: 11px; font-family: inherit; border: 0.5px solid #ccc; padding: 8px; box-sizing: border-box; resize: vertical; outline: none;" rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+
         <div class="accordion-container">
             <div class="accordion-item">
                 <button class="accordion-header" onclick="toggleAccordion(this)">
@@ -1880,7 +1904,7 @@ footer{
                         <span class="lab-badge">CRUELTY-FREE</span>
                         <span class="lab-badge">CLEAN INGREDIENTS</span>
                     </div>
-                    <p class="ingredients-list"><strong>INGREDIENTS:</strong> Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.</p>
+                    <p class="ingredients-list" id="ingredientsText"><strong>INGREDIENTS:</strong> Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.</p>
                 </div>
             </div>
 
@@ -1890,7 +1914,7 @@ footer{
                     <span class="accordion-icon">›</span>
                 </button>
                 <div class="accordion-content">
-                    <p>Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.</p>
+                    <p id="shippingReturnsText">Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.</p>
                 </div>
             </div>
         </div>
@@ -1900,7 +1924,8 @@ footer{
 
         <a class="back-link" href="catalog.html" style="font-family: inherit; font-size: 10px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; text-decoration: none; color: #000; display: inline-flex; align-items: center; gap: 6px; margin-top: 25px; margin-bottom: 10px; transition: opacity 0.2s ease;">‹ ALL FRAGRANCES</a>
 
-        <div style="font-size: 8px; opacity: 0.4; letter-spacing: 0.5px; margin-top: 30px; text-transform: uppercase; text-align: left; line-height: 1.4; color: #000; font-weight: normal;">
+        <div style="font-size: 9.5px; opacity: 0.9; letter-spacing: 0.5px; margin-top: 30px; text-transform: uppercase; text-align: left; line-height: 1.4; color: #000; font-weight: bold; display: flex; align-items: center;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; flex-shrink: 0; vertical-align: middle;"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
             Complimentary SA Shipping • Delivery in 2–4 Days
         </div>
 
@@ -1918,12 +1943,15 @@ footer{
 <div class="reviews-section-wrapper">
     <!-- REVIEWS SECTION -->
     <div class="reviews-section" style="width: 100%; text-align: left;">
-        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 25px; border-bottom: 0.5px solid #E5E5E5; padding-bottom: 15px;">
-            <div style="display: flex; align-items: baseline; gap: 15px;">
-                <h3 style="font-family: inherit; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; margin: 0; color: #000;">Customer Reviews</h3>
-                <span id="reviewsAverage" style="font-size: 10px; opacity: 0.6; letter-spacing: 0.5px;">Loading...</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 0.5px solid #E5E5E5; padding-bottom: 15px; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h3 style="font-family: inherit; font-size: 15px; letter-spacing: 0.5px; font-weight: bold; margin: 0 0 5px 0; color: #000; text-transform: uppercase;">Customer Reviews</h3>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span id="reviewsAverageStars" style="display: inline-flex; align-items: center;"></span>
+                    <span id="reviewsAverageText" style="font-size: 11px; opacity: 0.7; letter-spacing: 0.5px;">Based on 0 reviews</span>
+                </div>
             </div>
-            <span id="toggleReviewFormBtn" onclick="window.toggleReviewForm()" style="font-size: 9px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; text-decoration: underline; color: #000; font-weight: 500; user-select: none;">+ WRITE A REVIEW</span>
+            <button id="toggleReviewFormBtn" onclick="window.toggleReviewForm()" style="background: #000; border: none; color: #fff; padding: 10px 20px; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: inherit; font-weight: bold; transition: opacity 0.2s;">Write A Review</button>
         </div>
 
         <!-- Review Form (hidden by default) -->
@@ -1992,6 +2020,96 @@ window.scrollToReviews = function() {
         reviewsSec.scrollIntoView({ behavior: "smooth" });
     }
 };
+
+// Admin Accordion Texts Editor logic
+window.saveAdminAccordionTexts = async function() {
+    const btn = document.getElementById("saveAccordionTextsBtn");
+    const originalText = btn ? btn.innerHTML : "";
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = "PUBLISHING...";
+    }
+    
+    let customText = {};
+    try {
+        const cached = localStorage.getItem("minara_custom_text");
+        if (cached) customText = JSON.parse(cached);
+    } catch (e) {}
+    
+    customText.accordions = {
+        wearingOccasion: document.getElementById("editWearingOccasion").value,
+        honestComparisonInspired: document.getElementById("editHonestInspired").value,
+        honestComparisonNonInspired: document.getElementById("editHonestNonInspired").value,
+        ingredients: document.getElementById("editIngredients").value,
+        shippingReturns: document.getElementById("editShippingReturns").value
+    };
+    
+    try {
+        localStorage.setItem("minara_custom_text", JSON.stringify(customText));
+        
+        if (window.db && window.dbDoc && window.dbSetDoc) {
+            await window.dbSetDoc(window.dbDoc(window.db, "settings", "custom_text"), customText);
+        }
+        
+        if (window.syncToGithubCallable) {
+            const res = await window.syncToGithubCallable({
+                action: "saveCustomText",
+                payload: customText
+            });
+            if (!res.data || !res.data.success) {
+                throw new Error(res.data ? res.data.message : "GitHub sync failed");
+            }
+        }
+        
+        alert("Accordion texts successfully published and synced to GitHub!");
+        if (window.product) {
+            swapContent(window.product);
+        }
+    } catch (err) {
+        console.error("Save accordion texts failed:", err);
+        alert("Error saving accordion texts: " + (err.message || err));
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    }
+};
+
+// Listen to Auth State change to render accordion editor
+(async function() {
+    try {
+        if (window.dbPromise) await window.dbPromise;
+        if (window.auth) {
+            const { onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js");
+            onAuthStateChanged(window.auth, (user) => {
+                if (user) {
+                    setTimeout(() => {
+                        if (window.currentUserRole === "Admin") {
+                            const editPanel = document.getElementById("adminAccordionEditPanel");
+                            if (editPanel) {
+                                editPanel.style.display = "block";
+                                let customText = {};
+                                try {
+                                    const cached = localStorage.getItem("minara_custom_text");
+                                    if (cached) customText = JSON.parse(cached);
+                                } catch (e) {}
+                                const accs = customText.accordions || {};
+                                document.getElementById("editWearingOccasion").value = accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.";
+                                document.getElementById("editHonestInspired").value = accs.honestComparisonInspired || "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.";
+                                document.getElementById("editHonestNonInspired").value = accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.";
+                                document.getElementById("editIngredients").value = accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.";
+                                document.getElementById("editShippingReturns").value = accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.";
+                            }
+                        }
+                    }, 1200);
+                }
+            });
+        }
+    } catch (e) {
+        console.error("Auth listen for Accordion Editor failed:", e);
+    }
+})();
 
 /* MENU */
 function openMenu(){ document.getElementById("menuPanel").classList.add("open"); }
@@ -2430,10 +2548,10 @@ window.openCart = function() {
                     addToBagBtn.style.cursor = "";
                 } else {
                     addToBagBtn.style.display = originalDisplay;
-                    addToBagBtn.innerHTML = "ADD TO BAG (SELECT ITEMS)";
-                    addToBagBtn.disabled = true;
-                    addToBagBtn.style.opacity = "0.5";
-                    addToBagBtn.style.cursor = "not-allowed";
+                    addToBagBtn.innerHTML = "ADD TO BAG";
+                    addToBagBtn.disabled = false;
+                    addToBagBtn.style.opacity = "1";
+                    addToBagBtn.style.cursor = "pointer";
                 }
             };
 
@@ -2582,8 +2700,24 @@ window.openCart = function() {
             document.removeEventListener("click", handleDocClick);
             document.addEventListener("click", handleDocClick);
 
-            addToBagBtn.onclick = () => {
-                if (selectedScents.some(s => s === null)) return;
+            addToBagBtn.onclick = (e) => {
+                if (p.stock <= 0) return;
+                const emptyIndex = selectedScents.findIndex(s => s === null);
+                if (emptyIndex !== -1) {
+                    if (window.innerWidth <= 900) {
+                        window.openScentDrawer(emptyIndex);
+                    } else {
+                        const slots = wrap.querySelectorAll(".bundle-choice-slot");
+                        if (slots[emptyIndex]) {
+                            const inputEl = slots[emptyIndex].querySelector(".bundle-scent-input");
+                            if (inputEl) {
+                                inputEl.click();
+                                inputEl.focus();
+                            }
+                        }
+                    }
+                    return;
+                }
                 const bundleSizeText = bundleSize + "x 50ml";
                 window.addToCart(p.id, bundleSizeText, selectedScents);
                 sessionStorage.removeItem("bundle_selections_pending");
@@ -2845,14 +2979,57 @@ window.openCart = function() {
             }
 
             // Scent comparison accordion content
+            let customText = {};
+            try {
+                const cached = localStorage.getItem("minara_custom_text");
+                if (cached) customText = JSON.parse(cached);
+            } catch (e) {}
+            const accs = customText.accordions || {};
+
+            // 1. When to Wear It
+            const wearingOccasion = document.getElementById('wearingOccasion');
+            if (wearingOccasion) {
+                wearingOccasion.textContent = accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.";
+            }
+
+            // 2. Honest Comparison
             const honestComparisonText = document.getElementById('honestComparisonText');
             if (honestComparisonText) {
                 const match = p.name ? p.name.match(/Inspired\s+by\s+(.+)/i) : null;
                 if (match || (p.id && p.id.startsWith("inspired-by-"))) {
                     const fragranceName = match ? match[1] : p.name;
-                    honestComparisonText.innerHTML = `Our expert formulation matches <strong>${formatBrandName(fragranceName)}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.`;
+                    const inspiredTemplate = accs.honestComparisonInspired || "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.";
+                    honestComparisonText.innerHTML = inspiredTemplate.replace("{brand}", formatBrandName(fragranceName));
                 } else {
-                    honestComparisonText.innerHTML = `Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.`;
+                    honestComparisonText.innerHTML = accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.";
+                }
+            }
+
+            // 3. Scent Profile & Ingredients
+            const ingredientsText = document.getElementById('ingredientsText');
+            if (ingredientsText) {
+                const ingContent = accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.";
+                ingredientsText.innerHTML = `<strong>INGREDIENTS:</strong> ` + ingContent;
+            }
+
+            // 4. Shipping & Returns
+            const shippingReturnsText = document.getElementById('shippingReturnsText');
+            if (shippingReturnsText) {
+                shippingReturnsText.textContent = accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.";
+            }
+
+            // Init Admin inline editor inputs if visible
+            if (window.currentUserRole === "Admin") {
+                const editPanel = document.getElementById("adminAccordionEditPanel");
+                if (editPanel) {
+                    editPanel.style.display = "block";
+                    if (!document.getElementById("editWearingOccasion").value) {
+                        document.getElementById("editWearingOccasion").value = accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.";
+                        document.getElementById("editHonestInspired").value = accs.honestComparisonInspired || "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.";
+                        document.getElementById("editHonestNonInspired").value = accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.";
+                        document.getElementById("editIngredients").value = accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.";
+                        document.getElementById("editShippingReturns").value = accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.";
+                    }
                 }
             }
 
@@ -3326,10 +3503,10 @@ window.openCart = function() {
         const btn = document.getElementById("toggleReviewFormBtn");
         if (form.style.display === "none") {
             form.style.display = "block";
-            btn.textContent = "- CLOSE FORM";
+            btn.textContent = "CLOSE FORM";
         } else {
             form.style.display = "none";
-            btn.textContent = "+ WRITE A REVIEW";
+            btn.textContent = "WRITE A REVIEW";
         }
     };
 
@@ -3355,9 +3532,9 @@ window.openCart = function() {
         let starsHTML = "";
         for (let i = 1; i <= 5; i++) {
             if (i <= review.rating) {
-                starsHTML += `<svg width="11" height="11" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                starsHTML += `<svg width="12" height="12" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
             } else {
-                starsHTML += `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                starsHTML += `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
             }
         }
 
@@ -3366,15 +3543,19 @@ window.openCart = function() {
         const dateStr = review.timestamp ? new Date(review.timestamp).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "";
 
         return `
-            <div class="review-item-card" style="border-bottom: 0.5px solid #eee; padding: 20px 0; margin-bottom: 0; box-sizing: border-box;">
-                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
-                    <div style="display: flex; align-items: baseline; gap: 8px;">
-                        <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #000;">${cleanName}</span>
+            <div class="review-item-card" style="border-bottom: 1px solid #f0f0f0; padding: 22px 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
                         <span style="display: inline-flex; align-items: center;">${starsHTML}</span>
+                        <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #000;">${cleanName}</span>
+                        <span style="font-size: 8px; opacity: 0.6; color: #2e7d32; border: 0.5px solid #2e7d32; padding: 1px 5px; border-radius: 2px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 2px;">
+                            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            Verified Buyer
+                        </span>
                     </div>
-                    <span style="font-size: 8px; opacity: 0.4; letter-spacing: 0.5px;">${dateStr}</span>
+                    <span style="font-size: 9px; opacity: 0.4; letter-spacing: 0.5px;">${dateStr}</span>
                 </div>
-                <div style="font-size: 11px; opacity: 0.8; line-height: 1.6; white-space: pre-wrap; font-family: inherit; color: #333;">${cleanText}</div>
+                <div style="font-size: 11.5px; opacity: 0.85; line-height: 1.6; white-space: pre-wrap; font-family: inherit; color: #1a1a1a;">${cleanText}</div>
             </div>
         `;
     }
@@ -3455,15 +3636,31 @@ window.openCart = function() {
 
             currentProductReviews = productReviews;
 
-            let totalRating = 0;
-            let count = productReviews.length;
-            productReviews.forEach((review) => {
-                totalRating += Number(review.rating);
-            });
+            // Shopify Style Header Update
+            const reviewsAverageStars = document.getElementById("reviewsAverageStars");
+            const reviewsAverageText = document.getElementById("reviewsAverageText");
 
             if (count > 0) {
-                reviewsAverage.textContent = `(${count})`;
                 const avg = (totalRating / count).toFixed(1);
+                
+                if (reviewsAverageText) {
+                    reviewsAverageText.textContent = `${avg} out of 5 stars (based on ${count} ${count === 1 ? 'review' : 'reviews'})`;
+                }
+                
+                if (reviewsAverageStars) {
+                    let starsHTML = "";
+                    const roundedAvg = Math.round(avg);
+                    for (let i = 1; i <= 5; i++) {
+                        if (i <= roundedAvg) {
+                            starsHTML += `<svg width="14" height="14" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                        } else {
+                            starsHTML += `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                        }
+                    }
+                    reviewsAverageStars.innerHTML = starsHTML;
+                }
+
+                if (reviewsAverage) reviewsAverage.textContent = `(${count})`;
                 
                 // Update top summary
                 const topRatingSummary = document.getElementById("topRatingSummary");
@@ -3495,7 +3692,10 @@ window.openCart = function() {
                     reviewsCountSummary.textContent = `${count} ${count === 1 ? 'review' : 'reviews'}`;
                 }
             } else {
-                reviewsAverage.textContent = "(0)";
+                if (reviewsAverageText) reviewsAverageText.textContent = "No reviews yet. Be the first to write a review.";
+                if (reviewsAverageStars) reviewsAverageStars.innerHTML = "";
+                if (reviewsAverage) reviewsAverage.textContent = "(0)";
+                
                 const topRatingSummary = document.getElementById("topRatingSummary");
                 if (topRatingSummary) topRatingSummary.style.display = "none";
                 
