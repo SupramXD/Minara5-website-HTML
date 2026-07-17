@@ -611,13 +611,16 @@ nav ul li a:hover{opacity:0.6;}
 
 /* =============== IMAGE SLIDER & DOTS =============== */
 .slider {
-    width: 100%;
+    width: 80% !important;
+    margin: 0 auto !important;
     aspect-ratio: 1 / 1;
     overflow: hidden;
     position: relative;
     background: #fafafa;
-    margin-top: 0;
-    margin-bottom: 0;
+}
+.slider.bundle-slider {
+    width: 50% !important;
+    margin: 0 auto !important;
 }
 
 .slider-track {
@@ -765,14 +768,16 @@ nav ul li a:hover{opacity:0.6;}
         top: 0 !important;
     }
     .slider {
-        width: 100% !important;
-        max-width: 380px !important;
+        width: 80% !important;
+        margin: 0 auto !important;
         aspect-ratio: 1 / 1;
     }
     .slider.bundle-slider {
-        height: 30vh !important;
+        width: 50% !important;
+        height: 15vh !important;
         aspect-ratio: auto !important;
         max-height: none !important;
+        margin: 0 auto !important;
     }
     .slider.bundle-slider .slider-track {
         height: 100% !important;
@@ -2000,10 +2005,8 @@ footer{
         </div>
 
         <!-- Reviews Pagination Section -->
-        <div id="reviewsPagination" style="display: none; justify-content: center; align-items: center; gap: 15px; margin-top: 30px; margin-bottom: 10px; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500;">
+        <div id="reviewsPagination" style="display: none; justify-content: center; align-items: center; margin-top: 30px; margin-bottom: 10px; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500;">
             <span id="seeMoreReviewsBtn" onclick="window.seeMoreReviews()" style="cursor: pointer; text-decoration: underline; user-select: none;">Show More</span>
-            <span style="opacity: 0.3;">/</span>
-            <span id="viewAllReviewsBtn" onclick="window.viewAllReviews()" style="cursor: pointer; text-decoration: underline; user-select: none;">View All</span>
         </div>
     </div>
 </div>
@@ -3549,9 +3552,8 @@ window.openCart = function() {
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <span style="display: inline-flex; align-items: center;">${starsHTML}</span>
                         <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #000;">${cleanName}</span>
-                        <span style="font-size: 8px; opacity: 0.6; color: #2e7d32; border: 0.5px solid #2e7d32; padding: 1px 5px; border-radius: 2px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 2px;">
-                            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            Verified Buyer
+                        <span style="font-size: 8.5px; opacity: 0.4; color: #000; letter-spacing: 0.5px; text-transform: uppercase; display: inline-flex; align-items: center; font-weight: bold; margin-left: 2px;">
+                            ✓ Verified
                         </span>
                     </div>
                     <span style="font-size: 9px; opacity: 0.4; letter-spacing: 0.5px;">${dateStr}</span>
@@ -3677,7 +3679,7 @@ window.openCart = function() {
                 
                 if (topRatingSummary) {
                     if (topRatingValue) topRatingValue.textContent = avg;
-                    if (topRatingCount) topRatingCount.textContent = `(${count} ${count === 1 ? 'review' : 'reviews'})`;
+                    if (topRatingCount) topRatingCount.textContent = `(${count})`;
                     
                     if (topRatingStars) {
                         let starsHTML = "";
@@ -3710,7 +3712,7 @@ window.openCart = function() {
                 
                 if (topRatingSummary) {
                     if (topRatingValue) topRatingValue.textContent = "0.0";
-                    if (topRatingCount) topRatingCount.textContent = "(0 reviews)";
+                    if (topRatingCount) topRatingCount.textContent = "(0)";
                     if (topRatingStars) {
                         let starsHTML = "";
                         for (let i = 1; i <= 5; i++) {
