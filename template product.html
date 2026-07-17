@@ -3704,7 +3704,22 @@ window.openCart = function() {
                 if (reviewsAverage) reviewsAverage.textContent = "(0)";
                 
                 const topRatingSummary = document.getElementById("topRatingSummary");
-                if (topRatingSummary) topRatingSummary.style.display = "none";
+                const topRatingValue = document.getElementById("topRatingValue");
+                const topRatingStars = document.getElementById("topRatingStars");
+                const topRatingCount = document.getElementById("topRatingCount");
+                
+                if (topRatingSummary) {
+                    if (topRatingValue) topRatingValue.textContent = "0.0";
+                    if (topRatingCount) topRatingCount.textContent = "(0 reviews)";
+                    if (topRatingStars) {
+                        let starsHTML = "";
+                        for (let i = 1; i <= 5; i++) {
+                            starsHTML += `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                        }
+                        topRatingStars.innerHTML = starsHTML;
+                    }
+                    topRatingSummary.style.display = "inline-flex";
+                }
                 
                 const reviewsCountSummary = document.getElementById('reviewsCountSummary');
                 if (reviewsCountSummary) {
