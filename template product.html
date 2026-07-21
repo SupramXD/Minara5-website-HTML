@@ -757,13 +757,12 @@ nav ul li a:hover{opacity:0.6;}
 }
 
 #topRatingSummary {
-    position: absolute;
-    right: 0;
-    top: 2px;
-    margin: 0;
+    position: static !important;
+    margin-top: 1px !important;
+    margin-bottom: 2px !important;
     z-index: 10;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     font-size: 11px;
     cursor: pointer;
 }
@@ -771,7 +770,7 @@ nav ul li a:hover{opacity:0.6;}
     position: relative !important;
 }
 .product-title, .product-name-short {
-    padding-right: 140px;
+    padding-right: 0px;
 }
 
 @media(max-width: 900px) {
@@ -826,14 +825,13 @@ nav ul li a:hover{opacity:0.6;}
         position: relative !important;
     }
     #topRatingSummary {
-        position: absolute !important;
-        right: 0 !important;
-        top: 2px !important;
-        margin: 0 !important;
+        position: static !important;
+        margin-top: 1px !important;
+        margin-bottom: 2px !important;
         z-index: 10;
     }
     .product-title, .product-name-short {
-        padding-right: 140px !important;
+        padding-right: 0px !important;
     }
 }
 
@@ -3744,9 +3742,9 @@ window.openCart = function() {
                         const roundedAvg = Math.round(avg);
                         for (let i = 1; i <= 5; i++) {
                             if (i <= roundedAvg) {
-                                starsHTML += `<svg width="11" height="11" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                                starsHTML += `<svg width="11" height="11" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 0.5px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
                             } else {
-                                starsHTML += `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                                starsHTML += `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 0.5px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
                             }
                         }
                         topRatingStars.innerHTML = starsHTML;
