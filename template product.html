@@ -382,7 +382,7 @@ nav ul li a:hover{opacity:0.6;}
     transition: opacity 0.2s ease;
     border-radius: 0;
     margin-top: 15px;
-    margin-bottom: 12px;
+    margin-bottom: 4px;
     display: block;
     text-align: center;
     line-height: 38px;
@@ -1834,7 +1834,7 @@ footer{
             <div id="bundleChoicesWrap" style="display: flex; flex-direction: column; gap: 12px; position: relative;"></div>
         </div>        <button class="add-to-cart" id="addToBagBtn" disabled>ADD TO BAG</button>
 
-        <div style="font-size: 9.5px; opacity: 0.9; letter-spacing: 0.5px; margin-top: 15px; margin-bottom: 25px; text-transform: uppercase; text-align: left; line-height: 1.4; color: #000; font-weight: bold; display: flex; align-items: center;">
+        <div style="font-size: 9.5px; opacity: 0.9; letter-spacing: 0.5px; margin-top: 4px; margin-bottom: 20px; text-transform: uppercase; text-align: left; line-height: 1.4; color: #000; font-weight: bold; display: flex; align-items: center;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; flex-shrink: 0; vertical-align: middle;"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
             Complimentary SA Shipping • Delivery in 2–4 Days
         </div>
@@ -1852,11 +1852,19 @@ footer{
         </div>
 
         <!-- Custom Collapsible Accordions -->
+        <!-- Admin Edit Button Toggle -->
+        <div id="adminEditBtnContainer" style="display: none; margin-bottom: 15px;">
+            <button id="adminToggleEditBtn" onclick="window.toggleAdminEditPanel()" style="background: transparent; color: #000; border: 1px solid #000; padding: 6px 12px; font-size: 9px; font-family: inherit; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s ease;">⚙ EDIT PRODUCT TEXT</button>
+        </div>
+
         <!-- Admin Accordion Editor Panel -->
         <div id="adminAccordionEditPanel" style="display: none; border: 1px solid #000; background: #fdfdfd; padding: 20px; margin-bottom: 25px; box-sizing: border-box; width: 100%;">
             <div style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 15px; color: #000; display: flex; justify-content: space-between; align-items: center;">
                 <span>⚙ Admin: Edit Accordion Texts</span>
-                <button id="saveAccordionTextsBtn" onclick="window.saveAdminAccordionTexts()" style="background: #000; color: #fff; border: none; padding: 7px 14px; font-size: 9px; font-family: inherit; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: opacity 0.2s;">Save Changes</button>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="window.toggleAdminEditPanel()" style="background: #eee; color: #000; border: none; padding: 7px 12px; font-size: 9px; font-family: inherit; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;">Cancel</button>
+                    <button id="saveAccordionTextsBtn" onclick="window.saveAdminAccordionTexts()" style="background: #000; color: #fff; border: none; padding: 7px 14px; font-size: 9px; font-family: inherit; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: opacity 0.2s;">Save Changes</button>
+                </div>
             </div>
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 <div>
@@ -2025,6 +2033,19 @@ window.scrollToReviews = function() {
 };
 
 // Admin Accordion Texts Editor logic
+window.toggleAdminEditPanel = function() {
+    const editPanel = document.getElementById("adminAccordionEditPanel");
+    const toggleBtn = document.getElementById("adminToggleEditBtn");
+    if (!editPanel) return;
+    if (editPanel.style.display === "none" || !editPanel.style.display) {
+        editPanel.style.display = "block";
+        if (toggleBtn) toggleBtn.textContent = "✕ CLOSE EDITING";
+    } else {
+        editPanel.style.display = "none";
+        if (toggleBtn) toggleBtn.textContent = "⚙ EDIT PRODUCT TEXT";
+    }
+};
+
 window.saveAdminAccordionTexts = async function() {
     const btn = document.getElementById("saveAccordionTextsBtn");
     const originalText = btn ? btn.innerHTML : "";
@@ -2065,8 +2086,11 @@ window.saveAdminAccordionTexts = async function() {
         }
         
         alert("Accordion texts successfully published and synced to GitHub!");
-        if (window.product) {
-            swapContent(window.product);
+        if (window.product && typeof window.swapContentGlobal === 'function') {
+            window.swapContentGlobal(window.product);
+        }
+        if (window.toggleAdminEditPanel) {
+            window.toggleAdminEditPanel();
         }
     } catch (err) {
         console.error("Save accordion texts failed:", err);
@@ -2079,7 +2103,7 @@ window.saveAdminAccordionTexts = async function() {
     }
 };
 
-// Listen to Auth State change to render accordion editor
+// Listen to Auth State change to render accordion editor button
 (async function() {
     try {
         if (window.dbPromise) await window.dbPromise;
@@ -2089,21 +2113,20 @@ window.saveAdminAccordionTexts = async function() {
                 if (user) {
                     setTimeout(() => {
                         if (window.currentUserRole === "Admin") {
-                            const editPanel = document.getElementById("adminAccordionEditPanel");
-                            if (editPanel) {
-                                editPanel.style.display = "block";
-                                let customText = {};
-                                try {
-                                    const cached = localStorage.getItem("minara_custom_text");
-                                    if (cached) customText = JSON.parse(cached);
-                                } catch (e) {}
-                                const accs = customText.accordions || {};
-                                document.getElementById("editWearingOccasion").value = accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.";
-                                document.getElementById("editHonestInspired").value = accs.honestComparisonInspired || "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.";
-                                document.getElementById("editHonestNonInspired").value = accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.";
-                                document.getElementById("editIngredients").value = accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.";
-                                document.getElementById("editShippingReturns").value = accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.";
-                            }
+                            const btnContainer = document.getElementById("adminEditBtnContainer");
+                            if (btnContainer) btnContainer.style.display = "block";
+                            
+                            let customText = {};
+                            try {
+                                const cached = localStorage.getItem("minara_custom_text");
+                                if (cached) customText = JSON.parse(cached);
+                            } catch (e) {}
+                            const accs = customText.accordions || {};
+                            if (document.getElementById("editWearingOccasion")) document.getElementById("editWearingOccasion").value = accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.";
+                            if (document.getElementById("editHonestInspired")) document.getElementById("editHonestInspired").value = accs.honestComparisonInspired || "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.";
+                            if (document.getElementById("editHonestNonInspired")) document.getElementById("editHonestNonInspired").value = accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.";
+                            if (document.getElementById("editIngredients")) document.getElementById("editIngredients").value = accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.";
+                            if (document.getElementById("editShippingReturns")) document.getElementById("editShippingReturns").value = accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.";
                         }
                     }, 1200);
                 }
@@ -3024,16 +3047,15 @@ window.openCart = function() {
 
             // Init Admin inline editor inputs if visible
             if (window.currentUserRole === "Admin") {
+                const btnContainer = document.getElementById("adminEditBtnContainer");
+                if (btnContainer) btnContainer.style.display = "block";
                 const editPanel = document.getElementById("adminAccordionEditPanel");
-                if (editPanel) {
-                    editPanel.style.display = "block";
-                    if (!document.getElementById("editWearingOccasion").value) {
-                        document.getElementById("editWearingOccasion").value = accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.";
-                        document.getElementById("editHonestInspired").value = accs.honestComparisonInspired || "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.";
-                        document.getElementById("editHonestNonInspired").value = accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.";
-                        document.getElementById("editIngredients").value = accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.";
-                        document.getElementById("editShippingReturns").value = accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.";
-                    }
+                if (editPanel && !document.getElementById("editWearingOccasion").value) {
+                    document.getElementById("editWearingOccasion").value = accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.";
+                    document.getElementById("editHonestInspired").value = accs.honestComparisonInspired || "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.";
+                    document.getElementById("editHonestNonInspired").value = accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.";
+                    document.getElementById("editIngredients").value = accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.";
+                    document.getElementById("editShippingReturns").value = accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.";
                 }
             }
 
@@ -3236,7 +3258,7 @@ window.openCart = function() {
                     const oldBackLink = document.getElementById("returnToBundleLink");
                     if (oldBackLink) oldBackLink.remove();
 
-                    const availableSizes = p.sizes && p.sizes.length > 0 ? p.sizes : ["50ml", "100ml"];
+                    const availableSizes = p.sizes && p.sizes.length > 0 ? p.sizes : ["50ml"];
                     let selectedSize = availableSizes[0];
                     
                     if (sizeContainer && sizeOptionsDiv) {
@@ -3360,20 +3382,20 @@ window.openCart = function() {
             swapContent(product);
         }
 
-        // 2. Try loading from Firestore or products.json in background
+        // 2. Fetch static product catalog directly from products.json (synced to GitHub)
         setTimeout(async () => {
             try {
                 let fetchedProds = [];
                 try {
-                    const response = await fetch("products.json");
+                    const response = await fetch("products.json?t=" + Date.now());
                     if (response.ok) {
                         fetchedProds = await response.json();
                     }
                 } catch (jsonErr) {
-                    console.warn("Failed to fetch products.json, will try Firestore:", jsonErr);
+                    console.warn("Failed to fetch products.json:", jsonErr);
                 }
 
-                // If products.json load failed or returned nothing, and Firestore is available:
+                // If products.json fetch failed and Firestore is available as fallback:
                 if ((!fetchedProds || fetchedProds.length === 0) && window.db) {
                     try {
                         const q = query(collection(window.db, "products"), where("status", "==", "Active"));
@@ -3393,73 +3415,44 @@ window.openCart = function() {
                                 status: d.status,
                                 flair: d.flair || "",
                                 invisibleFlair: d.invisibleFlair || "",
+                                sizes: d.sizes || ["50ml"],
                                 isBundle: !!d.isBundle,
                                 bundleSize: Number(d.bundleSize) || 0
                             });
                         });
                     } catch (fsListErr) {
-                        console.error("Failed to query catalog from Firestore:", fsListErr);
+                        console.error("Failed to query catalog fallback from Firestore:", fsListErr);
                     }
                 }
 
                 if (fetchedProds && fetchedProds.length > 0) {
                     activeCatalogFragrances = fetchedProds.filter(p => p.status === "Active" && p.isBundle !== true && p.isBundle !== "true");
-                }
-
-                let data = null;
-
-                // Try fetching live product directly from Firestore first for instant updates
-                if (window.db) {
+                    
                     try {
-                        const docRef = doc(window.db, "products", productId);
-                        const docSnap = await getDoc(docRef);
-                        if (docSnap.exists()) {
-                            const fsData = docSnap.data();
-                            data = {
-                                id: productId,
-                                nameShort: fsData.nameShort || "",
-                                name: fsData.name || "",
-                                price: fsData.price,
-                                retailPrice: fsData.retailPrice,
-                                stock: fsData.stock,
-                                image: fsData.image,
-                                image_thumb: fsData.image_thumb || "",
-                                description: fsData.description || "",
-                                status: fsData.status || "Active",
-                                flair: fsData.flair || "",
-                                invisibleFlair: fsData.invisibleFlair || "",
-                                sizes: fsData.sizes || ["50ml", "100ml"],
-                                isBundle: !!fsData.isBundle,
-                                bundleSize: Number(fsData.bundleSize) || 0
-                            };
-                        }
-                    } catch (fsErr) {
-                        console.warn("Failed to fetch product from Firestore directly, using products.json fallback:", fsErr);
-                    }
+                        localStorage.setItem("minara_products", JSON.stringify(fetchedProds));
+                    } catch (cacheErr) {}
                 }
 
-                // Fallback to products.json if Firestore fetch was not possible or unsuccessful
-                if (!data) {
-                    const dataInJson = fetchedProds.find(p => p.id === productId);
-                    if (dataInJson) {
-                        data = {
-                            id: productId,
-                            nameShort: dataInJson.nameShort || "",
-                            name: dataInJson.name,
-                            price: Number(dataInJson.price),
-                            retailPrice: dataInJson.retailPrice !== undefined && dataInJson.retailPrice !== null ? Number(dataInJson.retailPrice) : null,
-                            stock: Number(dataInJson.stock),
-                            image: dataInJson.image,
-                            image_thumb: dataInJson.image_thumb || "",
-                            description: dataInJson.description || "",
-                            status: dataInJson.status,
-                            flair: dataInJson.flair || "",
-                            invisibleFlair: dataInJson.invisibleFlair || "",
-                            sizes: dataInJson.sizes || ["50ml", "100ml"],
-                            isBundle: !!dataInJson.isBundle,
-                            bundleSize: Number(dataInJson.bundleSize) || 0
-                        };
-                    }
+                const dataInJson = fetchedProds.find(p => p.id === productId);
+                let data = null;
+                if (dataInJson) {
+                    data = {
+                        id: productId,
+                        nameShort: dataInJson.nameShort || "",
+                        name: dataInJson.name,
+                        price: Number(dataInJson.price),
+                        retailPrice: dataInJson.retailPrice !== undefined && dataInJson.retailPrice !== null ? Number(dataInJson.retailPrice) : null,
+                        stock: Number(dataInJson.stock),
+                        image: dataInJson.image,
+                        image_thumb: dataInJson.image_thumb || "",
+                        description: dataInJson.description || "",
+                        status: dataInJson.status,
+                        flair: dataInJson.flair || "",
+                        invisibleFlair: dataInJson.invisibleFlair || "",
+                        sizes: dataInJson.sizes || ["50ml"],
+                        isBundle: !!dataInJson.isBundle,
+                        bundleSize: Number(dataInJson.bundleSize) || 0
+                    };
                 }
                 
                 if (data) {
@@ -3469,21 +3462,6 @@ window.openCart = function() {
                     if (!product || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair || product.invisibleFlair !== liveProduct.invisibleFlair || JSON.stringify(product.sizes) !== JSON.stringify(liveProduct.sizes) || product.isBundle !== liveProduct.isBundle || product.bundleSize !== liveProduct.bundleSize) {
                         product = liveProduct;
                         swapContent(product);
-                        
-                        // Keep our local cache fresh too!
-                        try {
-                            const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
-                            const idx = localProds.findIndex(lp => lp.id === productId);
-                            const liveProductWithStatus = { ...liveProduct, syncStatus: "synced" };
-                            if (idx > -1) {
-                                localProds[idx] = liveProductWithStatus;
-                            } else {
-                                localProds.push(liveProductWithStatus);
-                            }
-                            localStorage.setItem("minara_products", JSON.stringify(localProds));
-                        } catch (cacheErr) {
-                            console.error("Local storage product update failed inside details view:", cacheErr);
-                        }
                     }
                 }
             } catch (dbErr) {
