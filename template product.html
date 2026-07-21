@@ -818,14 +818,12 @@ nav ul li a:hover{opacity:0.6;}
         position: relative !important;
     }
     #topRatingSummary {
-        position: absolute !important;
-        right: 0 !important;
-        top: 2px !important;
-        margin: 0 !important;
-        z-index: 10;
+        position: static !important;
+        margin-top: 10px !important;
+        margin-bottom: 22px !important;
     }
     .product-title, .product-name-short {
-        padding-right: 140px !important;
+        padding-right: 0 !important;
     }
 }
 
@@ -1760,10 +1758,10 @@ footer{
         <div class="product-title" style="font-family: inherit; font-size: 11px; font-weight: normal; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.2px; margin-top: 0; margin-bottom: 4px; color: #000; text-align: left;">Loading Product...</div>
         
         <!-- Top Rating Summary Link (Under Inspired By / Subtitle text) -->
-        <div id="topRatingSummary" style="display: none; margin-top: 2px; margin-bottom: 12px; cursor: pointer; align-items: center; gap: 6px;" onclick="window.scrollToReviews()">
-            <span id="topRatingValue" style="font-weight: bold; color: #000; font-size: 11px; letter-spacing: 0.2px;">0.0</span>
-            <span id="topRatingStars" style="display: inline-flex; align-items: center; vertical-align: middle;"></span>
-            <span id="topRatingCount" style="opacity: 0.5; font-size: 11px; letter-spacing: 0.2px;">(0 reviews)</span>
+        <div id="topRatingSummary" style="display: none; margin-top: 10px; margin-bottom: 22px; cursor: pointer; align-items: center; gap: 10px; width: fit-content;" onclick="window.scrollToReviews()">
+            <span id="topRatingValue" style="font-weight: bold; color: #000; font-size: 11px; letter-spacing: 0.5px;">0.0</span>
+            <span id="topRatingStars" style="display: inline-flex; align-items: center; vertical-align: middle; gap: 2px;"></span>
+            <span id="topRatingCount" style="opacity: 0.5; font-size: 11px; letter-spacing: 0.5px; font-weight: 500;">(0 reviews)</span>
         </div>
         <div class="product-type-subtitle" style="display: none;">Extrait de Parfum</div>
 
@@ -3548,20 +3546,20 @@ window.openCart = function() {
         const dateStr = review.timestamp ? new Date(review.timestamp).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "";
 
         return `
-            <div class="review-item-card" style="background: #ffffff; border: 1px solid #e2e2e2; padding: 22px 26px; margin-bottom: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; transition: border-color 0.25s ease;">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #f4f4f4; padding-bottom: 12px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="review-item-card" style="background: #ffffff; border: 1px solid #eaeaea; padding: 26px 30px; margin-bottom: 22px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; transition: border-color 0.25s ease; box-shadow: 0 1px 4px rgba(0,0,0,0.015);">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid #f4f4f4; padding-bottom: 14px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
                         <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #000; font-family: 'Gotham Narrow Bold', sans-serif;">${cleanName}</span>
-                        <span style="font-size: 8px; font-weight: bold; letter-spacing: 1.2px; text-transform: uppercase; color: #000; background: #f4f4f4; padding: 3px 8px; border-radius: 0;">
+                        <span style="font-size: 8px; font-weight: bold; letter-spacing: 1.2px; text-transform: uppercase; color: #000; background: #f4f4f4; padding: 4px 9px; border-radius: 0;">
                             VERIFIED BUYER
                         </span>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
                         <span style="display: inline-flex; align-items: center;">${starsHTML}</span>
                         <span style="font-size: 9px; opacity: 0.45; letter-spacing: 0.8px; text-transform: uppercase; font-family: inherit;">${dateStr}</span>
                     </div>
                 </div>
-                <div style="font-size: 12px; opacity: 0.9; line-height: 1.65; white-space: pre-wrap; font-family: Helvetica, Arial, sans-serif; color: #1a1a1a; letter-spacing: 0.2px;">"${cleanText}"</div>
+                <div style="font-size: 12px; opacity: 0.9; line-height: 1.7; white-space: pre-wrap; font-family: Helvetica, Arial, sans-serif; color: #1a1a1a; letter-spacing: 0.2px;">"${cleanText}"</div>
             </div>
         `;
     }
