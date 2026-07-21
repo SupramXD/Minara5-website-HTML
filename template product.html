@@ -1968,7 +1968,7 @@ footer{
         <!-- description element (kept as hidden/original mapping fallback) -->
         <div class="desc" style="display: none;"></div>
 
-        <a class="back-link" href="catalog.html" style="font-family: inherit; font-size: 10px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; text-decoration: none; color: #000; display: inline-flex; align-items: center; gap: 6px; margin-top: 25px; margin-bottom: 10px; transition: opacity 0.2s ease;">‹ ALL FRAGRANCES</a>
+        <a class="back-link" href="catalog.html" style="font-family: inherit; font-size: 9px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; color: #000; border: 1px solid #000; padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px; margin-top: 30px; margin-bottom: 15px; transition: all 0.25s ease;" onmouseover="this.style.background='#000'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='#000';">‹ ALL FRAGRANCES</a>
 
     </div>
 
@@ -1985,7 +1985,7 @@ footer{
                     <span id="reviewsAverageText" style="font-size: 11px; opacity: 0.7; letter-spacing: 0.5px;">Based on 0 reviews</span>
                 </div>
             </div>
-            <button id="toggleReviewFormBtn" onclick="window.toggleReviewForm()" style="background: #000; border: none; color: #fff; padding: 10px 20px; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: inherit; font-weight: bold; transition: opacity 0.2s;">Write A Review</button>
+            <button id="toggleReviewFormBtn" onclick="window.toggleReviewForm()" style="background: transparent; border: 1px solid #ddd; color: #555; padding: 6px 14px; font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.8px; cursor: pointer; font-family: inherit; font-weight: bold; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#000'; this.style.color='#000';" onmouseout="this.style.borderColor='#ddd'; this.style.color='#555';">Write A Review</button>
         </div>
 
         <!-- Review Form (hidden by default) -->
@@ -3324,6 +3324,7 @@ window.openCart = function() {
                                 }
                             }
                         }
+                    }
                     
                     addToBagBtn.onclick = () => {
                         window.addToCart(p.id, selectedSize);
@@ -3655,7 +3656,7 @@ window.openCart = function() {
                 const avg = (totalRating / count).toFixed(1);
                 
                 if (reviewsAverageText) {
-                    reviewsAverageText.textContent = `${avg} out of 5 stars (based on ${count} ${count === 1 ? 'review' : 'reviews'})`;
+                    reviewsAverageText.textContent = `${avg} (${count})`;
                 }
                 
                 if (reviewsAverageStars) {
@@ -3703,7 +3704,7 @@ window.openCart = function() {
                     reviewsCountSummary.textContent = `${count} ${count === 1 ? 'review' : 'reviews'}`;
                 }
             } else {
-                if (reviewsAverageText) reviewsAverageText.textContent = "No reviews yet. Be the first to write a review.";
+                if (reviewsAverageText) reviewsAverageText.textContent = "0.0 (0)";
                 if (reviewsAverageStars) reviewsAverageStars.innerHTML = "";
                 if (reviewsAverage) reviewsAverage.textContent = "(0)";
                 
