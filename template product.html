@@ -1764,11 +1764,11 @@ footer{
 
 
         <div class="product-flair" style="font-size: 10px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: none; color: #1a1a1a;"></div>
-        <h1 class="product-name-short" style="font-family: inherit; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2px; margin-top: 0; margin-bottom: 3px; color: #000; line-height: 1.2; text-align: left; display: none;"></h1>
-        <div class="product-title" style="font-family: inherit; font-size: 11px; font-weight: normal; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.2px; margin-top: 0; margin-bottom: 14px; color: #000; text-align: left;">Loading Product...</div>
+        <h1 class="product-name-short" style="font-family: inherit; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2px; margin-top: 0; margin-bottom: 1px; color: #000; line-height: 1.2; text-align: left; display: none;"></h1>
+        <div class="product-title" style="font-family: inherit; font-size: 9.5px; font-weight: 500; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 1px; margin-bottom: 8px; color: #000; text-align: left;">Loading Product...</div>
         
         <!-- Top Rating Summary Link (Under Inspired By / Subtitle text) -->
-        <div id="topRatingSummary" style="display: none; margin-top: 4px; margin-bottom: 12px; cursor: pointer; align-items: center; gap: 6px; width: fit-content;" onclick="window.scrollToReviews()">
+        <div id="topRatingSummary" style="display: none; margin-top: 4px; margin-bottom: 8px; cursor: pointer; align-items: center; gap: 6px; width: fit-content;" onclick="window.scrollToReviews()">
             <span id="topRatingValue" style="font-weight: bold; color: #000; font-size: 11px; letter-spacing: 0.5px;">0.0</span>
             <span id="topRatingStars" style="display: inline-flex; align-items: center; vertical-align: middle; gap: 2px;"></span>
             <span id="topRatingCount" style="opacity: 0.5; font-size: 11px; letter-spacing: 0.5px; font-weight: 500;">(0 reviews)</span>
@@ -1776,7 +1776,7 @@ footer{
         <div class="product-type-subtitle" style="display: none;">Extrait de Parfum</div>
 
         <!-- Price container -->
-        <div class="price-container" style="margin-top: 10px; margin-bottom: 24px;">
+        <div class="price-container" style="margin-top: 6px; margin-bottom: 16px;">
             <div class="price-row" style="display: flex; align-items: baseline; gap: 8px;">
                 <span class="product-price" style="font-size: 11px; font-weight: normal; color: #000; letter-spacing: 0.2px;">R0</span>
                 <span class="discount-badge" id="discountBadge" style="display: none;">SAVE 5%</span>
@@ -3025,8 +3025,8 @@ window.openCart = function() {
             const titleEl = document.querySelector('.product-title');
             if (titleEl) {
                 if (isInspired) {
-                    titleEl.innerHTML = `<span style="font-size: 8.5px; opacity: 0.55; font-weight: bold; letter-spacing: 1.2px; text-transform: uppercase;">INSPIRED BY</span> <span style="font-size: 11px; opacity: 0.95; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; color: #000;">${formatBrandName(inspiredFragranceName).toUpperCase()}</span>`;
-                    titleEl.style.display = 'block';
+                    titleEl.textContent = `INSPIRED BY ${formatBrandName(inspiredFragranceName).toUpperCase()}`;
+                    titleEl.style.cssText = "font-family: inherit; font-size: 9.5px; font-weight: 500; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 1px; margin-bottom: 8px; color: #000; text-align: left; display: block;";
                 } else if (p.name && p.name !== p.nameShort) {
                     titleEl.textContent = p.name.toUpperCase();
                     titleEl.style.display = 'block';
