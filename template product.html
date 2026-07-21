@@ -1765,10 +1765,10 @@ footer{
 
         <div class="product-flair" style="font-size: 10px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: none; color: #1a1a1a;"></div>
         <h1 class="product-name-short" style="font-family: inherit; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2px; margin-top: 0; margin-bottom: 0px; color: #000; line-height: 1.1; text-align: left; display: none;"></h1>
-        <div class="product-title" style="font-family: inherit; font-size: 9.5px; font-weight: 500; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 0px; margin-bottom: 4px; color: #000; text-align: left;">Loading Product...</div>
+        <div class="product-title" style="font-family: inherit; font-size: 9.5px; font-weight: 500; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 0px; margin-bottom: 2px; color: #000; text-align: left;">Loading Product...</div>
         
         <!-- Top Rating Summary Link (Under Inspired By / Subtitle text) -->
-        <div id="topRatingSummary" style="display: none; margin-top: 2px; margin-bottom: 6px; cursor: pointer; align-items: center; gap: 6px; width: fit-content;" onclick="window.scrollToReviews()">
+        <div id="topRatingSummary" style="display: none; margin-top: 2px; margin-bottom: 4px; cursor: pointer; align-items: center; gap: 6px; width: fit-content;" onclick="window.scrollToReviews()">
             <span id="topRatingValue" style="font-weight: bold; color: #000; font-size: 11px; letter-spacing: 0.5px;">0.0</span>
             <span id="topRatingStars" style="display: inline-flex; align-items: center; vertical-align: middle; gap: 2px;"></span>
             <span id="topRatingCount" style="opacity: 0.5; font-size: 11px; letter-spacing: 0.5px; font-weight: 500;">(0 reviews)</span>
@@ -1776,7 +1776,7 @@ footer{
         <div class="product-type-subtitle" style="display: none;">Extrait de Parfum</div>
 
         <!-- Price container -->
-        <div class="price-container" style="margin-top: 2px; margin-bottom: 10px;">
+        <div class="price-container" style="margin-top: 0px; margin-bottom: 8px;">
             <div class="price-row" style="display: flex; align-items: baseline; gap: 8px;">
                 <span class="product-price" style="font-size: 11px; font-weight: normal; color: #000; letter-spacing: 0.2px;">R0</span>
                 <span class="discount-badge" id="discountBadge" style="display: none;">SAVE 5%</span>
@@ -1789,12 +1789,12 @@ footer{
 
 
         <!-- Size Selection Container -->
-        <div id="sizePickerContainer" style="display: none; margin-bottom: 10px;">
+        <div id="sizePickerContainer" style="display: none; margin-bottom: 8px;">
             <div id="sizePickerOptions" style="display: flex; gap: 15px;"></div>
         </div>
 
         <!-- Bundle Selection Container -->
-        <div id="bundlePickerContainer" style="display: none; margin-bottom: 12px; width: 100%;">
+        <div id="bundlePickerContainer" style="display: none; margin-bottom: 10px; width: 100%;">
             <style>
                 .bundle-choice-slot {
                     position: relative;
@@ -1871,7 +1871,7 @@ footer{
         </div>
         
         <!-- High Fashion Size Indicator above Add to Bag -->
-        <div id="selectedSizeIndicator" style="font-size: 9.5px; opacity: 0.65; font-weight: bold; text-transform: uppercase; letter-spacing: 1.8px; margin-top: 2px; margin-bottom: 4px; color: #000; display: none; align-items: center;">
+        <div id="selectedSizeIndicator" style="font-size: 9.5px; opacity: 0.65; font-weight: bold; text-transform: uppercase; letter-spacing: 1.8px; margin-top: 0px; margin-bottom: 2px; color: #000; display: none; align-items: center;">
             <span id="selectedSizeText">50ML</span>
         </div>
 
@@ -3025,7 +3025,7 @@ window.openCart = function() {
             if (titleEl) {
                 if (isInspired) {
                     titleEl.textContent = `INSPIRED BY ${formatBrandName(inspiredFragranceName).toUpperCase()}`;
-                    titleEl.style.cssText = "font-family: inherit; font-size: 9.5px; font-weight: 500; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 0px; margin-bottom: 4px; color: #000; text-align: left; display: block;";
+                    titleEl.style.cssText = "font-family: inherit; font-size: 9.5px; font-weight: 500; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 0px; margin-bottom: 2px; color: #000; text-align: left; display: block;";
                 } else if (p.name && p.name !== p.nameShort) {
                     titleEl.textContent = p.name.toUpperCase();
                     titleEl.style.display = 'block';
