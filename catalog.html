@@ -1400,7 +1400,7 @@ function updateCartCount(count){
                 const reviewsRowEl = item.querySelector('.product-reviews-row');
                 
                 const emptyStarsHTML = `
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 `.repeat(5);
 
                 if (starsEl) {
@@ -1430,9 +1430,9 @@ function updateCartCount(count){
                             let starsHTML = "";
                             for (let i = 1; i <= 5; i++) {
                                 if (i <= rounded) {
-                                    starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="#000" stroke="#000" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                                    starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
                                 } else {
-                                    starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+                                    starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
                                 }
                             }
                             if (starsEl) {
