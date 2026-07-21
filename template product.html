@@ -619,11 +619,11 @@ nav ul li a:hover{opacity:0.6;}
     background: #fafafa;
 }
 .slider.bundle-slider {
-    width: 100% !important;
+    width: 50% !important;
     max-width: 100% !important;
-    height: 120px !important;
-    aspect-ratio: auto !important;
-    margin: 0 0 8px 0 !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    margin: 0 auto 20px auto !important;
     overflow: hidden;
 }
 .slider.bundle-slider .slider-track {
@@ -632,7 +632,7 @@ nav ul li a:hover{opacity:0.6;}
 .slider.bundle-slider .slider-track img {
     width: 100% !important;
     height: 100% !important;
-    object-fit: cover !important;
+    object-fit: contain !important;
     object-position: center !important;
 }
 
@@ -888,13 +888,13 @@ footer{
   font-size:12px;
   text-transform:uppercase;
   letter-spacing:0.15em;
-  margin:12px 0;
+  margin-bottom:26px;
   color:#000;
   text-decoration:none;
   white-space:nowrap;
 }
-.slideout a.menu-gap-top{
-  margin-top:42px !important;
+.slideout a[href*="social"]{
+  margin-bottom:12px !important;
 }
 
 /* INTRO ANIMATION (unchanged) */
@@ -1702,7 +1702,7 @@ footer{
   <a href="catalog.html">shop fragrances</a>
   <a href="catalog.html?gender=men">men's</a>
   <a href="catalog.html?gender=women">women's</a>
-  <a href="social media.html" class="menu-gap-top" style="margin-top: 42px;">Socials</a>
+  <a href="social media.html">Socials</a>
   <a href="contact.html">Contact</a>
   <div class="mobile-account-block">
 
@@ -1757,7 +1757,14 @@ footer{
 
         <div class="product-flair" style="font-size: 10px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: none; color: #1a1a1a;"></div>
         <h1 class="product-name-short" style="font-family: inherit; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2px; margin-top: 0; margin-bottom: 3px; color: #000; line-height: 1.2; text-align: left; display: none;"></h1>
-        <div class="product-title" style="font-family: inherit; font-size: 11px; font-weight: normal; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.2px; margin-top: 0; margin-bottom: 8px; color: #000; text-align: left;">Loading Product...</div>
+        <div class="product-title" style="font-family: inherit; font-size: 11px; font-weight: normal; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.2px; margin-top: 0; margin-bottom: 4px; color: #000; text-align: left;">Loading Product...</div>
+        
+        <!-- Top Rating Summary Link (Under Inspired By / Subtitle text) -->
+        <div id="topRatingSummary" style="display: none; margin-top: 2px; margin-bottom: 12px; cursor: pointer; align-items: center; gap: 6px;" onclick="window.scrollToReviews()">
+            <span id="topRatingValue" style="font-weight: bold; color: #000; font-size: 11px; letter-spacing: 0.2px;">0.0</span>
+            <span id="topRatingStars" style="display: inline-flex; align-items: center; vertical-align: middle;"></span>
+            <span id="topRatingCount" style="opacity: 0.5; font-size: 11px; letter-spacing: 0.2px;">(0 reviews)</span>
+        </div>
         <div class="product-type-subtitle" style="display: none;">Extrait de Parfum</div>
 
         <!-- Price container -->
@@ -1962,13 +1969,6 @@ footer{
         <div class="desc" style="display: none;"></div>
 
         <a class="back-link" href="catalog.html" style="font-family: inherit; font-size: 10px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; text-decoration: none; color: #000; display: inline-flex; align-items: center; gap: 6px; margin-top: 25px; margin-bottom: 10px; transition: opacity 0.2s ease;">‹ ALL FRAGRANCES</a>
-
-        <!-- Top Rating Summary Link -->
-        <div id="topRatingSummary" style="display: none;" onclick="window.scrollToReviews()">
-            <span id="topRatingValue" style="font-weight: bold; color: #000; font-size: 11px; letter-spacing: 0.2px;">0.0</span>
-            <span id="topRatingStars" style="display: inline-flex; align-items: center; vertical-align: middle;"></span>
-            <span id="topRatingCount" style="opacity: 0.5; font-size: 11px; letter-spacing: 0.2px;">(0 reviews)</span>
-        </div>
 
     </div>
 
@@ -3285,24 +3285,23 @@ window.openCart = function() {
                     
                     if (sizeContainer && sizeOptionsDiv) {
                         sizeOptionsDiv.innerHTML = "";
-                        sizeContainer.style.display = "block";
                         
-                        availableSizes.forEach((sz) => {
-                            const btn = document.createElement('button');
-                            btn.textContent = sz.toUpperCase();
-                            btn.className = "size-picker-btn";
-                            
-                            const updateBtnStyles = () => {
-                                if (selectedSize === sz) {
-                                    btn.classList.add('active');
-                                } else {
-                                    btn.classList.remove('active');
-                                }
-                            };
-                            
-                            updateBtnStyles();
-                            
-                            if (availableSizes.length > 1) {
+                        if (availableSizes.length > 1) {
+                            sizeContainer.style.display = "block";
+                            availableSizes.forEach((sz) => {
+                                const btn = document.createElement('button');
+                                btn.textContent = sz.toUpperCase();
+                                btn.className = "size-picker-btn";
+                                
+                                const updateBtnStyles = () => {
+                                    if (selectedSize === sz) {
+                                        btn.classList.add('active');
+                                    } else {
+                                        btn.classList.remove('active');
+                                    }
+                                };
+                                updateBtnStyles();
+                                
                                 btn.onclick = () => {
                                     selectedSize = sz;
                                     const siblings = sizeOptionsDiv.querySelectorAll('button');
@@ -3313,17 +3312,18 @@ window.openCart = function() {
                                             sib.classList.remove('active');
                                         }
                                     });
-                                    addToBagBtn.onclick = () => {
-                                        window.addToCart(p.id, selectedSize);
-                                    };
                                 };
-                            } else {
-                                btn.style.cursor = "default";
+                                sizeOptionsDiv.appendChild(btn);
+                            });
+                        } else {
+                            sizeContainer.style.display = "none";
+                            if (!p.isBundle && nameShortEl) {
+                                const singleSizeLabel = " - " + availableSizes[0].toUpperCase();
+                                if (!nameShortEl.textContent.endsWith(singleSizeLabel)) {
+                                    nameShortEl.textContent += singleSizeLabel;
+                                }
                             }
-                            
-                            sizeOptionsDiv.appendChild(btn);
-                        });
-                    }
+                        }
                     
                     addToBagBtn.onclick = () => {
                         window.addToCart(p.id, selectedSize);
