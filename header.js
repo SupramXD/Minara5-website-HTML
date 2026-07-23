@@ -170,25 +170,25 @@ async function startSessionTracker(db, doc, setDoc) {
         });
     }
 
-    let syncTimeout = null;
-    function scheduleSync() {
-        if (syncTimeout) clearTimeout(syncTimeout);
-        syncTimeout = setTimeout(async () => {
-            try {
-                // Skip tracking if authenticated as primary owner
-                const user = auth.currentUser;
-                if (user && user.email === 'sub2meboyi@gmail.com') return;
-
-                sessionData.lastActive = new Date().toISOString();
-                sessionStorage.setItem("extrait_session_data", JSON.stringify(sessionData));
-                const sessionRef = doc(db, "sessions", sessionId);
-                await setDoc(sessionRef, sessionData);
-            } catch (err) {
-                console.warn("Tracker sync failed:", err);
-            }
-        }, 1500);
+    function saveCache() {
+        sessionData.lastActive = new Date().toISOString();
+        sessionStorage.setItem("extrait_session_data", JSON.stringify(sessionData));
     }
 
+    async function syncFirestore() {
+        try {
+            // Skip tracking if authenticated as primary owner
+            const user = auth.currentUser;
+            if (user && user.email === 'sub2meboyi@gmail.com') return;
+
+            const sessionRef = doc(db, "sessions", sessionId);
+            await setDoc(sessionRef, sessionData);
+        } catch (err) {
+            console.warn("Tracker sync failed:", err);
+        }
+    }
+
+    // Load Geo IP / location
     if (isNewSession || sessionData.ip === "Pending...") {
         try {
             const res = await fetch("https://ipapi.co/json/");
@@ -212,7 +212,10 @@ async function startSessionTracker(db, doc, setDoc) {
                 sessionData.location = "Unknown";
             }
         }
-        scheduleSync();
+        saveCache();
+        await syncFirestore();
+    } else {
+        saveCache();
     }
 
     // Track clicks on actionable elements
@@ -228,7 +231,13 @@ async function startSessionTracker(db, doc, setDoc) {
                 page: currentPage,
                 timestamp: new Date().toISOString()
             });
-            scheduleSync();
+            saveCache();
+
+            // High-intent actions trigger immediate Firestore sync (checkout, checkout buttons, etc.)
+            const isHighIntent = clickable.matches("[href*='checkout'], [href*='paystack'], .submit-order-btn, .track-submit-btn, [class*='checkout'], [class*='pay']");
+            if (isHighIntent) {
+                syncFirestore();
+            }
         }
     });
 
@@ -241,11 +250,23 @@ async function startSessionTracker(db, doc, setDoc) {
         if (pct > sessionData.maxScrollDepth && pct > lastLoggedDepth + 10) {
             lastLoggedDepth = pct;
             sessionData.maxScrollDepth = pct;
-            scheduleSync();
+            saveCache();
         }
     });
 
-    scheduleSync();
+    // Modern browser lifecycle hooks for reliable page exit logging
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") {
+            syncFirestore();
+        }
+    });
+
+    window.addEventListener("pagehide", () => {
+        syncFirestore();
+    });
+
+    // Initial page load entry sync
+    await syncFirestore();
 }
 
 window.db = null;
