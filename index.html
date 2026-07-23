@@ -511,13 +511,9 @@
       font-size: 14px;
       text-transform: uppercase;
       letter-spacing: 0.28em;
-      margin-bottom: 26px;
+      margin-bottom: 24px;
       color: #000;
       text-decoration: none;
-    }
-
-    .slideout a[href*="social"] {
-      margin-bottom: 12px !important;
     }
 
     /* MOBILE CLEANUP */
@@ -1343,20 +1339,21 @@
     @media (max-width:900px) {
 
       .mobile-account-block {
-        margin-top: 26px;
+        margin-top: 0;
       }
 
       .mobile-account-link {
         font-size: 14px;
         text-transform: uppercase;
         letter-spacing: 0.28em;
-        margin: 26px 0;
+        margin: 0 0 24px 0;
         cursor: pointer;
         color: #000;
       }
 
       .mobile-account-link.logout {
-        margin-top: 32px;
+        margin-top: 0;
+        margin-bottom: 24px;
       }
 
       .mobile-account-dropdown {
@@ -1640,6 +1637,7 @@
 
   <div class="slideout" id="menuPanel">
     <div class="close-btn" onclick="closeMenu()">×</div>
+    <a href="index.html">Home</a>
     <a href="catalog.html">shop fragrances</a>
     <a href="catalog.html?gender=men">men's</a>
     <a href="catalog.html?gender=women">women's</a>
