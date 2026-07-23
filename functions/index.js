@@ -1,10 +1,11 @@
 /* eslint-disable max-len, camelcase, require-jsdoc, valid-jsdoc */
 const {setGlobalOptions} = require("firebase-functions");
-const {onCall, HttpsError} = require("firebase-functions/v2/https");
+const {onCall, HttpsError, onRequest} = require("firebase-functions/v2/https");
 const {onDocumentCreated, onDocumentDeleted} = require("firebase-functions/v2/firestore");
 const {defineSecret} = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
+const crypto = require("crypto");
 
 // Initialize Firebase Admin
 const fs = require("fs");
@@ -16,8 +17,33 @@ const firestore = admin.firestore();
 // Global Cloud Function configurations
 setGlobalOptions({maxInstances: 10});
 
-// Access secret GITHUB_TOKEN configured via Firebase Secret Manager
+// Access secrets configured via Firebase Secret Manager
 const githubTokenSecret = defineSecret("GITHUB_TOKEN");
+const paystackSecret = defineSecret("PAYSTACK_SECRET_KEY");
+const paystackSecretAlt = defineSecret("PAYSTACK_SECRET");
+
+/**
+ * Utility function to retrieve active Paystack Secret Key from Secret Manager or env
+ */
+function getPaystackSecretKey() {
+  let key = "";
+  try {
+    key = paystackSecret.value();
+  } catch (e) {
+    // Ignore error if not initialized
+  }
+  if (!key) {
+    try {
+      key = paystackSecretAlt.value();
+    } catch (e) {
+      // Ignore error if not initialized
+    }
+  }
+  if (!key) {
+    key = process.env.PAYSTACK_SECRET_KEY || process.env.PAYSTACK_SECRET || "";
+  }
+  return key;
+}
 
 const OWNER = "SupramXD";
 const REPO = "Minara5-website-HTML";
@@ -644,3 +670,235 @@ exports.onReviewDeleted = onDocumentDeleted({
     logger.error("Error in onReviewDeleted trigger:", error);
   }
 });
+
+/**
+ * Initialize a Paystack transaction and create a pending order in Firestore.
+ */
+exports.createPaystackTransaction = onCall({
+  secrets: [paystackSecret, paystackSecretAlt],
+}, async (request) => {
+  const secretKey = getPaystackSecretKey();
+  if (!secretKey) {
+    throw new HttpsError("failed-precondition", "Paystack secret key is missing from environment secrets.");
+  }
+
+  const {customer, items, shipping, total, callbackUrl} = request.data || {};
+  if (!customer || !customer.email || !items || !Array.isArray(items) || items.length === 0 || !total) {
+    throw new HttpsError("invalid-argument", "Missing required order details.");
+  }
+
+  const reference = `MINARA-${Math.floor(Math.random() * 900000 + 100000)}-${Date.now().toString().slice(-4)}`;
+  const amountInCents = Math.round(Number(total) * 100);
+
+  const orderDoc = {
+    orderId: reference,
+    customerName: `${customer.firstName || ""} ${customer.lastName || ""}`.trim() || "Customer",
+    email: customer.email,
+    emailAlt: customer.emailAlt || "",
+    phone: customer.phone || "",
+    phoneAlt: customer.phoneAlt || "",
+    address: shipping ? shipping.address || "" : "",
+    deliveryDate: shipping ? shipping.deliveryDate || "" : "",
+    instructions: shipping ? shipping.instructions || "" : "",
+    items: items,
+    total: Number(total),
+    currency: "ZAR",
+    status: "pending_payment",
+    paid: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  // Save pending order to Firestore
+  await firestore.collection("orders").doc(reference).set(orderDoc);
+
+  // Initialize transaction with Paystack API
+  const paystackPayload = {
+    email: customer.email,
+    amount: amountInCents,
+    currency: "ZAR",
+    reference: reference,
+    callback_url: callbackUrl || "https://minara5.web.app/success.html",
+    metadata: {
+      orderId: reference,
+      customerName: orderDoc.customerName,
+      phone: orderDoc.phone,
+      custom_fields: [
+        {
+          display_name: "Customer Name",
+          variable_name: "customer_name",
+          value: orderDoc.customerName,
+        },
+        {
+          display_name: "Phone Number",
+          variable_name: "phone_number",
+          value: orderDoc.phone,
+        },
+      ],
+    },
+  };
+
+  const response = await fetch("https://api.paystack.co/transaction/initialize", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${secretKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(paystackPayload),
+  });
+
+  const responseData = await response.json();
+
+  if (!response.ok || !responseData.status) {
+    logger.error("Paystack initialize error:", responseData);
+    throw new HttpsError("internal", responseData.message || "Failed to initialize Paystack transaction.");
+  }
+
+  return {
+    success: true,
+    authorization_url: responseData.data.authorization_url,
+    access_code: responseData.data.access_code,
+    reference: reference,
+  };
+});
+
+/**
+ * Handle incoming webhooks from Paystack for asynchronous payment confirmation.
+ */
+exports.paystackWebhook = onRequest({
+  secrets: [paystackSecret, paystackSecretAlt],
+}, async (req, res) => {
+  if (req.method !== "POST") {
+    res.status(405).send("Method Not Allowed");
+    return;
+  }
+
+  const secretKey = getPaystackSecretKey();
+  if (!secretKey) {
+    logger.error("Paystack secret key missing in webhook execution.");
+    res.status(500).send("Server Configuration Error");
+    return;
+  }
+
+  const signature = req.headers["x-paystack-signature"];
+  if (!signature) {
+    logger.error("Missing x-paystack-signature header");
+    res.status(400).send("Invalid Request Header");
+    return;
+  }
+
+  const rawBody = req.rawBody ? req.rawBody.toString("utf-8") : JSON.stringify(req.body);
+  const hash = crypto.createHmac("sha512", secretKey).update(rawBody).digest("hex");
+
+  if (hash !== signature) {
+    logger.error("Paystack webhook signature mismatch!");
+    res.status(400).send("Invalid Signature");
+    return;
+  }
+
+  const event = req.body;
+  logger.info(`Paystack Webhook event received: ${event ? event.event : "unknown"}`);
+
+  if (event && event.event === "charge.success") {
+    const data = event.data;
+    const reference = data.reference;
+
+    if (reference) {
+      const orderRef = firestore.collection("orders").doc(reference);
+      const orderSnap = await orderRef.get();
+
+      const updateData = {
+        status: "paid",
+        paid: true,
+        paidAt: data.paid_at || new Date().toISOString(),
+        paystackReference: data.reference,
+        paystackId: data.id,
+        paystackChannel: data.channel,
+        paystackReceiptNumber: data.receipt_number || null,
+        updatedAt: new Date().toISOString(),
+      };
+
+      if (orderSnap.exists) {
+        await orderRef.update(updateData);
+      } else {
+        await orderRef.set({
+          orderId: reference,
+          email: data.customer ? data.customer.email : "",
+          total: data.amount ? data.amount / 100 : 0,
+          currency: data.currency || "ZAR",
+          ...updateData,
+          createdAt: new Date().toISOString(),
+        });
+      }
+      logger.info(`Order ${reference} successfully marked as PAID via Webhook.`);
+    }
+  }
+
+  res.status(200).send("Webhook Received");
+});
+
+/**
+ * Verify Paystack payment status server-side upon client callback.
+ */
+exports.verifyPaystackPayment = onCall({
+  secrets: [paystackSecret, paystackSecretAlt],
+}, async (request) => {
+  const secretKey = getPaystackSecretKey();
+  if (!secretKey) {
+    throw new HttpsError("failed-precondition", "Paystack secret key is missing.");
+  }
+
+  const {reference} = request.data || {};
+  if (!reference) {
+    throw new HttpsError("invalid-argument", "Transaction reference is required.");
+  }
+
+  const response = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${secretKey}`,
+    },
+  });
+
+  const resData = await response.json();
+  if (!response.ok || !resData.status) {
+    throw new HttpsError("internal", resData.message || "Failed to verify transaction with Paystack.");
+  }
+
+  const data = resData.data;
+  const isSuccess = data.status === "success";
+
+  if (isSuccess) {
+    const orderRef = firestore.collection("orders").doc(reference);
+    const orderSnap = await orderRef.get();
+
+    const updateData = {
+      status: "paid",
+      paid: true,
+      paidAt: data.paid_at || new Date().toISOString(),
+      paystackReference: data.reference,
+      paystackId: data.id,
+      paystackChannel: data.channel,
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (orderSnap.exists) {
+      await orderRef.update(updateData);
+    }
+
+    const updatedSnap = await orderRef.get();
+    return {
+      success: true,
+      verified: true,
+      order: updatedSnap.exists ? updatedSnap.data() : null,
+    };
+  }
+
+  return {
+    success: false,
+    verified: false,
+    status: data.status,
+    message: "Payment has not been completed.",
+  };
+});
+

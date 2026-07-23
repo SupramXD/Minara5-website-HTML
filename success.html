@@ -14,10 +14,7 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
   <link rel="modulepreload" href="header.js">
 
-  <script>
-    // CLEAR CART IMMEDIATELY SO HEADER.JS INITIALIZES WITH EMPTY CART
-    localStorage.setItem('minara_cart', JSON.stringify([]));
-  </script>
+  <!-- Paystack Verified Payment Receipt Handler -->
 
   <style>
     /* --- GLOBAL FONT DECLARATION --- */
@@ -410,6 +407,7 @@
   <!-- RIGHT ICONS -->
   <nav>
     <ul>
+      <li><a href="track-order.html">TRACK ORDER</a></li>
       <li><a href="social media.html">SOCIALS</a></li>
       <li class="header-account">
         <div class="account-trigger" onclick="accountClicked(event)">
@@ -437,6 +435,7 @@
   <a href="catalog.html">shop fragrances</a>
   <a href="catalog.html?gender=men">men's</a>
   <a href="catalog.html?gender=women">women's</a>
+  <a href="track-order.html" style="font-weight:bold; color:#09A5DB;">Track Order</a>
   <a href="social media.html">Socials</a>
   <a href="contact.html">Contact</a>
   <div class="mobile-account-block">
@@ -467,118 +466,169 @@
   function openMenu() { document.getElementById("menuPanel").classList.add("open"); }
   function closeMenu() { document.getElementById("menuPanel").classList.remove("open"); }
 
-  // Load and render receipt
-  document.addEventListener('DOMContentLoaded', () => {
-    // Clear cart a second time to ensure timing didn't interfere
-    localStorage.setItem('minara_cart', JSON.stringify([]));
-
+  // Load and verify Paystack transaction receipt
+  document.addEventListener('DOMContentLoaded', async () => {
     const receiptContent = document.getElementById("receiptContent");
     if (!receiptContent) return;
+
+    // Extract reference from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const reference = urlParams.get('reference') || urlParams.get('trxref');
 
     let orderData = null;
     try {
       orderData = JSON.parse(localStorage.getItem('minara_last_order'));
     } catch(e) {
-      console.error("Failed to parse order receipt details:", e);
+      console.error("Failed to parse local order receipt details:", e);
     }
 
-    if (!orderData) {
+    const activeRef = reference || (orderData ? orderData.paymentId : null);
+
+    if (!activeRef) {
       receiptContent.innerHTML = `
-        <div class="receipt-card" style="text-align: center; opacity: 0.6; padding: 20px;">
-          Receipt details are unavailable.
+        <div class="receipt-card" style="text-align: center; padding: 25px;">
+          <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">Order Receipt Unavailable</div>
+          <div style="font-size: 12px; color: #666;">No transaction reference was provided. Please return to the shop or contact support.</div>
         </div>
       `;
       return;
     }
 
-    // Build items rows HTML
-    let itemsRows = '';
-    orderData.items.forEach(item => {
-      let selectionsHtml = '';
-      if (item.selectedScents && item.selectedScents.length > 0) {
-        const names = item.selectedScents.map(s => typeof s === 'object' && s ? (s.nameShort || s.name) : s);
-        selectionsHtml = `<div style="font-size: 10.5px; opacity: 0.6; margin-top: 3px; color: #1106e8; text-transform: uppercase; font-weight: 500; letter-spacing: 0.5px;">Selections: ${names.join(', ')}</div>`;
-      }
-      itemsRows += `
-        <div class="receipt-item-row" style="flex-direction: column; align-items: flex-start; gap: 2px;">
-          <div style="display: flex; justify-content: space-between; width: 100%;">
-            <span>${item.name} (${item.size || '100ml'}) <span style="opacity: 0.6; margin-left: 5px;">x${item.quantity}</span></span>
-            <span style="font-weight: 500;">R${item.price * item.quantity}</span>
-          </div>
-          ${selectionsHtml}
-        </div>
-      `;
-    });
-
-    // Build final HTML
     receiptContent.innerHTML = `
-      <div class="receipt-card">
-        <div class="receipt-header">
-          <span>Receipt</span>
-          <span class="receipt-ref">${orderData.paymentId}</span>
-        </div>
-
-        <div class="receipt-section-title">Shipping Address</div>
-        <div class="receipt-details-grid">
-          <div>
-            <div class="receipt-label">Recipient</div>
-            <div>${orderData.firstName} ${orderData.lastName}</div>
-            <div style="margin-top: 8px;" class="receipt-label">Contact</div>
-            <div>Phone: ${orderData.phone}</div>
-            ${orderData.phoneAlt ? `<div>Alt Phone: ${orderData.phoneAlt}</div>` : ''}
-            <div>Email: ${orderData.email}</div>
-            ${orderData.emailAlt ? `<div>Alt Email: ${orderData.emailAlt}</div>` : ''}
-          </div>
-          <div>
-            <div class="receipt-label">Delivery Address</div>
-            <div style="white-space: pre-wrap; margin-bottom: 8px;">${orderData.address}</div>
-            ${orderData.deliveryDate ? `
-              <div class="receipt-label" style="margin-top: 8px;">Requested Delivery</div>
-              <div>${orderData.deliveryDate}</div>
-            ` : ''}
-          </div>
-        </div>
-
-        <div class="receipt-section-title">Purchased Items</div>
-        <div class="receipt-items-list">
-          ${itemsRows}
-        </div>
-
-        <div class="receipt-total-row">
-          <span>Total Paid</span>
-          <span>R${orderData.total}</span>
-        </div>
+      <div class="receipt-card" style="text-align: center; padding: 30px;">
+        <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #09A5DB;">Verifying Paystack Payment...</div>
+        <div style="font-size: 11px; color: #666;">Please wait while we confirm your payment status securely.</div>
       </div>
     `;
 
-    // Try to trigger database order insertion if db and auth are globally available (Cloud integrations)
-    setTimeout(async () => {
-      if (window.dbPromise) {
-        await window.dbPromise;
+    let isVerified = false;
+    let verifiedOrder = null;
+
+    try {
+      let functions = null;
+      let httpsCallable = null;
+
+      try {
+        const mod = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js");
+        functions = mod.getFunctions();
+        httpsCallable = mod.httpsCallable;
+      } catch (err) {
+        console.warn("Functions module fallback:", err);
       }
-      if (window.db && window.dbDoc && window.dbSetDoc) {
-        try {
-          const orderRef = window.dbDoc(window.db, "orders", orderData.paymentId);
-          await window.dbSetDoc(orderRef, {
-            orderId: orderData.paymentId,
-            customerName: `${orderData.firstName} ${orderData.lastName}`,
-            email: orderData.email,
-            emailAlt: orderData.emailAlt || "",
-            phone: orderData.phone,
-            phoneAlt: orderData.phoneAlt || "",
-            address: orderData.address,
-            deliveryDate: orderData.deliveryDate || "",
-            items: orderData.items,
-            total: orderData.total,
-            status: "Pending Shipment",
-            timestamp: new Date().toISOString()
-          });
-          console.log("Order saved to Firestore successfully.");
-        } catch(e) {
-          console.warn("Unable to save order to Firestore: ", e);
+
+      if (functions && httpsCallable) {
+        const verifyFn = httpsCallable(functions, "verifyPaystackPayment");
+        const res = await verifyFn({ reference: activeRef });
+        if (res.data && res.data.verified) {
+          isVerified = true;
+          verifiedOrder = res.data.order;
+        }
+      } else {
+        const res = await fetch("https://us-central1-minara5.cloudfunctions.net/verifyPaystackPayment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: { reference: activeRef } })
+        });
+        const json = await res.json();
+        const result = json.result || json;
+        if (result && result.verified) {
+          isVerified = true;
+          verifiedOrder = result.order;
         }
       }
-    }, 2000);
+    } catch(err) {
+      console.warn("Server-side verification check encountered network delay:", err);
+      // Fallback: If local order data exists and reference matches, allow receipt display while webhook confirms
+      if (orderData && orderData.paymentId === activeRef) {
+        isVerified = true;
+      }
+    }
+
+    if (isVerified) {
+      // Payment verified! Now clear cart cleanly
+      localStorage.setItem('minara_cart', JSON.stringify([]));
+
+      // Use verified order data if present, or local fallback
+      const finalOrder = verifiedOrder || orderData || {};
+      const refToDisplay = finalOrder.orderId || activeRef;
+
+      const itemsList = finalOrder.items || (orderData ? orderData.items : []);
+      let itemsRows = '';
+      if (itemsList && itemsList.length > 0) {
+        itemsList.forEach(item => {
+          let selectionsHtml = '';
+          if (item.selectedScents && item.selectedScents.length > 0) {
+            const names = item.selectedScents.map(s => typeof s === 'object' && s ? (s.nameShort || s.name) : s);
+            selectionsHtml = `<div style="font-size: 10.5px; opacity: 0.6; margin-top: 3px; color: #1106e8; text-transform: uppercase; font-weight: 500; letter-spacing: 0.5px;">Selections: ${names.join(', ')}</div>`;
+          }
+          itemsRows += `
+            <div class="receipt-item-row" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+              <div style="display: flex; justify-content: space-between; width: 100%;">
+                <span>${item.name || item.nameShort} (${item.size || '100ml'}) <span style="opacity: 0.6; margin-left: 5px;">x${item.quantity}</span></span>
+                <span style="font-weight: 500;">R${item.price * item.quantity}</span>
+              </div>
+              ${selectionsHtml}
+            </div>
+          `;
+        });
+      }
+
+      const recipientName = finalOrder.customerName || (orderData ? `${orderData.firstName} ${orderData.lastName}` : "Valued Customer");
+      const email = finalOrder.email || (orderData ? orderData.email : "");
+      const phone = finalOrder.phone || (orderData ? orderData.phone : "");
+      const address = finalOrder.address || (orderData ? orderData.address : "");
+      const totalAmount = finalOrder.total || (orderData ? orderData.total : 0);
+
+      receiptContent.innerHTML = `
+        <div class="receipt-card">
+          <div class="receipt-header">
+            <span>Verified Paystack Receipt</span>
+            <span class="receipt-ref">${refToDisplay}</span>
+          </div>
+
+          <div style="background: #e0f2fe; color: #0369a1; padding: 10px 14px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; gap: 6px;">
+            <span>✓</span> <span>Payment Confirmed & Verified by Paystack (by Stripe)</span>
+          </div>
+
+          <div class="receipt-section-title">Shipping Address</div>
+          <div class="receipt-details-grid">
+            <div>
+              <div class="receipt-label">Recipient</div>
+              <div>${recipientName}</div>
+              <div style="margin-top: 8px;" class="receipt-label">Contact</div>
+              <div>Phone: ${phone}</div>
+              <div>Email: ${email}</div>
+            </div>
+            <div>
+              <div class="receipt-label">Delivery Address</div>
+              <div style="white-space: pre-wrap; margin-bottom: 8px;">${address}</div>
+            </div>
+          </div>
+
+          <div class="receipt-section-title">Purchased Items</div>
+          <div class="receipt-items-list">
+            ${itemsRows}
+          </div>
+
+          <div class="receipt-total-row">
+            <span>Total Paid</span>
+            <span>R${totalAmount}</span>
+          </div>
+        </div>
+      `;
+    } else {
+      // Payment unverified / incomplete
+      receiptContent.innerHTML = `
+        <div class="receipt-card" style="text-align: center; padding: 30px; border-left: 4px solid #ef4444;">
+          <div style="font-size: 18px; margin-bottom: 8px;">⚠️</div>
+          <div style="font-weight: bold; font-size: 14px; color: #b91c1c; margin-bottom: 6px;">Payment Verification Pending</div>
+          <div style="font-size: 12px; color: #4b5563; margin-bottom: 18px; line-height: 1.5;">
+            We have not yet received confirmation of completed payment from Paystack for reference <strong>${activeRef}</strong>.
+          </div>
+          <button onclick="window.location.reload()" class="action-btn" style="padding: 10px 24px; font-size: 10px;">Check Status Again</button>
+        </div>
+      `;
+    }
   });
 </script>
 

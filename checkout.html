@@ -677,6 +677,7 @@
   <!-- RIGHT ICONS -->
   <nav>
     <ul>
+      <li><a href="track-order.html">TRACK ORDER</a></li>
       <li><a href="social media.html">SOCIALS</a></li>
       <li class="header-account">
         <div class="account-trigger" onclick="accountClicked(event)">
@@ -704,6 +705,7 @@
   <a href="catalog.html">shop fragrances</a>
   <a href="catalog.html?gender=men">men's</a>
   <a href="catalog.html?gender=women">women's</a>
+  <a href="track-order.html" style="font-weight:bold; color:#09A5DB;">Track Order</a>
   <a href="social media.html">Socials</a>
   <a href="contact.html">Contact</a>
   <div class="mobile-account-block">
@@ -720,42 +722,9 @@
 
 <footer>© 2026 STUDIO EXTRAIT</footer>
 
-<!-- HIDDEN PAYFAST FORM FOR SUBMISSION -->
-<form id="payfastForm" action="" method="POST" style="display: none;">
-  <input type="hidden" name="merchant_id" id="pfMerchantId">
-  <input type="hidden" name="merchant_key" id="pfMerchantKey">
-  <input type="hidden" name="return_url" id="pfReturnUrl">
-  <input type="hidden" name="cancel_url" id="pfCancelUrl">
-  <input type="hidden" name="name_first" id="pfNameFirst">
-  <input type="hidden" name="name_last" id="pfNameLast">
-  <input type="hidden" name="email_address" id="pfEmail">
-  <input type="hidden" name="cell_number" id="pfCell">
-  <input type="hidden" name="m_payment_id" id="pfPaymentId">
-  <input type="hidden" name="amount" id="pfAmount">
-  <input type="hidden" name="item_name" id="pfItemName">
-  <input type="hidden" name="item_description" id="pfItemDesc">
-</form>
+<!-- HIDDEN FORM REMOVED - SECURE PAYSTACK DIRECT API REDIRECT IN USE -->
 
 <script>
-  // =========================================================================
-  // PAYFAST CONFIGURATION (EASY TO SWAP FOR PRODUCTION)
-  // =========================================================================
-  const PAYFAST_CONFIG = {
-    // Sandbox credentials (default test values provided by user)
-    merchant_id: '10000100',
-    merchant_key: '46f0cd694581a',
-    
-    // Sandbox PayFast process URL endpoint
-    process_url: 'https://sandbox.payfast.co.za/eng/process'
-    
-    /* 
-    // PRODUCTION SETTINGS SAMPLE (Uncomment and replace when ready):
-    merchant_id: 'YOUR_LIVE_MERCHANT_ID',
-    merchant_key: 'YOUR_LIVE_MERCHANT_KEY',
-    process_url: 'https://www.payfast.co.za/eng/process'
-    */
-  };
-
   // Toggle alternative email visibility
   window.toggleAlternativeEmail = function(event) {
     event.preventDefault();
@@ -843,7 +812,6 @@
     // Compile items summary list HTML
     let itemsHtml = '';
     activeItems.forEach(item => {
-      // Clean image url logic matching header.js
       let cleanImage = '';
       if (item.image_thumb) {
         cleanImage = item.image_thumb;
@@ -851,7 +819,6 @@
         cleanImage = item.image.split(',')[0].trim();
       }
       
-      // Fallback
       if (!cleanImage) {
         cleanImage = 'https://via.placeholder.com/150x200?text=Minara5';
       }
@@ -885,19 +852,28 @@
 
     // Render forms and summaries
     content.innerHTML = `
+      <style>
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      </style>
       <div class="checkout-container">
         
         <!-- Form Section -->
         <div class="form-column">
           <div class="checkout-header-row" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #000; padding-bottom: 15px; margin-bottom: 35px;">
-            <div class="checkout-title" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">Secure Checkout</div>
+            <div>
+              <div class="checkout-title" style="margin-bottom: 4px; padding-bottom: 0; border-bottom: none; font-size: 20px;">Secure Checkout</div>
+              <div style="font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #09A5DB; text-transform: uppercase;">STEP 1: DELIVERY & CONTACT</div>
+            </div>
             
-            <!-- PayFast Official Brand Logo Trust Indicator -->
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 50" width="95" height="19" style="display: block;">
-              <path d="M15 15l10 10-10 10M25 15l10 10-10 10" stroke="#E12E56" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-              <text x="45" y="33" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="24" fill="#051D43">pay</text>
-              <text x="88" y="33" font-family="Helvetica, Arial, sans-serif" font-weight="900" font-size="24" fill="#E12E56">fast</text>
-            </svg>
+            <!-- Paystack Official Brand Logo Trust Indicator -->
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 30" width="98" height="24" style="display: block;">
+                <rect width="120" height="30" rx="4" fill="#011B33"/>
+                <path d="M16 9h14v3.5H16zM16 14.5h14v3.5H16zM16 20h9v3.5h-9z" fill="#09A5DB"/>
+                <text x="44" y="20" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="13" fill="#FFFFFF">paystack</text>
+              </svg>
+              <span style="font-size: 8px; font-weight: 800; color: #635bff; text-transform: uppercase; letter-spacing: 0.8px;">by Stripe</span>
+            </div>
           </div>
           
           <form id="checkoutDetailsForm" onsubmit="handleCheckoutSubmit(event)">
@@ -1011,9 +987,12 @@
               </div>
             </div>
 
+            <div style="margin-top: 25px; font-size: 11.5px; color: #666; display: flex; align-items: center; gap: 6px; background: #f9f9f9; padding: 12px 14px; border-radius: 4px; border-left: 3px solid #09A5DB;">
+              <span style="font-size: 15px;">🔒</span>
+              <span>Clicking below will securely redirect you to Paystack (by Stripe) to complete your encrypted payment.</span>
+            </div>
 
-
-            <button type="submit" class="submit-order-btn" id="payBtn">Continue to PayFast</button>
+            <button type="submit" class="submit-order-btn" id="payBtn" style="margin-top: 15px; background: #011B33; color: #ffffff; font-weight: bold; letter-spacing: 1.5px;">Continue to Paystack (by Stripe)</button>
           </form>
         </div>
 
@@ -1050,40 +1029,47 @@
 
           <!-- Secure checkout badge/trust block with official card icons -->
           <div class="checkout-trust">
-            <div class="trust-card">
-              <span class="trust-card-icon">🔒</span>
-              <div class="trust-card-content">
-                <div class="trust-card-title">Secured by PayFast</div>
-                We protect your financial information using high-level encryption via PayFast.
-                <!-- Payment Logos Grid inside Trust card -->
-                <div style="display: flex; gap: 8px; align-items: center; margin-top: 10px;">
-                  <!-- Visa Logo -->
-                  <svg title="Visa" viewBox="0 0 36 24" width="28" height="19" xmlns="http://www.w3.org/2000/svg" style="border-radius: 1px; cursor: help;">
-                    <title>Visa</title>
-                    <rect width="36" height="24" rx="2" fill="#1A1F71"/>
-                    <text x="50%" y="60%" font-family="Impact, Arial Black, sans-serif" font-style="italic" font-weight="bold" font-size="10" fill="#F7B600" text-anchor="middle">VISA</text>
-                  </svg>
-                  <!-- Mastercard Logo -->
-                  <svg title="Mastercard" viewBox="0 0 36 24" width="28" height="19" xmlns="http://www.w3.org/2000/svg" style="border-radius: 1px; cursor: help;">
-                    <title>Mastercard</title>
-                    <rect width="36" height="24" rx="2" fill="#222"/>
-                    <circle cx="14" cy="12" r="7" fill="#EB001B" opacity="0.95"/>
-                    <circle cx="22" cy="12" r="7" fill="#F79E1B" opacity="0.95"/>
-                  </svg>
-                  <!-- Instant EFT Logo -->
-                  <svg title="Instant EFT" viewBox="0 0 45 24" width="34" height="19" xmlns="http://www.w3.org/2000/svg" style="border-radius: 1px; cursor: help;">
-                    <title>Instant EFT</title>
-                    <rect width="45" height="24" rx="2" fill="#000"/>
-                    <text x="50%" y="62%" font-family="Helvetica, Arial, sans-serif" font-weight="900" font-size="7" fill="#ccff00" text-anchor="middle">EFT</text>
-                  </svg>
+            <div class="trust-card" style="border: 1px solid #e1e8ed; background: #f8fafc; padding: 16px; border-radius: 6px; margin-bottom: 12px;">
+              <div style="display: flex; align-items: flex-start; gap: 12px;">
+                <span class="trust-card-icon" style="font-size: 22px;">🔒</span>
+                <div class="trust-card-content">
+                  <div class="trust-card-title" style="font-weight: bold; font-size: 13px; color: #0f172a; margin-bottom: 4px;">Secured by Paystack <span style="font-size: 10px; color: #635bff; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 4px;">(by Stripe)</span></div>
+                  <div style="font-size: 11.5px; color: #475569; line-height: 1.4;">
+                    Your financial information is encrypted using bank-grade 256-bit SSL security powered by Paystack (a Stripe company).
+                  </div>
+                  <!-- Payment Logos Grid inside Trust card -->
+                  <div style="display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap;">
+                    <!-- Visa Logo -->
+                    <svg title="Visa" viewBox="0 0 36 24" width="32" height="21" xmlns="http://www.w3.org/2000/svg" style="border-radius: 2px;">
+                      <rect width="36" height="24" rx="2" fill="#1A1F71"/>
+                      <text x="50%" y="60%" font-family="Impact, Arial Black, sans-serif" font-style="italic" font-weight="bold" font-size="10" fill="#F7B600" text-anchor="middle">VISA</text>
+                    </svg>
+                    <!-- Mastercard Logo -->
+                    <svg title="Mastercard" viewBox="0 0 36 24" width="32" height="21" xmlns="http://www.w3.org/2000/svg" style="border-radius: 2px;">
+                      <rect width="36" height="24" rx="2" fill="#222"/>
+                      <circle cx="14" cy="12" r="7" fill="#EB001B" opacity="0.95"/>
+                      <circle cx="22" cy="12" r="7" fill="#F79E1B" opacity="0.95"/>
+                    </svg>
+                    <!-- Instant EFT Logo -->
+                    <svg title="Instant EFT" viewBox="0 0 45 24" width="38" height="21" xmlns="http://www.w3.org/2000/svg" style="border-radius: 2px;">
+                      <rect width="45" height="24" rx="2" fill="#000"/>
+                      <text x="50%" y="62%" font-family="Helvetica, Arial, sans-serif" font-weight="900" font-size="7" fill="#09A5DB" text-anchor="middle">EFT</text>
+                    </svg>
+                    <span style="font-size: 9px; font-weight: bold; background: #e0f2fe; color: #0369a1; padding: 3px 6px; border-radius: 3px; font-family: monospace;">256-BIT SSL</span>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="trust-card">
-              <span class="trust-card-icon">🚚</span>
-              <div class="trust-card-content">
-                <div class="trust-card-title">Courier Guy Delivery</div>
-                Direct, secure courier delivery to your doorstep.
+            
+            <div class="trust-card" style="border: 1px solid #e1e8ed; background: #f8fafc; padding: 16px; border-radius: 6px;">
+              <div style="display: flex; align-items: flex-start; gap: 12px;">
+                <span class="trust-card-icon" style="font-size: 22px;">🚚</span>
+                <div class="trust-card-content">
+                  <div class="trust-card-title" style="font-weight: bold; font-size: 13px; color: #0f172a; margin-bottom: 4px;">Courier Guy Tracked Delivery</div>
+                  <div style="font-size: 11.5px; color: #475569; line-height: 1.4;">
+                    Direct door-to-door courier dispatch with real-time tracking notifications.
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1103,14 +1089,22 @@
     }, 1500);
   }
 
-  // Handle Form Submission and redirect to PayFast
-  window.handleCheckoutSubmit = function(event) {
+  // Handle Form Submission and redirect to Paystack Gateway
+  window.handleCheckoutSubmit = async function(event) {
     event.preventDefault();
     
     const payBtn = document.getElementById("payBtn");
     if (payBtn) {
       payBtn.disabled = true;
-      payBtn.textContent = "Processing order...";
+      payBtn.innerHTML = `
+        <span style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation: spin 1s linear infinite;">
+            <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+            <path d="M12 2a10 10 0 0 1 10 10" stroke-opacity="1"></path>
+          </svg>
+          Securing Paystack Payment...
+        </span>
+      `;
     }
 
     // Retrieve active cart items
@@ -1135,10 +1129,8 @@
     const emailAlt = emailAltInput ? emailAltInput.value.trim() : "";
 
     const phoneSuffix = document.getElementById("c_phone").value.trim();
-    const phone = '+27' + phoneSuffix.replace(/^0+/, ''); // strip leading zero if present and prepend prefix
+    const phone = '+27' + phoneSuffix.replace(/^0+/, '');
     
-    const phoneAlt = '';
-
     // Split name and surname
     const nameParts = fullName.split(/\s+/);
     const firstName = nameParts[0] || "Customer";
@@ -1160,86 +1152,96 @@
     const discountAmount = hasDiscount ? Math.round(subtotal * 0.05) : 0;
     const finalTotal = subtotal - discountAmount;
 
-    // Generate unique payment order reference (e.g. MINARA-17182903)
-    const paymentId = 'MINARA-' + Math.floor(Math.random() * 900000 + 100000) + '-' + Date.now().toString().slice(-4);
-
-    // Compile items name
-    let compiledItemsName = activeItems.map(item => {
-      let suffix = '';
-      if (item.selectedScents && item.selectedScents.length > 0) {
-        const names = item.selectedScents.map(s => typeof s === 'object' && s ? (s.nameShort || s.name) : s);
-        suffix = ` [${names.join(', ')}]`;
-      }
-      return `${item.nameShort || item.name}${suffix} (${item.size || '100ml'}) x${item.quantity}`;
-    }).join(', ');
-    if (compiledItemsName.length > 95) {
-      compiledItemsName = compiledItemsName.substring(0, 92) + '...';
-    }
-
-    // Compile delivery details
+    // Compile delivery address
     let compiledAddress = '';
     if (building) {
       compiledAddress += `${building}, `;
     }
     compiledAddress += `${street}, ${suburb}, ${city}, ${province}, ${postalCode}`;
 
-    let itemDescription = `Addr: ${compiledAddress}. Delivery Date: ${deliveryDate}. Instructions: ${instructions || 'None'}`;
-    if (emailAlt) {
-      itemDescription += `. Alt Email: ${emailAlt}`;
-    }
+    const callbackUrl = window.location.origin + '/success.html';
 
-    // Dynamic redirection urls
-    const returnUrl = window.location.origin + '/success.html';
-    const cancelUrl = window.location.origin + '/cancel.html';
-
-    // Populate the hidden form
-    document.getElementById("pfMerchantId").value = PAYFAST_CONFIG.merchant_id;
-    document.getElementById("pfMerchantKey").value = PAYFAST_CONFIG.merchant_key;
-    document.getElementById("pfReturnUrl").value = returnUrl;
-    document.getElementById("pfCancelUrl").value = cancelUrl;
-    
-    document.getElementById("pfNameFirst").value = firstName;
-    document.getElementById("pfNameLast").value = lastName;
-    document.getElementById("pfEmail").value = email;
-    document.getElementById("pfCell").value = phone;
-    
-    document.getElementById("pfPaymentId").value = paymentId;
-    document.getElementById("pfAmount").value = finalTotal.toFixed(2);
-    document.getElementById("pfItemName").value = compiledItemsName;
-    document.getElementById("pfItemDesc").value = itemDescription.substring(0, 250); // limit to 250 characters
-
-    // Set action URL dynamically
-    const payfastForm = document.getElementById("payfastForm");
-    payfastForm.action = PAYFAST_CONFIG.process_url;
-
-    // Save order shipping details locally for success receipt rendering
-    try {
-      localStorage.setItem('minara_last_order', JSON.stringify({
-        paymentId: paymentId,
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        emailAlt: emailAlt,
-        phone: phone,
-        phoneAlt: phoneAlt,
+    const orderPayload = {
+      customer: {
+        firstName,
+        lastName,
+        email,
+        emailAlt,
+        phone,
+      },
+      shipping: {
         address: compiledAddress,
-        deliveryDate: deliveryDate,
-        total: finalTotal,
-        items: activeItems.map(item => ({
-          name: item.nameShort || item.name,
-          quantity: item.quantity,
-          price: item.price,
-          size: item.size,
-          selectedScents: item.selectedScents || null
-        }))
-      }));
-    } catch(e) {
-      console.warn("Failed to store checkout details locally:", e);
-    }
+        deliveryDate,
+        instructions,
+      },
+      items: activeItems.map(item => ({
+        name: item.nameShort || item.name,
+        quantity: item.quantity,
+        price: item.price,
+        size: item.size || '100ml',
+        selectedScents: item.selectedScents || null
+      })),
+      total: finalTotal,
+      callbackUrl: callbackUrl
+    };
 
-    // Submit form POST to PayFast
-    payfastForm.submit();
-  }
+    try {
+      let functions = null;
+      let httpsCallable = null;
+
+      try {
+        const mod = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js");
+        functions = mod.getFunctions();
+        httpsCallable = mod.httpsCallable;
+      } catch (importErr) {
+        console.warn("Firebase Functions JS import fallback:", importErr);
+      }
+
+      let resData = null;
+
+      if (functions && httpsCallable) {
+        const createPaystackFn = httpsCallable(functions, "createPaystackTransaction");
+        const res = await createPaystackFn(orderPayload);
+        resData = res.data;
+      } else {
+        const res = await fetch("https://us-central1-minara5.cloudfunctions.net/createPaystackTransaction", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: orderPayload })
+        });
+        const json = await res.json();
+        resData = json.result || json;
+      }
+
+      if (resData && resData.success && resData.authorization_url) {
+        localStorage.setItem('minara_last_order', JSON.stringify({
+          paymentId: resData.reference,
+          firstName,
+          lastName,
+          email,
+          emailAlt,
+          phone,
+          address: compiledAddress,
+          deliveryDate,
+          total: finalTotal,
+          items: orderPayload.items
+        }));
+
+        // Redirect customer to Paystack authorization page
+        window.location.href = resData.authorization_url;
+      } else {
+        throw new Error(resData ? (resData.message || "Invalid response from gateway") : "Connection failed");
+      }
+
+    } catch(err) {
+      console.error("Paystack transaction initialization error:", err);
+      alert("Unable to process request with Paystack payment gateway. Please verify your details and try again.");
+      if (payBtn) {
+        payBtn.disabled = false;
+        payBtn.textContent = "Continue to Paystack";
+      }
+    }
+  };
 </script>
 
 <script type="module" src="header.js"></script>

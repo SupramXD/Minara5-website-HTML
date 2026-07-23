@@ -1001,8 +1001,8 @@ window.removeFromCart = function(index) {
                       <rect width="45" height="24" rx="2" fill="#000"/>
                       <text x="50%" y="62%" font-family="Helvetica, Arial, sans-serif" font-weight="900" font-size="7" fill="#ccff00" text-anchor="middle">EFT</text>
                     </svg>
-                    <!-- PayFast Secure badge -->
-                    <span style="font-size: 8px; font-weight: bold; letter-spacing: 0.5px; opacity: 0.4; margin-left: auto; text-transform: uppercase; white-space: nowrap; font-family: Helvetica, Arial, sans-serif;">SECURED BY PAYFAST</span>
+                    <!-- Paystack Secure badge -->
+                    <span style="font-size: 8px; font-weight: bold; letter-spacing: 0.5px; opacity: 0.4; margin-left: auto; text-transform: uppercase; white-space: nowrap; font-family: Helvetica, Arial, sans-serif;">SECURED BY PAYSTACK (BY STRIPE)</span>
                 </div>
             </div>
         </div>
