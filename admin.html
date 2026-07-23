@@ -726,6 +726,7 @@
             fetchUsers();
             loadHeroSettings();
             loadCustomTextSettings();
+            loadAdminOrders();
             return;
           }
         } catch (e) {
@@ -816,7 +817,8 @@
 
             <!-- ADMIN MANAGEMENT TABS -->
             <div class="admin-tabs">
-              <button class="tab-btn active" onclick="switchTab('hero-tab')">Hero & Logo Customizer</button>
+              <button class="tab-btn active" onclick="switchTab('orders-tab')">📦 Customer Orders</button>
+              <button class="tab-btn" onclick="switchTab('hero-tab')">Hero & Logo Customizer</button>
               <button class="tab-btn" onclick="switchTab('catalog-tab')">Catalog & Inventory</button>
               <button class="tab-btn" onclick="switchTab('users-tab')">Users & Newsletter</button>
               <button class="tab-btn" onclick="switchTab('notifications-tab')">Notifications & Requests</button>
@@ -825,8 +827,57 @@
               <button class="tab-btn" onclick="switchTab('features-tab')">Footer & Features Customizer</button>
             </div>
 
+            <!-- TAB 0: CUSTOMER ORDERS MANAGER -->
+            <div id="orders-tab" class="tab-content active">
+              <div class="console-panel full-width-panel" style="margin-bottom: 30px;">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px;">
+                  <div>
+                    <h2 class="panel-title" style="font-size: 20px; color: var(--accent);">📦 Customer Orders Management</h2>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Securely encrypted customer checkout & delivery records in Cloud Firestore</p>
+                  </div>
+
+                  <div style="display: flex; gap: 10px; align-items: center;">
+                    <span id="ordersStats" class="stat-label" style="font-size: 11px;">0 Orders Loaded</span>
+                    <button onclick="loadAdminOrders()" class="action-btn-small" style="background: var(--accent); color: #000; font-weight: bold; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 11px; text-transform: uppercase;">🔄 Refresh Orders</button>
+                  </div>
+                </div>
+
+                <!-- Filter Buttons -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                  <button class="status-badge shipped" onclick="filterOrders('all')" style="cursor: pointer; padding: 6px 14px; font-weight: bold;">ALL ORDERS</button>
+                  <button class="status-badge shipped" onclick="filterOrders('paid')" style="cursor: pointer; padding: 6px 14px; background: rgba(52, 199, 89, 0.15); color: var(--success); border: 1px solid rgba(52, 199, 89, 0.3);">PAID (READY TO SHIP)</button>
+                  <button class="status-badge pending" onclick="filterOrders('pending_payment')" style="cursor: pointer; padding: 6px 14px;">PENDING PAYMENT</button>
+                  <button class="status-badge user" onclick="filterOrders('shipped')" style="cursor: pointer; padding: 6px 14px; background: rgba(9, 165, 219, 0.15); color: #09A5DB; border: 1px solid rgba(9, 165, 219, 0.3);">SHIPPED</button>
+                </div>
+
+                <!-- Orders Table Container -->
+                <div style="overflow-x: auto;">
+                  <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                    <thead>
+                      <tr style="text-align: left; border-bottom: 1px solid var(--border-color); color: var(--text-muted); text-transform: uppercase; font-size: 10px; letter-spacing: 1px;">
+                        <th style="padding: 12px;">Order Ref / Date</th>
+                        <th style="padding: 12px;">Customer Details</th>
+                        <th style="padding: 12px;">Delivery Address</th>
+                        <th style="padding: 12px;">Purchased Items</th>
+                        <th style="padding: 12px;">Total</th>
+                        <th style="padding: 12px;">Status</th>
+                        <th style="padding: 12px;">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                      <tr>
+                        <td colspan="7" style="text-align: center; opacity: 0.5; padding: 40px;">
+                          Click 'Refresh Orders' or select this tab to load customer orders from database.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
             <!-- TAB 1: HERO & LOGO CUSTOMIZER -->
-            <div id="hero-tab" class="tab-content active">
+            <div id="hero-tab" class="tab-content">
               <!-- HERO IMAGE & CUSTOMIZATION EDITOR -->
               <div class="console-panel full-width-panel" style="margin-bottom: 30px;">
               <div class="panel-header">
@@ -5423,6 +5474,226 @@
       } finally {
         syncBtn.disabled = false;
         syncBtn.innerHTML = originalText;
+      }
+    };
+
+    let adminOrders = [];
+    let activeOrderFilter = "all";
+
+    window.loadAdminOrders = async function() {
+      const tableBody = document.getElementById("ordersTableBody");
+      const statusEl = document.getElementById("ordersStats");
+      if (!tableBody) return;
+
+      tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; opacity: 0.5; padding: 40px;">Fetching encrypted orders from Cloud Firestore...</td></tr>`;
+      if (statusEl) statusEl.textContent = "Loading...";
+
+      try {
+        if (!window.db) {
+          throw new Error("Firestore DB not initialized");
+        }
+
+        const querySnapshot = await window.dbGetDocs(window.dbCollection(window.db, "orders"));
+        adminOrders = [];
+        querySnapshot.forEach(docSnap => {
+          adminOrders.push({ id: docSnap.id, ...docSnap.data() });
+        });
+
+        // Sort by createdAt / timestamp descending
+        adminOrders.sort((a, b) => {
+          const timeA = a.createdAt || a.timestamp ? new Date(a.createdAt || a.timestamp).getTime() : 0;
+          const timeB = b.createdAt || b.timestamp ? new Date(b.createdAt || b.timestamp).getTime() : 0;
+          return timeB - timeA;
+        });
+
+        // Update active orders count in hero stat card
+        const ordersCountEl = document.getElementById("dashboardOrdersCount");
+        if (ordersCountEl) {
+          const paidCount = adminOrders.filter(o => o.paid || o.status === "paid" || o.status === "Pending Shipment").length;
+          ordersCountEl.textContent = paidCount.toString();
+        }
+
+        renderOrdersTable();
+
+      } catch (err) {
+        console.error("Failed to load orders from Firestore:", err);
+        tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 40px;">Error loading orders: ${err.message} (Admin authorization required)</td></tr>`;
+        if (statusEl) statusEl.textContent = "Load failed";
+      }
+    };
+
+    window.filterOrders = function(statusFilter) {
+      activeOrderFilter = statusFilter;
+      renderOrdersTable();
+    };
+
+    function renderOrdersTable() {
+      const tableBody = document.getElementById("ordersTableBody");
+      const statusEl = document.getElementById("ordersStats");
+      if (!tableBody) return;
+
+      let filtered = adminOrders;
+      if (activeOrderFilter === "paid") {
+        filtered = adminOrders.filter(o => o.paid || o.status === "paid" || o.status === "Pending Shipment");
+      } else if (activeOrderFilter === "pending_payment") {
+        filtered = adminOrders.filter(o => !o.paid && o.status !== "paid" && o.status !== "Shipped");
+      } else if (activeOrderFilter === "shipped") {
+        filtered = adminOrders.filter(o => o.status === "Shipped" || o.status === "Delivered");
+      }
+
+      if (statusEl) statusEl.textContent = `${filtered.length} Orders Shown (${adminOrders.length} Total)`;
+
+      if (filtered.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; opacity: 0.5; padding: 40px;">No orders found for this filter.</td></tr>`;
+        return;
+      }
+
+      tableBody.innerHTML = "";
+      filtered.forEach(order => {
+        const tr = document.createElement("tr");
+        tr.style.borderBottom = "1px solid var(--border-color)";
+
+        // Ref & Date
+        const tdRef = document.createElement("td");
+        tdRef.style.padding = "12px";
+        const dateStr = order.createdAt || order.timestamp ? new Date(order.createdAt || order.timestamp).toLocaleString() : "N/A";
+        tdRef.innerHTML = `
+          <div style="font-family: monospace; font-weight: bold; color: var(--accent); font-size: 12px;">${order.orderId || order.id}</div>
+          <div style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">${dateStr}</div>
+        `;
+        tr.appendChild(tdRef);
+
+        // Customer Details
+        const tdCustomer = document.createElement("td");
+        tdCustomer.style.padding = "12px";
+        const name = order.customerName || "Customer";
+        const email = order.email || "No email";
+        const emailAlt = order.emailAlt ? `<div style="font-size: 10px; opacity: 0.6;">Alt: ${order.emailAlt}</div>` : '';
+        const phone = order.phone || "";
+        const phoneAlt = order.phoneAlt ? `<div style="font-size: 10px; opacity: 0.6;">Alt Phone: ${order.phoneAlt}</div>` : '';
+        const cleanPhone = phone.replace(/[^0-9+]/g, '');
+        const whatsappUrl = cleanPhone ? `https://wa.me/${cleanPhone.replace('+', '')}` : '#';
+
+        tdCustomer.innerHTML = `
+          <div style="font-weight: bold; color: #fff;">${name}</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">${email}</div>
+          ${emailAlt}
+          ${phone ? `
+            <div style="margin-top: 4px;">
+              <a href="${whatsappUrl}" target="_blank" style="color: #25D366; text-decoration: none; font-weight: bold; font-size: 10px; display: inline-flex; align-items: center; gap: 4px;">
+                <span>💬 WhatsApp (${phone})</span>
+              </a>
+            </div>
+          ` : ''}
+          ${phoneAlt}
+        `;
+        tr.appendChild(tdCustomer);
+
+        // Shipping Address
+        const tdAddress = document.createElement("td");
+        tdAddress.style.padding = "12px";
+        tdAddress.style.fontSize = "11px";
+        tdAddress.style.maxWidth = "220px";
+        tdAddress.innerHTML = `
+          <div style="white-space: pre-wrap; line-height: 1.4;">${order.address || 'Standard Delivery'}</div>
+          ${order.deliveryDate ? `<div style="color: var(--accent); font-size: 10px; margin-top: 4px;">📅 Requested: ${order.deliveryDate}</div>` : ''}
+          ${order.instructions ? `<div style="color: #ff9f0a; font-size: 10px; margin-top: 2px;">📝 ${order.instructions}</div>` : ''}
+        `;
+        tr.appendChild(tdAddress);
+
+        // Purchased Items
+        const tdItems = document.createElement("td");
+        tdItems.style.padding = "12px";
+        tdItems.style.fontSize = "11px";
+        let itemsHtml = '';
+        if (order.items && Array.isArray(order.items)) {
+          order.items.forEach(item => {
+            let scents = '';
+            if (item.selectedScents && item.selectedScents.length > 0) {
+              const names = item.selectedScents.map(s => typeof s === 'object' && s ? (s.nameShort || s.name) : s);
+              scents = `<span style="color: var(--accent); font-size: 10px;"> [${names.join(', ')}]</span>`;
+            }
+            itemsHtml += `<div style="margin-bottom: 3px;">• <strong>${item.name || item.nameShort}</strong> (${item.size || '100ml'})${scents} x${item.quantity} - R${item.price * item.quantity}</div>`;
+          });
+        }
+        tdItems.innerHTML = itemsHtml || '<span style="opacity: 0.5;">Item details unavailable</span>';
+        tr.appendChild(tdItems);
+
+        // Total
+        const tdTotal = document.createElement("td");
+        tdTotal.style.padding = "12px";
+        tdTotal.style.fontWeight = "bold";
+        tdTotal.style.fontSize = "13px";
+        tdTotal.textContent = `R${order.total || 0}`;
+        tr.appendChild(tdTotal);
+
+        // Status Badge
+        const tdStatus = document.createElement("td");
+        tdStatus.style.padding = "12px";
+        const isPaid = order.paid || order.status === "paid" || order.status === "Pending Shipment";
+        let statusClass = "pending";
+        let statusText = "PENDING PAYMENT";
+        if (order.status === "Shipped") {
+          statusClass = "user";
+          statusText = "SHIPPED 🚚";
+        } else if (isPaid) {
+          statusClass = "shipped";
+          statusText = "PAID ✓";
+        }
+        tdStatus.innerHTML = `<span class="status-badge ${statusClass}">${statusText}</span>`;
+        tr.appendChild(tdStatus);
+
+        // Action Selector
+        const tdActions = document.createElement("td");
+        tdActions.style.padding = "12px";
+        const select = document.createElement("select");
+        select.className = "form-input";
+        select.style.cssText = "padding: 4px 8px; font-size: 11px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--border-color); border-radius: 3px;";
+        
+        const options = [
+          { val: "pending_payment", label: "Pending Payment" },
+          { val: "paid", label: "Paid (Pending Shipment)" },
+          { val: "Shipped", label: "Shipped (Courier Guy)" },
+          { val: "Delivered", label: "Delivered" },
+          { val: "Cancelled", label: "Cancelled" }
+        ];
+
+        options.forEach(opt => {
+          const o = document.createElement("option");
+          o.value = opt.val;
+          o.textContent = opt.label;
+          if (order.status === opt.val || (opt.val === "paid" && order.paid && order.status !== "Shipped")) {
+            o.selected = true;
+          }
+          select.appendChild(o);
+        });
+
+        select.onchange = async () => {
+          await window.updateOrderStatus(order.id, select.value);
+        };
+
+        tdActions.appendChild(select);
+        tr.appendChild(tdActions);
+
+        tableBody.appendChild(tr);
+      });
+    }
+
+    window.updateOrderStatus = async function(orderId, newStatus) {
+      try {
+        if (!window.db || !window.dbDoc || !window.dbUpdateDoc) return;
+        const isPaid = newStatus === "paid" || newStatus === "Shipped" || newStatus === "Delivered";
+        const orderRef = window.dbDoc(window.db, "orders", orderId);
+        await window.dbUpdateDoc(orderRef, {
+          status: newStatus,
+          paid: isPaid,
+          updatedAt: new Date().toISOString()
+        });
+        alert(`Order ${orderId} status updated to: ${newStatus}`);
+        window.loadAdminOrders();
+      } catch(err) {
+        console.error("Failed to update order status:", err);
+        alert("Status update failed: " + err.message);
       }
     };
 

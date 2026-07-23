@@ -62,5 +62,13 @@ service cloud.firestore {
       // Only admins can read/write settings
       allow read, write: if isAdmin();
     }
+
+    // Orders collection rules (STRICT ADMIN-ONLY SECURITY)
+    match /orders/{orderId} {
+      // ONLY authenticated Admins can read, query, list, or modify orders
+      allow read, list, update, delete: if isAdmin();
+      // Client-side creations disallowed (handled by Cloud Functions Admin SDK)
+      allow create: if false;
+    }
   }
 }
