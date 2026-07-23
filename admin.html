@@ -2412,13 +2412,25 @@
           const querySnapshot = await getDocs(q);
           
           tableBody.innerHTML = "";
-          querySnapshot.forEach((docSnap) => {
+          querySnapshot.forEach(async (docSnap) => {
               const data = docSnap.data();
               const uid = docSnap.id;
               const email = data.email || "";
-              const role = data.role || "Customer";
+              let role = data.role || "Customer";
               
               const isPrimaryOwner = email.toLowerCase() === "sub2meboyi@gmail.com";
+
+              // SECURITY ENFORCEMENT: Only sub2meboyi@gmail.com can ever be Admin. Automatically strip unauthorized Admin status.
+              if (!isPrimaryOwner && role === "Admin") {
+                role = "Customer";
+                try {
+                  await updateDoc(doc(db, "users", uid), { role: "Customer" });
+                  console.warn(`Security: Automatically stripped unauthorized Admin role from ${email} (${uid})`);
+                } catch (e) {
+                  console.error("Auto demotion error:", e);
+                }
+              }
+              
               const roleBadgeClass = role === "Admin" ? "admin" : "user";
               const roleBadgeText = role === "Admin" ? "ADMIN ID" : "Customer";
               
