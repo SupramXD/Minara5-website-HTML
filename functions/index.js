@@ -687,7 +687,7 @@ exports.createPaystackTransaction = onCall({
     throw new HttpsError("invalid-argument", "Missing required order details.");
   }
 
-  const reference = `MINARA-${Math.floor(Math.random() * 900000 + 100000)}-${Date.now().toString().slice(-4)}`;
+  const reference = `EXTRAIT-${Math.floor(Math.random() * 900000 + 100000)}-${Date.now().toString().slice(-4)}`;
   const amountInCents = Math.round(Number(total) * 100);
 
   const orderDoc = {
