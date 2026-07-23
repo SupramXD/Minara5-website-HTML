@@ -126,6 +126,128 @@ const auth = getAuth(app);
 const isLocalFile = window.location.protocol === "file:";
 
 window.auth = auth;
+// Dynamic Session Interaction Tracker
+async function startSessionTracker(db, doc, setDoc) {
+    if (window.location.pathname.includes("admin.html")) return;
+    
+    let sessionId = sessionStorage.getItem("extrait_session_id");
+    let isNewSession = false;
+    if (!sessionId) {
+        sessionId = "SESS-" + Math.random().toString(36).substring(2, 12).toUpperCase() + "-" + Date.now().toString().slice(-4);
+        sessionStorage.setItem("extrait_session_id", sessionId);
+        isNewSession = true;
+    }
+
+    const device = window.innerWidth <= 900 ? "Mobile" : "Desktop";
+    const referrer = document.referrer || "Direct";
+    const currentPage = window.location.pathname.split("/").pop() || "index.html";
+
+    let sessionData = {
+        sessionId: sessionId,
+        device: device,
+        referrer: referrer,
+        ip: "Pending...",
+        location: "Loading...",
+        pages: [],
+        clicks: [],
+        maxScrollDepth: 0,
+        createdAt: new Date().toISOString(),
+        lastActive: new Date().toISOString()
+    };
+
+    const cached = sessionStorage.getItem("extrait_session_data");
+    if (cached) {
+        try {
+            sessionData = JSON.parse(cached);
+        } catch(e) {}
+    }
+
+    const pageExists = sessionData.pages.some(p => p.page === currentPage);
+    if (!pageExists) {
+        sessionData.pages.push({
+            page: currentPage,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    let syncTimeout = null;
+    function scheduleSync() {
+        if (syncTimeout) clearTimeout(syncTimeout);
+        syncTimeout = setTimeout(async () => {
+            try {
+                // Skip tracking if authenticated as primary owner
+                const user = auth.currentUser;
+                if (user && user.email === 'sub2meboyi@gmail.com') return;
+
+                sessionData.lastActive = new Date().toISOString();
+                sessionStorage.setItem("extrait_session_data", JSON.stringify(sessionData));
+                const sessionRef = doc(db, "sessions", sessionId);
+                await setDoc(sessionRef, sessionData);
+            } catch (err) {
+                console.warn("Tracker sync failed:", err);
+            }
+        }, 1500);
+    }
+
+    if (isNewSession || sessionData.ip === "Pending...") {
+        try {
+            const res = await fetch("https://ipapi.co/json/");
+            if (res.ok) {
+                const geo = await res.json();
+                sessionData.ip = geo.ip || "Unknown IP";
+                sessionData.location = `${geo.city || ""}, ${geo.region || ""}, ${geo.country_name || ""}`.trim() || "Unknown Location";
+            } else {
+                throw new Error();
+            }
+        } catch (e) {
+            try {
+                const res = await fetch("https://api.ipify.org?format=json");
+                if (res.ok) {
+                    const ipify = await res.json();
+                    sessionData.ip = ipify.ip || "Unknown IP";
+                    sessionData.location = "Unknown (Geo Blocked)";
+                }
+            } catch (err) {
+                sessionData.ip = "Unknown / VPN";
+                sessionData.location = "Unknown";
+            }
+        }
+        scheduleSync();
+    }
+
+    // Track clicks on actionable elements
+    window.addEventListener("click", (e) => {
+        const target = e.target;
+        const clickable = target.closest("button, a, .cart-btn, .account-trigger, .close-btn, .track-submit-btn, .submit-order-btn, .product-card");
+        if (clickable) {
+            let desc = clickable.textContent.trim() || clickable.value || clickable.alt || clickable.className || "clickable element";
+            if (desc.length > 50) desc = desc.substring(0, 47) + "...";
+            sessionData.clicks.push({
+                element: clickable.tagName.toLowerCase(),
+                text: desc,
+                page: currentPage,
+                timestamp: new Date().toISOString()
+            });
+            scheduleSync();
+        }
+    });
+
+    // Track scroll depth
+    let lastLoggedDepth = 0;
+    window.addEventListener("scroll", () => {
+        const scrollH = document.documentElement.scrollHeight - window.innerHeight;
+        if (scrollH <= 0) return;
+        const pct = Math.round((window.scrollY / scrollH) * 100);
+        if (pct > sessionData.maxScrollDepth && pct > lastLoggedDepth + 10) {
+            lastLoggedDepth = pct;
+            sessionData.maxScrollDepth = pct;
+            scheduleSync();
+        }
+    });
+
+    scheduleSync();
+}
+
 window.db = null;
 
 // Dynamic Firestore Loader Promise
@@ -144,6 +266,10 @@ window.dbPromise = import("https://www.gstatic.com/firebasejs/11.0.1/firebase-fi
         window.dbWhere = m.where;
         window.dbGetDocs = m.getDocs;
         window.dbOrderBy = m.orderBy;
+
+        // Initialize user interaction tracker
+        startSessionTracker(dbInstance, m.doc, m.setDoc);
+
         return dbInstance;
     })
     .catch(err => {

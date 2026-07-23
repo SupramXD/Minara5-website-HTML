@@ -76,5 +76,13 @@ service cloud.firestore {
       // Client-side creations disallowed (handled by Cloud Functions Admin SDK)
       allow create: if false;
     }
+
+    // Sessions collection rules (STRICT VISITOR LOG SECURITY)
+    match /sessions/{sessionId} {
+      // Anyone can write tracking logs
+      allow create, update: if true;
+      // Only authenticated Admins can query or read logs
+      allow read, list, delete: if isAdmin();
+    }
   }
 }
