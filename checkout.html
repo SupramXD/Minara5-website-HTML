@@ -835,7 +835,11 @@
   window.closeMenu = function() { document.getElementById("menuPanel").classList.remove("open"); };
 
   // Helper function to auto-populate checkout form address fields
-  function populateAddressFields({ fullStreet, sublocality, city, province, postalCode }) {
+  function populateAddressFields({ buildingUnit, fullStreet, sublocality, city, province, postalCode }) {
+    if (buildingUnit) {
+      const bldInput = document.getElementById("c_building");
+      if (bldInput) bldInput.value = buildingUnit;
+    }
     if (fullStreet) {
       const streetInput = document.getElementById("c_street");
       if (streetInput) streetInput.value = fullStreet;
@@ -865,6 +869,127 @@
         }
       }
     }
+  }
+
+  // South African Suburb & Regional Mapping Table for 100% Consistent Resolution
+  const SA_LOCATION_DB = {
+    "witpoort": { city: "Midrand", province: "Gauteng", postal: "1685" },
+    "midrand": { city: "Midrand", province: "Gauteng", postal: "1685" },
+    "sandton": { city: "Sandton", province: "Gauteng", postal: "2196" },
+    "rosebank": { city: "Johannesburg", province: "Gauteng", postal: "2196" },
+    "morningside": { city: "Sandton", province: "Gauteng", postal: "2057" },
+    "bryanston": { city: "Sandton", province: "Gauteng", postal: "2021" },
+    "fourways": { city: "Sandton", province: "Gauteng", postal: "2055" },
+    "roodepoort": { city: "Roodepoort", province: "Gauteng", postal: "1724" },
+    "randburg": { city: "Randburg", province: "Gauteng", postal: "2194" },
+    "bedfordview": { city: "Johannesburg", province: "Gauteng", postal: "2008" },
+    "centurion": { city: "Centurion", province: "Gauteng", postal: "0157" },
+    "pretoria": { city: "Pretoria", province: "Gauteng", postal: "0002" },
+    "johannesburg": { city: "Johannesburg", province: "Gauteng", postal: "2000" },
+    "soweto": { city: "Johannesburg", province: "Gauteng", postal: "1818" },
+    "waterfall": { city: "Midrand", province: "Gauteng", postal: "1685" },
+    "waterfall city": { city: "Midrand", province: "Gauteng", postal: "1685" },
+    "camps bay": { city: "Cape Town", province: "Western Cape", postal: "8005" },
+    "sea point": { city: "Cape Town", province: "Western Cape", postal: "8005" },
+    "green point": { city: "Cape Town", province: "Western Cape", postal: "8005" },
+    "cape town": { city: "Cape Town", province: "Western Cape", postal: "8000" },
+    "constantia": { city: "Cape Town", province: "Western Cape", postal: "7806" },
+    "durban": { city: "Durban", province: "KwaZulu-Natal", postal: "4001" },
+    "umhlanga": { city: "Durban", province: "KwaZulu-Natal", postal: "4319" },
+    "ballito": { city: "Dolphin Coast", province: "KwaZulu-Natal", postal: "4420" },
+    "gqeberha": { city: "Gqeberha", province: "Eastern Cape", postal: "6001" },
+    "port elizabeth": { city: "Gqeberha", province: "Eastern Cape", postal: "6001" },
+    "bloemfontein": { city: "Bloemfontein", province: "Free State", postal: "9301" }
+  };
+
+  // Smart Address Parser & Component Classifier
+  function parseAddressString(addressStr) {
+    if (!addressStr) return {};
+
+    const parts = addressStr.split(",").map(p => p.trim()).filter(Boolean);
+    let buildingUnit = "";
+    let streetAddress = "";
+    let suburb = "";
+    let city = "";
+    let province = "";
+    let postalCode = "";
+
+    // Extract 4-digit postal code if present
+    const postalMatch = addressStr.match(/\b\d{4}\b/);
+    if (postalMatch) {
+      postalCode = postalMatch[0];
+    }
+
+    // Exclude country names
+    const cleanParts = parts.filter(pt => {
+      const lower = pt.toLowerCase();
+      return lower !== "south africa" && lower !== "za" && lower !== "republic of south africa";
+    });
+
+    // Check if first part contains unit/building keywords (e.g. "Apt 4B", "Unit 12", "Flat 3")
+    const unitRegex = /^(apt|unit|flat|suite|block|bldg|shop|room|no\.?)\b/i;
+    if (cleanParts.length >= 1 && unitRegex.test(cleanParts[0])) {
+      buildingUnit = cleanParts.shift();
+    }
+
+    // Map remaining clean parts
+    if (cleanParts.length === 1) {
+      streetAddress = cleanParts[0];
+    } else if (cleanParts.length === 2) {
+      streetAddress = cleanParts[0];
+      suburb = cleanParts[1];
+    } else if (cleanParts.length === 3) {
+      streetAddress = cleanParts[0];
+      suburb = cleanParts[1];
+      city = cleanParts[2];
+    } else if (cleanParts.length >= 4) {
+      streetAddress = cleanParts[0];
+      suburb = cleanParts[1];
+      city = cleanParts[2];
+      province = cleanParts[3];
+    }
+
+    // Enrich missing fields via South African Geographic DB
+    const subKey = (suburb || "").toLowerCase();
+    const cityKey = (city || "").toLowerCase();
+
+    if (SA_LOCATION_DB[subKey]) {
+      const dbInfo = SA_LOCATION_DB[subKey];
+      if (!city || city.toLowerCase() === subKey) city = dbInfo.city;
+      if (!province) province = dbInfo.province;
+      if (!postalCode) postalCode = dbInfo.postal;
+    }
+
+    if (SA_LOCATION_DB[cityKey]) {
+      const dbInfo = SA_LOCATION_DB[cityKey];
+      if (!province) province = dbInfo.province;
+      if (!postalCode) postalCode = dbInfo.postal;
+    }
+
+    // Fallback province match from full address text
+    if (!province) {
+      const fullLower = addressStr.toLowerCase();
+      if (fullLower.includes("gauteng") || fullLower.includes("midrand") || fullLower.includes("sandton") || fullLower.includes("roodepoort") || fullLower.includes("centurion") || fullLower.includes("jhb") || fullLower.includes("pta")) {
+        province = "Gauteng";
+      } else if (fullLower.includes("western cape") || fullLower.includes("cape town") || fullLower.includes("stellenbosch") || fullLower.includes("paarl")) {
+        province = "Western Cape";
+      } else if (fullLower.includes("kwazulu") || fullLower.includes("kzn") || fullLower.includes("durban") || fullLower.includes("umhlanga")) {
+        province = "KwaZulu-Natal";
+      } else if (fullLower.includes("eastern cape") || fullLower.includes("gqeberha") || fullLower.includes("port elizabeth")) {
+        province = "Eastern Cape";
+      } else if (fullLower.includes("free state") || fullLower.includes("bloemfontein")) {
+        province = "Free State";
+      }
+    }
+
+    return {
+      buildingUnit,
+      fullStreet: streetAddress,
+      sublocality: suburb,
+      city: (city && city.toLowerCase() !== (suburb || "").toLowerCase()) ? city : (SA_LOCATION_DB[subKey]?.city || suburb),
+      province,
+      postalCode
+    };
   }
 
   // Custom 100% Cross-Browser Autocomplete for City and Suburb
@@ -959,8 +1084,13 @@
 
   // Geocoder Auto-population Service (Guarantees full component extraction)
   function fillAddressUsingGeocoder(searchTarget, fallbackName = "") {
+    // 0ms Instant UI population from address text
+    if (fallbackName) {
+      const initialParsed = parseAddressString(fallbackName);
+      populateAddressFields(initialParsed);
+    }
+
     if (typeof google === "undefined" || !google.maps || !google.maps.Geocoder) {
-      parseStringAndFill(fallbackName);
       return;
     }
 
@@ -1000,46 +1130,34 @@
             }
           }
 
-          // Fallback parsing from formatted address if components missed anything
           const formatted = res.formatted_address || fallbackName || "";
-          if (formatted) {
-            const parts = formatted.split(",").map(p => p.trim());
-            if (!route && parts.length > 0) route = parts[0];
-            if (!sublocality && parts.length >= 4) sublocality = parts[1];
-            if (!city && parts.length >= 3) {
-              const candidate = parts.find(pt => pt !== "South Africa" && !/^\d{4}$/.test(pt));
-              if (candidate && !city) city = candidate;
-            }
-            if (!postalCode) {
-              const match = formatted.match(/\b\d{4}\b/);
-              if (match) postalCode = match[0];
-            }
-          }
+          const parsed = parseAddressString(formatted);
 
-          const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || fallbackName || "");
-          populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
-        } else if (fallbackName) {
-          parseStringAndFill(fallbackName);
+          const fullStreet = streetNumber ? `${streetNumber} ${route}` : (parsed.fullStreet || route || fallbackName || "");
+          const finalSub = sublocality || parsed.sublocality;
+          const finalCity = (city && city.toLowerCase() !== (finalSub || "").toLowerCase()) ? city : (parsed.city || finalSub);
+          const finalProv = province || parsed.province;
+          const finalPostal = postalCode || parsed.postalCode;
+
+          populateAddressFields({
+            buildingUnit: parsed.buildingUnit,
+            fullStreet,
+            sublocality: finalSub,
+            city: finalCity,
+            province: finalProv,
+            postalCode: finalPostal
+          });
         }
       });
     } catch (err) {
       console.warn("Geocoder error:", err);
-      parseStringAndFill(fallbackName);
     }
   }
 
   function parseStringAndFill(str) {
     if (!str) return;
-    const parts = str.split(",").map(p => p.trim());
-    const fullStreet = parts[0] || "";
-    const sublocality = parts.length >= 4 ? parts[1] : "";
-    const city = parts.length >= 3 ? parts[parts.length - 3] : (parts[1] || "");
-    let province = parts.length >= 2 ? parts[parts.length - 2] : "";
-    let postalCode = "";
-    const match = str.match(/\b\d{4}\b/);
-    if (match) postalCode = match[0];
-
-    populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
+    const parsed = parseAddressString(str);
+    populateAddressFields(parsed);
   }
 
   // Google Places Autocomplete Initialization (Supports Places API New & Legacy Autocomplete)
