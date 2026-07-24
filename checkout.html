@@ -1082,11 +1082,18 @@
     });
   }
 
-  // Geocoder Auto-population Service (Guarantees full component extraction)
+  // Geocoder & Standalone Place Resolution Service (Guarantees full component extraction without depending on Geocoding API)
   function fillAddressUsingGeocoder(searchTarget, fallbackName = "") {
     // 0ms Instant UI population from address text
-    if (fallbackName) {
-      const initialParsed = parseAddressString(fallbackName);
+    let targetStr = fallbackName;
+    if (typeof searchTarget === "string") {
+      targetStr = searchTarget;
+    } else if (searchTarget && searchTarget.formattedAddress) {
+      targetStr = searchTarget.formattedAddress;
+    }
+
+    if (targetStr) {
+      const initialParsed = parseAddressString(targetStr);
       populateAddressFields(initialParsed);
     }
 
@@ -1130,7 +1137,7 @@
             }
           }
 
-          const formatted = res.formatted_address || fallbackName || "";
+          const formatted = res.formatted_address || fallbackName || targetStr || "";
           const parsed = parseAddressString(formatted);
 
           const fullStreet = streetNumber ? `${streetNumber} ${route}` : (parsed.fullStreet || route || fallbackName || "");
@@ -1150,7 +1157,7 @@
         }
       });
     } catch (err) {
-      console.warn("Geocoder error:", err);
+      console.warn("Geocoder notice:", err);
     }
   }
 
@@ -1220,11 +1227,25 @@
 
             const handlePlaceSelect = async (evt) => {
               let place = evt.place || (evt.detail && evt.detail.place);
+              let shadowInputValue = "";
+
+              try {
+                if (autocompleteEl.shadowRoot) {
+                  const innerInput = autocompleteEl.shadowRoot.querySelector("input");
+                  if (innerInput && innerInput.value) {
+                    shadowInputValue = innerInput.value;
+                  }
+                }
+              } catch (e) {}
+
               if (!place && evt.target && evt.target.value) {
                 place = evt.target.value;
               }
               if (!place && autocompleteEl && autocompleteEl.value) {
                 place = autocompleteEl.value;
+              }
+              if (!place && shadowInputValue) {
+                place = shadowInputValue;
               }
               if (!place) return;
 
@@ -1236,6 +1257,7 @@
 
               let formattedStr = "";
               let placeId = "";
+              let directComps = null;
 
               if (typeof place === "string") {
                 formattedStr = place;
@@ -1245,9 +1267,20 @@
                 if (typeof formattedStr === "object" && formattedStr.text) {
                   formattedStr = formattedStr.text;
                 }
+                directComps = place.addressComponents || place.address_components;
               }
 
-              // Primary: Auto-fill fields via Geocoder & string parser
+              if (!formattedStr && shadowInputValue) {
+                formattedStr = shadowInputValue;
+              }
+
+              // Instant resolution using string parser & SA Location DB
+              if (formattedStr) {
+                const parsedData = parseAddressString(formattedStr);
+                populateAddressFields(parsedData);
+              }
+
+              // Additional resolution via Place components or Geocoder
               if (placeId) {
                 fillAddressUsingGeocoder({ placeId: placeId }, formattedStr);
               } else if (formattedStr) {
