@@ -1469,14 +1469,14 @@
             <!-- Building / Floor / Unit field -->
             <div class="form-group">
               <label for="c_building">Building / Floor / Unit</label>
-              <input type="text" id="c_building" class="form-input" placeholder="e.g. Apt 4B, Sunset Heights" autocomplete="shipping address-line2">
+              <input type="text" id="c_building" class="form-input" placeholder="e.g. Apt 4B, Sunset Heights" autocomplete="off" aria-autocomplete="none">
             </div>
 
             <!-- Street Address field (With South African Places Autocomplete) -->
             <div class="form-group">
               <label for="c_street">Street address</label>
               <div id="gplaces_autocomplete_container" style="position: relative;">
-                <input type="text" id="c_street" class="form-input" placeholder="Start typing your street address..." required autocomplete="shipping street-address">
+                <input type="text" id="c_street" class="form-input" placeholder="Start typing your street address..." required autocomplete="off" aria-autocomplete="none">
               </div>
               <div style="font-size: 9.5px; color: #777; margin-top: 4px; line-height: 1.3;">
                 Select address from suggestions to auto-fill Suburb, City, Province & Postal Code.
@@ -1487,15 +1487,15 @@
             <div class="form-group-row-3">
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="c_suburb">Suburb</label>
-                <input type="text" id="c_suburb" class="form-input" placeholder="e.g. Sandton" required autocomplete="shipping address-level3">
+                <input type="text" id="c_suburb" class="form-input" placeholder="e.g. Sandton" required autocomplete="off" aria-autocomplete="none">
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="c_city">City</label>
-                <input type="text" id="c_city" class="form-input" placeholder="e.g. Johannesburg" required autocomplete="shipping address-level2">
+                <input type="text" id="c_city" class="form-input" placeholder="e.g. Johannesburg" required autocomplete="off" aria-autocomplete="none">
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="c_province">Province</label>
-                <select id="c_province" class="form-input form-select" required autocomplete="shipping address-level1">
+                <select id="c_province" class="form-input form-select" required autocomplete="off">
                   <option value="" disabled selected>Select</option>
                   <option value="Gauteng">Gauteng</option>
                   <option value="Western Cape">Western Cape</option>
@@ -1513,7 +1513,7 @@
             <!-- Postal Code field -->
             <div class="form-group" style="width: 50%;">
               <label for="c_postal">Postal Code</label>
-              <input type="text" id="c_postal" class="form-input" placeholder="e.g. 2196" required pattern="[0-9]{4}" title="Please provide a valid 4-digit South African postal code." autocomplete="shipping postal-code">
+              <input type="text" id="c_postal" class="form-input" placeholder="e.g. 2196" required pattern="[0-9]{4}" title="Please provide a valid 4-digit South African postal code." autocomplete="off" aria-autocomplete="none">
             </div>
 
             <!-- Delivery instructions field -->
