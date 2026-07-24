@@ -1301,8 +1301,6 @@
 
           if (placeType === "street") {
             fillAddressUsingGeocoder(itemData.placeId ? { placeId: itemData.placeId } : itemData.text, itemData.text);
-          } else {
-            fillAddressUsingGeocoder(itemData.text, itemData.text);
           }
         };
         dropdown.appendChild(item);
@@ -1466,10 +1464,13 @@
               <input type="date" id="c_delivery_date" class="date-picker-input" style="display: none;" onchange="updateDeliveryDate(this)">
             </div>
 
-            <!-- Building / Floor / Unit field -->
+            <!-- Unit, Building, Complex, or Estate field -->
             <div class="form-group">
-              <label for="c_building">Building / Floor / Unit</label>
-              <input type="text" id="c_building" class="form-input" placeholder="e.g. Apt 4B, Sunset Heights" autocomplete="off" aria-autocomplete="none">
+              <label for="c_building" style="display: flex; align-items: center; justify-content: space-between;">
+                <span>Unit, Building, Complex, or Estate</span>
+                <span style="font-size: 9.5px; font-weight: normal; text-transform: none; color: #888; letter-spacing: 0;">(Optional - if you live in a house, leave blank)</span>
+              </label>
+              <input type="text" id="c_building" class="form-input" placeholder="e.g. Unit 12 The Willows or Apt 7A Cedar Woods" autocomplete="off" aria-autocomplete="none">
             </div>
 
             <!-- Street Address field (With South African Places Autocomplete) -->
