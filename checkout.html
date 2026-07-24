@@ -696,6 +696,28 @@
     .pac-icon {
       display: none;
     }
+
+    /* LUXURY WHITE STYLING FOR GMP-PLACE-AUTOCOMPLETE */
+    gmp-place-autocomplete {
+      width: 100%;
+      display: block;
+      background: #ffffff !important;
+      color: #000000 !important;
+      font-family: Helvetica, Arial, sans-serif !important;
+      font-size: 13px !important;
+      border: 1px solid #cfcfcf !important;
+      border-radius: 2px !important;
+      box-shadow: none !important;
+      --gmp-md-sys-color-surface-container: #ffffff !important;
+      --gmp-md-sys-color-surface: #ffffff !important;
+      --gmp-md-sys-color-on-surface: #000000 !important;
+      --gmp-md-sys-color-on-surface-variant: #555555 !important;
+      --gmp-md-sys-color-outline: #cfcfcf !important;
+      --gmp-md-sys-color-primary: #000000 !important;
+      --gmp-px-color-surface: #ffffff !important;
+      --gmp-px-color-on-surface: #000000 !important;
+      --gmp-px-color-outline: #cfcfcf !important;
+    }
   </style>
 </head>
 <body>
@@ -845,6 +867,64 @@
     }
   }
 
+  // Geocoder Auto-population Service (Guarantees full component extraction)
+  function fillAddressUsingGeocoder(searchTarget, fallbackName = "") {
+    if (typeof google === "undefined" || !google.maps || !google.maps.Geocoder) return;
+
+    try {
+      const geocoder = new google.maps.Geocoder();
+      let req = {};
+      if (typeof searchTarget === "string") {
+        req = { address: searchTarget };
+      } else if (searchTarget && searchTarget.placeId) {
+        req = { placeId: searchTarget.placeId };
+      } else if (searchTarget && searchTarget.formattedAddress) {
+        req = { address: searchTarget.formattedAddress };
+      } else {
+        req = { address: fallbackName };
+      }
+
+      geocoder.geocode(req, (results, status) => {
+        if (status === "OK" && results && results[0]) {
+          const res = results[0];
+          let streetNumber = "", route = "", sublocality = "", city = "", province = "", postalCode = "";
+
+          if (res.address_components) {
+            for (const comp of res.address_components) {
+              const types = comp.types || [];
+              const text = comp.long_name || comp.short_name || "";
+              if (types.includes("street_number")) streetNumber = text;
+              if (types.includes("route")) route = text;
+              if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood") || types.includes("sublocality_level_2")) {
+                if (!sublocality) sublocality = text;
+              }
+              if (types.includes("locality") || types.includes("postal_town")) {
+                if (!city) city = text;
+              }
+              if (types.includes("administrative_area_level_2") && !city) city = text;
+              if (types.includes("administrative_area_level_1")) province = text;
+              if (types.includes("postal_code")) postalCode = text;
+            }
+          }
+
+          // Fallback parsing from formatted address if components missed anything
+          if (res.formatted_address) {
+            const parts = res.formatted_address.split(",").map(p => p.trim());
+            if (!route && parts.length > 0) route = parts[0];
+            if (!sublocality && parts.length >= 4) sublocality = parts[1];
+            if (!city && parts.length >= 3) city = parts[parts.length - 3] || parts[parts.length - 2];
+            if (!province && parts.length >= 2) province = parts[parts.length - 2];
+          }
+
+          const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || fallbackName || "");
+          populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
+        }
+      });
+    } catch (err) {
+      console.warn("Geocoder error:", err);
+    }
+  }
+
   // Google Places Autocomplete Initialization (Supports Places API New & Legacy Autocomplete)
   let googlePlacesAutocomplete = null;
   window.initGooglePlaces = async function() {
@@ -855,9 +935,6 @@
     // Prevent duplicate listeners
     if (input.dataset.gplacesInitialized === "true") return;
     input.dataset.gplacesInitialized = "true";
-
-    // Attach individual field autocompletes for City, Suburb, and Street boxes
-    initIndividualFieldAutocompletes();
 
     // 1. Attempt Modern Places API (New) PlaceAutocompleteElement
     try {
@@ -871,53 +948,85 @@
             });
             autocompleteEl.style.width = "100%";
 
+            // Inject luxury white theme into Web Component shadow DOM
+            const applyWhiteShadowTheme = () => {
+              try {
+                if (autocompleteEl.shadowRoot) {
+                  const styleEl = document.createElement("style");
+                  styleEl.textContent = `
+                    * {
+                      background-color: #ffffff !important;
+                      color: #000000 !important;
+                      border-color: #cfcfcf !important;
+                      font-family: Helvetica, Arial, sans-serif !important;
+                      box-shadow: none !important;
+                    }
+                    .search-icon, svg {
+                      fill: #555555 !important;
+                      color: #555555 !important;
+                    }
+                    input, .input-container {
+                      background-color: #ffffff !important;
+                      color: #000000 !important;
+                      font-size: 13px !important;
+                      border-radius: 2px !important;
+                    }
+                  `;
+                  autocompleteEl.shadowRoot.appendChild(styleEl);
+                }
+              } catch (e) {
+                // Ignore shadow DOM security notice
+              }
+            };
+            setTimeout(applyWhiteShadowTheme, 50);
+            setTimeout(applyWhiteShadowTheme, 300);
+
             const handlePlaceSelect = async (evt) => {
               const place = evt.place || (evt.detail && evt.detail.place);
               if (!place) return;
 
-              let streetNumber = "", route = "", sublocality = "", city = "", province = "", postalCode = "";
+              const formattedStr = place.formattedAddress || place.formatted_address || place.displayName || place.name || "";
+              const placeId = place.id || place.place_id || "";
 
+              // 1. Primary: Auto-fill fields via Geocoder
+              if (placeId) {
+                fillAddressUsingGeocoder({ placeId: placeId }, formattedStr);
+              } else if (formattedStr) {
+                fillAddressUsingGeocoder(formattedStr, formattedStr);
+              }
+
+              // 2. Direct property extraction attempt
               try {
                 if (typeof place.fetchFields === "function") {
                   await place.fetchFields({
                     fields: ["addressComponents", "displayName", "formattedAddress"]
                   });
                 }
-              } catch (err) {
-                console.warn("fetchFields error:", err);
-              }
 
-              const comps = place.addressComponents || place.address_components;
-              if (comps && comps.length > 0) {
-                for (const comp of comps) {
-                  const types = comp.types || [];
-                  const text = comp.longText || comp.long_name || comp.shortText || comp.name || "";
-                  if (types.includes("street_number")) streetNumber = text;
-                  if (types.includes("route")) route = text;
-                  if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood")) {
-                    if (!sublocality) sublocality = text;
+                const comps = place.addressComponents || place.address_components;
+                if (comps && comps.length > 0) {
+                  let streetNumber = "", route = "", sublocality = "", city = "", province = "", postalCode = "";
+                  for (const comp of comps) {
+                    const types = comp.types || [];
+                    const text = comp.longText || comp.long_name || comp.shortText || comp.name || "";
+                    if (types.includes("street_number")) streetNumber = text;
+                    if (types.includes("route")) route = text;
+                    if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood")) {
+                      if (!sublocality) sublocality = text;
+                    }
+                    if (types.includes("locality") || types.includes("postal_town")) {
+                      if (!city) city = text;
+                    }
+                    if (types.includes("administrative_area_level_2") && !city) city = text;
+                    if (types.includes("administrative_area_level_1")) province = text;
+                    if (types.includes("postal_code")) postalCode = text;
                   }
-                  if (types.includes("locality") || types.includes("postal_town")) {
-                    if (!city) city = text;
-                  }
-                  if (types.includes("administrative_area_level_2") && !city) city = text;
-                  if (types.includes("administrative_area_level_1")) province = text;
-                  if (types.includes("postal_code")) postalCode = text;
+                  const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || place.displayName || place.name || "");
+                  populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
                 }
+              } catch (err) {
+                console.warn("Direct extraction notice:", err);
               }
-
-              // Fallback parsing from formatted address if components were partial
-              const formatted = place.formattedAddress || place.formatted_address || place.displayName || "";
-              if (formatted && (!city || !route)) {
-                const parts = formatted.split(",").map(p => p.trim());
-                if (!route && parts.length > 0) route = parts[0];
-                if (!sublocality && parts.length >= 4) sublocality = parts[1];
-                if (!city && parts.length >= 3) city = parts[parts.length - 3] || parts[parts.length - 2];
-                if (!province && parts.length >= 2) province = parts[parts.length - 2];
-              }
-
-              const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || place.displayName || place.name || "");
-              populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
             };
 
             autocompleteEl.addEventListener("gmp-placeselect", handlePlaceSelect);
@@ -945,94 +1054,40 @@
 
         googlePlacesAutocomplete.addListener("place_changed", () => {
           const place = googlePlacesAutocomplete.getPlace();
-          if (!place || !place.address_components) return;
+          if (!place) return;
 
-          let streetNumber = "", route = "", sublocality = "", city = "", province = "", postalCode = "";
-          for (const component of place.address_components) {
-            const types = component.types;
-            if (types.includes("street_number")) streetNumber = component.long_name;
-            if (types.includes("route")) route = component.long_name;
-            if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood")) {
-              if (!sublocality) sublocality = component.long_name;
-            }
-            if (types.includes("locality") || types.includes("postal_town")) {
-              if (!city) city = component.long_name;
-            }
-            if (types.includes("administrative_area_level_2") && !city) city = component.long_name;
-            if (types.includes("administrative_area_level_1")) province = component.long_name;
-            if (types.includes("postal_code")) postalCode = component.long_name;
+          const formattedStr = place.formatted_address || place.name || "";
+          if (place.place_id) {
+            fillAddressUsingGeocoder({ placeId: place.place_id }, formattedStr);
+          } else if (formattedStr) {
+            fillAddressUsingGeocoder(formattedStr, formattedStr);
           }
 
-          const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || place.name || "");
-          populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
+          if (place.address_components) {
+            let streetNumber = "", route = "", sublocality = "", city = "", province = "", postalCode = "";
+            for (const component of place.address_components) {
+              const types = component.types;
+              if (types.includes("street_number")) streetNumber = component.long_name;
+              if (types.includes("route")) route = component.long_name;
+              if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood")) {
+                if (!sublocality) sublocality = component.long_name;
+              }
+              if (types.includes("locality") || types.includes("postal_town")) {
+                if (!city) city = component.long_name;
+              }
+              if (types.includes("administrative_area_level_2") && !city) city = component.long_name;
+              if (types.includes("administrative_area_level_1")) province = component.long_name;
+              if (types.includes("postal_code")) postalCode = component.long_name;
+            }
+            const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || place.name || "");
+            populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
+          }
         });
       }
     } catch (legacyErr) {
       console.warn("Legacy Google Places Autocomplete notice:", legacyErr);
     }
   };
-
-  // Attach autocomplete for individual manual boxes (City, Suburb, Street)
-  function initIndividualFieldAutocompletes() {
-    if (typeof google === "undefined" || !google.maps || !google.maps.places || !google.maps.places.Autocomplete) return;
-
-    try {
-      // City Box Autocomplete
-      const cityInput = document.getElementById("c_city");
-      if (cityInput && !cityInput.dataset.gplacesAttached) {
-        cityInput.dataset.gplacesAttached = "true";
-        const cityAuto = new google.maps.places.Autocomplete(cityInput, {
-          componentRestrictions: { country: "za" },
-          types: ["(cities)"]
-        });
-        cityAuto.addListener("place_changed", () => {
-          const place = cityAuto.getPlace();
-          if (place && (place.name || place.formatted_address)) {
-            cityInput.value = place.name || place.formatted_address.split(",")[0];
-          }
-        });
-      }
-
-      // Suburb Box Autocomplete
-      const suburbInput = document.getElementById("c_suburb");
-      if (suburbInput && !suburbInput.dataset.gplacesAttached) {
-        suburbInput.dataset.gplacesAttached = "true";
-        const suburbAuto = new google.maps.places.Autocomplete(suburbInput, {
-          componentRestrictions: { country: "za" },
-          types: ["(regions)"]
-        });
-        suburbAuto.addListener("place_changed", () => {
-          const place = suburbAuto.getPlace();
-          if (place && (place.name || place.formatted_address)) {
-            suburbInput.value = place.name || place.formatted_address.split(",")[0];
-          }
-        });
-      }
-
-      // Street Box Autocomplete
-      const streetInput = document.getElementById("c_street");
-      if (streetInput && !streetInput.dataset.gplacesAttached) {
-        streetInput.dataset.gplacesAttached = "true";
-        const streetAuto = new google.maps.places.Autocomplete(streetInput, {
-          componentRestrictions: { country: "za" },
-          types: ["address"]
-        });
-        streetAuto.addListener("place_changed", () => {
-          const place = streetAuto.getPlace();
-          if (!place || !place.address_components) return;
-          let streetNumber = "", route = "";
-          for (const comp of place.address_components) {
-            if (comp.types.includes("street_number")) streetNumber = comp.long_name;
-            if (comp.types.includes("route")) route = comp.long_name;
-          }
-          const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || place.name || "");
-          if (fullStreet) streetInput.value = fullStreet;
-        });
-      }
-    } catch (err) {
-      console.warn("Individual field autocomplete notice:", err);
-    }
-  }
 
   // Fallback for address lookup blur so unlisted/manual addresses sync smoothly
   window.handleAddressLookupBlur = function() {
