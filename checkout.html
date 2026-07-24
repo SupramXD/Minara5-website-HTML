@@ -867,9 +867,102 @@
     }
   }
 
+  // Custom 100% Cross-Browser Autocomplete for City and Suburb
+  const SOUTH_AFRICAN_CITIES = [
+    "Johannesburg", "Cape Town", "Durban", "Pretoria", "Sandton", "Centurion", "Midrand",
+    "Gqeberha (Port Elizabeth)", "Bloemfontein", "East London", "Pietermaritzburg", "Polokwane",
+    "Nelspruit (Mbombela)", "Rustenburg", "Kimberley", "George", "Paarl", "Stellenbosch",
+    "Somerset West", "Newcastle", "Umhlanga", "Ballito", "Witbank (Emalahleni)", "Potchefstroom",
+    "Klerksdorp", "Knysna", "Hermanus", "Mossel Bay", "Upington", "Vanderbijlpark", "Vereeniging", "Welkom"
+  ];
+
+  const SOUTH_AFRICAN_SUBURBS = [
+    "Sandton", "Rosebank", "Morningside", "Bryanston", "Fourways", "Midrand", "Bedfordview",
+    "Melville", "Parkhurst", "Illovo", "Hydepark", "Soweto", "Roodepoort", "Randburg",
+    "Waterfall City", "Camps Bay", "Sea Point", "Green Point", "Constantia", "Claremont",
+    "Rondebosch", "Century City", "Durbanville", "Bloubergstrand", "Umhlanga Rocks", "Durban North",
+    "Westville", "Kloof", "Menlyn", "Brooklyn", "Faerie Glen", "Garsfontein", "Silver Lakes"
+  ];
+
+  function setupCustomInputAutocomplete(inputId, optionsList) {
+    const input = document.getElementById(inputId);
+    if (!input || input.dataset.customAutoAttached === "true") return;
+    input.dataset.customAutoAttached = "true";
+
+    const dropdown = document.createElement("div");
+    dropdown.className = "custom-autocomplete-dropdown";
+    dropdown.style.cssText = `
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border: 1px solid #000000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      z-index: 10000;
+      max-height: 180px;
+      overflow-y: auto;
+      display: none;
+      margin-top: 2px;
+      border-radius: 2px;
+    `;
+
+    if (input.parentElement) {
+      input.parentElement.style.position = "relative";
+      input.parentElement.appendChild(dropdown);
+    }
+
+    const updateDropdown = () => {
+      const query = input.value.trim().toLowerCase();
+      if (!query) {
+        dropdown.style.display = "none";
+        return;
+      }
+
+      const matches = optionsList.filter(opt => opt.toLowerCase().includes(query));
+      if (matches.length === 0) {
+        dropdown.style.display = "none";
+        return;
+      }
+
+      dropdown.innerHTML = "";
+      matches.forEach(matchText => {
+        const item = document.createElement("div");
+        item.style.cssText = `
+          padding: 9px 12px;
+          font-size: 12px;
+          color: #000000;
+          cursor: pointer;
+          border-bottom: 1px solid #f0f0f0;
+          font-family: Helvetica, Arial, sans-serif;
+        `;
+        item.textContent = matchText;
+        item.onmouseenter = () => { item.style.background = "#f5f5f5"; };
+        item.onmouseleave = () => { item.style.background = "#ffffff"; };
+        item.onmousedown = (e) => {
+          e.preventDefault();
+          input.value = matchText;
+          dropdown.style.display = "none";
+        };
+        dropdown.appendChild(item);
+      });
+
+      dropdown.style.display = "block";
+    };
+
+    input.addEventListener("input", updateDropdown);
+    input.addEventListener("focus", updateDropdown);
+    input.addEventListener("blur", () => {
+      setTimeout(() => { dropdown.style.display = "none"; }, 180);
+    });
+  }
+
   // Geocoder Auto-population Service (Guarantees full component extraction)
   function fillAddressUsingGeocoder(searchTarget, fallbackName = "") {
-    if (typeof google === "undefined" || !google.maps || !google.maps.Geocoder) return;
+    if (typeof google === "undefined" || !google.maps || !google.maps.Geocoder) {
+      parseStringAndFill(fallbackName);
+      return;
+    }
 
     try {
       const geocoder = new google.maps.Geocoder();
@@ -926,26 +1019,36 @@
           const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || fallbackName || "");
           populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
         } else if (fallbackName) {
-          // Direct string parsing fallback if Geocoder API status is delayed
-          const parts = fallbackName.split(",").map(p => p.trim());
-          const fullStreet = parts[0] || "";
-          const sublocality = parts.length >= 4 ? parts[1] : "";
-          const city = parts.length >= 3 ? parts[parts.length - 3] : (parts[1] || "");
-          const province = parts.length >= 2 ? parts[parts.length - 2] : "";
-          let postalCode = "";
-          const match = fallbackName.match(/\b\d{4}\b/);
-          if (match) postalCode = match[0];
-          populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
+          parseStringAndFill(fallbackName);
         }
       });
     } catch (err) {
       console.warn("Geocoder error:", err);
+      parseStringAndFill(fallbackName);
     }
+  }
+
+  function parseStringAndFill(str) {
+    if (!str) return;
+    const parts = str.split(",").map(p => p.trim());
+    const fullStreet = parts[0] || "";
+    const sublocality = parts.length >= 4 ? parts[1] : "";
+    const city = parts.length >= 3 ? parts[parts.length - 3] : (parts[1] || "");
+    let province = parts.length >= 2 ? parts[parts.length - 2] : "";
+    let postalCode = "";
+    const match = str.match(/\b\d{4}\b/);
+    if (match) postalCode = match[0];
+
+    populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
   }
 
   // Google Places Autocomplete Initialization (Supports Places API New & Legacy Autocomplete)
   let googlePlacesAutocomplete = null;
   window.initGooglePlaces = async function() {
+    // Setup custom autocompletes for City and Suburb
+    setupCustomInputAutocomplete("c_city", SOUTH_AFRICAN_CITIES);
+    setupCustomInputAutocomplete("c_suburb", SOUTH_AFRICAN_SUBURBS);
+
     const input = document.getElementById("c_address_lookup");
     if (!input) return;
     if (typeof google === "undefined" || !google.maps) return;
@@ -992,9 +1095,7 @@
                   `;
                   autocompleteEl.shadowRoot.appendChild(styleEl);
                 }
-              } catch (e) {
-                // Ignore shadow DOM security notice
-              }
+              } catch (e) {}
             };
             setTimeout(applyWhiteShadowTheme, 50);
             setTimeout(applyWhiteShadowTheme, 300);
@@ -1004,14 +1105,15 @@
               if (!place && evt.target && evt.target.value) {
                 place = evt.target.value;
               }
+              if (!place && autocompleteEl && autocompleteEl.value) {
+                place = autocompleteEl.value;
+              }
               if (!place) return;
 
               if (typeof place.toPlace === "function") {
                 try {
                   place = await place.toPlace();
-                } catch (e) {
-                  console.warn("toPlace notice:", e);
-                }
+                } catch (e) {}
               }
 
               let formattedStr = "";
@@ -1027,49 +1129,18 @@
                 }
               }
 
-              // Primary: Auto-fill fields via Geocoder
+              // Primary: Auto-fill fields via Geocoder & string parser
               if (placeId) {
                 fillAddressUsingGeocoder({ placeId: placeId }, formattedStr);
               } else if (formattedStr) {
                 fillAddressUsingGeocoder(formattedStr, formattedStr);
               }
-
-              // Direct property extraction fallback
-              try {
-                if (typeof place.fetchFields === "function") {
-                  await place.fetchFields({
-                    fields: ["addressComponents", "displayName", "formattedAddress"]
-                  });
-                }
-
-                const comps = place.addressComponents || place.address_components;
-                if (comps && comps.length > 0) {
-                  let streetNumber = "", route = "", sublocality = "", city = "", province = "", postalCode = "";
-                  for (const comp of comps) {
-                    const types = comp.types || [];
-                    const text = comp.longText || comp.long_name || comp.shortText || comp.name || "";
-                    if (types.includes("street_number")) streetNumber = text;
-                    if (types.includes("route")) route = text;
-                    if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood")) {
-                      if (!sublocality) sublocality = text;
-                    }
-                    if (types.includes("locality") || types.includes("postal_town")) {
-                      if (!city) city = text;
-                    }
-                    if (types.includes("administrative_area_level_2") && !city) city = text;
-                    if (types.includes("administrative_area_level_1")) province = text;
-                    if (types.includes("postal_code")) postalCode = text;
-                  }
-                  const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || place.displayName || place.name || "");
-                  populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
-                }
-              } catch (err) {
-                console.warn("Direct extraction notice:", err);
-              }
             };
 
             autocompleteEl.addEventListener("gmp-placeselect", handlePlaceSelect);
+            autocompleteEl.addEventListener("gmp-select", handlePlaceSelect);
             autocompleteEl.addEventListener("change", handlePlaceSelect);
+            autocompleteEl.addEventListener("blur", handlePlaceSelect);
 
             input.style.display = "none";
             container.appendChild(autocompleteEl);
@@ -1101,26 +1172,6 @@
             fillAddressUsingGeocoder({ placeId: place.place_id }, formattedStr);
           } else if (formattedStr) {
             fillAddressUsingGeocoder(formattedStr, formattedStr);
-          }
-
-          if (place.address_components) {
-            let streetNumber = "", route = "", sublocality = "", city = "", province = "", postalCode = "";
-            for (const component of place.address_components) {
-              const types = component.types;
-              if (types.includes("street_number")) streetNumber = component.long_name;
-              if (types.includes("route")) route = component.long_name;
-              if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood")) {
-                if (!sublocality) sublocality = component.long_name;
-              }
-              if (types.includes("locality") || types.includes("postal_town")) {
-                if (!city) city = component.long_name;
-              }
-              if (types.includes("administrative_area_level_2") && !city) city = component.long_name;
-              if (types.includes("administrative_area_level_1")) province = component.long_name;
-              if (types.includes("postal_code")) postalCode = component.long_name;
-            }
-            const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || place.name || "");
-            populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
           }
         });
       }
