@@ -1082,7 +1082,7 @@
     });
   }
 
-  // Geocoder & Standalone Place Resolution Service (Guarantees full component extraction without depending on Geocoding API)
+  // Official Google Geocoding API Resolution Service (Integrates enabled Geocoding API)
   function fillAddressUsingGeocoder(searchTarget, fallbackName = "") {
     // 0ms Instant UI population from address text
     let targetStr = fallbackName;
@@ -1157,7 +1157,7 @@
         }
       });
     } catch (err) {
-      console.warn("Geocoder notice:", err);
+      console.warn("Geocoding API notice:", err);
     }
   }
 
