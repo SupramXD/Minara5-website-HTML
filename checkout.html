@@ -14,6 +14,7 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
   <link rel="modulepreload" href="header.js">
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4B_Kidu4QPFaNKMm8L9bKDR-F72ZpfiI&libraries=places&callback=initGooglePlaces" async defer></script>
 
   <style>
     /* --- GLOBAL FONT DECLARATION --- */
@@ -654,6 +655,47 @@
       font-family: Helvetica, Arial, sans-serif;
       outline: none;
     }
+
+    /* GOOGLE PLACES AUTOCOMPLETE STYLING */
+    .pac-container {
+      background-color: #ffffff;
+      border: 1px solid #000000;
+      border-radius: 0px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+      font-family: Helvetica, Arial, sans-serif;
+      z-index: 10000 !important;
+      margin-top: 4px;
+      padding: 4px 0;
+    }
+    .pac-item {
+      padding: 10px 14px;
+      font-size: 12px;
+      color: #333;
+      border-top: 1px solid #f0f0f0;
+      cursor: pointer;
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+    }
+    .pac-item:first-child {
+      border-top: none;
+    }
+    .pac-item:hover, .pac-item-selected {
+      background-color: #f8f8f8;
+    }
+    .pac-item-query {
+      font-size: 12px;
+      font-weight: 700;
+      color: #000;
+      margin-right: 4px;
+    }
+    .pac-matched {
+      font-weight: 800;
+      color: #000;
+    }
+    .pac-icon {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -769,6 +811,98 @@
   // Basic menu helper scripts
   window.openMenu = function() { document.getElementById("menuPanel").classList.add("open"); };
   window.closeMenu = function() { document.getElementById("menuPanel").classList.remove("open"); };
+
+  // Google Places Autocomplete Initialization
+  let googlePlacesAutocomplete = null;
+  window.initGooglePlaces = function() {
+    const input = document.getElementById("c_address_lookup");
+    if (!input) return;
+    if (typeof google === "undefined" || !google.maps || !google.maps.places) return;
+    
+    // Prevent duplicate listeners
+    if (input.dataset.gplacesInitialized === "true") return;
+    input.dataset.gplacesInitialized = "true";
+
+    try {
+      const options = {
+        componentRestrictions: { country: "za" },
+        fields: ["address_components", "formatted_address", "geometry", "name"],
+        types: ["address"]
+      };
+
+      googlePlacesAutocomplete = new google.maps.places.Autocomplete(input, options);
+
+      googlePlacesAutocomplete.addListener("place_changed", () => {
+        const place = googlePlacesAutocomplete.getPlace();
+        if (!place || !place.address_components) return;
+
+        let streetNumber = "";
+        let route = "";
+        let sublocality = "";
+        let city = "";
+        let province = "";
+        let postalCode = "";
+
+        for (const component of place.address_components) {
+          const types = component.types;
+          if (types.includes("street_number")) streetNumber = component.long_name;
+          if (types.includes("route")) route = component.long_name;
+          if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood")) {
+            if (!sublocality) sublocality = component.long_name;
+          }
+          if (types.includes("locality") || types.includes("postal_town")) {
+            if (!city) city = component.long_name;
+          }
+          if (types.includes("administrative_area_level_2") && !city) city = component.long_name;
+          if (types.includes("administrative_area_level_1")) province = component.long_name;
+          if (types.includes("postal_code")) postalCode = component.long_name;
+        }
+
+        const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || place.name || "");
+
+        if (fullStreet) {
+          const streetInput = document.getElementById("c_street");
+          if (streetInput) streetInput.value = fullStreet;
+        }
+        if (sublocality) {
+          const suburbInput = document.getElementById("c_suburb");
+          if (suburbInput) suburbInput.value = sublocality;
+        }
+        if (city) {
+          const cityInput = document.getElementById("c_city");
+          if (cityInput) cityInput.value = city;
+        }
+        if (postalCode) {
+          const postalInput = document.getElementById("c_postal");
+          if (postalInput) postalInput.value = postalCode;
+        }
+        if (province) {
+          const provinceSelect = document.getElementById("c_province");
+          if (provinceSelect) {
+            const provLower = province.toLowerCase();
+            for (let i = 0; i < provinceSelect.options.length; i++) {
+              const optVal = provinceSelect.options[i].value;
+              if (optVal && (provLower.includes(optVal.toLowerCase()) || optVal.toLowerCase().includes(provLower))) {
+                provinceSelect.selectedIndex = i;
+                break;
+              }
+            }
+          }
+        }
+      });
+    } catch (err) {
+      console.warn("Google Places Autocomplete error:", err);
+    }
+  };
+
+  // Fallback for address lookup blur so unlisted/manual addresses sync smoothly
+  window.handleAddressLookupBlur = function() {
+    const lookupInput = document.getElementById("c_address_lookup");
+    const streetInput = document.getElementById("c_street");
+    if (lookupInput && streetInput && lookupInput.value.trim() && !streetInput.value.trim()) {
+      streetInput.value = lookupInput.value.trim();
+    }
+  };
 
   // Load and render cart details
   document.addEventListener('DOMContentLoaded', () => {
@@ -895,37 +1029,49 @@
               <input type="date" id="c_delivery_date" class="date-picker-input" style="display: none;" onchange="updateDeliveryDate(this)">
             </div>
 
-            <!-- Address field -->
+            <!-- Address Autocomplete field -->
             <div class="form-group">
-              <label for="c_address_lookup">Address</label>
-              <input type="text" id="c_address_lookup" class="form-input" placeholder="Enter a location">
+              <label for="c_address_lookup" style="display: flex; align-items: center; justify-content: space-between;">
+                <span>Address Autocomplete</span>
+                <span style="font-size: 9px; font-weight: normal; text-transform: none; color: #888; letter-spacing: 0;">(Optional - instant populating)</span>
+              </label>
+              <div style="position: relative;">
+                <input type="text" id="c_address_lookup" class="form-input" placeholder="Start typing street address, complex, or suburb..." autocomplete="off" onblur="handleAddressLookupBlur()" style="padding-left: 36px; border-color: #111;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none;">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+              </div>
+              <div style="font-size: 9.5px; color: #777; margin-top: 5px; line-height: 1.3;">
+                Select your address from the dropdown suggestions to auto-fill fields below, or type manually.
+              </div>
             </div>
 
             <!-- Building / Floor / Unit field -->
             <div class="form-group">
               <label for="c_building">Building / Floor / Unit</label>
-              <input type="text" id="c_building" class="form-input">
+              <input type="text" id="c_building" class="form-input" placeholder="e.g. Apt 4B, Sunset Heights" autocomplete="shipping address-line2">
             </div>
 
             <!-- Street Address field -->
             <div class="form-group">
               <label for="c_street">Street address</label>
-              <input type="text" id="c_street" class="form-input" required>
+              <input type="text" id="c_street" class="form-input" placeholder="e.g. 123 Main Street" required autocomplete="shipping street-address">
             </div>
 
             <!-- Suburb, City, Province row -->
             <div class="form-group-row-3">
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="c_suburb">Suburb</label>
-                <input type="text" id="c_suburb" class="form-input" required>
+                <input type="text" id="c_suburb" class="form-input" placeholder="e.g. Sandton" required autocomplete="shipping address-level3">
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="c_city">City</label>
-                <input type="text" id="c_city" class="form-input" required>
+                <input type="text" id="c_city" class="form-input" placeholder="e.g. Johannesburg" required autocomplete="shipping address-level2">
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="c_province">Province</label>
-                <select id="c_province" class="form-input form-select" required>
+                <select id="c_province" class="form-input form-select" required autocomplete="shipping address-level1">
                   <option value="" disabled selected>Select</option>
                   <option value="Gauteng">Gauteng</option>
                   <option value="Western Cape">Western Cape</option>
@@ -943,13 +1089,13 @@
             <!-- Postal Code field -->
             <div class="form-group" style="width: 50%;">
               <label for="c_postal">Postal Code</label>
-              <input type="text" id="c_postal" class="form-input" required pattern="[0-9]{4}" title="Please provide a valid 4-digit South African postal code.">
+              <input type="text" id="c_postal" class="form-input" placeholder="e.g. 2196" required pattern="[0-9]{4}" title="Please provide a valid 4-digit South African postal code." autocomplete="shipping postal-code">
             </div>
 
             <!-- Delivery instructions field -->
             <div class="form-group">
               <label for="c_instructions">Delivery instructions</label>
-              <input type="text" id="c_instructions" class="form-input" placeholder="eg. Leave at gate">
+              <input type="text" id="c_instructions" class="form-input" placeholder="e.g. Leave with security at main gate">
             </div>
 
             <!-- Section 2: Contact Details -->
@@ -958,21 +1104,21 @@
             <!-- Name and Surname field -->
             <div class="form-group">
               <label for="c_fullname">Name and surname</label>
-              <input type="text" id="c_fullname" class="form-input" required>
+              <input type="text" id="c_fullname" class="form-input" placeholder="e.g. Sarah Jenkins" required autocomplete="name">
             </div>
 
             <!-- Email Address field -->
             <div class="form-group">
               <label for="c_email">Email address</label>
-              <input type="email" id="c_email" class="form-input" required>
+              <input type="email" id="c_email" class="form-input" placeholder="e.g. sarah@example.com" required autocomplete="email">
               
               <div style="margin-top: 6px;">
-                <a href="#" id="addEmailLink" onclick="toggleAlternativeEmail(event)" style="font-size: 11px; color: #1106e8; text-decoration: none; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">+ Add another email</a>
+                <a href="#" id="addEmailLink" onclick="toggleAlternativeEmail(event)" style="font-size: 11px; color: #1106e8; text-decoration: none; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">+ Add secondary / gift recipient email</a>
               </div>
               
               <div id="altEmailGroup" style="display: none; margin-top: 10px;">
                 <label for="c_email_alt">Alternative email address</label>
-                <input type="email" id="c_email_alt" class="form-input">
+                <input type="email" id="c_email_alt" class="form-input" placeholder="e.g. backup@example.com" autocomplete="email">
               </div>
             </div>
 
@@ -980,20 +1126,31 @@
             <div class="form-group">
               <label for="c_phone">Mobile number</label>
               <div style="display: flex; gap: 8px;">
-                <div style="display: flex; align-items: center; border: 1px solid #cfcfcf; padding: 12px; border-radius: 2px; background: #f7f7f7; font-size: 13px; color: #555; font-weight: bold; gap: 4px;">
-                  <span>🇿🇦</span>
+                <div style="display: flex; align-items: center; border: 1px solid #cfcfcf; padding: 10px 12px; border-radius: 2px; background: #f7f7f7; font-size: 12px; color: #111; font-weight: bold; gap: 6px; flex-shrink: 0;">
+                  <svg width="18" height="12" viewBox="0 0 30 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="border-radius: 1px;">
+                    <rect width="30" height="20" fill="#007A3D"/>
+                    <path d="M0 0H30V6.66H0V0Z" fill="#E03C31"/>
+                    <path d="M0 13.34H30V20H0V13.34Z" fill="#001489"/>
+                    <path d="M0 0L12 10L0 20V0Z" fill="#000000"/>
+                    <path d="M0 0L10 10L0 20" stroke="#FFB81C" stroke-width="2.5"/>
+                    <path d="M10 10H30" stroke="#FFFFFF" stroke-width="3.5"/>
+                    <path d="M12 10H30" stroke="#007A3D" stroke-width="2"/>
+                  </svg>
                   <span>+27</span>
                 </div>
-                <input type="tel" id="c_phone" class="form-input" placeholder="e.g. 82 123 4567" style="flex: 1;" required>
+                <input type="tel" id="c_phone" class="form-input" placeholder="e.g. 82 123 4567" style="flex: 1;" required autocomplete="tel-national">
               </div>
             </div>
 
-            <div style="margin-top: 25px; font-size: 11.5px; color: #666; display: flex; align-items: center; gap: 6px; background: #f9f9f9; padding: 12px 14px; border-radius: 4px; border-left: 3px solid #09A5DB;">
-              <span style="font-size: 15px;">🔒</span>
-              <span>Clicking below will securely redirect you to Paystack to complete your encrypted payment.</span>
+            <div style="margin-top: 25px; font-size: 11.5px; color: #444; display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 12px 14px; border-radius: 4px; border: 1px solid #e2e8f0; border-left: 3px solid #09A5DB;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#09A5DB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <span>You will be securely redirected to Paystack to complete your 256-bit SSL encrypted payment.</span>
             </div>
 
-            <button type="submit" class="submit-order-btn" id="payBtn" style="margin-top: 15px; background: #011B33; color: #ffffff; font-weight: bold; letter-spacing: 1.5px;">Continue to Paystack</button>
+            <button type="submit" class="submit-order-btn" id="payBtn" style="margin-top: 15px; background: #011B33; color: #ffffff; font-weight: bold; letter-spacing: 1.5px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 16px;">
+              <span>Continue to Paystack Payment</span>
+              <span style="font-size: 9px; opacity: 0.75; letter-spacing: 1px; font-weight: normal; text-transform: uppercase;">Free Express Courier Guy Shipping Included</span>
+            </button>
           </form>
         </div>
 
@@ -1032,7 +1189,9 @@
           <div class="checkout-trust">
             <div class="trust-card" style="border: 1px solid #e1e8ed; background: #f8fafc; padding: 16px; border-radius: 6px; margin-bottom: 12px;">
               <div style="display: flex; align-items: flex-start; gap: 12px;">
-                <span class="trust-card-icon" style="font-size: 22px;">🔒</span>
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #e0f2fe; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
                 <div class="trust-card-content">
                   <div class="trust-card-title" style="font-weight: bold; font-size: 13px; color: #0f172a; margin-bottom: 4px;">Secured by Paystack <span style="font-size: 10px; color: #635bff; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 4px;">(by Stripe)</span></div>
                   <div style="font-size: 11.5px; color: #475569; line-height: 1.4;">
@@ -1064,11 +1223,13 @@
             
             <div class="trust-card" style="border: 1px solid #e1e8ed; background: #f8fafc; padding: 16px; border-radius: 6px;">
               <div style="display: flex; align-items: flex-start; gap: 12px;">
-                <span class="trust-card-icon" style="font-size: 22px;">🚚</span>
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #f0fdf4; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                </div>
                 <div class="trust-card-content">
                   <div class="trust-card-title" style="font-weight: bold; font-size: 13px; color: #0f172a; margin-bottom: 4px;">Courier Guy Tracked Delivery</div>
                   <div style="font-size: 11.5px; color: #475569; line-height: 1.4;">
-                    Direct door-to-door courier dispatch with real-time tracking notifications.
+                    Direct door-to-door courier dispatch with real-time tracking notifications sent to your email & SMS.
                   </div>
                 </div>
               </div>
@@ -1079,15 +1240,18 @@
       </div>
     `;
 
-    // Pre-fill email if user is logged in
+    // Pre-fill email if user is logged in & Initialize Google Places Autocomplete
     setTimeout(() => {
+      if (typeof window.initGooglePlaces === "function") {
+        window.initGooglePlaces();
+      }
       if (window.auth && window.auth.currentUser) {
         const emailInput = document.getElementById("c_email");
         if (emailInput && window.auth.currentUser.email) {
           emailInput.value = window.auth.currentUser.email;
         }
       }
-    }, 1500);
+    }, 200);
   }
 
   // Handle Form Submission and redirect to Paystack Gateway
