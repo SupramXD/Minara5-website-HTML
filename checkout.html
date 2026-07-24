@@ -1173,7 +1173,7 @@
     setupCustomInputAutocomplete("c_city", SOUTH_AFRICAN_CITIES);
     setupCustomInputAutocomplete("c_suburb", SOUTH_AFRICAN_SUBURBS);
 
-    const input = document.getElementById("c_address_lookup");
+    const input = document.getElementById("c_street");
     if (!input) return;
     if (typeof google === "undefined" || !google.maps) return;
     
@@ -1464,30 +1464,21 @@
               <input type="date" id="c_delivery_date" class="date-picker-input" style="display: none;" onchange="updateDeliveryDate(this)">
             </div>
 
-            <!-- Address Autocomplete field -->
-            <div class="form-group">
-              <label for="c_address_lookup" style="display: flex; align-items: center; justify-content: space-between;">
-                <span>Address Autocomplete</span>
-                <span style="font-size: 9px; font-weight: normal; text-transform: none; color: #888; letter-spacing: 0;">(Optional - instant populating)</span>
-              </label>
-              <div id="gplaces_autocomplete_container" style="position: relative;">
-                <input type="text" id="c_address_lookup" class="form-input" placeholder="Start typing street address, complex, or suburb..." autocomplete="off" onblur="handleAddressLookupBlur()">
-              </div>
-              <div style="font-size: 9.5px; color: #777; margin-top: 5px; line-height: 1.3;">
-                Select your address from the dropdown suggestions to auto-fill fields below, or type manually.
-              </div>
-            </div>
-
             <!-- Building / Floor / Unit field -->
             <div class="form-group">
               <label for="c_building">Building / Floor / Unit</label>
               <input type="text" id="c_building" class="form-input" placeholder="e.g. Apt 4B, Sunset Heights" autocomplete="shipping address-line2">
             </div>
 
-            <!-- Street Address field -->
+            <!-- Street Address field (With South African Places Autocomplete) -->
             <div class="form-group">
               <label for="c_street">Street address</label>
-              <input type="text" id="c_street" class="form-input" placeholder="e.g. 123 Main Street" required autocomplete="shipping street-address">
+              <div id="gplaces_autocomplete_container" style="position: relative;">
+                <input type="text" id="c_street" class="form-input" placeholder="Start typing your street address..." required autocomplete="shipping street-address">
+              </div>
+              <div style="font-size: 9.5px; color: #777; margin-top: 4px; line-height: 1.3;">
+                Select address from suggestions to auto-fill Suburb, City, Province & Postal Code.
+              </div>
             </div>
 
             <!-- Suburb, City, Province row -->
