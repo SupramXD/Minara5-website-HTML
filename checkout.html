@@ -856,6 +856,9 @@
     if (input.dataset.gplacesInitialized === "true") return;
     input.dataset.gplacesInitialized = "true";
 
+    // Attach individual field autocompletes for City, Suburb, and Street boxes
+    initIndividualFieldAutocompletes();
+
     // 1. Attempt Modern Places API (New) PlaceAutocompleteElement
     try {
       if (google.maps.importLibrary) {
@@ -867,35 +870,57 @@
               componentRestrictions: { country: "za" }
             });
             autocompleteEl.style.width = "100%";
-            autocompleteEl.addEventListener("gmp-placeselect", async ({ place }) => {
+
+            const handlePlaceSelect = async (evt) => {
+              const place = evt.place || (evt.detail && evt.detail.place);
               if (!place) return;
+
+              let streetNumber = "", route = "", sublocality = "", city = "", province = "", postalCode = "";
+
               try {
-                await place.fetchFields({
-                  fields: ["addressComponents", "displayName", "formattedAddress"]
-                });
-                let streetNumber = "", route = "", sublocality = "", city = "", province = "", postalCode = "";
-                if (place.addressComponents) {
-                  for (const comp of place.addressComponents) {
-                    const types = comp.types || [];
-                    if (types.includes("street_number")) streetNumber = comp.longText || comp.shortText;
-                    if (types.includes("route")) route = comp.longText || comp.shortText;
-                    if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood")) {
-                      if (!sublocality) sublocality = comp.longText || comp.shortText;
-                    }
-                    if (types.includes("locality") || types.includes("postal_town")) {
-                      if (!city) city = comp.longText || comp.shortText;
-                    }
-                    if (types.includes("administrative_area_level_2") && !city) city = comp.longText || comp.shortText;
-                    if (types.includes("administrative_area_level_1")) province = comp.longText || comp.shortText;
-                    if (types.includes("postal_code")) postalCode = comp.longText || comp.shortText;
-                  }
+                if (typeof place.fetchFields === "function") {
+                  await place.fetchFields({
+                    fields: ["addressComponents", "displayName", "formattedAddress"]
+                  });
                 }
-                const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || place.displayName || "");
-                populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
               } catch (err) {
-                console.warn("Place details fetch error:", err);
+                console.warn("fetchFields error:", err);
               }
-            });
+
+              const comps = place.addressComponents || place.address_components;
+              if (comps && comps.length > 0) {
+                for (const comp of comps) {
+                  const types = comp.types || [];
+                  const text = comp.longText || comp.long_name || comp.shortText || comp.name || "";
+                  if (types.includes("street_number")) streetNumber = text;
+                  if (types.includes("route")) route = text;
+                  if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood")) {
+                    if (!sublocality) sublocality = text;
+                  }
+                  if (types.includes("locality") || types.includes("postal_town")) {
+                    if (!city) city = text;
+                  }
+                  if (types.includes("administrative_area_level_2") && !city) city = text;
+                  if (types.includes("administrative_area_level_1")) province = text;
+                  if (types.includes("postal_code")) postalCode = text;
+                }
+              }
+
+              // Fallback parsing from formatted address if components were partial
+              const formatted = place.formattedAddress || place.formatted_address || place.displayName || "";
+              if (formatted && (!city || !route)) {
+                const parts = formatted.split(",").map(p => p.trim());
+                if (!route && parts.length > 0) route = parts[0];
+                if (!sublocality && parts.length >= 4) sublocality = parts[1];
+                if (!city && parts.length >= 3) city = parts[parts.length - 3] || parts[parts.length - 2];
+                if (!province && parts.length >= 2) province = parts[parts.length - 2];
+              }
+
+              const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || place.displayName || place.name || "");
+              populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
+            };
+
+            autocompleteEl.addEventListener("gmp-placeselect", handlePlaceSelect);
 
             input.style.display = "none";
             container.appendChild(autocompleteEl);
@@ -946,6 +971,68 @@
       console.warn("Legacy Google Places Autocomplete notice:", legacyErr);
     }
   };
+
+  // Attach autocomplete for individual manual boxes (City, Suburb, Street)
+  function initIndividualFieldAutocompletes() {
+    if (typeof google === "undefined" || !google.maps || !google.maps.places || !google.maps.places.Autocomplete) return;
+
+    try {
+      // City Box Autocomplete
+      const cityInput = document.getElementById("c_city");
+      if (cityInput && !cityInput.dataset.gplacesAttached) {
+        cityInput.dataset.gplacesAttached = "true";
+        const cityAuto = new google.maps.places.Autocomplete(cityInput, {
+          componentRestrictions: { country: "za" },
+          types: ["(cities)"]
+        });
+        cityAuto.addListener("place_changed", () => {
+          const place = cityAuto.getPlace();
+          if (place && (place.name || place.formatted_address)) {
+            cityInput.value = place.name || place.formatted_address.split(",")[0];
+          }
+        });
+      }
+
+      // Suburb Box Autocomplete
+      const suburbInput = document.getElementById("c_suburb");
+      if (suburbInput && !suburbInput.dataset.gplacesAttached) {
+        suburbInput.dataset.gplacesAttached = "true";
+        const suburbAuto = new google.maps.places.Autocomplete(suburbInput, {
+          componentRestrictions: { country: "za" },
+          types: ["(regions)"]
+        });
+        suburbAuto.addListener("place_changed", () => {
+          const place = suburbAuto.getPlace();
+          if (place && (place.name || place.formatted_address)) {
+            suburbInput.value = place.name || place.formatted_address.split(",")[0];
+          }
+        });
+      }
+
+      // Street Box Autocomplete
+      const streetInput = document.getElementById("c_street");
+      if (streetInput && !streetInput.dataset.gplacesAttached) {
+        streetInput.dataset.gplacesAttached = "true";
+        const streetAuto = new google.maps.places.Autocomplete(streetInput, {
+          componentRestrictions: { country: "za" },
+          types: ["address"]
+        });
+        streetAuto.addListener("place_changed", () => {
+          const place = streetAuto.getPlace();
+          if (!place || !place.address_components) return;
+          let streetNumber = "", route = "";
+          for (const comp of place.address_components) {
+            if (comp.types.includes("street_number")) streetNumber = comp.long_name;
+            if (comp.types.includes("route")) route = comp.long_name;
+          }
+          const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || place.name || "");
+          if (fullStreet) streetInput.value = fullStreet;
+        });
+      }
+    } catch (err) {
+      console.warn("Individual field autocomplete notice:", err);
+    }
+  }
 
   // Fallback for address lookup blur so unlisted/manual addresses sync smoothly
   window.handleAddressLookupBlur = function() {
@@ -1059,9 +1146,81 @@
                 <path d="M16 9h14v3.5H16zM16 14.5h14v3.5H16zM16 20h9v3.5h-9z" fill="#09A5DB"/>
                 <text x="44" y="20" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="13" fill="#FFFFFF">paystack</text>
               </svg>
-              <span style="font-size: 8px; font-weight: 800; color: #635bff; text-transform: uppercase; letter-spacing: 0.8px;">by Stripe</span>
+              <span style="font-size: 8px; font-weight: 600; color: #666666; text-transform: uppercase; letter-spacing: 0.8px;">(a Stripe company)</span>
             </div>
           </div>
+
+          <!-- Datalists for instant city and suburb autocompletion -->
+          <datalist id="sa_cities_list">
+            <option value="Johannesburg">
+            <option value="Cape Town">
+            <option value="Durban">
+            <option value="Pretoria">
+            <option value="Sandton">
+            <option value="Centurion">
+            <option value="Midrand">
+            <option value="Gqeberha (Port Elizabeth)">
+            <option value="Bloemfontein">
+            <option value="East London">
+            <option value="Pietermaritzburg">
+            <option value="Polokwane">
+            <option value="Nelspruit (Mbombela)">
+            <option value="Rustenburg">
+            <option value="Kimberley">
+            <option value="George">
+            <option value="Paarl">
+            <option value="Stellenbosch">
+            <option value="Somerset West">
+            <option value="Newcastle">
+            <option value="Umhlanga">
+            <option value="Ballito">
+            <option value="Witbank (Emalahleni)">
+            <option value="Potchefstroom">
+            <option value="Klerksdorp">
+            <option value="Knysna">
+            <option value="Hermanus">
+            <option value="Mossel Bay">
+            <option value="Upington">
+            <option value="Vanderbijlpark">
+            <option value="Vereeniging">
+            <option value="Secunda">
+            <option value="Welkom">
+          </datalist>
+
+          <datalist id="sa_suburbs_list">
+            <option value="Sandton">
+            <option value="Rosebank">
+            <option value="Morningside">
+            <option value="Bryanston">
+            <option value="Fourways">
+            <option value="Midrand">
+            <option value="Bedfordview">
+            <option value="Melville">
+            <option value="Parkhurst">
+            <option value="Illovo">
+            <option value="Hydepark">
+            <option value="Soweto">
+            <option value="Roodepoort">
+            <option value="Randburg">
+            <option value="Waterfall City">
+            <option value="Camps Bay">
+            <option value="Sea Point">
+            <option value="Green Point">
+            <option value="Constantia">
+            <option value="Claremont">
+            <option value="Rondebosch">
+            <option value="Century City">
+            <option value="Durbanville">
+            <option value="Bloubergstrand">
+            <option value="Umhlanga Rocks">
+            <option value="Durban North">
+            <option value="Westville">
+            <option value="Menlyn">
+            <option value="Brooklyn">
+            <option value="Faerie Glen">
+            <option value="Garsfontein">
+            <option value="Silver Lakes">
+          </datalist>
           
           <form id="checkoutDetailsForm" onsubmit="handleCheckoutSubmit(event)">
             
@@ -1115,11 +1274,11 @@
             <div class="form-group-row-3">
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="c_suburb">Suburb</label>
-                <input type="text" id="c_suburb" class="form-input" placeholder="e.g. Sandton" required autocomplete="shipping address-level3">
+                <input type="text" id="c_suburb" class="form-input" placeholder="e.g. Sandton" required autocomplete="shipping address-level3" list="sa_suburbs_list">
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="c_city">City</label>
-                <input type="text" id="c_city" class="form-input" placeholder="e.g. Johannesburg" required autocomplete="shipping address-level2">
+                <input type="text" id="c_city" class="form-input" placeholder="e.g. Johannesburg" required autocomplete="shipping address-level2" list="sa_cities_list">
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="c_province">Province</label>
@@ -1245,7 +1404,7 @@
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                 </div>
                 <div class="trust-card-content">
-                  <div class="trust-card-title" style="font-weight: bold; font-size: 13px; color: #0f172a; margin-bottom: 4px;">Secured by Paystack <span style="font-size: 10px; color: #635bff; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 4px;">(by Stripe)</span></div>
+                  <div class="trust-card-title" style="font-weight: bold; font-size: 13px; color: #0f172a; margin-bottom: 4px;">Secured by Paystack <span style="font-size: 10px; color: #666666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 4px;">(a Stripe company)</span></div>
                   <div style="font-size: 11.5px; color: #475569; line-height: 1.4;">
                     Your financial information is encrypted using bank-grade 256-bit SSL security powered by Paystack (a Stripe company).
                   </div>
