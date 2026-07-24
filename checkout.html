@@ -895,7 +895,7 @@
               const text = comp.long_name || comp.short_name || "";
               if (types.includes("street_number")) streetNumber = text;
               if (types.includes("route")) route = text;
-              if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood") || types.includes("sublocality_level_2")) {
+              if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood") || types.includes("sublocality_level_2") || types.includes("premise")) {
                 if (!sublocality) sublocality = text;
               }
               if (types.includes("locality") || types.includes("postal_town")) {
@@ -908,15 +908,33 @@
           }
 
           // Fallback parsing from formatted address if components missed anything
-          if (res.formatted_address) {
-            const parts = res.formatted_address.split(",").map(p => p.trim());
+          const formatted = res.formatted_address || fallbackName || "";
+          if (formatted) {
+            const parts = formatted.split(",").map(p => p.trim());
             if (!route && parts.length > 0) route = parts[0];
             if (!sublocality && parts.length >= 4) sublocality = parts[1];
-            if (!city && parts.length >= 3) city = parts[parts.length - 3] || parts[parts.length - 2];
-            if (!province && parts.length >= 2) province = parts[parts.length - 2];
+            if (!city && parts.length >= 3) {
+              const candidate = parts.find(pt => pt !== "South Africa" && !/^\d{4}$/.test(pt));
+              if (candidate && !city) city = candidate;
+            }
+            if (!postalCode) {
+              const match = formatted.match(/\b\d{4}\b/);
+              if (match) postalCode = match[0];
+            }
           }
 
           const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || fallbackName || "");
+          populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
+        } else if (fallbackName) {
+          // Direct string parsing fallback if Geocoder API status is delayed
+          const parts = fallbackName.split(",").map(p => p.trim());
+          const fullStreet = parts[0] || "";
+          const sublocality = parts.length >= 4 ? parts[1] : "";
+          const city = parts.length >= 3 ? parts[parts.length - 3] : (parts[1] || "");
+          const province = parts.length >= 2 ? parts[parts.length - 2] : "";
+          let postalCode = "";
+          const match = fallbackName.match(/\b\d{4}\b/);
+          if (match) postalCode = match[0];
           populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
         }
       });
@@ -982,20 +1000,41 @@
             setTimeout(applyWhiteShadowTheme, 300);
 
             const handlePlaceSelect = async (evt) => {
-              const place = evt.place || (evt.detail && evt.detail.place);
+              let place = evt.place || (evt.detail && evt.detail.place);
+              if (!place && evt.target && evt.target.value) {
+                place = evt.target.value;
+              }
               if (!place) return;
 
-              const formattedStr = place.formattedAddress || place.formatted_address || place.displayName || place.name || "";
-              const placeId = place.id || place.place_id || "";
+              if (typeof place.toPlace === "function") {
+                try {
+                  place = await place.toPlace();
+                } catch (e) {
+                  console.warn("toPlace notice:", e);
+                }
+              }
 
-              // 1. Primary: Auto-fill fields via Geocoder
+              let formattedStr = "";
+              let placeId = "";
+
+              if (typeof place === "string") {
+                formattedStr = place;
+              } else {
+                placeId = place.id || place.place_id || place.placeId || "";
+                formattedStr = place.formattedAddress || place.formatted_address || place.displayName || place.name || "";
+                if (typeof formattedStr === "object" && formattedStr.text) {
+                  formattedStr = formattedStr.text;
+                }
+              }
+
+              // Primary: Auto-fill fields via Geocoder
               if (placeId) {
                 fillAddressUsingGeocoder({ placeId: placeId }, formattedStr);
               } else if (formattedStr) {
                 fillAddressUsingGeocoder(formattedStr, formattedStr);
               }
 
-              // 2. Direct property extraction attempt
+              // Direct property extraction fallback
               try {
                 if (typeof place.fetchFields === "function") {
                   await place.fetchFields({
@@ -1030,6 +1069,7 @@
             };
 
             autocompleteEl.addEventListener("gmp-placeselect", handlePlaceSelect);
+            autocompleteEl.addEventListener("change", handlePlaceSelect);
 
             input.style.display = "none";
             container.appendChild(autocompleteEl);
@@ -1204,78 +1244,6 @@
               <span style="font-size: 8px; font-weight: 600; color: #666666; text-transform: uppercase; letter-spacing: 0.8px;">(a Stripe company)</span>
             </div>
           </div>
-
-          <!-- Datalists for instant city and suburb autocompletion -->
-          <datalist id="sa_cities_list">
-            <option value="Johannesburg">
-            <option value="Cape Town">
-            <option value="Durban">
-            <option value="Pretoria">
-            <option value="Sandton">
-            <option value="Centurion">
-            <option value="Midrand">
-            <option value="Gqeberha (Port Elizabeth)">
-            <option value="Bloemfontein">
-            <option value="East London">
-            <option value="Pietermaritzburg">
-            <option value="Polokwane">
-            <option value="Nelspruit (Mbombela)">
-            <option value="Rustenburg">
-            <option value="Kimberley">
-            <option value="George">
-            <option value="Paarl">
-            <option value="Stellenbosch">
-            <option value="Somerset West">
-            <option value="Newcastle">
-            <option value="Umhlanga">
-            <option value="Ballito">
-            <option value="Witbank (Emalahleni)">
-            <option value="Potchefstroom">
-            <option value="Klerksdorp">
-            <option value="Knysna">
-            <option value="Hermanus">
-            <option value="Mossel Bay">
-            <option value="Upington">
-            <option value="Vanderbijlpark">
-            <option value="Vereeniging">
-            <option value="Secunda">
-            <option value="Welkom">
-          </datalist>
-
-          <datalist id="sa_suburbs_list">
-            <option value="Sandton">
-            <option value="Rosebank">
-            <option value="Morningside">
-            <option value="Bryanston">
-            <option value="Fourways">
-            <option value="Midrand">
-            <option value="Bedfordview">
-            <option value="Melville">
-            <option value="Parkhurst">
-            <option value="Illovo">
-            <option value="Hydepark">
-            <option value="Soweto">
-            <option value="Roodepoort">
-            <option value="Randburg">
-            <option value="Waterfall City">
-            <option value="Camps Bay">
-            <option value="Sea Point">
-            <option value="Green Point">
-            <option value="Constantia">
-            <option value="Claremont">
-            <option value="Rondebosch">
-            <option value="Century City">
-            <option value="Durbanville">
-            <option value="Bloubergstrand">
-            <option value="Umhlanga Rocks">
-            <option value="Durban North">
-            <option value="Westville">
-            <option value="Menlyn">
-            <option value="Brooklyn">
-            <option value="Faerie Glen">
-            <option value="Garsfontein">
-            <option value="Silver Lakes">
-          </datalist>
           
           <form id="checkoutDetailsForm" onsubmit="handleCheckoutSubmit(event)">
             
@@ -1302,11 +1270,7 @@
                 <span style="font-size: 9px; font-weight: normal; text-transform: none; color: #888; letter-spacing: 0;">(Optional - instant populating)</span>
               </label>
               <div id="gplaces_autocomplete_container" style="position: relative;">
-                <input type="text" id="c_address_lookup" class="form-input" placeholder="Start typing street address, complex, or suburb..." autocomplete="off" onblur="handleAddressLookupBlur()" style="padding-left: 36px; border-color: #111;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; z-index: 2;">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                  <circle cx="12" cy="10" r="3"></circle>
-                </svg>
+                <input type="text" id="c_address_lookup" class="form-input" placeholder="Start typing street address, complex, or suburb..." autocomplete="off" onblur="handleAddressLookupBlur()">
               </div>
               <div style="font-size: 9.5px; color: #777; margin-top: 5px; line-height: 1.3;">
                 Select your address from the dropdown suggestions to auto-fill fields below, or type manually.
@@ -1329,11 +1293,11 @@
             <div class="form-group-row-3">
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="c_suburb">Suburb</label>
-                <input type="text" id="c_suburb" class="form-input" placeholder="e.g. Sandton" required autocomplete="shipping address-level3" list="sa_suburbs_list">
+                <input type="text" id="c_suburb" class="form-input" placeholder="e.g. Sandton" required autocomplete="shipping address-level3">
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="c_city">City</label>
-                <input type="text" id="c_city" class="form-input" placeholder="e.g. Johannesburg" required autocomplete="shipping address-level2" list="sa_cities_list">
+                <input type="text" id="c_city" class="form-input" placeholder="e.g. Johannesburg" required autocomplete="shipping address-level2">
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label for="c_province">Province</label>
