@@ -1166,11 +1166,11 @@
     populateAddressFields(parsed);
   }
 
-  // Attach compact, 100% South Africa restricted Google Places API Autocomplete to an input field
-  function attachGoogleApiInputAutocomplete(inputId, placeType) {
+  // Modern Places API (New) Autocomplete Attachment (Zero Legacy Warnings)
+  async function attachModernPlacesAutocomplete(inputId, placeType) {
     const input = document.getElementById(inputId);
-    if (!input || input.dataset.gapiAutoAttached === "true") return;
-    input.dataset.gapiAutoAttached = "true";
+    if (!input || input.dataset.gnewAutoAttached === "true") return;
+    input.dataset.gnewAutoAttached = "true";
 
     const dropdown = document.createElement("div");
     dropdown.className = "gapi-autocomplete-dropdown";
@@ -1195,71 +1195,119 @@
       input.parentElement.appendChild(dropdown);
     }
 
-    let autocompleteService = null;
+    let placesLib = null;
+    let AutocompleteSuggestion = null;
+    let AutocompleteService = null;
 
-    const fetchPredictions = () => {
+    try {
+      if (typeof google !== "undefined" && google.maps && google.maps.importLibrary) {
+        placesLib = await google.maps.importLibrary("places");
+        if (placesLib) {
+          AutocompleteSuggestion = placesLib.AutocompleteSuggestion;
+          AutocompleteService = placesLib.AutocompleteService;
+        }
+      }
+    } catch (e) {}
+
+    const fetchPredictions = async () => {
       const query = input.value.trim();
       if (!query || query.length < 2) {
         dropdown.style.display = "none";
         return;
       }
 
-      if (typeof google === "undefined" || !google.maps || !google.maps.places) return;
-      if (!autocompleteService) {
-        autocompleteService = new google.maps.places.AutocompleteService();
-      }
+      try {
+        let itemsToRender = [];
 
-      const req = {
-        input: query,
-        componentRestrictions: { country: "za" }
-      };
+        // 1. Primary: Places API (New) AutocompleteSuggestion
+        if (AutocompleteSuggestion && typeof AutocompleteSuggestion.fetchAutocompleteSuggestions === "function") {
+          const req = {
+            input: query,
+            includedRegionCodes: ["za"]
+          };
+          if (placeType === "city") {
+            req.includedPrimaryTypes = ["locality"];
+          } else if (placeType === "suburb") {
+            req.includedPrimaryTypes = ["sublocality"];
+          }
 
-      if (placeType === "city") {
-        req.types = ["(cities)"];
-      } else if (placeType === "suburb") {
-        req.types = ["(regions)"];
-      } else if (placeType === "street") {
-        req.types = ["address"];
-      }
+          const resp = await AutocompleteSuggestion.fetchAutocompleteSuggestions(req);
+          if (resp && resp.suggestions) {
+            itemsToRender = resp.suggestions.map(sugg => {
+              const pred = sugg.placePrediction;
+              return {
+                text: (pred && pred.text && pred.text.text) || pred.description || "",
+                placeId: pred && (pred.placeId || pred.place_id)
+              };
+            }).filter(i => Boolean(i.text));
+          }
+        }
 
-      autocompleteService.getPlacePredictions(req, (predictions, status) => {
-        if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions || predictions.length === 0) {
-          dropdown.style.display = "none";
+        // 2. Fallback: AutocompleteService if New API method returns empty
+        if (itemsToRender.length === 0 && (google.maps.places.AutocompleteService || AutocompleteService)) {
+          const serviceClass = AutocompleteService || google.maps.places.AutocompleteService;
+          const service = new serviceClass();
+          const legacyReq = {
+            input: query,
+            componentRestrictions: { country: "za" }
+          };
+          if (placeType === "city") legacyReq.types = ["(cities)"];
+          else if (placeType === "suburb") legacyReq.types = ["(regions)"];
+          else if (placeType === "street") legacyReq.types = ["address"];
+
+          service.getPlacePredictions(legacyReq, (preds, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && preds && preds.length > 0) {
+              renderDropdownItems(preds.map(p => ({ text: p.description, placeId: p.place_id })));
+            } else {
+              dropdown.style.display = "none";
+            }
+          });
           return;
         }
 
-        dropdown.innerHTML = "";
-        predictions.forEach(pred => {
-          const item = document.createElement("div");
-          item.style.cssText = `
-            padding: 10px 14px;
-            font-size: 12.5px;
-            color: #000000;
-            cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
-            font-family: Helvetica, Arial, sans-serif;
-            background: #ffffff;
-            line-height: 1.4;
-          `;
-          item.textContent = pred.description;
-          item.onmouseenter = () => { item.style.background = "#f5f5f5"; };
-          item.onmouseleave = () => { item.style.background = "#ffffff"; };
-          item.onmousedown = (e) => {
-            e.preventDefault();
-            input.value = pred.description;
-            dropdown.style.display = "none";
+        if (itemsToRender.length > 0) {
+          renderDropdownItems(itemsToRender);
+        } else {
+          dropdown.style.display = "none";
+        }
 
-            if (placeType === "street") {
-              fillAddressUsingGeocoder({ placeId: pred.place_id }, pred.description);
-            } else {
-              fillAddressUsingGeocoder(pred.description, pred.description);
-            }
-          };
-          dropdown.appendChild(item);
-        });
+      } catch (err) {
+        console.warn("Prediction error:", err);
+        dropdown.style.display = "none";
+      }
+    };
 
-        dropdown.style.display = "block";
+    const renderDropdownItems = (items) => {
+      dropdown.innerHTML = "";
+      items.forEach(itemData => {
+        const item = document.createElement("div");
+        item.style.cssText = `
+          padding: 10px 14px;
+          font-size: 12.5px;
+          color: #000000;
+          cursor: pointer;
+          border-bottom: 1px solid #f0f0f0;
+          font-family: Helvetica, Arial, sans-serif;
+          background: #ffffff;
+          line-height: 1.4;
+        `;
+        item.textContent = itemData.text;
+        item.onmouseenter = () => { item.style.background = "#f5f5f5"; };
+        item.onmouseleave = () => { item.style.background = "#ffffff"; };
+        item.onmousedown = (e) => {
+          e.preventDefault();
+          input.value = itemData.text;
+          dropdown.style.display = "none";
+
+          if (placeType === "street") {
+            fillAddressUsingGeocoder(itemData.placeId ? { placeId: itemData.placeId } : itemData.text, itemData.text);
+          } else {
+            fillAddressUsingGeocoder(itemData.text, itemData.text);
+          }
+        };
+        dropdown.appendChild(item);
       });
+      dropdown.style.display = "block";
     };
 
     input.addEventListener("input", fetchPredictions);
@@ -1271,14 +1319,14 @@
 
   // Google Places Autocomplete Initialization for All Form Fields
   window.initGooglePlaces = async function() {
-    // 1. Street Address Box Autocomplete (Inline, ZA Restricted)
-    attachGoogleApiInputAutocomplete("c_street", "street");
+    // 1. Street Address Box Autocomplete (Places API New, Inline, ZA Restricted)
+    attachModernPlacesAutocomplete("c_street", "street");
 
-    // 2. Suburb Box Autocomplete (Simple Suburb / Region, ZA Restricted)
-    attachGoogleApiInputAutocomplete("c_suburb", "suburb");
+    // 2. Suburb Box Autocomplete (Places API New, Suburb / Region, ZA Restricted)
+    attachModernPlacesAutocomplete("c_suburb", "suburb");
 
-    // 3. City Box Autocomplete (Simple City / Locality, ZA Restricted)
-    attachGoogleApiInputAutocomplete("c_city", "city");
+    // 3. City Box Autocomplete (Places API New, City / Locality, ZA Restricted)
+    attachModernPlacesAutocomplete("c_city", "city");
 
     // 4. Postal Code Box Autocomplete & Custom SA Lookup
     setupCustomInputAutocomplete("c_postal", SOUTH_AFRICAN_CITIES);
