@@ -14,7 +14,7 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
   <link rel="modulepreload" href="header.js">
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4B_Kidu4QPFaNKMm8L9bKDR-F72ZpfiI&libraries=places&callback=initGooglePlaces" async defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4B_Kidu4QPFaNKMm8L9bKDR-F72ZpfiI&libraries=places&v=weekly&loading=async&callback=initGooglePlaces" async defer></script>
 
   <style>
     /* --- GLOBAL FONT DECLARATION --- */
@@ -812,86 +812,138 @@
   window.openMenu = function() { document.getElementById("menuPanel").classList.add("open"); };
   window.closeMenu = function() { document.getElementById("menuPanel").classList.remove("open"); };
 
-  // Google Places Autocomplete Initialization
+  // Helper function to auto-populate checkout form address fields
+  function populateAddressFields({ fullStreet, sublocality, city, province, postalCode }) {
+    if (fullStreet) {
+      const streetInput = document.getElementById("c_street");
+      if (streetInput) streetInput.value = fullStreet;
+    }
+    if (sublocality) {
+      const suburbInput = document.getElementById("c_suburb");
+      if (suburbInput) suburbInput.value = sublocality;
+    }
+    if (city) {
+      const cityInput = document.getElementById("c_city");
+      if (cityInput) cityInput.value = city;
+    }
+    if (postalCode) {
+      const postalInput = document.getElementById("c_postal");
+      if (postalInput) postalInput.value = postalCode;
+    }
+    if (province) {
+      const provinceSelect = document.getElementById("c_province");
+      if (provinceSelect) {
+        const provLower = province.toLowerCase();
+        for (let i = 0; i < provinceSelect.options.length; i++) {
+          const optVal = provinceSelect.options[i].value;
+          if (optVal && (provLower.includes(optVal.toLowerCase()) || optVal.toLowerCase().includes(provLower))) {
+            provinceSelect.selectedIndex = i;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  // Google Places Autocomplete Initialization (Supports Places API New & Legacy Autocomplete)
   let googlePlacesAutocomplete = null;
-  window.initGooglePlaces = function() {
+  window.initGooglePlaces = async function() {
     const input = document.getElementById("c_address_lookup");
     if (!input) return;
-    if (typeof google === "undefined" || !google.maps || !google.maps.places) return;
+    if (typeof google === "undefined" || !google.maps) return;
     
     // Prevent duplicate listeners
     if (input.dataset.gplacesInitialized === "true") return;
     input.dataset.gplacesInitialized = "true";
 
+    // 1. Attempt Modern Places API (New) PlaceAutocompleteElement
     try {
-      const options = {
-        componentRestrictions: { country: "za" },
-        fields: ["address_components", "formatted_address", "geometry", "name"],
-        types: ["address"]
-      };
-
-      googlePlacesAutocomplete = new google.maps.places.Autocomplete(input, options);
-
-      googlePlacesAutocomplete.addListener("place_changed", () => {
-        const place = googlePlacesAutocomplete.getPlace();
-        if (!place || !place.address_components) return;
-
-        let streetNumber = "";
-        let route = "";
-        let sublocality = "";
-        let city = "";
-        let province = "";
-        let postalCode = "";
-
-        for (const component of place.address_components) {
-          const types = component.types;
-          if (types.includes("street_number")) streetNumber = component.long_name;
-          if (types.includes("route")) route = component.long_name;
-          if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood")) {
-            if (!sublocality) sublocality = component.long_name;
-          }
-          if (types.includes("locality") || types.includes("postal_town")) {
-            if (!city) city = component.long_name;
-          }
-          if (types.includes("administrative_area_level_2") && !city) city = component.long_name;
-          if (types.includes("administrative_area_level_1")) province = component.long_name;
-          if (types.includes("postal_code")) postalCode = component.long_name;
-        }
-
-        const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || place.name || "");
-
-        if (fullStreet) {
-          const streetInput = document.getElementById("c_street");
-          if (streetInput) streetInput.value = fullStreet;
-        }
-        if (sublocality) {
-          const suburbInput = document.getElementById("c_suburb");
-          if (suburbInput) suburbInput.value = sublocality;
-        }
-        if (city) {
-          const cityInput = document.getElementById("c_city");
-          if (cityInput) cityInput.value = city;
-        }
-        if (postalCode) {
-          const postalInput = document.getElementById("c_postal");
-          if (postalInput) postalInput.value = postalCode;
-        }
-        if (province) {
-          const provinceSelect = document.getElementById("c_province");
-          if (provinceSelect) {
-            const provLower = province.toLowerCase();
-            for (let i = 0; i < provinceSelect.options.length; i++) {
-              const optVal = provinceSelect.options[i].value;
-              if (optVal && (provLower.includes(optVal.toLowerCase()) || optVal.toLowerCase().includes(provLower))) {
-                provinceSelect.selectedIndex = i;
-                break;
+      if (google.maps.importLibrary) {
+        const placesLib = await google.maps.importLibrary("places");
+        if (placesLib && placesLib.PlaceAutocompleteElement) {
+          const container = document.getElementById("gplaces_autocomplete_container");
+          if (container) {
+            const autocompleteEl = new placesLib.PlaceAutocompleteElement({
+              componentRestrictions: { country: "za" }
+            });
+            autocompleteEl.style.width = "100%";
+            autocompleteEl.addEventListener("gmp-placeselect", async ({ place }) => {
+              if (!place) return;
+              try {
+                await place.fetchFields({
+                  fields: ["addressComponents", "displayName", "formattedAddress"]
+                });
+                let streetNumber = "", route = "", sublocality = "", city = "", province = "", postalCode = "";
+                if (place.addressComponents) {
+                  for (const comp of place.addressComponents) {
+                    const types = comp.types || [];
+                    if (types.includes("street_number")) streetNumber = comp.longText || comp.shortText;
+                    if (types.includes("route")) route = comp.longText || comp.shortText;
+                    if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood")) {
+                      if (!sublocality) sublocality = comp.longText || comp.shortText;
+                    }
+                    if (types.includes("locality") || types.includes("postal_town")) {
+                      if (!city) city = comp.longText || comp.shortText;
+                    }
+                    if (types.includes("administrative_area_level_2") && !city) city = comp.longText || comp.shortText;
+                    if (types.includes("administrative_area_level_1")) province = comp.longText || comp.shortText;
+                    if (types.includes("postal_code")) postalCode = comp.longText || comp.shortText;
+                  }
+                }
+                const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || place.displayName || "");
+                populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
+              } catch (err) {
+                console.warn("Place details fetch error:", err);
               }
-            }
+            });
+
+            input.style.display = "none";
+            container.appendChild(autocompleteEl);
+            return;
           }
         }
-      });
-    } catch (err) {
-      console.warn("Google Places Autocomplete error:", err);
+      }
+    } catch (modernErr) {
+      console.warn("Modern PlaceAutocompleteElement notice:", modernErr);
+    }
+
+    // 2. Fallback to Legacy Autocomplete
+    try {
+      if (google.maps.places && google.maps.places.Autocomplete) {
+        const options = {
+          componentRestrictions: { country: "za" },
+          fields: ["address_components", "formatted_address", "geometry", "name"],
+          types: ["address"]
+        };
+
+        googlePlacesAutocomplete = new google.maps.places.Autocomplete(input, options);
+
+        googlePlacesAutocomplete.addListener("place_changed", () => {
+          const place = googlePlacesAutocomplete.getPlace();
+          if (!place || !place.address_components) return;
+
+          let streetNumber = "", route = "", sublocality = "", city = "", province = "", postalCode = "";
+          for (const component of place.address_components) {
+            const types = component.types;
+            if (types.includes("street_number")) streetNumber = component.long_name;
+            if (types.includes("route")) route = component.long_name;
+            if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood")) {
+              if (!sublocality) sublocality = component.long_name;
+            }
+            if (types.includes("locality") || types.includes("postal_town")) {
+              if (!city) city = component.long_name;
+            }
+            if (types.includes("administrative_area_level_2") && !city) city = component.long_name;
+            if (types.includes("administrative_area_level_1")) province = component.long_name;
+            if (types.includes("postal_code")) postalCode = component.long_name;
+          }
+
+          const fullStreet = streetNumber ? `${streetNumber} ${route}` : (route || place.name || "");
+          populateAddressFields({ fullStreet, sublocality, city, province, postalCode });
+        });
+      }
+    } catch (legacyErr) {
+      console.warn("Legacy Google Places Autocomplete notice:", legacyErr);
     }
   };
 
@@ -1035,9 +1087,9 @@
                 <span>Address Autocomplete</span>
                 <span style="font-size: 9px; font-weight: normal; text-transform: none; color: #888; letter-spacing: 0;">(Optional - instant populating)</span>
               </label>
-              <div style="position: relative;">
+              <div id="gplaces_autocomplete_container" style="position: relative;">
                 <input type="text" id="c_address_lookup" class="form-input" placeholder="Start typing street address, complex, or suburb..." autocomplete="off" onblur="handleAddressLookupBlur()" style="padding-left: 36px; border-color: #111;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; z-index: 2;">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                   <circle cx="12" cy="10" r="3"></circle>
                 </svg>
