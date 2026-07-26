@@ -885,26 +885,42 @@ window.removeFromCart = function(index) {
         cart[index].removed = true;
         saveAndSyncCart();
     }
-};// Comprehensive Cart Pricing & Shipping Resolver (R600 Free Shipping Threshold)
+};// Comprehensive Cart Pricing, Free Shipping & Volume Savings Resolver
 window.calculateCartPricing = function(items) {
     if (!items || !Array.isArray(items)) {
-        return { totalItems: 0, rawSubtotal: 0, newsletterDiscountAmount: 0, shippingFee: 0, finalTotal: 0 };
+        return { totalBottles: 0, rawSubtotal: 0, bundleDiscount: 0, subtotalAfterBundle: 0, newsletterDiscountAmount: 0, shippingFee: 0, finalTotal: 0 };
     }
     const activeItems = items.filter(item => !item.removed);
-    const totalItems = activeItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    const totalBottles = window.getCartTotalBottles ? window.getCartTotalBottles(activeItems) : activeItems.reduce((s, i) => s + (i.quantity || 1), 0);
     const rawSubtotal = activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    // Free shipping threshold: Cart subtotal >= R600 -> FREE shipping, otherwise R85 flat fee
-    const shippingFee = (rawSubtotal >= 600 || activeItems.length === 0) ? 0 : 85;
+    let bundleDiscount = 0;
+    
+    // Automatically apply Duo / Trio bundle discount if individual bottles were added
+    if (totalBottles === 2 && rawSubtotal >= 900) {
+        bundleDiscount = 241;
+    } else if (totalBottles === 3 && rawSubtotal >= 1300) {
+        bundleDiscount = 486;
+    } else if (totalBottles > 3 && rawSubtotal >= 1400) {
+        const duos = Math.floor(totalBottles / 2);
+        bundleDiscount = duos * 241;
+    }
+
+    const subtotalAfterBundle = Math.max(0, rawSubtotal - bundleDiscount);
+
+    // Free shipping threshold: Cart subtotal (after volume savings) >= R600 -> FREE shipping, otherwise R85 flat fee
+    const shippingFee = (subtotalAfterBundle >= 600 || activeItems.length === 0) ? 0 : 85;
     
     const hasNewsletterDiscount = localStorage.getItem("minara_discount_5") === "active";
-    const newsletterDiscountAmount = hasNewsletterDiscount ? Math.round(rawSubtotal * 0.05) : 0;
+    const newsletterDiscountAmount = hasNewsletterDiscount ? Math.round(subtotalAfterBundle * 0.05) : 0;
     
-    const finalTotal = rawSubtotal - newsletterDiscountAmount + shippingFee;
+    const finalTotal = subtotalAfterBundle - newsletterDiscountAmount + shippingFee;
 
     return {
-        totalItems,
+        totalBottles,
         rawSubtotal,
+        bundleDiscount,
+        subtotalAfterBundle,
         newsletterDiscountAmount,
         shippingFee,
         finalTotal
@@ -1128,7 +1144,7 @@ window.calculateCartPricing = function(items) {
     }
 
     // FOOTER (Restored to original Gotham Narrow Bold)
-    const footBoxHeight = hasItems ? "45px" : "80px"; 
+    const footBoxHeight = hasItems ? (pricing.bundleDiscount > 0 ? "64px" : "45px") : "80px"; 
     const paymentBoxHeight = hasItems ? "auto" : "50px"; 
     const paymentPadding = hasItems ? "20px 20px" : "8px 20px"; 
 
@@ -1141,6 +1157,11 @@ window.calculateCartPricing = function(items) {
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold', sans-serif; font-weight:bold; letter-spacing:1.5px; color:#000;">
                     <span>SHIPPING</span><span>${shippingLabel}</span>
                 </div>
+                ${pricing.bundleDiscount > 0 ? `
+                <div style="display:flex; justify-content:space-between; font-size:10.5px; font-family:'Gotham Narrow Bold', sans-serif; font-weight:bold; letter-spacing:1.2px; color:#1106e8; text-transform:uppercase;">
+                    <span>2+ BOTTLE DISCOUNT</span><span>-R${pricing.bundleDiscount}</span>
+                </div>
+                ` : ''}
                 ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold', sans-serif; font-weight:bold; letter-spacing:1.5px; color:#000;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
             <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #eaeaea; padding:${paymentPadding}; height:${paymentBoxHeight}; min-height:${paymentBoxHeight}; border-bottom:1px solid #eaeaea; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box; width:100%;">
