@@ -717,6 +717,42 @@
       --gmp-px-color-on-surface: #000000 !important;
       --gmp-px-color-outline: #cfcfcf !important;
     }
+    /* Native Google Places Autocomplete (.pac-container) Styling */
+    .pac-container {
+      z-index: 10000 !important;
+      font-family: Helvetica, Arial, sans-serif !important;
+      border-radius: 2px !important;
+      border: 1px solid #000000 !important;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+      margin-top: 2px !important;
+      background-color: #ffffff !important;
+    }
+    .pac-item {
+      padding: 10px 14px !important;
+      font-size: 12.5px !important;
+      cursor: pointer !important;
+      color: #000000 !important;
+      border-top: 1px solid #f0f0f0 !important;
+      line-height: 1.4 !important;
+    }
+    .pac-item:first-child {
+      border-top: none !important;
+    }
+    .pac-item:hover, .pac-item-selected {
+      background-color: #f5f5f5 !important;
+    }
+    .pac-item-query {
+      font-size: 13px !important;
+      color: #000000 !important;
+      font-weight: bold !important;
+    }
+    .pac-matched {
+      font-weight: bold !important;
+      color: #000000 !important;
+    }
+    .pac-icon {
+      margin-right: 10px !important;
+    }
   </style>
 </head>
 <body>
@@ -1407,18 +1443,68 @@
     });
   }
 
+  // Official Native Google Places Autocomplete Widget Attachment
+  function attachNativeGoogleAutocomplete(inputId, placeType) {
+    const input = document.getElementById(inputId);
+    if (!input || input.dataset.gNativeAttached === "true") return;
+
+    if (typeof google === "undefined" || !google.maps || !google.maps.places || !google.maps.places.Autocomplete) {
+      attachModernPlacesAutocomplete(inputId, placeType);
+      return;
+    }
+
+    input.dataset.gNativeAttached = "true";
+
+    const options = {
+      componentRestrictions: { country: "za" },
+      fields: ["address_components", "formatted_address", "geometry", "name"]
+    };
+
+    if (placeType === "city") {
+      options.types = ["(cities)"];
+    } else if (placeType === "suburb") {
+      options.types = ["(regions)"];
+    } else if (placeType === "street") {
+      options.types = ["address"];
+    }
+
+    const autocomplete = new google.maps.places.Autocomplete(input, options);
+
+    // Prevent submitting form on Enter key inside Google Autocomplete dropdown
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const pacContainer = document.querySelector(".pac-container");
+        if (pacContainer && pacContainer.style.display !== "none") {
+          e.preventDefault();
+        }
+      }
+    });
+
+    autocomplete.addListener("place_changed", () => {
+      const place = autocomplete.getPlace();
+      if (!place || !place.address_components) {
+        if (input.value) fillAddressUsingGeocoder(input.value, input.value);
+        return;
+      }
+
+      if (placeType === "street") {
+        fillAddressFromComponents(place.address_components, place.formatted_address || input.value);
+      }
+    });
+  }
+
   // Google Places Autocomplete Initialization for All Form Fields
   window.initGooglePlaces = async function() {
-    // 1. Street Address Box Autocomplete (Places API New, Inline, ZA Restricted)
-    attachModernPlacesAutocomplete("c_street", "street");
+    // 1. Street Address Field (Official Native Google Autocomplete Widget)
+    attachNativeGoogleAutocomplete("c_street", "street");
 
-    // 2. Suburb Box Autocomplete (Places API New, Suburb / Region, ZA Restricted)
-    attachModernPlacesAutocomplete("c_suburb", "suburb");
+    // 2. Suburb Field (Official Native Google Autocomplete Widget)
+    attachNativeGoogleAutocomplete("c_suburb", "suburb");
 
-    // 3. City Box Autocomplete (Places API New, City / Locality, ZA Restricted)
-    attachModernPlacesAutocomplete("c_city", "city");
+    // 3. City Field (Official Native Google Autocomplete Widget)
+    attachNativeGoogleAutocomplete("c_city", "city");
 
-    // 4. Postal Code Box Autocomplete & Custom SA Lookup
+    // 4. Postal Code Field & Custom SA Lookup
     setupCustomInputAutocomplete("c_postal", SOUTH_AFRICAN_CITIES);
   };
 
