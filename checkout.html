@@ -1260,11 +1260,11 @@
       try {
         let itemsToRender = [];
 
-        // Primary: Places API (New) AutocompleteSuggestion
+        // 1. Primary: Places API (New) AutocompleteSuggestion
         if (AutocompleteSuggestion && typeof AutocompleteSuggestion.fetchAutocompleteSuggestions === "function") {
           const req = {
             input: query,
-            includedRegionCodes: ["za"]
+            includedRegionCodes: ["ZA"]
           };
 
           if (placeType === "city") {
@@ -1279,10 +1279,12 @@
           try {
             resp = await AutocompleteSuggestion.fetchAutocompleteSuggestions(req);
           } catch (reqErr) {
-            if (req.includedPrimaryTypes) {
-              delete req.includedPrimaryTypes;
-              resp = await AutocompleteSuggestion.fetchAutocompleteSuggestions(req);
-            }
+            try {
+              resp = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+                input: query,
+                includedRegionCodes: ["ZA"]
+              });
+            } catch (e2) {}
           }
 
           if (resp && resp.suggestions && resp.suggestions.length > 0) {
@@ -1297,6 +1299,35 @@
               };
             }).filter(i => Boolean(i.text));
           }
+        }
+
+        // 2. Fallback 1: Google Geocoding API if Places API (New) returns empty or is disabled
+        if (itemsToRender.length === 0 && typeof google !== "undefined" && google.maps && google.maps.Geocoder) {
+          try {
+            const geocoder = new google.maps.Geocoder();
+            const geoResp = await new Promise((resolve) => {
+              geocoder.geocode({ address: query, componentRestrictions: { country: "ZA" } }, (results, status) => {
+                if (status === "OK" && results) resolve(results);
+                else resolve([]);
+              });
+            });
+            if (geoResp && geoResp.length > 0) {
+              itemsToRender = geoResp.slice(0, 5).map(res => ({
+                text: res.formatted_address,
+                placeId: res.place_id
+              }));
+            }
+          } catch (gErr) {
+            console.warn("Geocoder autocomplete fallback notice:", gErr);
+          }
+        }
+
+        // 3. Fallback 2: Local SA Suburb/City database if no API results found
+        if (itemsToRender.length === 0) {
+          const lowerQ = query.toLowerCase();
+          const listToSearch = placeType === "city" ? SOUTH_AFRICAN_CITIES : SOUTH_AFRICAN_SUBURBS;
+          const matches = listToSearch.filter(opt => opt.toLowerCase().includes(lowerQ));
+          itemsToRender = matches.slice(0, 5).map(m => ({ text: m, placeId: null }));
         }
 
         if (itemsToRender.length > 0) {
@@ -1390,6 +1421,15 @@
     // 4. Postal Code Box Autocomplete & Custom SA Lookup
     setupCustomInputAutocomplete("c_postal", SOUTH_AFRICAN_CITIES);
   };
+
+  // Immediate global focus trap to guarantee attachment on first click/focus
+  document.addEventListener("focusin", (e) => {
+    if (e.target && ["c_street", "c_suburb", "c_city", "c_postal"].includes(e.target.id)) {
+      if (typeof window.initGooglePlaces === "function") {
+        window.initGooglePlaces();
+      }
+    }
+  });
 
   // Fallback for address lookup blur so unlisted/manual addresses sync smoothly
   window.handleAddressLookupBlur = function() {
