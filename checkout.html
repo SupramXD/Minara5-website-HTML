@@ -1451,35 +1451,33 @@
           input.value = itemData.text;
           dropdown.style.display = "none";
 
-          if (placeType === "street") {
-            let fetchedAddress = false;
-            if (itemData.suggestion && typeof itemData.suggestion.toPlace === "function") {
-              try {
-                const place = itemData.suggestion.toPlace();
-                await place.fetchFields({ fields: ["addressComponents", "formattedAddress"] });
-                if (place.addressComponents) {
-                  fillAddressFromComponents(place.addressComponents, place.formattedAddress || itemData.text);
-                  fetchedAddress = true;
-                }
-              } catch (pErr) {
-                console.warn("Place fetchFields notice:", pErr);
+          let fetchedAddress = false;
+          if (itemData.suggestion && typeof itemData.suggestion.toPlace === "function") {
+            try {
+              const place = itemData.suggestion.toPlace();
+              await place.fetchFields({ fields: ["addressComponents", "formattedAddress"] });
+              if (place.addressComponents) {
+                fillAddressFromComponents(place.addressComponents, place.formattedAddress || itemData.text, itemData.text);
+                fetchedAddress = true;
               }
-            } else if (Place && itemData.placeId) {
-              try {
-                const place = new Place({ id: itemData.placeId });
-                await place.fetchFields({ fields: ["addressComponents", "formattedAddress"] });
-                if (place.addressComponents) {
-                  fillAddressFromComponents(place.addressComponents, place.formattedAddress || itemData.text);
-                  fetchedAddress = true;
-                }
-              } catch (pErr) {
-                console.warn("Place instance fetchFields notice:", pErr);
-              }
+            } catch (pErr) {
+              console.warn("Place fetchFields notice:", pErr);
             }
+          } else if (Place && itemData.placeId) {
+            try {
+              const place = new Place({ id: itemData.placeId });
+              await place.fetchFields({ fields: ["addressComponents", "formattedAddress"] });
+              if (place.addressComponents) {
+                fillAddressFromComponents(place.addressComponents, place.formattedAddress || itemData.text, itemData.text);
+                fetchedAddress = true;
+              }
+            } catch (pErr) {
+              console.warn("Place instance fetchFields notice:", pErr);
+            }
+          }
 
-            if (!fetchedAddress) {
-              fillAddressUsingGeocoder(itemData.placeId ? { placeId: itemData.placeId } : itemData.text, itemData.text);
-            }
+          if (!fetchedAddress) {
+            fillAddressUsingGeocoder(itemData.placeId ? { placeId: itemData.placeId } : itemData.text, itemData.text);
           }
         };
         dropdown.appendChild(item);
@@ -1512,22 +1510,25 @@
 
   // Google Places Autocomplete Initialization for All Form Fields
   window.initGooglePlaces = async function() {
-    // 1. Street Address Field (Places API New, Pure AutocompleteSuggestion)
+    // 1. Primary Address Search Bar (Google Places API New Autocomplete)
+    attachModernPlacesAutocomplete("c_address_search", "street");
+
+    // 2. Street Address Field
     attachModernPlacesAutocomplete("c_street", "street");
 
-    // 2. Suburb Field (Places API New, Pure AutocompleteSuggestion)
+    // 3. Suburb Field
     attachModernPlacesAutocomplete("c_suburb", "suburb");
 
-    // 3. City Field (Places API New, Pure AutocompleteSuggestion)
+    // 4. City Field
     attachModernPlacesAutocomplete("c_city", "city");
 
-    // 4. Postal Code Field & Custom SA Lookup
+    // 5. Postal Code Field & Custom SA Lookup
     setupCustomInputAutocomplete("c_postal", SOUTH_AFRICAN_CITIES);
   };
 
   // Immediate global focus trap to guarantee attachment on first click/focus
   document.addEventListener("focusin", (e) => {
-    if (e.target && ["c_street", "c_suburb", "c_city", "c_postal"].includes(e.target.id)) {
+    if (e.target && ["c_address_search", "c_street", "c_suburb", "c_city", "c_postal"].includes(e.target.id)) {
       if (typeof window.initGooglePlaces === "function") {
         window.initGooglePlaces();
       }
