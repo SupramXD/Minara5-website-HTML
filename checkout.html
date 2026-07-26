@@ -1117,9 +1117,62 @@
     });
   }
 
+  // Smart Street Line Extractor: Preserves Unit, Complex/Estate, and Street Name
+  function extractFullStreetLine(components, formattedAddress, fallbackString = "") {
+    let streetNumber = "", route = "", premise = "", subpremise = "", sublocality = "", city = "", province = "", postalCode = "";
+
+    if (components && Array.isArray(components)) {
+      for (const comp of components) {
+        const types = comp.types || [];
+        const text = comp.longText || comp.long_name || comp.shortText || comp.short_name || "";
+        if (types.includes("street_number")) streetNumber = text;
+        if (types.includes("route")) route = text;
+        if (types.includes("subpremise")) subpremise = text;
+        if (types.includes("premise") || types.includes("building") || types.includes("complex") || types.includes("establishment")) premise = text;
+        if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood") || types.includes("sublocality_level_2")) {
+          if (!sublocality) sublocality = text;
+        }
+        if (types.includes("locality") || types.includes("postal_town")) {
+          if (!city) city = text;
+        }
+        if (types.includes("administrative_area_level_1")) province = text;
+        if (types.includes("postal_code")) postalCode = text;
+      }
+    }
+
+    const rawStr = fallbackString || formattedAddress || "";
+    
+    // Clean country, province, postal code, city from rawStr to get full street/complex text
+    let clean = rawStr
+      .replace(/,?\s*(South Africa|ZA|Republic of South Africa)\s*$/i, "")
+      .trim();
+
+    if (postalCode) clean = clean.replace(new RegExp(`,?\\s*${postalCode}\\s*$`, "i"), "").trim();
+    if (province) clean = clean.replace(new RegExp(`,?\\s*${province}\\s*$`, "i"), "").trim();
+
+    // If city is at the end, strip city
+    const parts = clean.split(",").map(p => p.trim()).filter(Boolean);
+    if (parts.length > 1 && city && parts[parts.length - 1].toLowerCase() === city.toLowerCase()) {
+      parts.pop();
+    }
+
+    const cleanedStreet = parts.join(", ").trim();
+
+    if (cleanedStreet && cleanedStreet.length > 2) {
+      return cleanedStreet;
+    }
+
+    let compStreet = "";
+    if (subpremise) compStreet += `${subpremise} `;
+    if (premise && premise !== subpremise) compStreet += `${premise} `;
+    if (streetNumber && route) compStreet += `${streetNumber} ${route}`;
+    else if (route) compStreet += route;
+
+    return compStreet.trim() || fallbackString || formattedAddress || "";
+  }
+
   // Official Google Geocoding API Resolution Service (Integrates enabled Geocoding API)
   function fillAddressUsingGeocoder(searchTarget, fallbackName = "") {
-    // 0ms Instant UI population from address text
     let targetStr = fallbackName;
     if (typeof searchTarget === "string") {
       targetStr = searchTarget;
@@ -1128,8 +1181,9 @@
     }
 
     if (targetStr) {
+      const fullStreet = extractFullStreetLine([], targetStr, targetStr);
       const initialParsed = parseAddressString(targetStr);
-      populateAddressFields(initialParsed);
+      populateAddressFields({ ...initialParsed, fullStreet });
     }
 
     if (typeof google === "undefined" || !google.maps || !google.maps.Geocoder) {
@@ -1152,43 +1206,8 @@
       geocoder.geocode(req, (results, status) => {
         if (status === "OK" && results && results[0]) {
           const res = results[0];
-          let streetNumber = "", route = "", sublocality = "", city = "", province = "", postalCode = "";
-
-          if (res.address_components) {
-            for (const comp of res.address_components) {
-              const types = comp.types || [];
-              const text = comp.long_name || comp.short_name || "";
-              if (types.includes("street_number")) streetNumber = text;
-              if (types.includes("route")) route = text;
-              if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood") || types.includes("sublocality_level_2") || types.includes("premise")) {
-                if (!sublocality) sublocality = text;
-              }
-              if (types.includes("locality") || types.includes("postal_town")) {
-                if (!city) city = text;
-              }
-              if (types.includes("administrative_area_level_2") && !city) city = text;
-              if (types.includes("administrative_area_level_1")) province = text;
-              if (types.includes("postal_code")) postalCode = text;
-            }
-          }
-
           const formatted = res.formatted_address || fallbackName || targetStr || "";
-          const parsed = parseAddressString(formatted);
-
-          const fullStreet = streetNumber ? `${streetNumber} ${route}` : (parsed.fullStreet || route || fallbackName || "");
-          const finalSub = sublocality || parsed.sublocality;
-          const finalCity = (city && city.toLowerCase() !== (finalSub || "").toLowerCase()) ? city : (parsed.city || finalSub);
-          const finalProv = province || parsed.province;
-          const finalPostal = postalCode || parsed.postalCode;
-
-          populateAddressFields({
-            buildingUnit: parsed.buildingUnit,
-            fullStreet,
-            sublocality: finalSub,
-            city: finalCity,
-            province: finalProv,
-            postalCode: finalPostal
-          });
+          fillAddressFromComponents(res.address_components, formatted, targetStr);
         }
       });
     } catch (err) {
@@ -1196,16 +1215,14 @@
     }
   }
 
-  function fillAddressFromComponents(components, formattedAddress) {
-    let streetNumber = "", route = "", sublocality = "", city = "", province = "", postalCode = "";
+  function fillAddressFromComponents(components, formattedAddress, selectedText = "") {
+    let sublocality = "", city = "", province = "", postalCode = "";
 
     if (components && Array.isArray(components)) {
       for (const comp of components) {
         const types = comp.types || [];
         const text = comp.longText || comp.long_name || comp.shortText || comp.short_name || "";
-        if (types.includes("street_number")) streetNumber = text;
-        if (types.includes("route")) route = text;
-        if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood") || types.includes("sublocality_level_2") || types.includes("premise")) {
+        if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood") || types.includes("sublocality_level_2")) {
           if (!sublocality) sublocality = text;
         }
         if (types.includes("locality") || types.includes("postal_town")) {
@@ -1217,10 +1234,10 @@
       }
     }
 
-    const formatted = formattedAddress || "";
+    const formatted = formattedAddress || selectedText || "";
     const parsed = parseAddressString(formatted);
+    const fullStreet = extractFullStreetLine(components, formatted, selectedText);
 
-    const fullStreet = streetNumber ? `${streetNumber} ${route}` : (parsed.fullStreet || route || formatted || "");
     const finalSub = sublocality || parsed.sublocality;
     const finalCity = (city && city.toLowerCase() !== (finalSub || "").toLowerCase()) ? city : (parsed.city || finalSub);
     const finalProv = province || parsed.province;
@@ -1228,7 +1245,7 @@
 
     populateAddressFields({
       buildingUnit: parsed.buildingUnit,
-      fullStreet,
+      fullStreet: fullStreet,
       sublocality: finalSub,
       city: finalCity,
       province: finalProv,
