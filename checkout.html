@@ -1578,15 +1578,24 @@
       return;
     }
 
-    // Calculate totals
-    const totalBottles = window.getCartTotalBottles ? window.getCartTotalBottles(activeItems) : activeItems.reduce((sum, item) => sum + item.quantity, 0);
-    const shippingFee = (totalBottles === 1) ? 85 : 0;
-    const subtotal = activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
-    const discountAmount = hasDiscount ? Math.round(subtotal * 0.05) : 0;
-    const finalTotal = subtotal - discountAmount + shippingFee;
+    // Calculate totals using central calculateCartPricing
+    const pricing = window.calculateCartPricing ? window.calculateCartPricing(activeItems) : {
+      totalBottles: activeItems.reduce((sum, item) => sum + item.quantity, 0),
+      rawSubtotal: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+      bundleDiscount: 0,
+      newsletterDiscountAmount: 0,
+      shippingFee: 0,
+      finalTotal: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+    };
 
-    const finalSavings = Math.max(241, ((totalBottles * 495 + 85) - finalTotal));
+    const totalBottles = pricing.totalBottles;
+    const subtotal = pricing.rawSubtotal;
+    const bundleDiscount = pricing.bundleDiscount;
+    const discountAmount = pricing.newsletterDiscountAmount;
+    const hasDiscount = discountAmount > 0;
+    const shippingFee = pricing.shippingFee;
+    const finalTotal = pricing.finalTotal;
+    const displayDiscountText = bundleDiscount > 0 ? bundleDiscount : 241;
 
     // Compile items summary list HTML
     let itemsHtml = '';
@@ -1852,7 +1861,7 @@
           ` : (totalBottles >= 2 ? `
             <div style="background: #f4f4f4; border: 1px solid #e5e5e5; color: #000000; padding: 12px 16px; margin-bottom: 20px; text-align: center;">
               <div style="font-family: Helvetica, Arial, sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; line-height: 1.4;">
-                ✓ You're saving R${finalSavings} + free shipping
+                ✓ You're saving R${displayDiscountText} + free shipping
               </div>
             </div>
           ` : '')}
@@ -1862,16 +1871,16 @@
               <span>Subtotal</span>
               <span>R${subtotal}</span>
             </div>
+            ${bundleDiscount > 0 ? `
+              <div class="pricing-row discount-row" style="color: #1106e8; font-weight: bold;">
+                <span>Bundle Savings</span>
+                <span>-R${bundleDiscount}</span>
+              </div>
+            ` : ''}
             ${hasDiscount ? `
               <div class="pricing-row discount-row">
                 <span>Newsletter Discount (5%)</span>
                 <span>-R${discountAmount}</span>
-              </div>
-            ` : ''}
-            ${totalBottles >= 2 ? `
-              <div class="pricing-row discount-row" style="color: #1106e8; font-weight: bold;">
-                <span>Bundle Savings</span>
-                <span>-R${finalSavings}</span>
               </div>
             ` : ''}
             <div class="pricing-row">
@@ -2010,13 +2019,11 @@
     const instructions = document.getElementById("c_instructions").value.trim();
     const deliveryDate = document.getElementById("displayDeliveryDate") ? document.getElementById("displayDeliveryDate").textContent.trim() : "";
 
-    // Calculate dynamic pricing totals
-    const totalBottles = window.getCartTotalBottles ? window.getCartTotalBottles(activeItems) : activeItems.reduce((sum, item) => sum + item.quantity, 0);
-    const shippingFee = (totalBottles === 1) ? 85 : 0;
-    const subtotal = activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
-    const discountAmount = hasDiscount ? Math.round(subtotal * 0.05) : 0;
-    const finalTotal = subtotal - discountAmount + shippingFee;
+    // Calculate dynamic pricing totals using central calculateCartPricing
+    const pricing = window.calculateCartPricing ? window.calculateCartPricing(activeItems) : {
+      finalTotal: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+    };
+    const finalTotal = pricing.finalTotal;
 
     // Compile delivery address
     let compiledAddress = '';
