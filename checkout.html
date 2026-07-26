@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="google" content="notranslate">
   <title>Studio Extrait – Secure Checkout</title>
-  <link rel="icon" type="image/svg+xml" href="Studio Extrait Icon Svg.svg">
+  <link rel="icon" type="image/svg+xml" href="Studio%20Extrait%20Icon%20Svg.svg">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="preload" href="minara 5 transparent 2.svg" as="image" type="image/svg+xml">
+  <link rel="preload" href="minara%205%20transparent%202.svg" as="image" type="image/svg+xml">
   
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
@@ -1160,6 +1160,46 @@
     }
   }
 
+  function fillAddressFromComponents(components, formattedAddress) {
+    let streetNumber = "", route = "", sublocality = "", city = "", province = "", postalCode = "";
+
+    if (components && Array.isArray(components)) {
+      for (const comp of components) {
+        const types = comp.types || [];
+        const text = comp.longText || comp.long_name || comp.shortText || comp.short_name || "";
+        if (types.includes("street_number")) streetNumber = text;
+        if (types.includes("route")) route = text;
+        if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood") || types.includes("sublocality_level_2") || types.includes("premise")) {
+          if (!sublocality) sublocality = text;
+        }
+        if (types.includes("locality") || types.includes("postal_town")) {
+          if (!city) city = text;
+        }
+        if (types.includes("administrative_area_level_2") && !city) city = text;
+        if (types.includes("administrative_area_level_1")) province = text;
+        if (types.includes("postal_code")) postalCode = text;
+      }
+    }
+
+    const formatted = formattedAddress || "";
+    const parsed = parseAddressString(formatted);
+
+    const fullStreet = streetNumber ? `${streetNumber} ${route}` : (parsed.fullStreet || route || formatted || "");
+    const finalSub = sublocality || parsed.sublocality;
+    const finalCity = (city && city.toLowerCase() !== (finalSub || "").toLowerCase()) ? city : (parsed.city || finalSub);
+    const finalProv = province || parsed.province;
+    const finalPostal = postalCode || parsed.postalCode;
+
+    populateAddressFields({
+      buildingUnit: parsed.buildingUnit,
+      fullStreet,
+      sublocality: finalSub,
+      city: finalCity,
+      province: finalProv,
+      postalCode: finalPostal
+    });
+  }
+
   function parseStringAndFill(str) {
     if (!str) return;
     const parsed = parseAddressString(str);
@@ -1195,19 +1235,20 @@
       input.parentElement.appendChild(dropdown);
     }
 
-    let placesLib = null;
     let AutocompleteSuggestion = null;
-    let AutocompleteService = null;
+    let Place = null;
 
     try {
       if (typeof google !== "undefined" && google.maps && google.maps.importLibrary) {
-        placesLib = await google.maps.importLibrary("places");
+        const placesLib = await google.maps.importLibrary("places");
         if (placesLib) {
           AutocompleteSuggestion = placesLib.AutocompleteSuggestion;
-          AutocompleteService = placesLib.AutocompleteService;
+          Place = placesLib.Place;
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn("Places API New import warning:", e);
+    }
 
     const fetchPredictions = async () => {
       const query = input.value.trim();
@@ -1219,50 +1260,43 @@
       try {
         let itemsToRender = [];
 
-        // 1. Primary: Places API (New) AutocompleteSuggestion
+        // Primary: Places API (New) AutocompleteSuggestion
         if (AutocompleteSuggestion && typeof AutocompleteSuggestion.fetchAutocompleteSuggestions === "function") {
           const req = {
             input: query,
             includedRegionCodes: ["za"]
           };
+
           if (placeType === "city") {
-            req.includedPrimaryTypes = ["locality"];
+            req.includedPrimaryTypes = ["locality", "administrative_area_level_3"];
           } else if (placeType === "suburb") {
-            req.includedPrimaryTypes = ["sublocality"];
+            req.includedPrimaryTypes = ["sublocality_level_1", "sublocality_level_2", "neighborhood"];
+          } else if (placeType === "street") {
+            req.includedPrimaryTypes = ["street_address", "route", "premise", "subpremise"];
           }
 
-          const resp = await AutocompleteSuggestion.fetchAutocompleteSuggestions(req);
-          if (resp && resp.suggestions) {
+          let resp = null;
+          try {
+            resp = await AutocompleteSuggestion.fetchAutocompleteSuggestions(req);
+          } catch (reqErr) {
+            if (req.includedPrimaryTypes) {
+              delete req.includedPrimaryTypes;
+              resp = await AutocompleteSuggestion.fetchAutocompleteSuggestions(req);
+            }
+          }
+
+          if (resp && resp.suggestions && resp.suggestions.length > 0) {
             itemsToRender = resp.suggestions.map(sugg => {
               const pred = sugg.placePrediction;
+              const text = (pred && pred.text && (pred.text.text || pred.text)) || (pred && pred.description) || sugg.text || "";
+              const placeId = pred ? (pred.placeId || (pred.toPlace && pred.toPlace().id)) : null;
               return {
-                text: (pred && pred.text && pred.text.text) || pred.description || "",
-                placeId: pred && (pred.placeId || pred.place_id)
+                text: text,
+                placeId: placeId,
+                suggestion: sugg
               };
             }).filter(i => Boolean(i.text));
           }
-        }
-
-        // 2. Fallback: AutocompleteService if New API method returns empty
-        if (itemsToRender.length === 0 && (google.maps.places.AutocompleteService || AutocompleteService)) {
-          const serviceClass = AutocompleteService || google.maps.places.AutocompleteService;
-          const service = new serviceClass();
-          const legacyReq = {
-            input: query,
-            componentRestrictions: { country: "za" }
-          };
-          if (placeType === "city") legacyReq.types = ["(cities)"];
-          else if (placeType === "suburb") legacyReq.types = ["(regions)"];
-          else if (placeType === "street") legacyReq.types = ["address"];
-
-          service.getPlacePredictions(legacyReq, (preds, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK && preds && preds.length > 0) {
-              renderDropdownItems(preds.map(p => ({ text: p.description, placeId: p.place_id })));
-            } else {
-              dropdown.style.display = "none";
-            }
-          });
-          return;
         }
 
         if (itemsToRender.length > 0) {
@@ -1294,13 +1328,40 @@
         item.textContent = itemData.text;
         item.onmouseenter = () => { item.style.background = "#f5f5f5"; };
         item.onmouseleave = () => { item.style.background = "#ffffff"; };
-        item.onmousedown = (e) => {
+        item.onmousedown = async (e) => {
           e.preventDefault();
           input.value = itemData.text;
           dropdown.style.display = "none";
 
           if (placeType === "street") {
-            fillAddressUsingGeocoder(itemData.placeId ? { placeId: itemData.placeId } : itemData.text, itemData.text);
+            let fetchedAddress = false;
+            if (itemData.suggestion && typeof itemData.suggestion.toPlace === "function") {
+              try {
+                const place = itemData.suggestion.toPlace();
+                await place.fetchFields({ fields: ["addressComponents", "formattedAddress"] });
+                if (place.addressComponents) {
+                  fillAddressFromComponents(place.addressComponents, place.formattedAddress || itemData.text);
+                  fetchedAddress = true;
+                }
+              } catch (pErr) {
+                console.warn("Place fetchFields notice:", pErr);
+              }
+            } else if (Place && itemData.placeId) {
+              try {
+                const place = new Place({ id: itemData.placeId });
+                await place.fetchFields({ fields: ["addressComponents", "formattedAddress"] });
+                if (place.addressComponents) {
+                  fillAddressFromComponents(place.addressComponents, place.formattedAddress || itemData.text);
+                  fetchedAddress = true;
+                }
+              } catch (pErr) {
+                console.warn("Place instance fetchFields notice:", pErr);
+              }
+            }
+
+            if (!fetchedAddress) {
+              fillAddressUsingGeocoder(itemData.placeId ? { placeId: itemData.placeId } : itemData.text, itemData.text);
+            }
           }
         };
         dropdown.appendChild(item);
@@ -1389,8 +1450,8 @@
         cleanImage = item.image.split(',')[0].trim();
       }
       
-      if (!cleanImage) {
-        cleanImage = 'https://via.placeholder.com/150x200?text=Minara5';
+      if (!cleanImage || cleanImage.startsWith('file:') || cleanImage.includes('file:///')) {
+        cleanImage = 'minara%205%20transparent%202.svg';
       }
 
       let selectionsHtml = '';
