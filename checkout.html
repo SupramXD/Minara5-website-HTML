@@ -1579,10 +1579,12 @@
     }
 
     // Calculate totals
+    const totalBottles = window.getCartTotalBottles ? window.getCartTotalBottles(activeItems) : activeItems.reduce((sum, item) => sum + item.quantity, 0);
+    const shippingFee = (totalBottles === 1) ? 85 : 0;
     const subtotal = activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
     const discountAmount = hasDiscount ? Math.round(subtotal * 0.05) : 0;
-    const finalTotal = subtotal - discountAmount;
+    const finalTotal = subtotal - discountAmount + shippingFee;
 
     // Compile items summary list HTML
     let itemsHtml = '';
@@ -1839,6 +1841,14 @@
           </div>
 
           <!-- Pricing breakdowns -->
+          ${totalBottles === 1 ? `
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 12px 14px; margin-bottom: 20px; text-align: center;">
+              <div style="font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: bold; color: #92400e; line-height: 1.4;">
+                🔥 Add 1 more bottle to SAVE R241 + get FREE Shipping!
+              </div>
+            </div>
+          ` : ''}
+
           <div class="summary-pricing-box">
             <div class="pricing-row">
               <span>Subtotal</span>
@@ -1852,7 +1862,7 @@
             ` : ''}
             <div class="pricing-row">
               <span>Shipping</span>
-              <span>FREE</span>
+              <span>${shippingFee > 0 ? `R${shippingFee}` : 'FREE'}</span>
             </div>
             <div class="pricing-row total-row">
               <span>Total Due</span>
@@ -1987,10 +1997,12 @@
     const deliveryDate = document.getElementById("displayDeliveryDate") ? document.getElementById("displayDeliveryDate").textContent.trim() : "";
 
     // Calculate dynamic pricing totals
+    const totalBottles = window.getCartTotalBottles ? window.getCartTotalBottles(activeItems) : activeItems.reduce((sum, item) => sum + item.quantity, 0);
+    const shippingFee = (totalBottles === 1) ? 85 : 0;
     const subtotal = activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
     const discountAmount = hasDiscount ? Math.round(subtotal * 0.05) : 0;
-    const finalTotal = subtotal - discountAmount;
+    const finalTotal = subtotal - discountAmount + shippingFee;
 
     // Compile delivery address
     let compiledAddress = '';

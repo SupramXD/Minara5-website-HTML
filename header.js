@@ -886,10 +886,41 @@ window.removeFromCart = function(index) {
         saveAndSyncCart();
     }
 };
+// Helper to accurately count total physical bottles in cart (bundles & multi-scent selections count as > 1)
+window.getCartTotalBottles = function(items) {
+    if (!items || !Array.isArray(items)) return 0;
+    const activeItems = items.filter(item => !item.removed);
+    let totalBottles = 0;
+    
+    activeItems.forEach(item => {
+        let bottlesInItem = 1;
+        if (item.selectedScents && Array.isArray(item.selectedScents) && item.selectedScents.length > 0) {
+            bottlesInItem = item.selectedScents.length;
+        } else {
+            const name = (item.name || "").toLowerCase();
+            const nameShort = (item.nameShort || "").toLowerCase();
+            const id = (item.id || "").toLowerCase();
+            
+            if (name.includes("bundle") || nameShort.includes("bundle") || id.includes("bundle") ||
+                name.includes("set of") || name.includes("trio") || name.includes("duo") ||
+                name.includes("3 bottle") || name.includes("2 bottle") || name.includes("5 bottle") ||
+                name.includes("box set") || name.includes("collection") || name.includes("pack")) {
+                
+                if (name.includes("3") || id.includes("3")) bottlesInItem = 3;
+                else if (name.includes("2") || id.includes("2")) bottlesInItem = 2;
+                else if (name.includes("5") || id.includes("5")) bottlesInItem = 5;
+                else bottlesInItem = 2;
+            }
+        }
+        totalBottles += (bottlesInItem * (item.quantity || 1));
+    });
+    
+    return totalBottles;
+};
 
 /* ===============================
    CART UI & BUTTON FIXES
-================================ */window.renderCartUI = function() {
+================================ */window.renderCartUI = function() {
     const cartContainer = document.querySelector('.cart-body');
     const asciiWrap = document.querySelector('.cart-ascii-wrap');
     const asciiContainer = document.querySelector('.cart-ascii');
@@ -911,6 +942,8 @@ window.removeFromCart = function(index) {
     const activeCartItems = cart.filter(item => !item.removed);
     const totalItems = activeCartItems.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = activeCartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const totalBottles = window.getCartTotalBottles(cart);
+    const isSingleProduct = (totalBottles === 1);
     const hasItems = totalItems > 0;
     const hasAnyCartItems = cart.length > 0;
     const isLoggedIn = !!currentUser;
@@ -1090,9 +1123,16 @@ window.removeFromCart = function(index) {
             }
         });
         
-        // Continue shopping button under the list of items
+        // Continue shopping button & single product upsell banner under the list of items
         html += `
-        <div class="continue-shopping-row" style="width:100%; box-sizing:border-box; padding:15px 20px; display:flex; justify-content:center; border-bottom:1px solid #eaeaea;">
+        <div class="continue-shopping-row" style="width:100%; box-sizing:border-box; padding:15px 20px; display:flex; flex-direction:column; align-items:center; border-bottom:1px solid #eaeaea; gap:10px;">
+            ${isSingleProduct ? `
+            <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:10px 14px; text-align:center; width:100%; max-width:280px; box-sizing:border-box;">
+                <div style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:bold; color:#92400e; letter-spacing:0.3px; line-height:1.4;">
+                    🔥 Add 1 more bottle to SAVE R241 + get FREE Shipping!
+                </div>
+            </div>
+            ` : ''}
             <span onclick="closeCart()" onmouseover="this.style.background='#000'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='#000';" style="font-family:Helvetica, Arial, sans-serif; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; font-weight:600; transition:all 0.25s ease; border:1px solid #000; padding:10px 20px; display:inline-block; text-align:center; width:100%; max-width:250px;">← Continue Shopping</span>
         </div>`;
 
@@ -1108,18 +1148,26 @@ window.removeFromCart = function(index) {
     const paymentBoxHeight = hasItems ? "auto" : "50px"; 
     const paymentPadding = hasItems ? "20px 20px" : "8px 20px"; 
 
+    const shippingFee = (hasItems && isSingleProduct) ? 85 : 0;
+    const shippingLabel = (hasItems && isSingleProduct) ? 'R85' : 'FREE';
+
     const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
-    let priceDisplay = 'R' + formatPrice(totalPrice);
+    const subtotalAfterDiscount = hasDiscount ? Math.round(totalPrice * 0.95) : totalPrice;
+    const grandTotal = subtotalAfterDiscount + shippingFee;
+
+    let priceDisplay = 'R' + formatPrice(grandTotal);
     if (hasDiscount) {
-        priceDisplay = `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${formatPrice(totalPrice)}</span><span style="color: #1106e8; font-weight: bold;">R${formatPrice(Math.round(totalPrice * 0.95))}</span>`;
+        priceDisplay = `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${formatPrice(totalPrice + shippingFee)}</span><span style="color: #1106e8; font-weight: bold;">R${formatPrice(grandTotal)}</span>`;
     }
 
     html += `
         <div class="cart-footer-area" style="margin-top:auto; width:100%;">
             <div style="background:#f9f9f9; border-top:1px solid #eaeaea; padding:12px 20px; height:${footBoxHeight}; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold', sans-serif; font-weight:bold; letter-spacing:1.5px; color:#000;">
-                    <span>SHIPPING</span><span>FREE</span>
+                    <span>SHIPPING</span><span>${shippingLabel}</span>
                 </div>
+                ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold', sans-serif; font-weight:bold; letter-spacing:1.5px; color:#000;"><span>TOTAL</span><span>R0</span></div>` : ''}
+            </div>`;  </div>
                 ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold', sans-serif; font-weight:bold; letter-spacing:1.5px; color:#000;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
             <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #eaeaea; padding:${paymentPadding}; height:${paymentBoxHeight}; min-height:${paymentBoxHeight}; border-bottom:1px solid #eaeaea; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box; width:100%;">
