@@ -13,7 +13,7 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
   <link rel="modulepreload" href="header.js">
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4B_Kidu4QPFaNKMm8L9bKDR-F72ZpfiI&libraries=places&v=weekly&loading=async&callback=initGooglePlaces" async defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4B_Kidu4QPFaNKMm8L9bKDR-F72ZpfiI&v=weekly&loading=async&callback=initGooglePlaces" async defer></script>
 
   <style>
     /* --- GLOBAL FONT DECLARATION --- */
@@ -1391,8 +1391,26 @@
           font-family: Helvetica, Arial, sans-serif;
           background: #ffffff;
           line-height: 1.4;
+          display: flex;
+          align-items: center;
+          gap: 10px;
         `;
-        item.textContent = itemData.text;
+
+        const parts = itemData.text.split(",");
+        const mainTitle = parts[0] ? parts[0].trim() : itemData.text;
+        const subTitle = parts.slice(1).join(", ").trim();
+
+        item.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#777777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+            <path d="M12 21s-6-5.333-6-10a6 6 0 0 1 12 0c0 4.667-6 10-6 10z"></path>
+            <circle cx="12" cy="11" r="2"></circle>
+          </svg>
+          <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            <div style="font-weight: bold; color: #000000; font-size: 13px;">${mainTitle}</div>
+            ${subTitle ? `<div style="font-size: 11px; color: #666666; font-weight: normal; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${subTitle}</div>` : ''}
+          </div>
+        `;
+
         item.onmouseenter = () => { item.style.background = "#f5f5f5"; };
         item.onmouseleave = () => { item.style.background = "#ffffff"; };
         item.onmousedown = async (e) => {
@@ -1433,6 +1451,22 @@
         };
         dropdown.appendChild(item);
       });
+
+      const footer = document.createElement("div");
+      footer.style.cssText = `
+        padding: 6px 14px;
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        font-size: 9.5px;
+        color: #64748b;
+        font-family: Helvetica, Arial, sans-serif;
+        text-align: right;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      `;
+      footer.innerHTML = `POWERED BY GOOGLE PLACES`;
+      dropdown.appendChild(footer);
+
       dropdown.style.display = "block";
     };
 
@@ -1443,66 +1477,16 @@
     });
   }
 
-  // Official Native Google Places Autocomplete Widget Attachment
-  function attachNativeGoogleAutocomplete(inputId, placeType) {
-    const input = document.getElementById(inputId);
-    if (!input || input.dataset.gNativeAttached === "true") return;
-
-    if (typeof google === "undefined" || !google.maps || !google.maps.places || !google.maps.places.Autocomplete) {
-      attachModernPlacesAutocomplete(inputId, placeType);
-      return;
-    }
-
-    input.dataset.gNativeAttached = "true";
-
-    const options = {
-      componentRestrictions: { country: "za" },
-      fields: ["address_components", "formatted_address", "geometry", "name"]
-    };
-
-    if (placeType === "city") {
-      options.types = ["(cities)"];
-    } else if (placeType === "suburb") {
-      options.types = ["(regions)"];
-    } else if (placeType === "street") {
-      options.types = ["address"];
-    }
-
-    const autocomplete = new google.maps.places.Autocomplete(input, options);
-
-    // Prevent submitting form on Enter key inside Google Autocomplete dropdown
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        const pacContainer = document.querySelector(".pac-container");
-        if (pacContainer && pacContainer.style.display !== "none") {
-          e.preventDefault();
-        }
-      }
-    });
-
-    autocomplete.addListener("place_changed", () => {
-      const place = autocomplete.getPlace();
-      if (!place || !place.address_components) {
-        if (input.value) fillAddressUsingGeocoder(input.value, input.value);
-        return;
-      }
-
-      if (placeType === "street") {
-        fillAddressFromComponents(place.address_components, place.formatted_address || input.value);
-      }
-    });
-  }
-
   // Google Places Autocomplete Initialization for All Form Fields
   window.initGooglePlaces = async function() {
-    // 1. Street Address Field (Official Native Google Autocomplete Widget)
-    attachNativeGoogleAutocomplete("c_street", "street");
+    // 1. Street Address Field (Places API New, Pure AutocompleteSuggestion)
+    attachModernPlacesAutocomplete("c_street", "street");
 
-    // 2. Suburb Field (Official Native Google Autocomplete Widget)
-    attachNativeGoogleAutocomplete("c_suburb", "suburb");
+    // 2. Suburb Field (Places API New, Pure AutocompleteSuggestion)
+    attachModernPlacesAutocomplete("c_suburb", "suburb");
 
-    // 3. City Field (Official Native Google Autocomplete Widget)
-    attachNativeGoogleAutocomplete("c_city", "city");
+    // 3. City Field (Places API New, Pure AutocompleteSuggestion)
+    attachModernPlacesAutocomplete("c_city", "city");
 
     // 4. Postal Code Field & Custom SA Lookup
     setupCustomInputAutocomplete("c_postal", SOUTH_AFRICAN_CITIES);
