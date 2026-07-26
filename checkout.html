@@ -12,7 +12,7 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
-  <link rel="modulepreload" href="header.js">
+  <link rel="modulepreload" href="header.js?v=3">
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4B_Kidu4QPFaNKMm8L9bKDR-F72ZpfiI&v=weekly&loading=async&callback=initGooglePlaces" async defer></script>
 
   <style>
@@ -1851,15 +1851,6 @@
             ${itemsHtml}
           </div>
 
-          <!-- High-fashion minimalist upsell banner (Only shown when 1 bottle in cart) -->
-          ${totalBottles === 1 ? `
-            <div style="background: #000000; color: #ffffff; padding: 12px 16px; margin-bottom: 20px; text-align: center;">
-              <div style="font-family: Helvetica, Arial, sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; line-height: 1.4;">
-                Add 1 more bottle to save R241 + free shipping
-              </div>
-            </div>
-          ` : ''}
-
           <div class="summary-pricing-box">
             <div class="pricing-row">
               <span>Subtotal</span>
@@ -2111,7 +2102,7 @@
   };
 </script>
 
-<script type="module" src="header.js"></script>
+<script type="module" src="header.js?v=3"></script>
 
 </body>
 </html>
