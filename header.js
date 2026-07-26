@@ -885,46 +885,29 @@ window.removeFromCart = function(index) {
         cart[index].removed = true;
         saveAndSyncCart();
     }
-};
-// Comprehensive Cart Pricing & Volume Savings Resolver
+};// Comprehensive Cart Pricing & Shipping Resolver (R600 Free Shipping Threshold)
 window.calculateCartPricing = function(items) {
     if (!items || !Array.isArray(items)) {
-        return { totalBottles: 0, rawSubtotal: 0, bundleDiscount: 0, subtotalAfterBundle: 0, newsletterDiscountAmount: 0, shippingFee: 0, finalTotal: 0, totalSavings: 0 };
+        return { totalItems: 0, rawSubtotal: 0, newsletterDiscountAmount: 0, shippingFee: 0, finalTotal: 0 };
     }
     const activeItems = items.filter(item => !item.removed);
-    const totalBottles = window.getCartTotalBottles ? window.getCartTotalBottles(activeItems) : activeItems.reduce((s, i) => s + (i.quantity || 1), 0);
+    const totalItems = activeItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
     const rawSubtotal = activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    let bundleDiscount = 0;
+    // Free shipping threshold: Cart subtotal >= R600 -> FREE shipping, otherwise R85 flat fee
+    const shippingFee = (rawSubtotal >= 600 || activeItems.length === 0) ? 0 : 85;
     
-    // Automatically negate R241 bundle discount when 2 individual bottles are in cart
-    if (totalBottles === 2 && rawSubtotal >= 900) {
-        bundleDiscount = 241;
-    } else if (totalBottles === 3 && rawSubtotal >= 1300) {
-        bundleDiscount = 486;
-    } else if (totalBottles > 3 && rawSubtotal >= 1400) {
-        const duos = Math.floor(totalBottles / 2);
-        bundleDiscount = duos * 241;
-    }
-
-    const shippingFee = (totalBottles === 1 && activeItems.length > 0) ? 85 : 0;
     const hasNewsletterDiscount = localStorage.getItem("minara_discount_5") === "active";
+    const newsletterDiscountAmount = hasNewsletterDiscount ? Math.round(rawSubtotal * 0.05) : 0;
     
-    const subtotalAfterBundle = Math.max(0, rawSubtotal - bundleDiscount);
-    const newsletterDiscountAmount = hasNewsletterDiscount ? Math.round(subtotalAfterBundle * 0.05) : 0;
-    
-    const finalTotal = subtotalAfterBundle - newsletterDiscountAmount + shippingFee;
-    const totalSavings = bundleDiscount + newsletterDiscountAmount + (totalBottles >= 2 ? 85 : 0);
+    const finalTotal = rawSubtotal - newsletterDiscountAmount + shippingFee;
 
     return {
-        totalBottles,
+        totalItems,
         rawSubtotal,
-        bundleDiscount,
-        subtotalAfterBundle,
         newsletterDiscountAmount,
         shippingFee,
-        finalTotal,
-        totalSavings
+        finalTotal
     };
 };
 
@@ -951,9 +934,7 @@ window.calculateCartPricing = function(items) {
 
     const activeCartItems = cart.filter(item => !item.removed);
     const pricing = window.calculateCartPricing(cart);
-    const totalBottles = pricing.totalBottles;
     const totalItems = activeCartItems.reduce((sum, item) => sum + item.quantity, 0);
-    const isSingleProduct = (totalBottles === 1);
     const hasItems = totalItems > 0;
     const hasAnyCartItems = cart.length > 0;
     const isLoggedIn = !!currentUser;
@@ -1133,19 +1114,11 @@ window.calculateCartPricing = function(items) {
             }
         });
         
-        // Only show Continue Shopping & Upsell banner if cart contains a SINGLE bottle (1 bottle)
-        // If 2+ bottles or a bundle are in cart, remove both the text box & Continue Shopping button to push user to Checkout!
-        if (isSingleProduct) {
-            html += `
-            <div class="continue-shopping-row" style="width:100%; box-sizing:border-box; padding:16px 20px; display:flex; flex-direction:column; align-items:center; border-bottom:1px solid #eaeaea; gap:12px;">
-                <div style="background:#000000; color:#ffffff; padding:11px 16px; text-align:center; width:100%; max-width:280px; box-sizing:border-box;">
-                    <div style="font-family:Helvetica, Arial, sans-serif; font-size:9.5px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; line-height:1.4;">
-                        Add 1 more bottle to save R241 + free shipping
-                    </div>
-                </div>
-                <span onclick="closeCart()" onmouseover="this.style.background='#000'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='#000';" style="font-family:Helvetica, Arial, sans-serif; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; font-weight:600; transition:all 0.25s ease; border:1px solid #000; padding:10px 20px; display:inline-block; text-align:center; width:100%; max-width:250px;">← Continue Shopping</span>
-            </div>`;
-        }
+        // Minimalist simple text link for Continue Shopping
+        html += `
+        <div class="continue-shopping-row" style="width:100%; box-sizing:border-box; padding:12px 20px; text-align:center; border-bottom:1px solid #eaeaea;">
+            <a href="#" onclick="event.preventDefault(); closeCart();" style="font-family:Helvetica, Arial, sans-serif; font-size:10px; letter-spacing:1.2px; text-transform:uppercase; cursor:pointer; font-weight:500; color:#666666; text-decoration:none; transition:color 0.2s ease;" onmouseover="this.style.color='#000000';" onmouseout="this.style.color='#666666';">← Continue Shopping</a>
+        </div>`;
 
         html += '</div>';
     } else {
@@ -1155,11 +1128,11 @@ window.calculateCartPricing = function(items) {
     }
 
     // FOOTER (Restored to original Gotham Narrow Bold)
-    const footBoxHeight = hasItems ? (pricing.bundleDiscount > 0 ? "64px" : "45px") : "80px"; 
+    const footBoxHeight = hasItems ? "45px" : "80px"; 
     const paymentBoxHeight = hasItems ? "auto" : "50px"; 
     const paymentPadding = hasItems ? "20px 20px" : "8px 20px"; 
 
-    const shippingLabel = pricing.shippingFee > 0 ? `R${pricing.shippingFee}` : 'FREE';
+    const shippingLabel = (pricing.shippingFee === 0 && hasItems) ? 'FREE' : `R${pricing.shippingFee}`;
     const priceDisplay = 'R' + formatPrice(pricing.finalTotal);
 
     html += `
@@ -1168,11 +1141,6 @@ window.calculateCartPricing = function(items) {
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold', sans-serif; font-weight:bold; letter-spacing:1.5px; color:#000;">
                     <span>SHIPPING</span><span>${shippingLabel}</span>
                 </div>
-                ${pricing.bundleDiscount > 0 ? `
-                <div style="display:flex; justify-content:space-between; font-size:10.5px; font-family:'Gotham Narrow Bold', sans-serif; font-weight:bold; letter-spacing:1.2px; color:#1106e8; text-transform:uppercase;">
-                    <span>BUNDLE SAVINGS</span><span>-R${pricing.bundleDiscount}</span>
-                </div>
-                ` : ''}
                 ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold', sans-serif; font-weight:bold; letter-spacing:1.5px; color:#000;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
             <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #eaeaea; padding:${paymentPadding}; height:${paymentBoxHeight}; min-height:${paymentBoxHeight}; border-bottom:1px solid #eaeaea; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box; width:100%;">

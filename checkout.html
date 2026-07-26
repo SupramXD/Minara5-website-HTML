@@ -12,7 +12,7 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
-  <link rel="modulepreload" href="header.js?v=3">
+  <link rel="modulepreload" href="header.js?v=4">
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4B_Kidu4QPFaNKMm8L9bKDR-F72ZpfiI&v=weekly&loading=async&callback=initGooglePlaces" async defer></script>
 
   <style>
@@ -1580,22 +1580,18 @@
 
     // Calculate totals using central calculateCartPricing
     const pricing = window.calculateCartPricing ? window.calculateCartPricing(activeItems) : {
-      totalBottles: activeItems.reduce((sum, item) => sum + item.quantity, 0),
+      totalItems: activeItems.reduce((sum, item) => sum + item.quantity, 0),
       rawSubtotal: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-      bundleDiscount: 0,
       newsletterDiscountAmount: 0,
-      shippingFee: 0,
+      shippingFee: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) >= 600 ? 0 : 85,
       finalTotal: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
     };
 
-    const totalBottles = pricing.totalBottles;
     const subtotal = pricing.rawSubtotal;
-    const bundleDiscount = pricing.bundleDiscount;
     const discountAmount = pricing.newsletterDiscountAmount;
     const hasDiscount = discountAmount > 0;
     const shippingFee = pricing.shippingFee;
     const finalTotal = pricing.finalTotal;
-    const displayDiscountText = bundleDiscount > 0 ? bundleDiscount : 241;
 
     // Compile items summary list HTML
     let itemsHtml = '';
@@ -1856,12 +1852,6 @@
               <span>Subtotal</span>
               <span>R${subtotal}</span>
             </div>
-            ${bundleDiscount > 0 ? `
-              <div class="pricing-row discount-row" style="color: #1106e8; font-weight: bold;">
-                <span>Bundle Savings</span>
-                <span>-R${bundleDiscount}</span>
-              </div>
-            ` : ''}
             ${hasDiscount ? `
               <div class="pricing-row discount-row">
                 <span>Newsletter Discount (5%)</span>
@@ -2102,7 +2092,7 @@
   };
 </script>
 
-<script type="module" src="header.js?v=3"></script>
+<script type="module" src="header.js?v=4"></script>
 
 </body>
 </html>
