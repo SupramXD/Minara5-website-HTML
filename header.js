@@ -1123,16 +1123,24 @@ window.getCartTotalBottles = function(items) {
             }
         });
         
-        // Continue shopping button & single product upsell banner under the list of items
+        const savingsAmount = Math.max(241, ((totalBottles * 495 + 85) - totalPrice));
+
+        // Continue shopping button & high-fashion upsell / savings banner
         html += `
-        <div class="continue-shopping-row" style="width:100%; box-sizing:border-box; padding:15px 20px; display:flex; flex-direction:column; align-items:center; border-bottom:1px solid #eaeaea; gap:10px;">
+        <div class="continue-shopping-row" style="width:100%; box-sizing:border-box; padding:16px 20px; display:flex; flex-direction:column; align-items:center; border-bottom:1px solid #eaeaea; gap:12px;">
             ${isSingleProduct ? `
-            <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:10px 14px; text-align:center; width:100%; max-width:280px; box-sizing:border-box;">
-                <div style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:bold; color:#92400e; letter-spacing:0.3px; line-height:1.4;">
-                    🔥 Add 1 more bottle to SAVE R241 + get FREE Shipping!
+            <div style="background:#000000; color:#ffffff; padding:11px 16px; text-align:center; width:100%; max-width:280px; box-sizing:border-box;">
+                <div style="font-family:Helvetica, Arial, sans-serif; font-size:9.5px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; line-height:1.4;">
+                    Add 1 more bottle to save R241 + free shipping
                 </div>
             </div>
-            ` : ''}
+            ` : (totalBottles >= 2 ? `
+            <div style="background:#f4f4f4; border:1px solid #e5e5e5; color:#000000; padding:11px 16px; text-align:center; width:100%; max-width:280px; box-sizing:border-box;">
+                <div style="font-family:Helvetica, Arial, sans-serif; font-size:9.5px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; line-height:1.4;">
+                    ✓ You're saving R${savingsAmount} + free shipping
+                </div>
+            </div>
+            ` : '')}
             <span onclick="closeCart()" onmouseover="this.style.background='#000'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='#000';" style="font-family:Helvetica, Arial, sans-serif; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; font-weight:600; transition:all 0.25s ease; border:1px solid #000; padding:10px 20px; display:inline-block; text-align:center; width:100%; max-width:250px;">← Continue Shopping</span>
         </div>`;
 
@@ -1144,7 +1152,7 @@ window.getCartTotalBottles = function(items) {
     }
 
     // FOOTER (Restored to original Gotham Narrow Bold)
-    const footBoxHeight = hasItems ? "45px" : "80px"; 
+    const footBoxHeight = hasItems ? (totalBottles >= 2 ? "62px" : "45px") : "80px"; 
     const paymentBoxHeight = hasItems ? "auto" : "50px"; 
     const paymentPadding = hasItems ? "20px 20px" : "8px 20px"; 
 
@@ -1154,6 +1162,7 @@ window.getCartTotalBottles = function(items) {
     const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
     const subtotalAfterDiscount = hasDiscount ? Math.round(totalPrice * 0.95) : totalPrice;
     const grandTotal = subtotalAfterDiscount + shippingFee;
+    const finalSavings = Math.max(241, ((totalBottles * 495 + 85) - grandTotal));
 
     let priceDisplay = 'R' + formatPrice(grandTotal);
     if (hasDiscount) {
@@ -1166,6 +1175,11 @@ window.getCartTotalBottles = function(items) {
                 <div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold', sans-serif; font-weight:bold; letter-spacing:1.5px; color:#000;">
                     <span>SHIPPING</span><span>${shippingLabel}</span>
                 </div>
+                ${totalBottles >= 2 ? `
+                <div style="display:flex; justify-content:space-between; font-size:10.5px; font-family:'Gotham Narrow Bold', sans-serif; font-weight:bold; letter-spacing:1.2px; color:#1106e8; text-transform:uppercase;">
+                    <span>BUNDLE SAVINGS UNLOCKED</span><span>-R${finalSavings}</span>
+                </div>
+                ` : ''}
                 ${!hasItems ? `<div style="display:flex; justify-content:space-between; font-size:11px; font-family:'Gotham Narrow Bold', sans-serif; font-weight:bold; letter-spacing:1.5px; color:#000;"><span>TOTAL</span><span>R0</span></div>` : ''}
             </div>
             <div class="payment-section" style="background:#f2f2f2; border-top:1px solid #eaeaea; padding:${paymentPadding}; height:${paymentBoxHeight}; min-height:${paymentBoxHeight}; border-bottom:1px solid #eaeaea; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box; width:100%;">

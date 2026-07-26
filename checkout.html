@@ -1586,6 +1586,8 @@
     const discountAmount = hasDiscount ? Math.round(subtotal * 0.05) : 0;
     const finalTotal = subtotal - discountAmount + shippingFee;
 
+    const finalSavings = Math.max(241, ((totalBottles * 495 + 85) - finalTotal));
+
     // Compile items summary list HTML
     let itemsHtml = '';
     activeItems.forEach(item => {
@@ -1840,14 +1842,20 @@
             ${itemsHtml}
           </div>
 
-          <!-- Pricing breakdowns -->
+          <!-- High-fashion minimalist upsell / savings banner -->
           ${totalBottles === 1 ? `
-            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 12px 14px; margin-bottom: 20px; text-align: center;">
-              <div style="font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: bold; color: #92400e; line-height: 1.4;">
-                🔥 Add 1 more bottle to SAVE R241 + get FREE Shipping!
+            <div style="background: #000000; color: #ffffff; padding: 12px 16px; margin-bottom: 20px; text-align: center;">
+              <div style="font-family: Helvetica, Arial, sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; line-height: 1.4;">
+                Add 1 more bottle to save R241 + free shipping
               </div>
             </div>
-          ` : ''}
+          ` : (totalBottles >= 2 ? `
+            <div style="background: #f4f4f4; border: 1px solid #e5e5e5; color: #000000; padding: 12px 16px; margin-bottom: 20px; text-align: center;">
+              <div style="font-family: Helvetica, Arial, sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; line-height: 1.4;">
+                ✓ You're saving R${finalSavings} + free shipping
+              </div>
+            </div>
+          ` : '')}
 
           <div class="summary-pricing-box">
             <div class="pricing-row">
@@ -1858,6 +1866,12 @@
               <div class="pricing-row discount-row">
                 <span>Newsletter Discount (5%)</span>
                 <span>-R${discountAmount}</span>
+              </div>
+            ` : ''}
+            ${totalBottles >= 2 ? `
+              <div class="pricing-row discount-row" style="color: #1106e8; font-weight: bold;">
+                <span>Bundle Savings</span>
+                <span>-R${finalSavings}</span>
               </div>
             ` : ''}
             <div class="pricing-row">
