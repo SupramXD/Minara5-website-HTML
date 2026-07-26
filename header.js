@@ -1133,26 +1133,19 @@ window.calculateCartPricing = function(items) {
             }
         });
         
-        const displayDiscountText = pricing.bundleDiscount > 0 ? pricing.bundleDiscount : 241;
-
-        // Continue shopping button & high-fashion upsell / savings banner
-        html += `
-        <div class="continue-shopping-row" style="width:100%; box-sizing:border-box; padding:16px 20px; display:flex; flex-direction:column; align-items:center; border-bottom:1px solid #eaeaea; gap:12px;">
-            ${isSingleProduct ? `
-            <div style="background:#000000; color:#ffffff; padding:11px 16px; text-align:center; width:100%; max-width:280px; box-sizing:border-box;">
-                <div style="font-family:Helvetica, Arial, sans-serif; font-size:9.5px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; line-height:1.4;">
-                    Add 1 more bottle to save R241 + free shipping
+        // Only show Continue Shopping & Upsell banner if cart contains a SINGLE bottle (1 bottle)
+        // If 2+ bottles or a bundle are in cart, remove both the text box & Continue Shopping button to push user to Checkout!
+        if (isSingleProduct) {
+            html += `
+            <div class="continue-shopping-row" style="width:100%; box-sizing:border-box; padding:16px 20px; display:flex; flex-direction:column; align-items:center; border-bottom:1px solid #eaeaea; gap:12px;">
+                <div style="background:#000000; color:#ffffff; padding:11px 16px; text-align:center; width:100%; max-width:280px; box-sizing:border-box;">
+                    <div style="font-family:Helvetica, Arial, sans-serif; font-size:9.5px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; line-height:1.4;">
+                        Add 1 more bottle to save R241 + free shipping
+                    </div>
                 </div>
-            </div>
-            ` : (totalBottles >= 2 ? `
-            <div style="background:#f4f4f4; border:1px solid #e5e5e5; color:#000000; padding:11px 16px; text-align:center; width:100%; max-width:280px; box-sizing:border-box;">
-                <div style="font-family:Helvetica, Arial, sans-serif; font-size:9.5px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; line-height:1.4;">
-                    ✓ You're saving R${displayDiscountText} + free shipping
-                </div>
-            </div>
-            ` : '')}
-            <span onclick="closeCart()" onmouseover="this.style.background='#000'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='#000';" style="font-family:Helvetica, Arial, sans-serif; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; font-weight:600; transition:all 0.25s ease; border:1px solid #000; padding:10px 20px; display:inline-block; text-align:center; width:100%; max-width:250px;">← Continue Shopping</span>
-        </div>`;
+                <span onclick="closeCart()" onmouseover="this.style.background='#000'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='#000';" style="font-family:Helvetica, Arial, sans-serif; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; font-weight:600; transition:all 0.25s ease; border:1px solid #000; padding:10px 20px; display:inline-block; text-align:center; width:100%; max-width:250px;">← Continue Shopping</span>
+            </div>`;
+        }
 
         html += '</div>';
     } else {

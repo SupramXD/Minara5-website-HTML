@@ -1851,20 +1851,14 @@
             ${itemsHtml}
           </div>
 
-          <!-- High-fashion minimalist upsell / savings banner -->
+          <!-- High-fashion minimalist upsell banner (Only shown when 1 bottle in cart) -->
           ${totalBottles === 1 ? `
             <div style="background: #000000; color: #ffffff; padding: 12px 16px; margin-bottom: 20px; text-align: center;">
               <div style="font-family: Helvetica, Arial, sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; line-height: 1.4;">
                 Add 1 more bottle to save R241 + free shipping
               </div>
             </div>
-          ` : (totalBottles >= 2 ? `
-            <div style="background: #f4f4f4; border: 1px solid #e5e5e5; color: #000000; padding: 12px 16px; margin-bottom: 20px; text-align: center;">
-              <div style="font-family: Helvetica, Arial, sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; line-height: 1.4;">
-                ✓ You're saving R${displayDiscountText} + free shipping
-              </div>
-            </div>
-          ` : '')}
+          ` : ''}
 
           <div class="summary-pricing-box">
             <div class="pricing-row">
