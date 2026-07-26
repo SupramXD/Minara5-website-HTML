@@ -1117,8 +1117,8 @@
     });
   }
 
-  // Smart Street Line Extractor: Preserves Unit, Complex/Estate, and Street Name
-  function extractFullStreetLine(components, formattedAddress, fallbackString = "") {
+  // Smart Address & Precinct Classifier
+  function extractAddressParts(components, formattedAddress, selectedText = "") {
     let streetNumber = "", route = "", premise = "", subpremise = "", sublocality = "", city = "", province = "", postalCode = "";
 
     if (components && Array.isArray(components)) {
@@ -1128,7 +1128,9 @@
         if (types.includes("street_number")) streetNumber = text;
         if (types.includes("route")) route = text;
         if (types.includes("subpremise")) subpremise = text;
-        if (types.includes("premise") || types.includes("building") || types.includes("complex") || types.includes("establishment")) premise = text;
+        if (types.includes("premise") || types.includes("building") || types.includes("complex") || types.includes("establishment")) {
+          if (!premise) premise = text;
+        }
         if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood") || types.includes("sublocality_level_2")) {
           if (!sublocality) sublocality = text;
         }
@@ -1140,9 +1142,23 @@
       }
     }
 
-    const rawStr = fallbackString || formattedAddress || "";
-    
-    // Clean country, province, postal code, city from rawStr to get full street/complex text
+    const rawStr = selectedText || formattedAddress || "";
+    const parsed = parseAddressString(rawStr);
+
+    let buildingUnit = parsed.buildingUnit || "";
+    let fullStreet = "";
+
+    if (subpremise || premise) {
+      if (subpremise && premise && subpremise !== premise) {
+        buildingUnit = `${subpremise} ${premise}`.trim();
+      } else if (subpremise) {
+        buildingUnit = subpremise;
+      } else if (premise) {
+        buildingUnit = premise;
+      }
+    }
+
+    // Clean text by stripping country, province, postal code
     let clean = rawStr
       .replace(/,?\s*(South Africa|ZA|Republic of South Africa)\s*$/i, "")
       .trim();
@@ -1150,25 +1166,46 @@
     if (postalCode) clean = clean.replace(new RegExp(`,?\\s*${postalCode}\\s*$`, "i"), "").trim();
     if (province) clean = clean.replace(new RegExp(`,?\\s*${province}\\s*$`, "i"), "").trim();
 
-    // If city is at the end, strip city
     const parts = clean.split(",").map(p => p.trim()).filter(Boolean);
+
     if (parts.length > 1 && city && parts[parts.length - 1].toLowerCase() === city.toLowerCase()) {
       parts.pop();
     }
 
-    const cleanedStreet = parts.join(", ").trim();
-
-    if (cleanedStreet && cleanedStreet.length > 2) {
-      return cleanedStreet;
+    if (parts.length >= 2) {
+      // First part is building / precinct / unit (e.g. "Royal Troon" or "69 Oakmont")
+      if (!buildingUnit || buildingUnit.length < parts[0].length) {
+        buildingUnit = parts[0];
+      }
+      // Remaining parts form the Address line (e.g. "Jackal Creek Golf Estate")
+      fullStreet = parts.slice(1).join(", ");
+    } else if (parts.length === 1) {
+      if (buildingUnit && buildingUnit !== parts[0]) {
+        fullStreet = parts[0];
+      } else {
+        fullStreet = parts[0];
+      }
     }
 
-    let compStreet = "";
-    if (subpremise) compStreet += `${subpremise} `;
-    if (premise && premise !== subpremise) compStreet += `${premise} `;
-    if (streetNumber && route) compStreet += `${streetNumber} ${route}`;
-    else if (route) compStreet += route;
+    if (!fullStreet) {
+      if (streetNumber && route) fullStreet = `${streetNumber} ${route}`;
+      else if (route) fullStreet = route;
+      else fullStreet = rawStr;
+    }
 
-    return compStreet.trim() || fallbackString || formattedAddress || "";
+    const finalSub = sublocality || parsed.sublocality;
+    const finalCity = (city && city.toLowerCase() !== (finalSub || "").toLowerCase()) ? city : (parsed.city || finalSub);
+    const finalProv = province || parsed.province;
+    const finalPostal = postalCode || parsed.postalCode;
+
+    return {
+      buildingUnit: buildingUnit.trim(),
+      fullStreet: fullStreet.trim(),
+      sublocality: finalSub,
+      city: finalCity,
+      province: finalProv,
+      postalCode: finalPostal
+    };
   }
 
   // Official Google Geocoding API Resolution Service (Integrates enabled Geocoding API)
@@ -1181,9 +1218,8 @@
     }
 
     if (targetStr) {
-      const fullStreet = extractFullStreetLine([], targetStr, targetStr);
-      const initialParsed = parseAddressString(targetStr);
-      populateAddressFields({ ...initialParsed, fullStreet });
+      const parts = extractAddressParts([], targetStr, targetStr);
+      populateAddressFields(parts);
     }
 
     if (typeof google === "undefined" || !google.maps || !google.maps.Geocoder) {
@@ -1216,41 +1252,9 @@
   }
 
   function fillAddressFromComponents(components, formattedAddress, selectedText = "") {
-    let sublocality = "", city = "", province = "", postalCode = "";
-
-    if (components && Array.isArray(components)) {
-      for (const comp of components) {
-        const types = comp.types || [];
-        const text = comp.longText || comp.long_name || comp.shortText || comp.short_name || "";
-        if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood") || types.includes("sublocality_level_2")) {
-          if (!sublocality) sublocality = text;
-        }
-        if (types.includes("locality") || types.includes("postal_town")) {
-          if (!city) city = text;
-        }
-        if (types.includes("administrative_area_level_2") && !city) city = text;
-        if (types.includes("administrative_area_level_1")) province = text;
-        if (types.includes("postal_code")) postalCode = text;
-      }
-    }
-
     const formatted = formattedAddress || selectedText || "";
-    const parsed = parseAddressString(formatted);
-    const fullStreet = extractFullStreetLine(components, formatted, selectedText);
-
-    const finalSub = sublocality || parsed.sublocality;
-    const finalCity = (city && city.toLowerCase() !== (finalSub || "").toLowerCase()) ? city : (parsed.city || finalSub);
-    const finalProv = province || parsed.province;
-    const finalPostal = postalCode || parsed.postalCode;
-
-    populateAddressFields({
-      buildingUnit: parsed.buildingUnit,
-      fullStreet: fullStreet,
-      sublocality: finalSub,
-      city: finalCity,
-      province: finalProv,
-      postalCode: finalPostal
-    });
+    const resolved = extractAddressParts(components, formatted, selectedText);
+    populateAddressFields(resolved);
   }
 
   function parseStringAndFill(str) {
@@ -1652,17 +1656,17 @@
               <input type="date" id="c_delivery_date" class="date-picker-input" style="display: none;" onchange="updateDeliveryDate(this)">
             </div>
 
-            <!-- Unit, Building, Complex, or Estate field -->
+            <!-- Building, floor, unit field -->
             <div class="form-group">
-              <label for="c_building">Unit number, Building, Complex, or Estate</label>
-              <input type="text" id="c_building" class="form-input" placeholder="e.g. Unit 12 The Willows or Apt 7A Cedar Woods" autocomplete="off" aria-autocomplete="none">
+              <label for="c_building">Building, floor, unit</label>
+              <input type="text" id="c_building" class="form-input" placeholder="e.g. Royal Troon or Unit 69 Oakmont" autocomplete="off" aria-autocomplete="none">
             </div>
 
-            <!-- Street Address field (With South African Places Autocomplete) -->
+            <!-- Address field (With South African Places Autocomplete) -->
             <div class="form-group">
-              <label for="c_street">Street address</label>
+              <label for="c_street">Address</label>
               <div id="gplaces_autocomplete_container" style="position: relative;">
-                <input type="text" id="c_street" class="form-input" placeholder="Start typing your street address..." required autocomplete="off" aria-autocomplete="none">
+                <input type="text" id="c_street" class="form-input" placeholder="Start typing your address..." required autocomplete="off" aria-autocomplete="none">
               </div>
               <div style="font-size: 9.5px; color: #777; margin-top: 4px; line-height: 1.3;">
                 Select address from suggestions to auto-fill Suburb, City, Province & Postal Code.
