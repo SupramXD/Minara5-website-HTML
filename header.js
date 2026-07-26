@@ -885,7 +885,40 @@ window.removeFromCart = function(index) {
         cart[index].removed = true;
         saveAndSyncCart();
     }
-};// Comprehensive Cart Pricing, Free Shipping & Volume Savings Resolver
+};// Helper to accurately count total physical bottles in cart (bundles & multi-scent selections count as > 1)
+window.getCartTotalBottles = function(items) {
+    if (!items || !Array.isArray(items)) return 0;
+    const activeItems = items.filter(item => !item.removed);
+    let totalBottles = 0;
+    
+    activeItems.forEach(item => {
+        let bottlesInItem = 1;
+        if (item.selectedScents && Array.isArray(item.selectedScents) && item.selectedScents.length > 0) {
+            bottlesInItem = item.selectedScents.length;
+        } else if (item.bottleCount && item.bottleCount > 1) {
+            bottlesInItem = item.bottleCount;
+        } else {
+            const name = (item.name || "").toLowerCase();
+            const nameShort = (item.nameShort || "").toLowerCase();
+            const id = (item.id || "").toLowerCase();
+            
+            if (item.isBundle || name.includes("bundle") || nameShort.includes("bundle") || id.includes("bundle") ||
+                name.includes("set of") || name.includes("trio") || name.includes("duo") ||
+                name.includes("3 bottle") || name.includes("2 bottle") || name.includes("5 bottle") ||
+                name.includes("box set") || name.includes("collection") || name.includes("pack")) {
+                
+                if (name.includes("3") || id.includes("3")) bottlesInItem = 3;
+                else if (name.includes("5") || id.includes("5")) bottlesInItem = 5;
+                else bottlesInItem = 2;
+            }
+        }
+        totalBottles += (bottlesInItem * (item.quantity || 1));
+    });
+    
+    return totalBottles;
+};
+
+// Comprehensive Cart Pricing, Free Shipping & Volume Savings Resolver
 window.calculateCartPricing = function(items) {
     if (!items || !Array.isArray(items)) {
         return { totalBottles: 0, rawSubtotal: 0, bundleDiscount: 0, subtotalAfterBundle: 0, newsletterDiscountAmount: 0, shippingFee: 0, finalTotal: 0 };
