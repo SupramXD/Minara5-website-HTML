@@ -41,7 +41,7 @@ function applyDynamicLogoStyles(settings) {
         height: ${Math.round(headerDHeight * 0.7)}px !important;
       }
       .product-box, .hp-box, .slider {
-        background-color: #fcfbf9 !important;
+        background-color: #fcfaf8 !important;
       }
       .under-construction-badge {
         display: inline-flex !important;
