@@ -40,6 +40,47 @@ function applyDynamicLogoStyles(settings) {
       .header-logo {
         height: ${Math.round(headerDHeight * 0.7)}px !important;
       }
+      .product-box, .hp-box, .slider {
+        background-color: #fcfbf9 !important;
+      }
+      .under-construction-badge {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 9px !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.8px !important;
+        text-transform: uppercase !important;
+        color: #000000 !important;
+        border: 1px solid #000000 !important;
+        padding: 2px 7px !important;
+        border-radius: 2px !important;
+        white-space: nowrap !important;
+        line-height: 1.2 !important;
+        background: transparent !important;
+        user-select: none !important;
+        pointer-events: none !important;
+        margin-left: 12px !important;
+        margin-right: 12px !important;
+        vertical-align: middle !important;
+      }
+      @media (max-width: 768px) {
+        .under-construction-badge {
+          font-size: 8px !important;
+          padding: 2px 5px !important;
+          letter-spacing: 0.5px !important;
+          margin-left: 6px !important;
+          margin-right: 6px !important;
+        }
+      }
+      @media (max-width: 380px) {
+        .under-construction-badge {
+          font-size: 7.5px !important;
+          padding: 1px 4px !important;
+          margin-left: 4px !important;
+          margin-right: 4px !important;
+        }
+      }
     `;
 }
 
@@ -3143,11 +3184,39 @@ function applyCustomText(data) {
         fetchPopularFragrances();
     };
 
+    function ensureUnderConstructionBadge() {
+        const headers = document.querySelectorAll('header');
+        headers.forEach(header => {
+            if (!header.querySelector('.under-construction-badge')) {
+                const badge = document.createElement('span');
+                badge.className = 'under-construction-badge';
+                badge.textContent = 'Website Under construction';
+
+                const brandGroup = header.querySelector('.brand-group');
+                const leftNav = header.querySelector('.left-nav');
+                const centerLogo = header.querySelector('.center-logo-link');
+
+                if (leftNav) {
+                    leftNav.appendChild(badge);
+                } else if (brandGroup) {
+                    brandGroup.appendChild(badge);
+                } else {
+                    header.appendChild(badge);
+                }
+            }
+        });
+    }
+
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initSearchSystem);
+        document.addEventListener("DOMContentLoaded", () => {
+            initSearchSystem();
+            ensureUnderConstructionBadge();
+        });
     } else {
         initSearchSystem();
+        ensureUnderConstructionBadge();
     }
 })();
+
 
 
