@@ -58,5 +58,25 @@
     "isBundle": false,
     "bundleSize": 0,
     "sortOrder": 3
+  },
+  {
+    "id": "inspired-by-parfums-de-marly-delina",
+    "nameShort": "De Marly Rose",
+    "name": "Inspired By Parfums De Marly Delina",
+    "price": 495,
+    "retailPrice": 4450,
+    "stock": 10,
+    "image": "images/products/inspired-by-parfums-de-marly-delina.webp",
+    "image_thumb": "images/products/inspired-by-parfums-de-marly-delina_thumb.webp",
+    "description": "delina",
+    "status": "Active",
+    "flair": "Feminine",
+    "invisibleFlair": "women",
+    "sizes": [
+      "50ml"
+    ],
+    "isBundle": false,
+    "bundleSize": 0,
+    "sortOrder": 4
   }
 ]
