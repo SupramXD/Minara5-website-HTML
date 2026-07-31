@@ -4035,6 +4035,10 @@
       const blocksToSave = window.currentEditCustomisations || [];
       window.logAdminSave(`Processing ${blocksToSave.length} customisation blocks...`);
       blocksToSave.forEach((b, idx) => {
+        if (b.image_data && b.image_data.startsWith("data:image/")) {
+          b.image = b.image_data;
+          b.image_thumb = b.image_data;
+        }
         const hasImg = !!(b.image || b.image_data);
         const isData = (b.image && b.image.startsWith("data:")) || (b.image_data && b.image_data.startsWith("data:"));
         window.logAdminSave(`Block #${idx + 1} (${b.label || 'OPTION'}): HasImage=${hasImg}, Format=${isData ? 'Base64 Data' : (b.image || 'None')}, PriceExtra=+R${b.priceExtra || 0}`);
