@@ -3196,7 +3196,7 @@
       alert("Order #" + (1025 - rowId) + " fulfilled successfully! Revenue updated.");
     };
 
-    const compressImage = function(file, maxWidth, quality) {
+    window.compressImage = function(file, maxWidth = 1200, quality = 0.80) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = function(event) {
@@ -3229,15 +3229,21 @@
         reader.readAsDataURL(file);
       });
     };
+    function compressImage(file, maxWidth, quality) { return window.compressImage(file, maxWidth, quality); }
 
-    const sanitizeImageUrl = function(url) {
+    window.sanitizeImageUrl = function(url) {
       if (!url || typeof url !== 'string') return "";
       const trimmed = url.trim();
       if (trimmed.startsWith("file:") || trimmed.includes(":\\") || trimmed.includes("antigravity-ide")) {
+        const idx = trimmed.indexOf("images/");
+        if (idx !== -1) {
+          return trimmed.substring(idx);
+        }
         return "";
       }
       return trimmed;
     };
+    function sanitizeImageUrl(url) { return window.sanitizeImageUrl(url); }
 
     window.logAdminSave = function(msg, isError = false) {
       console.log("[AdminSaveLog]", msg);
@@ -3251,15 +3257,15 @@
       }
     };
 
-    const compressUrlOrPath = function(urlOrPath, maxWidth, quality) {
+    window.compressUrlOrPath = function(urlOrPath, maxWidth, quality) {
       return new Promise((resolve) => {
         if (!urlOrPath) {
           resolve("");
           return;
         }
-        const cleaned = urlOrPath.trim();
-        if (cleaned.startsWith('file:') || cleaned.includes(':\\') || cleaned.includes('antigravity-ide')) {
-          console.warn("Security bypass: Ignoring local file path in compressUrlOrPath:", cleaned);
+        const cleaned = window.sanitizeImageUrl(urlOrPath);
+        if (!cleaned || cleaned.startsWith('file:') || cleaned.includes(':\\') || cleaned.includes('antigravity-ide')) {
+          console.warn("Security bypass: Ignoring local file path in compressUrlOrPath:", urlOrPath);
           resolve("");
           return;
         }
