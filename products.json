@@ -12,21 +12,6 @@
     "status": "Active",
     "flair": "Masculine",
     "invisibleFlair": "",
-    "standardBottleImg": "images/products/inspired-by-jpg-le-male.webp",
-    "customisations": [
-      {
-        "label": "STANDARD",
-        "image": "images/products/inspired-by-jpg-le-male.webp",
-        "image_thumb": "images/products/inspired-by-jpg-le-male_thumb.webp",
-        "priceExtra": 0
-      },
-      {
-        "label": "PREMIUM",
-        "image": "images/products/inspired-by-jpg-le-male_cust_1.webp",
-        "image_thumb": "images/products/inspired-by-jpg-le-male_cust_1_thumb.webp",
-        "priceExtra": 145
-      }
-    ],
     "sizes": [
       "50ml"
     ],
