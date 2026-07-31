@@ -3055,8 +3055,8 @@ window.openCart = function() {
                         defaultFallback = p.masculinePremiumBottleImg || p.femininePremiumBottleImg || "";
                     }
 
-                    const mainImg = c.image_data || c.image || defaultFallback;
-                    const thumbImg = c.image_data || c.image_thumb || c.image || defaultFallback;
+                    const mainImg = (c.image && c.image.trim()) ? c.image.trim() : (c.image_data || defaultFallback);
+                    const thumbImg = (c.image_thumb && c.image_thumb.trim()) ? c.image_thumb.trim() : (c.image || c.image_data || defaultFallback);
 
                     options.push({
                         id: (c.label || "option").toLowerCase().replace(/[^a-z0-9]+/g, '_'),
