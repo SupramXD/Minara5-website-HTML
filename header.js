@@ -963,6 +963,22 @@ window.getCartTotalBottles = function(items) {
     return totalBottles;
 };
 
+function isCartBundleItem(item) {
+    if (!item) return false;
+    if (item.isBundle === true || item.isBundle === "true") return true;
+    if (item.selectedScents && Array.isArray(item.selectedScents) && item.selectedScents.length > 0) return true;
+    if (item.bottleCount && item.bottleCount > 1) return true;
+    
+    const name = (item.name || "").toLowerCase();
+    const nameShort = (item.nameShort || "").toLowerCase();
+    const id = (item.id || "").toLowerCase();
+    
+    return name.includes("bundle") || nameShort.includes("bundle") || id.includes("bundle") ||
+           name.includes("set of") || name.includes("trio") || name.includes("duo") ||
+           name.includes("3 bottle") || name.includes("2 bottle") || name.includes("5 bottle") ||
+           name.includes("box set") || name.includes("collection") || name.includes("pack");
+}
+
 // Comprehensive Cart Pricing, Free Shipping & Volume Savings Resolver
 window.calculateCartPricing = function(items) {
     if (!items || !Array.isArray(items)) {
@@ -972,16 +988,24 @@ window.calculateCartPricing = function(items) {
     const totalBottles = window.getCartTotalBottles ? window.getCartTotalBottles(activeItems) : activeItems.reduce((s, i) => s + (i.quantity || 1), 0);
     const rawSubtotal = activeItems.reduce((sum, item) => sum + ((Number(item.price) + (Number(item.priceExtra) || 0)) * item.quantity), 0);
 
+    const hasBundleInCart = activeItems.some(item => isCartBundleItem(item));
+
     let bundleDiscount = 0;
     
-    // Automatically apply Duo / Trio bundle discount if individual bottles were added
-    if (totalBottles === 2 && rawSubtotal >= 900) {
-        bundleDiscount = 241;
-    } else if (totalBottles === 3 && rawSubtotal >= 1300) {
-        bundleDiscount = 486;
-    } else if (totalBottles > 3 && rawSubtotal >= 1400) {
-        const duos = Math.floor(totalBottles / 2);
-        bundleDiscount = duos * 241;
+    // 2+ Bottle Savings applies ONLY if there are NO bundles in the cart and user has 2+ single standard bottles!
+    if (!hasBundleInCart) {
+        const singleBottleItems = activeItems.filter(item => !isCartBundleItem(item));
+        const singleBottleCount = singleBottleItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
+        const singleBottleSubtotal = singleBottleItems.reduce((sum, item) => sum + ((Number(item.price) + (Number(item.priceExtra) || 0)) * item.quantity), 0);
+
+        if (singleBottleCount === 2 && singleBottleSubtotal >= 900) {
+            bundleDiscount = 241;
+        } else if (singleBottleCount === 3 && singleBottleSubtotal >= 1300) {
+            bundleDiscount = 486;
+        } else if (singleBottleCount > 3 && singleBottleSubtotal >= 1400) {
+            const duos = Math.floor(singleBottleCount / 2);
+            bundleDiscount = duos * 241;
+        }
     }
 
     const subtotalAfterBundle = Math.max(0, rawSubtotal - bundleDiscount);
