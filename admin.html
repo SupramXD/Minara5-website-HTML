@@ -4032,6 +4032,9 @@
       if (document.getElementById("editProdSize50").checked) sizes.push("50ml");
       if (document.getElementById("editProdSize100").checked) sizes.push("100ml");
 
+      const blocksToSave = window.currentEditCustomisations || [];
+      window.logAdminSave(`Processing ${blocksToSave.length} customisation blocks...`);
+
       let syncStdBottleImg = standardBottleImg;
       let syncMascPremBottleImg = masculinePremiumBottleImg;
       let syncFemPremBottleImg = femininePremiumBottleImg;
