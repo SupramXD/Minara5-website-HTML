@@ -192,6 +192,45 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         await writeFileToGitHub(thumbImagePath, base64Data, `Add/Update thumbnail image for product ${id}`, thumbSha, token);
       }
 
+      // Extract and upload standard bottle image if base64 encoded
+      let standardBottleImgPath = standardBottleImg || "";
+      if (standardBottleImg && standardBottleImg.startsWith("data:image/")) {
+        const parts = standardBottleImg.split(";base64,");
+        const mimeType = parts[0].split(":")[1];
+        const base64Data = parts[1];
+        const ext = mimeType.split("/")[1] || "webp";
+
+        standardBottleImgPath = `images/products/${id}_std.${ext}`;
+        const {sha: stdSha} = await getFileShaAndContent(standardBottleImgPath, token);
+        await writeFileToGitHub(standardBottleImgPath, base64Data, `Add/Update standard bottle image for product ${id}`, stdSha, token);
+      }
+
+      // Extract and upload masculine premium bottle image if base64 encoded
+      let masculinePremiumBottleImgPath = masculinePremiumBottleImg || "";
+      if (masculinePremiumBottleImg && masculinePremiumBottleImg.startsWith("data:image/")) {
+        const parts = masculinePremiumBottleImg.split(";base64,");
+        const mimeType = parts[0].split(":")[1];
+        const base64Data = parts[1];
+        const ext = mimeType.split("/")[1] || "webp";
+
+        masculinePremiumBottleImgPath = `images/products/${id}_premium.${ext}`;
+        const {sha: premSha} = await getFileShaAndContent(masculinePremiumBottleImgPath, token);
+        await writeFileToGitHub(masculinePremiumBottleImgPath, base64Data, `Add/Update masculine premium bottle image for product ${id}`, premSha, token);
+      }
+
+      // Extract and upload feminine premium bottle image if base64 encoded
+      let femininePremiumBottleImgPath = femininePremiumBottleImg || "";
+      if (femininePremiumBottleImg && femininePremiumBottleImg.startsWith("data:image/")) {
+        const parts = femininePremiumBottleImg.split(";base64,");
+        const mimeType = parts[0].split(":")[1];
+        const base64Data = parts[1];
+        const ext = mimeType.split("/")[1] || "webp";
+
+        femininePremiumBottleImgPath = `images/products/${id}_fem_premium.${ext}`;
+        const {sha: femPremSha} = await getFileShaAndContent(femininePremiumBottleImgPath, token);
+        await writeFileToGitHub(femininePremiumBottleImgPath, base64Data, `Add/Update feminine premium bottle image for product ${id}`, femPremSha, token);
+      }
+
       let processedCustomisations = [];
       if (Array.isArray(customisations) && customisations.length > 0) {
         for (let idx = 0; idx < customisations.length; idx++) {
@@ -240,9 +279,9 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         status: status || "Active",
         flair: flair || "",
         invisibleFlair: invisibleFlair || "",
-        standardBottleImg: standardBottleImg || "",
-        masculinePremiumBottleImg: masculinePremiumBottleImg || "",
-        femininePremiumBottleImg: femininePremiumBottleImg || "",
+        standardBottleImg: standardBottleImgPath || "",
+        masculinePremiumBottleImg: masculinePremiumBottleImgPath || "",
+        femininePremiumBottleImg: femininePremiumBottleImgPath || "",
         customisations: processedCustomisations,
         sizes: sizes || ["50ml", "100ml"],
         isBundle: isBundle !== undefined ? !!isBundle : false,

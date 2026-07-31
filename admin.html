@@ -4032,12 +4032,25 @@
       if (document.getElementById("editProdSize50").checked) sizes.push("50ml");
       if (document.getElementById("editProdSize100").checked) sizes.push("100ml");
 
-      const blocksToSave = window.currentEditCustomisations || [];
-      window.logAdminSave(`Processing ${blocksToSave.length} customisation blocks...`);
+      let syncStdBottleImg = standardBottleImg;
+      let syncMascPremBottleImg = masculinePremiumBottleImg;
+      let syncFemPremBottleImg = femininePremiumBottleImg;
+
       blocksToSave.forEach((b, idx) => {
         if (b.image_data && b.image_data.startsWith("data:image/")) {
           b.image = b.image_data;
           b.image_thumb = b.image_data;
+        }
+        const lbl = (b.label || "").toUpperCase();
+        const imgVal = b.image_data || b.image;
+        if (imgVal) {
+          if (lbl.includes("STANDARD") || idx === 0) {
+            syncStdBottleImg = imgVal;
+          } else if (lbl.includes("HER") || lbl.includes("FEMININE")) {
+            syncFemPremBottleImg = imgVal;
+          } else {
+            syncMascPremBottleImg = imgVal;
+          }
         }
         const hasImg = !!(b.image || b.image_data);
         const isData = (b.image && b.image.startsWith("data:")) || (b.image_data && b.image_data.startsWith("data:"));
@@ -4057,9 +4070,9 @@
           status: status,
           flair: flair,
           invisibleFlair: invisibleFlair,
-          standardBottleImg: standardBottleImg,
-          masculinePremiumBottleImg: masculinePremiumBottleImg,
-          femininePremiumBottleImg: femininePremiumBottleImg,
+          standardBottleImg: syncStdBottleImg,
+          masculinePremiumBottleImg: syncMascPremBottleImg,
+          femininePremiumBottleImg: syncFemPremBottleImg,
           customisations: blocksToSave,
           sizes: sizes,
           isBundle: isBundle,
