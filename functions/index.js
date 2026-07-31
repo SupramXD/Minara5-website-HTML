@@ -192,14 +192,45 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         await writeFileToGitHub(thumbImagePath, base64Data, `Add/Update thumbnail image for product ${id}`, thumbSha, token);
       }
 
-      // Retrieve existing catalog products.json
-      const {sha: jsonSha, content: jsonContent} = await getFileShaAndContent("products.json", token);
-      let productsList = [];
-      if (jsonContent) {
-        try {
-          productsList = JSON.parse(jsonContent);
-        } catch (e) {
-          logger.warn("Failed to parse products.json, resetting to empty array", e);
+      let processedCustomisations = [];
+      if (Array.isArray(customisations) && customisations.length > 0) {
+        for (let idx = 0; idx < customisations.length; idx++) {
+          const block = customisations[idx];
+          let blockImg = block.image || "";
+          let blockThumb = block.image_thumb || "";
+
+          // Upload main image for customisation block if base64
+          if (blockImg && blockImg.startsWith("data:image/")) {
+            const parts = blockImg.split(";base64,");
+            const mimeType = parts[0].split(":")[1];
+            const base64Data = parts[1];
+            const ext = mimeType.split("/")[1] || "webp";
+
+            const custImagePath = `images/products/${id}_cust_${idx}.${ext}`;
+            const {sha: custSha} = await getFileShaAndContent(custImagePath, token);
+            await writeFileToGitHub(custImagePath, base64Data, `Add/Update customisation image ${idx} for product ${id}`, custSha, token);
+            blockImg = custImagePath;
+          }
+
+          // Upload thumbnail image for customisation block if base64
+          if (blockThumb && blockThumb.startsWith("data:image/")) {
+            const parts = blockThumb.split(";base64,");
+            const mimeType = parts[0].split(":")[1];
+            const base64Data = parts[1];
+            const ext = mimeType.split("/")[1] || "webp";
+
+            const custThumbPath = `images/products/${id}_cust_${idx}_thumb.${ext}`;
+            const {sha: custThumbSha} = await getFileShaAndContent(custThumbPath, token);
+            await writeFileToGitHub(custThumbPath, base64Data, `Add/Update customisation thumbnail ${idx} for product ${id}`, custThumbSha, token);
+            blockThumb = custThumbPath;
+          }
+
+          processedCustomisations.push({
+            label: block.label || `OPTION ${idx + 1}`,
+            image: blockImg,
+            image_thumb: blockThumb || blockImg,
+            priceExtra: block.priceExtra !== undefined && block.priceExtra !== null ? Number(block.priceExtra) : ((block.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0)
+          });
         }
       }
 
@@ -220,7 +251,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         standardBottleImg: standardBottleImg || "",
         masculinePremiumBottleImg: masculinePremiumBottleImg || "",
         femininePremiumBottleImg: femininePremiumBottleImg || "",
-        customisations: customisations || [],
+        customisations: processedCustomisations,
         sizes: sizes || ["50ml", "100ml"],
         isBundle: isBundle !== undefined ? !!isBundle : false,
         bundleSize: bundleSize !== undefined ? Number(bundleSize) : 0,

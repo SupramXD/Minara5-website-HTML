@@ -3742,15 +3742,22 @@
         itemDiv.style.cssText = "background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 4px; padding: 12px; display: flex; flex-direction: column; gap: 10px;";
 
         const imgPreview = block.image_thumb || block.image;
+        const extraVal = block.priceExtra !== undefined && block.priceExtra !== null ? block.priceExtra : ((block.label || '').toUpperCase().includes('PREMIUM') ? 145 : 0);
 
         itemDiv.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <span style="font-size: 11px; font-weight: bold; color: var(--accent); letter-spacing: 1px;">BLOCK #${idx + 1}</span>
             <button type="button" onclick="removeEditCustomisationBlock(${idx})" style="background: transparent; border: none; color: #ff4444; font-size: 11px; font-weight: bold; cursor: pointer;">✕ REMOVE</button>
           </div>
-          <div class="form-group" style="margin-bottom: 0;">
-            <label style="font-size: 10px; opacity: 0.8;">Option Name / Label (e.g. STANDARD, PREMIUM)</label>
-            <input type="text" value="${block.label || ''}" onchange="updateCustomisationBlockLabel(${idx}, this.value)" class="form-input" style="background:#1a1a24; color:#fff;" placeholder="Option Label">
+          <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="margin-bottom: 0; flex: 1;">
+              <label style="font-size: 10px; opacity: 0.8;">Option Name / Label (e.g. STANDARD, PREMIUM)</label>
+              <input type="text" value="${block.label || ''}" onchange="updateCustomisationBlockLabel(${idx}, this.value)" class="form-input" style="background:#1a1a24; color:#fff;" placeholder="Option Label">
+            </div>
+            <div class="form-group" style="margin-bottom: 0; width: 110px;">
+              <label style="font-size: 10px; opacity: 0.8;">Price Extra (R)</label>
+              <input type="number" value="${extraVal}" onchange="updateCustomisationBlockPriceExtra(${idx}, this.value)" class="form-input" style="background:#1a1a24; color:#fff;" min="0">
+            </div>
           </div>
           <div style="display: flex; gap: 12px; align-items: center;">
             <div style="width: 50px; height: 50px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden;">
@@ -3772,12 +3779,19 @@
       }
     };
 
+    window.updateCustomisationBlockPriceExtra = function(idx, val) {
+      if (window.currentEditCustomisations && window.currentEditCustomisations[idx]) {
+        window.currentEditCustomisations[idx].priceExtra = parseFloat(val) || 0;
+      }
+    };
+
     window.addEditCustomisationBlock = function() {
       if (!window.currentEditCustomisations) window.currentEditCustomisations = [];
       window.currentEditCustomisations.push({
         label: "OPTION " + (window.currentEditCustomisations.length + 1),
         image: "",
-        image_thumb: ""
+        image_thumb: "",
+        priceExtra: 0
       });
       window.renderEditCustomisationBlocks();
     };
@@ -3855,21 +3869,22 @@
           {
             label: "STANDARD",
             image: product.standardBottleImg || product.image || "",
-            image_thumb: product.image_thumb || ""
+            image_thumb: product.image_thumb || "",
+            priceExtra: 0
           }
         ];
         if (isUnisex) {
           window.currentEditCustomisations.push(
-            { label: "PREMIUM (HIM)", image: product.masculinePremiumBottleImg || "", image_thumb: product.masculinePremiumBottleImgThumb || "" },
-            { label: "PREMIUM (HER)", image: product.femininePremiumBottleImg || "", image_thumb: product.femininePremiumBottleImgThumb || "" }
+            { label: "PREMIUM (HIM)", image: product.masculinePremiumBottleImg || "", image_thumb: product.masculinePremiumBottleImgThumb || "", priceExtra: 145 },
+            { label: "PREMIUM (HER)", image: product.femininePremiumBottleImg || "", image_thumb: product.femininePremiumBottleImgThumb || "", priceExtra: 145 }
           );
         } else if (isFeminine) {
           window.currentEditCustomisations.push(
-            { label: "PREMIUM", image: product.femininePremiumBottleImg || "", image_thumb: product.femininePremiumBottleImgThumb || "" }
+            { label: "PREMIUM", image: product.femininePremiumBottleImg || "", image_thumb: product.femininePremiumBottleImgThumb || "", priceExtra: 145 }
           );
         } else {
           window.currentEditCustomisations.push(
-            { label: "PREMIUM", image: product.masculinePremiumBottleImg || "", image_thumb: product.masculinePremiumBottleImgThumb || "" }
+            { label: "PREMIUM", image: product.masculinePremiumBottleImg || "", image_thumb: product.masculinePremiumBottleImgThumb || "", priceExtra: 145 }
           );
         }
       }
@@ -3978,6 +3993,18 @@
           bundleSize: bundleSize,
           sortOrder: sortOrder
       };
+
+      if (window.minaraProducts) {
+          const mIdx = window.minaraProducts.findIndex(p => p.id === id);
+          if (mIdx > -1) {
+              window.minaraProducts[mIdx] = updatedProduct;
+          } else {
+              window.minaraProducts.push(updatedProduct);
+          }
+          if (typeof renderProductsTable === "function") {
+              renderProductsTable();
+          }
+      }
 
       try {
           const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");

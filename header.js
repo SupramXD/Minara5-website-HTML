@@ -815,7 +815,7 @@ const products = {};
 let cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
 
 // 3. THE ADD FUNCTION
-window.addToCart = function(productId, selectedSize, selectedScents, bottleCustomisation) {
+window.addToCart = function(productId, selectedSize, selectedScents, bottleCustomisation, priceExtra) {
     let product = null;
     let sizes = ["50ml", "100ml"];
     
@@ -852,6 +852,7 @@ window.addToCart = function(productId, selectedSize, selectedScents, bottleCusto
 
     // Determine target size
     const sizeToUse = selectedSize || (sizes && sizes.length > 0 ? sizes[0] : "100ml");
+    const priceExtraToUse = priceExtra !== undefined && priceExtra !== null ? Number(priceExtra) : ((bottleCustomisation || '').toUpperCase().includes('PREMIUM') ? 145 : 0);
 
     const existingItem = cart.find(item => {
         const idMatches = item.id === productId;
@@ -881,6 +882,7 @@ window.addToCart = function(productId, selectedSize, selectedScents, bottleCusto
             name: product.name,
             nameShort: product.nameShort || product.name || "",
             price: product.price,
+            priceExtra: priceExtraToUse,
             image: product.image,
             image_thumb: product.image_thumb || "",
             size: sizeToUse,
@@ -968,7 +970,7 @@ window.calculateCartPricing = function(items) {
     }
     const activeItems = items.filter(item => !item.removed);
     const totalBottles = window.getCartTotalBottles ? window.getCartTotalBottles(activeItems) : activeItems.reduce((s, i) => s + (i.quantity || 1), 0);
-    const rawSubtotal = activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const rawSubtotal = activeItems.reduce((sum, item) => sum + ((Number(item.price) + (Number(item.priceExtra) || 0)) * item.quantity), 0);
 
     let bundleDiscount = 0;
     
@@ -1130,7 +1132,7 @@ window.calculateCartPricing = function(items) {
                 </div>`;
             } else {
                 const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
-                const itemPrice = item.price;
+                const itemPrice = (Number(item.price) || 0) + (Number(item.priceExtra) || 0);
                 const displayPrice = hasDiscount 
                     ? `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${formatPrice(itemPrice)}</span><span style="color: #1106e8; font-weight: bold;">R${formatPrice(Math.round(itemPrice * 0.95))}</span>` 
                     : `R${formatPrice(itemPrice)}`;

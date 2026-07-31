@@ -59,12 +59,14 @@
       {
         "label": "STANDARD",
         "image": "images/products/inspired-by-creed-aventus.webp",
-        "image_thumb": "images/products/inspired-by-creed-aventus_thumb.webp"
+        "image_thumb": "images/products/inspired-by-creed-aventus_thumb.webp",
+        "priceExtra": 0
       },
       {
         "label": "PREMIUM",
         "image": "images/products/inspired-by-creed-aventus_premium.webp",
-        "image_thumb": "images/products/inspired-by-creed-aventus_premium_thumb.webp"
+        "image_thumb": "images/products/inspired-by-creed-aventus_premium_thumb.webp",
+        "priceExtra": 145
       }
     ],
     "sizes": [
