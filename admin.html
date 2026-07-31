@@ -3910,8 +3910,8 @@
       if (product.customisations && Array.isArray(product.customisations) && product.customisations.length > 0) {
         window.currentEditCustomisations = product.customisations.map(c => ({
           label: (c.label || "OPTION").toUpperCase(),
-          image: sanitizeImageUrl(c.image) || c.image_data || "",
-          image_thumb: sanitizeImageUrl(c.image_thumb) || sanitizeImageUrl(c.image) || c.image_data || "",
+          image: c.image_data || sanitizeImageUrl(c.image) || "",
+          image_thumb: c.image_data || sanitizeImageUrl(c.image_thumb) || sanitizeImageUrl(c.image) || "",
           image_data: c.image_data || (c.image && c.image.startsWith("data:") ? c.image : ""),
           priceExtra: c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : ( (c.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0 )
         }));
