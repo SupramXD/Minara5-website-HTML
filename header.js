@@ -815,7 +815,7 @@ const products = {};
 let cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
 
 // 3. THE ADD FUNCTION
-window.addToCart = function(productId, selectedSize, selectedScents) {
+window.addToCart = function(productId, selectedSize, selectedScents, bottleCustomisation) {
     let product = null;
     let sizes = ["50ml", "100ml"];
     
@@ -856,6 +856,7 @@ window.addToCart = function(productId, selectedSize, selectedScents) {
     const existingItem = cart.find(item => {
         const idMatches = item.id === productId;
         const sizeMatches = item.size === sizeToUse;
+        const customisationMatches = (item.bottleCustomisation || "") === (bottleCustomisation || "");
         
         let scentsMatches = false;
         if (!item.selectedScents && !selectedScents) {
@@ -864,7 +865,7 @@ window.addToCart = function(productId, selectedSize, selectedScents) {
             scentsMatches = item.selectedScents.every((scent, idx) => scent === selectedScents[idx]);
         }
         
-        return idMatches && sizeMatches && scentsMatches;
+        return idMatches && sizeMatches && customisationMatches && scentsMatches;
     });
 
     if (existingItem) {
@@ -883,6 +884,7 @@ window.addToCart = function(productId, selectedSize, selectedScents) {
             image: product.image,
             image_thumb: product.image_thumb || "",
             size: sizeToUse,
+            bottleCustomisation: bottleCustomisation || null,
             quantity: 1,
             selectedScents: selectedScents || null
         });
@@ -1188,7 +1190,7 @@ window.calculateCartPricing = function(items) {
                             </div>
                             <div style="font-family:Helvetica, Arial, sans-serif; font-size:11px; font-weight:600; letter-spacing:0.5px; color:#000; margin-left:10px; flex-shrink:0;">${displayPrice}</div>
                         </div>
-                        <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; opacity:0.5; margin-top:2px; letter-spacing:0.5px;">SIZE: ${(item.size || '100ml').toUpperCase()}</div>
+                        <div style="font-family:Helvetica, Arial, sans-serif; font-size:9px; opacity:0.5; margin-top:2px; letter-spacing:0.5px;">SIZE: ${(item.size || '100ml').toUpperCase()} ${item.bottleCustomisation ? '• BOTTLE: ' + item.bottleCustomisation.toUpperCase() : ''}</div>
                         ${scentsHtml}
                         
                         <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">

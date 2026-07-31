@@ -1168,6 +1168,9 @@ function updateCartCount(count){
                 } else if (genderFilter === 'women') {
                     heading.textContent = "WOMEN'S FRAGRANCES";
                     document.title = "Studio Extrait - Shop Women's Fragrances";
+                } else if (genderFilter === 'unisex') {
+                    heading.textContent = "UNISEX FRAGRANCES";
+                    document.title = "Studio Extrait - Shop Unisex Fragrances";
                 } else {
                     heading.textContent = "CATALOG";
                     document.title = "Studio Extrait | Extrait De Parfum | South Africa";
@@ -1176,16 +1179,24 @@ function updateCartCount(count){
 
             let activeProducts = products.filter(p => p.status === 'Active');
             
-            // 1. Filter by Gender Classification (flair)
+            // 1. Filter by Gender Classification (flair / invisibleFlair)
             if (genderFilter === 'men') {
                 activeProducts = activeProducts.filter(p => {
                     const f = (p.flair || '').toLowerCase();
-                    return f === 'masculine' || f === 'unisex' || p.isBundle;
+                    const invF = (p.invisibleFlair || '').toLowerCase();
+                    return f === 'masculine' || f === 'unisex' || invF === 'men' || invF === 'unisex' || p.isBundle;
                 });
             } else if (genderFilter === 'women') {
                 activeProducts = activeProducts.filter(p => {
                     const f = (p.flair || '').toLowerCase();
-                    return f === 'feminine' || f === 'unisex' || p.isBundle;
+                    const invF = (p.invisibleFlair || '').toLowerCase();
+                    return f === 'feminine' || f === 'unisex' || invF === 'women' || invF === 'unisex' || p.isBundle;
+                });
+            } else if (genderFilter === 'unisex') {
+                activeProducts = activeProducts.filter(p => {
+                    const f = (p.flair || '').toLowerCase();
+                    const invF = (p.invisibleFlair || '').toLowerCase();
+                    return f === 'unisex' || invF === 'unisex' || p.isBundle;
                 });
             }
 

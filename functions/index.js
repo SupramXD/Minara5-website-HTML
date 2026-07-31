@@ -163,7 +163,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
 
   try {
     if (action === "saveProduct") {
-      const {id, nameShort, name, price, retailPrice, stock, image, image_thumb, description, status, flair, invisibleFlair, sizes, isBundle, bundleSize, sortOrder} = payload;
+      const {id, nameShort, name, price, retailPrice, stock, image, image_thumb, description, status, flair, invisibleFlair, standardBottleImg, masculinePremiumBottleImg, femininePremiumBottleImg, customisations, sizes, isBundle, bundleSize, sortOrder} = payload;
 
       let mainImagePath = image;
       let thumbImagePath = image_thumb;
@@ -217,6 +217,10 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         status: status || "Active",
         flair: flair || "",
         invisibleFlair: invisibleFlair || "",
+        standardBottleImg: standardBottleImg || "",
+        masculinePremiumBottleImg: masculinePremiumBottleImg || "",
+        femininePremiumBottleImg: femininePremiumBottleImg || "",
+        customisations: customisations || [],
         sizes: sizes || ["50ml", "100ml"],
         isBundle: isBundle !== undefined ? !!isBundle : false,
         bundleSize: bundleSize !== undefined ? Number(bundleSize) : 0,

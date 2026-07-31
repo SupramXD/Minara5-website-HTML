@@ -1590,6 +1590,25 @@
                       </select>
                     </div>
 
+                    <div style="border-top: 1px solid var(--border-color); margin: 20px 0; padding-top: 15px;">
+                      <div style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px;">Customisation Bottle Images (Optional)</div>
+                      
+                      <div class="form-group">
+                        <label for="prodStandardBottleImg">Standard Bottle Image URL / Path</label>
+                        <input type="text" id="prodStandardBottleImg" class="form-input" placeholder="images/products/standard.webp (leave blank if empty)" style="background:#1a1a24; color: #fff;">
+                      </div>
+
+                      <div class="form-group">
+                        <label for="prodMasculinePremiumBottleImg">Masculine Premium Bottle Image URL / Path</label>
+                        <input type="text" id="prodMasculinePremiumBottleImg" class="form-input" placeholder="images/products/masculine_premium.webp (leave blank if empty)" style="background:#1a1a24; color: #fff;">
+                      </div>
+
+                      <div class="form-group">
+                        <label for="prodFemininePremiumBottleImg">Feminine Premium Bottle Image URL / Path</label>
+                        <input type="text" id="prodFemininePremiumBottleImg" class="form-input" placeholder="images/products/feminine_premium.webp (leave blank if empty)" style="background:#1a1a24; color: #fff;">
+                      </div>
+                    </div>
+
                     <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
                       <input type="checkbox" id="prodIsBundle" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);" onchange="toggleBundleSizeInput('add')">
                       <label for="prodIsBundle" style="margin-bottom: 0; cursor: pointer; font-size: 13px;">This is a Scent Bundle</label>
@@ -2081,113 +2100,151 @@
                 <span class="edit-modal-close" onclick="closeEditModal()">✕ Close</span>
               </div>
               
+              <!-- EDIT MODAL TAB NAVIGATION -->
+              <div class="edit-modal-tabs" style="display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 20px;">
+                <button type="button" id="tabBtnGeneral" class="edit-tab-btn active" onclick="switchEditModalTab('general')" style="flex: 1; padding: 12px; background: transparent; border: none; border-bottom: 2px solid var(--accent); color: #fff; font-family: inherit; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; cursor: pointer;">General Info</button>
+                <button type="button" id="tabBtnCustomisation" class="edit-tab-btn" onclick="switchEditModalTab('customisation')" style="flex: 1; padding: 12px; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); font-family: inherit; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; cursor: pointer;">Customisation Blocks</button>
+              </div>
+
               <form id="editProductForm" onsubmit="handleSaveEdit(event)">
                 <input type="hidden" id="editProdId">
                 
-                <div class="form-group">
-                  <label for="editProdNameShort">Fragrance Name Short (e.g. No21)</label>
-                  <input type="text" id="editProdNameShort" class="form-input" placeholder="e.g. No23">
-                </div>
+                <!-- TAB 1: GENERAL INFO -->
+                <div id="editTabContentGeneral" class="edit-tab-content" style="display: block;">
+                  <div class="form-group">
+                    <label for="editProdNameShort">Fragrance Name Short (e.g. No21)</label>
+                    <input type="text" id="editProdNameShort" class="form-input" placeholder="e.g. No23">
+                  </div>
 
-                <div class="form-group">
-                  <label for="editProdName">Product Title / Name</label>
-                  <input type="text" id="editProdName" class="form-input" required>
-                </div>
-                
-                <div class="form-group">
-                  <label for="editProdPrice">Price (R)</label>
-                  <input type="number" id="editProdPrice" class="form-input" min="1" required>
-                </div>
+                  <div class="form-group">
+                    <label for="editProdName">Product Title / Name</label>
+                    <input type="text" id="editProdName" class="form-input" required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="editProdPrice">Price (R)</label>
+                    <input type="number" id="editProdPrice" class="form-input" min="1" required>
+                  </div>
 
-                <div class="form-group">
-                  <label for="editProdRetailPrice">Retail Price (R)</label>
-                  <input type="number" id="editProdRetailPrice" class="form-input" min="0">
-                </div>
+                  <div class="form-group">
+                    <label for="editProdRetailPrice">Retail Price (R)</label>
+                    <input type="number" id="editProdRetailPrice" class="form-input" min="0">
+                  </div>
 
-                <div class="form-group">
-                  <label for="editProdStock">Stock Level</label>
-                  <input type="number" id="editProdStock" class="form-input" min="0" required>
-                </div>
+                  <div class="form-group">
+                    <label for="editProdStock">Stock Level</label>
+                    <input type="number" id="editProdStock" class="form-input" min="0" required>
+                  </div>
 
-                <div class="form-group">
-                  <label for="editProdSortOrder">Display Order (1 to <span class="total-products-count-badge-edit">1</span>)</label>
-                  <input type="number" id="editProdSortOrder" class="form-input" min="1">
-                  <div id="editProdSortOrderHelp" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"></div>
-                  <div id="editOrderSlotsContainer" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;"></div>
-                </div>
+                  <div class="form-group">
+                    <label for="editProdSortOrder">Display Order (1 to <span class="total-products-count-badge-edit">1</span>)</label>
+                    <input type="number" id="editProdSortOrder" class="form-input" min="1">
+                    <div id="editProdSortOrderHelp" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"></div>
+                    <div id="editOrderSlotsContainer" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;"></div>
+                  </div>
 
-                <div class="form-group">
-                  <label for="editProdImage">Product Image Path(s) / URL(s) <span style="text-transform: none; opacity: 0.5;">(comma-separated)</span></label>
-                  <input type="text" id="editProdImage" class="form-input">
-                  <div style="margin: 8px 0; text-align: center; font-size: 10px; opacity: 0.5;">— OR UPLOAD & AUTOMATICALLY COMPRESS —</div>
-                  <div class="drop-zone">
-                    <span class="drop-zone__icon">📤</span>
-                    <span class="drop-zone__prompt">Drag & drop photo here or click to browse</span>
-                    <input type="file" id="editProdFile" accept="image/*,.avif" style="display: none;">
+                  <div class="form-group">
+                    <label for="editProdImage">Product Image Path(s) / URL(s) <span style="text-transform: none; opacity: 0.5;">(comma-separated)</span></label>
+                    <input type="text" id="editProdImage" class="form-input">
+                    <div style="margin: 8px 0; text-align: center; font-size: 10px; opacity: 0.5;">— OR UPLOAD & AUTOMATICALLY COMPRESS —</div>
+                    <div class="drop-zone">
+                      <span class="drop-zone__icon">📤</span>
+                      <span class="drop-zone__prompt">Drag & drop photo here or click to browse</span>
+                      <input type="file" id="editProdFile" accept="image/*,.avif" style="display: none;">
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editProdDesc">Product Biography / Description</label>
+                    <textarea id="editProdDesc" class="form-input" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: #fff; width: 100%; min-height: 100px; padding: 12px; font-family: inherit; font-size: 13px; outline: none; border-radius: 4px; resize: vertical;"></textarea>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editProdStatus">Catalog Status</label>
+                    <select id="editProdStatus" class="form-input" style="background:#1a1a24; color: #fff;">
+                      <option value="Active">Active / Revealed</option>
+                      <option value="Awaiting">Awaiting Reveal</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editProdFlair">Product Flair / Classification</label>
+                    <select id="editProdFlair" class="form-input" style="background:#1a1a24; color: #fff;">
+                      <option value="">None / Hidden</option>
+                      <option value="Masculine">Masculine</option>
+                      <option value="Unisex">Unisex</option>
+                      <option value="Feminine">Feminine</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editProdInvisibleFlair">Invisible Gender Flair (Filtering)</label>
+                    <select id="editProdInvisibleFlair" class="form-input" style="background:#1a1a24; color: #fff;">
+                      <option value="">None / Unspecified</option>
+                      <option value="men">Men</option>
+                      <option value="women">Women</option>
+                      <option value="unisex">Unisex</option>
+                    </select>
+                  </div>
+
+                  <div style="border-top: 1px solid var(--border-color); margin: 20px 0; padding-top: 15px;">
+                    <div style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px;">Bottle Image Quick Overrides (Optional)</div>
+                    
+                    <div class="form-group">
+                      <label for="editProdStandardBottleImg">Standard Bottle Image URL / Path</label>
+                      <input type="text" id="editProdStandardBottleImg" class="form-input" placeholder="images/products/standard.webp (leave blank if empty)" style="background:#1a1a24; color: #fff;">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="editProdMasculinePremiumBottleImg">Masculine Premium Bottle Image URL / Path</label>
+                      <input type="text" id="editProdMasculinePremiumBottleImg" class="form-input" placeholder="images/products/masculine_premium.webp (leave blank if empty)" style="background:#1a1a24; color: #fff;">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="editProdFemininePremiumBottleImg">Feminine Premium Bottle Image URL / Path</label>
+                      <input type="text" id="editProdFemininePremiumBottleImg" class="form-input" placeholder="images/products/feminine_premium.webp (leave blank if empty)" style="background:#1a1a24; color: #fff;">
+                    </div>
+                  </div>
+
+                  <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                    <input type="checkbox" id="editProdIsBundle" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);" onchange="toggleBundleSizeInput('edit')">
+                    <label for="editProdIsBundle" style="margin-bottom: 0; cursor: pointer; font-size: 13px;">This is a Scent Bundle</label>
+                  </div>
+
+                  <div class="form-group" id="editProdBundleSizeGroup" style="display: none;">
+                    <label for="editProdBundleSize">Number of Fragrance Choices for Customer (1-4)</label>
+                    <select id="editProdBundleSize" class="form-input" style="background:#1a1a24; color: #fff;">
+                      <option value="1">1 Choice</option>
+                      <option value="2">2 Choices</option>
+                      <option value="3">3 Choices</option>
+                      <option value="4">4 Choices</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Available Sizes</label>
+                    <div style="display: flex; gap: 20px; align-items: center; margin-top: 8px;">
+                      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="editProdSize50" value="50ml" style="width: 16px; height: 16px; accent-color: #ccff00;"> 50ml
+                      </label>
+                      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="editProdSize100" value="100ml" style="width: 16px; height: 16px; accent-color: #ccff00;"> 100ml
+                      </label>
+                    </div>
                   </div>
                 </div>
 
-                <div class="form-group">
-                  <label for="editProdDesc">Product Biography / Description</label>
-                  <textarea id="editProdDesc" class="form-input" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); color: #fff; width: 100%; min-height: 100px; padding: 12px; font-family: inherit; font-size: 13px; outline: none; border-radius: 4px; resize: vertical;" required></textarea>
+                <!-- TAB 2: CUSTOMISATION BLOCKS -->
+                <div id="editTabContentCustomisation" class="edit-tab-content" style="display: none;">
+                  <div style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 8px;">Product Customisation Blocks</div>
+                  <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">Add bottle customisation options for this product. You can attach an image to each option. Images uploaded here automatically compress into main (1200px) and thumbnail (600px) WebP formats.</div>
+                  
+                  <div id="editCustomisationBlocksContainer" style="display: flex; flex-direction: column; gap: 15px;"></div>
+
+                  <button type="button" onclick="addEditCustomisationBlock()" class="btn-action" style="margin-top: 15px; background: rgba(255, 255, 255, 0.05); border: 1px dashed var(--accent); color: var(--accent); width: 100%; padding: 12px; font-weight: bold; cursor: pointer;">+ ADD CUSTOMISATION BLOCK</button>
                 </div>
 
-                <div class="form-group">
-                  <label for="editProdStatus">Catalog Status</label>
-                  <select id="editProdStatus" class="form-input" style="background:#1a1a24; color: #fff;">
-                    <option value="Active">Active / Revealed</option>
-                    <option value="Awaiting">Awaiting Reveal</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label for="editProdFlair">Product Flair / Classification</label>
-                  <select id="editProdFlair" class="form-input" style="background:#1a1a24; color: #fff;">
-                    <option value="">None / Hidden</option>
-                    <option value="Masculine">Masculine</option>
-                    <option value="Unisex">Unisex</option>
-                    <option value="Feminine">Feminine</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label for="editProdInvisibleFlair">Invisible Gender Flair (Filtering)</label>
-                  <select id="editProdInvisibleFlair" class="form-input" style="background:#1a1a24; color: #fff;">
-                    <option value="">None / Unspecified</option>
-                    <option value="men">Men</option>
-                    <option value="women">Women</option>
-                    <option value="unisex">Unisex</option>
-                  </select>
-                </div>
-
-                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-                  <input type="checkbox" id="editProdIsBundle" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);" onchange="toggleBundleSizeInput('edit')">
-                  <label for="editProdIsBundle" style="margin-bottom: 0; cursor: pointer; font-size: 13px;">This is a Scent Bundle</label>
-                </div>
-
-                <div class="form-group" id="editProdBundleSizeGroup" style="display: none;">
-                  <label for="editProdBundleSize">Number of Fragrance Choices for Customer (1-4)</label>
-                  <select id="editProdBundleSize" class="form-input" style="background:#1a1a24; color: #fff;">
-                    <option value="1">1 Choice</option>
-                    <option value="2">2 Choices</option>
-                    <option value="3">3 Choices</option>
-                    <option value="4">4 Choices</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label>Available Sizes</label>
-                  <div style="display: flex; gap: 20px; align-items: center; margin-top: 8px;">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                      <input type="checkbox" id="editProdSize50" value="50ml" style="width: 16px; height: 16px; accent-color: #ccff00;"> 50ml
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                      <input type="checkbox" id="editProdSize100" value="100ml" style="width: 16px; height: 16px; accent-color: #ccff00;"> 100ml
-                    </label>
-                  </div>
-                </div>
-
-                <div class="edit-modal-footer">
+                <div class="edit-modal-footer" style="margin-top: 20px;">
                   <button type="button" class="btn-action" onclick="closeEditModal()" style="padding: 10px 20px;">Cancel</button>
                   <button type="submit" class="btn-action accent-btn" style="padding: 10px 20px;">Save Changes</button>
                 </div>
@@ -3260,6 +3317,9 @@
       const status = document.getElementById("prodStatus").value;
       const flair = document.getElementById("prodFlair").value;
       const invisibleFlair = document.getElementById("prodInvisibleFlair").value;
+      const standardBottleImg = document.getElementById("prodStandardBottleImg").value.trim();
+      const masculinePremiumBottleImg = document.getElementById("prodMasculinePremiumBottleImg").value.trim();
+      const femininePremiumBottleImg = document.getElementById("prodFemininePremiumBottleImg").value.trim();
       const isBundle = document.getElementById("prodIsBundle").checked;
       const bundleSize = isBundle ? parseInt(document.getElementById("prodBundleSize").value) : 0;
       const sortOrderVal = document.getElementById("prodSortOrder").value.trim();
@@ -3316,6 +3376,10 @@
           description: description,
           status: status,
           flair: flair,
+          invisibleFlair: invisibleFlair,
+          standardBottleImg: standardBottleImg,
+          masculinePremiumBottleImg: masculinePremiumBottleImg,
+          femininePremiumBottleImg: femininePremiumBottleImg,
           sizes: sizes,
           isBundle: isBundle,
           bundleSize: bundleSize,
@@ -3357,6 +3421,9 @@
                       status: status,
                       flair: flair,
                       invisibleFlair: invisibleFlair,
+                      standardBottleImg: standardBottleImg,
+                      masculinePremiumBottleImg: masculinePremiumBottleImg,
+                      femininePremiumBottleImg: femininePremiumBottleImg,
                       sizes: sizes,
                       isBundle: isBundle,
                       bundleSize: bundleSize,
@@ -3398,6 +3465,9 @@
                       status: status,
                       flair: flair,
                       invisibleFlair: invisibleFlair,
+                      standardBottleImg: standardBottleImg,
+                      masculinePremiumBottleImg: masculinePremiumBottleImg,
+                      femininePremiumBottleImg: femininePremiumBottleImg,
                       sizes: sizes,
                       isBundle: isBundle,
                       bundleSize: bundleSize,
@@ -3630,10 +3700,118 @@
       }
     };
 
+    window.currentEditCustomisations = [];
+
+    window.switchEditModalTab = function(tabName) {
+      const tabGen = document.getElementById("tabBtnGeneral");
+      const tabCust = document.getElementById("tabBtnCustomisation");
+      const contentGen = document.getElementById("editTabContentGeneral");
+      const contentCust = document.getElementById("editTabContentCustomisation");
+
+      if (!tabGen || !tabCust || !contentGen || !contentCust) return;
+
+      if (tabName === "customisation") {
+        tabGen.style.borderBottomColor = "transparent";
+        tabGen.style.color = "var(--text-muted)";
+        tabCust.style.borderBottomColor = "var(--accent)";
+        tabCust.style.color = "#fff";
+        contentGen.style.display = "none";
+        contentCust.style.display = "block";
+      } else {
+        tabGen.style.borderBottomColor = "var(--accent)";
+        tabGen.style.color = "#fff";
+        tabCust.style.borderBottomColor = "transparent";
+        tabCust.style.color = "var(--text-muted)";
+        contentGen.style.display = "block";
+        contentCust.style.display = "none";
+      }
+    };
+
+    window.renderEditCustomisationBlocks = function() {
+      const container = document.getElementById("editCustomisationBlocksContainer");
+      if (!container) return;
+      container.innerHTML = "";
+
+      if (!window.currentEditCustomisations || window.currentEditCustomisations.length === 0) {
+        container.innerHTML = `<div style="font-size: 11px; color: var(--text-muted); font-style: italic; padding: 10px; border: 1px dashed var(--border-color); text-align: center;">No customisation blocks added yet. Click "+ ADD CUSTOMISATION BLOCK" below to add one.</div>`;
+        return;
+      }
+
+      window.currentEditCustomisations.forEach((block, idx) => {
+        const itemDiv = document.createElement("div");
+        itemDiv.style.cssText = "background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 4px; padding: 12px; display: flex; flex-direction: column; gap: 10px;";
+
+        const imgPreview = block.image_thumb || block.image;
+
+        itemDiv.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 11px; font-weight: bold; color: var(--accent); letter-spacing: 1px;">BLOCK #${idx + 1}</span>
+            <button type="button" onclick="removeEditCustomisationBlock(${idx})" style="background: transparent; border: none; color: #ff4444; font-size: 11px; font-weight: bold; cursor: pointer;">✕ REMOVE</button>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label style="font-size: 10px; opacity: 0.8;">Option Name / Label (e.g. STANDARD, PREMIUM)</label>
+            <input type="text" value="${block.label || ''}" onchange="updateCustomisationBlockLabel(${idx}, this.value)" class="form-input" style="background:#1a1a24; color:#fff;" placeholder="Option Label">
+          </div>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <div style="width: 50px; height: 50px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; overflow: hidden;">
+              ${imgPreview ? `<img src="${imgPreview}" style="max-width: 100%; max-height: 100%; object-fit: contain;">` : `<span style="font-size: 9px; opacity: 0.3;">NO IMG</span>`}
+            </div>
+            <div style="flex: 1;">
+              <label style="font-size: 10px; display: block; opacity: 0.8; margin-bottom: 4px;">Attach Image File (Auto-Compresses)</label>
+              <input type="file" accept="image/*,.avif" onchange="handleBlockImageUpload(${idx}, event)" style="font-size: 10px; color: var(--text-muted); cursor: pointer;">
+            </div>
+          </div>
+        `;
+        container.appendChild(itemDiv);
+      });
+    };
+
+    window.updateCustomisationBlockLabel = function(idx, val) {
+      if (window.currentEditCustomisations && window.currentEditCustomisations[idx]) {
+        window.currentEditCustomisations[idx].label = val.trim().toUpperCase();
+      }
+    };
+
+    window.addEditCustomisationBlock = function() {
+      if (!window.currentEditCustomisations) window.currentEditCustomisations = [];
+      window.currentEditCustomisations.push({
+        label: "OPTION " + (window.currentEditCustomisations.length + 1),
+        image: "",
+        image_thumb: ""
+      });
+      window.renderEditCustomisationBlocks();
+    };
+
+    window.removeEditCustomisationBlock = function(idx) {
+      if (window.currentEditCustomisations && idx >= 0 && idx < window.currentEditCustomisations.length) {
+        window.currentEditCustomisations.splice(idx, 1);
+        window.renderEditCustomisationBlocks();
+      }
+    };
+
+    window.handleBlockImageUpload = async function(idx, event) {
+      const file = event.target.files[0];
+      if (!file || !window.currentEditCustomisations || !window.currentEditCustomisations[idx]) return;
+
+      try {
+        const mainBase64 = await compressImage(file, 1200, 0.80);
+        const thumbBase64 = await compressImage(file, 600, 0.50);
+
+        window.currentEditCustomisations[idx].image = mainBase64;
+        window.currentEditCustomisations[idx].image_thumb = thumbBase64;
+        window.renderEditCustomisationBlocks();
+      } catch (err) {
+        console.error("Block image upload compression failed:", err);
+        alert("Failed to compress uploaded image: " + err.message);
+      }
+    };
+
     window.openEditModal = function(productId) {
       if (!window.minaraProducts) return;
       const product = window.minaraProducts.find(p => p.id === productId);
       if (!product) return;
+
+      switchEditModalTab('general');
 
       document.getElementById("editProdId").value = product.id;
       document.getElementById("editProdNameShort").value = product.nameShort || "";
@@ -3653,6 +3831,9 @@
       document.getElementById("editProdStatus").value = product.status;
       document.getElementById("editProdFlair").value = product.flair || "";
       document.getElementById("editProdInvisibleFlair").value = product.invisibleFlair || "";
+      document.getElementById("editProdStandardBottleImg").value = product.standardBottleImg || "";
+      document.getElementById("editProdMasculinePremiumBottleImg").value = product.masculinePremiumBottleImg || "";
+      document.getElementById("editProdFemininePremiumBottleImg").value = product.femininePremiumBottleImg || "";
 
       const isBundle = !!product.isBundle;
       document.getElementById("editProdIsBundle").checked = isBundle;
@@ -3662,6 +3843,37 @@
       const pSizes = product.sizes || ["50ml", "100ml"];
       document.getElementById("editProdSize50").checked = pSizes.includes("50ml");
       document.getElementById("editProdSize100").checked = pSizes.includes("100ml");
+
+      window.currentEditCustomisations = product.customisations ? JSON.parse(JSON.stringify(product.customisations)) : [];
+      if (!window.currentEditCustomisations || window.currentEditCustomisations.length === 0) {
+        const flairLower = (product.flair || "").toLowerCase();
+        const invFlairLower = (product.invisibleFlair || "").toLowerCase();
+        const isUnisex = flairLower.includes("unisex") || invFlairLower === "unisex";
+        const isFeminine = flairLower.includes("feminine") || invFlairLower === "women";
+
+        window.currentEditCustomisations = [
+          {
+            label: "STANDARD",
+            image: product.standardBottleImg || product.image || "",
+            image_thumb: product.image_thumb || ""
+          }
+        ];
+        if (isUnisex) {
+          window.currentEditCustomisations.push(
+            { label: "PREMIUM (HIM)", image: product.masculinePremiumBottleImg || "", image_thumb: product.masculinePremiumBottleImgThumb || "" },
+            { label: "PREMIUM (HER)", image: product.femininePremiumBottleImg || "", image_thumb: product.femininePremiumBottleImgThumb || "" }
+          );
+        } else if (isFeminine) {
+          window.currentEditCustomisations.push(
+            { label: "PREMIUM", image: product.femininePremiumBottleImg || "", image_thumb: product.femininePremiumBottleImgThumb || "" }
+          );
+        } else {
+          window.currentEditCustomisations.push(
+            { label: "PREMIUM", image: product.masculinePremiumBottleImg || "", image_thumb: product.masculinePremiumBottleImgThumb || "" }
+          );
+        }
+      }
+      window.renderEditCustomisationBlocks();
 
       const modal = document.getElementById("editProductModal");
       modal.style.display = "flex";
@@ -3690,12 +3902,15 @@
       const status = document.getElementById("editProdStatus").value;
       const flair = document.getElementById("editProdFlair").value;
       const invisibleFlair = document.getElementById("editProdInvisibleFlair").value;
+      const standardBottleImg = document.getElementById("editProdStandardBottleImg").value.trim();
+      const masculinePremiumBottleImg = document.getElementById("editProdMasculinePremiumBottleImg").value.trim();
+      const femininePremiumBottleImg = document.getElementById("editProdFemininePremiumBottleImg").value.trim();
       const isBundle = document.getElementById("editProdIsBundle").checked;
       const bundleSize = isBundle ? parseInt(document.getElementById("editProdBundleSize").value) : 0;
       const sortOrderVal = document.getElementById("editProdSortOrder").value.trim();
       const sortOrder = sortOrderVal !== "" ? parseInt(sortOrderVal) : null;
 
-      if (!id || !name || isNaN(price) || isNaN(stock) || !description) return;
+      if (!id || !name || isNaN(price) || isNaN(stock)) return;
       if (!imageInput && !fileInput) {
         alert("Please either provide an Image Path/URL or select a file to upload.");
         return;
@@ -3754,6 +3969,10 @@
           status: status,
           flair: flair,
           invisibleFlair: invisibleFlair,
+          standardBottleImg: standardBottleImg,
+          masculinePremiumBottleImg: masculinePremiumBottleImg,
+          femininePremiumBottleImg: femininePremiumBottleImg,
+          customisations: window.currentEditCustomisations || [],
           sizes: sizes,
           isBundle: isBundle,
           bundleSize: bundleSize,
@@ -3793,6 +4012,10 @@
                       status: status,
                       flair: flair,
                       invisibleFlair: invisibleFlair,
+                      standardBottleImg: standardBottleImg,
+                      masculinePremiumBottleImg: masculinePremiumBottleImg,
+                      femininePremiumBottleImg: femininePremiumBottleImg,
+                      customisations: window.currentEditCustomisations || [],
                       sizes: sizes,
                       isBundle: isBundle,
                       bundleSize: bundleSize,
@@ -3834,6 +4057,10 @@
                       status: status,
                       flair: flair,
                       invisibleFlair: invisibleFlair,
+                      standardBottleImg: standardBottleImg,
+                      masculinePremiumBottleImg: masculinePremiumBottleImg,
+                      femininePremiumBottleImg: femininePremiumBottleImg,
+                      customisations: window.currentEditCustomisations || [],
                       sizes: sizes,
                       isBundle: isBundle,
                       bundleSize: bundleSize,

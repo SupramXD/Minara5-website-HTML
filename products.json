@@ -52,6 +52,21 @@
     "status": "Active",
     "flair": "Masculine",
     "invisibleFlair": "",
+    "standardBottleImg": "images/products/inspired-by-creed-aventus.webp",
+    "masculinePremiumBottleImg": "images/products/inspired-by-creed-aventus_premium.webp",
+    "masculinePremiumBottleImgThumb": "images/products/inspired-by-creed-aventus_premium_thumb.webp",
+    "customisations": [
+      {
+        "label": "STANDARD",
+        "image": "images/products/inspired-by-creed-aventus.webp",
+        "image_thumb": "images/products/inspired-by-creed-aventus_thumb.webp"
+      },
+      {
+        "label": "PREMIUM",
+        "image": "images/products/inspired-by-creed-aventus_premium.webp",
+        "image_thumb": "images/products/inspired-by-creed-aventus_premium_thumb.webp"
+      }
+    ],
     "sizes": [
       "50ml"
     ],
