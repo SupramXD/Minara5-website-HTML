@@ -3055,8 +3055,10 @@ window.openCart = function() {
                         defaultFallback = p.masculinePremiumBottleImg || p.femininePremiumBottleImg || "";
                     }
 
-                    const mainImg = (c.image && c.image.trim()) ? c.image.trim() : (c.image_data || defaultFallback);
-                    const thumbImg = (c.image_thumb && c.image_thumb.trim()) ? c.image_thumb.trim() : (c.image || c.image_data || defaultFallback);
+                    const mainImg = c.image_data || (c.image && c.image.trim() ? c.image.trim() : defaultFallback);
+                    const thumbImg = c.image_data || (c.image_thumb && c.image_thumb.trim() ? c.image_thumb.trim() : (c.image || defaultFallback));
+
+                    console.log(`[Bottle Customisation] Product "${p.name}": Option #${idx + 1} "${lbl}" -> Image: "${mainImg ? mainImg.substring(0, 50) + '...' : 'EMPTY'}", PriceExtra: +R${extra}`);
 
                     options.push({
                         id: (c.label || "option").toLowerCase().replace(/[^a-z0-9]+/g, '_'),
@@ -3836,7 +3838,8 @@ window.openCart = function() {
                     const liveProduct = data;
                     
                     // Only swap if values changed or we didn't have local cache!
-                    if (!product || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair || product.invisibleFlair !== liveProduct.invisibleFlair || product.standardBottleImg !== liveProduct.standardBottleImg || product.masculinePremiumBottleImg !== liveProduct.masculinePremiumBottleImg || product.femininePremiumBottleImg !== liveProduct.femininePremiumBottleImg || JSON.stringify(product.sizes) !== JSON.stringify(liveProduct.sizes) || product.isBundle !== liveProduct.isBundle || product.bundleSize !== liveProduct.bundleSize) {
+                    const custsChanged = JSON.stringify(product ? product.customisations : null) !== JSON.stringify(liveProduct.customisations);
+                    if (!product || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair || product.invisibleFlair !== liveProduct.invisibleFlair || product.standardBottleImg !== liveProduct.standardBottleImg || product.masculinePremiumBottleImg !== liveProduct.masculinePremiumBottleImg || product.femininePremiumBottleImg !== liveProduct.femininePremiumBottleImg || JSON.stringify(product.sizes) !== JSON.stringify(liveProduct.sizes) || product.isBundle !== liveProduct.isBundle || product.bundleSize !== liveProduct.bundleSize || custsChanged) {
                         product = liveProduct;
                         swapContent(product);
                     }

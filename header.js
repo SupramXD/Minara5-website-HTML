@@ -969,6 +969,11 @@ function isCartBundleItem(item) {
     if (item.selectedScents && Array.isArray(item.selectedScents) && item.selectedScents.length > 0) return true;
     if (item.bottleCount && item.bottleCount > 1) return true;
     
+    // Premium bottle selections (+R145) do NOT qualify for standard 2-bottle discount
+    if (Number(item.priceExtra) > 0) return true;
+    const custUpper = (item.bottleCustomisation || "").toUpperCase();
+    if (custUpper.includes("PREMIUM")) return true;
+
     const name = (item.name || "").toLowerCase();
     const nameShort = (item.nameShort || "").toLowerCase();
     const id = (item.id || "").toLowerCase();
