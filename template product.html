@@ -3042,14 +3042,29 @@ window.openCart = function() {
             let options = [];
 
             if (p.customisations && Array.isArray(p.customisations) && p.customisations.length > 0) {
-                p.customisations.forEach(c => {
-                    const lbl = (c.label || "OPTION").toUpperCase();
+                p.customisations.forEach((c, idx) => {
+                    const lbl = (c.label || `OPTION ${idx + 1}`).toUpperCase();
                     const extra = c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : (lbl.includes("PREMIUM") ? 145 : 0);
+                    
+                    let defaultFallback = "";
+                    if (lbl.includes("STANDARD") || idx === 0) {
+                        defaultFallback = p.standardBottleImg || (p.image ? p.image.split(',')[0].trim() : "");
+                    } else if (lbl.includes("HER") || (isFeminine && !lbl.includes("HIM"))) {
+                        defaultFallback = p.femininePremiumBottleImg || p.masculinePremiumBottleImg || "";
+                    } else {
+                        defaultFallback = p.masculinePremiumBottleImg || p.femininePremiumBottleImg || "";
+                    }
+
+                    const mainImg = c.image || c.image_data || defaultFallback;
+                    const thumbImg = c.image_thumb || c.image || c.image_data || defaultFallback;
+
                     options.push({
                         id: (c.label || "option").toLowerCase().replace(/[^a-z0-9]+/g, '_'),
                         label: lbl,
-                        img: c.image || "",
-                        thumbImg: c.image_thumb || c.image || "",
+                        img: mainImg,
+                        thumbImg: thumbImg,
+                        dataImg: c.image_data || (c.image && c.image.startsWith("data:") ? c.image : ""),
+                        fallbackImg: defaultFallback,
                         title: c.label || "Custom Option",
                         priceExtra: extra
                     });
@@ -3063,6 +3078,7 @@ window.openCart = function() {
                     label: "STANDARD",
                     img: stdImg,
                     thumbImg: stdThumb,
+                    fallbackImg: stdImg,
                     title: "Standard Bottle",
                     priceExtra: 0
                 });
@@ -3074,6 +3090,7 @@ window.openCart = function() {
                         label: "PREMIUM (HIM)",
                         img: p.masculinePremiumBottleImg || "",
                         thumbImg: p.masculinePremiumBottleImgThumb || p.masculinePremiumBottleImg || "",
+                        fallbackImg: p.masculinePremiumBottleImg || "",
                         title: "Premium Masculine Bottle",
                         priceExtra: 145
                     });
@@ -3082,6 +3099,7 @@ window.openCart = function() {
                         label: "PREMIUM (HER)",
                         img: p.femininePremiumBottleImg || "",
                         thumbImg: p.femininePremiumBottleImgThumb || p.femininePremiumBottleImg || "",
+                        fallbackImg: p.femininePremiumBottleImg || "",
                         title: "Premium Feminine Bottle",
                         priceExtra: 145
                     });
@@ -3092,6 +3110,7 @@ window.openCart = function() {
                         label: "PREMIUM",
                         img: p.femininePremiumBottleImg || "",
                         thumbImg: p.femininePremiumBottleImgThumb || p.femininePremiumBottleImg || "",
+                        fallbackImg: p.femininePremiumBottleImg || "",
                         title: "Premium Feminine Bottle",
                         priceExtra: 145
                     });
@@ -3102,6 +3121,7 @@ window.openCart = function() {
                         label: "PREMIUM",
                         img: p.masculinePremiumBottleImg || "",
                         thumbImg: p.masculinePremiumBottleImgThumb || p.masculinePremiumBottleImg || "",
+                        fallbackImg: p.masculinePremiumBottleImg || "",
                         title: "Premium Masculine Bottle",
                         priceExtra: 145
                     });
@@ -3117,12 +3137,21 @@ window.openCart = function() {
                 const track = document.querySelector('.slider-track');
                 if (!track) return;
                 
-                const targetImg = (opt.img && opt.img.trim()) ? opt.img.trim() : (p.image ? p.image.split(',')[0].trim() : "");
+                const targetImg = (opt.img && opt.img.trim()) ? opt.img.trim() : (opt.fallbackImg || (p.image ? p.image.split(',')[0].trim() : ""));
                 if (targetImg) {
                     track.innerHTML = "";
                     const imgEl = document.createElement('img');
                     imgEl.src = targetImg;
                     imgEl.alt = p.name || 'Product';
+                    imgEl.onerror = () => {
+                        if (opt.dataImg && imgEl.src !== opt.dataImg) {
+                            imgEl.src = opt.dataImg;
+                        } else if (opt.fallbackImg && imgEl.src !== opt.fallbackImg) {
+                            imgEl.src = opt.fallbackImg;
+                        } else if (p.image) {
+                            imgEl.src = p.image.split(',')[0].trim();
+                        }
+                    };
                     track.appendChild(imgEl);
                 }
             };
@@ -3155,12 +3184,21 @@ window.openCart = function() {
                 box.className = "bottle-custom-box" + (window.selectedBottleCustomisation === opt.label ? " active" : "");
                 box.title = opt.title + (opt.priceExtra > 0 ? ` (+R${opt.priceExtra})` : '');
 
-                const displayThumb = opt.thumbImg || opt.img;
+                const displayThumb = (opt.thumbImg && opt.thumbImg.trim()) ? opt.thumbImg.trim() : (opt.fallbackImg || "");
 
-                if (displayThumb && displayThumb.trim()) {
+                if (displayThumb) {
                     const imgEl = document.createElement("img");
-                    imgEl.src = displayThumb.trim();
+                    imgEl.src = displayThumb;
                     imgEl.alt = opt.title;
+                    imgEl.onerror = () => {
+                        if (opt.dataImg && imgEl.src !== opt.dataImg) {
+                            imgEl.src = opt.dataImg;
+                        } else if (opt.fallbackImg && imgEl.src !== opt.fallbackImg) {
+                            imgEl.src = opt.fallbackImg;
+                        } else if (p.image) {
+                            imgEl.src = p.image.split(',')[0].trim();
+                        }
+                    };
                     box.appendChild(imgEl);
                 } else {
                     // Keep image blank for now - render blank framed box

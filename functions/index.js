@@ -225,10 +225,13 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
             blockThumb = custThumbPath;
           }
 
+          let rawData = block.image && block.image.startsWith("data:image/") ? block.image : (block.image_data || "");
+
           processedCustomisations.push({
             label: block.label || `OPTION ${idx + 1}`,
             image: blockImg,
             image_thumb: blockThumb || blockImg,
+            image_data: rawData,
             priceExtra: block.priceExtra !== undefined && block.priceExtra !== null ? Number(block.priceExtra) : ((block.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0)
           });
         }
