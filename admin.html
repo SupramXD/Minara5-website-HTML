@@ -2248,6 +2248,7 @@
                   <button type="button" class="btn-action" onclick="closeEditModal()" style="padding: 10px 20px;">Cancel</button>
                   <button type="submit" class="btn-action accent-btn" style="padding: 10px 20px;">Save Changes</button>
                 </div>
+                <div id="adminSaveLogBox" style="display: none; margin-top: 15px; padding: 12px; background: #08080c; border: 1px solid var(--accent); border-radius: 4px; font-family: monospace; font-size: 10.5px; max-height: 160px; overflow-y: auto; color: #00ff66; white-space: pre-wrap; word-break: break-all;"></div>
               </form>
             </div>
           </div>
@@ -3229,48 +3230,82 @@
       });
     };
 
+    const sanitizeImageUrl = function(url) {
+      if (!url || typeof url !== 'string') return "";
+      const trimmed = url.trim();
+      if (trimmed.startsWith("file:") || trimmed.includes(":\\") || trimmed.includes("antigravity-ide")) {
+        return "";
+      }
+      return trimmed;
+    };
+
+    window.logAdminSave = function(msg, isError = false) {
+      console.log("[AdminSaveLog]", msg);
+      const box = document.getElementById("adminSaveLogBox");
+      if (box) {
+        box.style.display = "block";
+        const timestamp = new Date().toLocaleTimeString();
+        const color = isError ? "#ff4444" : "#00ff66";
+        box.innerHTML += `<div style="color: ${color}; margin-bottom: 3px;">[${timestamp}] ${msg}</div>`;
+        box.scrollTop = box.scrollHeight;
+      }
+    };
+
     const compressUrlOrPath = function(urlOrPath, maxWidth, quality) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         if (!urlOrPath) {
           resolve("");
           return;
         }
-        if (urlOrPath.startsWith('data:')) {
-          resolve(urlOrPath);
+        const cleaned = urlOrPath.trim();
+        if (cleaned.startsWith('file:') || cleaned.includes(':\\') || cleaned.includes('antigravity-ide')) {
+          console.warn("Security bypass: Ignoring local file path in compressUrlOrPath:", cleaned);
+          resolve("");
+          return;
+        }
+        if (cleaned.startsWith('data:')) {
+          resolve(cleaned);
           return;
         }
         
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = function() {
-          try {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-            
-            if (width > maxWidth) {
-              height = Math.round((height * maxWidth) / width);
-              width = maxWidth;
+        try {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = function() {
+            try {
+              const canvas = document.createElement('canvas');
+              let width = img.width;
+              let height = img.height;
+              
+              if (width > maxWidth) {
+                height = Math.round((height * maxWidth) / width);
+                width = maxWidth;
+              }
+              
+              canvas.width = width;
+              canvas.height = height;
+              
+              const ctx = canvas.getContext('2d');
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0, 0, width, height);
+              ctx.drawImage(img, 0, 0, width, height);
+              
+              const dataUrl = canvas.toDataURL('image/webp', quality);
+              resolve(dataUrl);
+            } catch (canvasErr) {
+              console.warn("Canvas conversion failed, resolving original:", canvasErr);
+              resolve(cleaned);
             }
-            
-            canvas.width = width;
-            canvas.height = height;
-            
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, width, height);
-            ctx.drawImage(img, 0, 0, width, height);
-            
-            const dataUrl = canvas.toDataURL('image/webp', quality);
-            resolve(dataUrl);
-          } catch (canvasErr) {
-            reject(canvasErr);
-          }
-        };
-        img.onerror = function(err) {
-          reject(err);
-        };
-        img.src = urlOrPath;
+          };
+          img.onerror = function(err) {
+            console.warn("Image load failed in compressUrlOrPath, resolving original:", cleaned);
+            resolve(cleaned);
+          };
+          img.src = cleaned;
+        } catch (e) {
+          console.warn("Image setup exception in compressUrlOrPath:", e);
+          resolve(cleaned);
+        }
       });
     };
 
@@ -3833,6 +3868,12 @@
       const product = window.minaraProducts.find(p => p.id === productId);
       if (!product) return;
 
+      const logBox = document.getElementById("adminSaveLogBox");
+      if (logBox) {
+        logBox.innerHTML = "";
+        logBox.style.display = "none";
+      }
+
       switchEditModalTab('general');
 
       document.getElementById("editProdId").value = product.id;
@@ -3848,14 +3889,14 @@
       if (typeof window.renderOrderSlots === "function") {
           window.renderOrderSlots(editSortOrderInput, editHelpEl, editContainerEl, product.id);
       }
-      document.getElementById("editProdImage").value = product.image;
+      document.getElementById("editProdImage").value = sanitizeImageUrl(product.image);
       document.getElementById("editProdDesc").value = product.description;
       document.getElementById("editProdStatus").value = product.status;
       document.getElementById("editProdFlair").value = product.flair || "";
       document.getElementById("editProdInvisibleFlair").value = product.invisibleFlair || "";
-      document.getElementById("editProdStandardBottleImg").value = product.standardBottleImg || "";
-      document.getElementById("editProdMasculinePremiumBottleImg").value = product.masculinePremiumBottleImg || "";
-      document.getElementById("editProdFemininePremiumBottleImg").value = product.femininePremiumBottleImg || "";
+      document.getElementById("editProdStandardBottleImg").value = sanitizeImageUrl(product.standardBottleImg);
+      document.getElementById("editProdMasculinePremiumBottleImg").value = sanitizeImageUrl(product.masculinePremiumBottleImg);
+      document.getElementById("editProdFemininePremiumBottleImg").value = sanitizeImageUrl(product.femininePremiumBottleImg);
 
       const isBundle = !!product.isBundle;
       document.getElementById("editProdIsBundle").checked = isBundle;
@@ -3866,8 +3907,15 @@
       document.getElementById("editProdSize50").checked = pSizes.includes("50ml");
       document.getElementById("editProdSize100").checked = pSizes.includes("100ml");
 
-      window.currentEditCustomisations = product.customisations ? JSON.parse(JSON.stringify(product.customisations)) : [];
-      if (!window.currentEditCustomisations || window.currentEditCustomisations.length === 0) {
+      if (product.customisations && Array.isArray(product.customisations) && product.customisations.length > 0) {
+        window.currentEditCustomisations = product.customisations.map(c => ({
+          label: (c.label || "OPTION").toUpperCase(),
+          image: sanitizeImageUrl(c.image) || c.image_data || "",
+          image_thumb: sanitizeImageUrl(c.image_thumb) || sanitizeImageUrl(c.image) || c.image_data || "",
+          image_data: c.image_data || (c.image && c.image.startsWith("data:") ? c.image : ""),
+          priceExtra: c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : ( (c.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0 )
+        }));
+      } else {
         const flairLower = (product.flair || "").toLowerCase();
         const invFlairLower = (product.invisibleFlair || "").toLowerCase();
         const isUnisex = flairLower.includes("unisex") || invFlairLower === "unisex";
@@ -3876,23 +3924,23 @@
         window.currentEditCustomisations = [
           {
             label: "STANDARD",
-            image: product.standardBottleImg || product.image || "",
-            image_thumb: product.image_thumb || "",
+            image: sanitizeImageUrl(product.standardBottleImg) || sanitizeImageUrl(product.image) || "",
+            image_thumb: sanitizeImageUrl(product.image_thumb) || "",
             priceExtra: 0
           }
         ];
         if (isUnisex) {
           window.currentEditCustomisations.push(
-            { label: "PREMIUM (HIM)", image: product.masculinePremiumBottleImg || "", image_thumb: product.masculinePremiumBottleImgThumb || "", priceExtra: 145 },
-            { label: "PREMIUM (HER)", image: product.femininePremiumBottleImg || "", image_thumb: product.femininePremiumBottleImgThumb || "", priceExtra: 145 }
+            { label: "PREMIUM (HIM)", image: sanitizeImageUrl(product.masculinePremiumBottleImg) || "", image_thumb: "", priceExtra: 145 },
+            { label: "PREMIUM (HER)", image: sanitizeImageUrl(product.femininePremiumBottleImg) || "", image_thumb: "", priceExtra: 145 }
           );
         } else if (isFeminine) {
           window.currentEditCustomisations.push(
-            { label: "PREMIUM", image: product.femininePremiumBottleImg || "", image_thumb: product.femininePremiumBottleImgThumb || "", priceExtra: 145 }
+            { label: "PREMIUM", image: sanitizeImageUrl(product.femininePremiumBottleImg) || "", image_thumb: "", priceExtra: 145 }
           );
         } else {
           window.currentEditCustomisations.push(
-            { label: "PREMIUM", image: product.masculinePremiumBottleImg || "", image_thumb: product.masculinePremiumBottleImgThumb || "", priceExtra: 145 }
+            { label: "PREMIUM", image: sanitizeImageUrl(product.masculinePremiumBottleImg) || "", image_thumb: "", priceExtra: 145 }
           );
         }
       }
@@ -3919,15 +3967,15 @@
       const retailPriceVal = document.getElementById("editProdRetailPrice").value.trim();
       const retailPrice = retailPriceVal !== "" ? parseFloat(retailPriceVal) : null;
       const stock = parseInt(document.getElementById("editProdStock").value);
-      const imageInput = document.getElementById("editProdImage").value.trim();
+      const imageInput = sanitizeImageUrl(document.getElementById("editProdImage").value);
       const fileInput = document.getElementById("editProdFile").files[0];
       const description = document.getElementById("editProdDesc").value.trim();
       const status = document.getElementById("editProdStatus").value;
       const flair = document.getElementById("editProdFlair").value;
       const invisibleFlair = document.getElementById("editProdInvisibleFlair").value;
-      const standardBottleImg = document.getElementById("editProdStandardBottleImg").value.trim();
-      const masculinePremiumBottleImg = document.getElementById("editProdMasculinePremiumBottleImg").value.trim();
-      const femininePremiumBottleImg = document.getElementById("editProdFemininePremiumBottleImg").value.trim();
+      const standardBottleImg = sanitizeImageUrl(document.getElementById("editProdStandardBottleImg").value);
+      const masculinePremiumBottleImg = sanitizeImageUrl(document.getElementById("editProdMasculinePremiumBottleImg").value);
+      const femininePremiumBottleImg = sanitizeImageUrl(document.getElementById("editProdFemininePremiumBottleImg").value);
       const isBundle = document.getElementById("editProdIsBundle").checked;
       const bundleSize = isBundle ? parseInt(document.getElementById("editProdBundleSize").value) : 0;
       const sortOrderVal = document.getElementById("editProdSortOrder").value.trim();
@@ -3946,6 +3994,8 @@
           submitBtn.innerHTML = "SAVING...";
       }
 
+      window.logAdminSave(`Starting edit save process for: "${name}" (${id})`);
+
       let mainImageBase64 = imageInput;
       let thumbImageBase64 = "";
 
@@ -3960,10 +4010,13 @@
       }
 
       if (fileInput) {
+        window.logAdminSave("Compressing main image file upload...");
         try {
           mainImageBase64 = await compressImage(fileInput, 1200, 0.80);
           thumbImageBase64 = await compressImage(fileInput, 600, 0.50);
+          window.logAdminSave("File compressed successfully.");
         } catch (compressErr) {
+          window.logAdminSave("Image compression error: " + compressErr.message, true);
           mainImageBase64 = imageInput;
         }
       } else if (imageInput && !imageInput.startsWith('data:')) {
@@ -3978,6 +4031,14 @@
       const sizes = [];
       if (document.getElementById("editProdSize50").checked) sizes.push("50ml");
       if (document.getElementById("editProdSize100").checked) sizes.push("100ml");
+
+      const blocksToSave = window.currentEditCustomisations || [];
+      window.logAdminSave(`Processing ${blocksToSave.length} customisation blocks...`);
+      blocksToSave.forEach((b, idx) => {
+        const hasImg = !!(b.image || b.image_data);
+        const isData = (b.image && b.image.startsWith("data:")) || (b.image_data && b.image_data.startsWith("data:"));
+        window.logAdminSave(`Block #${idx + 1} (${b.label || 'OPTION'}): HasImage=${hasImg}, Format=${isData ? 'Base64 Data' : (b.image || 'None')}, PriceExtra=+R${b.priceExtra || 0}`);
+      });
 
       const updatedProduct = {
           id: id,
@@ -3995,7 +4056,7 @@
           standardBottleImg: standardBottleImg,
           masculinePremiumBottleImg: masculinePremiumBottleImg,
           femininePremiumBottleImg: femininePremiumBottleImg,
-          customisations: window.currentEditCustomisations || [],
+          customisations: blocksToSave,
           sizes: sizes,
           isBundle: isBundle,
           bundleSize: bundleSize,
@@ -4024,12 +4085,16 @@
               localProds.push(updatedProduct);
           }
           localStorage.setItem("minara_products", JSON.stringify(localProds));
-      } catch (err) {}
+          window.logAdminSave("Saved product snapshot to localStorage cache.");
+      } catch (err) {
+          window.logAdminSave("LocalStorage error: " + err.message, true);
+      }
 
       let firestoreSuccess = false;
       let firestoreErrorMsg = "";
 
       if (window.db && window.dbDoc && window.dbSetDoc) {
+          window.logAdminSave("Writing product data to Firestore database...");
           try {
               const timeoutPromise = new Promise((_, reject) => 
                   setTimeout(() => reject(new Error("Timeout")), 20000)
@@ -4050,7 +4115,7 @@
                       standardBottleImg: standardBottleImg,
                       masculinePremiumBottleImg: masculinePremiumBottleImg,
                       femininePremiumBottleImg: femininePremiumBottleImg,
-                      customisations: window.currentEditCustomisations || [],
+                      customisations: blocksToSave,
                       sizes: sizes,
                       isBundle: isBundle,
                       bundleSize: bundleSize,
@@ -4060,6 +4125,7 @@
                   timeoutPromise
               ]);
               firestoreSuccess = true;
+              window.logAdminSave("✓ Firestore write successful.");
               
               try {
                   const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
@@ -4071,13 +4137,15 @@
               } catch (cacheErr) {}
           } catch (dbErr) {
               firestoreErrorMsg = dbErr.message || dbErr;
+              window.logAdminSave("⚠ Firestore write failed: " + firestoreErrorMsg, true);
           }
       }
 
       // Sync edited product to GitHub static repo
       if (firestoreSuccess && window.syncToGithubCallable) {
+          window.logAdminSave("Calling syncToGithubCallable ('saveProduct')...");
           try {
-              await window.syncToGithubCallable({
+              const res = await window.syncToGithubCallable({
                   action: "saveProduct",
                   payload: {
                       id: id,
@@ -4095,16 +4163,16 @@
                       standardBottleImg: standardBottleImg,
                       masculinePremiumBottleImg: masculinePremiumBottleImg,
                       femininePremiumBottleImg: femininePremiumBottleImg,
-                      customisations: window.currentEditCustomisations || [],
+                      customisations: blocksToSave,
                       sizes: sizes,
                       isBundle: isBundle,
                       bundleSize: bundleSize,
                       sortOrder: sortOrder
                   }
               });
-              console.log("GitHub sync successful for edited: " + name);
+              window.logAdminSave("✓ GitHub sync successful: " + (res.data ? res.data.message : "OK"));
           } catch (gitHubErr) {
-              console.error("Failed to sync edited product to GitHub:", gitHubErr);
+              window.logAdminSave("⚠ GitHub sync warning: " + (gitHubErr.message || gitHubErr), true);
               alert("Warning: Product was updated in database, but GitHub sync failed: " + (gitHubErr.message || gitHubErr));
           }
       }
