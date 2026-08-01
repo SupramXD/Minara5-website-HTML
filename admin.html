@@ -3388,8 +3388,8 @@
 
       if (fileInput) {
         try {
-          mainImageBase64 = await compressImage(fileInput, 1200, 0.80);
-          thumbImageBase64 = await compressImage(fileInput, 600, 0.50);
+          mainImageBase64 = await compressImage(fileInput, 1200, 0.90);
+          thumbImageBase64 = await compressImage(fileInput, 800, 0.85);
         } catch (compressErr) {
           console.error(compressErr);
           mainImageBase64 = imageInput;
@@ -3847,8 +3847,8 @@
       if (!file || !window.currentEditCustomisations || !window.currentEditCustomisations[idx]) return;
 
       try {
-        const mainBase64 = await compressImage(file, 1200, 0.80);
-        const thumbBase64 = await compressImage(file, 600, 0.50);
+        const mainBase64 = await compressImage(file, 1200, 0.90);
+        const thumbBase64 = await compressImage(file, 800, 0.85);
 
         window.currentEditCustomisations[idx].image = mainBase64;
         window.currentEditCustomisations[idx].image_thumb = thumbBase64;
@@ -3976,8 +3976,8 @@
       if (fileInput) {
         window.logAdminSave("Compressing main image file upload...");
         try {
-          mainImageBase64 = await compressImage(fileInput, 1200, 0.80);
-          thumbImageBase64 = await compressImage(fileInput, 600, 0.50);
+          mainImageBase64 = await compressImage(fileInput, 1200, 0.90);
+          thumbImageBase64 = await compressImage(fileInput, 800, 0.85);
           window.logAdminSave("File compressed successfully.");
         } catch (compressErr) {
           window.logAdminSave("Image compression error: " + compressErr.message, true);
