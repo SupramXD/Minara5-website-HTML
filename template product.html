@@ -3041,13 +3041,34 @@ window.openCart = function() {
 
             let options = [];
 
+            // Standard Option (Box #1) is ALWAYS present by default (R0 extra)
+            const stdImg = p.standardBottleImg || (p.image ? p.image.split(',')[0].trim() : "");
+            const stdThumb = p.standardBottleImgThumb || p.image_thumb || (p.image ? p.image.split(',')[0].trim() : "");
+            
+            const standardOption = {
+                id: "standard",
+                label: "STANDARD",
+                img: stdImg,
+                thumbImg: stdThumb,
+                fallbackImg: stdImg,
+                title: "Standard Bottle",
+                priceExtra: 0
+            };
+
             if (p.customisations && Array.isArray(p.customisations) && p.customisations.length > 0) {
+                // Check if admin explicitly included a STANDARD block
+                const hasExplicitStandard = p.customisations.some(c => (c.label || "").toUpperCase().trim() === "STANDARD");
+                
+                if (!hasExplicitStandard) {
+                    options.push(standardOption);
+                }
+
                 p.customisations.forEach((c, idx) => {
-                    const lbl = (c.label || `OPTION ${idx + 1}`).toUpperCase();
+                    const lbl = (c.label || `OPTION ${idx + 1}`).toUpperCase().trim();
                     const extra = c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : (lbl.includes("PREMIUM") ? 145 : 0);
                     
                     let defaultFallback = "";
-                    if (lbl.includes("STANDARD") || idx === 0) {
+                    if (lbl.includes("STANDARD")) {
                         defaultFallback = p.standardBottleImg || (p.image ? p.image.split(',')[0].trim() : "");
                     } else if (lbl.includes("HER") || (isFeminine && !lbl.includes("HIM"))) {
                         defaultFallback = p.femininePremiumBottleImg || p.masculinePremiumBottleImg || "";
@@ -3072,18 +3093,7 @@ window.openCart = function() {
                     });
                 });
             } else {
-                // Option 1: Standard Bottle (Always present)
-                const stdImg = p.standardBottleImg || p.image || "";
-                const stdThumb = p.standardBottleImgThumb || p.image_thumb || p.image || "";
-                options.push({
-                    id: "standard",
-                    label: "STANDARD",
-                    img: stdImg,
-                    thumbImg: stdThumb,
-                    fallbackImg: stdImg,
-                    title: "Standard Bottle",
-                    priceExtra: 0
-                });
+                options.push(standardOption);
 
                 if (isUnisex) {
                     // Unisex has BOTH masculine and feminine premium bottle images: 3 boxes in total
