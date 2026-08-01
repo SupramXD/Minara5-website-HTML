@@ -2100,12 +2100,6 @@
                 <span class="edit-modal-close" onclick="closeEditModal()">✕ Close</span>
               </div>
               
-              <!-- EDIT MODAL TAB NAVIGATION -->
-              <div class="edit-modal-tabs" style="display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 20px;">
-                <button type="button" id="tabBtnGeneral" class="edit-tab-btn active" onclick="switchEditModalTab('general')" style="flex: 1; padding: 12px; background: transparent; border: none; border-bottom: 2px solid var(--accent); color: #fff; font-family: inherit; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; cursor: pointer;">General Info</button>
-                <button type="button" id="tabBtnCustomisation" class="edit-tab-btn" onclick="switchEditModalTab('customisation')" style="flex: 1; padding: 12px; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); font-family: inherit; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; cursor: pointer;">Customisation Blocks</button>
-              </div>
-
               <form id="editProductForm" onsubmit="handleSaveEdit(event)">
                 <input type="hidden" id="editProdId">
                 
@@ -2232,16 +2226,6 @@
                       </label>
                     </div>
                   </div>
-                </div>
-
-                <!-- TAB 2: CUSTOMISATION BLOCKS -->
-                <div id="editTabContentCustomisation" class="edit-tab-content" style="display: none;">
-                  <div style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 8px;">Product Customisation Blocks</div>
-                  <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">Add bottle customisation options for this product. You can attach an image to each option. Images uploaded here automatically compress into main (1200px) and thumbnail (600px) WebP formats.</div>
-                  
-                  <div id="editCustomisationBlocksContainer" style="display: flex; flex-direction: column; gap: 15px;"></div>
-
-                  <button type="button" onclick="addEditCustomisationBlock()" class="btn-action" style="margin-top: 15px; background: rgba(255, 255, 255, 0.05); border: 1px dashed var(--accent); color: var(--accent); width: 100%; padding: 12px; font-weight: bold; cursor: pointer;">+ ADD CUSTOMISATION BLOCK</button>
                 </div>
 
                 <div class="edit-modal-footer" style="margin-top: 20px;">
@@ -3880,8 +3864,6 @@
         logBox.style.display = "none";
       }
 
-      switchEditModalTab('general');
-
       document.getElementById("editProdId").value = product.id;
       document.getElementById("editProdNameShort").value = product.nameShort || "";
       document.getElementById("editProdName").value = product.name;
@@ -3912,45 +3894,6 @@
       const pSizes = product.sizes || ["50ml", "100ml"];
       document.getElementById("editProdSize50").checked = pSizes.includes("50ml");
       document.getElementById("editProdSize100").checked = pSizes.includes("100ml");
-
-      if (product.customisations && Array.isArray(product.customisations) && product.customisations.length > 0) {
-        window.currentEditCustomisations = product.customisations.map(c => ({
-          label: (c.label || "OPTION").toUpperCase(),
-          image: c.image_data || sanitizeImageUrl(c.image) || "",
-          image_thumb: c.image_data || sanitizeImageUrl(c.image_thumb) || sanitizeImageUrl(c.image) || "",
-          image_data: c.image_data || (c.image && c.image.startsWith("data:") ? c.image : ""),
-          priceExtra: c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : ( (c.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0 )
-        }));
-      } else {
-        const flairLower = (product.flair || "").toLowerCase();
-        const invFlairLower = (product.invisibleFlair || "").toLowerCase();
-        const isUnisex = flairLower.includes("unisex") || invFlairLower === "unisex";
-        const isFeminine = flairLower.includes("feminine") || invFlairLower === "women";
-
-        window.currentEditCustomisations = [
-          {
-            label: "STANDARD",
-            image: sanitizeImageUrl(product.standardBottleImg) || sanitizeImageUrl(product.image) || "",
-            image_thumb: sanitizeImageUrl(product.image_thumb) || "",
-            priceExtra: 0
-          }
-        ];
-        if (isUnisex) {
-          window.currentEditCustomisations.push(
-            { label: "PREMIUM (HIM)", image: sanitizeImageUrl(product.masculinePremiumBottleImg) || "", image_thumb: "", priceExtra: 145 },
-            { label: "PREMIUM (HER)", image: sanitizeImageUrl(product.femininePremiumBottleImg) || "", image_thumb: "", priceExtra: 145 }
-          );
-        } else if (isFeminine) {
-          window.currentEditCustomisations.push(
-            { label: "PREMIUM", image: sanitizeImageUrl(product.femininePremiumBottleImg) || "", image_thumb: "", priceExtra: 145 }
-          );
-        } else {
-          window.currentEditCustomisations.push(
-            { label: "PREMIUM", image: sanitizeImageUrl(product.masculinePremiumBottleImg) || "", image_thumb: "", priceExtra: 145 }
-          );
-        }
-      }
-      window.renderEditCustomisationBlocks();
 
       const modal = document.getElementById("editProductModal");
       modal.style.display = "flex";
@@ -4038,34 +3981,6 @@
       if (document.getElementById("editProdSize50").checked) sizes.push("50ml");
       if (document.getElementById("editProdSize100").checked) sizes.push("100ml");
 
-      const blocksToSave = window.currentEditCustomisations || [];
-      window.logAdminSave(`Processing ${blocksToSave.length} customisation blocks...`);
-
-      let syncStdBottleImg = standardBottleImg;
-      let syncMascPremBottleImg = masculinePremiumBottleImg;
-      let syncFemPremBottleImg = femininePremiumBottleImg;
-
-      blocksToSave.forEach((b, idx) => {
-        if (b.image_data && b.image_data.startsWith("data:image/")) {
-          b.image = b.image_data;
-          b.image_thumb = b.image_data;
-        }
-        const lbl = (b.label || "").toUpperCase();
-        const imgVal = b.image_data || b.image;
-        if (imgVal) {
-          if (lbl.includes("STANDARD") || idx === 0) {
-            syncStdBottleImg = imgVal;
-          } else if (lbl.includes("HER") || lbl.includes("FEMININE")) {
-            syncFemPremBottleImg = imgVal;
-          } else {
-            syncMascPremBottleImg = imgVal;
-          }
-        }
-        const hasImg = !!(b.image || b.image_data);
-        const isData = (b.image && b.image.startsWith("data:")) || (b.image_data && b.image_data.startsWith("data:"));
-        window.logAdminSave(`Block #${idx + 1} (${b.label || 'OPTION'}): HasImage=${hasImg}, Format=${isData ? 'Base64 Data' : (b.image || 'None')}, PriceExtra=+R${b.priceExtra || 0}`);
-      });
-
       const updatedProduct = {
           id: id,
           nameShort: nameShort,
@@ -4079,10 +3994,9 @@
           status: status,
           flair: flair,
           invisibleFlair: invisibleFlair,
-          standardBottleImg: syncStdBottleImg,
-          masculinePremiumBottleImg: syncMascPremBottleImg,
-          femininePremiumBottleImg: syncFemPremBottleImg,
-          customisations: blocksToSave,
+          standardBottleImg: standardBottleImg,
+          masculinePremiumBottleImg: masculinePremiumBottleImg,
+          femininePremiumBottleImg: femininePremiumBottleImg,
           sizes: sizes,
           isBundle: isBundle,
           bundleSize: bundleSize,
@@ -4141,7 +4055,6 @@
                       standardBottleImg: standardBottleImg,
                       masculinePremiumBottleImg: masculinePremiumBottleImg,
                       femininePremiumBottleImg: femininePremiumBottleImg,
-                      customisations: blocksToSave,
                       sizes: sizes,
                       isBundle: isBundle,
                       bundleSize: bundleSize,
@@ -4189,7 +4102,6 @@
                       standardBottleImg: standardBottleImg,
                       masculinePremiumBottleImg: masculinePremiumBottleImg,
                       femininePremiumBottleImg: femininePremiumBottleImg,
-                      customisations: blocksToSave,
                       sizes: sizes,
                       isBundle: isBundle,
                       bundleSize: bundleSize,
