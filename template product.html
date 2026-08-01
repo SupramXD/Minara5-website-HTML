@@ -3194,7 +3194,7 @@ window.openCart = function() {
             options.forEach(opt => {
                 const box = document.createElement("div");
                 box.className = "bottle-custom-box" + (window.selectedBottleCustomisation === opt.label ? " active" : "");
-                box.title = opt.title + (opt.priceExtra > 0 ? ` (+R${opt.priceExtra})` : '');
+                box.title = opt.title;
 
                 const displayThumb = (opt.thumbImg && opt.thumbImg.trim()) ? opt.thumbImg.trim() : (opt.fallbackImg || "");
 
@@ -3221,7 +3221,7 @@ window.openCart = function() {
 
                 box.onclick = () => {
                     window.selectedBottleCustomisation = opt.label;
-                    const labelText = opt.priceExtra > 0 ? `${opt.label} (+R${opt.priceExtra})` : opt.label;
+                    const labelText = opt.label;
                     if (labelSpan) labelSpan.textContent = labelText;
                     const siblingBoxes = boxesWrap.querySelectorAll(".bottle-custom-box");
                     siblingBoxes.forEach(b => b.classList.remove("active"));
@@ -3237,7 +3237,7 @@ window.openCart = function() {
             });
 
             const activeOpt = options.find(o => o.label === window.selectedBottleCustomisation) || options[0];
-            const activeLabelText = activeOpt.priceExtra > 0 ? `${activeOpt.label} (+R${activeOpt.priceExtra})` : activeOpt.label;
+            const activeLabelText = activeOpt.label;
             if (labelSpan) labelSpan.textContent = activeLabelText;
             
             // Set initial main image and price display for currently active customisation
