@@ -3394,14 +3394,6 @@
           console.error(compressErr);
           mainImageBase64 = imageInput;
         }
-      } else if (imageInput && !imageInput.startsWith('data:')) {
-        try {
-          mainImageBase64 = await compressUrlOrPath(imageInput, 1200, 0.80);
-          thumbImageBase64 = await compressUrlOrPath(imageInput, 600, 0.50);
-        } catch (urlCompressErr) {
-          mainImageBase64 = imageInput;
-          thumbImageBase64 = "";
-        }
       }
 
       const sizes = [];
@@ -3989,13 +3981,6 @@
           window.logAdminSave("File compressed successfully.");
         } catch (compressErr) {
           window.logAdminSave("Image compression error: " + compressErr.message, true);
-          mainImageBase64 = imageInput;
-        }
-      } else if (imageInput && !imageInput.startsWith('data:')) {
-        try {
-          mainImageBase64 = await compressUrlOrPath(imageInput, 1200, 0.80);
-          thumbImageBase64 = await compressUrlOrPath(imageInput, 600, 0.50);
-        } catch (urlCompressErr) {
           mainImageBase64 = imageInput;
         }
       }

@@ -165,6 +165,16 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
     if (action === "saveProduct") {
       const {id, nameShort, name, price, retailPrice, stock, image, image_thumb, description, status, flair, invisibleFlair, standardBottleImg, masculinePremiumBottleImg, femininePremiumBottleImg, customisations, sizes, isBundle, bundleSize, sortOrder} = payload;
 
+      const {sha: jsonSha, content: jsonContent} = await getFileShaAndContent("products.json", token);
+      let productsList = [];
+      if (jsonContent) {
+        try {
+          productsList = JSON.parse(jsonContent);
+        } catch (e) {
+          logger.error("Failed to parse products.json from GitHub:", e);
+        }
+      }
+
       let mainImagePath = image;
       let thumbImagePath = image_thumb;
 
@@ -231,13 +241,13 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         await writeFileToGitHub(femininePremiumBottleImgPath, base64Data, `Add/Update feminine premium bottle image for product ${id}`, femPremSha, token);
       }
 
-      let processedCustomisations = [];
+      const processedCustomisations = [];
       if (Array.isArray(customisations) && customisations.length > 0) {
         for (let idx = 0; idx < customisations.length; idx++) {
           const block = customisations[idx];
           let blockImg = block.image || "";
           let blockThumb = block.image_thumb || "";
-          let base64ToUpload = (blockImg && blockImg.startsWith("data:image/")) ? blockImg : (block.image_data && block.image_data.startsWith("data:image/") ? block.image_data : "");
+          const base64ToUpload = (blockImg && blockImg.startsWith("data:image/")) ? blockImg : (block.image_data && block.image_data.startsWith("data:image/") ? block.image_data : "");
 
           // Upload main image for customisation block if base64
           if (base64ToUpload) {
@@ -253,14 +263,14 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
             blockThumb = custImagePath;
           }
 
-          let rawData = (block.image && block.image.startsWith("data:image/")) ? block.image : (block.image_data || "");
+          const rawData = (block.image && block.image.startsWith("data:image/")) ? block.image : (block.image_data || "");
 
           processedCustomisations.push({
             label: block.label || `OPTION ${idx + 1}`,
             image: blockImg,
             image_thumb: blockThumb || blockImg,
             image_data: rawData,
-            priceExtra: block.priceExtra !== undefined && block.priceExtra !== null ? Number(block.priceExtra) : ((block.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0)
+            priceExtra: block.priceExtra !== undefined && block.priceExtra !== null ? Number(block.priceExtra) : ((block.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0),
           });
         }
       }
