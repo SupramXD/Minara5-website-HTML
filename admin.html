@@ -2103,6 +2103,12 @@
               <form id="editProductForm" onsubmit="handleSaveEdit(event)">
                 <input type="hidden" id="editProdId">
                 
+                <!-- EDIT MODAL TABS NAVIGATION -->
+                <div style="display: flex; gap: 10px; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; padding-bottom: 10px;">
+                  <button type="button" id="tabBtnGeneral" onclick="switchEditModalTab('general')" style="background: transparent; border: none; border-bottom: 2px solid var(--accent); color: #fff; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; padding: 8px 12px;">General Details</button>
+                  <button type="button" id="tabBtnCustomisation" onclick="switchEditModalTab('customisation')" style="background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; padding: 8px 12px;">Customisation Options</button>
+                </div>
+
                 <!-- TAB 1: GENERAL INFO -->
                 <div id="editTabContentGeneral" class="edit-tab-content" style="display: block;">
                   <div class="form-group">
@@ -2226,6 +2232,15 @@
                       </label>
                     </div>
                   </div>
+                </div>
+
+                <!-- TAB 2: CUSTOMISATION OPTIONS -->
+                <div id="editTabContentCustomisation" class="edit-tab-content" style="display: none;">
+                  <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.5;">
+                    Configure customization option boxes for this product (e.g. Standard vs. Custom/Premium Option). Uploaded option images are auto-compressed to WebP and sent directly to your GitHub repo storage.
+                  </div>
+                  <div id="editCustomisationBlocksContainer" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px;"></div>
+                  <button type="button" class="btn-action accent-btn" onclick="addEditCustomisationBlock()" style="width: 100%; padding: 12px; font-weight: bold; font-family: inherit;">+ ADD CUSTOMISATION BLOCK</button>
                 </div>
 
                 <div class="edit-modal-footer" style="margin-top: 20px;">
@@ -3895,6 +3910,14 @@
       document.getElementById("editProdSize50").checked = pSizes.includes("50ml");
       document.getElementById("editProdSize100").checked = pSizes.includes("100ml");
 
+      window.currentEditCustomisations = product.customisations ? JSON.parse(JSON.stringify(product.customisations)) : [];
+      if (typeof window.switchEditModalTab === "function") {
+        window.switchEditModalTab("general");
+      }
+      if (typeof window.renderEditCustomisationBlocks === "function") {
+        window.renderEditCustomisationBlocks();
+      }
+
       const modal = document.getElementById("editProductModal");
       modal.style.display = "flex";
       setTimeout(() => modal.classList.add("active"), 10);
@@ -3997,6 +4020,7 @@
           standardBottleImg: standardBottleImg,
           masculinePremiumBottleImg: masculinePremiumBottleImg,
           femininePremiumBottleImg: femininePremiumBottleImg,
+          customisations: window.currentEditCustomisations || [],
           sizes: sizes,
           isBundle: isBundle,
           bundleSize: bundleSize,
@@ -4055,6 +4079,7 @@
                       standardBottleImg: standardBottleImg,
                       masculinePremiumBottleImg: masculinePremiumBottleImg,
                       femininePremiumBottleImg: femininePremiumBottleImg,
+                      customisations: window.currentEditCustomisations || [],
                       sizes: sizes,
                       isBundle: isBundle,
                       bundleSize: bundleSize,
@@ -4102,6 +4127,7 @@
                       standardBottleImg: standardBottleImg,
                       masculinePremiumBottleImg: masculinePremiumBottleImg,
                       femininePremiumBottleImg: femininePremiumBottleImg,
+                      customisations: window.currentEditCustomisations || [],
                       sizes: sizes,
                       isBundle: isBundle,
                       bundleSize: bundleSize,
