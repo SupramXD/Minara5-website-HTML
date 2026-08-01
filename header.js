@@ -815,7 +815,7 @@ const products = {};
 let cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
 
 // 3. THE ADD FUNCTION
-window.addToCart = function(productId, selectedSize, selectedScents, bottleCustomisation, priceExtra) {
+window.addToCart = function(productId, selectedSize, selectedScents, bottleCustomisation, priceExtra, customImage, customImageThumb) {
     let product = null;
     let sizes = ["50ml", "100ml"];
     
@@ -883,8 +883,8 @@ window.addToCart = function(productId, selectedSize, selectedScents, bottleCusto
             nameShort: product.nameShort || product.name || "",
             price: product.price,
             priceExtra: priceExtraToUse,
-            image: product.image,
-            image_thumb: product.image_thumb || "",
+            image: customImage || product.image,
+            image_thumb: customImageThumb || product.image_thumb || "",
             size: sizeToUse,
             bottleCustomisation: bottleCustomisation || null,
             quantity: 1,

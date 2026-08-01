@@ -3244,6 +3244,23 @@ window.openCart = function() {
                     siblingBoxes.forEach(b => b.classList.remove("active"));
                     box.classList.add("active");
 
+                    // If premium, automatically select 100ml size
+                    if (opt.label.toUpperCase().includes("PREMIUM")) {
+                        const sizeBtns = document.querySelectorAll(".size-picker-btn");
+                        let clicked100ml = false;
+                        sizeBtns.forEach(btn => {
+                            if (btn.textContent.trim().toUpperCase() === "100ML") {
+                                btn.click();
+                                clicked100ml = true;
+                            }
+                        });
+                        if (!clicked100ml) {
+                            window.selectedProductSize = "100ml";
+                            const sizeTextEl = document.getElementById('selectedSizeText');
+                            if (sizeTextEl) sizeTextEl.textContent = "100ML";
+                        }
+                    }
+
                     // Swap main product image on left slider view
                     updateMainSliderImage(opt);
                     // Update product price display with priceExtra
@@ -3262,6 +3279,7 @@ window.openCart = function() {
                 updateMainSliderImage(activeOpt);
                 updateProductPriceDisplay(activeOpt);
             }
+            window.currentBottleCustomisationOptions = options;
         };
 
         // Helper to swap dynamic content
@@ -3643,10 +3661,9 @@ window.openCart = function() {
                     setupBundleSelectors(p);
                 } else {
                     const oldBackLink = document.getElementById("returnToBundleLink");
-                    if (oldBackLink) oldBackLink.remove();
-
-                    const availableSizes = p.sizes && p.sizes.length > 0 ? p.sizes : ["50ml"];
+                                   const availableSizes = p.sizes && p.sizes.length > 0 ? p.sizes : ["50ml"];
                     let selectedSize = availableSizes[0];
+                    window.selectedProductSize = selectedSize;
                     
                     const sizeIndicator = document.getElementById('selectedSizeIndicator');
                     const sizeTextEl = document.getElementById('selectedSizeText');
@@ -3682,6 +3699,7 @@ window.openCart = function() {
                                 
                                 btn.onclick = () => {
                                     selectedSize = sz;
+                                    window.selectedProductSize = sz;
                                     if (sizeTextEl) sizeTextEl.textContent = sz.toUpperCase();
                                     const siblings = sizeOptionsDiv.querySelectorAll('button');
                                     siblings.forEach(sib => {
@@ -3700,9 +3718,14 @@ window.openCart = function() {
                     }
                     
                     renderBottleCustomisation(p);
-
+ 
                     addToBagBtn.onclick = () => {
-                        window.addToCart(p.id, selectedSize, null, window.selectedBottleCustomisation, window.selectedBottlePriceExtra);
+                        const opts = window.currentBottleCustomisationOptions || [];
+                        const activeOpt = opts.find(o => o.label === window.selectedBottleCustomisation);
+                        const customImage = activeOpt ? activeOpt.img : null;
+                        const customImageThumb = activeOpt ? activeOpt.thumbImg : null;
+
+                        window.addToCart(p.id, window.selectedProductSize || selectedSize, null, window.selectedBottleCustomisation, window.selectedBottlePriceExtra, customImage, customImageThumb);
                     };
                 }
                 addToBagBtn.style.display = "";
