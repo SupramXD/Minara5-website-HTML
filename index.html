@@ -2161,14 +2161,24 @@
     </div>
   </section>
 
-  <!-- SECOND PRODUCTS SECTION (EXPLORE MORE FRAGRANCES) -->
-  <section class="second-products-outer-wrap" style="padding: 70px 0 40px; width: 100%; background: #ffffff;">
+  <!-- SECOND PRODUCTS SECTION (CURATED SELECTION & VIEW CATALOG CTA) -->
+  <section class="second-products-outer-wrap" style="padding: 70px 0 50px; width: 100%; background: #fafafa; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea;">
     <div class="second-products-section" style="width: 100%;">
-      <div class="home-products-header" style="margin-bottom: 25px; text-align: center;">
-        <h2 class="home-products-title" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; margin: 0;">EXPLORE MORE FRAGRANCES</h2>
+      <div class="home-products-header" style="margin-bottom: 28px; text-align: center;">
+        <span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #888; display: block; margin-bottom: 6px;">CURATED SELECTION</span>
+        <h2 class="home-products-title" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 14px; letter-spacing: 3.5px; text-transform: uppercase; margin: 0; color: #111;">EXPLORE MORE FRAGRANCES</h2>
       </div>
       <div class="home-products-list second-products-list">
         <!-- Dynamic product cards populated via JS -->
+      </div>
+      <div class="bottom-catalog-cta-wrap" style="width: 100%; text-align: center; margin-top: 38px;">
+        <a href="catalog.html" class="bottom-catalog-long-btn" style="display: inline-flex; align-items: center; justify-content: center; gap: 14px; width: calc(100% - 40px); max-width: 520px; height: 50px; background: #000000; color: #ffffff; text-decoration: none; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2.8px; text-transform: uppercase; transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; border-radius: 2px; box-shadow: 0 4px 14px rgba(0,0,0,0.12);">
+          <span>VIEW FULL CATALOG</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
       </div>
     </div>
   </section>
@@ -2647,307 +2657,187 @@
 
       // Render function
       const renderGrid = () => {
+        const topGrid = document.querySelector('.home-products-list:not(.second-products-list)');
+        const secondGrid = document.querySelector('.home-products-list.second-products-list');
+        if (!topGrid && !secondGrid) return;
+
         let activeProducts = products.filter(p => p.status === 'Active');
         activeProducts.sort((a, b) => {
           const hasA = a.sortOrder !== undefined && a.sortOrder !== null && a.sortOrder !== "";
           const hasB = b.sortOrder !== undefined && b.sortOrder !== null && b.sortOrder !== "";
-          
           if (hasA && !hasB) return -1;
           if (!hasA && hasB) return 1;
           if (hasA && hasB) {
-              const diff = Number(a.sortOrder) - Number(b.sortOrder);
-              if (diff !== 0) return diff;
+            const diff = Number(a.sortOrder) - Number(b.sortOrder);
+            if (diff !== 0) return diff;
           }
-          
           const nameA = (a.nameShort || a.name || "").toLowerCase();
           const nameB = (b.nameShort || b.name || "").toLowerCase();
           return nameA.localeCompare(nameB);
         });
 
         const isMobile = window.matchMedia("(max-width: 900px)").matches;
+        const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
 
-        grids.forEach((grid, gridIdx) => {
-          grid.innerHTML = ""; // Clear existing grid items securely
-
-          let displayProducts = activeProducts;
-          // If second list, reverse or offset slightly for variety if desired, or show all active products
-          if (gridIdx === 1 && activeProducts.length > 3) {
-            displayProducts = [...activeProducts].reverse();
-          }
-
-          displayProducts.forEach(p => {
-            const card = document.createElement('div');
-            card.className = "home-product-card";
-
-            // Create structure with safe static markup
-            card.innerHTML = `
-              <a class="product-link-anchor" style="text-decoration:none; color:inherit; display:block;">
-                <div class="hp-box">
-                  <img class="product-img" loading="lazy" src="" alt="">
-                </div>
-              </a>
-              <div class="hp-info">
-                <a class="product-link-anchor-2" style="text-decoration:none; color:inherit; display:block;">
-                  <div class="hp-flair" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; display: none; color: #1a1a1a;"></div>
-                  <h3 class="hp-title"></h3>
-                  <div class="hp-type" style="font-family: Georgia, serif; font-style: italic; font-size: 9px; opacity: 0.6; color: #555; text-transform: none; letter-spacing: 0.5px; margin-top: 1px; margin-bottom: 6px; display: none;"></div>
-                  <div class="hp-inspired"></div>
-                  <div class="hp-reviews-row">
-                    <span class="hp-stars">★★★★★</span>
-                    <span class="hp-reviews-count"></span>
-                  </div>
-                  <div class="hp-stock-status"></div>
-                </a>
-                <div class="hp-price-action-row">
-                  <div class="hp-price-block"></div>
-                  <button class="add-to-cart"></button>
-                </div>
-              </div>
-            `;
-
-            // Safe product flair assignment
-            const flairEl = card.querySelector('.hp-flair');
-            if (flairEl) {
-              flairEl.style.display = 'none';
+        // Pre-compute review summaries into O(1) map for zero-lag rendering
+        const reviewStatsMap = {};
+        if (allReviews && allReviews.length > 0) {
+          allReviews.forEach(r => {
+            if (r.productId && r.rating) {
+              if (!reviewStatsMap[r.productId]) reviewStatsMap[r.productId] = { total: 0, count: 0 };
+              reviewStatsMap[r.productId].total += Number(r.rating);
+              reviewStatsMap[r.productId].count++;
             }
-
-            // Bind static URLs safely
-            card.querySelectorAll('.product-link-anchor, .product-link-anchor-2').forEach(a => {
-              a.href = p.url;
-            });
-
-            let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
-
-            // Safe image properties assignment
-            const img = card.querySelector('.product-img');
-            const tSrc = getThumbnailImageUrl(p.image, p.image_thumb);
-            if (tSrc) {
-              img.src = tSrc;
-              img.style.display = 'block';
-            } else {
-              img.style.display = 'none';
-            }
-            img.setAttribute('alt', rawName);
-
-            // Safe product name text assignments
-            const titleEl = card.querySelector('.hp-title');
-            const inspiredEl = card.querySelector('.hp-inspired');
-
-            const formatBrandName = (brandName) => {
-              if (!brandName) return "";
-              return brandName.replace(/\w\S*/g, (txt) => {
-                const lower = txt.toLowerCase();
-                if (lower === 'jpg') return 'JPG';
-                if (lower === 'le') return 'Le';
-                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-              });
-            };
-
-            const inspiredMatch = rawName.match(/^inspired\s+by\s+(.+)/i);
-            if (titleEl && inspiredEl) {
-              const typeEl = card.querySelector('.hp-type');
-              if (typeEl) {
-                typeEl.textContent = "Extrait de Parfum";
-                typeEl.style.display = 'block';
-              }
-
-              if (inspiredMatch || p.id.startsWith("inspired-by-")) {
-                const fragranceName = inspiredMatch ? inspiredMatch[1] : rawName;
-
-                titleEl.textContent = p.nameShort || rawName;
-                titleEl.style.fontSize = "12px";
-                titleEl.style.color = "#111111";
-                titleEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";
-                titleEl.style.fontWeight = "700";
-                titleEl.style.display = 'block';
-                titleEl.style.textTransform = "uppercase";
-                titleEl.style.letterSpacing = "0.04em";
-                titleEl.style.marginBottom = "2px";
-
-                inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}</i>`;
-                inspiredEl.style.fontFamily = "";
-                inspiredEl.style.fontStyle = "";
-                inspiredEl.style.fontWeight = "";
-                inspiredEl.style.textTransform = "";
-                inspiredEl.style.letterSpacing = "";
-                inspiredEl.style.color = "";
-                inspiredEl.style.fontSize = "";
-                inspiredEl.style.display = 'block';
-              } else {
-                titleEl.textContent = rawName;
-                titleEl.style.fontSize = "12px";
-                titleEl.style.color = "#111111";
-                titleEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";
-                titleEl.style.fontWeight = "700";
-                titleEl.style.display = 'block';
-                titleEl.style.textTransform = "uppercase";
-                titleEl.style.letterSpacing = "0.04em";
-                titleEl.style.marginBottom = "4px";
-
-                inspiredEl.innerHTML = "";
-                inspiredEl.style.display = 'none';
-              }
-            }
-
-            // Dynamic reviews loader
-            const reviewsCountEl = card.querySelector('.hp-reviews-count');
-            const starsEl = card.querySelector('.hp-stars');
-            const reviewsRowEl = card.querySelector('.hp-reviews-row');
-
-            const emptyStarsHTML = `
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            `.repeat(5);
-
-            if (starsEl) {
-              starsEl.innerHTML = emptyStarsHTML;
-            }
-            if (reviewsCountEl) {
-              reviewsCountEl.textContent = '(0)';
-            }
-            if (reviewsRowEl) {
-              reviewsRowEl.style.opacity = '0.35';
-            }
-
-            const loadCardReviews = () => {
-              try {
-                const cardReviews = allReviews.filter(r => r.productId === p.id);
-                let totalRating = 0;
-                let count = 0;
-                cardReviews.forEach(r => {
-                  if (r.rating) {
-                    totalRating += Number(r.rating);
-                    count++;
-                  }
-                });
-                if (count > 0) {
-                  const avg = totalRating / count;
-                  const rounded = Math.round(avg);
-                  let starsHTML = "";
-                  for (let i = 1; i <= 5; i++) {
-                    if (i <= rounded) {
-                      starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-                    } else {
-                      starsHTML += `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-                    }
-                  }
-                  if (starsEl) {
-                    starsEl.innerHTML = starsHTML;
-                  }
-                  if (reviewsCountEl) {
-                    reviewsCountEl.textContent = `(${count})`;
-                  }
-                  if (reviewsRowEl) {
-                    reviewsRowEl.style.opacity = '1';
-                  }
-                }
-              } catch (err) {
-                console.error("Error loading reviews for product card:", err);
-              }
-            };
-            loadCardReviews();
-
-            // Safe price text element configuration (handles discount layout)
-            const priceBlockEl = card.querySelector('.hp-price-block');
-            const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
-            if (hasDiscount) {
-              const salePrice = Math.round(p.price * 0.95);
-              priceBlockEl.innerHTML = `
-                <span class="sale-price">R${formatPrice(salePrice)}</span>
-                <span class="original-price">R${formatPrice(p.price)}</span>
-              `;
-            } else {
-              priceBlockEl.innerHTML = `
-                <span class="sale-price">R${formatPrice(p.price)}</span>
-              `;
-            }
-
-            // Safe button actions mapping
-            const btn = card.querySelector('.add-to-cart');
-            if (p.stock > 0) {
-              if (p.isBundle) {
-                btn.innerHTML = `
-                  <svg class="cart-icon" style="width: 12px; height: 12px;" viewBox="0 0 30 30" fill="none">
-                    <rect x="7" y="12" width="16" height="11" fill="none" stroke="currentColor" stroke-width="2"/>
-                    <path d="M10 12 V7 H20 V12" fill="none" stroke="currentColor" stroke-width="2"/>
-                  </svg>
-                  <span>CREATE BUNDLE</span>
-                `;
-                btn.disabled = false;
-                btn.style.opacity = "";
-                btn.style.cursor = "pointer";
-                btn.setAttribute('onclick', `window.location.href='${p.url}'`);
-              } else {
-                btn.innerHTML = `
-                  <svg class="cart-icon" style="width: 12px; height: 12px;" viewBox="0 0 30 30" fill="none">
-                    <rect x="7" y="12" width="16" height="11" fill="none" stroke="currentColor" stroke-width="2"/>
-                    <path d="M10 12 V7 H20 V12" fill="none" stroke="currentColor" stroke-width="2"/>
-                  </svg>
-                  <span>ADD TO BAG</span>
-                `;
-                btn.disabled = false;
-                btn.style.opacity = "";
-                btn.style.cursor = "";
-                btn.setAttribute('onclick', `addToCart('${p.id}')`);
-              }
-            } else {
-              btn.innerHTML = `<span>OUT OF STOCK</span>`;
-              btn.disabled = true;
-              btn.style.opacity = "0.5";
-              btn.style.cursor = "not-allowed";
-            }
-
-            // Safe stock status / urgency mapping with dot indicator
-            const stockStatusEl = card.querySelector('.hp-stock-status');
-            if (stockStatusEl) {
-              stockStatusEl.style.display = 'none';
-            }
-
-            grid.appendChild(card);
           });
+        }
 
-          // Safe placeholder items mapping
-          const placeholdersNeeded = Math.max(0, 5 - displayProducts.length);
-          for (let i = 0; i < placeholdersNeeded; i++) {
-            const card = document.createElement('div');
-            card.className = "home-product-card";
-            card.innerHTML = `
-              <div class="hp-box"></div>
-              <div class="hp-info">
-                <h3 class="hp-title placeholder">AWAITING REVEAL</h3>
-                <div class="hp-price-action-row">
-                  <div class="hp-price-block placeholder">
-                    <span class="sale-price">R0</span>
-                  </div>
-                  <button class="add-to-cart" disabled>COMING SOON</button>
-                </div>
-              </div>
-            `;
-            grid.appendChild(card);
+        const formatBrandName = (brandName) => {
+          if (!brandName) return "";
+          return brandName.replace(/\w\S*/g, (txt) => {
+            const lower = txt.toLowerCase();
+            if (lower === 'jpg') return 'JPG';
+            if (lower === 'le') return 'Le';
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+          });
+        };
+
+        const buildCardHtml = (p) => {
+          const rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
+          const tSrc = getThumbnailImageUrl(p.image, p.image_thumb);
+          const inspiredMatch = rawName.match(/^inspired\s+by\s+(.+)/i);
+
+          let inspiredHtml = '';
+          let titleText = rawName;
+          if (inspiredMatch || p.id.startsWith("inspired-by-")) {
+            const fragranceName = inspiredMatch ? inspiredMatch[1] : rawName;
+            titleText = p.nameShort || rawName;
+            inspiredHtml = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}</i>`;
           }
 
-          // Append a dynamic, black box "VIEW CATALOG" card with arrow at the end of the scroll line on mobile
-          if (isMobile) {
-            const viewMoreCard = document.createElement('div');
-            viewMoreCard.className = "home-product-card mobile-view-more-card";
-            viewMoreCard.innerHTML = `
-              <a href="catalog.html" style="text-decoration:none; color:inherit; display:block;">
-                <div class="hp-box" style="background: #000; border: 1px solid #000; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; transition: background 0.3s ease;">
-                  <span style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #fff;">VIEW CATALOG</span>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                  </svg>
+          let starsHtml = '';
+          let reviewsCountText = '(0)';
+          let reviewsOpacity = '0.35';
+          const rStat = reviewStatsMap[p.id];
+          if (rStat && rStat.count > 0) {
+            const avg = rStat.total / rStat.count;
+            const rounded = Math.round(avg);
+            reviewsCountText = `(${rStat.count})`;
+            reviewsOpacity = '1';
+            for (let i = 1; i <= 5; i++) {
+              if (i <= rounded) {
+                starsHtml += `<svg width="13" height="13" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+              } else {
+                starsHtml += `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+              }
+            }
+          } else {
+            starsHtml = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`.repeat(5);
+          }
+
+          let priceHtml = '';
+          if (hasDiscount) {
+            const salePrice = Math.round(p.price * 0.95);
+            priceHtml = `<span class="sale-price">R${formatPrice(salePrice)}</span><span class="original-price">R${formatPrice(p.price)}</span>`;
+          } else {
+            priceHtml = `<span class="sale-price">R${formatPrice(p.price)}</span>`;
+          }
+
+          let btnHtml = '';
+          if (p.stock > 0) {
+            if (p.isBundle) {
+              btnHtml = `<button class="add-to-cart" onclick="window.location.href='${p.url}'"><svg class="cart-icon" style="width: 12px; height: 12px;" viewBox="0 0 30 30" fill="none"><rect x="7" y="12" width="16" height="11" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 12 V7 H20 V12" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>CREATE BUNDLE</span></button>`;
+            } else {
+              btnHtml = `<button class="add-to-cart" onclick="addToCart('${p.id}')"><svg class="cart-icon" style="width: 12px; height: 12px;" viewBox="0 0 30 30" fill="none"><rect x="7" y="12" width="16" height="11" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 12 V7 H20 V12" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>ADD TO BAG</span></button>`;
+            }
+          } else {
+            btnHtml = `<button class="add-to-cart" disabled style="opacity: 0.5; cursor: not-allowed;"><span>OUT OF STOCK</span></button>`;
+          }
+
+          return `
+            <div class="home-product-card">
+              <a href="${p.url}" class="product-link-anchor" style="text-decoration:none; color:inherit; display:block;">
+                <div class="hp-box">
+                  ${tSrc ? `<img class="product-img" loading="lazy" src="${tSrc}" alt="${rawName}">` : ''}
                 </div>
               </a>
-              <div class="hp-info" style="margin-top: 10px; text-align: center;">
-                <a href="catalog.html" style="text-decoration:none; color:inherit; display:block;">
-                  <div style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 9px; opacity: 0.8; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; color: #1a1a1a;">EXPLORE CATALOG</div>
+              <div class="hp-info">
+                <a href="${p.url}" class="product-link-anchor-2" style="text-decoration:none; color:inherit; display:block;">
+                  <h3 class="hp-title" style="font-size:12px; color:#111; font-family:'Gotham Narrow Bold', sans-serif; font-weight:700; display:block; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:2px;">${titleText}</h3>
+                  <div class="hp-type" style="font-family: Georgia, serif; font-style: italic; font-size: 9px; opacity: 0.6; color: #555; letter-spacing: 0.5px; margin-top: 1px; margin-bottom: 6px; display: block;">Extrait de Parfum</div>
+                  <div class="hp-inspired">${inspiredHtml}</div>
+                  <div class="hp-reviews-row" style="opacity: ${reviewsOpacity}; margin-top: 4px;">
+                    <span class="hp-stars">${starsHtml}</span>
+                    <span class="hp-reviews-count">${reviewsCountText}</span>
+                  </div>
                 </a>
+                <div class="hp-price-action-row">
+                  <div class="hp-price-block">${priceHtml}</div>
+                  ${btnHtml}
+                </div>
               </div>
-            `;
-            grid.appendChild(viewMoreCard);
+            </div>
+          `;
+        };
+
+        const buildPlaceholderHtml = () => `
+          <div class="home-product-card">
+            <div class="hp-box"></div>
+            <div class="hp-info">
+              <h3 class="hp-title placeholder">AWAITING REVEAL</h3>
+              <div class="hp-price-action-row">
+                <div class="hp-price-block placeholder"><span class="sale-price">R0</span></div>
+                <button class="add-to-cart" disabled>COMING SOON</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const viewMoreCardHtml = `
+          <div class="home-product-card mobile-view-more-card">
+            <a href="catalog.html" style="text-decoration:none; color:inherit; display:block;">
+              <div class="hp-box" style="background: #000; border: 1px solid #000; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; transition: background 0.3s ease;">
+                <span style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #fff;">VIEW CATALOG</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </div>
+            </a>
+            <div class="hp-info" style="margin-top: 10px; text-align: center;">
+              <a href="catalog.html" style="text-decoration:none; color:inherit; display:block;">
+                <div style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 9px; opacity: 0.8; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; color: #1a1a1a;">EXPLORE CATALOG</div>
+              </a>
+            </div>
+          </div>
+        `;
+
+        // Render Top Grid
+        if (topGrid) {
+          let html = activeProducts.map(buildCardHtml).join('');
+          const placeholdersNeeded = Math.max(0, 5 - activeProducts.length);
+          for (let i = 0; i < placeholdersNeeded; i++) {
+            html += buildPlaceholderHtml();
           }
-        });
+          if (isMobile) html += viewMoreCardHtml;
+          topGrid.innerHTML = html;
+        }
+
+        // Render Second Grid (Reversed/Curated order for variety)
+        if (secondGrid) {
+          const secondProducts = activeProducts.length > 3 ? [...activeProducts].reverse() : activeProducts;
+          let html = secondProducts.map(buildCardHtml).join('');
+          const placeholdersNeeded = Math.max(0, 5 - secondProducts.length);
+          for (let i = 0; i < placeholdersNeeded; i++) {
+            html += buildPlaceholderHtml();
+          }
+          if (isMobile) html += viewMoreCardHtml;
+          secondGrid.innerHTML = html;
+        }
+
+        if (typeof window.updateLogoPosition === 'function') {
+          window.updateLogoPosition();
+        }
+      };
 
         // Re-measure sticky logo position targets after rendering product cards
         if (typeof window.updateLogoPosition === 'function') {
