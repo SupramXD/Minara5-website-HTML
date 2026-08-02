@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" translate="no">
+<html lang="en" translate="no" class="notranslate">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -3089,7 +3089,8 @@ window.openCart = function() {
                         dataImg: c.image_data || (c.image && c.image.startsWith("data:") ? c.image : ""),
                         fallbackImg: defaultFallback,
                         title: c.label || "Custom Option",
-                        priceExtra: extra
+                        priceExtra: extra,
+                        stock: c.stock !== undefined && c.stock !== null ? Number(c.stock) : null
                     });
                 });
             } else {
@@ -3209,9 +3210,15 @@ window.openCart = function() {
             };
 
             options.forEach(opt => {
+                const isOptOutOfStock = opt.stock !== undefined && opt.stock !== null && Number(opt.stock) <= 0;
                 const box = document.createElement("div");
-                box.className = "bottle-custom-box" + (window.selectedBottleCustomisation === opt.label ? " active" : "");
-                box.title = opt.title;
+                box.className = "bottle-custom-box" + (window.selectedBottleCustomisation === opt.label ? " active" : "") + (isOptOutOfStock ? " out-of-stock" : "");
+                box.title = isOptOutOfStock ? `${opt.title} (Out of Stock)` : opt.title;
+                if (isOptOutOfStock) {
+                    box.style.opacity = "0.35";
+                    box.style.cursor = "not-allowed";
+                    box.style.position = "relative";
+                }
 
                 const displayThumb = (opt.thumbImg && opt.thumbImg.trim()) ? opt.thumbImg.trim() : (opt.fallbackImg || "");
 
@@ -3236,7 +3243,18 @@ window.openCart = function() {
                     box.appendChild(blankEl);
                 }
 
+                if (isOptOutOfStock) {
+                    const oosBadge = document.createElement("div");
+                    oosBadge.style.cssText = "position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.85); color: #fff; font-size: 7px; font-weight: bold; text-align: center; padding: 2px 0; text-transform: uppercase; letter-spacing: 0.5px; z-index: 2;";
+                    oosBadge.textContent = "OUT OF STOCK";
+                    box.appendChild(oosBadge);
+                }
+
                 box.onclick = () => {
+                    if (isOptOutOfStock) {
+                        alert(`Sorry, the customisation option "${opt.label}" is currently out of stock.`);
+                        return;
+                    }
                     window.selectedBottleCustomisation = opt.label;
                     const labelText = opt.label;
                     if (labelSpan) labelSpan.textContent = labelText;
@@ -3898,6 +3916,12 @@ window.openCart = function() {
                 console.error("products.json details background load failed:", dbErr);
             }
         }, 0);
+
+        window.addEventListener('minara_stock_updated', () => {
+            if (typeof loadLocalProduct === 'function') {
+                loadLocalProduct();
+            }
+        });
 
         window.addEventListener("minaraDiscountActivated", () => {
             if (product) {

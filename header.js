@@ -3251,5 +3251,140 @@ function applyCustomText(data) {
     }
 })();
 
+/* =========================================================
+   CENTRALIZED STOCK MANAGEMENT, RESERVATION & ROLLBACK SYSTEM
+   ========================================================= */
+
+// 1. Reserve and deduct stock when customer proceeds in checkout
+window.reserveAndDeductStock = function(cartItems, paymentReference) {
+  if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) return;
+
+  try {
+    let localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+    let reservationItems = [];
+
+    cartItems.forEach(item => {
+      const pIdx = localProds.findIndex(p => p.id === item.id);
+      if (pIdx > -1) {
+        const prod = localProds[pIdx];
+        const qty = Number(item.quantity) || 1;
+
+        // Deduct main product stock
+        const oldStock = Number(prod.stock) || 0;
+        prod.stock = Math.max(0, oldStock - qty);
+
+        let custLabel = item.bottleCustomisation || null;
+        if (custLabel && prod.customisations && Array.isArray(prod.customisations)) {
+          const cIdx = prod.customisations.findIndex(c => (c.label || '').toUpperCase().trim() === custLabel.toUpperCase().trim());
+          if (cIdx > -1) {
+            const cust = prod.customisations[cIdx];
+            if (cust.stock !== undefined && cust.stock !== null) {
+              const oldCustStock = Number(cust.stock) || 0;
+              cust.stock = Math.max(0, oldCustStock - qty);
+            }
+          }
+        }
+
+        reservationItems.push({
+          productId: item.id,
+          bottleCustomisation: custLabel,
+          quantity: qty
+        });
+      }
+    });
+
+    // Save updated products back to localStorage
+    localStorage.setItem("minara_products", JSON.stringify(localProds));
+
+    // Save reservation tracking record
+    const reservationRecord = {
+      reference: paymentReference || ("PAY_" + Date.now()),
+      timestamp: Date.now(),
+      status: 'pending',
+      items: reservationItems
+    };
+    localStorage.setItem("minara_pending_stock_reservation", JSON.stringify(reservationRecord));
+
+    console.log("✓ Reserved and deducted stock for items:", reservationItems);
+    window.dispatchEvent(new CustomEvent('minara_stock_updated'));
+  } catch (err) {
+    console.error("Failed to reserve and deduct stock:", err);
+  }
+};
+
+// 2. Rollback stock if Paystack payment was NOT confirmed (cancellation, navigation back, failure)
+window.checkAndRollbackPendingStock = function(forceRollback = false) {
+  try {
+    const reservationStr = localStorage.getItem('minara_pending_stock_reservation');
+    if (!reservationStr) return;
+    const reservation = JSON.parse(reservationStr);
+    if (!reservation || reservation.status !== 'pending') return;
+
+    // Do NOT roll back on success.html
+    if (window.location.pathname.includes('success.html')) {
+      return;
+    }
+
+    let localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+    let updated = false;
+
+    if (reservation.items && Array.isArray(reservation.items)) {
+      reservation.items.forEach(item => {
+        const prod = localProds.find(p => p.id === item.productId);
+        if (prod) {
+          const qty = Number(item.quantity) || 1;
+          prod.stock = (Number(prod.stock) || 0) + qty;
+          updated = true;
+
+          if (item.bottleCustomisation && prod.customisations && Array.isArray(prod.customisations)) {
+            const cust = prod.customisations.find(c => (c.label || '').toUpperCase().trim() === item.bottleCustomisation.toUpperCase().trim());
+            if (cust && cust.stock !== undefined && cust.stock !== null) {
+              cust.stock = (Number(cust.stock) || 0) + qty;
+            }
+          }
+        }
+      });
+    }
+
+    if (updated) {
+      localStorage.setItem("minara_products", JSON.stringify(localProds));
+      console.log("✓ Rolled back (returned) stock for unconfirmed checkout reference:", reservation.reference);
+    }
+
+    reservation.status = 'rolled_back';
+    localStorage.setItem('minara_pending_stock_reservation', JSON.stringify(reservation));
+    window.dispatchEvent(new CustomEvent('minara_stock_updated'));
+  } catch (err) {
+    console.error("Stock rollback error:", err);
+  }
+};
+
+// 3. Finalize stock reservation when purchase is confirmed on success.html
+window.finalizeStockReservation = function() {
+  try {
+    const reservationStr = localStorage.getItem('minara_pending_stock_reservation');
+    if (!reservationStr) return;
+    const reservation = JSON.parse(reservationStr);
+    if (reservation && reservation.status === 'pending') {
+      reservation.status = 'completed';
+      localStorage.setItem('minara_pending_stock_reservation', JSON.stringify(reservation));
+      console.log("✓ Stock reservation finalized for reference:", reservation.reference);
+    }
+  } catch (err) {
+    console.error("Stock finalization error:", err);
+  }
+};
+
+// Automatically run stock rollback check on page load if not on success page
+if (typeof window !== 'undefined') {
+  if (window.location.pathname.includes('cancel.html')) {
+    window.checkAndRollbackPendingStock(true);
+  } else if (!window.location.pathname.includes('success.html')) {
+    window.checkAndRollbackPendingStock(false);
+  } else {
+    window.finalizeStockReservation();
+  }
+}
+
 
 

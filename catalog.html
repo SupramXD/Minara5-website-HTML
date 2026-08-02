@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" translate="no">
+<html lang="en" translate="no" class="notranslate">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -476,6 +476,11 @@ nav ul li a:hover{opacity:0.6;}
     .product-box {
         max-width: none;
         aspect-ratio: 3 / 4;
+    }
+    .product-box img,
+    .product-img {
+        object-fit: cover !important;
+        object-position: center !important;
     }
     .catalog-main {
         padding: 80px 24px 60px;
@@ -1550,6 +1555,11 @@ function updateCartCount(count){
         // Load local cache and render instantly!
         loadLocalProducts();
         renderGrid();
+
+        window.addEventListener('minara_stock_updated', () => {
+            loadLocalProducts();
+            renderGrid();
+        });
 
         // 2. Fetch custom products from products.json in background
         setTimeout(async () => {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" translate="no">
+<html lang="en" translate="no" class="notranslate">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -2885,7 +2885,12 @@
               
               const stockTd = document.createElement('td');
               stockTd.id = `stock-level-${p.id}`;
-              stockTd.textContent = `${p.stock} units`;
+              let stockText = `${p.stock} units`;
+              if (p.customisations && Array.isArray(p.customisations) && p.customisations.length > 0) {
+                  const custBreakdown = p.customisations.map(c => `${c.label || 'OPT'}: ${c.stock !== undefined && c.stock !== null ? c.stock : '∞'}`).join(', ');
+                  stockText += `<br><span style="font-size: 9px; opacity: 0.7; font-weight: normal; color: var(--text-muted);">${custBreakdown}</span>`;
+              }
+              stockTd.innerHTML = stockText;
               tr.appendChild(stockTd);
               
               // Sort Order cell
@@ -3782,6 +3787,7 @@
 
         const imgPreview = block.image_thumb || block.image || block.image_data;
         const extraVal = block.priceExtra !== undefined && block.priceExtra !== null ? block.priceExtra : ((block.label || '').toUpperCase().includes('PREMIUM') ? 145 : 0);
+        const stockVal = block.stock !== undefined && block.stock !== null ? block.stock : '';
 
         itemDiv.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -3793,9 +3799,13 @@
               <label style="font-size: 10px; opacity: 0.8;">Option Name / Label (e.g. STANDARD, PREMIUM)</label>
               <input type="text" value="${block.label || ''}" oninput="updateCustomisationBlockLabel(${idx}, this.value)" class="form-input" style="background:#1a1a24; color:#fff;" placeholder="Option Label">
             </div>
-            <div class="form-group" style="margin-bottom: 0; width: 110px;">
+            <div class="form-group" style="margin-bottom: 0; width: 95px;">
               <label style="font-size: 10px; opacity: 0.8;">Price Extra (R)</label>
               <input type="number" value="${extraVal}" oninput="updateCustomisationBlockPriceExtra(${idx}, this.value)" class="form-input" style="background:#1a1a24; color:#fff;" min="0">
+            </div>
+            <div class="form-group" style="margin-bottom: 0; width: 95px;">
+              <label style="font-size: 10px; opacity: 0.8;">Option Stock</label>
+              <input type="number" value="${stockVal}" oninput="updateCustomisationBlockStock(${idx}, this.value)" class="form-input" style="background:#1a1a24; color:#fff;" min="0" placeholder="e.g. 10">
             </div>
           </div>
           <div style="display: flex; gap: 12px; align-items: center;">
@@ -3824,13 +3834,21 @@
       }
     };
 
+    window.updateCustomisationBlockStock = function(idx, val) {
+      if (window.currentEditCustomisations && window.currentEditCustomisations[idx]) {
+        const trimmed = (val || '').toString().trim();
+        window.currentEditCustomisations[idx].stock = trimmed === "" ? null : (parseInt(trimmed, 10) || 0);
+      }
+    };
+
     window.addEditCustomisationBlock = function() {
       if (!window.currentEditCustomisations) window.currentEditCustomisations = [];
       window.currentEditCustomisations.push({
         label: "OPTION " + (window.currentEditCustomisations.length + 1),
         image: "",
         image_thumb: "",
-        priceExtra: 0
+        priceExtra: 0,
+        stock: 10
       });
       window.renderEditCustomisationBlocks();
     };

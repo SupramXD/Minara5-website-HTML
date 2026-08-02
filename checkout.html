@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" translate="no">
+<html lang="en" translate="no" class="notranslate">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -2072,6 +2072,11 @@
       }
 
       if (resData && resData.success && resData.authorization_url) {
+        // Reserve & deduct stock when user proceeds to Paystack
+        if (typeof window.reserveAndDeductStock === "function") {
+          window.reserveAndDeductStock(activeItems, resData.reference);
+        }
+
         localStorage.setItem('minara_last_order', JSON.stringify({
           paymentId: resData.reference,
           firstName,
