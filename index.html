@@ -2839,12 +2839,6 @@
         }
       };
 
-        // Re-measure sticky logo position targets after rendering product cards
-        if (typeof window.updateLogoPosition === 'function') {
-          window.updateLogoPosition();
-        }
-      };
-
       // Load local cache and render instantly!
       loadLocalProducts();
       renderGrid();
