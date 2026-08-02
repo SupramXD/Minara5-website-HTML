@@ -2538,7 +2538,9 @@
       const formatRetailPrice = val => {
         if (val === undefined || val === null || isNaN(val)) return "0";
         const cleanVal = Math.round(Number(val)).toString();
-        return cleanVal.replace(/\B(?=(\d{3})+(?!\d))/g, ",");      const grids = document.querySelectorAll('.home-products-list');
+        return cleanVal.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      };
+      const grids = document.querySelectorAll('.home-products-list');
       if (!grids || grids.length === 0) return;
 
       // Default products list starting empty to load purely dynamic products
