@@ -3081,9 +3081,11 @@ window.openCart = function() {
 
                     console.log(`[Bottle Customisation] Product "${p.name}": Option #${idx + 1} "${lbl}" -> Image: "${mainImg ? mainImg.substring(0, 50) + '...' : 'EMPTY'}", PriceExtra: +R${extra}`);
 
+                    const optSize = c.size || c.ml || (lbl.includes("50ML") ? "50ml" : "100ml");
                     options.push({
                         id: (c.label || "option").toLowerCase().replace(/[^a-z0-9]+/g, '_'),
                         label: lbl,
+                        size: optSize,
                         img: mainImg,
                         thumbImg: thumbImg,
                         dataImg: c.image_data || (c.image && c.image.startsWith("data:") ? c.image : ""),
@@ -3248,6 +3250,11 @@ window.openCart = function() {
                     oosBadge.style.cssText = "position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.85); color: #fff; font-size: 7px; font-weight: bold; text-align: center; padding: 2px 0; text-transform: uppercase; letter-spacing: 0.5px; z-index: 2;";
                     oosBadge.textContent = "OUT OF STOCK";
                     box.appendChild(oosBadge);
+                } else if (opt.stock !== undefined && opt.stock !== null && Number(opt.stock) > 0 && Number(opt.stock) <= 3) {
+                    const lowStockBadge = document.createElement("div");
+                    lowStockBadge.style.cssText = "position: absolute; bottom: 0; left: 0; right: 0; background: rgba(180, 83, 9, 0.95); color: #fff; font-size: 7px; font-weight: bold; text-align: center; padding: 2px 0; text-transform: uppercase; letter-spacing: 0.5px; z-index: 2;";
+                    lowStockBadge.textContent = `ONLY ${opt.stock} LEFT`;
+                    box.appendChild(lowStockBadge);
                 }
 
                 box.onclick = () => {
@@ -3262,20 +3269,21 @@ window.openCart = function() {
                     siblingBoxes.forEach(b => b.classList.remove("active"));
                     box.classList.add("active");
 
-                    // If premium, automatically select 100ml size
-                    if (opt.label.toUpperCase().includes("PREMIUM")) {
+                    // If customisation has a specified size (e.g. 50ml or 100ml), select that size automatically
+                    const targetSize = opt.size || (opt.label.toUpperCase().includes("50ML") ? "50ml" : "100ml");
+                    if (targetSize) {
                         const sizeBtns = document.querySelectorAll(".size-picker-btn");
-                        let clicked100ml = false;
+                        let clickedSize = false;
                         sizeBtns.forEach(btn => {
-                            if (btn.textContent.trim().toUpperCase() === "100ML") {
+                            if (btn.textContent.trim().toUpperCase() === targetSize.toUpperCase()) {
                                 btn.click();
-                                clicked100ml = true;
+                                clickedSize = true;
                             }
                         });
-                        if (!clicked100ml) {
-                            window.selectedProductSize = "100ml";
+                        if (!clickedSize) {
+                            window.selectedProductSize = targetSize;
                             const sizeTextEl = document.getElementById('selectedSizeText');
-                            if (sizeTextEl) sizeTextEl.textContent = "100ML";
+                            if (sizeTextEl) sizeTextEl.textContent = targetSize.toUpperCase();
                         }
                     }
 

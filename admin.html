@@ -3788,6 +3788,7 @@
         const imgPreview = block.image_thumb || block.image || block.image_data;
         const extraVal = block.priceExtra !== undefined && block.priceExtra !== null ? block.priceExtra : ((block.label || '').toUpperCase().includes('PREMIUM') ? 145 : 0);
         const stockVal = block.stock !== undefined && block.stock !== null ? block.stock : '';
+        const sizeVal = block.size || block.ml || ((block.label || '').toUpperCase().includes('50ML') ? '50ml' : '100ml');
 
         itemDiv.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -3796,14 +3797,18 @@
           </div>
           <div style="display: flex; gap: 10px;">
             <div class="form-group" style="margin-bottom: 0; flex: 1;">
-              <label style="font-size: 10px; opacity: 0.8;">Option Name / Label (e.g. STANDARD, PREMIUM)</label>
+              <label style="font-size: 10px; opacity: 0.8;">Option Label (e.g. STANDARD, PREMIUM)</label>
               <input type="text" value="${block.label || ''}" oninput="updateCustomisationBlockLabel(${idx}, this.value)" class="form-input" style="background:#1a1a24; color:#fff;" placeholder="Option Label">
             </div>
-            <div class="form-group" style="margin-bottom: 0; width: 95px;">
+            <div class="form-group" style="margin-bottom: 0; width: 85px;">
+              <label style="font-size: 10px; opacity: 0.8;">Size / ml</label>
+              <input type="text" value="${sizeVal}" oninput="updateCustomisationBlockSize(${idx}, this.value)" class="form-input" style="background:#1a1a24; color:#fff;" placeholder="e.g. 100ml">
+            </div>
+            <div class="form-group" style="margin-bottom: 0; width: 85px;">
               <label style="font-size: 10px; opacity: 0.8;">Price Extra (R)</label>
               <input type="number" value="${extraVal}" oninput="updateCustomisationBlockPriceExtra(${idx}, this.value)" class="form-input" style="background:#1a1a24; color:#fff;" min="0">
             </div>
-            <div class="form-group" style="margin-bottom: 0; width: 95px;">
+            <div class="form-group" style="margin-bottom: 0; width: 85px;">
               <label style="font-size: 10px; opacity: 0.8;">Option Stock</label>
               <input type="number" value="${stockVal}" oninput="updateCustomisationBlockStock(${idx}, this.value)" class="form-input" style="background:#1a1a24; color:#fff;" min="0" placeholder="e.g. 10">
             </div>
@@ -3828,6 +3833,12 @@
       }
     };
 
+    window.updateCustomisationBlockSize = function(idx, val) {
+      if (window.currentEditCustomisations && window.currentEditCustomisations[idx]) {
+        window.currentEditCustomisations[idx].size = (val || '').trim();
+      }
+    };
+
     window.updateCustomisationBlockPriceExtra = function(idx, val) {
       if (window.currentEditCustomisations && window.currentEditCustomisations[idx]) {
         window.currentEditCustomisations[idx].priceExtra = parseFloat(val) || 0;
@@ -3845,6 +3856,7 @@
       if (!window.currentEditCustomisations) window.currentEditCustomisations = [];
       window.currentEditCustomisations.push({
         label: "OPTION " + (window.currentEditCustomisations.length + 1),
+        size: "100ml",
         image: "",
         image_thumb: "",
         priceExtra: 0,
