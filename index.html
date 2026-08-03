@@ -11,10 +11,9 @@
   <link rel="preload" href="Gotham Narrow Bold.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="minara 5 transparent 2.svg" as="image" type="image/svg+xml">
   <link rel="preload" href="minara 5 transparent.svg" as="image" type="image/svg+xml">
-  <!-- Preload device-specific hero images to speed up top-of-page LCP -->
-  <link rel="preload" href="images/hero/left.avif" as="image" type="image/avif" media="(min-width: 901px)" fetchpriority="high">
-  <link rel="preload" href="images/hero/mobile.avif" as="image" type="image/avif" media="(max-width: 900px)" fetchpriority="high">
-  <link rel="preload" href="products.json" as="fetch" type="application/json" crossorigin>
+  <!-- Preload device-specific hero images to speed up LCP -->
+  <link rel="preload" href="images/hero/left.avif" as="image" type="image/avif" media="(min-width: 901px)">
+  <link rel="preload" href="images/hero/mobile.avif" as="image" type="image/avif" media="(max-width: 900px)">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
 
@@ -2627,10 +2626,10 @@
       let products = [];
       let allReviews = [];
 
-      // Non-blocking fetch for reviews.json with browser HTTP caching
+      // Fetch reviews from reviews.json once to avoid per-card queries
       const loadStaticReviews = async () => {
         try {
-          const res = await fetch("reviews.json");
+          const res = await fetch("reviews.json?t=" + Date.now());
           if (res.ok) {
             allReviews = await res.json();
           }
@@ -2638,7 +2637,7 @@
           console.warn("Failed to fetch reviews.json for catalog:", err);
         }
 
-        // Merge local session reviews
+        // Merge local session reviews so user's own submissions show up instantly
         try {
           const sessionReviews = JSON.parse(sessionStorage.getItem("my_session_reviews") || "[]");
           sessionReviews.forEach(sr => {
@@ -2656,10 +2655,8 @@
         } catch (e) {
           console.error("Failed to merge session reviews:", e);
         }
-
-        // Update grid with review ratings once loaded
-        renderGrid();
       };
+      await loadStaticReviews();
 
       // 1. Fetch custom products from local storage
       const loadLocalProducts = () => {
@@ -2845,7 +2842,7 @@
           });
         };
 
-        const buildCardHtml = (p, cardIndex) => {
+        const buildCardHtml = (p) => {
           const rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
           const tSrc = getThumbnailImageUrl(p.image, p.image_thumb);
           const inspiredMatch = rawName.match(/^inspired\s+by\s+(.+)/i);
@@ -2858,19 +2855,15 @@
             inspiredHtml = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}</i>`;
           }
 
-
-          const pStats = reviewStatsMap[p.id];
-          const reviewCount = pStats ? pStats.count : 0;
-          const avgRating = pStats && pStats.count > 0 ? (pStats.total / pStats.count) : 0;
-
           let starsHtml = '';
-          let reviewsCountText = `(0)`;
-          let reviewsOpacity = 0.5;
-
-          if (reviewCount > 0) {
-            reviewsCountText = `(${reviewCount})`;
-            reviewsOpacity = 1.0;
-            const rounded = Math.round(avgRating);
+          let reviewsCountText = '(0)';
+          let reviewsOpacity = '0.35';
+          const rStat = reviewStatsMap[p.id];
+          if (rStat && rStat.count > 0) {
+            const avg = rStat.total / rStat.count;
+            const rounded = Math.round(avg);
+            reviewsCountText = `(${rStat.count})`;
+            reviewsOpacity = '1';
             for (let i = 1; i <= 5; i++) {
               if (i <= rounded) {
                 starsHtml += `<svg width="13" height="13" viewBox="0 0 24 24" fill="#cea44c" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
@@ -2901,13 +2894,11 @@
             btnHtml = `<button class="add-to-cart" disabled style="opacity: 0.5; cursor: not-allowed;"><span>OUT OF STOCK</span></button>`;
           }
 
-          const loadingAttr = (cardIndex !== undefined && cardIndex < 4) ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
-
           return `
             <div class="home-product-card">
               <a href="${p.url}" class="product-link-anchor" style="text-decoration:none; color:inherit; display:block;">
                 <div class="hp-box">
-                  ${tSrc ? `<img class="product-img" ${loadingAttr} decoding="async" src="${tSrc}" alt="${rawName}">` : ''}
+                  ${tSrc ? `<img class="product-img" loading="lazy" decoding="async" src="${tSrc}" alt="${rawName}">` : ''}
                 </div>
               </a>
               <div class="hp-info">
@@ -2957,7 +2948,7 @@
         `;
 
         // Generate Top Grid HTML string
-        let topHtml = activeProducts.map((p, idx) => buildCardHtml(p, idx)).join('');
+        let topHtml = activeProducts.map(buildCardHtml).join('');
         const placeholdersNeeded = Math.max(0, 5 - activeProducts.length);
         for (let i = 0; i < placeholdersNeeded; i++) {
           topHtml += buildPlaceholderHtml();
@@ -2967,7 +2958,7 @@
 
         // Generate Second Grid HTML string
         const secondProducts = activeProducts.length > 3 ? [...activeProducts].reverse() : activeProducts;
-        let secondHtml = secondProducts.map((p, idx) => buildCardHtml(p, idx)).join('');
+        let secondHtml = secondProducts.map(buildCardHtml).join('');
         const placeholdersNeededSec = Math.max(0, 5 - secondProducts.length);
         for (let i = 0; i < placeholdersNeededSec; i++) {
           secondHtml += buildPlaceholderHtml();
@@ -2975,14 +2966,32 @@
         if (isMobile) secondHtml += viewMoreCardHtml;
         secondGridHtml = secondHtml;
 
-        // Always mount top grid immediately for instant initial page render
-        mountTopGrid();
-
-        // Check second grid visibility asynchronously without forcing reflow
+        // Apply HTML based on visibility
         if (!productObserver) {
+          if (topGrid) topGrid.innerHTML = topGridHtml;
           if (secondGrid) secondGrid.innerHTML = secondGridHtml;
-        } else if (secondSection && secondSectionIntersecting) {
-          mountSecondGrid();
+        } else {
+          // Check top grid visibility
+          if (topSection) {
+            const rect = topSection.getBoundingClientRect();
+            const inViewport = rect.top <= window.innerHeight + 300 && rect.bottom >= -300;
+            if (inViewport || topSectionIntersecting) {
+              mountTopGrid();
+            } else {
+              unmountTopGrid();
+            }
+          }
+
+          // Check second grid visibility
+          if (secondSection) {
+            const rectSec = secondSection.getBoundingClientRect();
+            const inViewportSec = rectSec.top <= window.innerHeight + 300 && rectSec.bottom >= -300;
+            if (inViewportSec || secondSectionIntersecting) {
+              mountSecondGrid();
+            } else {
+              unmountSecondGrid();
+            }
+          }
         }
       };
 
@@ -2995,11 +3004,8 @@
         renderGrid();
       });
 
-      // Fetch static reviews in background after top site has rendered
-      setTimeout(loadStaticReviews, 200);
-
-      // 2. Fetch custom products from products.json immediately
-      const fetchProducts = async () => {
+      // 2. Fetch custom products from products.json in background
+      setTimeout(async () => {
         try {
           const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error("Static products query timed out")), 10000)
@@ -3138,7 +3144,7 @@
       // 3. Fetch hero settings from local JSON file
       setTimeout(async () => {
         try {
-          const response = await fetch("hero_settings.json");
+          const response = await fetch("hero_settings.json?t=" + Date.now());
           if (response.ok) {
             const data = await response.json();
             const liveSettings = {
@@ -3185,7 +3191,7 @@
       // Fetch second hero settings from local json file
       setTimeout(async () => {
         try {
-          const response = await fetch("second_hero_settings.json");
+          const response = await fetch("second_hero_settings.json?t=" + Date.now());
           if (response.ok) {
             const data = await response.json();
             const liveSettings = {
