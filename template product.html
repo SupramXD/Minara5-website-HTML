@@ -1749,7 +1749,6 @@ footer{
     <a href="catalog.html?gender=women" class="desktop-only" style="margin-left:22px;">women</a>
     <a href="catalog.html?gender=unisex" class="desktop-only" style="margin-left:22px;">unisex</a>
     <a href="social media.html" class="desktop-only" style="margin-left:22px;">SOCIALS</a>
-    <span class="under-construction-badge">Website Under construction</span>
     <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
   </div>
 
@@ -3318,7 +3317,7 @@ window.openCart = function() {
                     box.classList.add("active");
 
                     // If customisation has a specified size (e.g. 50ml or 100ml), select that size automatically
-                    const targetSize = opt.size || (opt.label.toUpperCase().includes("50ML") ? "50ml" : "100ml");
+                    const targetSize = opt.size || (opt.label.toUpperCase().includes("100ML") ? "100ml" : "50ml");
                     if (targetSize) {
                         const sizeBtns = document.querySelectorAll(".size-picker-btn");
                         let clickedSize = false;

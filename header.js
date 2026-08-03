@@ -3218,37 +3218,12 @@ function applyCustomText(data) {
         fetchPopularFragrances();
     };
 
-    function ensureUnderConstructionBadge() {
-        const headers = document.querySelectorAll('header');
-        headers.forEach(header => {
-            if (!header.querySelector('.under-construction-badge')) {
-                const badge = document.createElement('span');
-                badge.className = 'under-construction-badge';
-                badge.textContent = 'Website Under construction';
-
-                const brandGroup = header.querySelector('.brand-group');
-                const leftNav = header.querySelector('.left-nav');
-                const centerLogo = header.querySelector('.center-logo-link');
-
-                if (leftNav) {
-                    leftNav.appendChild(badge);
-                } else if (brandGroup) {
-                    brandGroup.appendChild(badge);
-                } else {
-                    header.appendChild(badge);
-                }
-            }
-        });
-    }
-
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", () => {
             initSearchSystem();
-            ensureUnderConstructionBadge();
         });
     } else {
         initSearchSystem();
-        ensureUnderConstructionBadge();
     }
 })();
 
