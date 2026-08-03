@@ -2958,32 +2958,14 @@
         if (isMobile) secondHtml += viewMoreCardHtml;
         secondGridHtml = secondHtml;
 
-        // Apply HTML based on visibility
-        if (!productObserver) {
-          if (topGrid) topGrid.innerHTML = topGridHtml;
-          if (secondGrid) secondGrid.innerHTML = secondGridHtml;
-        } else {
-          // Check top grid visibility
-          if (topSection) {
-            const rect = topSection.getBoundingClientRect();
-            const inViewport = rect.top <= window.innerHeight + 300 && rect.bottom >= -300;
-            if (inViewport || topSectionIntersecting) {
-              mountTopGrid();
-            } else {
-              unmountTopGrid();
-            }
-          }
+        // Always mount top grid immediately for instant initial page render
+        mountTopGrid();
 
-          // Check second grid visibility
-          if (secondSection) {
-            const rectSec = secondSection.getBoundingClientRect();
-            const inViewportSec = rectSec.top <= window.innerHeight + 300 && rectSec.bottom >= -300;
-            if (inViewportSec || secondSectionIntersecting) {
-              mountSecondGrid();
-            } else {
-              unmountSecondGrid();
-            }
-          }
+        // Check second grid visibility asynchronously without forcing reflow
+        if (!productObserver) {
+          if (secondGrid) secondGrid.innerHTML = secondGridHtml;
+        } else if (secondSection && secondSectionIntersecting) {
+          mountSecondGrid();
         }
       };
 
