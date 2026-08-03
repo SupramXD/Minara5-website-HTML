@@ -12,8 +12,8 @@
   <link rel="preload" href="minara 5 transparent 2.svg" as="image" type="image/svg+xml">
   <link rel="preload" href="minara 5 transparent.svg" as="image" type="image/svg+xml">
   <!-- Preload device-specific hero images to speed up LCP -->
-  <link rel="preload" href="images/hero/left.avif" as="image" type="image/avif" media="(min-width: 901px)">
-  <link rel="preload" href="images/hero/mobile.avif" as="image" type="image/avif" media="(max-width: 900px)">
+  <link rel="preload" href="images/hero/studio-extrait-clone-fragrances.avif" as="image" type="image/avif" media="(min-width: 901px)" fetchpriority="high">
+  <link rel="preload" href="images/hero/studio-extrait-clone-fragrances-2.avif" as="image" type="image/avif" media="(max-width: 900px)" fetchpriority="high">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
 
@@ -1759,15 +1759,22 @@
       GIFTS <span id="shopNow">'SHOP NOW</span>
     </a>
   </div>
-
   <section id="hero" class="hero">
     <div id="mobileShopButton">shop catalog</div>
 
-    <img src="images/hero/left.avif" id="imgL" fetchpriority="high" decoding="async"
-      onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
-    <div id="imgRWrapper" style="position:relative;flex:0.7%;">
-      <img src="images/hero/mobile.avif" id="imgR" fetchpriority="high" decoding="async" style="width:100%;height:100%;object-fit:cover;"
+    <picture id="picL">
+      <source media="(max-width: 900px)" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+      <source media="(min-width: 901px)" srcset="images/hero/studio-extrait-clone-fragrances.avif">
+      <img src="images/hero/studio-extrait-clone-fragrances.avif" id="imgL" fetchpriority="high" decoding="async"
         onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
+    </picture>
+    <div id="imgRWrapper" style="position:relative;flex:0.7%;">
+      <picture id="picR">
+        <source media="(max-width: 900px)" srcset="images/hero/studio-extrait-clone-fragrances-2.avif">
+        <source media="(min-width: 901px)" srcset="images/hero/right.png">
+        <img src="images/hero/studio-extrait-clone-fragrances-2.avif" id="imgR" fetchpriority="high" decoding="async" style="width:100%;height:100%;object-fit:cover;"
+          onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
+      </picture>
       <div class="mobile-bags" style="display: none;"><a href="catalog.html">GIFTS 'SHOP NOW</a></div>
     </div>
   </section>
@@ -1775,9 +1782,9 @@
   <script>
     (function () {
       let settings = {
-        leftImage: "images/hero/left.avif",
+        leftImage: "images/hero/studio-extrait-clone-fragrances.avif",
         rightImage: "images/hero/right.png",
-        mobileImage: "images/hero/mobile.avif",
+        mobileImage: "images/hero/studio-extrait-clone-fragrances-2.avif",
         leftFlex: 1.6,
         leftScale: 1.0,
         leftX: 67,
@@ -1824,6 +1831,8 @@
         const imgR = document.getElementById("imgR");
         const hero = document.getElementById("hero");
         const imgRWrapper = imgR ? imgR.parentElement : null;
+        const picL = document.getElementById("picL");
+        const picR = document.getElementById("picR");
 
         if (!imgL || !imgR || !hero) return;
 
@@ -1846,10 +1855,17 @@
         }
 
         if (isMobile) {
-          const targetMobileSrc = activeSettings.mobileImage || "images/hero/mobile.avif";
+          const targetMobileSrc = activeSettings.mobileImage || "images/hero/studio-extrait-clone-fragrances-2.avif";
+          if (picR) {
+            const source = picR.querySelector("source[media*='max-width']");
+            if (source && source.getAttribute("srcset") !== targetMobileSrc) {
+              source.setAttribute("srcset", targetMobileSrc);
+            }
+          }
           if (imgR.getAttribute("src") !== targetMobileSrc) {
             imgR.src = targetMobileSrc;
           }
+          if (picL) picL.style.display = "none";
           imgL.style.display = "none";
 
           if (activeSettings.mobileHeight === "auto") {
@@ -1877,17 +1893,36 @@
           imgR.style.transformOrigin = `${activeSettings.mobileX || 50}% ${activeSettings.mobileY || 50}%`;
         } else {
           hero.style.height = activeSettings.desktopHeight || "calc(115vh - 45px)";
+          if (picL) {
+            picL.style.display = "block";
+          }
+          imgL.style.display = "block";
+
           if (activeSettings.hideRightImageDesktop) {
-            imgR.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+            const targetMobileSrc = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+            if (picR) {
+              const source = picR.querySelector("source[media*='max-width']");
+              if (source) source.setAttribute("srcset", targetMobileSrc);
+            }
+            imgR.src = targetMobileSrc;
             if (imgRWrapper) {
               imgRWrapper.style.display = "none";
             }
-            imgL.style.display = "block";
+            if (picL) {
+              picL.style.flex = "1";
+              picL.style.height = "100%";
+            }
             imgL.style.flex = "1";
             imgL.style.height = "100%";
             imgL.style.width = "100%";
             imgL.style.objectFit = "cover";
-            const targetLeftSrc = activeSettings.leftImage || "images/hero/left.avif";
+            const targetLeftSrc = activeSettings.leftImage || "images/hero/studio-extrait-clone-fragrances.avif";
+            if (picL) {
+              const source = picL.querySelector("source[media*='min-width']");
+              if (source && source.getAttribute("srcset") !== targetLeftSrc) {
+                source.setAttribute("srcset", targetLeftSrc);
+              }
+            }
             if (imgL.getAttribute("src") !== targetLeftSrc) {
               imgL.src = targetLeftSrc;
             }
@@ -1903,7 +1938,13 @@
             imgL.style.height = "100%";
             imgL.style.width = "100%";
             imgL.style.objectFit = "cover";
-            const targetLeftSrc = activeSettings.leftImage || "images/hero/left.avif";
+            const targetLeftSrc = activeSettings.leftImage || "images/hero/studio-extrait-clone-fragrances.avif";
+            if (picL) {
+              const source = picL.querySelector("source[media*='min-width']");
+              if (source && source.getAttribute("srcset") !== targetLeftSrc) {
+                source.setAttribute("srcset", targetLeftSrc);
+              }
+            }
             if (imgL.getAttribute("src") !== targetLeftSrc) {
               imgL.src = targetLeftSrc;
             }
@@ -1911,6 +1952,10 @@
             const leftFlex = activeSettings.leftFlex !== undefined ? parseFloat(activeSettings.leftFlex) : 1.3;
             const rightFlex = 2.0 - leftFlex;
 
+            if (picL) {
+              picL.style.flex = leftFlex;
+              picL.style.height = "100%";
+            }
             imgL.style.flex = leftFlex;
             if (imgRWrapper) {
               imgRWrapper.style.flex = rightFlex;
@@ -1921,7 +1966,16 @@
             imgL.style.objectPosition = `${activeSettings.leftX || 50}% ${activeSettings.leftY || 50}%`;
             imgL.style.transformOrigin = `${activeSettings.leftX || 50}% ${activeSettings.leftY || 50}%`;
 
-            imgR.src = activeSettings.rightImage || "images/hero/right.png";
+            const targetRightSrc = activeSettings.rightImage || "images/hero/right.png";
+            if (picR) {
+              const source = picR.querySelector("source[media*='min-width']");
+              if (source && source.getAttribute("srcset") !== targetRightSrc) {
+                source.setAttribute("srcset", targetRightSrc);
+              }
+            }
+            if (imgR.getAttribute("src") !== targetRightSrc) {
+              imgR.src = targetRightSrc;
+            }
 
             imgR.style.transform = `scale(${activeSettings.rightScale || 1.0})`;
             imgR.style.objectPosition = `${activeSettings.rightX || 80}% ${activeSettings.rightY || 50}%`;
@@ -2002,6 +2056,7 @@
             if (imgRWrapper) imgRWrapper.style.display = "none";
           }
           imgL.style.display = "none";
+          imgL.removeAttribute("src");
 
           if (settings.mobileHeight === "auto") {
             hero.style.height = hasMobile ? "auto" : "170px";
@@ -2036,6 +2091,7 @@
           imgL.style.objectFit = "cover";
           if (imgRWrapper) imgRWrapper.style.display = "none";
           imgR.style.display = "none";
+          imgR.removeAttribute("src");
 
           hero.style.height = settings.desktopHeight || "55vh";
 
@@ -2634,10 +2690,10 @@
       let products = [];
       let allReviews = [];
 
-      // Fetch reviews from reviews.json once to avoid per-card queries
+      // Fetch reviews from reviews.json once in a non-blocking background task
       const loadStaticReviews = async () => {
         try {
-          const res = await fetch("reviews.json?t=" + Date.now());
+          const res = await fetch("reviews.json");
           if (res.ok) {
             allReviews = await res.json();
           }
@@ -2663,8 +2719,12 @@
         } catch (e) {
           console.error("Failed to merge session reviews:", e);
         }
+
+        // Trigger a re-render once reviews are fetched to apply ratings
+        renderGrid();
       };
-      await loadStaticReviews();
+      // Trigger reviews load asynchronously without blocking local render
+      loadStaticReviews();
 
       // 1. Fetch custom products from local storage
       const loadLocalProducts = () => {
