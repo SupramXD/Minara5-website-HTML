@@ -126,35 +126,85 @@
       height: 14px;
     }
 
+    /* SLIDEOUT MENU — HIGH FASHION RICK OWENS AESTHETIC */
     .slideout {
       position: fixed;
       top: 0;
       left: -100%;
       width: 100%;
-      height: 100vh;
-      background: #fff;
-      z-index: 2000;
-      transition: left .35s ease;
-      padding: 50px 40px 40px;
+      max-width: 440px;
+      height: 100dvh;
+      background: #ffffff;
+      z-index: 5000;
+      transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 55px 36px 40px 36px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 20px 0 60px rgba(0, 0, 0, 0.08);
+      border-right: 1px solid #eaeaea;
     }
-    .slideout.open { left: 0; }
+
+    @media (max-width: 600px) {
+      .slideout {
+        max-width: 100vw;
+        padding: 50px 28px 36px 28px;
+      }
+    }
+
+    .slideout.open {
+      left: 0;
+    }
 
     .close-btn {
       position: absolute;
-      top: 18px;
+      top: 22px;
       right: 24px;
-      font-size: 30px;
       cursor: pointer;
+      color: #000000;
+      opacity: 0.85;
+      transition: opacity 0.25s ease;
+      z-index: 10;
+      padding: 6px;
+    }
+
+    .close-btn:hover {
+      opacity: 0.4;
+    }
+
+    .menu-nav-group {
+      margin-bottom: 32px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .menu-group-label {
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 8.5px;
+      font-weight: 900;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: #999999;
+      margin-bottom: 16px;
+      display: block;
     }
 
     .slideout a {
       display: block;
-      font-size: 14px;
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 12.5px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.28em;
-      margin-bottom: 24px;
-      color: #000;
+      letter-spacing: 0.32em;
+      margin-bottom: 16px;
+      color: #111111;
       text-decoration: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .slideout a:hover {
+      opacity: 0.5;
+      transform: translateX(4px);
     }
 
     .mobile-account-block {
@@ -316,6 +366,7 @@
       <a href="catalog.html">fragrances</a>
       <a href="catalog.html?gender=men" style="margin-left:22px;">men</a>
       <a href="catalog.html?gender=women" style="margin-left:22px;">women</a>
+      <a href="catalog.html?gender=unisex" style="margin-left:22px;">unisex</a>
       <span class="under-construction-badge">Website Under construction</span>
   </div>
 
@@ -351,14 +402,25 @@
 
 <!-- SLIDEOUT MENU -->
 <div class="slideout" id="menuPanel">
-  <div class="close-btn" onclick="closeMenu()">×</div>
-  <a href="index.html">Home</a>
-  <a href="catalog.html">shop fragrances</a>
-  <a href="catalog.html?gender=men">men's</a>
-  <a href="catalog.html?gender=women">women's</a>
-  <a href="track-order.html" style="letter-spacing:0.35em; opacity:0.65; font-weight:700;">Track Order</a>
-  <a href="social media.html">Socials</a>
-  <a href="contact.html">Contact</a>
+  <div class="close-btn" onclick="closeMenu()" aria-label="Close menu">
+    <span style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 2.5px; font-weight: 700; text-transform: uppercase; color: #000;">CLOSE ✕</span>
+  </div>
+
+  <div class="menu-nav-group" style="margin-top: 15px;">
+    <span class="menu-group-label">COLLECTION</span>
+    <a href="catalog.html">SHOP ALL FRAGRANCES</a>
+    <a href="catalog.html?gender=men">MEN'S</a>
+    <a href="catalog.html?gender=women">WOMEN'S</a>
+    <a href="catalog.html?gender=unisex">UNISEX</a>
+  </div>
+
+  <div class="menu-nav-group">
+    <span class="menu-group-label">INFORMATION</span>
+    <a href="track-order.html">TRACK ORDER</a>
+    <a href="social media.html">SOCIALS</a>
+    <a href="contact.html">CONTACT</a>
+  </div>
+
   <div class="mobile-account-block">
     <div id="mobileMyAccount" class="mobile-account-link">LOGIN</div>
     <div id="mobileAccountDropdown" class="mobile-account-dropdown"></div>

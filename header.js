@@ -1723,19 +1723,20 @@ function setupMobileNewsletter() {
         mobileNews = document.createElement("div");
         mobileNews.id = "mobileNewsletterBlock";
         mobileNews.style.cssText = `
-            margin-top: 30px;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
+            margin-top: auto;
+            border-top: 1px solid #eaeaea;
+            padding-top: 28px;
+            padding-bottom: 10px;
         `;
         
         mobileNews.innerHTML = `
-            <div id="mobileNewsletterPromo" style="font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center;">
+            <div id="mobileNewsletterPromo" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8.5px; font-weight: 900; letter-spacing: 3.5px; text-transform: uppercase; color: #999999; margin-bottom: 14px;">
                 <span>SUBSCRIBE FOR EARLY ACCESS</span>
             </div>
-            <div id="mobileNewsletterFormWrap" style="display: block; margin-top: 15px;">
-                <form id="mobileNewsletterForm" style="display: flex; border-bottom: 1px solid #000; padding-bottom: 5px;">
-                    <input type="email" id="mobileNewsletterEmail" placeholder="Enter your email" required style="border: none; background: transparent; font-size: 11px; width: 100%; outline: none; text-transform: none; font-family: inherit;">
-                    <button type="submit" style="background: transparent; border: none; font-size: 11px; font-weight: bold; color: #1106e8; cursor: pointer; padding: 0 5px; width: auto; margin: 0; font-family: inherit;">SUBMIT</button>
+            <div id="mobileNewsletterFormWrap" style="display: block;">
+                <form id="mobileNewsletterForm" style="display: flex; border-bottom: 1px solid #000000; padding-bottom: 6px;">
+                    <input type="email" id="mobileNewsletterEmail" placeholder="Enter your email" required style="border: none; background: transparent; font-family: inherit; font-size: 11px; letter-spacing: 0.8px; color: #000000; width: 100%; outline: none; text-transform: none;">
+                    <button type="submit" style="background: transparent; border: none; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #000000; cursor: pointer; padding: 0 4px; width: auto; margin: 0; transition: opacity 0.25s ease;">SUBMIT</button>
                 </form>
             </div>
             <div id="mobileNewsletterSuccess" style="display: none;"></div>
