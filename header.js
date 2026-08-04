@@ -1484,8 +1484,8 @@ document.addEventListener('DOMContentLoaded', () => {
             opacity: 1 !important;
         }
         
-        /* Underline effect for active desktop nav */
-        .left-nav a.active-nav {
+        /* Underline effect for active desktop nav (left nav and right header links) */
+        .left-nav a.active-nav, nav ul li a.active-nav {
             text-decoration: underline;
             text-underline-offset: 4px;
         }
@@ -1502,16 +1502,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.head.appendChild(style);
 
     // Active Navigation Highlighting (Includes query parameter checks for Men's and Women's)
-    const currentPage = window.location.pathname.split("/").pop() || "index.html";
+    const rawPage = window.location.pathname.split("/").pop() || "index.html";
+    const currentPage = decodeURIComponent(rawPage);
     const currentQuery = window.location.search;
     const currentFull = currentPage + currentQuery;
     
     document.querySelectorAll('.left-nav a, nav ul li a').forEach(link => {
         const linkHref = link.getAttribute('href');
         if (!linkHref) return;
+        const decodedHref = decodeURIComponent(linkHref);
         
         // Match the full relative href including query, or fallback to exact page matching if no query is active
-        if (linkHref === currentFull || (currentQuery === "" && linkHref === currentPage)) {
+        if (decodedHref === currentFull || (currentQuery === "" && decodedHref === currentPage)) {
             link.classList.add('active-nav');
         } else {
             link.classList.remove('active-nav');
