@@ -403,8 +403,8 @@ footer {
 
   <nav>
     <ul>
-      <li><a href="track-order.html" style="font-weight:bold;">TRACK ORDER</a></li>
-      <li><a href="social media.html">SOCIALS</a></li>
+      <li><a href="track-order.html" style="font-weight:bold;"><img src="track.svg" class="desktop-icon"> TRACK ORDER</a></li>
+      <li><a href="social media.html"><img src="socials.svg" class="desktop-icon"> SOCIALS</a></li>
       <li><a href="contact.html">CONTACT</a></li>
       <li class="header-account">
         <div class="account-trigger" onclick="accountClicked(event)">
@@ -433,6 +433,7 @@ footer {
   <div class="menu-nav-group">
     <span class="menu-group-label">INFORMATION</span>
     <a href="track-order.html">TRACK ORDER</a>
+    <a href="returns-shipping.html">RETURNS & SHIPPING</a>
     <a href="social media.html">SOCIALS</a>
     <a href="contact.html">CONTACT</a>
   </div>
@@ -486,7 +487,18 @@ footer {
   </div>
 </div>
 
-<footer>© 2026 STUDIO EXTRAIT</footer>
+<footer>
+  <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 12px; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; flex-wrap: wrap;">
+    <a href="track-order.html" style="color: inherit; text-decoration: none; opacity: 0.7;">TRACK ORDER</a>
+    <span style="opacity: 0.3;">•</span>
+    <a href="returns-shipping.html" style="color: inherit; text-decoration: none; opacity: 0.7;">RETURNS & SHIPPING</a>
+    <span style="opacity: 0.3;">•</span>
+    <a href="social media.html" style="color: inherit; text-decoration: none; opacity: 0.7;">SOCIALS</a>
+    <span style="opacity: 0.3;">•</span>
+    <a href="contact.html" style="color: inherit; text-decoration: none; opacity: 0.7;">CONTACT</a>
+  </div>
+  <div style="opacity: 0.5;">© 2026 STUDIO EXTRAIT. ALL RIGHTS RESERVED.</div>
+</footer>
 
 <script>
   function openMenu() { document.getElementById("menuPanel").classList.add("open"); }

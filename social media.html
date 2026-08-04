@@ -5,19 +5,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="google" content="notranslate">
-  <title>Studio Extrait – Payment Cancelled</title>
+  <title>Studio Extrait – Socials</title>
+  <link rel="icon" type="image/svg+xml" href="Studio Extrait Icon Svg.svg">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="preload" href="Gotham Narrow Bold.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="minara 5 transparent 2.svg" as="image" type="image/svg+xml">
-  <link rel="icon" type="image/svg+xml" href="Studio Extrait Icon Svg.svg">
-
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
   <link rel="modulepreload" href="header.js">
 
   <style>
-    /* --- GLOBAL FONT DECLARATION --- */
+    /* --- A. GLOBAL FONT DECLARATION --- */
     @font-face {
       font-family: 'Gotham Narrow Bold';
       src: url('Gotham Narrow Bold.woff2') format('woff2'),
@@ -41,7 +40,6 @@
       background: #fff;
       overflow-x: hidden;
       color: #000;
-      line-height: 1.4;
     }
 
     /* HEADER */
@@ -62,7 +60,7 @@
       border-bottom: 1px solid #eee;
     }
 
-    /* Left nav */
+    /* Left nav — desktop only CATALOG */
     .left-nav {
       display: flex;
       align-items: center;
@@ -249,80 +247,59 @@
       margin-bottom: 24px;
     }
 
-    /* CANCEL CONTAINER */
-    .cancel-wrap {
-      max-width: 550px;
-      margin: 140px auto 100px;
-      padding: 0 24px;
-      text-align: center;
-    }
-
-    .cancel-icon {
-      font-size: 48px;
-      color: #ff9500;
-      margin-bottom: 24px;
-      display: inline-block;
-    }
-
-    .cancel-title {
-      font-family: 'Gotham Narrow Bold', sans-serif;
-      font-size: 24px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      margin-bottom: 15px;
-      color: #1a1a1a;
-    }
-
-    .cancel-desc {
-      font-size: 14px;
-      color: #555;
-      letter-spacing: 0.5px;
-      margin-bottom: 40px;
-      line-height: 1.6;
-    }
-
-    .buttons-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .action-btn {
-      display: block;
+    /* SOCIALS PAGE */
+    .contact-wrap {
+      margin-top: 90px;
+      padding: 90px 60px;
       width: 100%;
-      max-width: 280px;
-      border: 1px solid #000;
-      background: #000;
-      color: #fff;
-      padding: 14px 20px;
-      font-family: 'Gotham Narrow Bold', sans-serif;
-      font-size: 11px;
+    }
+
+    .contact-title {
+      font-size: 28px;
       text-transform: uppercase;
-      letter-spacing: 2px;
+      letter-spacing: 0.55em;
+      font-weight: 600;
+      margin-bottom: 60px;
+    }
+
+    .brand-header {
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      font-size: 15px;
+      margin-bottom: 25px;
+    }
+
+    .contact-text {
+      font-size: 14px;
+      letter-spacing: 0.18em;
+      line-height: 2.2;
+      max-width: 600px;
+      opacity: 0.85;
+    }
+
+    .contact-email {
+      margin-top: 45px;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      font-weight: 500;
+    }
+
+    .contact-email a {
       text-decoration: none;
-      transition: background 0.25s, color 0.25s;
-    }
-
-    .action-btn:hover {
-      background: transparent;
       color: #000;
+      border-bottom: 1px solid #000;
+      padding-bottom: 2px;
+      transition: opacity 0.25s;
     }
 
-    .action-btn.secondary-btn {
-      background: transparent;
-      color: #000;
-      border-color: #cfcfcf;
+    .contact-email a:hover {
+      opacity: 0.6;
     }
 
-    .action-btn.secondary-btn:hover {
-      border-color: #000;
-      background: rgba(0, 0, 0, 0.02);
-    }
+    /* MOBILE */
+    @media(max-width:900px) {
 
-    /* Responsive */
-    @media (max-width: 900px) {
       nav {
         display: none;
       }
@@ -346,57 +323,57 @@
         left: 50% !important;
         top: 50% !important;
         transform: translate(-50%, -50%) !important;
-        margin: 0 !important;
-        pointer-events: none !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
       }
 
-      .center-logo {
-        height: 36px !important;
-        pointer-events: auto !important;
+      .contact-wrap {
+        padding: 40px 24px;
+        margin-top: 60px;
       }
 
-      .cancel-wrap {
-        margin-top: 100px;
-        padding: 0 16px;
+      .contact-title {
+        font-size: 22px;
+        letter-spacing: 0.35em;
+        margin-bottom: 40px;
       }
 
-      .cancel-title {
-        font-size: 18px;
+      .brand-header {
+        font-size: 14px;
+        letter-spacing: 0.18em;
+        margin-bottom: 20px;
+      }
+
+      .contact-text {
+        font-size: 13px;
+        letter-spacing: 0.14em;
+        line-height: 2;
+      }
+
+      .contact-email {
+        font-size: 13px;
+        letter-spacing: 0.16em;
+        margin-top: 35px;
       }
     }
 
     footer {
-      background: #000;
-      color: #fff;
-      padding: 30px;
       text-align: center;
-      font-size: 9px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      border-top: 1px solid #eaeaea;
+      padding: 30px 20px;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      opacity: 0.4;
+      font-family: Helvetica, Arial, sans-serif;
     }
   </style>
 </head>
 
 <body>
 
-  <header>
-    <div class="menu-icon" onclick="openMenu()">
-      <img src="menu.svg">
-    </div>
+  <header id="topbar">
 
-    <!-- LEFT nav -->
     <div class="left-nav">
-      <a href="catalog.html">fragrances</a>
-      <a href="catalog.html?gender=men" style="margin-left:22px;">men</a>
-      <a href="catalog.html?gender=women" style="margin-left:22px;">women</a>
-      <a href="catalog.html?gender=unisex" style="margin-left:22px;">unisex</a>
-      <span class="under-construction-badge">Website Under construction</span>
+      <a href="catalog.html" class="desktop-only">CATALOG</a>
+      <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
     </div>
-
 
     <!-- CENTER LOGO -->
     <a href="index.html" class="center-logo-link">
@@ -407,7 +384,8 @@
     <nav>
       <ul>
         <li><a href="track-order.html"><img src="track.svg" class="desktop-icon"> TRACK ORDER</a></li>
-        <li><a href="social media.html"><img src="socials.svg" class="desktop-icon"> SOCIALS</a></li>
+        <li><a href="social media.html" style="font-weight:bold;"><img src="socials.svg" class="desktop-icon"> SOCIALS</a></li>
+        <li><a href="contact.html"><img src="question mark.svg" class="question-icon"> Contact</a></li>
         <li class="header-account">
           <div class="account-trigger" onclick="accountClicked(event)">
             <img src="head shoulder.svg" class="desktop-icon">
@@ -417,15 +395,6 @@
       </ul>
     </nav>
   </header>
-
-  <div id="accountDropdown" class="acc-dropdown">
-    <div class="acc-head">
-      <span id="accName">ACCOUNT</span>
-      <span class="acc-close" onclick="closeAccDropdown()">X CLOSE</span>
-    </div>
-    <a href="accountorder.html" class="acc-item">MY ORDERS</a>
-    <a href="#" onclick="logout()" class="acc-item">LOG OUT</a>
-  </div>
 
   <!-- SLIDEOUT MENU -->
   <div class="slideout" id="menuPanel">
@@ -446,38 +415,111 @@
     <div class="menu-nav-group">
       <span class="menu-group-label">INFORMATION</span>
       <a href="track-order.html">TRACK ORDER</a>
+      <a href="returns-shipping.html">RETURNS & SHIPPING</a>
       <a href="social media.html">SOCIALS</a>
       <a href="contact.html">CONTACT</a>
     </div>
 
     <div class="mobile-account-block">
-      <div id="mobileMyAccount" class="mobile-account-link">LOGIN</div>
+      <div id="mobileMyAccount" class="mobile-account-link">
+        LOGIN
+      </div>
+
       <div id="mobileAccountDropdown" class="mobile-account-dropdown"></div>
-      <div id="mobileLogout" class="mobile-account-link logout" style="display:none;">LOG OUT</div>
+
+      <div id="mobileLogout" class="mobile-account-link logout" style="display:none;">
+        LOG OUT
+      </div>
     </div>
   </div>
 
-  <div class="cancel-wrap">
-    <span class="cancel-icon">⚠</span>
-    <h1 class="cancel-title">Transaction Cancelled</h1>
-    <p class="cancel-desc">
-      Your payment transaction was cancelled. No funds have been deducted from your account. Your shopping bag contents
-      remain safe.
-    </p>
+  <!-- CONTENT -->
+  <div class="contact-wrap">
 
-    <div class="buttons-container">
-      <a href="checkout.html" class="action-btn">Return to Checkout</a>
-      <a href="catalog.html" class="action-btn secondary-btn">Back to Shop</a>
+    <div class="contact-title">Socials</div>
+
+    <!-- BOLD STUDIO EXTRAIT LINE -->
+    <div class="brand-header">STUDIO EXTRAIT</div>
+
+    <div class="contact-text">
+      Follow our official Instagram page for exclusive scent reveals, upcoming campaign releases, and behind-the-scenes fragrance formulation.
+      <br><br>
+      Join our growing community of scent enthusiasts, share your fragrance collection, and tag us to be featured on our official channel.
+    </div>
+
+    <div class="contact-email">
+      <a href="https://www.instagram.com/studioextraitsa/" target="_blank" rel="noopener">INSTAGRAM: @STUDIOEXTRAITSA</a>
+    </div>
+
+    <div style="margin-top: 35px;">
+      <a class="back-link" href="catalog.html"
+        style="font-family: inherit; font-size: 9px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; color: #000; border: 1px solid #000; padding: 10px 18px; display: inline-flex; align-items: center; gap: 6px; transition: all 0.25s ease;"
+        onmouseover="this.style.background='#000'; this.style.color='#fff';"
+        onmouseout="this.style.background='transparent'; this.style.color='#000';">‹ ALL FRAGRANCES</a>
+    </div>
+
+  </div>
+
+  <!-- TRUST BANNER -->
+  <div class="trust-banner"
+    style="background: #fafafa; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea; padding: 40px 20px; text-align: center; font-family: Helvetica, Arial, sans-serif; width: 100%; margin-top: 40px;">
+    <div class="trust-container"
+      style="max-width: 700px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; gap: 40px;">
+      <div class="trust-item"
+        style="display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 280px; flex: 1 1 250px;">
+        <span
+          style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 900; color: #1a1a1a; margin-bottom: 8px;">Fast
+          Delivery Nationwide</span>
+        <span style="font-size: 11px; opacity: 0.6; line-height: 1.45;">Courier dispatch direct to your door anywhere in
+          South Africa. Safe and secure checkout options.</span>
+      </div>
+      <div class="trust-divider" style="width: 1px; background: #eaeaea; display: block;"></div>
+      <div class="trust-item"
+        style="display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 280px; flex: 1 1 250px;">
+        <span
+          style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 900; color: #1a1a1a; margin-bottom: 8px;">Trusted
+          Clone Brand</span>
+        <span style="font-size: 11px; opacity: 0.6; line-height: 1.45;">We're currently looking at selling on Takealot
+          And Amazon soon. Studio Extrait has 100% premium quality formulation matching original scents.</span>
+      </div>
     </div>
   </div>
 
-  <footer>© 2026 STUDIO EXTRAIT</footer>
+  <style>
+    @media (max-width: 768px) {
+      .trust-divider {
+        display: none !important;
+      }
+
+      .trust-container {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+
+      .trust-item {
+        margin: 0 auto !important;
+      }
+    }
+  </style>
+
+  <footer>
+    <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 12px; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; flex-wrap: wrap;">
+      <a href="track-order.html" style="color: inherit; text-decoration: none; opacity: 0.7;">TRACK ORDER</a>
+      <span style="opacity: 0.3;">•</span>
+      <a href="returns-shipping.html" style="color: inherit; text-decoration: none; opacity: 0.7;">RETURNS & SHIPPING</a>
+      <span style="opacity: 0.3;">•</span>
+      <a href="social media.html" style="color: inherit; text-decoration: none; opacity: 0.7;">SOCIALS</a>
+      <span style="opacity: 0.3;">•</span>
+      <a href="contact.html" style="color: inherit; text-decoration: none; opacity: 0.7;">CONTACT</a>
+    </div>
+    <div style="opacity: 0.5;">© 2026 STUDIO EXTRAIT. ALL RIGHTS RESERVED.</div>
+  </footer>
 
   <script>
     function openMenu() { document.getElementById("menuPanel").classList.add("open"); }
     function closeMenu() { document.getElementById("menuPanel").classList.remove("open"); }
   </script>
-
   <script type="module" src="header.js"></script>
 
 </body>

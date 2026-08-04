@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" translate="no" class="notranslate">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -8,20 +9,22 @@
   <link rel="icon" type="image/svg+xml" href="Studio%20Extrait%20Icon%20Svg.svg">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="preload" href="minara%205%20transparent%202.svg" as="image" type="image/svg+xml">
-  
+
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
   <link rel="modulepreload" href="header.js?v=8">
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4B_Kidu4QPFaNKMm8L9bKDR-F72ZpfiI&v=weekly&loading=async&callback=initGooglePlaces" async defer></script>
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4B_Kidu4QPFaNKMm8L9bKDR-F72ZpfiI&v=weekly&loading=async&callback=initGooglePlaces"
+    async defer></script>
 
   <style>
     /* --- GLOBAL FONT DECLARATION --- */
     @font-face {
       font-family: 'Gotham Narrow Bold';
       src: url('Gotham Narrow Bold.woff2') format('woff2'),
-           url('Gotham Narrow Bold.woff') format('woff'),
-           url('Gotham Narrow Bold.otf') format('opentype');
+        url('Gotham Narrow Bold.woff') format('woff'),
+        url('Gotham Narrow Bold.otf') format('opentype');
       font-weight: 900;
       font-style: normal;
       font-display: swap;
@@ -34,7 +37,7 @@
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
-    
+
     body {
       font-family: Helvetica, Arial, sans-serif;
       background: #fff;
@@ -46,7 +49,9 @@
     /* HEADER */
     header {
       position: fixed;
-      top: 0; left: 0; right: 0;
+      top: 0;
+      left: 0;
+      right: 0;
       height: 45px;
       background: rgba(255, 255, 255, 0.75);
       -webkit-backdrop-filter: blur(10px);
@@ -64,6 +69,7 @@
       display: flex;
       align-items: center;
     }
+
     .left-nav a {
       font-size: 12px;
       text-transform: uppercase;
@@ -73,7 +79,10 @@
       text-decoration: none;
       transition: opacity .25s;
     }
-    .left-nav a:hover { opacity: 0.6; }
+
+    .left-nav a:hover {
+      opacity: 0.6;
+    }
 
     /* Center logo */
     .center-logo-link {
@@ -86,6 +95,7 @@
       align-items: center;
       justify-content: center;
     }
+
     .center-logo {
       height: 50px;
       opacity: 0.92;
@@ -96,12 +106,17 @@
     nav {
       margin-left: auto;
     }
+
     nav ul {
       list-style: none;
       display: flex;
       margin-top: 2px;
     }
-    nav ul li { margin-left: 25px; }
+
+    nav ul li {
+      margin-left: 25px;
+    }
+
     nav ul li a {
       font-size: 11px;
       text-transform: uppercase;
@@ -113,15 +128,21 @@
       text-decoration: none;
       transition: opacity .25s;
     }
-    nav ul li a:hover { opacity: 0.6; }
 
-    .desktop-icon { height: 12px; }
+    nav ul li a:hover {
+      opacity: 0.6;
+    }
+
+    .desktop-icon {
+      height: 12px;
+    }
 
     /* MOBILE MENU */
     .menu-icon {
       display: none;
       cursor: pointer;
     }
+
     .menu-icon img {
       height: 14px;
     }
@@ -301,6 +322,7 @@
       gap: 12px;
       margin-bottom: 16px;
     }
+
     @media (max-width: 768px) {
       .form-group-row-4 {
         grid-template-columns: 1fr 1fr;
@@ -327,7 +349,7 @@
       font-size: 13px;
       outline: none;
       transition: border-color 0.25s, box-shadow 0.25s;
-      border-radius: 6px;
+      border-radius: 0px;
       font-family: Helvetica, Arial, sans-serif;
       background: #ffffff;
       color: #000000;
@@ -335,8 +357,8 @@
     }
 
     .form-input:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      border-color: #000000;
+      box-shadow: 0 0 0 1px #000000;
     }
 
     .form-select {
@@ -375,7 +397,7 @@
       object-fit: contain;
       background: #fff;
       border: 1px solid #f0f0f0;
-      border-radius: 2px;
+      border-radius: 0px;
     }
 
     .summary-item-details {
@@ -427,8 +449,8 @@
     }
 
     .pricing-row.discount-row {
-      color: #1106e8;
-      font-weight: 500;
+      color: #000000;
+      font-weight: bold;
     }
 
     .pricing-row.total-row {
@@ -447,24 +469,24 @@
       display: block;
       width: 100%;
       padding: 16px;
-      background: #ccff00;
-      color: #000;
-      border: 1px solid #000;
+      background: #000000;
+      color: #ffffff;
+      border: 1px solid #000000;
       font-family: 'Gotham Narrow Bold', sans-serif;
       font-size: 12px;
       font-weight: bold;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
+      letter-spacing: 1.8px;
       cursor: pointer;
-      transition: background 0.25s, transform 0.2s;
-      border-radius: 2px;
+      transition: background 0.25s, opacity 0.25s;
+      border-radius: 0px;
       text-align: center;
       margin-top: 20px;
     }
 
     .submit-order-btn:hover {
-      background: #b5e200;
-      transform: scale(1.01);
+      background: #222222;
+      opacity: 0.9;
     }
 
     .submit-order-btn:disabled {
@@ -512,7 +534,7 @@
       text-decoration: none;
       transition: background 0.25s, color 0.25s;
     }
-    
+
     .empty-btn:hover {
       background: transparent;
       color: #000;
@@ -556,17 +578,23 @@
 
     /* Responsive */
     @media (max-width: 900px) {
-      nav { display: none; }
-      
+      nav {
+        display: none;
+      }
+
       header {
         justify-content: space-between;
         align-items: center;
         padding: 6px 16px;
       }
 
-      .menu-icon { display: block; }
-      
-      .left-nav { display: none; }
+      .menu-icon {
+        display: block;
+      }
+
+      .left-nav {
+        display: none;
+      }
 
       .center-logo-link {
         position: absolute !important;
@@ -579,6 +607,7 @@
         align-items: center !important;
         justify-content: center !important;
       }
+
       .center-logo {
         height: 36px !important;
         pointer-events: auto !important;
@@ -611,7 +640,7 @@
         margin-bottom: 20px;
       }
     }
-    
+
     footer {
       background: #000;
       color: #fff;
@@ -664,6 +693,7 @@
       gap: 16px;
       margin-bottom: 16px;
     }
+
     @media (max-width: 900px) {
       .form-group-row-3 {
         grid-template-columns: 1fr !important;
@@ -703,7 +733,7 @@
       padding: 2px;
       transition: opacity 0.2s;
     }
-    
+
     .edit-date-btn:hover {
       opacity: 0.7;
     }
@@ -728,6 +758,7 @@
       margin-top: 4px;
       padding: 4px 0;
     }
+
     .pac-item {
       padding: 10px 14px;
       font-size: 12px;
@@ -738,22 +769,28 @@
       display: flex;
       align-items: center;
     }
+
     .pac-item:first-child {
       border-top: none;
     }
-    .pac-item:hover, .pac-item-selected {
+
+    .pac-item:hover,
+    .pac-item-selected {
       background-color: #f8f8f8;
     }
+
     .pac-item-query {
       font-size: 12px;
       font-weight: 700;
       color: #000;
       margin-right: 4px;
     }
+
     .pac-matched {
       font-weight: 800;
       color: #000;
     }
+
     .pac-icon {
       display: none;
     }
@@ -779,16 +816,18 @@
       --gmp-px-color-on-surface: #000000 !important;
       --gmp-px-color-outline: #cfcfcf !important;
     }
+
     /* Native Google Places Autocomplete (.pac-container) Styling */
     .pac-container {
       z-index: 10000 !important;
       font-family: Helvetica, Arial, sans-serif !important;
       border-radius: 2px !important;
       border: 1px solid #000000 !important;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
       margin-top: 2px !important;
       background-color: #ffffff !important;
     }
+
     .pac-item {
       padding: 10px 14px !important;
       font-size: 12.5px !important;
@@ -797,336 +836,358 @@
       border-top: 1px solid #f0f0f0 !important;
       line-height: 1.4 !important;
     }
+
     .pac-item:first-child {
       border-top: none !important;
     }
-    .pac-item:hover, .pac-item-selected {
+
+    .pac-item:hover,
+    .pac-item-selected {
       background-color: #f5f5f5 !important;
     }
+
     .pac-item-query {
       font-size: 13px !important;
       color: #000000 !important;
       font-weight: bold !important;
     }
+
     .pac-matched {
       font-weight: bold !important;
       color: #000000 !important;
     }
+
     .pac-icon {
       margin-right: 10px !important;
     }
   </style>
 </head>
+
 <body>
 
-<header>
-  <div class="menu-icon" onclick="openMenu()">
+  <header>
+    <div class="menu-icon" onclick="openMenu()">
       <img src="menu.svg">
-  </div>
+    </div>
 
-  <!-- LEFT (desktop only): CATALOG -->
-  <div class="left-nav">
+    <!-- LEFT (desktop only): CATALOG -->
+    <div class="left-nav">
       <a href="catalog.html" class="desktop-only">fragrances</a>
       <a href="catalog.html?gender=men" class="desktop-only" style="margin-left:22px;">men</a>
       <a href="catalog.html?gender=women" class="desktop-only" style="margin-left:22px;">women</a>
       <a href="catalog.html?gender=unisex" class="desktop-only" style="margin-left:22px;">unisex</a>
-  </div>
+      <span class="under-construction-badge">Website Under construction</span>
+    </div>
 
 
-  <!-- CENTER LOGO -->
-  <a href="index.html" class="center-logo-link">
+    <!-- CENTER LOGO -->
+    <a href="index.html" class="center-logo-link">
       <img src="minara 5 transparent 2.svg" class="center-logo">
-  </a>
+    </a>
 
-  <!-- RIGHT ICONS -->
-  <nav>
-    <ul>
-      <li><a href="track-order.html">TRACK ORDER</a></li>
-      <li><a href="social media.html">SOCIALS</a></li>
-      <li class="header-account">
-        <div class="account-trigger" onclick="accountClicked(event)">
+    <!-- RIGHT ICONS -->
+    <nav>
+      <ul>
+        <li><a href="track-order.html"><img src="track.svg" class="desktop-icon"> TRACK ORDER</a></li>
+        <li><a href="social media.html"><img src="socials.svg" class="desktop-icon"> SOCIALS</a></li>
+        <li class="header-account">
+          <div class="account-trigger" onclick="accountClicked(event)">
             <img src="head shoulder.svg" class="desktop-icon">
             <span id="accountLabel" class="account-label">ACCOUNT</span>
-        </div>
-      </li>
-    </ul>
-  </nav>
-</header>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </header>
 
-<div id="accountDropdown" class="acc-dropdown">
+  <div id="accountDropdown" class="acc-dropdown">
     <div class="acc-head">
-        <span id="accName">ACCOUNT</span>
-        <span class="acc-close" onclick="closeAccDropdown()">X CLOSE</span>
+      <span id="accName">ACCOUNT</span>
+      <span class="acc-close" onclick="closeAccDropdown()">X CLOSE</span>
     </div>
     <a href="accountorder.html" class="acc-item">MY ORDERS</a>
     <a href="#" onclick="logout()" class="acc-item">LOG OUT</a>
-</div>
-
-<!-- SLIDEOUT MENU -->
-<div class="slideout" id="menuPanel">
-  <div class="close-btn" onclick="closeMenu()" aria-label="Close menu">
-    <span style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 2.5px; font-weight: 700; text-transform: uppercase; color: #000;">CLOSE ✕</span>
   </div>
 
-  <div class="menu-nav-group" style="margin-top: 15px;">
-    <span class="menu-group-label">COLLECTION</span>
-    <a href="catalog.html">SHOP ALL FRAGRANCES</a>
-    <a href="catalog.html?gender=men">MEN'S</a>
-    <a href="catalog.html?gender=women">WOMEN'S</a>
-    <a href="catalog.html?gender=unisex">UNISEX</a>
+  <!-- SLIDEOUT MENU -->
+  <div class="slideout" id="menuPanel">
+    <div class="close-btn" onclick="closeMenu()" aria-label="Close menu">
+      <span
+        style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 2.5px; font-weight: 700; text-transform: uppercase; color: #000;">CLOSE
+        ✕</span>
+    </div>
+
+    <div class="menu-nav-group" style="margin-top: 15px;">
+      <span class="menu-group-label">COLLECTION</span>
+      <a href="catalog.html">SHOP ALL FRAGRANCES</a>
+      <a href="catalog.html?gender=men">MEN'S</a>
+      <a href="catalog.html?gender=women">WOMEN'S</a>
+      <a href="catalog.html?gender=unisex">UNISEX</a>
+    </div>
+
+    <div class="menu-nav-group">
+      <span class="menu-group-label">INFORMATION</span>
+      <a href="track-order.html">TRACK ORDER</a>
+      <a href="returns-shipping.html">RETURNS & SHIPPING</a>
+      <a href="social media.html">SOCIALS</a>
+      <a href="contact.html">CONTACT</a>
+    </div>
+
+    <div class="mobile-account-block">
+      <div id="mobileMyAccount" class="mobile-account-link">LOGIN</div>
+      <div id="mobileAccountDropdown" class="mobile-account-dropdown"></div>
+      <div id="mobileLogout" class="mobile-account-link logout" style="display:none;">LOG OUT</div>
+    </div>
   </div>
 
-  <div class="menu-nav-group">
-    <span class="menu-group-label">INFORMATION</span>
-    <a href="track-order.html">TRACK ORDER</a>
-    <a href="social media.html">SOCIALS</a>
-    <a href="contact.html">CONTACT</a>
+  <!-- MAIN LAYOUT -->
+  <div id="checkoutContent">
+    <!-- Dynamic insertion point for Empty State vs Form Grid -->
   </div>
 
-  <div class="mobile-account-block">
-    <div id="mobileMyAccount" class="mobile-account-link">LOGIN</div>
-    <div id="mobileAccountDropdown" class="mobile-account-dropdown"></div>
-    <div id="mobileLogout" class="mobile-account-link logout" style="display:none;">LOG OUT</div>
-  </div>
-</div>
+  <footer>
+    <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 12px; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; flex-wrap: wrap;">
+      <a href="track-order.html" style="color: inherit; text-decoration: none; opacity: 0.7;">TRACK ORDER</a>
+      <span style="opacity: 0.3;">•</span>
+      <a href="returns-shipping.html" style="color: inherit; text-decoration: none; opacity: 0.7;">RETURNS & SHIPPING</a>
+      <span style="opacity: 0.3;">•</span>
+      <a href="social media.html" style="color: inherit; text-decoration: none; opacity: 0.7;">SOCIALS</a>
+      <span style="opacity: 0.3;">•</span>
+      <a href="contact.html" style="color: inherit; text-decoration: none; opacity: 0.7;">CONTACT</a>
+    </div>
+    <div style="opacity: 0.5;">© 2026 STUDIO EXTRAIT. ALL RIGHTS RESERVED.</div>
+  </footer>
 
-<!-- MAIN LAYOUT -->
-<div id="checkoutContent">
-  <!-- Dynamic insertion point for Empty State vs Form Grid -->
-</div>
+  <!-- HIDDEN FORM REMOVED - SECURE PAYSTACK DIRECT API REDIRECT IN USE -->
 
-<footer>© 2026 STUDIO EXTRAIT</footer>
+  <script>
+    // Toggle alternative email visibility
+    window.toggleAlternativeEmail = function (event) {
+      event.preventDefault();
+      const group = document.getElementById("altEmailGroup");
+      const link = document.getElementById("addEmailLink");
+      if (group) group.style.display = "block";
+      if (link) link.style.display = "none";
+    };
 
-<!-- HIDDEN FORM REMOVED - SECURE PAYSTACK DIRECT API REDIRECT IN USE -->
+    // Toggle dynamic date picker visibility
+    window.toggleDatePicker = function () {
+      const picker = document.getElementById("c_delivery_date");
+      if (picker) {
+        picker.style.display = picker.style.display === "none" ? "inline-block" : "none";
+      }
+    };
 
-<script>
-  // Toggle alternative email visibility
-  window.toggleAlternativeEmail = function(event) {
-    event.preventDefault();
-    const group = document.getElementById("altEmailGroup");
-    const link = document.getElementById("addEmailLink");
-    if (group) group.style.display = "block";
-    if (link) link.style.display = "none";
-  };
+    // Update date text display when date picker changes
+    window.updateDeliveryDate = function (input) {
+      if (!input.value) return;
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-  // Toggle dynamic date picker visibility
-  window.toggleDatePicker = function() {
-    const picker = document.getElementById("c_delivery_date");
-    if (picker) {
-      picker.style.display = picker.style.display === "none" ? "inline-block" : "none";
-    }
-  };
+      // Split to avoid timezone shift issues
+      const parts = input.value.split('-');
+      const selectedDate = new Date(parts[0], parts[1] - 1, parts[2]);
+      const formatted = `${days[selectedDate.getDay()]}, ${selectedDate.getDate()} ${months[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
 
-  // Update date text display when date picker changes
-  window.updateDeliveryDate = function(input) {
-    if (!input.value) return;
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
-    // Split to avoid timezone shift issues
-    const parts = input.value.split('-');
-    const selectedDate = new Date(parts[0], parts[1] - 1, parts[2]);
-    const formatted = `${days[selectedDate.getDay()]}, ${selectedDate.getDate()} ${months[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
-    
-    document.getElementById("displayDeliveryDate").textContent = formatted;
-    input.style.display = "none";
-  };
+      document.getElementById("displayDeliveryDate").textContent = formatted;
+      input.style.display = "none";
+    };
 
-  // Handle address type selector tab clicking
-  window.selectAddressType = function(tabElement) {
-    document.querySelectorAll('.address-type-tab').forEach(tab => {
-      tab.classList.remove('active');
-    });
-    tabElement.classList.add('active');
-  };
+    // Handle address type selector tab clicking
+    window.selectAddressType = function (tabElement) {
+      document.querySelectorAll('.address-type-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      tabElement.classList.add('active');
+    };
 
-  // Basic menu helper scripts
-  window.openMenu = function() { document.getElementById("menuPanel").classList.add("open"); };
-  window.closeMenu = function() { document.getElementById("menuPanel").classList.remove("open"); };
+    // Basic menu helper scripts
+    window.openMenu = function () { document.getElementById("menuPanel").classList.add("open"); };
+    window.closeMenu = function () { document.getElementById("menuPanel").classList.remove("open"); };
 
-  // Helper function to auto-populate checkout form address fields
-  function populateAddressFields({ buildingUnit, fullStreet, sublocality, city, province, postalCode }) {
-    if (buildingUnit) {
-      const bldInput = document.getElementById("c_building");
-      if (bldInput) bldInput.value = buildingUnit;
-    }
-    if (fullStreet) {
-      const streetInput = document.getElementById("c_street");
-      if (streetInput) streetInput.value = fullStreet;
-    }
-    if (sublocality) {
-      const suburbInput = document.getElementById("c_suburb");
-      if (suburbInput) suburbInput.value = sublocality;
-    }
-    if (city) {
-      const cityInput = document.getElementById("c_city");
-      if (cityInput) cityInput.value = city;
-    }
-    if (postalCode) {
-      const postalInput = document.getElementById("c_postal");
-      if (postalInput) postalInput.value = postalCode;
-    }
-    if (province) {
-      const provinceSelect = document.getElementById("c_province");
-      if (provinceSelect) {
-        const provLower = province.toLowerCase();
-        for (let i = 0; i < provinceSelect.options.length; i++) {
-          const optVal = provinceSelect.options[i].value;
-          if (optVal && (provLower.includes(optVal.toLowerCase()) || optVal.toLowerCase().includes(provLower))) {
-            provinceSelect.selectedIndex = i;
-            break;
+    // Helper function to auto-populate checkout form address fields
+    function populateAddressFields({ buildingUnit, fullStreet, sublocality, city, province, postalCode }) {
+      if (buildingUnit) {
+        const bldInput = document.getElementById("c_building");
+        if (bldInput) bldInput.value = buildingUnit;
+      }
+      if (fullStreet) {
+        const streetInput = document.getElementById("c_street");
+        if (streetInput) streetInput.value = fullStreet;
+      }
+      if (sublocality) {
+        const suburbInput = document.getElementById("c_suburb");
+        if (suburbInput) suburbInput.value = sublocality;
+      }
+      if (city) {
+        const cityInput = document.getElementById("c_city");
+        if (cityInput) cityInput.value = city;
+      }
+      if (postalCode) {
+        const postalInput = document.getElementById("c_postal");
+        if (postalInput) postalInput.value = postalCode;
+      }
+      if (province) {
+        const provinceSelect = document.getElementById("c_province");
+        if (provinceSelect) {
+          const provLower = province.toLowerCase();
+          for (let i = 0; i < provinceSelect.options.length; i++) {
+            const optVal = provinceSelect.options[i].value;
+            if (optVal && (provLower.includes(optVal.toLowerCase()) || optVal.toLowerCase().includes(provLower))) {
+              provinceSelect.selectedIndex = i;
+              break;
+            }
           }
         }
       }
     }
-  }
 
-  // South African Suburb & Regional Mapping Table for 100% Consistent Resolution
-  const SA_LOCATION_DB = {
-    "witpoort": { city: "Midrand", province: "Gauteng", postal: "1685" },
-    "midrand": { city: "Midrand", province: "Gauteng", postal: "1685" },
-    "sandton": { city: "Sandton", province: "Gauteng", postal: "2196" },
-    "rosebank": { city: "Johannesburg", province: "Gauteng", postal: "2196" },
-    "morningside": { city: "Sandton", province: "Gauteng", postal: "2057" },
-    "bryanston": { city: "Sandton", province: "Gauteng", postal: "2021" },
-    "fourways": { city: "Sandton", province: "Gauteng", postal: "2055" },
-    "roodepoort": { city: "Roodepoort", province: "Gauteng", postal: "1724" },
-    "randburg": { city: "Randburg", province: "Gauteng", postal: "2194" },
-    "bedfordview": { city: "Johannesburg", province: "Gauteng", postal: "2008" },
-    "centurion": { city: "Centurion", province: "Gauteng", postal: "0157" },
-    "pretoria": { city: "Pretoria", province: "Gauteng", postal: "0002" },
-    "johannesburg": { city: "Johannesburg", province: "Gauteng", postal: "2000" },
-    "soweto": { city: "Johannesburg", province: "Gauteng", postal: "1818" },
-    "waterfall": { city: "Midrand", province: "Gauteng", postal: "1685" },
-    "waterfall city": { city: "Midrand", province: "Gauteng", postal: "1685" },
-    "camps bay": { city: "Cape Town", province: "Western Cape", postal: "8005" },
-    "sea point": { city: "Cape Town", province: "Western Cape", postal: "8005" },
-    "green point": { city: "Cape Town", province: "Western Cape", postal: "8005" },
-    "cape town": { city: "Cape Town", province: "Western Cape", postal: "8000" },
-    "constantia": { city: "Cape Town", province: "Western Cape", postal: "7806" },
-    "durban": { city: "Durban", province: "KwaZulu-Natal", postal: "4001" },
-    "umhlanga": { city: "Durban", province: "KwaZulu-Natal", postal: "4319" },
-    "ballito": { city: "Dolphin Coast", province: "KwaZulu-Natal", postal: "4420" },
-    "gqeberha": { city: "Gqeberha", province: "Eastern Cape", postal: "6001" },
-    "port elizabeth": { city: "Gqeberha", province: "Eastern Cape", postal: "6001" },
-    "bloemfontein": { city: "Bloemfontein", province: "Free State", postal: "9301" }
-  };
-
-  // Smart Address Parser & Component Classifier
-  function parseAddressString(addressStr) {
-    if (!addressStr) return {};
-
-    const parts = addressStr.split(",").map(p => p.trim()).filter(Boolean);
-    let buildingUnit = "";
-    let streetAddress = "";
-    let suburb = "";
-    let city = "";
-    let province = "";
-    let postalCode = "";
-
-    // Extract 4-digit postal code if present
-    const postalMatch = addressStr.match(/\b\d{4}\b/);
-    if (postalMatch) {
-      postalCode = postalMatch[0];
-    }
-
-    // Exclude country names
-    const cleanParts = parts.filter(pt => {
-      const lower = pt.toLowerCase();
-      return lower !== "south africa" && lower !== "za" && lower !== "republic of south africa";
-    });
-
-    // Check if first part contains unit/building keywords (e.g. "Apt 4B", "Unit 12", "Flat 3")
-    const unitRegex = /^(apt|unit|flat|suite|block|bldg|shop|room|no\.?)\b/i;
-    if (cleanParts.length >= 1 && unitRegex.test(cleanParts[0])) {
-      buildingUnit = cleanParts.shift();
-    }
-
-    // Map remaining clean parts
-    if (cleanParts.length === 1) {
-      streetAddress = cleanParts[0];
-    } else if (cleanParts.length === 2) {
-      streetAddress = cleanParts[0];
-      suburb = cleanParts[1];
-    } else if (cleanParts.length === 3) {
-      streetAddress = cleanParts[0];
-      suburb = cleanParts[1];
-      city = cleanParts[2];
-    } else if (cleanParts.length >= 4) {
-      streetAddress = cleanParts[0];
-      suburb = cleanParts[1];
-      city = cleanParts[2];
-      province = cleanParts[3];
-    }
-
-    // Enrich missing fields via South African Geographic DB
-    const subKey = (suburb || "").toLowerCase();
-    const cityKey = (city || "").toLowerCase();
-
-    if (SA_LOCATION_DB[subKey]) {
-      const dbInfo = SA_LOCATION_DB[subKey];
-      if (!city || city.toLowerCase() === subKey) city = dbInfo.city;
-      if (!province) province = dbInfo.province;
-      if (!postalCode) postalCode = dbInfo.postal;
-    }
-
-    if (SA_LOCATION_DB[cityKey]) {
-      const dbInfo = SA_LOCATION_DB[cityKey];
-      if (!province) province = dbInfo.province;
-      if (!postalCode) postalCode = dbInfo.postal;
-    }
-
-    // Fallback province match from full address text
-    if (!province) {
-      const fullLower = addressStr.toLowerCase();
-      if (fullLower.includes("gauteng") || fullLower.includes("midrand") || fullLower.includes("sandton") || fullLower.includes("roodepoort") || fullLower.includes("centurion") || fullLower.includes("jhb") || fullLower.includes("pta")) {
-        province = "Gauteng";
-      } else if (fullLower.includes("western cape") || fullLower.includes("cape town") || fullLower.includes("stellenbosch") || fullLower.includes("paarl")) {
-        province = "Western Cape";
-      } else if (fullLower.includes("kwazulu") || fullLower.includes("kzn") || fullLower.includes("durban") || fullLower.includes("umhlanga")) {
-        province = "KwaZulu-Natal";
-      } else if (fullLower.includes("eastern cape") || fullLower.includes("gqeberha") || fullLower.includes("port elizabeth")) {
-        province = "Eastern Cape";
-      } else if (fullLower.includes("free state") || fullLower.includes("bloemfontein")) {
-        province = "Free State";
-      }
-    }
-
-    return {
-      buildingUnit,
-      fullStreet: streetAddress,
-      sublocality: suburb,
-      city: (city && city.toLowerCase() !== (suburb || "").toLowerCase()) ? city : (SA_LOCATION_DB[subKey]?.city || suburb),
-      province,
-      postalCode
+    // South African Suburb & Regional Mapping Table for 100% Consistent Resolution
+    const SA_LOCATION_DB = {
+      "witpoort": { city: "Midrand", province: "Gauteng", postal: "1685" },
+      "midrand": { city: "Midrand", province: "Gauteng", postal: "1685" },
+      "sandton": { city: "Sandton", province: "Gauteng", postal: "2196" },
+      "rosebank": { city: "Johannesburg", province: "Gauteng", postal: "2196" },
+      "morningside": { city: "Sandton", province: "Gauteng", postal: "2057" },
+      "bryanston": { city: "Sandton", province: "Gauteng", postal: "2021" },
+      "fourways": { city: "Sandton", province: "Gauteng", postal: "2055" },
+      "roodepoort": { city: "Roodepoort", province: "Gauteng", postal: "1724" },
+      "randburg": { city: "Randburg", province: "Gauteng", postal: "2194" },
+      "bedfordview": { city: "Johannesburg", province: "Gauteng", postal: "2008" },
+      "centurion": { city: "Centurion", province: "Gauteng", postal: "0157" },
+      "pretoria": { city: "Pretoria", province: "Gauteng", postal: "0002" },
+      "johannesburg": { city: "Johannesburg", province: "Gauteng", postal: "2000" },
+      "soweto": { city: "Johannesburg", province: "Gauteng", postal: "1818" },
+      "waterfall": { city: "Midrand", province: "Gauteng", postal: "1685" },
+      "waterfall city": { city: "Midrand", province: "Gauteng", postal: "1685" },
+      "camps bay": { city: "Cape Town", province: "Western Cape", postal: "8005" },
+      "sea point": { city: "Cape Town", province: "Western Cape", postal: "8005" },
+      "green point": { city: "Cape Town", province: "Western Cape", postal: "8005" },
+      "cape town": { city: "Cape Town", province: "Western Cape", postal: "8000" },
+      "constantia": { city: "Cape Town", province: "Western Cape", postal: "7806" },
+      "durban": { city: "Durban", province: "KwaZulu-Natal", postal: "4001" },
+      "umhlanga": { city: "Durban", province: "KwaZulu-Natal", postal: "4319" },
+      "ballito": { city: "Dolphin Coast", province: "KwaZulu-Natal", postal: "4420" },
+      "gqeberha": { city: "Gqeberha", province: "Eastern Cape", postal: "6001" },
+      "port elizabeth": { city: "Gqeberha", province: "Eastern Cape", postal: "6001" },
+      "bloemfontein": { city: "Bloemfontein", province: "Free State", postal: "9301" }
     };
-  }
 
-  // Custom 100% Cross-Browser Autocomplete for City and Suburb
-  const SOUTH_AFRICAN_CITIES = [
-    "Johannesburg", "Cape Town", "Durban", "Pretoria", "Sandton", "Centurion", "Midrand",
-    "Gqeberha (Port Elizabeth)", "Bloemfontein", "East London", "Pietermaritzburg", "Polokwane",
-    "Nelspruit (Mbombela)", "Rustenburg", "Kimberley", "George", "Paarl", "Stellenbosch",
-    "Somerset West", "Newcastle", "Umhlanga", "Ballito", "Witbank (Emalahleni)", "Potchefstroom",
-    "Klerksdorp", "Knysna", "Hermanus", "Mossel Bay", "Upington", "Vanderbijlpark", "Vereeniging", "Welkom"
-  ];
+    // Smart Address Parser & Component Classifier
+    function parseAddressString(addressStr) {
+      if (!addressStr) return {};
 
-  const SOUTH_AFRICAN_SUBURBS = [
-    "Sandton", "Rosebank", "Morningside", "Bryanston", "Fourways", "Midrand", "Bedfordview",
-    "Melville", "Parkhurst", "Illovo", "Hydepark", "Soweto", "Roodepoort", "Randburg",
-    "Waterfall City", "Camps Bay", "Sea Point", "Green Point", "Constantia", "Claremont",
-    "Rondebosch", "Century City", "Durbanville", "Bloubergstrand", "Umhlanga Rocks", "Durban North",
-    "Westville", "Kloof", "Menlyn", "Brooklyn", "Faerie Glen", "Garsfontein", "Silver Lakes"
-  ];
+      const parts = addressStr.split(",").map(p => p.trim()).filter(Boolean);
+      let buildingUnit = "";
+      let streetAddress = "";
+      let suburb = "";
+      let city = "";
+      let province = "";
+      let postalCode = "";
 
-  function setupCustomInputAutocomplete(inputId, optionsList) {
-    const input = document.getElementById(inputId);
-    if (!input || input.dataset.customAutoAttached === "true") return;
-    input.dataset.customAutoAttached = "true";
+      // Extract 4-digit postal code if present
+      const postalMatch = addressStr.match(/\b\d{4}\b/);
+      if (postalMatch) {
+        postalCode = postalMatch[0];
+      }
 
-    const dropdown = document.createElement("div");
-    dropdown.className = "custom-autocomplete-dropdown";
-    dropdown.style.cssText = `
+      // Exclude country names
+      const cleanParts = parts.filter(pt => {
+        const lower = pt.toLowerCase();
+        return lower !== "south africa" && lower !== "za" && lower !== "republic of south africa";
+      });
+
+      // Check if first part contains unit/building keywords (e.g. "Apt 4B", "Unit 12", "Flat 3")
+      const unitRegex = /^(apt|unit|flat|suite|block|bldg|shop|room|no\.?)\b/i;
+      if (cleanParts.length >= 1 && unitRegex.test(cleanParts[0])) {
+        buildingUnit = cleanParts.shift();
+      }
+
+      // Map remaining clean parts
+      if (cleanParts.length === 1) {
+        streetAddress = cleanParts[0];
+      } else if (cleanParts.length === 2) {
+        streetAddress = cleanParts[0];
+        suburb = cleanParts[1];
+      } else if (cleanParts.length === 3) {
+        streetAddress = cleanParts[0];
+        suburb = cleanParts[1];
+        city = cleanParts[2];
+      } else if (cleanParts.length >= 4) {
+        streetAddress = cleanParts[0];
+        suburb = cleanParts[1];
+        city = cleanParts[2];
+        province = cleanParts[3];
+      }
+
+      // Enrich missing fields via South African Geographic DB
+      const subKey = (suburb || "").toLowerCase();
+      const cityKey = (city || "").toLowerCase();
+
+      if (SA_LOCATION_DB[subKey]) {
+        const dbInfo = SA_LOCATION_DB[subKey];
+        if (!city || city.toLowerCase() === subKey) city = dbInfo.city;
+        if (!province) province = dbInfo.province;
+        if (!postalCode) postalCode = dbInfo.postal;
+      }
+
+      if (SA_LOCATION_DB[cityKey]) {
+        const dbInfo = SA_LOCATION_DB[cityKey];
+        if (!province) province = dbInfo.province;
+        if (!postalCode) postalCode = dbInfo.postal;
+      }
+
+      // Fallback province match from full address text
+      if (!province) {
+        const fullLower = addressStr.toLowerCase();
+        if (fullLower.includes("gauteng") || fullLower.includes("midrand") || fullLower.includes("sandton") || fullLower.includes("roodepoort") || fullLower.includes("centurion") || fullLower.includes("jhb") || fullLower.includes("pta")) {
+          province = "Gauteng";
+        } else if (fullLower.includes("western cape") || fullLower.includes("cape town") || fullLower.includes("stellenbosch") || fullLower.includes("paarl")) {
+          province = "Western Cape";
+        } else if (fullLower.includes("kwazulu") || fullLower.includes("kzn") || fullLower.includes("durban") || fullLower.includes("umhlanga")) {
+          province = "KwaZulu-Natal";
+        } else if (fullLower.includes("eastern cape") || fullLower.includes("gqeberha") || fullLower.includes("port elizabeth")) {
+          province = "Eastern Cape";
+        } else if (fullLower.includes("free state") || fullLower.includes("bloemfontein")) {
+          province = "Free State";
+        }
+      }
+
+      return {
+        buildingUnit,
+        fullStreet: streetAddress,
+        sublocality: suburb,
+        city: (city && city.toLowerCase() !== (suburb || "").toLowerCase()) ? city : (SA_LOCATION_DB[subKey]?.city || suburb),
+        province,
+        postalCode
+      };
+    }
+
+    // Custom 100% Cross-Browser Autocomplete for City and Suburb
+    const SOUTH_AFRICAN_CITIES = [
+      "Johannesburg", "Cape Town", "Durban", "Pretoria", "Sandton", "Centurion", "Midrand",
+      "Gqeberha (Port Elizabeth)", "Bloemfontein", "East London", "Pietermaritzburg", "Polokwane",
+      "Nelspruit (Mbombela)", "Rustenburg", "Kimberley", "George", "Paarl", "Stellenbosch",
+      "Somerset West", "Newcastle", "Umhlanga", "Ballito", "Witbank (Emalahleni)", "Potchefstroom",
+      "Klerksdorp", "Knysna", "Hermanus", "Mossel Bay", "Upington", "Vanderbijlpark", "Vereeniging", "Welkom"
+    ];
+
+    const SOUTH_AFRICAN_SUBURBS = [
+      "Sandton", "Rosebank", "Morningside", "Bryanston", "Fourways", "Midrand", "Bedfordview",
+      "Melville", "Parkhurst", "Illovo", "Hydepark", "Soweto", "Roodepoort", "Randburg",
+      "Waterfall City", "Camps Bay", "Sea Point", "Green Point", "Constantia", "Claremont",
+      "Rondebosch", "Century City", "Durbanville", "Bloubergstrand", "Umhlanga Rocks", "Durban North",
+      "Westville", "Kloof", "Menlyn", "Brooklyn", "Faerie Glen", "Garsfontein", "Silver Lakes"
+    ];
+
+    function setupCustomInputAutocomplete(inputId, optionsList) {
+      const input = document.getElementById(inputId);
+      if (!input || input.dataset.customAutoAttached === "true") return;
+      input.dataset.customAutoAttached = "true";
+
+      const dropdown = document.createElement("div");
+      dropdown.className = "custom-autocomplete-dropdown";
+      dropdown.style.cssText = `
       position: absolute;
       top: 100%;
       left: 0;
@@ -1142,28 +1203,28 @@
       border-radius: 2px;
     `;
 
-    if (input.parentElement) {
-      input.parentElement.style.position = "relative";
-      input.parentElement.appendChild(dropdown);
-    }
-
-    const updateDropdown = () => {
-      const query = input.value.trim().toLowerCase();
-      if (!query) {
-        dropdown.style.display = "none";
-        return;
+      if (input.parentElement) {
+        input.parentElement.style.position = "relative";
+        input.parentElement.appendChild(dropdown);
       }
 
-      const matches = optionsList.filter(opt => opt.toLowerCase().includes(query));
-      if (matches.length === 0) {
-        dropdown.style.display = "none";
-        return;
-      }
+      const updateDropdown = () => {
+        const query = input.value.trim().toLowerCase();
+        if (!query) {
+          dropdown.style.display = "none";
+          return;
+        }
 
-      dropdown.innerHTML = "";
-      matches.forEach(matchText => {
-        const item = document.createElement("div");
-        item.style.cssText = `
+        const matches = optionsList.filter(opt => opt.toLowerCase().includes(query));
+        if (matches.length === 0) {
+          dropdown.style.display = "none";
+          return;
+        }
+
+        dropdown.innerHTML = "";
+        matches.forEach(matchText => {
+          const item = document.createElement("div");
+          item.style.cssText = `
           padding: 9px 12px;
           font-size: 12px;
           color: #000000;
@@ -1171,182 +1232,182 @@
           border-bottom: 1px solid #f0f0f0;
           font-family: Helvetica, Arial, sans-serif;
         `;
-        item.textContent = matchText;
-        item.onmouseenter = () => { item.style.background = "#f5f5f5"; };
-        item.onmouseleave = () => { item.style.background = "#ffffff"; };
-        item.onmousedown = (e) => {
-          e.preventDefault();
-          input.value = matchText;
-          dropdown.style.display = "none";
-        };
-        dropdown.appendChild(item);
+          item.textContent = matchText;
+          item.onmouseenter = () => { item.style.background = "#f5f5f5"; };
+          item.onmouseleave = () => { item.style.background = "#ffffff"; };
+          item.onmousedown = (e) => {
+            e.preventDefault();
+            input.value = matchText;
+            dropdown.style.display = "none";
+          };
+          dropdown.appendChild(item);
+        });
+
+        dropdown.style.display = "block";
+      };
+
+      input.addEventListener("input", updateDropdown);
+      input.addEventListener("focus", updateDropdown);
+      input.addEventListener("blur", () => {
+        setTimeout(() => { dropdown.style.display = "none"; }, 180);
       });
+    }
 
-      dropdown.style.display = "block";
-    };
+    // Smart Address & Precinct Classifier
+    function extractAddressParts(components, formattedAddress, selectedText = "") {
+      let streetNumber = "", route = "", premise = "", subpremise = "", sublocality = "", city = "", province = "", postalCode = "";
 
-    input.addEventListener("input", updateDropdown);
-    input.addEventListener("focus", updateDropdown);
-    input.addEventListener("blur", () => {
-      setTimeout(() => { dropdown.style.display = "none"; }, 180);
-    });
-  }
-
-  // Smart Address & Precinct Classifier
-  function extractAddressParts(components, formattedAddress, selectedText = "") {
-    let streetNumber = "", route = "", premise = "", subpremise = "", sublocality = "", city = "", province = "", postalCode = "";
-
-    if (components && Array.isArray(components)) {
-      for (const comp of components) {
-        const types = comp.types || [];
-        const text = comp.longText || comp.long_name || comp.shortText || comp.short_name || "";
-        if (types.includes("street_number")) streetNumber = text;
-        if (types.includes("route")) route = text;
-        if (types.includes("subpremise")) subpremise = text;
-        if (types.includes("premise") || types.includes("building") || types.includes("complex") || types.includes("establishment")) {
-          if (!premise) premise = text;
+      if (components && Array.isArray(components)) {
+        for (const comp of components) {
+          const types = comp.types || [];
+          const text = comp.longText || comp.long_name || comp.shortText || comp.short_name || "";
+          if (types.includes("street_number")) streetNumber = text;
+          if (types.includes("route")) route = text;
+          if (types.includes("subpremise")) subpremise = text;
+          if (types.includes("premise") || types.includes("building") || types.includes("complex") || types.includes("establishment")) {
+            if (!premise) premise = text;
+          }
+          if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood") || types.includes("sublocality_level_2")) {
+            if (!sublocality) sublocality = text;
+          }
+          if (types.includes("locality") || types.includes("postal_town")) {
+            if (!city) city = text;
+          }
+          if (types.includes("administrative_area_level_1")) province = text;
+          if (types.includes("postal_code")) postalCode = text;
         }
-        if (types.includes("sublocality") || types.includes("sublocality_level_1") || types.includes("neighborhood") || types.includes("sublocality_level_2")) {
-          if (!sublocality) sublocality = text;
+      }
+
+      const rawStr = selectedText || formattedAddress || "";
+      const parsed = parseAddressString(rawStr);
+
+      let buildingUnit = parsed.buildingUnit || "";
+      let fullStreet = "";
+
+      if (subpremise || premise) {
+        if (subpremise && premise && subpremise !== premise) {
+          buildingUnit = `${subpremise} ${premise}`.trim();
+        } else if (subpremise) {
+          buildingUnit = subpremise;
+        } else if (premise) {
+          buildingUnit = premise;
         }
-        if (types.includes("locality") || types.includes("postal_town")) {
-          if (!city) city = text;
+      }
+
+      // Clean text by stripping country, province, postal code
+      let clean = rawStr
+        .replace(/,?\s*(South Africa|ZA|Republic of South Africa)\s*$/i, "")
+        .trim();
+
+      if (postalCode) clean = clean.replace(new RegExp(`,?\\s*${postalCode}\\s*$`, "i"), "").trim();
+      if (province) clean = clean.replace(new RegExp(`,?\\s*${province}\\s*$`, "i"), "").trim();
+
+      const parts = clean.split(",").map(p => p.trim()).filter(Boolean);
+
+      if (parts.length > 1 && city && parts[parts.length - 1].toLowerCase() === city.toLowerCase()) {
+        parts.pop();
+      }
+
+      if (parts.length >= 2) {
+        // First part is building / precinct / unit (e.g. "Royal Troon" or "69 Oakmont")
+        if (!buildingUnit || buildingUnit.length < parts[0].length) {
+          buildingUnit = parts[0];
         }
-        if (types.includes("administrative_area_level_1")) province = text;
-        if (types.includes("postal_code")) postalCode = text;
+        // Remaining parts form the Address line (e.g. "Jackal Creek Golf Estate")
+        fullStreet = parts.slice(1).join(", ");
+      } else if (parts.length === 1) {
+        if (buildingUnit && buildingUnit !== parts[0]) {
+          fullStreet = parts[0];
+        } else {
+          fullStreet = parts[0];
+        }
       }
-    }
 
-    const rawStr = selectedText || formattedAddress || "";
-    const parsed = parseAddressString(rawStr);
-
-    let buildingUnit = parsed.buildingUnit || "";
-    let fullStreet = "";
-
-    if (subpremise || premise) {
-      if (subpremise && premise && subpremise !== premise) {
-        buildingUnit = `${subpremise} ${premise}`.trim();
-      } else if (subpremise) {
-        buildingUnit = subpremise;
-      } else if (premise) {
-        buildingUnit = premise;
+      if (!fullStreet) {
+        if (streetNumber && route) fullStreet = `${streetNumber} ${route}`;
+        else if (route) fullStreet = route;
+        else fullStreet = rawStr;
       }
+
+      const finalSub = sublocality || parsed.sublocality;
+      const finalCity = (city && city.toLowerCase() !== (finalSub || "").toLowerCase()) ? city : (parsed.city || finalSub);
+      const finalProv = province || parsed.province;
+      const finalPostal = postalCode || parsed.postalCode;
+
+      return {
+        buildingUnit: buildingUnit.trim(),
+        fullStreet: fullStreet.trim(),
+        sublocality: finalSub,
+        city: finalCity,
+        province: finalProv,
+        postalCode: finalPostal
+      };
     }
 
-    // Clean text by stripping country, province, postal code
-    let clean = rawStr
-      .replace(/,?\s*(South Africa|ZA|Republic of South Africa)\s*$/i, "")
-      .trim();
-
-    if (postalCode) clean = clean.replace(new RegExp(`,?\\s*${postalCode}\\s*$`, "i"), "").trim();
-    if (province) clean = clean.replace(new RegExp(`,?\\s*${province}\\s*$`, "i"), "").trim();
-
-    const parts = clean.split(",").map(p => p.trim()).filter(Boolean);
-
-    if (parts.length > 1 && city && parts[parts.length - 1].toLowerCase() === city.toLowerCase()) {
-      parts.pop();
-    }
-
-    if (parts.length >= 2) {
-      // First part is building / precinct / unit (e.g. "Royal Troon" or "69 Oakmont")
-      if (!buildingUnit || buildingUnit.length < parts[0].length) {
-        buildingUnit = parts[0];
-      }
-      // Remaining parts form the Address line (e.g. "Jackal Creek Golf Estate")
-      fullStreet = parts.slice(1).join(", ");
-    } else if (parts.length === 1) {
-      if (buildingUnit && buildingUnit !== parts[0]) {
-        fullStreet = parts[0];
-      } else {
-        fullStreet = parts[0];
-      }
-    }
-
-    if (!fullStreet) {
-      if (streetNumber && route) fullStreet = `${streetNumber} ${route}`;
-      else if (route) fullStreet = route;
-      else fullStreet = rawStr;
-    }
-
-    const finalSub = sublocality || parsed.sublocality;
-    const finalCity = (city && city.toLowerCase() !== (finalSub || "").toLowerCase()) ? city : (parsed.city || finalSub);
-    const finalProv = province || parsed.province;
-    const finalPostal = postalCode || parsed.postalCode;
-
-    return {
-      buildingUnit: buildingUnit.trim(),
-      fullStreet: fullStreet.trim(),
-      sublocality: finalSub,
-      city: finalCity,
-      province: finalProv,
-      postalCode: finalPostal
-    };
-  }
-
-  // Official Google Geocoding API Resolution Service (Integrates enabled Geocoding API)
-  function fillAddressUsingGeocoder(searchTarget, fallbackName = "") {
-    let targetStr = fallbackName;
-    if (typeof searchTarget === "string") {
-      targetStr = searchTarget;
-    } else if (searchTarget && searchTarget.formattedAddress) {
-      targetStr = searchTarget.formattedAddress;
-    }
-
-    if (targetStr) {
-      const parts = extractAddressParts([], targetStr, targetStr);
-      populateAddressFields(parts);
-    }
-
-    if (typeof google === "undefined" || !google.maps || !google.maps.Geocoder) {
-      return;
-    }
-
-    try {
-      const geocoder = new google.maps.Geocoder();
-      let req = {};
+    // Official Google Geocoding API Resolution Service (Integrates enabled Geocoding API)
+    function fillAddressUsingGeocoder(searchTarget, fallbackName = "") {
+      let targetStr = fallbackName;
       if (typeof searchTarget === "string") {
-        req = { address: searchTarget };
-      } else if (searchTarget && searchTarget.placeId) {
-        req = { placeId: searchTarget.placeId };
+        targetStr = searchTarget;
       } else if (searchTarget && searchTarget.formattedAddress) {
-        req = { address: searchTarget.formattedAddress };
-      } else {
-        req = { address: fallbackName };
+        targetStr = searchTarget.formattedAddress;
       }
 
-      geocoder.geocode(req, (results, status) => {
-        if (status === "OK" && results && results[0]) {
-          const res = results[0];
-          const formatted = res.formatted_address || fallbackName || targetStr || "";
-          fillAddressFromComponents(res.address_components, formatted, targetStr);
+      if (targetStr) {
+        const parts = extractAddressParts([], targetStr, targetStr);
+        populateAddressFields(parts);
+      }
+
+      if (typeof google === "undefined" || !google.maps || !google.maps.Geocoder) {
+        return;
+      }
+
+      try {
+        const geocoder = new google.maps.Geocoder();
+        let req = {};
+        if (typeof searchTarget === "string") {
+          req = { address: searchTarget };
+        } else if (searchTarget && searchTarget.placeId) {
+          req = { placeId: searchTarget.placeId };
+        } else if (searchTarget && searchTarget.formattedAddress) {
+          req = { address: searchTarget.formattedAddress };
+        } else {
+          req = { address: fallbackName };
         }
-      });
-    } catch (err) {
-      console.warn("Geocoding API notice:", err);
+
+        geocoder.geocode(req, (results, status) => {
+          if (status === "OK" && results && results[0]) {
+            const res = results[0];
+            const formatted = res.formatted_address || fallbackName || targetStr || "";
+            fillAddressFromComponents(res.address_components, formatted, targetStr);
+          }
+        });
+      } catch (err) {
+        console.warn("Geocoding API notice:", err);
+      }
     }
-  }
 
-  function fillAddressFromComponents(components, formattedAddress, selectedText = "") {
-    const formatted = formattedAddress || selectedText || "";
-    const resolved = extractAddressParts(components, formatted, selectedText);
-    populateAddressFields(resolved);
-  }
+    function fillAddressFromComponents(components, formattedAddress, selectedText = "") {
+      const formatted = formattedAddress || selectedText || "";
+      const resolved = extractAddressParts(components, formatted, selectedText);
+      populateAddressFields(resolved);
+    }
 
-  function parseStringAndFill(str) {
-    if (!str) return;
-    const parsed = parseAddressString(str);
-    populateAddressFields(parsed);
-  }
+    function parseStringAndFill(str) {
+      if (!str) return;
+      const parsed = parseAddressString(str);
+      populateAddressFields(parsed);
+    }
 
-  // Modern Places API (New) Autocomplete Attachment (Zero Legacy Warnings)
-  async function attachModernPlacesAutocomplete(inputId, placeType) {
-    const input = document.getElementById(inputId);
-    if (!input || input.dataset.gnewAutoAttached === "true") return;
-    input.dataset.gnewAutoAttached = "true";
+    // Modern Places API (New) Autocomplete Attachment (Zero Legacy Warnings)
+    async function attachModernPlacesAutocomplete(inputId, placeType) {
+      const input = document.getElementById(inputId);
+      if (!input || input.dataset.gnewAutoAttached === "true") return;
+      input.dataset.gnewAutoAttached = "true";
 
-    const dropdown = document.createElement("div");
-    dropdown.className = "gapi-autocomplete-dropdown";
-    dropdown.style.cssText = `
+      const dropdown = document.createElement("div");
+      dropdown.className = "gapi-autocomplete-dropdown";
+      dropdown.style.cssText = `
       position: absolute;
       top: 100%;
       left: 0;
@@ -1362,123 +1423,123 @@
       border-radius: 2px;
     `;
 
-    if (input.parentElement) {
-      input.parentElement.style.position = "relative";
-      input.parentElement.appendChild(dropdown);
-    }
-
-    let AutocompleteSuggestion = null;
-    let Place = null;
-
-    try {
-      if (typeof google !== "undefined" && google.maps && google.maps.importLibrary) {
-        const placesLib = await google.maps.importLibrary("places");
-        if (placesLib) {
-          AutocompleteSuggestion = placesLib.AutocompleteSuggestion;
-          Place = placesLib.Place;
-        }
+      if (input.parentElement) {
+        input.parentElement.style.position = "relative";
+        input.parentElement.appendChild(dropdown);
       }
-    } catch (e) {
-      console.warn("Places API New import warning:", e);
-    }
 
-    const fetchPredictions = async () => {
-      const query = input.value.trim();
-      if (!query || query.length < 2) {
-        dropdown.style.display = "none";
-        return;
-      }
+      let AutocompleteSuggestion = null;
+      let Place = null;
 
       try {
-        let itemsToRender = [];
-
-        // 1. Primary: Places API (New) AutocompleteSuggestion
-        if (AutocompleteSuggestion && typeof AutocompleteSuggestion.fetchAutocompleteSuggestions === "function") {
-          const req = {
-            input: query,
-            includedRegionCodes: ["ZA"]
-          };
-
-          if (placeType === "city") {
-            req.includedPrimaryTypes = ["locality", "administrative_area_level_3"];
-          } else if (placeType === "suburb") {
-            req.includedPrimaryTypes = ["sublocality_level_1", "sublocality_level_2", "neighborhood"];
-          } else if (placeType === "street") {
-            req.includedPrimaryTypes = ["street_address", "route", "premise", "subpremise"];
-          }
-
-          let resp = null;
-          try {
-            resp = await AutocompleteSuggestion.fetchAutocompleteSuggestions(req);
-          } catch (reqErr) {
-            try {
-              resp = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
-                input: query,
-                includedRegionCodes: ["ZA"]
-              });
-            } catch (e2) {}
-          }
-
-          if (resp && resp.suggestions && resp.suggestions.length > 0) {
-            itemsToRender = resp.suggestions.map(sugg => {
-              const pred = sugg.placePrediction;
-              const text = (pred && pred.text && (pred.text.text || pred.text)) || (pred && pred.description) || sugg.text || "";
-              const placeId = pred ? (pred.placeId || (pred.toPlace && pred.toPlace().id)) : null;
-              return {
-                text: text,
-                placeId: placeId,
-                suggestion: sugg
-              };
-            }).filter(i => Boolean(i.text));
+        if (typeof google !== "undefined" && google.maps && google.maps.importLibrary) {
+          const placesLib = await google.maps.importLibrary("places");
+          if (placesLib) {
+            AutocompleteSuggestion = placesLib.AutocompleteSuggestion;
+            Place = placesLib.Place;
           }
         }
+      } catch (e) {
+        console.warn("Places API New import warning:", e);
+      }
 
-        // 2. Fallback 1: Google Geocoding API if Places API (New) returns empty or is disabled
-        if (itemsToRender.length === 0 && typeof google !== "undefined" && google.maps && google.maps.Geocoder) {
-          try {
-            const geocoder = new google.maps.Geocoder();
-            const geoResp = await new Promise((resolve) => {
-              geocoder.geocode({ address: query, componentRestrictions: { country: "ZA" } }, (results, status) => {
-                if (status === "OK" && results) resolve(results);
-                else resolve([]);
-              });
-            });
-            if (geoResp && geoResp.length > 0) {
-              itemsToRender = geoResp.slice(0, 5).map(res => ({
-                text: res.formatted_address,
-                placeId: res.place_id
-              }));
+      const fetchPredictions = async () => {
+        const query = input.value.trim();
+        if (!query || query.length < 2) {
+          dropdown.style.display = "none";
+          return;
+        }
+
+        try {
+          let itemsToRender = [];
+
+          // 1. Primary: Places API (New) AutocompleteSuggestion
+          if (AutocompleteSuggestion && typeof AutocompleteSuggestion.fetchAutocompleteSuggestions === "function") {
+            const req = {
+              input: query,
+              includedRegionCodes: ["ZA"]
+            };
+
+            if (placeType === "city") {
+              req.includedPrimaryTypes = ["locality", "administrative_area_level_3"];
+            } else if (placeType === "suburb") {
+              req.includedPrimaryTypes = ["sublocality_level_1", "sublocality_level_2", "neighborhood"];
+            } else if (placeType === "street") {
+              req.includedPrimaryTypes = ["street_address", "route", "premise", "subpremise"];
             }
-          } catch (gErr) {
-            console.warn("Geocoder autocomplete fallback notice:", gErr);
+
+            let resp = null;
+            try {
+              resp = await AutocompleteSuggestion.fetchAutocompleteSuggestions(req);
+            } catch (reqErr) {
+              try {
+                resp = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+                  input: query,
+                  includedRegionCodes: ["ZA"]
+                });
+              } catch (e2) { }
+            }
+
+            if (resp && resp.suggestions && resp.suggestions.length > 0) {
+              itemsToRender = resp.suggestions.map(sugg => {
+                const pred = sugg.placePrediction;
+                const text = (pred && pred.text && (pred.text.text || pred.text)) || (pred && pred.description) || sugg.text || "";
+                const placeId = pred ? (pred.placeId || (pred.toPlace && pred.toPlace().id)) : null;
+                return {
+                  text: text,
+                  placeId: placeId,
+                  suggestion: sugg
+                };
+              }).filter(i => Boolean(i.text));
+            }
           }
-        }
 
-        // 3. Fallback 2: Local SA Suburb/City database if no API results found
-        if (itemsToRender.length === 0) {
-          const lowerQ = query.toLowerCase();
-          const listToSearch = placeType === "city" ? SOUTH_AFRICAN_CITIES : SOUTH_AFRICAN_SUBURBS;
-          const matches = listToSearch.filter(opt => opt.toLowerCase().includes(lowerQ));
-          itemsToRender = matches.slice(0, 5).map(m => ({ text: m, placeId: null }));
-        }
+          // 2. Fallback 1: Google Geocoding API if Places API (New) returns empty or is disabled
+          if (itemsToRender.length === 0 && typeof google !== "undefined" && google.maps && google.maps.Geocoder) {
+            try {
+              const geocoder = new google.maps.Geocoder();
+              const geoResp = await new Promise((resolve) => {
+                geocoder.geocode({ address: query, componentRestrictions: { country: "ZA" } }, (results, status) => {
+                  if (status === "OK" && results) resolve(results);
+                  else resolve([]);
+                });
+              });
+              if (geoResp && geoResp.length > 0) {
+                itemsToRender = geoResp.slice(0, 5).map(res => ({
+                  text: res.formatted_address,
+                  placeId: res.place_id
+                }));
+              }
+            } catch (gErr) {
+              console.warn("Geocoder autocomplete fallback notice:", gErr);
+            }
+          }
 
-        if (itemsToRender.length > 0) {
-          renderDropdownItems(itemsToRender);
-        } else {
+          // 3. Fallback 2: Local SA Suburb/City database if no API results found
+          if (itemsToRender.length === 0) {
+            const lowerQ = query.toLowerCase();
+            const listToSearch = placeType === "city" ? SOUTH_AFRICAN_CITIES : SOUTH_AFRICAN_SUBURBS;
+            const matches = listToSearch.filter(opt => opt.toLowerCase().includes(lowerQ));
+            itemsToRender = matches.slice(0, 5).map(m => ({ text: m, placeId: null }));
+          }
+
+          if (itemsToRender.length > 0) {
+            renderDropdownItems(itemsToRender);
+          } else {
+            dropdown.style.display = "none";
+          }
+
+        } catch (err) {
+          console.warn("Prediction error:", err);
           dropdown.style.display = "none";
         }
+      };
 
-      } catch (err) {
-        console.warn("Prediction error:", err);
-        dropdown.style.display = "none";
-      }
-    };
-
-    const renderDropdownItems = (items) => {
-      dropdown.innerHTML = "";
-      items.forEach(itemData => {
-        const item = document.createElement("div");
-        item.style.cssText = `
+      const renderDropdownItems = (items) => {
+        dropdown.innerHTML = "";
+        items.forEach(itemData => {
+          const item = document.createElement("div");
+          item.style.cssText = `
           padding: 10px 14px;
           font-size: 12.5px;
           color: #000000;
@@ -1492,11 +1553,11 @@
           gap: 10px;
         `;
 
-        const parts = itemData.text.split(",");
-        const mainTitle = parts[0] ? parts[0].trim() : itemData.text;
-        const subTitle = parts.slice(1).join(", ").trim();
+          const parts = itemData.text.split(",");
+          const mainTitle = parts[0] ? parts[0].trim() : itemData.text;
+          const subTitle = parts.slice(1).join(", ").trim();
 
-        item.innerHTML = `
+          item.innerHTML = `
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#777777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
             <path d="M12 21s-6-5.333-6-10a6 6 0 0 1 12 0c0 4.667-6 10-6 10z"></path>
             <circle cx="12" cy="11" r="2"></circle>
@@ -1507,47 +1568,47 @@
           </div>
         `;
 
-        item.onmouseenter = () => { item.style.background = "#f5f5f5"; };
-        item.onmouseleave = () => { item.style.background = "#ffffff"; };
-        item.onmousedown = async (e) => {
-          e.preventDefault();
-          input.value = itemData.text;
-          dropdown.style.display = "none";
+          item.onmouseenter = () => { item.style.background = "#f5f5f5"; };
+          item.onmouseleave = () => { item.style.background = "#ffffff"; };
+          item.onmousedown = async (e) => {
+            e.preventDefault();
+            input.value = itemData.text;
+            dropdown.style.display = "none";
 
-          let fetchedAddress = false;
-          if (itemData.suggestion && typeof itemData.suggestion.toPlace === "function") {
-            try {
-              const place = itemData.suggestion.toPlace();
-              await place.fetchFields({ fields: ["addressComponents", "formattedAddress"] });
-              if (place.addressComponents) {
-                fillAddressFromComponents(place.addressComponents, place.formattedAddress || itemData.text, itemData.text);
-                fetchedAddress = true;
+            let fetchedAddress = false;
+            if (itemData.suggestion && typeof itemData.suggestion.toPlace === "function") {
+              try {
+                const place = itemData.suggestion.toPlace();
+                await place.fetchFields({ fields: ["addressComponents", "formattedAddress"] });
+                if (place.addressComponents) {
+                  fillAddressFromComponents(place.addressComponents, place.formattedAddress || itemData.text, itemData.text);
+                  fetchedAddress = true;
+                }
+              } catch (pErr) {
+                console.warn("Place fetchFields notice:", pErr);
               }
-            } catch (pErr) {
-              console.warn("Place fetchFields notice:", pErr);
-            }
-          } else if (Place && itemData.placeId) {
-            try {
-              const place = new Place({ id: itemData.placeId });
-              await place.fetchFields({ fields: ["addressComponents", "formattedAddress"] });
-              if (place.addressComponents) {
-                fillAddressFromComponents(place.addressComponents, place.formattedAddress || itemData.text, itemData.text);
-                fetchedAddress = true;
+            } else if (Place && itemData.placeId) {
+              try {
+                const place = new Place({ id: itemData.placeId });
+                await place.fetchFields({ fields: ["addressComponents", "formattedAddress"] });
+                if (place.addressComponents) {
+                  fillAddressFromComponents(place.addressComponents, place.formattedAddress || itemData.text, itemData.text);
+                  fetchedAddress = true;
+                }
+              } catch (pErr) {
+                console.warn("Place instance fetchFields notice:", pErr);
               }
-            } catch (pErr) {
-              console.warn("Place instance fetchFields notice:", pErr);
             }
-          }
 
-          if (!fetchedAddress) {
-            fillAddressUsingGeocoder(itemData.placeId ? { placeId: itemData.placeId } : itemData.text, itemData.text);
-          }
-        };
-        dropdown.appendChild(item);
-      });
+            if (!fetchedAddress) {
+              fillAddressUsingGeocoder(itemData.placeId ? { placeId: itemData.placeId } : itemData.text, itemData.text);
+            }
+          };
+          dropdown.appendChild(item);
+        });
 
-      const footer = document.createElement("div");
-      footer.style.cssText = `
+        const footer = document.createElement("div");
+        footer.style.cssText = `
         padding: 6px 14px;
         background: #f8fafc;
         border-top: 1px solid #e2e8f0;
@@ -1558,78 +1619,78 @@
         font-weight: 600;
         letter-spacing: 0.5px;
       `;
-      footer.innerHTML = `POWERED BY GOOGLE PLACES`;
-      dropdown.appendChild(footer);
+        footer.innerHTML = `POWERED BY GOOGLE PLACES`;
+        dropdown.appendChild(footer);
 
-      dropdown.style.display = "block";
+        dropdown.style.display = "block";
+      };
+
+      input.addEventListener("input", fetchPredictions);
+      input.addEventListener("focus", fetchPredictions);
+      input.addEventListener("blur", () => {
+        setTimeout(() => { dropdown.style.display = "none"; }, 200);
+      });
+    }
+
+    // Google Places Autocomplete Initialization for All Form Fields
+    window.initGooglePlaces = async function () {
+      // 1. Primary Address Search Bar (Google Places API New Autocomplete)
+      attachModernPlacesAutocomplete("c_address_search", "street");
+
+      // 2. Street Address Field
+      attachModernPlacesAutocomplete("c_street", "street");
+
+      // 3. Suburb Field
+      attachModernPlacesAutocomplete("c_suburb", "suburb");
+
+      // 4. City Field
+      attachModernPlacesAutocomplete("c_city", "city");
+
+      // 5. Postal Code Field & Custom SA Lookup
+      setupCustomInputAutocomplete("c_postal", SOUTH_AFRICAN_CITIES);
     };
 
-    input.addEventListener("input", fetchPredictions);
-    input.addEventListener("focus", fetchPredictions);
-    input.addEventListener("blur", () => {
-      setTimeout(() => { dropdown.style.display = "none"; }, 200);
-    });
-  }
-
-  // Google Places Autocomplete Initialization for All Form Fields
-  window.initGooglePlaces = async function() {
-    // 1. Primary Address Search Bar (Google Places API New Autocomplete)
-    attachModernPlacesAutocomplete("c_address_search", "street");
-
-    // 2. Street Address Field
-    attachModernPlacesAutocomplete("c_street", "street");
-
-    // 3. Suburb Field
-    attachModernPlacesAutocomplete("c_suburb", "suburb");
-
-    // 4. City Field
-    attachModernPlacesAutocomplete("c_city", "city");
-
-    // 5. Postal Code Field & Custom SA Lookup
-    setupCustomInputAutocomplete("c_postal", SOUTH_AFRICAN_CITIES);
-  };
-
-  // Immediate global focus trap to guarantee attachment on first click/focus
-  document.addEventListener("focusin", (e) => {
-    if (e.target && ["c_address_search", "c_street", "c_suburb", "c_city", "c_postal"].includes(e.target.id)) {
-      if (typeof window.initGooglePlaces === "function") {
-        window.initGooglePlaces();
+    // Immediate global focus trap to guarantee attachment on first click/focus
+    document.addEventListener("focusin", (e) => {
+      if (e.target && ["c_address_search", "c_street", "c_suburb", "c_city", "c_postal"].includes(e.target.id)) {
+        if (typeof window.initGooglePlaces === "function") {
+          window.initGooglePlaces();
+        }
       }
-    }
-  });
+    });
 
-  // Fallback for address lookup blur so unlisted/manual addresses sync smoothly
-  window.handleAddressLookupBlur = function() {
-    const lookupInput = document.getElementById("c_address_lookup");
-    const streetInput = document.getElementById("c_street");
-    if (lookupInput && streetInput && lookupInput.value.trim() && !streetInput.value.trim()) {
-      streetInput.value = lookupInput.value.trim();
-    }
-  };
+    // Fallback for address lookup blur so unlisted/manual addresses sync smoothly
+    window.handleAddressLookupBlur = function () {
+      const lookupInput = document.getElementById("c_address_lookup");
+      const streetInput = document.getElementById("c_street");
+      if (lookupInput && streetInput && lookupInput.value.trim() && !streetInput.value.trim()) {
+        streetInput.value = lookupInput.value.trim();
+      }
+    };
 
-  // Load and render cart details
-  document.addEventListener('DOMContentLoaded', () => {
-    renderCheckoutPage();
-  });
+    // Load and render cart details
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCheckoutPage();
+    });
 
-  function renderCheckoutPage() {
-    const content = document.getElementById("checkoutContent");
-    if (!content) return;
+    function renderCheckoutPage() {
+      const content = document.getElementById("checkoutContent");
+      if (!content) return;
 
-    // Fetch items from localStorage
-    let cart = [];
-    try {
-      cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
-    } catch(e) {
-      console.error("Failed to parse cart items:", e);
-    }
+      // Fetch items from localStorage
+      let cart = [];
+      try {
+        cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
+      } catch (e) {
+        console.error("Failed to parse cart items:", e);
+      }
 
-    // Filter removed items
-    const activeItems = cart.filter(item => !item.removed);
+      // Filter removed items
+      const activeItems = cart.filter(item => !item.removed);
 
-    if (activeItems.length === 0) {
-      // Empty checkout state
-      content.innerHTML = `
+      if (activeItems.length === 0) {
+        // Empty checkout state
+        content.innerHTML = `
         <div class="empty-checkout-state">
           <div class="empty-checkout-title">Your Bag is Empty</div>
           <p class="empty-checkout-desc">
@@ -1638,47 +1699,47 @@
           <a href="catalog.html" class="empty-btn">Shop Scents</a>
         </div>
       `;
-      return;
-    }
-
-    // Calculate totals using central calculateCartPricing
-    const pricing = window.calculateCartPricing ? window.calculateCartPricing(activeItems) : {
-      totalBottles: activeItems.reduce((sum, item) => sum + item.quantity, 0),
-      rawSubtotal: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-      bundleDiscount: 0,
-      newsletterDiscountAmount: 0,
-      shippingFee: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) >= 600 ? 0 : 85,
-      finalTotal: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-    };
-
-    const subtotal = pricing.rawSubtotal;
-    const bundleDiscount = pricing.bundleDiscount || 0;
-    const discountAmount = pricing.newsletterDiscountAmount;
-    const hasDiscount = discountAmount > 0;
-    const shippingFee = pricing.shippingFee;
-    const finalTotal = pricing.finalTotal;
-
-    // Compile items summary list HTML
-    let itemsHtml = '';
-    activeItems.forEach(item => {
-      let cleanImage = '';
-      if (item.image_thumb) {
-        cleanImage = item.image_thumb;
-      } else if (item.image) {
-        cleanImage = item.image.split(',')[0].trim();
-      }
-      
-      if (!cleanImage || cleanImage.startsWith('file:') || cleanImage.includes('file:///')) {
-        cleanImage = 'minara%205%20transparent%202.svg';
+        return;
       }
 
-      let selectionsHtml = '';
-      if (item.selectedScents && item.selectedScents.length > 0) {
-        const names = item.selectedScents.map(s => typeof s === 'object' && s ? (s.nameShort || s.name) : s);
-        selectionsHtml = `<div class="summary-item-meta" style="color: #1106e8; font-weight: 500;">Selections: ${names.join(', ')}</div>`;
-      }
+      // Calculate totals using central calculateCartPricing
+      const pricing = window.calculateCartPricing ? window.calculateCartPricing(activeItems) : {
+        totalBottles: activeItems.reduce((sum, item) => sum + item.quantity, 0),
+        rawSubtotal: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        bundleDiscount: 0,
+        newsletterDiscountAmount: 0,
+        shippingFee: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) >= 600 ? 0 : 85,
+        finalTotal: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+      };
 
-      itemsHtml += `
+      const subtotal = pricing.rawSubtotal;
+      const bundleDiscount = pricing.bundleDiscount || 0;
+      const discountAmount = pricing.newsletterDiscountAmount;
+      const hasDiscount = discountAmount > 0;
+      const shippingFee = pricing.shippingFee;
+      const finalTotal = pricing.finalTotal;
+
+      // Compile items summary list HTML
+      let itemsHtml = '';
+      activeItems.forEach(item => {
+        let cleanImage = '';
+        if (item.image_thumb) {
+          cleanImage = item.image_thumb;
+        } else if (item.image) {
+          cleanImage = item.image.split(',')[0].trim();
+        }
+
+        if (!cleanImage || cleanImage.startsWith('file:') || cleanImage.includes('file:///')) {
+          cleanImage = 'minara%205%20transparent%202.svg';
+        }
+
+        let selectionsHtml = '';
+        if (item.selectedScents && item.selectedScents.length > 0) {
+          const names = item.selectedScents.map(s => typeof s === 'object' && s ? (s.nameShort || s.name) : s);
+          selectionsHtml = `<div class="summary-item-meta" style="color: #1106e8; font-weight: 500;">Selections: ${names.join(', ')}</div>`;
+        }
+
+        itemsHtml += `
         <div class="summary-item-row">
           <img src="${cleanImage}" class="summary-item-img" alt="${item.nameShort || item.name}">
           <div class="summary-item-details">
@@ -1692,33 +1753,32 @@
           </div>
         </div>
       `;
-    });
+      });
 
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const d = new Date();
-    const defaultDateStr = `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const d = new Date();
+      const defaultDateStr = `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 
-    // Render forms and summaries
-    content.innerHTML = `
+      // Render forms and summaries
+      content.innerHTML = `
       <style>
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
       </style>
       <div class="checkout-container">
         
         <!-- Form Section -->
-        <div class="form-column">
-          <div class="checkout-header-row" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #000; padding-bottom: 15px; margin-bottom: 35px;">
+        <div class="form-c          <div class="checkout-header-row" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #000; padding-bottom: 15px; margin-bottom: 35px;">
             <div>
               <div class="checkout-title" style="margin-bottom: 4px; padding-bottom: 0; border-bottom: none; font-size: 20px;">Secure Checkout</div>
-              <div style="font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #09A5DB; text-transform: uppercase;">STEP 1: DELIVERY & CONTACT</div>
+              <div style="font-size: 9.5px; font-weight: 800; letter-spacing: 2px; color: #000000; text-transform: uppercase;">STEP 1: DELIVERY & CONTACT</div>
             </div>
             
             <!-- Paystack Official Brand Logo Trust Indicator -->
             <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 30" width="98" height="24" style="display: block;">
-                <rect width="120" height="30" rx="4" fill="#011B33"/>
-                <path d="M16 9h14v3.5H16zM16 14.5h14v3.5H16zM16 20h9v3.5h-9z" fill="#09A5DB"/>
+                <rect width="120" height="30" rx="0" fill="#000000"/>
+                <path d="M16 9h14v3.5H16zM16 14.5h14v3.5H16zM16 20h9v3.5h-9z" fill="#ffffff"/>
                 <text x="44" y="20" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="13" fill="#FFFFFF">paystack</text>
               </svg>
               <span style="font-size: 8px; font-weight: 600; color: #666666; text-transform: uppercase; letter-spacing: 0.8px;">(a Stripe company)</span>
@@ -1731,11 +1791,11 @@
             <div class="form-group">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                 <label for="c_address_search" style="margin-bottom: 0;">Address</label>
-                <a href="#" onclick="event.preventDefault();" style="font-size: 12px; color: #3b82f6; text-decoration: none; font-weight: 500;">Choose from address book ▾</a>
+                <a href="#" onclick="event.preventDefault();" style="font-size: 11px; color: #000000; text-decoration: underline; font-weight: 500;">Choose from address book ▾</a>
               </div>
               <div id="gplaces_autocomplete_container" style="position: relative;">
                 <div style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #9ca3af; display: flex; align-items: center;">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                   </svg>
@@ -1802,7 +1862,7 @@
               <span class="earliest-label" style="font-weight: bold; font-size: 13px; color: #111;">Earliest requested delivery</span>
               <span id="displayDeliveryDate" class="delivery-date-text" style="font-size: 13px; color: #4b5563;">${defaultDateStr}</span>
               <button type="button" class="edit-date-btn" onclick="toggleDatePicker()" style="background: none; border: none; cursor: pointer; padding: 2px;">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                   <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path>
                 </svg>
@@ -1812,8 +1872,8 @@
 
             <!-- Section 2: Contact Details -->
             <div class="section-title" style="margin-top: 35px; display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-              <div style="width: 24px; height: 24px; border-radius: 50%; background: #fef08a; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="#a16207"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+              <div style="width: 20px; height: 20px; border-radius: 0px; background: #000000; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               </div>
               <span style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 15px; font-weight: 900; color: #000000; text-transform: none; letter-spacing: 0;">Contact details</span>
             </div>
@@ -1833,7 +1893,7 @@
               <input type="email" id="c_email" class="form-input" placeholder="" required autocomplete="email">
               
               <div style="margin-top: 8px;">
-                <a href="#" id="addEmailLink" onclick="toggleAlternativeEmail(event)" style="font-size: 13px; color: #3b82f6; text-decoration: none; font-weight: 500;">+ Add another email</a>
+                <a href="#" id="addEmailLink" onclick="toggleAlternativeEmail(event)" style="font-size: 11px; color: #000000; text-decoration: underline; font-weight: 500;">+ Add another email</a>
               </div>
               
               <div id="altEmailGroup" style="display: none; margin-top: 10px;">
@@ -1852,8 +1912,8 @@
                 <span style="font-size: 11px; color: #6b7280; font-weight: normal;">(Optional)</span>
               </div>
               <div style="display: flex; gap: 8px;">
-                <div style="display: flex; align-items: center; border: 1px solid #d1d5db; padding: 10px 12px; border-radius: 6px; background: #ffffff; font-size: 12px; color: #111; font-weight: bold; gap: 6px; flex-shrink: 0;">
-                  <svg width="18" height="12" viewBox="0 0 30 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="border-radius: 1px;">
+                <div style="display: flex; align-items: center; border: 1px solid #d1d5db; padding: 10px 12px; border-radius: 0px; background: #ffffff; font-size: 12px; color: #111; font-weight: bold; gap: 6px; flex-shrink: 0;">
+                  <svg width="18" height="12" viewBox="0 0 30 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="border-radius: 0px;">
                     <rect width="30" height="20" fill="#007A3D"/>
                     <path d="M0 0H30V6.66H0V0Z" fill="#E03C31"/>
                     <path d="M0 13.34H30V20H0V13.34Z" fill="#001489"/>
@@ -1868,37 +1928,14 @@
               </div>
             </div>
 
-            <!-- Alternative contact number -->
-            <div class="form-group">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <label for="c_phone_alt" style="margin-bottom: 0;">Alternative contact number</label>
-                <span style="font-size: 11px; color: #6b7280; font-weight: normal;">(Optional)</span>
-              </div>
-              <div style="display: flex; gap: 8px;">
-                <div style="display: flex; align-items: center; border: 1px solid #d1d5db; padding: 10px 12px; border-radius: 6px; background: #ffffff; font-size: 12px; color: #111; font-weight: bold; gap: 6px; flex-shrink: 0;">
-                  <svg width="18" height="12" viewBox="0 0 30 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="border-radius: 1px;">
-                    <rect width="30" height="20" fill="#007A3D"/>
-                    <path d="M0 0H30V6.66H0V0Z" fill="#E03C31"/>
-                    <path d="M0 13.34H30V20H0V13.34Z" fill="#001489"/>
-                    <path d="M0 0L12 10L0 20V0Z" fill="#000000"/>
-                    <path d="M0 0L10 10L0 20" stroke="#FFB81C" stroke-width="2.5"/>
-                    <path d="M10 10H30" stroke="#FFFFFF" stroke-width="3.5"/>
-                    <path d="M12 10H30" stroke="#007A3D" stroke-width="2"/>
-                  </svg>
-                  <span style="font-size: 10px; color: #6b7280;">▾</span>
-                </div>
-                <input type="tel" id="c_phone_alt" class="form-input" placeholder="+27" style="flex: 1;" autocomplete="tel-national">
-              </div>
-            </div>
-
-            <div style="margin-top: 25px; font-size: 11.5px; color: #444; display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 12px 14px; border-radius: 4px; border: 1px solid #e2e8f0; border-left: 3px solid #09A5DB;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#09A5DB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <div style="margin-top: 25px; font-size: 11.5px; color: #222222; display: flex; align-items: center; gap: 10px; background: #fafafa; padding: 12px 14px; border-radius: 0px; border: 1px solid #eaeaea; border-left: 2px solid #000000;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="3" y="11" width="18" height="11" rx="1" ry="1"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
               <span>You will be securely redirected to Paystack to complete your 256-bit SSL encrypted payment.</span>
             </div>
 
-            <button type="submit" class="submit-order-btn" id="payBtn" style="margin-top: 15px; background: #011B33; color: #ffffff; font-weight: bold; letter-spacing: 1.5px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 16px;">
+            <button type="submit" class="submit-order-btn" id="payBtn" style="margin-top: 20px; background: #000000; color: #ffffff; font-weight: bold; letter-spacing: 1.8px; border-radius: 0px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 16px; border: 1px solid #000000;">
               <span>Continue to Paystack Payment</span>
-              <span style="font-size: 9px; opacity: 0.75; letter-spacing: 1px; font-weight: normal; text-transform: uppercase;">Free Express Courier Guy Shipping Included</span>
+              <span style="font-size: 9px; opacity: 0.7; letter-spacing: 1px; font-weight: normal; text-transform: uppercase;">Free Express Courier Guy Shipping Included</span>
             </button>
           </form>
         </div>
@@ -1918,13 +1955,13 @@
               <span>R${subtotal}</span>
             </div>
             ${bundleDiscount > 0 ? `
-              <div class="pricing-row discount-row" style="color: #1106e8; font-weight: bold;">
+              <div class="pricing-row discount-row" style="color: #000000; font-weight: bold;">
                 <span>2+ Bottle Discount</span>
                 <span>-R${bundleDiscount}</span>
               </div>
             ` : ''}
             ${hasDiscount ? `
-              <div class="pricing-row discount-row">
+              <div class="pricing-row discount-row" style="color: #000000; font-weight: bold;">
                 <span>Newsletter Discount (5%)</span>
                 <span>-R${discountAmount}</span>
               </div>
@@ -1941,48 +1978,48 @@
 
           <!-- Secure checkout badge/trust block with official card icons -->
           <div class="checkout-trust">
-            <div class="trust-card" style="border: 1px solid #e1e8ed; background: #f8fafc; padding: 16px; border-radius: 6px; margin-bottom: 12px;">
+            <div class="trust-card" style="border: 1px solid #eaeaea; background: #fafafa; padding: 16px; border-radius: 0px; margin-bottom: 12px;">
               <div style="display: flex; align-items: flex-start; gap: 12px;">
-                <div style="width: 32px; height: 32px; border-radius: 50%; background: #e0f2fe; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <div style="width: 28px; height: 28px; border-radius: 0px; background: #000000; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="1" ry="1"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                 </div>
                 <div class="trust-card-content">
-                  <div class="trust-card-title" style="font-weight: bold; font-size: 13px; color: #0f172a; margin-bottom: 4px;">Secured by Paystack <span style="font-size: 10px; color: #666666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 4px;">(a Stripe company)</span></div>
-                  <div style="font-size: 11.5px; color: #475569; line-height: 1.4;">
+                  <div class="trust-card-title" style="font-weight: bold; font-size: 12px; color: #000000; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Secured by Paystack <span style="font-size: 9px; color: #666666; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 4px;">(a Stripe company)</span></div>
+                  <div style="font-size: 11px; color: #555555; line-height: 1.45;">
                     Your financial information is encrypted using bank-grade 256-bit SSL security powered by Paystack (a Stripe company).
                   </div>
                   <!-- Payment Logos Grid inside Trust card -->
                   <div style="display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap;">
                     <!-- Visa Logo -->
-                    <svg title="Visa" viewBox="0 0 36 24" width="32" height="21" xmlns="http://www.w3.org/2000/svg" style="border-radius: 2px;">
-                      <rect width="36" height="24" rx="2" fill="#1A1F71"/>
+                    <svg title="Visa" viewBox="0 0 36 24" width="32" height="21" xmlns="http://www.w3.org/2000/svg" style="border-radius: 0px;">
+                      <rect width="36" height="24" rx="0" fill="#1A1F71"/>
                       <text x="50%" y="60%" font-family="Impact, Arial Black, sans-serif" font-style="italic" font-weight="bold" font-size="10" fill="#F7B600" text-anchor="middle">VISA</text>
                     </svg>
                     <!-- Mastercard Logo -->
-                    <svg title="Mastercard" viewBox="0 0 36 24" width="32" height="21" xmlns="http://www.w3.org/2000/svg" style="border-radius: 2px;">
-                      <rect width="36" height="24" rx="2" fill="#222"/>
+                    <svg title="Mastercard" viewBox="0 0 36 24" width="32" height="21" xmlns="http://www.w3.org/2000/svg" style="border-radius: 0px;">
+                      <rect width="36" height="24" rx="0" fill="#222"/>
                       <circle cx="14" cy="12" r="7" fill="#EB001B" opacity="0.95"/>
                       <circle cx="22" cy="12" r="7" fill="#F79E1B" opacity="0.95"/>
                     </svg>
                     <!-- Instant EFT Logo -->
-                    <svg title="Instant EFT" viewBox="0 0 45 24" width="38" height="21" xmlns="http://www.w3.org/2000/svg" style="border-radius: 2px;">
-                      <rect width="45" height="24" rx="2" fill="#000"/>
-                      <text x="50%" y="62%" font-family="Helvetica, Arial, sans-serif" font-weight="900" font-size="7" fill="#09A5DB" text-anchor="middle">EFT</text>
+                    <svg title="Instant EFT" viewBox="0 0 45 24" width="38" height="21" xmlns="http://www.w3.org/2000/svg" style="border-radius: 0px;">
+                      <rect width="45" height="24" rx="0" fill="#000"/>
+                      <text x="50%" y="62%" font-family="Helvetica, Arial, sans-serif" font-weight="900" font-size="7" fill="#ffffff" text-anchor="middle">EFT</text>
                     </svg>
-                    <span style="font-size: 9px; font-weight: bold; background: #e0f2fe; color: #0369a1; padding: 3px 6px; border-radius: 3px; font-family: monospace;">256-BIT SSL</span>
+                    <span style="font-size: 8px; font-weight: bold; background: #000000; color: #ffffff; padding: 3px 6px; border-radius: 0px; font-family: monospace; letter-spacing: 0.5px;">256-BIT SSL</span>
                   </div>
                 </div>
               </div>
             </div>
             
-            <div class="trust-card" style="border: 1px solid #e1e8ed; background: #f8fafc; padding: 16px; border-radius: 6px;">
+            <div class="trust-card" style="border: 1px solid #eaeaea; background: #fafafa; padding: 16px; border-radius: 0px;">
               <div style="display: flex; align-items: flex-start; gap: 12px;">
-                <div style="width: 32px; height: 32px; border-radius: 50%; background: #f0fdf4; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                <div style="width: 28px; height: 28px; border-radius: 0px; background: #000000; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                 </div>
                 <div class="trust-card-content">
-                  <div class="trust-card-title" style="font-weight: bold; font-size: 13px; color: #0f172a; margin-bottom: 4px;">Courier Guy Tracked Delivery</div>
-                  <div style="font-size: 11.5px; color: #475569; line-height: 1.4;">
+                  <div class="trust-card-title" style="font-weight: bold; font-size: 12px; color: #000000; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Courier Guy Tracked Delivery</div>
+                  <div style="font-size: 11px; color: #555555; line-height: 1.45;">
                     Direct door-to-door courier dispatch with real-time tracking notifications sent to your email & SMS.
                   </div>
                 </div>
@@ -1994,28 +2031,28 @@
       </div>
     `;
 
-    // Pre-fill email if user is logged in & Initialize Google Places Autocomplete
-    setTimeout(() => {
-      if (typeof window.initGooglePlaces === "function") {
-        window.initGooglePlaces();
-      }
-      if (window.auth && window.auth.currentUser) {
-        const emailInput = document.getElementById("c_email");
-        if (emailInput && window.auth.currentUser.email) {
-          emailInput.value = window.auth.currentUser.email;
+      // Pre-fill email if user is logged in & Initialize Google Places Autocomplete
+      setTimeout(() => {
+        if (typeof window.initGooglePlaces === "function") {
+          window.initGooglePlaces();
         }
-      }
-    }, 200);
-  }
+        if (window.auth && window.auth.currentUser) {
+          const emailInput = document.getElementById("c_email");
+          if (emailInput && window.auth.currentUser.email) {
+            emailInput.value = window.auth.currentUser.email;
+          }
+        }
+      }, 200);
+    }
 
-  // Handle Form Submission and redirect to Paystack Gateway
-  window.handleCheckoutSubmit = async function(event) {
-    event.preventDefault();
-    
-    const payBtn = document.getElementById("payBtn");
-    if (payBtn) {
-      payBtn.disabled = true;
-      payBtn.innerHTML = `
+    // Handle Form Submission and redirect to Paystack Gateway
+    window.handleCheckoutSubmit = async function (event) {
+      event.preventDefault();
+
+      const payBtn = document.getElementById("payBtn");
+      if (payBtn) {
+        payBtn.disabled = true;
+        payBtn.innerHTML = `
         <span style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation: spin 1s linear infinite;">
             <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
@@ -2024,151 +2061,152 @@
           Securing Paystack Payment...
         </span>
       `;
-    }
+      }
 
-    // Retrieve active cart items
-    let cart = [];
-    try {
-      cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
-    } catch(e) {
-      console.error(e);
-    }
-    const activeItems = cart.filter(item => !item.removed);
-    if (activeItems.length === 0) {
-      alert("Your cart is empty.");
-      window.location.href = "catalog.html";
-      return;
-    }
-
-    // Capture inputs
-    const fullName = document.getElementById("c_fullname").value.trim();
-    const email = document.getElementById("c_email").value.trim();
-    
-    const emailAltInput = document.getElementById("c_email_alt");
-    const emailAlt = emailAltInput ? emailAltInput.value.trim() : "";
-
-    const phoneSuffix = document.getElementById("c_phone").value.trim();
-    const phone = '+27' + phoneSuffix.replace(/^0+/, '');
-    
-    // Split name and surname
-    const nameParts = fullName.split(/\s+/);
-    const firstName = nameParts[0] || "Customer";
-    const lastName = nameParts.slice(1).join(" ") || "Order";
-    
-    // Address values
-    const building = document.getElementById("c_building") ? document.getElementById("c_building").value.trim() : "";
-    const street = document.getElementById("c_street").value.trim();
-    const suburb = document.getElementById("c_suburb").value.trim();
-    const city = document.getElementById("c_city").value.trim();
-    const province = document.getElementById("c_province").value;
-    const postalCode = document.getElementById("c_postal") ? document.getElementById("c_postal").value.trim() : "0000";
-    const instructions = document.getElementById("c_instructions").value.trim();
-    const deliveryDate = document.getElementById("displayDeliveryDate") ? document.getElementById("displayDeliveryDate").textContent.trim() : "";
-
-    // Calculate dynamic pricing totals using central calculateCartPricing
-    const pricing = window.calculateCartPricing ? window.calculateCartPricing(activeItems) : {
-      finalTotal: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-    };
-    const finalTotal = pricing.finalTotal;
-
-    // Compile delivery address
-    let compiledAddress = '';
-    if (building) {
-      compiledAddress += `${building}, `;
-    }
-    compiledAddress += `${street}, ${suburb}, ${city}, ${province}, ${postalCode}`;
-
-    const callbackUrl = window.location.origin + '/success.html';
-
-    const orderPayload = {
-      customer: {
-        firstName,
-        lastName,
-        email,
-        emailAlt,
-        phone,
-      },
-      shipping: {
-        address: compiledAddress,
-        deliveryDate,
-        instructions,
-      },
-      items: activeItems.map(item => ({
-        name: item.nameShort || item.name,
-        quantity: item.quantity,
-        price: item.price,
-        size: item.size || '100ml',
-        selectedScents: item.selectedScents || null
-      })),
-      total: finalTotal,
-      callbackUrl: callbackUrl
-    };
-
-    try {
-      let functions = null;
-      let httpsCallable = null;
-
+      // Retrieve active cart items
+      let cart = [];
       try {
-        const mod = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js");
-        functions = mod.getFunctions();
-        httpsCallable = mod.httpsCallable;
-      } catch (importErr) {
-        console.warn("Firebase Functions JS import fallback:", importErr);
+        cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
+      } catch (e) {
+        console.error(e);
+      }
+      const activeItems = cart.filter(item => !item.removed);
+      if (activeItems.length === 0) {
+        alert("Your cart is empty.");
+        window.location.href = "catalog.html";
+        return;
       }
 
-      let resData = null;
+      // Capture inputs
+      const fullName = document.getElementById("c_fullname").value.trim();
+      const email = document.getElementById("c_email").value.trim();
 
-      if (functions && httpsCallable) {
-        const createPaystackFn = httpsCallable(functions, "createPaystackTransaction");
-        const res = await createPaystackFn(orderPayload);
-        resData = res.data;
-      } else {
-        const res = await fetch("https://us-central1-minara5.cloudfunctions.net/createPaystackTransaction", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ data: orderPayload })
-        });
-        const json = await res.json();
-        resData = json.result || json;
+      const emailAltInput = document.getElementById("c_email_alt");
+      const emailAlt = emailAltInput ? emailAltInput.value.trim() : "";
+
+      const phoneSuffix = document.getElementById("c_phone").value.trim();
+      const phone = '+27' + phoneSuffix.replace(/^0+/, '');
+
+      // Split name and surname
+      const nameParts = fullName.split(/\s+/);
+      const firstName = nameParts[0] || "Customer";
+      const lastName = nameParts.slice(1).join(" ") || "Order";
+
+      // Address values
+      const building = document.getElementById("c_building") ? document.getElementById("c_building").value.trim() : "";
+      const street = document.getElementById("c_street").value.trim();
+      const suburb = document.getElementById("c_suburb").value.trim();
+      const city = document.getElementById("c_city").value.trim();
+      const province = document.getElementById("c_province").value;
+      const postalCode = document.getElementById("c_postal") ? document.getElementById("c_postal").value.trim() : "0000";
+      const instructions = document.getElementById("c_instructions").value.trim();
+      const deliveryDate = document.getElementById("displayDeliveryDate") ? document.getElementById("displayDeliveryDate").textContent.trim() : "";
+
+      // Calculate dynamic pricing totals using central calculateCartPricing
+      const pricing = window.calculateCartPricing ? window.calculateCartPricing(activeItems) : {
+        finalTotal: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+      };
+      const finalTotal = pricing.finalTotal;
+
+      // Compile delivery address
+      let compiledAddress = '';
+      if (building) {
+        compiledAddress += `${building}, `;
       }
+      compiledAddress += `${street}, ${suburb}, ${city}, ${province}, ${postalCode}`;
 
-      if (resData && resData.success && resData.authorization_url) {
-        // Reserve & deduct stock when user proceeds to Paystack
-        if (typeof window.reserveAndDeductStock === "function") {
-          window.reserveAndDeductStock(activeItems, resData.reference);
-        }
+      const callbackUrl = window.location.origin + '/success.html';
 
-        localStorage.setItem('minara_last_order', JSON.stringify({
-          paymentId: resData.reference,
+      const orderPayload = {
+        customer: {
           firstName,
           lastName,
           email,
           emailAlt,
           phone,
+        },
+        shipping: {
           address: compiledAddress,
           deliveryDate,
-          total: finalTotal,
-          items: orderPayload.items
-        }));
+          instructions,
+        },
+        items: activeItems.map(item => ({
+          name: item.nameShort || item.name,
+          quantity: item.quantity,
+          price: item.price,
+          size: item.size || '100ml',
+          selectedScents: item.selectedScents || null
+        })),
+        total: finalTotal,
+        callbackUrl: callbackUrl
+      };
 
-        // Redirect customer to Paystack authorization page
-        window.location.href = resData.authorization_url;
-      } else {
-        throw new Error(resData ? (resData.message || "Invalid response from gateway") : "Connection failed");
+      try {
+        let functions = null;
+        let httpsCallable = null;
+
+        try {
+          const mod = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js");
+          functions = mod.getFunctions();
+          httpsCallable = mod.httpsCallable;
+        } catch (importErr) {
+          console.warn("Firebase Functions JS import fallback:", importErr);
+        }
+
+        let resData = null;
+
+        if (functions && httpsCallable) {
+          const createPaystackFn = httpsCallable(functions, "createPaystackTransaction");
+          const res = await createPaystackFn(orderPayload);
+          resData = res.data;
+        } else {
+          const res = await fetch("https://us-central1-minara5.cloudfunctions.net/createPaystackTransaction", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ data: orderPayload })
+          });
+          const json = await res.json();
+          resData = json.result || json;
+        }
+
+        if (resData && resData.success && resData.authorization_url) {
+          // Reserve & deduct stock when user proceeds to Paystack
+          if (typeof window.reserveAndDeductStock === "function") {
+            window.reserveAndDeductStock(activeItems, resData.reference);
+          }
+
+          localStorage.setItem('minara_last_order', JSON.stringify({
+            paymentId: resData.reference,
+            firstName,
+            lastName,
+            email,
+            emailAlt,
+            phone,
+            address: compiledAddress,
+            deliveryDate,
+            total: finalTotal,
+            items: orderPayload.items
+          }));
+
+          // Redirect customer to Paystack authorization page
+          window.location.href = resData.authorization_url;
+        } else {
+          throw new Error(resData ? (resData.message || "Invalid response from gateway") : "Connection failed");
+        }
+
+      } catch (err) {
+        console.error("Paystack transaction initialization error:", err);
+        alert("Unable to process request with Paystack payment gateway. Please verify your details and try again.");
+        if (payBtn) {
+          payBtn.disabled = false;
+          payBtn.textContent = "Continue to Paystack";
+        }
       }
+    };
+  </script>
 
-    } catch(err) {
-      console.error("Paystack transaction initialization error:", err);
-      alert("Unable to process request with Paystack payment gateway. Please verify your details and try again.");
-      if (payBtn) {
-        payBtn.disabled = false;
-        payBtn.textContent = "Continue to Paystack";
-      }
-    }
-  };
-</script>
-
-<script type="module" src="header.js?v=8"></script>
+  <script type="module" src="header.js?v=8"></script>
 
 </body>
+
 </html>

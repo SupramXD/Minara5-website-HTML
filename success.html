@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" translate="no" class="notranslate">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -9,7 +10,7 @@
   <link rel="preload" href="Gotham Narrow Bold.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="minara 5 transparent 2.svg" as="image" type="image/svg+xml">
   <link rel="icon" type="image/svg+xml" href="Studio Extrait Icon Svg.svg">
-  
+
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
@@ -22,8 +23,8 @@
     @font-face {
       font-family: 'Gotham Narrow Bold';
       src: url('Gotham Narrow Bold.woff2') format('woff2'),
-           url('Gotham Narrow Bold.woff') format('woff'),
-           url('Gotham Narrow Bold.otf') format('opentype');
+        url('Gotham Narrow Bold.woff') format('woff'),
+        url('Gotham Narrow Bold.otf') format('opentype');
       font-weight: 900;
       font-style: normal;
       font-display: swap;
@@ -36,7 +37,7 @@
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
-    
+
     body {
       font-family: Helvetica, Arial, sans-serif;
       background: #fff;
@@ -48,7 +49,9 @@
     /* HEADER */
     header {
       position: fixed;
-      top: 0; left: 0; right: 0;
+      top: 0;
+      left: 0;
+      right: 0;
       height: 45px;
       background: rgba(255, 255, 255, 0.75);
       -webkit-backdrop-filter: blur(10px);
@@ -66,6 +69,7 @@
       display: flex;
       align-items: center;
     }
+
     .left-nav a {
       font-size: 12px;
       text-transform: uppercase;
@@ -75,7 +79,10 @@
       text-decoration: none;
       transition: opacity .25s;
     }
-    .left-nav a:hover { opacity: 0.6; }
+
+    .left-nav a:hover {
+      opacity: 0.6;
+    }
 
     /* Center logo */
     .center-logo-link {
@@ -88,6 +95,7 @@
       align-items: center;
       justify-content: center;
     }
+
     .center-logo {
       height: 50px;
       opacity: 0.92;
@@ -98,12 +106,17 @@
     nav {
       margin-left: auto;
     }
+
     nav ul {
       list-style: none;
       display: flex;
       margin-top: 2px;
     }
-    nav ul li { margin-left: 25px; }
+
+    nav ul li {
+      margin-left: 25px;
+    }
+
     nav ul li a {
       font-size: 11px;
       text-transform: uppercase;
@@ -115,15 +128,21 @@
       text-decoration: none;
       transition: opacity .25s;
     }
-    nav ul li a:hover { opacity: 0.6; }
 
-    .desktop-icon { height: 12px; }
+    nav ul li a:hover {
+      opacity: 0.6;
+    }
+
+    .desktop-icon {
+      height: 12px;
+    }
 
     /* MOBILE MENU */
     .menu-icon {
       display: none;
       cursor: pointer;
     }
+
     .menu-icon img {
       height: 14px;
     }
@@ -371,23 +390,36 @@
     }
 
     @keyframes popCheck {
-      0% { transform: scale(0.4); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
+      0% {
+        transform: scale(0.4);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
     /* Responsive */
     @media (max-width: 900px) {
-      nav { display: none; }
-      
+      nav {
+        display: none;
+      }
+
       header {
         justify-content: space-between;
         align-items: center;
         padding: 6px 16px;
       }
 
-      .menu-icon { display: block; }
-      
-      .left-nav { display: none; }
+      .menu-icon {
+        display: block;
+      }
+
+      .left-nav {
+        display: none;
+      }
 
       .center-logo-link {
         position: absolute !important;
@@ -400,6 +432,7 @@
         align-items: center !important;
         justify-content: center !important;
       }
+
       .center-logo {
         height: 36px !important;
         pointer-events: auto !important;
@@ -423,7 +456,7 @@
         font-size: 18px;
       }
     }
-    
+
     footer {
       background: #000;
       color: #fff;
@@ -436,195 +469,213 @@
     }
   </style>
 </head>
+
 <body>
 
-<header>
-  <div class="menu-icon" onclick="openMenu()">
+  <header>
+    <div class="menu-icon" onclick="openMenu()">
       <img src="menu.svg">
-  </div>
+    </div>
 
-  <div class="left-nav">
+    <!-- LEFT nav -->
+    <div class="left-nav">
       <a href="catalog.html">fragrances</a>
       <a href="catalog.html?gender=men" style="margin-left:22px;">men</a>
       <a href="catalog.html?gender=women" style="margin-left:22px;">women</a>
       <a href="catalog.html?gender=unisex" style="margin-left:22px;">unisex</a>
-  </div>
+      <span class="under-construction-badge">Website Under construction</span>
+    </div>
 
 
-  <!-- CENTER LOGO -->
-  <a href="index.html" class="center-logo-link">
+    <!-- CENTER LOGO -->
+    <a href="index.html" class="center-logo-link">
       <img src="minara 5 transparent 2.svg" class="center-logo">
-  </a>
+    </a>
 
-  <!-- RIGHT ICONS -->
-  <nav>
-    <ul>
-      <li><a href="track-order.html">TRACK ORDER</a></li>
-      <li><a href="social media.html">SOCIALS</a></li>
-      <li class="header-account">
-        <div class="account-trigger" onclick="accountClicked(event)">
+    <!-- RIGHT ICONS -->
+    <nav>
+      <ul>
+        <li><a href="track-order.html"><img src="track.svg" class="desktop-icon"> TRACK ORDER</a></li>
+        <li><a href="social media.html"><img src="socials.svg" class="desktop-icon"> SOCIALS</a></li>
+        <li class="header-account">
+          <div class="account-trigger" onclick="accountClicked(event)">
             <img src="head shoulder.svg" class="desktop-icon">
             <span id="accountLabel" class="account-label">ACCOUNT</span>
-        </div>
-      </li>
-    </ul>
-  </nav>
-</header>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </header>
 
-<div id="accountDropdown" class="acc-dropdown">
+  <div id="accountDropdown" class="acc-dropdown">
     <div class="acc-head">
-        <span id="accName">ACCOUNT</span>
-        <span class="acc-close" onclick="closeAccDropdown()">X CLOSE</span>
+      <span id="accName">ACCOUNT</span>
+      <span class="acc-close" onclick="closeAccDropdown()">X CLOSE</span>
     </div>
     <a href="accountorder.html" class="acc-item">MY ORDERS</a>
     <a href="#" onclick="logout()" class="acc-item">LOG OUT</a>
-</div>
-
-<!-- SLIDEOUT MENU -->
-<div class="slideout" id="menuPanel">
-  <div class="close-btn" onclick="closeMenu()" aria-label="Close menu">
-    <span style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 2.5px; font-weight: 700; text-transform: uppercase; color: #000;">CLOSE ✕</span>
   </div>
 
-  <div class="menu-nav-group" style="margin-top: 15px;">
-    <span class="menu-group-label">COLLECTION</span>
-    <a href="catalog.html">SHOP ALL FRAGRANCES</a>
-    <a href="catalog.html?gender=men">MEN'S</a>
-    <a href="catalog.html?gender=women">WOMEN'S</a>
-    <a href="catalog.html?gender=unisex">UNISEX</a>
+  <!-- SLIDEOUT MENU -->
+  <div class="slideout" id="menuPanel">
+    <div class="close-btn" onclick="closeMenu()" aria-label="Close menu">
+      <span
+        style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 2.5px; font-weight: 700; text-transform: uppercase; color: #000;">CLOSE
+        ✕</span>
+    </div>
+
+    <div class="menu-nav-group" style="margin-top: 15px;">
+      <span class="menu-group-label">COLLECTION</span>
+      <a href="catalog.html">SHOP ALL FRAGRANCES</a>
+      <a href="catalog.html?gender=men">MEN'S</a>
+      <a href="catalog.html?gender=women">WOMEN'S</a>
+      <a href="catalog.html?gender=unisex">UNISEX</a>
+    </div>
+
+    <div class="menu-nav-group">
+      <span class="menu-group-label">INFORMATION</span>
+      <a href="track-order.html">TRACK ORDER</a>
+      <a href="returns-shipping.html">RETURNS & SHIPPING</a>
+      <a href="social media.html">SOCIALS</a>
+      <a href="contact.html">CONTACT</a>
+    </div>
+
+    <div class="mobile-account-block">
+      <div id="mobileMyAccount" class="mobile-account-link">LOGIN</div>
+      <div id="mobileAccountDropdown" class="mobile-account-dropdown"></div>
+      <div id="mobileLogout" class="mobile-account-link logout" style="display:none;">LOG OUT</div>
+    </div>
   </div>
 
-  <div class="menu-nav-group">
-    <span class="menu-group-label">INFORMATION</span>
-    <a href="track-order.html">TRACK ORDER</a>
-    <a href="social media.html">SOCIALS</a>
-    <a href="contact.html">CONTACT</a>
+  <div class="success-wrap">
+    <span class="success-icon">✓</span>
+    <h1 class="success-title">Order Confirmed</h1>
+    <p class="success-desc">
+      Thank you for your order! Your payment was processed successfully. A dispatch confirmation email will be sent once
+      your items are on the way.
+    </p>
+
+    <!-- Dynamic Receipt Card -->
+    <div id="receiptContent">
+      <!-- Receipt will load here dynamically -->
+    </div>
+
+    <a href="catalog.html" class="action-btn">Continue Shopping</a>
   </div>
 
-  <div class="mobile-account-block">
-    <div id="mobileMyAccount" class="mobile-account-link">LOGIN</div>
-    <div id="mobileAccountDropdown" class="mobile-account-dropdown"></div>
-    <div id="mobileLogout" class="mobile-account-link logout" style="display:none;">LOG OUT</div>
-  </div>
-</div>
+  <footer>
+    <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 12px; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; flex-wrap: wrap;">
+      <a href="track-order.html" style="color: inherit; text-decoration: none; opacity: 0.7;">TRACK ORDER</a>
+      <span style="opacity: 0.3;">•</span>
+      <a href="returns-shipping.html" style="color: inherit; text-decoration: none; opacity: 0.7;">RETURNS & SHIPPING</a>
+      <span style="opacity: 0.3;">•</span>
+      <a href="social media.html" style="color: inherit; text-decoration: none; opacity: 0.7;">SOCIALS</a>
+      <span style="opacity: 0.3;">•</span>
+      <a href="contact.html" style="color: inherit; text-decoration: none; opacity: 0.7;">CONTACT</a>
+    </div>
+    <div style="opacity: 0.5;">© 2026 STUDIO EXTRAIT. ALL RIGHTS RESERVED.</div>
+  </footer>
 
-<div class="success-wrap">
-  <span class="success-icon">✓</span>
-  <h1 class="success-title">Order Confirmed</h1>
-  <p class="success-desc">
-    Thank you for your order! Your payment was processed successfully. A dispatch confirmation email will be sent once your items are on the way.
-  </p>
+  <script>
+    function openMenu() { document.getElementById("menuPanel").classList.add("open"); }
+    function closeMenu() { document.getElementById("menuPanel").classList.remove("open"); }
 
-  <!-- Dynamic Receipt Card -->
-  <div id="receiptContent">
-    <!-- Receipt will load here dynamically -->
-  </div>
+    // Load and verify Paystack transaction receipt
+    document.addEventListener('DOMContentLoaded', async () => {
+      const receiptContent = document.getElementById("receiptContent");
+      if (!receiptContent) return;
 
-  <a href="catalog.html" class="action-btn">Continue Shopping</a>
-</div>
+      // Extract reference from URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const reference = urlParams.get('reference') || urlParams.get('trxref');
 
-<footer>© 2026 STUDIO EXTRAIT</footer>
+      let orderData = null;
+      try {
+        orderData = JSON.parse(localStorage.getItem('minara_last_order'));
+      } catch (e) {
+        console.error("Failed to parse local order receipt details:", e);
+      }
 
-<script>
-  function openMenu() { document.getElementById("menuPanel").classList.add("open"); }
-  function closeMenu() { document.getElementById("menuPanel").classList.remove("open"); }
+      const activeRef = reference || (orderData ? orderData.paymentId : null);
 
-  // Load and verify Paystack transaction receipt
-  document.addEventListener('DOMContentLoaded', async () => {
-    const receiptContent = document.getElementById("receiptContent");
-    if (!receiptContent) return;
-
-    // Extract reference from URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const reference = urlParams.get('reference') || urlParams.get('trxref');
-
-    let orderData = null;
-    try {
-      orderData = JSON.parse(localStorage.getItem('minara_last_order'));
-    } catch(e) {
-      console.error("Failed to parse local order receipt details:", e);
-    }
-
-    const activeRef = reference || (orderData ? orderData.paymentId : null);
-
-    if (!activeRef) {
-      receiptContent.innerHTML = `
+      if (!activeRef) {
+        receiptContent.innerHTML = `
         <div class="receipt-card" style="text-align: center; padding: 25px;">
           <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">Order Receipt Unavailable</div>
           <div style="font-size: 12px; color: #666;">No transaction reference was provided. Please return to the shop or contact support.</div>
         </div>
       `;
-      return;
-    }
+        return;
+      }
 
-    receiptContent.innerHTML = `
+      receiptContent.innerHTML = `
       <div class="receipt-card" style="text-align: center; padding: 30px;">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #09A5DB;">Verifying Paystack Payment...</div>
         <div style="font-size: 11px; color: #666;">Please wait while we confirm your payment status securely.</div>
       </div>
     `;
 
-    let isVerified = false;
-    let verifiedOrder = null;
-
-    try {
-      let functions = null;
-      let httpsCallable = null;
+      let isVerified = false;
+      let verifiedOrder = null;
 
       try {
-        const mod = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js");
-        functions = mod.getFunctions();
-        httpsCallable = mod.httpsCallable;
-      } catch (err) {
-        console.warn("Functions module fallback:", err);
-      }
+        let functions = null;
+        let httpsCallable = null;
 
-      if (functions && httpsCallable) {
-        const verifyFn = httpsCallable(functions, "verifyPaystackPayment");
-        const res = await verifyFn({ reference: activeRef });
-        if (res.data && res.data.verified) {
-          isVerified = true;
-          verifiedOrder = res.data.order;
+        try {
+          const mod = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js");
+          functions = mod.getFunctions();
+          httpsCallable = mod.httpsCallable;
+        } catch (err) {
+          console.warn("Functions module fallback:", err);
         }
-      } else {
-        const res = await fetch("https://us-central1-minara5.cloudfunctions.net/verifyPaystackPayment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ data: { reference: activeRef } })
-        });
-        const json = await res.json();
-        const result = json.result || json;
-        if (result && result.verified) {
-          isVerified = true;
-          verifiedOrder = result.order;
-        }
-      }
-    } catch(err) {
-      console.warn("Server-side verification check encountered network delay:", err);
-      // Fallback: If local order data exists and reference matches, allow receipt display while webhook confirms
-      if (orderData && orderData.paymentId === activeRef) {
-        isVerified = true;
-      }
-    }
 
-    if (isVerified) {
-      // Payment verified! Now clear cart cleanly
-      localStorage.setItem('minara_cart', JSON.stringify([]));
-
-      // Use verified order data if present, or local fallback
-      const finalOrder = verifiedOrder || orderData || {};
-      const refToDisplay = finalOrder.orderId || activeRef;
-
-      const itemsList = finalOrder.items || (orderData ? orderData.items : []);
-      let itemsRows = '';
-      if (itemsList && itemsList.length > 0) {
-        itemsList.forEach(item => {
-          let selectionsHtml = '';
-          if (item.selectedScents && item.selectedScents.length > 0) {
-            const names = item.selectedScents.map(s => typeof s === 'object' && s ? (s.nameShort || s.name) : s);
-            selectionsHtml = `<div style="font-size: 10.5px; opacity: 0.6; margin-top: 3px; color: #1106e8; text-transform: uppercase; font-weight: 500; letter-spacing: 0.5px;">Selections: ${names.join(', ')}</div>`;
+        if (functions && httpsCallable) {
+          const verifyFn = httpsCallable(functions, "verifyPaystackPayment");
+          const res = await verifyFn({ reference: activeRef });
+          if (res.data && res.data.verified) {
+            isVerified = true;
+            verifiedOrder = res.data.order;
           }
-          itemsRows += `
+        } else {
+          const res = await fetch("https://us-central1-minara5.cloudfunctions.net/verifyPaystackPayment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ data: { reference: activeRef } })
+          });
+          const json = await res.json();
+          const result = json.result || json;
+          if (result && result.verified) {
+            isVerified = true;
+            verifiedOrder = result.order;
+          }
+        }
+      } catch (err) {
+        console.warn("Server-side verification check encountered network delay:", err);
+        // Fallback: If local order data exists and reference matches, allow receipt display while webhook confirms
+        if (orderData && orderData.paymentId === activeRef) {
+          isVerified = true;
+        }
+      }
+
+      if (isVerified) {
+        // Payment verified! Now clear cart cleanly
+        localStorage.setItem('minara_cart', JSON.stringify([]));
+
+        // Use verified order data if present, or local fallback
+        const finalOrder = verifiedOrder || orderData || {};
+        const refToDisplay = finalOrder.orderId || activeRef;
+
+        const itemsList = finalOrder.items || (orderData ? orderData.items : []);
+        let itemsRows = '';
+        if (itemsList && itemsList.length > 0) {
+          itemsList.forEach(item => {
+            let selectionsHtml = '';
+            if (item.selectedScents && item.selectedScents.length > 0) {
+              const names = item.selectedScents.map(s => typeof s === 'object' && s ? (s.nameShort || s.name) : s);
+              selectionsHtml = `<div style="font-size: 10.5px; opacity: 0.6; margin-top: 3px; color: #1106e8; text-transform: uppercase; font-weight: 500; letter-spacing: 0.5px;">Selections: ${names.join(', ')}</div>`;
+            }
+            itemsRows += `
             <div class="receipt-item-row" style="flex-direction: column; align-items: flex-start; gap: 2px;">
               <div style="display: flex; justify-content: space-between; width: 100%;">
                 <span>${item.name || item.nameShort} (${item.size || '100ml'}) <span style="opacity: 0.6; margin-left: 5px;">x${item.quantity}</span></span>
@@ -633,16 +684,16 @@
               ${selectionsHtml}
             </div>
           `;
-        });
-      }
+          });
+        }
 
-      const recipientName = finalOrder.customerName || (orderData ? `${orderData.firstName} ${orderData.lastName}` : "Valued Customer");
-      const email = finalOrder.email || (orderData ? orderData.email : "");
-      const phone = finalOrder.phone || (orderData ? orderData.phone : "");
-      const address = finalOrder.address || (orderData ? orderData.address : "");
-      const totalAmount = finalOrder.total || (orderData ? orderData.total : 0);
+        const recipientName = finalOrder.customerName || (orderData ? `${orderData.firstName} ${orderData.lastName}` : "Valued Customer");
+        const email = finalOrder.email || (orderData ? orderData.email : "");
+        const phone = finalOrder.phone || (orderData ? orderData.phone : "");
+        const address = finalOrder.address || (orderData ? orderData.address : "");
+        const totalAmount = finalOrder.total || (orderData ? orderData.total : 0);
 
-      receiptContent.innerHTML = `
+        receiptContent.innerHTML = `
         <div class="receipt-card">
           <div class="receipt-header">
             <span>Verified Paystack Receipt</span>
@@ -679,9 +730,9 @@
           </div>
         </div>
       `;
-    } else {
-      // Payment unverified / incomplete
-      receiptContent.innerHTML = `
+      } else {
+        // Payment unverified / incomplete
+        receiptContent.innerHTML = `
         <div class="receipt-card" style="text-align: center; padding: 30px; border-left: 4px solid #ef4444;">
           <div style="font-size: 18px; margin-bottom: 8px;">⚠️</div>
           <div style="font-weight: bold; font-size: 14px; color: #b91c1c; margin-bottom: 6px;">Payment Verification Pending</div>
@@ -691,11 +742,12 @@
           <button onclick="window.location.reload()" class="action-btn" style="padding: 10px 24px; font-size: 10px;">Check Status Again</button>
         </div>
       `;
-    }
-  });
-</script>
+      }
+    });
+  </script>
 
-<script type="module" src="header.js"></script>
+  <script type="module" src="header.js"></script>
 
 </body>
+
 </html>

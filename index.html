@@ -12,8 +12,10 @@
   <link rel="preload" href="minara 5 transparent 2.svg" as="image" type="image/svg+xml">
   <link rel="preload" href="minara 5 transparent.svg" as="image" type="image/svg+xml">
   <!-- Preload device-specific hero images to speed up LCP -->
-  <link rel="preload" href="images/hero/studio-extrait-clone-fragrances.avif" as="image" type="image/avif" media="(min-width: 901px)" fetchpriority="high">
-  <link rel="preload" href="images/hero/studio-extrait-clone-fragrances-2.avif" as="image" type="image/avif" media="(max-width: 900px)" fetchpriority="high">
+  <link rel="preload" href="images/hero/studio-extrait-clone-fragrances.avif" as="image" type="image/avif"
+    media="(min-width: 901px)" fetchpriority="high">
+  <link rel="preload" href="images/hero/studio-extrait-clone-fragrances-2.avif" as="image" type="image/avif"
+    media="(max-width: 900px)" fetchpriority="high">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
 
@@ -1601,10 +1603,10 @@
 
         const style = document.createElement("style");
         style.id = "minara-logo-init-style";
-        
+
         let heroHeightRule = "";
         let heroHideRightRule = "";
-        
+
         if (!isMobile) {
           const dHeight = s.desktopHeight || "calc(115vh - 45px)";
           heroHeightRule = `#hero { height: ${dHeight} !important; }`;
@@ -1622,7 +1624,7 @@
             `;
           }
         }
-        
+
         style.innerHTML = `
           body #logo {
             position: ${positionVal};
@@ -1654,6 +1656,7 @@
       <a href="catalog.html?gender=men" class="desktop-only" style="margin-left:22px;">men</a>
       <a href="catalog.html?gender=women" class="desktop-only" style="margin-left:22px;">women</a>
       <a href="catalog.html?gender=unisex" class="desktop-only" style="margin-left:22px;">unisex</a>
+      <span class="under-construction-badge">Website Under construction</span>
       <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
     </div>
 
@@ -1662,8 +1665,8 @@
 
     <nav>
       <ul>
-        <li><a href="track-order.html">TRACK ORDER</a></li>
-        <li><a href="social media.html">SOCIALS</a></li>
+        <li><a href="track-order.html"><img src="track.svg" class="desktop-icon"> TRACK ORDER</a></li>
+        <li><a href="social media.html"><img src="socials.svg" class="desktop-icon"> SOCIALS</a></li>
         <li><a href="contact.html"><img src="question mark.svg" class="question-icon"> Contact</a></li>
         <li class="header-account">
           <div class="account-trigger" onclick="accountClicked(event)">
@@ -1724,7 +1727,9 @@
 
   <div class="slideout" id="menuPanel">
     <div class="close-btn" onclick="closeMenu()" aria-label="Close menu">
-      <span style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 2.5px; font-weight: 700; text-transform: uppercase; color: #000;">CLOSE ✕</span>
+      <span
+        style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 2.5px; font-weight: 700; text-transform: uppercase; color: #000;">CLOSE
+        ✕</span>
     </div>
 
     <div class="menu-nav-group" style="margin-top: 15px;">
@@ -1738,6 +1743,7 @@
     <div class="menu-nav-group">
       <span class="menu-group-label">INFORMATION</span>
       <a href="track-order.html">TRACK ORDER</a>
+      <a href="returns-shipping.html">RETURNS & SHIPPING</a>
       <a href="social media.html">SOCIALS</a>
       <a href="contact.html">CONTACT</a>
     </div>
@@ -1762,7 +1768,8 @@
     <div id="mobileShopButton">shop catalog</div>
 
     <picture id="picL">
-      <source media="(max-width: 900px)" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+      <source media="(max-width: 900px)"
+        srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
       <source media="(min-width: 901px)" srcset="images/hero/studio-extrait-clone-fragrances.avif">
       <img src="images/hero/studio-extrait-clone-fragrances.avif" id="imgL" fetchpriority="high" decoding="async"
         onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
@@ -1771,7 +1778,8 @@
       <picture id="picR">
         <source media="(max-width: 900px)" srcset="images/hero/studio-extrait-clone-fragrances-2.avif">
         <source media="(min-width: 901px)" srcset="images/hero/right.png">
-        <img src="images/hero/studio-extrait-clone-fragrances-2.avif" id="imgR" fetchpriority="high" decoding="async" style="width:100%;height:100%;object-fit:cover;"
+        <img src="images/hero/studio-extrait-clone-fragrances-2.avif" id="imgR" fetchpriority="high" decoding="async"
+          style="width:100%;height:100%;object-fit:cover;"
           onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
       </picture>
       <div class="mobile-bags" style="display: none;"><a href="catalog.html">GIFTS 'SHOP NOW</a></div>
@@ -2223,7 +2231,8 @@
             </span>
             <h3 class="brand-feature-title">FREE DELIVERY</h3>
           </div>
-          <p class="brand-feature-description">Enjoy accelerated, free shipping on all orders nationwide with no minimum spend required. Delivered, in 2-3 days, straight to your doorstep.</p>
+          <p class="brand-feature-description">Enjoy accelerated, free shipping on all orders nationwide with no minimum
+            spend required. Delivered, in 2-3 days, straight to your doorstep.</p>
         </div>
 
         <!-- Feature 4: SIDE EFFECT:COMPLIMENTS -->
@@ -2240,7 +2249,9 @@
             </span>
             <h3 class="brand-feature-title">SIDE EFFECT:COMPLIMENTS</h3>
           </div>
-          <p class="brand-feature-description">Fair warning: our dense formulations leave a powerful, undeniable scent trail. We take absolutely no responsibility for the sheer volume of compliments, double-takes, and 'what are you wearing?' questions you are about to receive.</p>
+          <p class="brand-feature-description">Fair warning: our dense formulations leave a powerful, undeniable scent
+            trail. We take absolutely no responsibility for the sheer volume of compliments, double-takes, and 'what are
+            you wearing?' questions you are about to receive.</p>
         </div>
 
         <!-- Feature 5: Imported French Oils -->
@@ -2255,7 +2266,8 @@
             </span>
             <h3 class="brand-feature-title">IMPORTED FRENCH OILS</h3>
           </div>
-          <p class="brand-feature-description">Proudly blended in South Africa using premium, meticulously sourced French oils. We bring world-class raw ingredients and expert craftsmanship to every single bottle.</p>
+          <p class="brand-feature-description">Proudly blended in South Africa using premium, meticulously sourced
+            French oils. We bring world-class raw ingredients and expert craftsmanship to every single bottle.</p>
         </div>
 
         <!-- Feature 6: Properly Macerated -->
@@ -2273,7 +2285,9 @@
             </span>
             <h3 class="brand-feature-title">PROPERLY MACERATED</h3>
           </div>
-          <p class="brand-feature-description">We don't rush production. Every batch undergoes a strict maceration process, allowing the raw oils and alcohol to perfectly bind and mature. This eliminates harsh alcohol openings and guarantees a smooth, refined profile.</p>
+          <p class="brand-feature-description">We don't rush production. Every batch undergoes a strict maceration
+            process, allowing the raw oils and alcohol to perfectly bind and mature. This eliminates harsh alcohol
+            openings and guarantees a smooth, refined profile.</p>
         </div>
       </div>
     </div>
@@ -2291,18 +2305,23 @@
   </section>
 
   <!-- SECOND PRODUCTS SECTION (VIEW CATALOG CTA) -->
-  <section class="second-products-outer-wrap" style="padding: 70px 0 50px; width: 100%; background: #fafafa; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea;">
+  <section class="second-products-outer-wrap"
+    style="padding: 70px 0 50px; width: 100%; background: #fafafa; border-top: 1px solid #eaeaea; border-bottom: 1px solid #eaeaea;">
     <div class="second-products-section" style="width: 100%;">
       <div class="home-products-header" style="margin-bottom: 28px; text-align: center;">
-        <h2 class="home-products-title" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 14px; letter-spacing: 3.5px; text-transform: uppercase; margin: 0; color: #111;">EXPLORE MORE FRAGRANCES</h2>
+        <h2 class="home-products-title"
+          style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 14px; letter-spacing: 3.5px; text-transform: uppercase; margin: 0; color: #111;">
+          EXPLORE MORE FRAGRANCES</h2>
       </div>
       <div class="home-products-list second-products-list">
         <!-- Dynamic product cards populated via JS -->
       </div>
       <div class="bottom-catalog-cta-wrap" style="width: 100%; text-align: center; margin-top: 38px;">
-        <a href="catalog.html" class="bottom-catalog-long-btn" style="display: inline-flex; align-items: center; justify-content: center; gap: 14px; width: calc(100% - 40px); max-width: 520px; height: 50px; background: #000000; color: #ffffff; text-decoration: none; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2.8px; text-transform: uppercase; transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; border-radius: 2px; box-shadow: 0 4px 14px rgba(0,0,0,0.12);">
+        <a href="catalog.html" class="bottom-catalog-long-btn"
+          style="display: inline-flex; align-items: center; justify-content: center; gap: 14px; width: calc(100% - 40px); max-width: 520px; height: 50px; background: #000000; color: #ffffff; text-decoration: none; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2.8px; text-transform: uppercase; transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; border-radius: 2px; box-shadow: 0 4px 14px rgba(0,0,0,0.12);">
           <span>VIEW FULL CATALOG</span>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
             <line x1="5" y1="12" x2="19" y2="12"></line>
             <polyline points="12 5 19 12 12 19"></polyline>
           </svg>
@@ -2374,7 +2393,18 @@
     }
   </style>
 
-  <footer>© 2026 STUDIO EXTRAIT</footer>
+  <footer>
+    <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 12px; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; flex-wrap: wrap;">
+      <a href="track-order.html" style="color: inherit; text-decoration: none; opacity: 0.7;">TRACK ORDER</a>
+      <span style="opacity: 0.3;">•</span>
+      <a href="returns-shipping.html" style="color: inherit; text-decoration: none; opacity: 0.7;">RETURNS & SHIPPING</a>
+      <span style="opacity: 0.3;">•</span>
+      <a href="social media.html" style="color: inherit; text-decoration: none; opacity: 0.7;">SOCIALS</a>
+      <span style="opacity: 0.3;">•</span>
+      <a href="contact.html" style="color: inherit; text-decoration: none; opacity: 0.7;">CONTACT</a>
+    </div>
+    <div style="opacity: 0.5;">© 2026 STUDIO EXTRAIT. ALL RIGHTS RESERVED.</div>
+  </footer>
 
   <div id="logo" style="cursor: pointer;" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
     <img src="minara 5 transparent.svg" class="mobile-logo">
