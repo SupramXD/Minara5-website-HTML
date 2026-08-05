@@ -92,6 +92,44 @@ nav ul li a:hover { opacity: 0.6; }
 
 .menu-icon { display: none; cursor: pointer; }
 .menu-icon img { height: 14px; }
+.desktop-icon, .question-icon { height: 12px; width: auto; }
+
+.account-label, .account-trigger {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #000;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  nav {
+    display: none !important;
+  }
+  header {
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 16px;
+  }
+  .menu-icon {
+    display: block !important;
+    cursor: pointer;
+    position: relative;
+    z-index: 3001 !important;
+  }
+  .left-nav a, .desktop-only {
+    display: none !important;
+  }
+  .center-logo-link {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+}
 
 /* SLIDEOUT MENU — HIGH FASHION RICK OWENS AESTHETIC */
 .slideout {
@@ -532,8 +570,8 @@ nav ul li a:hover { opacity: 0.6; }
 @media (max-width: 900px) {
   nav { display: none; }
   header { justify-content: space-between; align-items: center; padding: 6px 16px; }
-  .menu-icon { display: block; }
-  .left-nav { display: none; }
+  .left-nav a, .desktop-only { display: none !important; }
+  .menu-icon { display: block !important; cursor: pointer; position: relative; z-index: 3001 !important; }
   .center-logo-link { position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; }
   .center-logo { height: 36px !important; }
   .track-wrap { margin-top: 90px; padding: 0 16px; }

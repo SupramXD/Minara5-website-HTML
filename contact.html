@@ -286,12 +286,15 @@
       }
 
       .menu-icon {
-        display: block;
+        display: block !important;
+        cursor: pointer;
+        position: relative;
+        z-index: 3001 !important;
       }
 
       /* Hide catalog on mobile */
-      .left-nav {
-        display: none;
+      .left-nav a, .desktop-only {
+        display: none !important;
       }
 
       .center-logo-link {

@@ -131,8 +131,19 @@
       opacity: 0.6;
     }
 
-    .desktop-icon {
+    .desktop-icon, .question-icon {
       height: 12px;
+    }
+
+    .account-label, .account-trigger {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #000;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
     }
 
     /* MOBILE MENU */
@@ -334,11 +345,14 @@
       }
 
       .menu-icon {
-        display: block;
+        display: block !important;
+        cursor: pointer;
+        position: relative;
+        z-index: 3001 !important;
       }
 
-      .left-nav {
-        display: none;
+      .left-nav a, .desktop-only {
+        display: none !important;
       }
 
       .center-logo-link {
