@@ -543,15 +543,13 @@ nav ul li a:hover { opacity: 0.6; }
 <body>
 
 <header>
-  <div class="menu-icon" onclick="openMenu()">
-      <img src="menu.svg">
-  </div>
 
   <div class="left-nav">
-      <a href="catalog.html">fragrances</a>
-      <a href="catalog.html?gender=men" style="margin-left:22px;">men</a>
-      <a href="catalog.html?gender=women" style="margin-left:22px;">women</a>
-      <a href="catalog.html?gender=unisex" style="margin-left:22px;">unisex</a>
+      <a href="catalog.html" class="desktop-only">fragrances</a>
+      <a href="catalog.html?gender=men" class="desktop-only" style="margin-left:22px;">men</a>
+      <a href="catalog.html?gender=women" class="desktop-only" style="margin-left:22px;">women</a>
+      <a href="catalog.html?gender=unisex" class="desktop-only" style="margin-left:22px;">unisex</a>
+      <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
   </div>
 
 
@@ -561,13 +559,13 @@ nav ul li a:hover { opacity: 0.6; }
 
   <nav>
     <ul>
-      <li><a href="track-order.html" style="font-weight:bold;"><img src="track.svg" class="desktop-icon"> TRACK ORDER</a></li>
+      <li><a href="track-order.html"><img src="track.svg" class="desktop-icon"> TRACK ORDER</a></li>
       <li><a href="social media.html"><img src="socials.svg" class="desktop-icon"> SOCIALS</a></li>
-      <li><a href="contact.html">CONTACT</a></li>
+      <li><a href="contact.html"><img src="question mark.svg" class="question-icon"> CONTACT</a></li>
       <li class="header-account">
         <div class="account-trigger" onclick="accountClicked(event)">
-            <img src="head shoulder.svg" class="desktop-icon" style="height:12px;">
-            <span id="accountLabel">ACCOUNT</span>
+            <img src="head shoulder.svg" class="desktop-icon">
+            <span id="accountLabel" class="account-label">ACCOUNT</span>
         </div>
       </li>
     </ul>
