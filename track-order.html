@@ -359,16 +359,174 @@ nav ul li a:hover { opacity: 0.6; }
   margin-top: 2px;
 }
 
-footer {
-  background: #000;
-  color: #fff;
-  padding: 30px;
+/* FOOTER (PARIS CORNER LUXURY BRAND STYLE) */
+.site-footer {
+  background: #0f0f0f;
+  color: #ffffff;
+  padding: 60px 20px 40px 20px;
   text-align: center;
-  font-size: 9px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  border-top: 1px solid #eaeaea;
+  position: relative;
+  z-index: 200;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: Helvetica, Arial, sans-serif;
+  width: 100%;
   margin-top: 60px;
+}
+
+.footer-container {
+  max-width: 650px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.footer-logo-wrap {
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer-logo {
+  height: 72px;
+  width: auto;
+  filter: brightness(0) invert(1);
+  opacity: 0.95;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.footer-logo:hover {
+  opacity: 1;
+  transform: scale(1.03);
+}
+
+.footer-brand-title {
+  font-family: 'Gotham Narrow Bold', sans-serif;
+  font-size: 16px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 900;
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+.footer-description {
+  font-size: 12px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.72);
+  margin-bottom: 24px;
+  max-width: 540px;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+}
+
+.footer-support {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 28px;
+}
+
+.footer-support a {
+  color: rgba(255, 255, 255, 0.95);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.footer-support a:hover {
+  opacity: 0.7;
+  text-decoration: underline;
+}
+
+.footer-social-icons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+
+.social-icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.social-icon-btn:hover {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+}
+
+.footer-nav-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  flex-wrap: wrap;
+}
+
+.footer-nav-links a {
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+
+.footer-nav-links a:hover {
+  color: #ffffff;
+}
+
+.footer-nav-links .dot {
+  opacity: 0.3;
+  color: #ffffff;
+}
+
+.footer-copyright {
+  font-size: 9px;
+  letter-spacing: 1.2px;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .site-footer {
+    padding: 45px 16px 30px 16px;
+  }
+  .footer-logo {
+    height: 60px;
+  }
+  .footer-brand-title {
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+  .footer-description {
+    font-size: 11.5px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .footer-support {
+    font-size: 10.5px;
+    margin-bottom: 24px;
+  }
+  .social-icon-btn {
+    width: 38px;
+    height: 38px;
+  }
 }
 
 @media (max-width: 900px) {
@@ -487,18 +645,47 @@ footer {
   </div>
 </div>
 
-<footer>
-  <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 12px; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; flex-wrap: wrap;">
-    <a href="track-order.html" style="color: inherit; text-decoration: none; opacity: 0.7;">TRACK ORDER</a>
-    <span style="opacity: 0.3;">•</span>
-    <a href="returns-shipping.html" style="color: inherit; text-decoration: none; opacity: 0.7;">RETURNS & SHIPPING</a>
-    <span style="opacity: 0.3;">•</span>
-    <a href="social media.html" style="color: inherit; text-decoration: none; opacity: 0.7;">SOCIALS</a>
-    <span style="opacity: 0.3;">•</span>
-    <a href="contact.html" style="color: inherit; text-decoration: none; opacity: 0.7;">CONTACT</a>
-  </div>
-  <div style="opacity: 0.5;">© 2026 STUDIO EXTRAIT. ALL RIGHTS RESERVED.</div>
-</footer>
+  <!-- SITE FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-logo-wrap">
+        <img src="Studio Extrait Icon Svg.svg" alt="Studio Extrait" class="footer-logo">
+      </div>
+      <div class="footer-brand-title">STUDIO EXTRAIT</div>
+      <p class="footer-description">
+        Studio Extrait is an emerging luxury fragrance label crafting designer-inspired Extraits de Parfum without the luxury brand tax. Our high-concentration formulations match original iconic scents with 100% premium quality, dispatched direct to your door nationwide across South Africa.
+      </p>
+      <div class="footer-support">
+        Customer Support : <a href="mailto:jadon@studioextrait.co.za">jadon@studioextrait.co.za</a>
+      </div>
+      <div class="footer-social-icons">
+        <a href="https://www.instagram.com/studioextraitsa/" target="_blank" rel="noopener" aria-label="Instagram" class="social-icon-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+        </a>
+        <a href="contact.html" aria-label="Email Support" class="social-icon-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        </a>
+        <a href="social media.html" aria-label="Socials" class="social-icon-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+        </a>
+        <a href="track-order.html" aria-label="Track Order" class="social-icon-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+        </a>
+      </div>
+      <div class="footer-nav-links">
+        <a href="track-order.html">TRACK ORDER</a>
+        <span class="dot">•</span>
+        <a href="returns-shipping.html">RETURNS & SHIPPING</a>
+        <span class="dot">•</span>
+        <a href="social media.html">SOCIALS</a>
+        <span class="dot">•</span>
+        <a href="contact.html">CONTACT</a>
+      </div>
+      <div class="footer-copyright">
+        © 2026 STUDIO EXTRAIT. ALL RIGHTS RESERVED.
+      </div>
+    </div>
+  </footer>
 
 <script>
   function openMenu() { document.getElementById("menuPanel").classList.add("open"); }
