@@ -1944,11 +1944,11 @@
       // Calculate totals using central calculateCartPricing
       const pricing = window.calculateCartPricing ? window.calculateCartPricing(activeItems) : {
         totalBottles: activeItems.reduce((sum, item) => sum + item.quantity, 0),
-        rawSubtotal: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        rawSubtotal: activeItems.reduce((sum, item) => sum + (((Number(item.price) || 0) + (Number(item.priceExtra) || 0)) * item.quantity), 0),
         bundleDiscount: 0,
         newsletterDiscountAmount: 0,
-        shippingFee: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) >= 600 ? 0 : 85,
-        finalTotal: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+        shippingFee: activeItems.reduce((sum, item) => sum + (((Number(item.price) || 0) + (Number(item.priceExtra) || 0)) * item.quantity), 0) >= 600 ? 0 : 85,
+        finalTotal: activeItems.reduce((sum, item) => sum + (((Number(item.price) || 0) + (Number(item.priceExtra) || 0)) * item.quantity), 0)
       };
 
       const subtotal = pricing.rawSubtotal;
@@ -1978,6 +1978,8 @@
           selectionsHtml = `<div class="summary-item-meta" style="color: #1106e8; font-weight: 500;">Selections: ${names.join(', ')}</div>`;
         }
 
+        const unitPrice = (Number(item.price) || 0) + (Number(item.priceExtra) || 0);
+
         itemsHtml += `
         <div class="summary-item-row">
           <img src="${cleanImage}" class="summary-item-img" alt="${item.nameShort || item.name}">
@@ -1988,7 +1990,7 @@
               ${selectionsHtml}
               <div class="summary-item-meta">Qty: ${item.quantity}</div>
             </div>
-            <div class="summary-item-price">R${item.price * item.quantity}</div>
+            <div class="summary-item-price">R${unitPrice * item.quantity}</div>
           </div>
         </div>
       `;
@@ -2007,7 +2009,8 @@
       <div class="checkout-container">
         
         <!-- Form Section -->
-        <div class="form-c          <div class="checkout-header-row" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #000; padding-bottom: 15px; margin-bottom: 35px;">
+        <div class="form-column">
+          <div class="checkout-header-row" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #000; padding-bottom: 15px; margin-bottom: 35px;">
             <div>
               <div class="checkout-title" style="margin-bottom: 4px; padding-bottom: 0; border-bottom: none; font-size: 20px;">Secure Checkout</div>
               <div style="font-size: 9.5px; font-weight: 800; letter-spacing: 2px; color: #000000; text-transform: uppercase;">STEP 1: DELIVERY & CONTACT</div>
@@ -2372,9 +2375,10 @@
         items: activeItems.map(item => ({
           name: item.nameShort || item.name,
           quantity: item.quantity,
-          price: item.price,
+          price: (Number(item.price) || 0) + (Number(item.priceExtra) || 0),
           size: item.size || '100ml',
-          selectedScents: item.selectedScents || null
+          selectedScents: item.selectedScents || null,
+          bottleCustomisation: item.bottleCustomisation || null
         })),
         total: finalTotal,
         callbackUrl: callbackUrl
