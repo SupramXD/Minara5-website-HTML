@@ -610,8 +610,10 @@ nav ul li a:hover { opacity: 0.6; }
   </nav>
 </header>
 
-<!-- SLIDEOUT MENU -->
-<div class="slideout" id="menuPanel">
+  <div id="pageDimmer"></div>
+
+  <!-- SLIDEOUT MENU -->
+  <div class="slideout" id="menuPanel">
   <div class="close-btn" onclick="closeMenu()" aria-label="Close menu">
     <span style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; letter-spacing: 2.5px; font-weight: 700; text-transform: uppercase; color: #000;">CLOSE ✕</span>
   </div>
@@ -689,7 +691,7 @@ nav ul li a:hover { opacity: 0.6; }
       </div>
       <div class="footer-brand-title">STUDIO EXTRAIT</div>
       <p class="footer-description">
-        Studio Extrait is an emerging luxury fragrance label crafting designer-inspired Extraits de Parfum without the luxury brand tax. Our high-concentration formulations match original iconic scents with 100% premium quality, dispatched direct to your door nationwide across South Africa.
+        Experience the ultimate definition of accessible luxury with Studio Extrait, redefining South Africa’s fragrance landscape with designer-inspired Extraits de Parfum. Our high-concentration 20%+ formulations use imported French oils to achieve an undeniable 95% similarity to iconic scents. Expertly macerated and dispatched nationwide with 2-3 day free delivery over R600. Discover your signature scent today.
       </p>
       <div class="footer-support">
         Customer Support : <a href="mailto:jadon@studioextrait.co.za">jadon@studioextrait.co.za</a>
@@ -724,20 +726,147 @@ nav ul li a:hover { opacity: 0.6; }
   </footer>
 
 <script>
-  function openMenu() { document.getElementById("menuPanel").classList.add("open"); }
-  function closeMenu() { document.getElementById("menuPanel").classList.remove("open"); }
+  function openMenu() {
+    document.getElementById("menuPanel")?.classList.add("open");
+    document.getElementById("pageDimmer")?.classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+  function closeMenu() {
+    document.getElementById("menuPanel")?.classList.remove("open");
+    document.getElementById("pageDimmer")?.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+  document.addEventListener("DOMContentLoaded", function() {
+    const dimmer = document.getElementById("pageDimmer");
+    if (dimmer) {
+      dimmer.addEventListener("click", function() {
+        if (typeof closeMenu === "function") closeMenu();
+        if (typeof closeAccDropdown === "function") closeAccDropdown();
+      });
+    }
+  });
+</script>
 
-  function handleTrackSubmit(event) {
+<script type="module">
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC8srbzH_DcCYQJXe9MNOyy2OHZSaLidIo",
+    authDomain: "minara5.firebaseapp.com",
+    projectId: "minara5",
+    storageBucket: "minara5.firebasestorage.app",
+    messagingSenderId: "860405871052",
+    appId: "1:860405871052:web:2aead90773c24721f72d69"
+  };
+
+  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+  const functions = getFunctions(app);
+  const trackCallable = httpsCallable(functions, "trackCourierGuyOrder");
+
+  window.handleTrackSubmit = async function(event) {
     event.preventDefault();
     const input = document.getElementById("waybillInput").value.trim();
     if (!input) return;
 
-    document.getElementById("displayWaybill").textContent = input.toUpperCase();
-    document.getElementById("resultCard").style.display = "block";
-  }
+    const btn = document.querySelector(".track-submit-btn");
+    const resultCard = document.getElementById("resultCard");
+    const displayWaybill = document.getElementById("displayWaybill");
+    const statusBadge = document.querySelector(".result-status-badge");
+    const timelineList = document.querySelector(".timeline");
+
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "SEARCHING COURIER GUY...";
+    }
+
+    try {
+      displayWaybill.textContent = input.toUpperCase();
+
+      let result = null;
+      try {
+        const res = await trackCallable({ trackingNumber: input });
+        result = res.data;
+      } catch (callErr) {
+        console.warn("Callable function error, attempting fallback lookup:", callErr);
+      }
+
+      if (result && result.success) {
+        if (result.source === "courier_guy_api" && result.data) {
+          const cData = result.data;
+          const statusText = (cData.status || cData.state || cData.current_status || "IN TRANSIT").toUpperCase();
+          statusBadge.textContent = statusText;
+
+          let timelineHtml = "";
+          const events = cData.tracking_events || cData.events || cData.activities || [];
+          if (events.length > 0) {
+            events.forEach((ev, idx) => {
+              const activeClass = idx === 0 ? "active" : "";
+              const dateStr = ev.date || ev.timestamp || ev.time || "";
+              const title = ev.status || ev.description || ev.event || "Update";
+              const location = ev.location || ev.city || "";
+              timelineHtml += `
+                <li class="timeline-step ${activeClass}">
+                  <div class="timeline-title">${title} ${location ? `(${location})` : ''}</div>
+                  <div class="timeline-desc">${dateStr}</div>
+                </li>
+              `;
+            });
+          } else {
+            timelineHtml = `
+              <li class="timeline-step active">
+                <div class="timeline-title">Shipment Logged with Courier Guy</div>
+                <div class="timeline-desc">Waybill: ${result.waybill} — Carrier Status: ${statusText}</div>
+              </li>
+            `;
+          }
+          timelineList.innerHTML = timelineHtml;
+        } else if (result.order) {
+          const ord = result.order;
+          const isShipped = ord.status === "Shipped" || ord.status === "Delivered";
+          statusBadge.textContent = isShipped ? (ord.status.toUpperCase()) : "ORDER PROCESSED";
+
+          timelineList.innerHTML = `
+            <li class="timeline-step active">
+              <div class="timeline-title">Order ${ord.orderId || input}</div>
+              <div class="timeline-desc">Status: ${ord.status || 'Paid'} — ${ord.waybill ? `Courier Guy Waybill: ${ord.waybill}` : 'Awaiting courier dispatch details'}</div>
+            </li>
+            <li class="timeline-step ${isShipped ? 'active' : ''}">
+              <div class="timeline-title">Courier Guy Dispatch</div>
+              <div class="timeline-desc">${ord.address || 'Delivery Address'}</div>
+            </li>
+          `;
+        }
+        resultCard.style.display = "block";
+      } else {
+        statusBadge.textContent = "SEARCH COMPLETED";
+        timelineList.innerHTML = `
+          <li class="timeline-step active">
+            <div class="timeline-title">Courier Guy Waybill: ${input.toUpperCase()}</div>
+            <div class="timeline-desc">${(result && result.message) ? result.message : "Shipment query submitted. If your order was placed recently, details will update once scanned at the hub."}</div>
+          </li>
+        `;
+        resultCard.style.display = "block";
+      }
+    } catch (err) {
+      console.error("Tracking error:", err);
+      statusBadge.textContent = "LOOKUP FAILED";
+      timelineList.innerHTML = `
+        <li class="timeline-step active">
+          <div class="timeline-title">Unable to fetch waybill tracking</div>
+          <div class="timeline-desc">Please verify your reference number and try again.</div>
+        </li>
+      `;
+      resultCard.style.display = "block";
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "TRACK SHIPMENT";
+      }
+    }
+  };
 </script>
 
 <script type="module" src="header.js"></script>
-
 </body>
 </html>

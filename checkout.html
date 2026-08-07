@@ -262,6 +262,27 @@
       margin-bottom: 24px;
     }
 
+    /* PAGE DIMMER */
+    #pageDimmer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      z-index: 4000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    #pageDimmer.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
     /* CHECKOUT LAYOUT */
     .checkout-container {
       margin-top: 45px;
@@ -1078,6 +1099,8 @@
     <a href="#" onclick="logout()" class="acc-item">LOG OUT</a>
   </div>
 
+  <div id="pageDimmer"></div>
+
   <!-- SLIDEOUT MENU -->
   <div class="slideout" id="menuPanel">
     <div class="close-btn" onclick="closeMenu()" aria-label="Close menu">
@@ -1122,7 +1145,7 @@
       </div>
       <div class="footer-brand-title">STUDIO EXTRAIT</div>
       <p class="footer-description">
-        Studio Extrait is an emerging luxury fragrance label crafting designer-inspired Extraits de Parfum without the luxury brand tax. Our high-concentration formulations match original iconic scents with 100% premium quality, dispatched direct to your door nationwide across South Africa.
+        Experience the ultimate definition of accessible luxury with Studio Extrait, redefining South Africa’s fragrance landscape with designer-inspired Extraits de Parfum. Our high-concentration 20%+ formulations use imported French oils to achieve an undeniable 95% similarity to iconic scents. Expertly macerated and dispatched nationwide with 2-3 day free delivery over R600. Discover your signature scent today.
       </p>
       <div class="footer-support">
         Customer Support : <a href="mailto:jadon@studioextrait.co.za">jadon@studioextrait.co.za</a>
@@ -1200,8 +1223,26 @@
     };
 
     // Basic menu helper scripts
-    window.openMenu = function () { document.getElementById("menuPanel").classList.add("open"); };
-    window.closeMenu = function () { document.getElementById("menuPanel").classList.remove("open"); };
+    window.openMenu = function () {
+      document.getElementById("menuPanel")?.classList.add("open");
+      document.getElementById("pageDimmer")?.classList.add("active");
+      document.body.style.overflow = "hidden";
+    };
+    window.closeMenu = function () {
+      document.getElementById("menuPanel")?.classList.remove("open");
+      document.getElementById("pageDimmer")?.classList.remove("active");
+      document.body.style.overflow = "";
+    };
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const dimmer = document.getElementById("pageDimmer");
+      if (dimmer) {
+        dimmer.addEventListener("click", function () {
+          if (typeof closeMenu === "function") closeMenu();
+          if (typeof closeAccDropdown === "function") closeAccDropdown();
+        });
+      }
+    });
 
     // Helper function to auto-populate checkout form address fields
     function populateAddressFields({ buildingUnit, fullStreet, sublocality, city, province, postalCode }) {

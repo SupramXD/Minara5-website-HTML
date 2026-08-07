@@ -914,6 +914,25 @@
                     </tbody>
                   </table>
                 </div>
+
+                <!-- COURIER GUY DISPATCH MODAL -->
+                <div id="courierDispatchModal" class="edit-modal">
+                  <div class="edit-modal-content" style="max-width: 650px;">
+                    <div class="edit-modal-header">
+                      <h3 class="edit-modal-title" style="color: #09A5DB;">🚚 Courier Guy Dispatch Helper</h3>
+                      <span class="edit-modal-close" onclick="window.closeCourierDispatchModal()">✕ CLOSE</span>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">
+                      Customer details copied to clipboard! The Courier Guy portal is opening in a new tab. You can copy individual fields below:
+                    </p>
+                    <div id="courierDispatchFields" style="display: flex; flex-direction: column; gap: 10px;">
+                      <!-- Dynamic dispatch fields injected here -->
+                    </div>
+                    <div class="edit-modal-footer">
+                      <button type="button" class="action-btn-small" style="background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 4px; cursor: pointer;" onclick="window.closeCourierDispatchModal()">Done</button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -6038,6 +6057,33 @@
         };
 
         tdActions.appendChild(select);
+
+        // Courier Guy Dispatch Button
+        const dispatchBtn = document.createElement("button");
+        dispatchBtn.className = "action-btn-small";
+        dispatchBtn.style.cssText = "display: block; width: 100%; margin-top: 6px; padding: 6px 8px; font-size: 10px; font-weight: bold; background: #09A5DB; color: #fff; border: none; border-radius: 3px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;";
+        dispatchBtn.innerHTML = "🚚 Dispatch (Courier Guy)";
+        dispatchBtn.onclick = () => window.dispatchCourierGuyOrder(order.id);
+        tdActions.appendChild(dispatchBtn);
+
+        // Waybill Input / Display Container
+        const waybillWrap = document.createElement("div");
+        waybillWrap.style.cssText = "margin-top: 8px; display: flex; flex-direction: column; gap: 4px;";
+        if (order.waybill) {
+          waybillWrap.innerHTML = `
+            <div style="font-size: 9.5px; color: var(--accent); font-family: monospace; word-break: break-all;">
+              Waybill: <strong>${order.waybill}</strong>
+            </div>
+            <button onclick="window.editWaybill('${order.id}', '${order.waybill}')" style="font-size: 9px; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid var(--border-color); padding: 3px 5px; border-radius: 2px; cursor: pointer;">✏️ Edit Waybill</button>
+          `;
+        } else {
+          waybillWrap.innerHTML = `
+            <input type="text" id="waybill_input_${order.id}" placeholder="Enter Waybill #" style="font-size: 10px; padding: 4px; background: #1a1a24; border: 1px solid var(--border-color); color: #fff; border-radius: 2px;">
+            <button onclick="window.saveOrderWaybill('${order.id}')" style="font-size: 9px; background: var(--accent); color: #000; font-weight: bold; border: none; padding: 4px; border-radius: 2px; cursor: pointer; text-transform: uppercase;">Save Waybill</button>
+          `;
+        }
+        tdActions.appendChild(waybillWrap);
+
         tr.appendChild(tdActions);
 
         tableBody.appendChild(tr);
@@ -6244,6 +6290,144 @@
       } catch (err) {
         console.error("Clear sessions failed:", err);
         alert("Failed to clear sessions: " + err.message);
+      }
+    };
+
+    /* COURIER GUY DISPATCH & WAYBILL UTILITIES */
+    window.dispatchCourierGuyOrder = function(orderId) {
+      const order = adminOrders.find(o => o.id === orderId || o.orderId === orderId);
+      if (!order) return;
+
+      const name = order.customerName || `${order.firstName || ''} ${order.lastName || ''}`.trim() || "Customer";
+      const phone = order.phone || "";
+      const email = order.email || "";
+      const address = order.address || "";
+      const orderRef = order.orderId || order.id || "";
+      let itemsList = "";
+      if (order.items && Array.isArray(order.items)) {
+        itemsList = order.items.map(i => `${i.name || i.nameShort} (${i.size || '100ml'}) x${i.quantity}`).join(", ");
+      }
+
+      const formattedText = `--- COURIER GUY DISPATCH DETAILS ---
+Order Ref: ${orderRef}
+Recipient Name: ${name}
+Phone Number: ${phone}
+Email: ${email}
+Delivery Address: ${address}
+Items: ${itemsList}
+Total: R${order.total || 0}
+-------------------------------------`;
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(formattedText).catch(() => {});
+      }
+
+      window.openCourierDispatchModal(order, formattedText);
+      window.open("https://portal.thecourierguy.co.za/shipments/create", "_blank");
+    };
+
+    window.openCourierDispatchModal = function(order, fullText) {
+      const modal = document.getElementById("courierDispatchModal");
+      const container = document.getElementById("courierDispatchFields");
+      if (!modal || !container) return;
+
+      const name = order.customerName || `${order.firstName || ''} ${order.lastName || ''}`.trim() || "Customer";
+      const phone = order.phone || "";
+      const address = order.address || "";
+
+      container.innerHTML = `
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 12px; border-radius: 4px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: bold;">Full Dispatch Summary</span>
+            <button onclick="window.copyFieldToClipboard(\`${fullText.replace(/`/g, '\\`').replace(/\n/g, '\\n')}\`, 'Summary')" style="font-size: 9px; background: var(--accent); color: #000; font-weight: bold; border: none; padding: 4px 8px; border-radius: 2px; cursor: pointer;">📋 COPY ALL</button>
+          </div>
+          <pre style="font-size: 11px; white-space: pre-wrap; font-family: monospace; color: var(--accent); max-height: 120px; overflow-y: auto;">${fullText}</pre>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 10px; border-radius: 4px;">
+            <span style="font-size: 9px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 4px;">Recipient Name</span>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 12px; font-weight: bold;">${name}</span>
+              <button onclick="window.copyFieldToClipboard('${name.replace(/'/g, "\\'")}', 'Name')" style="font-size: 9px; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 2px; cursor: pointer;">Copy</button>
+            </div>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 10px; border-radius: 4px;">
+            <span style="font-size: 9px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 4px;">Phone Number</span>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 12px; font-weight: bold;">${phone}</span>
+              <button onclick="window.copyFieldToClipboard('${phone}', 'Phone')" style="font-size: 9px; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 2px; cursor: pointer;">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 10px; border-radius: 4px;">
+          <span style="font-size: 9px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 4px;">Full Address</span>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 11px;">${address}</span>
+            <button onclick="window.copyFieldToClipboard('${address.replace(/'/g, "\\'").replace(/\n/g, ' ')}', 'Address')" style="font-size: 9px; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 2px; cursor: pointer;">Copy</button>
+          </div>
+        </div>
+      `;
+
+      modal.classList.add("active");
+    };
+
+    window.closeCourierDispatchModal = function() {
+      const modal = document.getElementById("courierDispatchModal");
+      if (modal) modal.classList.remove("active");
+    };
+
+    window.copyFieldToClipboard = function(text, label) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert(`${label} copied to clipboard!`);
+        });
+      }
+    };
+
+    window.saveOrderWaybill = async function(orderId) {
+      const inputEl = document.getElementById(`waybill_input_${orderId}`);
+      if (!inputEl || !inputEl.value.trim()) {
+        alert("Please enter a waybill number.");
+        return;
+      }
+      const waybillNum = inputEl.value.trim();
+
+      try {
+        if (!window.db || !window.dbDoc || !window.dbUpdateDoc) return;
+        const orderRef = window.dbDoc(window.db, "orders", orderId);
+        await window.dbUpdateDoc(orderRef, {
+          waybill: waybillNum,
+          status: "Shipped",
+          paid: true,
+          updatedAt: new Date().toISOString()
+        });
+        alert(`Waybill ${waybillNum} saved! Order status updated to SHIPPED.`);
+        window.loadAdminOrders();
+      } catch (err) {
+        console.error("Error saving waybill:", err);
+        alert("Failed to save waybill: " + err.message);
+      }
+    };
+
+    window.editWaybill = async function(orderId, currentWaybill) {
+      const newWaybill = prompt("Enter new Courier Guy waybill number:", currentWaybill);
+      if (newWaybill === null) return;
+      try {
+        if (!window.db || !window.dbDoc || !window.dbUpdateDoc) return;
+        const orderRef = window.dbDoc(window.db, "orders", orderId);
+        await window.dbUpdateDoc(orderRef, {
+          waybill: newWaybill.trim(),
+          status: newWaybill.trim() ? "Shipped" : "paid",
+          updatedAt: new Date().toISOString()
+        });
+        alert("Waybill updated.");
+        window.loadAdminOrders();
+      } catch (err) {
+        console.error("Error updating waybill:", err);
+        alert("Failed to update waybill: " + err.message);
       }
     };
 

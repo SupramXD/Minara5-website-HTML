@@ -21,6 +21,23 @@ setGlobalOptions({maxInstances: 10});
 const githubTokenSecret = defineSecret("GITHUB_TOKEN");
 const paystackSecret = defineSecret("PAYSTACK_SECRET_KEY");
 const paystackSecretAlt = defineSecret("PAYSTACK_SECRET");
+const courierGuySecret = defineSecret("COURIER_GUY_API_KEY");
+
+/**
+ * Utility function to retrieve active Courier Guy Secret Key
+ */
+function getCourierGuySecretKey() {
+  let key = "";
+  try {
+    key = courierGuySecret.value();
+  } catch (e) {
+    // Ignore error if not initialized
+  }
+  if (!key) {
+    key = process.env.COURIER_GUY_API_KEY || "";
+  }
+  return key;
+}
 
 /**
  * Utility function to retrieve active Paystack Secret Key from Secret Manager or env
@@ -979,6 +996,94 @@ exports.verifyPaystackPayment = onCall({
     verified: false,
     status: data.status,
     message: "Payment has not been completed.",
+  };
+});
+
+/**
+ * Cloud Function to track shipments via Courier Guy API (Shiplogic) & Cloud Firestore orders
+ */
+exports.trackCourierGuyOrder = onCall({
+  secrets: [courierGuySecret],
+}, async (request) => {
+  const apiKey = getCourierGuySecretKey();
+  const rawInput = (request.data && request.data.trackingNumber) ? String(request.data.trackingNumber).trim() : "";
+
+  if (!rawInput) {
+    throw new HttpsError("invalid-argument", "Tracking or waybill number is required.");
+  }
+
+  let waybillToQuery = rawInput;
+  let orderData = null;
+
+  try {
+    const ordersRef = firestore.collection("orders");
+    let docSnap = await ordersRef.doc(rawInput).get();
+    if (!docSnap.exists) {
+      const q = await ordersRef.where("orderId", "==", rawInput).limit(1).get();
+      if (!q.empty) docSnap = q.docs[0];
+    }
+    if (!docSnap.exists) {
+      const q = await ordersRef.where("waybill", "==", rawInput).limit(1).get();
+      if (!q.empty) docSnap = q.docs[0];
+    }
+    if (docSnap.exists) {
+      orderData = docSnap.data();
+      if (orderData.waybill) {
+        waybillToQuery = orderData.waybill;
+      }
+    }
+  } catch (dbErr) {
+    logger.warn("Firestore order lookup warning during tracking:", dbErr);
+  }
+
+  if (apiKey) {
+    const urls = [
+      `https://api.shiplogic.com/tracking/shipments?tracking_number=${encodeURIComponent(waybillToQuery)}`,
+      `https://api.shiplogic.com/v1/tracking/shipments/${encodeURIComponent(waybillToQuery)}`,
+      `https://portal.thecourierguy.co.za/api/v1/track/${encodeURIComponent(waybillToQuery)}`
+    ];
+
+    for (const targetUrl of urls) {
+      try {
+        const res = await fetch(targetUrl, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (res.ok) {
+          const apiJson = await res.json();
+          return {
+            success: true,
+            source: "courier_guy_api",
+            waybill: waybillToQuery,
+            data: apiJson,
+            order: orderData
+          };
+        }
+      } catch (fetchErr) {
+        logger.warn(`Courier Guy API endpoint fetch failed for ${targetUrl}:`, fetchErr);
+      }
+    }
+  }
+
+  if (orderData) {
+    return {
+      success: true,
+      source: "firestore_order",
+      waybill: waybillToQuery,
+      order: orderData,
+      status: orderData.status || "Processing",
+      message: "Order located in database. Dispatch details pending with carrier."
+    };
+  }
+
+  return {
+    success: false,
+    waybill: waybillToQuery,
+    message: "No tracking records found for this waybill or reference number."
   };
 });
 

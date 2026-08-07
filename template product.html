@@ -1062,6 +1062,28 @@
             .product-name-short {
                 padding-right: 140px !important;
             }
+
+            /* Compact spacing on mobile so Add to Bag button is never cut off */
+            .price-container {
+                margin-bottom: 14px !important;
+            }
+            #sizePickerContainer {
+                margin-bottom: 12px !important;
+            }
+            #bottleCustomisationContainer {
+                margin-bottom: 12px !important;
+            }
+            #bottleCustomisationLabel {
+                margin-bottom: 5px !important;
+            }
+            .bottle-custom-box {
+                height: 54px !important;
+                width: 48px !important;
+            }
+            .add-to-cart {
+                margin-top: 10px !important;
+                margin-bottom: 4px !important;
+            }
         }
 
         /* =============== REVIEWS BOTTOM SECTION OVERHAUL =============== */
@@ -2708,7 +2730,7 @@
       </div>
       <div class="footer-brand-title">STUDIO EXTRAIT</div>
       <p class="footer-description">
-        Studio Extrait is an emerging luxury fragrance label crafting designer-inspired Extraits de Parfum without the luxury brand tax. Our high-concentration formulations match original iconic scents with 100% premium quality, dispatched direct to your door nationwide across South Africa.
+        Experience the ultimate definition of accessible luxury with Studio Extrait, redefining South Africa’s fragrance landscape with designer-inspired Extraits de Parfum. Our high-concentration 20%+ formulations use imported French oils to achieve an undeniable 95% similarity to iconic scents. Expertly macerated and dispatched nationwide with 2-3 day free delivery over R600. Discover your signature scent today.
       </p>
       <div class="footer-support">
         Customer Support : <a href="mailto:jadon@studioextrait.co.za">jadon@studioextrait.co.za</a>
@@ -3661,6 +3683,7 @@
                 const standardOption = {
                     id: "standard",
                     label: "STANDARD",
+                    size: "50ml",
                     img: stdImg,
                     thumbImg: stdThumb,
                     fallbackImg: stdImg,
@@ -3694,7 +3717,7 @@
 
                         console.log(`[Bottle Customisation] Product "${p.name}": Option #${idx + 1} "${lbl}" -> Image: "${mainImg ? mainImg.substring(0, 50) + '...' : 'EMPTY'}", PriceExtra: +R${extra}`);
 
-                        const optSize = c.size || c.ml || (lbl.includes("50ML") ? "50ml" : "100ml");
+                        const optSize = c.size || c.ml || (lbl.includes("100ML") ? "100ml" : "50ml");
                         options.push({
                             id: (c.label || "option").toLowerCase().replace(/[^a-z0-9]+/g, '_'),
                             label: lbl,
@@ -3716,6 +3739,7 @@
                         options.push({
                             id: "premium_masculine",
                             label: "PREMIUM (HIM)",
+                            size: "100ml",
                             img: p.masculinePremiumBottleImg || "",
                             thumbImg: p.masculinePremiumBottleImgThumb || p.masculinePremiumBottleImg || "",
                             fallbackImg: p.masculinePremiumBottleImg || "",
@@ -3725,6 +3749,7 @@
                         options.push({
                             id: "premium_feminine",
                             label: "PREMIUM (HER)",
+                            size: "100ml",
                             img: p.femininePremiumBottleImg || "",
                             thumbImg: p.femininePremiumBottleImgThumb || p.femininePremiumBottleImg || "",
                             fallbackImg: p.femininePremiumBottleImg || "",
@@ -3736,6 +3761,7 @@
                         options.push({
                             id: "premium_feminine",
                             label: "PREMIUM",
+                            size: "100ml",
                             img: p.femininePremiumBottleImg || "",
                             thumbImg: p.femininePremiumBottleImgThumb || p.femininePremiumBottleImg || "",
                             fallbackImg: p.femininePremiumBottleImg || "",
@@ -3747,6 +3773,7 @@
                         options.push({
                             id: "premium_masculine",
                             label: "PREMIUM",
+                            size: "100ml",
                             img: p.masculinePremiumBottleImg || "",
                             thumbImg: p.masculinePremiumBottleImgThumb || p.masculinePremiumBottleImg || "",
                             fallbackImg: p.masculinePremiumBottleImg || "",
@@ -3883,7 +3910,7 @@
                         box.classList.add("active");
 
                         // If customisation has a specified size (e.g. 50ml or 100ml), select that size automatically
-                        const targetSize = opt.size || (opt.label.toUpperCase().includes("50ML") ? "50ml" : "100ml");
+                        const targetSize = opt.size || (opt.label.toUpperCase().includes("100ML") ? "100ml" : "50ml");
                         if (targetSize) {
                             const sizeBtns = document.querySelectorAll(".size-picker-btn");
                             let clickedSize = false;
