@@ -877,8 +877,10 @@ exports.createPayFastTransaction = onCall({}, async (request) => {
     item_name: `Studio Extrait Order ${reference}`,
   };
 
-  // Calculate signature
-  fields.signature = generatePayFastSignature(fields, passphrase);
+  // Calculate signature only if a passphrase is configured
+  if (passphrase && passphrase.trim() !== "") {
+    fields.signature = generatePayFastSignature(fields, passphrase);
+  }
 
   logger.info(`Initialized PayFast transaction for order ${reference}`);
 
@@ -947,7 +949,9 @@ exports.createPaystackTransaction = onCall({}, async (request) => {
     item_name: `Studio Extrait Order ${reference}`,
   };
 
-  fields.signature = generatePayFastSignature(fields, passphrase);
+  if (passphrase && passphrase.trim() !== "") {
+    fields.signature = generatePayFastSignature(fields, passphrase);
+  }
 
   return {
     success: true,

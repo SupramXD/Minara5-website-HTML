@@ -2437,11 +2437,14 @@
 
             for (const key in resData.fields) {
               if (Object.prototype.hasOwnProperty.call(resData.fields, key)) {
-                const input = document.createElement("input");
-                input.type = "hidden";
-                input.name = key;
-                input.value = resData.fields[key];
-                form.appendChild(input);
+                const val = resData.fields[key];
+                if (val !== undefined && val !== null && String(val).trim() !== "") {
+                  const input = document.createElement("input");
+                  input.type = "hidden";
+                  input.name = key;
+                  input.value = val;
+                  form.appendChild(input);
+                }
               }
             }
 
