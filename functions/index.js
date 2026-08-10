@@ -21,11 +21,6 @@ setGlobalOptions({maxInstances: 10});
 const githubTokenSecret = defineSecret("GITHUB_TOKEN");
 const courierGuySecret = defineSecret("COURIER_GUY_API_KEY");
 
-const payfastMerchantIdSecret = defineSecret("PAYFAST_MERCHANT_ID");
-const payfastMerchantKeySecret = defineSecret("PAYFAST_MERCHANT_KEY");
-const payfastPassphraseSecret = defineSecret("PAYFAST_PASSPHRASE");
-const payfastEnvSecret = defineSecret("PAYFAST_ENV");
-
 /**
  * Utility function to retrieve active Courier Guy Secret Key
  */
@@ -46,54 +41,19 @@ function getCourierGuySecretKey() {
  * Utility functions for PayFast configuration & MD5 signature generation
  */
 function getPayFastMerchantId() {
-  let id = "";
-  try {
-    id = payfastMerchantIdSecret.value();
-  } catch (e) {
-    // Ignore if not set
-  }
-  if (!id) {
-    id = process.env.PAYFAST_MERCHANT_ID || "10000100";
-  }
-  return id;
+  return process.env.PAYFAST_MERCHANT_ID || "10000100";
 }
 
 function getPayFastMerchantKey() {
-  let key = "";
-  try {
-    key = payfastMerchantKeySecret.value();
-  } catch (e) {
-    // Ignore if not set
-  }
-  if (!key) {
-    key = process.env.PAYFAST_MERCHANT_KEY || "46f0cd694581a";
-  }
-  return key;
+  return process.env.PAYFAST_MERCHANT_KEY || "46f0cd694581a";
 }
 
 function getPayFastPassphrase() {
-  let pass = "";
-  try {
-    pass = payfastPassphraseSecret.value();
-  } catch (e) {
-    // Ignore if not set
-  }
-  if (!pass) {
-    pass = process.env.PAYFAST_PASSPHRASE || "";
-  }
-  return pass;
+  return process.env.PAYFAST_PASSPHRASE || "";
 }
 
 function getPayFastEnv() {
-  let env = "";
-  try {
-    env = payfastEnvSecret.value();
-  } catch (e) {
-    // Ignore if not set
-  }
-  if (!env) {
-    env = process.env.PAYFAST_ENV || "sandbox";
-  }
+  const env = process.env.PAYFAST_ENV || "sandbox";
   return String(env).toLowerCase().trim();
 }
 
@@ -842,9 +802,10 @@ exports.onReviewDeleted = onDocumentDeleted({
 /**
  * Initialize a PayFast transaction and save a pending order in Firestore.
  */
-exports.createPayFastTransaction = onCall({
-  secrets: [payfastMerchantIdSecret, payfastMerchantKeySecret, payfastPassphraseSecret, payfastEnvSecret],
-}, async (request) => {
+/**
+ * Initialize a PayFast transaction and save a pending order in Firestore.
+ */
+exports.createPayFastTransaction = onCall({}, async (request) => {
   const {customer, items, shipping, total, callbackUrl, cancelUrl} = request.data || {};
   if (!customer || !customer.email || !items || !Array.isArray(items) || items.length === 0 || !total) {
     throw new HttpsError("invalid-argument", "Missing required order details.");
@@ -919,9 +880,7 @@ exports.createPayFastTransaction = onCall({
 /**
  * Backwards compatibility alias for createPaystackTransaction -> createPayFastTransaction
  */
-exports.createPaystackTransaction = onCall({
-  secrets: [payfastMerchantIdSecret, payfastMerchantKeySecret, payfastPassphraseSecret, payfastEnvSecret],
-}, async (request) => {
+exports.createPaystackTransaction = onCall({}, async (request) => {
   const {customer, items, shipping, total, callbackUrl, cancelUrl} = request.data || {};
   if (!customer || !customer.email || !items || !Array.isArray(items) || items.length === 0 || !total) {
     throw new HttpsError("invalid-argument", "Missing required order details.");
@@ -988,9 +947,7 @@ exports.createPaystackTransaction = onCall({
 /**
  * Handle incoming Instant Transaction Notifications (ITN webhooks) from PayFast.
  */
-exports.payfastWebhook = onRequest({
-  secrets: [payfastMerchantIdSecret, payfastMerchantKeySecret, payfastPassphraseSecret, payfastEnvSecret],
-}, async (req, res) => {
+exports.payfastWebhook = onRequest({}, async (req, res) => {
   if (req.method !== "POST") {
     res.status(405).send("Method Not Allowed");
     return;
@@ -1076,18 +1033,14 @@ exports.payfastWebhook = onRequest({
 /**
  * Backwards compatibility alias for paystackWebhook -> payfastWebhook
  */
-exports.paystackWebhook = onRequest({
-  secrets: [payfastMerchantIdSecret, payfastMerchantKeySecret, payfastPassphraseSecret, payfastEnvSecret],
-}, async (req, res) => {
+exports.paystackWebhook = onRequest({}, async (req, res) => {
   return exports.payfastWebhook(req, res);
 });
 
 /**
  * Verify PayFast payment status server-side upon client callback.
  */
-exports.verifyPayFastPayment = onCall({
-  secrets: [payfastMerchantIdSecret, payfastMerchantKeySecret, payfastPassphraseSecret, payfastEnvSecret],
-}, async (request) => {
+exports.verifyPayFastPayment = onCall({}, async (request) => {
   const {reference, m_payment_id} = request.data || {};
   const activeRef = reference || m_payment_id;
 
@@ -1140,9 +1093,7 @@ exports.verifyPayFastPayment = onCall({
 /**
  * Backwards compatibility alias for verifyPaystackPayment -> verifyPayFastPayment
  */
-exports.verifyPaystackPayment = onCall({
-  secrets: [payfastMerchantIdSecret, payfastMerchantKeySecret, payfastPassphraseSecret, payfastEnvSecret],
-}, async (request) => {
+exports.verifyPaystackPayment = onCall({}, async (request) => {
   return exports.verifyPayFastPayment(request);
 });
 
