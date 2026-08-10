@@ -876,6 +876,146 @@
         letter-spacing: 0.12em;
         line-height: 1.6;
       }
+    /* SECOND HERO SECTION (LEFT IMAGE & RIGHT HIGH FASHION LOGO) */
+    .second-hero-section {
+      width: 100%;
+      background: #ffffff;
+      padding: 70px 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-top: 1px solid #f0f0f0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .second-hero-inner {
+      width: 100%;
+      max-width: 1280px;
+      display: flex;
+      align-items: stretch;
+      gap: 50px;
+    }
+
+    .second-hero-img-box {
+      flex: 1.1;
+      width: 55%;
+      height: 480px;
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+      background: #111;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    }
+
+    .second-hero-img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .second-hero-img-box:hover img {
+      transform: scale(1.025);
+    }
+
+    .second-hero-logo-box {
+      flex: 0.9;
+      width: 45%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 30px;
+      background: #fafafa;
+      border: 1px solid #eaeaea;
+      border-radius: 3px;
+      text-align: center;
+    }
+
+    .second-hero-logo-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sec-hero-svg-emblem {
+      height: 85px;
+      width: auto;
+      margin-bottom: 24px;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.06));
+    }
+
+    .sec-hero-svg-emblem:hover {
+      opacity: 0.85;
+      transform: scale(1.03);
+    }
+
+    .sec-hero-brand-title {
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 5.5px;
+      text-transform: uppercase;
+      color: #000000;
+      margin: 0 0 10px 0;
+      line-height: 1.2;
+    }
+
+    .sec-hero-brand-tagline {
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: #777777;
+    }
+
+    .sec-hero-divider {
+      width: 35px;
+      height: 1.5px;
+      background: #111111;
+      margin-top: 24px;
+      opacity: 0.7;
+    }
+
+    @media (max-width: 900px) {
+      .second-hero-section {
+        padding: 40px 20px;
+      }
+
+      .second-hero-inner {
+        flex-direction: column;
+        gap: 25px;
+      }
+
+      .second-hero-img-box {
+        width: 100%;
+        max-width: 100%;
+        height: 280px;
+      }
+
+      .second-hero-logo-box {
+        width: 100%;
+        max-width: 100%;
+        padding: 40px 20px;
+      }
+
+      .sec-hero-svg-emblem {
+        height: 70px;
+      }
+
+      .sec-hero-brand-title {
+        font-size: 13px;
+        letter-spacing: 4px;
+      }
+
+      .sec-hero-brand-tagline {
+        font-size: 8.5px;
+        letter-spacing: 2.8px;
+      }
     }
 
     /* HOME PRODUCTS SECTION */
@@ -1801,8 +1941,9 @@
             width: ${!isMobile ? (s.logoHomeDesktopWidth !== undefined ? s.logoHomeDesktopWidth + "px" : "1200px") : "auto"};
             max-width: ${isMobile ? (s.logoHomeMobileWidth !== undefined ? s.logoHomeMobileWidth + "vw" : "88vw") : "none"};
           }
-          #secondHero {
-            height: ${isMobile ? (sSec.mobileHeight === "auto" ? "180px" : sSec.mobileHeight) : (sSec.desktopHeight || "80vh")};
+          #secondHero img {
+            height: 100%;
+            object-fit: cover;
           }
           ${heroHeightRule}
           ${heroHideRightRule}
@@ -2211,69 +2352,25 @@
       function applySecondHeroSettings() {
         const isMobile = window.matchMedia("(max-width: 900px)").matches;
         const imgL = document.getElementById("secImgL");
-        const imgR = document.getElementById("secImgR");
-        const hero = document.getElementById("secondHero");
-        const imgRWrapper = document.getElementById("secImgRWrapper");
 
-        if (!imgL || !imgR || !hero) return;
+        if (!imgL) return;
 
-        const hasLeft = !!settings.leftImage;
-        const hasRight = !!settings.rightImage;
-        const hasMobile = !!settings.mobileImage;
-
-        if (isMobile) {
-          if (hasMobile) {
-            imgR.src = settings.mobileImage;
-            imgR.style.display = "block";
-            if (imgRWrapper) imgRWrapper.style.display = "block";
-          } else {
-            imgR.style.display = "none";
-            if (imgRWrapper) imgRWrapper.style.display = "none";
-          }
-          imgL.style.display = "none";
-          imgL.removeAttribute("src");
-
-          if (settings.mobileHeight === "auto") {
-            hero.style.height = hasMobile ? "auto" : "170px";
-            if (imgRWrapper) {
-              imgRWrapper.style.height = "auto";
-              imgRWrapper.style.flex = "";
-            }
-            imgR.style.height = "auto";
-            imgR.style.width = "100%";
-            imgR.style.objectFit = "cover";
-          } else {
-            hero.style.height = settings.mobileHeight || "170px";
-            if (imgRWrapper) {
-              imgRWrapper.style.height = "100%";
-              imgRWrapper.style.flex = "";
-            }
-            imgR.style.height = "100%";
-            imgR.style.width = "100%";
-            imgR.style.objectFit = "cover";
-          }
-
-          imgR.style.transform = `scale(${settings.mobileScale || 1.0})`;
-          imgR.style.objectPosition = `${settings.mobileX || 50}% ${settings.mobileY || 50}%`;
-          imgR.style.transformOrigin = `${settings.mobileX || 50}% ${settings.mobileY || 50}%`;
-        } else {
-          // DESKTOP: Only use the single first image (leftImage), 100% full width
-          imgL.src = settings.leftImage || "images/second-hero/studio-extrait-perfumes.avif";
-          imgL.style.display = "block";
-          imgL.style.flex = "1";
-          imgL.style.width = "100%";
-          imgL.style.height = "100%";
-          imgL.style.objectFit = "cover";
-          if (imgRWrapper) imgRWrapper.style.display = "none";
-          imgR.style.display = "none";
-          imgR.removeAttribute("src");
-
-          hero.style.height = settings.desktopHeight || "55vh";
-
-          imgL.style.transform = `scale(${settings.leftScale || 1.0})`;
-          imgL.style.objectPosition = `${settings.leftX || 50}% ${settings.leftY || 50}%`;
-          imgL.style.transformOrigin = `${settings.leftX || 50}% ${settings.leftY || 50}%`;
+        const targetSrc = (isMobile && settings.mobileImage) ? settings.mobileImage : (settings.leftImage || "images/second-hero/studio-extrait-perfumes.avif");
+        if (imgL.getAttribute("src") !== targetSrc) {
+          imgL.src = targetSrc;
         }
+        imgL.style.display = "block";
+        imgL.style.width = "100%";
+        imgL.style.height = "100%";
+        imgL.style.objectFit = "cover";
+
+        const scale = isMobile ? (settings.mobileScale || 1.0) : (settings.leftScale || 1.0);
+        const posX = isMobile ? (settings.mobileX || 50) : (settings.leftX || 50);
+        const posY = isMobile ? (settings.mobileY || 50) : (settings.leftY || 50);
+
+        imgL.style.transform = `scale(${scale})`;
+        imgL.style.objectPosition = `${posX}% ${posY}%`;
+        imgL.style.transformOrigin = `${posX}% ${posY}%`;
       }
 
       window.addEventListener("resize", applySecondHeroSettings);
@@ -2461,14 +2558,21 @@
     </div>
   </section>
 
-  <!-- SECOND HERO IMAGE SECTION -->
-  <section id="secondHero" class="hero"
-    style="background: #000; position: relative; width: 100vw; display: flex; overflow: hidden; margin-top: 0; margin-bottom: 0;">
-    <img id="secImgL" style="height: 100%; object-fit: cover; transition: opacity .3s ease; display: none;"
-      onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
-    <div id="secImgRWrapper" style="position:relative; flex: 0.7; height: 100%; display: none;">
-      <img id="secImgR" style="width:100%; height:100%; object-fit:cover;"
-        onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
+  <!-- SECOND HERO SECTION (LEFT IMAGE & RIGHT HIGH FASHION LOGO) -->
+  <section id="secondHeroSection" class="second-hero-section">
+    <div class="second-hero-inner">
+      <div id="secondHero" class="second-hero-img-box">
+        <img id="secImgL" src="images/second-hero/studio-extrait-perfumes.avif" alt="Studio Extrait Fragrances"
+          onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
+      </div>
+      <div class="second-hero-logo-box">
+        <div class="second-hero-logo-content">
+          <img src="Studio Extrait Icon Svg only logo.svg" alt="Studio Extrait Emblem" class="sec-hero-svg-emblem">
+          <h2 class="sec-hero-brand-title">STUDIO EXTRAIT</h2>
+          <span class="sec-hero-brand-tagline">EXTRAIT DE PARFUM • SOUTH AFRICA</span>
+          <div class="sec-hero-divider"></div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -2616,7 +2720,7 @@
       let lastLogoState = "";    // "fixed" or "absolute"
 
       function measure() {
-        if (!hero || !imgR || !secondHero || !secImgR) return;
+        if (!hero || !imgR || !secondHero) return;
 
         mobileView = window.innerWidth <= 900;
 
@@ -2633,7 +2737,7 @@
           secHeight = 180;
         }
         secondHeroBottom = secondHero.offsetTop + secHeight - 45;
-        secImgRBottom = window.scrollY + secImgR.getBoundingClientRect().bottom;
+        secImgRBottom = secondHeroBottom;
 
         if (bagsBtn) {
           bagsBtnHeight = bagsBtn.offsetHeight;
