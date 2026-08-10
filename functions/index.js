@@ -72,6 +72,20 @@ function getPayFastValidateUrl() {
 }
 
 /**
+ * PHP-compatible urlencode for PayFast signature matching.
+ */
+function phpUrlEncode(str) {
+  return encodeURIComponent(String(str).trim()).
+      replace(/%20/g, "+").
+      replace(/!/g, "%21").
+      replace(/'/g, "%27").
+      replace(/\(/g, "%28").
+      replace(/\)/g, "%29").
+      replace(/\*/g, "%2A").
+      replace(/~/g, "%7E");
+}
+
+/**
  * Generates MD5 signature for PayFast requests and webhooks.
  */
 function generatePayFastSignature(dataObj, passphrase = "") {
@@ -80,14 +94,14 @@ function generatePayFastSignature(dataObj, passphrase = "") {
     if (Object.prototype.hasOwnProperty.call(dataObj, key)) {
       const val = dataObj[key];
       if (key !== "signature" && val !== undefined && val !== null && String(val).trim() !== "") {
-        getString += `${key}=${encodeURIComponent(String(val).trim()).replace(/%20/g, "+")}&`;
+        getString += `${key}=${phpUrlEncode(val)}&`;
       }
     }
   }
   getString = getString.substring(0, getString.length - 1);
 
   if (passphrase && String(passphrase).trim() !== "") {
-    getString += `&passphrase=${encodeURIComponent(String(passphrase).trim()).replace(/%20/g, "+")}`;
+    getString += `&passphrase=${phpUrlEncode(passphrase)}`;
   }
 
   return crypto.createHash("md5").update(getString).digest("hex");
