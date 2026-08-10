@@ -2016,14 +2016,10 @@
               <div style="font-size: 9.5px; font-weight: 800; letter-spacing: 2px; color: #000000; text-transform: uppercase;">STEP 1: DELIVERY & CONTACT</div>
             </div>
             
-            <!-- Paystack Official Brand Logo Trust Indicator -->
+            <!-- PayFast Brand Trust Indicator -->
             <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 30" width="98" height="24" style="display: block;">
-                <rect width="120" height="30" rx="0" fill="#000000"/>
-                <path d="M16 9h14v3.5H16zM16 14.5h14v3.5H16zM16 20h9v3.5h-9z" fill="#ffffff"/>
-                <text x="44" y="20" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="13" fill="#FFFFFF">paystack</text>
-              </svg>
-              <span style="font-size: 8px; font-weight: 600; color: #666666; text-transform: uppercase; letter-spacing: 0.8px;">(a Stripe company)</span>
+              <div style="background: #000000; color: #ffffff; padding: 4px 10px; font-family: Helvetica, Arial, sans-serif; font-weight: 900; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">payfast</div>
+              <span style="font-size: 8px; font-weight: 600; color: #666666; text-transform: uppercase; letter-spacing: 0.8px;">(SSL Encrypted)</span>
             </div>
           </div>
           
@@ -2172,11 +2168,11 @@
 
             <div style="margin-top: 25px; font-size: 11.5px; color: #222222; display: flex; align-items: center; gap: 10px; background: #fafafa; padding: 12px 14px; border-radius: 0px; border: 1px solid #eaeaea; border-left: 2px solid #000000;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="3" y="11" width="18" height="11" rx="1" ry="1"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-              <span>You will be securely redirected to Paystack to complete your 256-bit SSL encrypted payment.</span>
+              <span>You will be securely redirected to PayFast to complete your 256-bit SSL encrypted payment.</span>
             </div>
 
             <button type="submit" class="submit-order-btn" id="payBtn" style="margin-top: 20px; background: #000000; color: #ffffff; font-weight: bold; letter-spacing: 1.8px; border-radius: 0px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 16px; border: 1px solid #000000;">
-              <span>Continue to Paystack Payment</span>
+              <span>Continue to PayFast Payment</span>
               <span style="font-size: 9px; opacity: 0.7; letter-spacing: 1px; font-weight: normal; text-transform: uppercase;">Free Express Courier Guy Shipping Included</span>
             </button>
           </form>
@@ -2226,9 +2222,9 @@
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="1" ry="1"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                 </div>
                 <div class="trust-card-content">
-                  <div class="trust-card-title" style="font-weight: bold; font-size: 12px; color: #000000; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Secured by Paystack <span style="font-size: 9px; color: #666666; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 4px;">(a Stripe company)</span></div>
+                  <div class="trust-card-title" style="font-weight: bold; font-size: 12px; color: #000000; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Secured by PayFast <span style="font-size: 9px; color: #666666; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 4px;">(Sandbox Test Active)</span></div>
                   <div style="font-size: 11px; color: #555555; line-height: 1.45;">
-                    Your financial information is encrypted using bank-grade 256-bit SSL security powered by Paystack (a Stripe company).
+                    Your financial information is encrypted using bank-grade 256-bit SSL security powered by PayFast.
                   </div>
                   <!-- Payment Logos Grid inside Trust card -->
                   <div style="display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap;">
@@ -2260,9 +2256,9 @@
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                 </div>
                 <div class="trust-card-content">
-                  <div class="trust-card-title" style="font-weight: bold; font-size: 12px; color: #000000; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Courier Guy Tracked Delivery</div>
+                  <div class="trust-card-title" style="font-weight: bold; font-size: 12px; color: #000000; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Free Express Shipping</div>
                   <div style="font-size: 11px; color: #555555; line-height: 1.45;">
-                    Direct door-to-door courier dispatch with real-time tracking notifications sent to your email & SMS.
+                    Dispatched nationwide via The Courier Guy with door-to-door tracking.
                   </div>
                 </div>
               </div>
@@ -2287,7 +2283,7 @@
       }, 200);
     }
 
-    // Handle Form Submission and redirect to Paystack Gateway
+    // Handle Form Submission and redirect to PayFast Gateway
     window.handleCheckoutSubmit = async function (event) {
       event.preventDefault();
 
@@ -2300,7 +2296,7 @@
             <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
             <path d="M12 2a10 10 0 0 1 10 10" stroke-opacity="1"></path>
           </svg>
-          Securing Paystack Payment...
+          Securing PayFast Payment...
         </span>
       `;
       }
@@ -2358,6 +2354,7 @@
       compiledAddress += `${street}, ${suburb}, ${city}, ${province}, ${postalCode}`;
 
       const callbackUrl = window.location.origin + '/success.html';
+      const cancelUrl = window.location.origin + '/cancel.html';
 
       const orderPayload = {
         customer: {
@@ -2381,7 +2378,8 @@
           bottleCustomisation: item.bottleCustomisation || null
         })),
         total: finalTotal,
-        callbackUrl: callbackUrl
+        callbackUrl: callbackUrl,
+        cancelUrl: cancelUrl
       };
 
       try {
@@ -2399,11 +2397,11 @@
         let resData = null;
 
         if (functions && httpsCallable) {
-          const createPaystackFn = httpsCallable(functions, "createPaystackTransaction");
-          const res = await createPaystackFn(orderPayload);
+          const createPayFastFn = httpsCallable(functions, "createPayFastTransaction");
+          const res = await createPayFastFn(orderPayload);
           resData = res.data;
         } else {
-          const res = await fetch("https://us-central1-minara5.cloudfunctions.net/createPaystackTransaction", {
+          const res = await fetch("https://us-central1-minara5.cloudfunctions.net/createPayFastTransaction", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ data: orderPayload })
@@ -2412,8 +2410,8 @@
           resData = json.result || json;
         }
 
-        if (resData && resData.success && resData.authorization_url) {
-          // Reserve & deduct stock when user proceeds to Paystack
+        if (resData && resData.success) {
+          // Reserve & deduct stock when user proceeds to PayFast
           if (typeof window.reserveAndDeductStock === "function") {
             window.reserveAndDeductStock(activeItems, resData.reference);
           }
@@ -2431,18 +2429,39 @@
             items: orderPayload.items
           }));
 
-          // Redirect customer to Paystack authorization page
-          window.location.href = resData.authorization_url;
+          if (resData.fields && Object.keys(resData.fields).length > 0) {
+            // Post form fields directly to PayFast gateway process URL
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = resData.processUrl || "https://sandbox.payfast.co.za/eng/process";
+
+            for (const key in resData.fields) {
+              if (Object.prototype.hasOwnProperty.call(resData.fields, key)) {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = key;
+                input.value = resData.fields[key];
+                form.appendChild(input);
+              }
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+          } else if (resData.processUrl || resData.authorization_url) {
+            window.location.href = resData.processUrl || resData.authorization_url;
+          } else {
+            throw new Error("Invalid response payload from gateway");
+          }
         } else {
           throw new Error(resData ? (resData.message || "Invalid response from gateway") : "Connection failed");
         }
 
       } catch (err) {
-        console.error("Paystack transaction initialization error:", err);
-        alert("Unable to process request with Paystack payment gateway. Please verify your details and try again.");
+        console.error("PayFast transaction initialization error:", err);
+        alert("Unable to process request with PayFast payment gateway. Please verify your details and try again.");
         if (payBtn) {
           payBtn.disabled = false;
-          payBtn.textContent = "Continue to Paystack";
+          payBtn.textContent = "Continue to PayFast Payment";
         }
       }
     };

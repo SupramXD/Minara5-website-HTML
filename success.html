@@ -779,14 +779,14 @@
     function openMenu() { document.getElementById("menuPanel").classList.add("open"); }
     function closeMenu() { document.getElementById("menuPanel").classList.remove("open"); }
 
-    // Load and verify Paystack transaction receipt
+    // Load and verify PayFast transaction receipt
     document.addEventListener('DOMContentLoaded', async () => {
       const receiptContent = document.getElementById("receiptContent");
       if (!receiptContent) return;
 
       // Extract reference from URL parameters
       const urlParams = new URLSearchParams(window.location.search);
-      const reference = urlParams.get('reference') || urlParams.get('trxref');
+      const reference = urlParams.get('m_payment_id') || urlParams.get('reference') || urlParams.get('trxref') || urlParams.get('pf_payment_id');
 
       let orderData = null;
       try {
@@ -809,7 +809,7 @@
 
       receiptContent.innerHTML = `
       <div class="receipt-card" style="text-align: center; padding: 30px;">
-        <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #09A5DB;">Verifying Paystack Payment...</div>
+        <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #09A5DB;">Verifying PayFast Payment...</div>
         <div style="font-size: 11px; color: #666;">Please wait while we confirm your payment status securely.</div>
       </div>
     `;
@@ -830,17 +830,17 @@
         }
 
         if (functions && httpsCallable) {
-          const verifyFn = httpsCallable(functions, "verifyPaystackPayment");
-          const res = await verifyFn({ reference: activeRef });
+          const verifyFn = httpsCallable(functions, "verifyPayFastPayment");
+          const res = await verifyFn({ reference: activeRef, m_payment_id: activeRef });
           if (res.data && res.data.verified) {
             isVerified = true;
             verifiedOrder = res.data.order;
           }
         } else {
-          const res = await fetch("https://us-central1-minara5.cloudfunctions.net/verifyPaystackPayment", {
+          const res = await fetch("https://us-central1-minara5.cloudfunctions.net/verifyPayFastPayment", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data: { reference: activeRef } })
+            body: JSON.stringify({ data: { reference: activeRef, m_payment_id: activeRef } })
           });
           const json = await res.json();
           const result = json.result || json;
@@ -895,12 +895,12 @@
         receiptContent.innerHTML = `
         <div class="receipt-card">
           <div class="receipt-header">
-            <span>Verified Paystack Receipt</span>
+            <span>Verified PayFast Receipt</span>
             <span class="receipt-ref">${refToDisplay}</span>
           </div>
 
           <div style="background: #e0f2fe; color: #0369a1; padding: 10px 14px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; gap: 6px;">
-            <span>✓</span> <span>Payment Confirmed & Verified by Paystack (by Stripe)</span>
+            <span>✓</span> <span>Payment Confirmed & Verified by PayFast</span>
           </div>
 
           <div class="receipt-section-title">Shipping Address</div>
@@ -936,7 +936,7 @@
           <div style="font-size: 18px; margin-bottom: 8px;">⚠️</div>
           <div style="font-weight: bold; font-size: 14px; color: #b91c1c; margin-bottom: 6px;">Payment Verification Pending</div>
           <div style="font-size: 12px; color: #4b5563; margin-bottom: 18px; line-height: 1.5;">
-            We have not yet received confirmation of completed payment from Paystack for reference <strong>${activeRef}</strong>.
+            We have not yet received confirmation of completed payment from PayFast for reference <strong>${activeRef}</strong>.
           </div>
           <button onclick="window.location.reload()" class="action-btn" style="padding: 10px 24px; font-size: 10px;">Check Status Again</button>
         </div>

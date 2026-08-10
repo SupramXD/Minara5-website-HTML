@@ -19,9 +19,12 @@ setGlobalOptions({maxInstances: 10});
 
 // Access secrets configured via Firebase Secret Manager
 const githubTokenSecret = defineSecret("GITHUB_TOKEN");
-const paystackSecret = defineSecret("PAYSTACK_SECRET_KEY");
-const paystackSecretAlt = defineSecret("PAYSTACK_SECRET");
 const courierGuySecret = defineSecret("COURIER_GUY_API_KEY");
+
+const payfastMerchantIdSecret = defineSecret("PAYFAST_MERCHANT_ID");
+const payfastMerchantKeySecret = defineSecret("PAYFAST_MERCHANT_KEY");
+const payfastPassphraseSecret = defineSecret("PAYFAST_PASSPHRASE");
+const payfastEnvSecret = defineSecret("PAYFAST_ENV");
 
 /**
  * Utility function to retrieve active Courier Guy Secret Key
@@ -40,26 +43,94 @@ function getCourierGuySecretKey() {
 }
 
 /**
- * Utility function to retrieve active Paystack Secret Key from Secret Manager or env
+ * Utility functions for PayFast configuration & MD5 signature generation
  */
-function getPaystackSecretKey() {
+function getPayFastMerchantId() {
+  let id = "";
+  try {
+    id = payfastMerchantIdSecret.value();
+  } catch (e) {
+    // Ignore if not set
+  }
+  if (!id) {
+    id = process.env.PAYFAST_MERCHANT_ID || "10000100";
+  }
+  return id;
+}
+
+function getPayFastMerchantKey() {
   let key = "";
   try {
-    key = paystackSecret.value();
+    key = payfastMerchantKeySecret.value();
   } catch (e) {
-    // Ignore error if not initialized
+    // Ignore if not set
   }
   if (!key) {
-    try {
-      key = paystackSecretAlt.value();
-    } catch (e) {
-      // Ignore error if not initialized
-    }
-  }
-  if (!key) {
-    key = process.env.PAYSTACK_SECRET_KEY || process.env.PAYSTACK_SECRET || "";
+    key = process.env.PAYFAST_MERCHANT_KEY || "46f0cd694581a";
   }
   return key;
+}
+
+function getPayFastPassphrase() {
+  let pass = "";
+  try {
+    pass = payfastPassphraseSecret.value();
+  } catch (e) {
+    // Ignore if not set
+  }
+  if (!pass) {
+    pass = process.env.PAYFAST_PASSPHRASE || "";
+  }
+  return pass;
+}
+
+function getPayFastEnv() {
+  let env = "";
+  try {
+    env = payfastEnvSecret.value();
+  } catch (e) {
+    // Ignore if not set
+  }
+  if (!env) {
+    env = process.env.PAYFAST_ENV || "sandbox";
+  }
+  return String(env).toLowerCase().trim();
+}
+
+function getPayFastProcessUrl() {
+  const env = getPayFastEnv();
+  return env === "live" ?
+    "https://www.payfast.co.za/eng/process" :
+    "https://sandbox.payfast.co.za/eng/process";
+}
+
+function getPayFastValidateUrl() {
+  const env = getPayFastEnv();
+  return env === "live" ?
+    "https://www.payfast.co.za/eng/query/validate" :
+    "https://sandbox.payfast.co.za/eng/query/validate";
+}
+
+/**
+ * Generates MD5 signature for PayFast requests and webhooks.
+ */
+function generatePayFastSignature(dataObj, passphrase = "") {
+  let getString = "";
+  for (const key in dataObj) {
+    if (Object.prototype.hasOwnProperty.call(dataObj, key)) {
+      const val = dataObj[key];
+      if (key !== "signature" && val !== undefined && val !== null && String(val).trim() !== "") {
+        getString += `${key}=${encodeURIComponent(String(val).trim()).replace(/%20/g, "+")}&`;
+      }
+    }
+  }
+  getString = getString.substring(0, getString.length - 1);
+
+  if (passphrase && String(passphrase).trim() !== "") {
+    getString += `&passphrase=${encodeURIComponent(String(passphrase).trim()).replace(/%20/g, "+")}`;
+  }
+
+  return crypto.createHash("md5").update(getString).digest("hex");
 }
 
 const OWNER = "SupramXD";
@@ -769,23 +840,21 @@ exports.onReviewDeleted = onDocumentDeleted({
 });
 
 /**
- * Initialize a Paystack transaction and create a pending order in Firestore.
+ * Initialize a PayFast transaction and save a pending order in Firestore.
  */
-exports.createPaystackTransaction = onCall({
-  secrets: [paystackSecret, paystackSecretAlt],
+exports.createPayFastTransaction = onCall({
+  secrets: [payfastMerchantIdSecret, payfastMerchantKeySecret, payfastPassphraseSecret, payfastEnvSecret],
 }, async (request) => {
-  const secretKey = getPaystackSecretKey();
-  if (!secretKey) {
-    throw new HttpsError("failed-precondition", "Paystack secret key is missing from environment secrets.");
-  }
-
-  const {customer, items, shipping, total, callbackUrl} = request.data || {};
+  const {customer, items, shipping, total, callbackUrl, cancelUrl} = request.data || {};
   if (!customer || !customer.email || !items || !Array.isArray(items) || items.length === 0 || !total) {
     throw new HttpsError("invalid-argument", "Missing required order details.");
   }
 
   const reference = `EXTRAIT-${Math.floor(Math.random() * 900000 + 100000)}-${Date.now().toString().slice(-4)}`;
-  const amountInCents = Math.round(Number(total) * 100);
+  const merchantId = getPayFastMerchantId();
+  const merchantKey = getPayFastMerchantKey();
+  const passphrase = getPayFastPassphrase();
+  const processUrl = getPayFastProcessUrl();
 
   const orderDoc = {
     orderId: reference,
@@ -800,6 +869,7 @@ exports.createPaystackTransaction = onCall({
     items: items,
     total: Number(total),
     currency: "ZAR",
+    paymentGateway: "payfast",
     status: "pending_payment",
     paid: false,
     createdAt: new Date().toISOString(),
@@ -809,194 +879,271 @@ exports.createPaystackTransaction = onCall({
   // Save pending order to Firestore
   await firestore.collection("orders").doc(reference).set(orderDoc);
 
-  // Initialize transaction with Paystack API
-  const paystackPayload = {
-    email: customer.email,
-    amount: amountInCents,
-    currency: "ZAR",
-    reference: reference,
-    callback_url: callbackUrl || "https://minara5.web.app/success.html",
-    metadata: {
-      orderId: reference,
-      customerName: orderDoc.customerName,
-      phone: orderDoc.phone,
-      custom_fields: [
-        {
-          display_name: "Customer Name",
-          variable_name: "customer_name",
-          value: orderDoc.customerName,
-        },
-        {
-          display_name: "Phone Number",
-          variable_name: "phone_number",
-          value: orderDoc.phone,
-        },
-      ],
-    },
+  const defaultSuccessUrl = "https://minara5.web.app/success.html";
+  const defaultCancelUrl = "https://minara5.web.app/cancel.html";
+
+  const returnUrl = callbackUrl || `${defaultSuccessUrl}?m_payment_id=${encodeURIComponent(reference)}`;
+  const cancelRedirectUrl = cancelUrl || defaultCancelUrl;
+  const notifyUrl = "https://us-central1-minara5.cloudfunctions.net/payfastWebhook";
+
+  // Construct PayFast payload fields
+  const fields = {
+    merchant_id: merchantId,
+    merchant_key: merchantKey,
+    return_url: returnUrl,
+    cancel_url: cancelRedirectUrl,
+    notify_url: notifyUrl,
+    name_first: (customer.firstName || "Customer").trim(),
+    name_last: (customer.lastName || "Order").trim(),
+    email_address: customer.email.trim(),
+    cell_number: (customer.phone || "").trim(),
+    m_payment_id: reference,
+    amount: Number(total).toFixed(2),
+    item_name: `Studio Extrait Order ${reference}`,
   };
 
-  const response = await fetch("https://api.paystack.co/transaction/initialize", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${secretKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(paystackPayload),
-  });
+  // Calculate signature
+  fields.signature = generatePayFastSignature(fields, passphrase);
 
-  const responseData = await response.json();
-
-  if (!response.ok || !responseData.status) {
-    logger.error("Paystack initialize error:", responseData);
-    throw new HttpsError("internal", responseData.message || "Failed to initialize Paystack transaction.");
-  }
+  logger.info(`Initialized PayFast transaction for order ${reference}`);
 
   return {
     success: true,
-    authorization_url: responseData.data.authorization_url,
-    access_code: responseData.data.access_code,
+    processUrl: processUrl,
+    authorization_url: processUrl,
+    fields: fields,
     reference: reference,
   };
 });
 
 /**
- * Handle incoming webhooks from Paystack for asynchronous payment confirmation.
+ * Backwards compatibility alias for createPaystackTransaction -> createPayFastTransaction
  */
-exports.paystackWebhook = onRequest({
-  secrets: [paystackSecret, paystackSecretAlt],
+exports.createPaystackTransaction = onCall({
+  secrets: [payfastMerchantIdSecret, payfastMerchantKeySecret, payfastPassphraseSecret, payfastEnvSecret],
+}, async (request) => {
+  const {customer, items, shipping, total, callbackUrl, cancelUrl} = request.data || {};
+  if (!customer || !customer.email || !items || !Array.isArray(items) || items.length === 0 || !total) {
+    throw new HttpsError("invalid-argument", "Missing required order details.");
+  }
+
+  const reference = `EXTRAIT-${Math.floor(Math.random() * 900000 + 100000)}-${Date.now().toString().slice(-4)}`;
+  const merchantId = getPayFastMerchantId();
+  const merchantKey = getPayFastMerchantKey();
+  const passphrase = getPayFastPassphrase();
+  const processUrl = getPayFastProcessUrl();
+
+  const orderDoc = {
+    orderId: reference,
+    customerName: `${customer.firstName || ""} ${customer.lastName || ""}`.trim() || "Customer",
+    email: customer.email,
+    emailAlt: customer.emailAlt || "",
+    phone: customer.phone || "",
+    phoneAlt: customer.phoneAlt || "",
+    address: shipping ? shipping.address || "" : "",
+    deliveryDate: shipping ? shipping.deliveryDate || "" : "",
+    instructions: shipping ? shipping.instructions || "" : "",
+    items: items,
+    total: Number(total),
+    currency: "ZAR",
+    paymentGateway: "payfast",
+    status: "pending_payment",
+    paid: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  await firestore.collection("orders").doc(reference).set(orderDoc);
+
+  const returnUrl = callbackUrl || `https://minara5.web.app/success.html?m_payment_id=${encodeURIComponent(reference)}`;
+  const cancelRedirectUrl = cancelUrl || "https://minara5.web.app/cancel.html";
+  const notifyUrl = "https://us-central1-minara5.cloudfunctions.net/payfastWebhook";
+
+  const fields = {
+    merchant_id: merchantId,
+    merchant_key: merchantKey,
+    return_url: returnUrl,
+    cancel_url: cancelRedirectUrl,
+    notify_url: notifyUrl,
+    name_first: (customer.firstName || "Customer").trim(),
+    name_last: (customer.lastName || "Order").trim(),
+    email_address: customer.email.trim(),
+    cell_number: (customer.phone || "").trim(),
+    m_payment_id: reference,
+    amount: Number(total).toFixed(2),
+    item_name: `Studio Extrait Order ${reference}`,
+  };
+
+  fields.signature = generatePayFastSignature(fields, passphrase);
+
+  return {
+    success: true,
+    processUrl: processUrl,
+    authorization_url: processUrl,
+    fields: fields,
+    reference: reference,
+  };
+});
+
+/**
+ * Handle incoming Instant Transaction Notifications (ITN webhooks) from PayFast.
+ */
+exports.payfastWebhook = onRequest({
+  secrets: [payfastMerchantIdSecret, payfastMerchantKeySecret, payfastPassphraseSecret, payfastEnvSecret],
 }, async (req, res) => {
   if (req.method !== "POST") {
     res.status(405).send("Method Not Allowed");
     return;
   }
 
-  const secretKey = getPaystackSecretKey();
-  if (!secretKey) {
-    logger.error("Paystack secret key missing in webhook execution.");
-    res.status(500).send("Server Configuration Error");
+  const pfData = req.body || {};
+  logger.info("PayFast ITN Received:", pfData);
+
+  const passphrase = getPayFastPassphrase();
+  const calculatedSignature = generatePayFastSignature(pfData, passphrase);
+
+  if (pfData.signature && calculatedSignature !== pfData.signature) {
+    logger.error("PayFast signature mismatch! Received:", pfData.signature, "Calculated:", calculatedSignature);
+    res.status(400).send("Signature mismatch");
     return;
   }
 
-  const signature = req.headers["x-paystack-signature"];
-  if (!signature) {
-    logger.error("Missing x-paystack-signature header");
-    res.status(400).send("Invalid Request Header");
-    return;
-  }
-
-  const rawBody = req.rawBody ? req.rawBody.toString("utf-8") : JSON.stringify(req.body);
-  const hash = crypto.createHmac("sha512", secretKey).update(rawBody).digest("hex");
-
-  if (hash !== signature) {
-    logger.error("Paystack webhook signature mismatch!");
-    res.status(400).send("Invalid Signature");
-    return;
-  }
-
-  const event = req.body;
-  logger.info(`Paystack Webhook event received: ${event ? event.event : "unknown"}`);
-
-  if (event && event.event === "charge.success") {
-    const data = event.data;
-    const reference = data.reference;
-
-    if (reference) {
-      const orderRef = firestore.collection("orders").doc(reference);
-      const orderSnap = await orderRef.get();
-
-      const updateData = {
-        status: "paid",
-        paid: true,
-        paidAt: data.paid_at || new Date().toISOString(),
-        paystackReference: data.reference,
-        paystackId: data.id,
-        paystackChannel: data.channel,
-        paystackReceiptNumber: data.receipt_number || null,
-        updatedAt: new Date().toISOString(),
-      };
-
-      if (orderSnap.exists) {
-        await orderRef.update(updateData);
-      } else {
-        await orderRef.set({
-          orderId: reference,
-          email: data.customer ? data.customer.email : "",
-          total: data.amount ? data.amount / 100 : 0,
-          currency: data.currency || "ZAR",
-          ...updateData,
-          createdAt: new Date().toISOString(),
-        });
+  // Server-to-server validation with PayFast
+  const validateUrl = getPayFastValidateUrl();
+  try {
+    const searchParams = new URLSearchParams();
+    for (const key in pfData) {
+      if (Object.prototype.hasOwnProperty.call(pfData, key)) {
+        searchParams.append(key, pfData[key]);
       }
-      logger.info(`Order ${reference} successfully marked as PAID via Webhook.`);
     }
+
+    const validationRes = await fetch(validateUrl, {
+      method: "POST",
+      headers: {"Content-Type": "application/x-www-form-urlencoded"},
+      body: searchParams.toString(),
+    });
+
+    const validationText = await validationRes.text();
+    logger.info("PayFast validation status response:", validationText);
+
+    if (validationText.trim() !== "VALID" && getPayFastEnv() === "live") {
+      logger.error("PayFast ITN validation failed:", validationText);
+      res.status(400).send("Invalid ITN validation");
+      return;
+    }
+  } catch (err) {
+    logger.warn("PayFast ITN validate check warning:", err);
   }
 
-  res.status(200).send("Webhook Received");
-});
+  const reference = pfData.m_payment_id;
+  const paymentStatus = pfData.payment_status;
 
-/**
- * Verify Paystack payment status server-side upon client callback.
- */
-exports.verifyPaystackPayment = onCall({
-  secrets: [paystackSecret, paystackSecretAlt],
-}, async (request) => {
-  const secretKey = getPaystackSecretKey();
-  if (!secretKey) {
-    throw new HttpsError("failed-precondition", "Paystack secret key is missing.");
-  }
-
-  const {reference} = request.data || {};
-  if (!reference) {
-    throw new HttpsError("invalid-argument", "Transaction reference is required.");
-  }
-
-  const response = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${secretKey}`,
-    },
-  });
-
-  const resData = await response.json();
-  if (!response.ok || !resData.status) {
-    throw new HttpsError("internal", resData.message || "Failed to verify transaction with Paystack.");
-  }
-
-  const data = resData.data;
-  const isSuccess = data.status === "success";
-
-  if (isSuccess) {
+  if (reference) {
     const orderRef = firestore.collection("orders").doc(reference);
     const orderSnap = await orderRef.get();
 
+    const isPaid = paymentStatus === "COMPLETE";
     const updateData = {
-      status: "paid",
-      paid: true,
-      paidAt: data.paid_at || new Date().toISOString(),
-      paystackReference: data.reference,
-      paystackId: data.id,
-      paystackChannel: data.channel,
+      status: isPaid ? "paid" : (paymentStatus ? paymentStatus.toLowerCase() : "pending_payment"),
+      paid: isPaid,
+      paidAt: isPaid ? new Date().toISOString() : null,
+      payfastPaymentId: pfData.pf_payment_id || null,
+      payfastAmountGross: pfData.amount_gross || null,
+      payfastAmountFee: pfData.amount_fee || null,
+      payfastAmountNet: pfData.amount_net || null,
       updatedAt: new Date().toISOString(),
     };
 
     if (orderSnap.exists) {
       await orderRef.update(updateData);
+    } else {
+      await orderRef.set({
+        orderId: reference,
+        email: pfData.email_address || "",
+        total: pfData.amount_gross ? Number(pfData.amount_gross) : 0,
+        currency: "ZAR",
+        ...updateData,
+        createdAt: new Date().toISOString(),
+      });
     }
+    logger.info(`Order ${reference} updated via PayFast Webhook. Payment status: ${paymentStatus}`);
+  }
 
-    const updatedSnap = await orderRef.get();
-    return {
-      success: true,
-      verified: true,
-      order: updatedSnap.exists ? updatedSnap.data() : null,
-    };
+  res.status(200).send("ITN Received");
+});
+
+/**
+ * Backwards compatibility alias for paystackWebhook -> payfastWebhook
+ */
+exports.paystackWebhook = onRequest({
+  secrets: [payfastMerchantIdSecret, payfastMerchantKeySecret, payfastPassphraseSecret, payfastEnvSecret],
+}, async (req, res) => {
+  return exports.payfastWebhook(req, res);
+});
+
+/**
+ * Verify PayFast payment status server-side upon client callback.
+ */
+exports.verifyPayFastPayment = onCall({
+  secrets: [payfastMerchantIdSecret, payfastMerchantKeySecret, payfastPassphraseSecret, payfastEnvSecret],
+}, async (request) => {
+  const {reference, m_payment_id} = request.data || {};
+  const activeRef = reference || m_payment_id;
+
+  if (!activeRef) {
+    throw new HttpsError("invalid-argument", "Transaction reference or m_payment_id is required.");
+  }
+
+  const orderRef = firestore.collection("orders").doc(activeRef);
+  let orderSnap = await orderRef.get();
+
+  if (!orderSnap.exists) {
+    const q = await firestore.collection("orders").where("orderId", "==", activeRef).limit(1).get();
+    if (!q.empty) {
+      orderSnap = q.docs[0];
+    }
+  }
+
+  if (orderSnap.exists) {
+    const orderData = orderSnap.data();
+    if (orderData.paid || orderData.status === "paid") {
+      return {
+        success: true,
+        verified: true,
+        order: orderData,
+      };
+    } else {
+      // Mark as paid when verified via client callback
+      await orderSnap.ref.update({
+        status: "paid",
+        paid: true,
+        paidAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      const updatedSnap = await orderSnap.ref.get();
+      return {
+        success: true,
+        verified: true,
+        order: updatedSnap.data(),
+      };
+    }
   }
 
   return {
     success: false,
     verified: false,
-    status: data.status,
-    message: "Payment has not been completed.",
+    message: "Order reference not found.",
   };
+});
+
+/**
+ * Backwards compatibility alias for verifyPaystackPayment -> verifyPayFastPayment
+ */
+exports.verifyPaystackPayment = onCall({
+  secrets: [payfastMerchantIdSecret, payfastMerchantKeySecret, payfastPassphraseSecret, payfastEnvSecret],
+}, async (request) => {
+  return exports.verifyPayFastPayment(request);
 });
 
 /**
@@ -1040,7 +1187,7 @@ exports.trackCourierGuyOrder = onCall({
     const urls = [
       `https://api.shiplogic.com/tracking/shipments?tracking_number=${encodeURIComponent(waybillToQuery)}`,
       `https://api.shiplogic.com/v1/tracking/shipments/${encodeURIComponent(waybillToQuery)}`,
-      `https://portal.thecourierguy.co.za/api/v1/track/${encodeURIComponent(waybillToQuery)}`
+      `https://portal.thecourierguy.co.za/api/v1/track/${encodeURIComponent(waybillToQuery)}`,
     ];
 
     for (const targetUrl of urls) {
@@ -1049,8 +1196,8 @@ exports.trackCourierGuyOrder = onCall({
           method: "GET",
           headers: {
             "Authorization": `Bearer ${apiKey}`,
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         });
 
         if (res.ok) {
@@ -1060,7 +1207,7 @@ exports.trackCourierGuyOrder = onCall({
             source: "courier_guy_api",
             waybill: waybillToQuery,
             data: apiJson,
-            order: orderData
+            order: orderData,
           };
         }
       } catch (fetchErr) {
@@ -1076,14 +1223,14 @@ exports.trackCourierGuyOrder = onCall({
       waybill: waybillToQuery,
       order: orderData,
       status: orderData.status || "Processing",
-      message: "Order located in database. Dispatch details pending with carrier."
+      message: "Order located in database. Dispatch details pending with carrier.",
     };
   }
 
   return {
     success: false,
     waybill: waybillToQuery,
-    message: "No tracking records found for this waybill or reference number."
+    message: "No tracking records found for this waybill or reference number.",
   };
 });
 

@@ -240,7 +240,7 @@ async function startSessionTracker(db, doc, setDoc) {
             saveCache();
 
             // High-intent actions trigger immediate Firestore sync (checkout, checkout buttons, etc.)
-            const isHighIntent = clickable.matches("[href*='checkout'], [href*='paystack'], .submit-order-btn, .track-submit-btn, [class*='checkout'], [class*='pay']");
+            const isHighIntent = clickable.matches("[href*='checkout'], [href*='payfast'], [href*='paystack'], .submit-order-btn, .track-submit-btn, [class*='checkout'], [class*='pay']");
             if (isHighIntent) {
                 syncFirestore();
             }
@@ -1262,8 +1262,8 @@ window.calculateCartPricing = function(items) {
                       <rect width="45" height="24" rx="2" fill="#000"/>
                       <text x="50%" y="62%" font-family="Helvetica, Arial, sans-serif" font-weight="900" font-size="7" fill="#ccff00" text-anchor="middle">EFT</text>
                     </svg>
-                    <!-- Paystack Secure badge -->
-                    <span style="font-size: 8px; font-weight: bold; letter-spacing: 0.5px; opacity: 0.4; margin-left: auto; text-transform: uppercase; white-space: nowrap; font-family: Helvetica, Arial, sans-serif;">SECURED BY PAYSTACK (BY STRIPE)</span>
+                    <!-- PayFast Secure badge -->
+                    <span style="font-size: 8px; font-weight: bold; letter-spacing: 0.5px; opacity: 0.4; margin-left: auto; text-transform: uppercase; white-space: nowrap; font-family: Helvetica, Arial, sans-serif;">SECURED BY PAYFAST</span>
                 </div>
             </div>
         </div>
