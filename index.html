@@ -1724,7 +1724,7 @@
       opacity: 0.5 !important;
     }
 
-    /* SECOND HERO / OUR MISSION SECTION */
+    /* SECOND HERO / WHY YOU'LL LOVE STUDIO EXTRAIT SECTION */
     #secondHero {
       background: #ffffff !important;
       position: relative;
@@ -1742,9 +1742,9 @@
     }
 
     .second-hero-left-wrap {
-      flex: 1 1 50%;
-      max-width: 50%;
-      min-height: 480px;
+      flex: 1 1 45%;
+      max-width: 45%;
+      min-height: 540px;
       position: relative;
       overflow: hidden;
       background: #000;
@@ -1759,9 +1759,9 @@
     }
 
     .second-hero-right-wrap {
-      flex: 1 1 50%;
-      max-width: 50%;
-      padding: 70px 60px 70px 60px;
+      flex: 1 1 55%;
+      max-width: 55%;
+      padding: 55px 45px 55px 50px;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -1771,28 +1771,33 @@
       background: #ffffff;
     }
 
-    .mission-title {
+    .second-hero-right-wrap .brand-title-large {
       font-family: 'Gotham Narrow Bold', sans-serif;
-      font-style: italic;
-      font-size: 26px;
+      font-size: 20px;
       font-weight: 900;
-      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #000000;
-      margin-bottom: 24px;
+      letter-spacing: 0.15em;
+      text-align: left;
+      margin-bottom: 8px;
+      color: #1a1a1a;
     }
 
-    .mission-text {
+    .second-hero-right-wrap .brand-subtitle {
       font-family: Helvetica, Arial, sans-serif;
-      font-size: 13px;
-      line-height: 1.75;
-      color: #333333;
-      letter-spacing: 0.02em;
-      margin-bottom: 20px;
+      font-size: 12px;
+      font-weight: 400;
+      text-align: left;
+      color: #666;
+      letter-spacing: 0.05em;
+      margin-bottom: 35px;
     }
 
-    .mission-text:last-child {
-      margin-bottom: 0;
+    .second-hero-right-wrap .brand-features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px 28px;
+      margin-top: 0;
+      width: 100%;
     }
 
     @media (max-width: 900px) {
@@ -1809,15 +1814,19 @@
         padding: 40px 24px 48px 24px;
       }
 
-      .mission-title {
-        font-size: 21px;
-        margin-bottom: 18px;
+      .second-hero-right-wrap .brand-title-large {
+        font-size: 18px;
+        letter-spacing: 0.12em;
       }
 
-      .mission-text {
-        font-size: 12px;
-        line-height: 1.65;
-        margin-bottom: 16px;
+      .second-hero-right-wrap .brand-subtitle {
+        font-size: 11px;
+        margin-bottom: 25px;
+      }
+
+      .second-hero-right-wrap .brand-features-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
       }
     }
   </style>
@@ -2399,8 +2408,13 @@
     </div>
   </section>
 
-  <section class="brand-section" style="padding-bottom: 60px;">
-    <div class="brand-section-inner">
+  <!-- SECOND HERO IMAGE & BRAND FEATURES SECTION -->
+  <section id="secondHero">
+    <div class="second-hero-left-wrap">
+      <img id="secImgL" src="images/second-hero/studio-extrait-perfumes.avif" alt="Studio Extrait Fragrances"
+        onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
+    </div>
+    <div class="second-hero-right-wrap">
       <h2 class="brand-title-large">Why You'll Love Studio Extrait</h2>
       <p class="brand-subtitle">Selecting your scent has never been easier or more affordable</p>
 
@@ -2517,29 +2531,6 @@
             openings and guarantees a smooth, refined profile.</p>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- SECOND HERO IMAGE & MISSION SECTION -->
-  <section id="secondHero">
-    <div class="second-hero-left-wrap">
-      <img id="secImgL" src="images/second-hero/studio-extrait-perfumes.avif" alt="Studio Extrait Fragrance Mission"
-        onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
-    </div>
-    <div class="second-hero-right-wrap">
-      <h2 class="mission-title">OUR MISSION</h2>
-      <p class="mission-text">
-        At Studio Extrait, we are on a mission to redefine what luxury means in the world of fragrance.
-      </p>
-      <p class="mission-text">
-        We believe that the most iconic scents should not be treasures locked behind high price tags. By dismantling the traditional 'Brand Tax' that inflates costs without enhancing quality, we offer you high-end fragrances at honest, accessible prices.
-      </p>
-      <p class="mission-text">
-        Our goal is to democratize luxury, making it possible for everyone to experience the world's most exquisite aromas.
-      </p>
-      <p class="mission-text">
-        At Studio Extrait, luxury isn't just sold; it's shared generously, ensuring that every spritz is an invitation to indulge in premium perfumery without compromise.
-      </p>
     </div>
     <div id="secImgRWrapper" style="display: none;">
       <img id="secImgR" style="display: none;"
