@@ -44,6 +44,10 @@
     "status": "Active",
     "flair": "",
     "invisibleFlair": "",
+    "standardBottleImg": "",
+    "masculinePremiumBottleImg": "",
+    "femininePremiumBottleImg": "",
+    "customisations": [],
     "sizes": [
       "50ml"
     ],
