@@ -1729,22 +1729,22 @@
       background: #ffffff !important;
       position: relative;
       width: 100%;
+      padding-left: 25px;
+      box-sizing: border-box;
       display: flex;
       flex-wrap: wrap;
       align-items: stretch;
       justify-content: center;
       overflow: hidden;
-      margin-top: 0;
-      margin-bottom: 0;
-      border-top: 1px solid #eaeaea;
-      border-bottom: 1px solid #eaeaea;
+      margin-top: 35px;
+      margin-bottom: 35px;
       z-index: 200 !important;
     }
 
     .second-hero-left-wrap {
-      flex: 1 1 45%;
-      max-width: 45%;
-      min-height: 540px;
+      flex: 1 1 calc(45% - 25px);
+      max-width: calc(45% - 25px);
+      min-height: 450px;
       position: relative;
       overflow: hidden;
       background: #000;
@@ -1761,7 +1761,7 @@
     .second-hero-right-wrap {
       flex: 1 1 55%;
       max-width: 55%;
-      padding: 55px 45px 55px 50px;
+      padding: 35px 40px 35px 45px;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -1789,29 +1789,36 @@
       text-align: left;
       color: #666;
       letter-spacing: 0.05em;
-      margin-bottom: 35px;
+      margin-bottom: 30px;
     }
 
     .second-hero-right-wrap .brand-features-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 32px 28px;
+      gap: 28px 24px;
       margin-top: 0;
       width: 100%;
     }
 
     @media (max-width: 900px) {
+      #secondHero {
+        padding-left: 0;
+        margin-top: 25px;
+        margin-bottom: 25px;
+      }
+
       .second-hero-left-wrap {
-        flex: 0 0 100%;
-        max-width: 100%;
-        min-height: 300px;
-        height: 300px;
+        flex: 0 0 calc(100% - 30px);
+        max-width: calc(100% - 30px);
+        margin: 0 auto;
+        min-height: 280px;
+        height: 280px;
       }
 
       .second-hero-right-wrap {
         flex: 0 0 100%;
         max-width: 100%;
-        padding: 40px 24px 48px 24px;
+        padding: 35px 20px 40px 20px;
       }
 
       .second-hero-right-wrap .brand-title-large {
@@ -1826,7 +1833,7 @@
 
       .second-hero-right-wrap .brand-features-grid {
         grid-template-columns: 1fr;
-        gap: 28px;
+        gap: 24px;
       }
     }
   </style>
