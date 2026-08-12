@@ -1097,8 +1097,8 @@
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 3.5px;
-      color: #000000;
-      background: #ffffff;
+      color: #ffffff;
+      background: #000000;
       border: 1.5px solid #000000;
       padding: 16px 42px;
       text-decoration: none;
@@ -1108,8 +1108,8 @@
     }
 
     .view-more-btn:hover {
-      background: #000000;
-      color: #ffffff;
+      background: #ffffff;
+      color: #000000;
       letter-spacing: 4.5px;
       border-color: #000000;
     }
@@ -1836,19 +1836,20 @@
 
     @media (max-width: 900px) {
       .products-header-center {
-        padding-left: 12px !important;
-        padding-right: 12px !important;
-        margin-top: 18px !important;
-        margin-bottom: 14px !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        margin-top: 24px !important;
+        margin-bottom: 16px !important;
       }
 
       .products-header-center h2 {
-        font-size: 11px !important;
-        letter-spacing: 4.2px !important;
+        font-size: clamp(10px, 2.8vw, 12px) !important;
+        letter-spacing: clamp(2.5px, 1.1vw, 4.2px) !important;
         text-align: center !important;
         line-height: 1.3 !important;
         width: 100% !important;
         margin: 0 auto !important;
+        white-space: nowrap !important;
       }
 
       #imgRWrapper {
@@ -1863,11 +1864,30 @@
         flex-direction: column;
       }
 
+      .second-hero-left-wrap {
+        flex: 0 0 calc(100% - 30px);
+        max-width: calc(100% - 30px);
+        margin: 0 auto 15px auto;
+        min-height: 260px;
+        height: 260px;
+        background: transparent;
+        order: 1;
+      }
+
+      .second-hero-left-wrap img {
+        width: 100%;
+        height: 100%;
+        max-height: 260px;
+        object-fit: cover;
+        object-position: 50% 20% !important;
+        display: block;
+      }
+
       .second-hero-right-wrap {
         flex: 0 0 100%;
         max-width: 100%;
-        padding: 30px 20px 35px 20px;
-        order: 1;
+        padding: 20px 20px 35px 20px;
+        order: 2;
       }
 
       .second-hero-right-wrap .brand-title-large {
@@ -1886,24 +1906,6 @@
       .second-hero-right-wrap .brand-features-grid {
         grid-template-columns: 1fr;
         gap: 24px;
-      }
-
-      .second-hero-left-wrap {
-        flex: 0 0 calc(100% - 30px);
-        max-width: calc(100% - 30px);
-        margin: 0 auto;
-        min-height: auto;
-        height: auto;
-        background: transparent;
-        order: 2;
-      }
-
-      .second-hero-left-wrap img {
-        width: 100%;
-        height: auto;
-        max-height: 340px;
-        object-fit: cover;
-        display: block;
       }
     }
 
@@ -2454,7 +2456,7 @@
   </script>
 
   <section class="home-products-section">
-    <div class="products-header-center" style="padding: 0 20px; margin-top: 25px; margin-bottom: 20px; text-align: center;">
+    <div class="products-header-center" style="padding: 0 20px; margin-top: 40px; margin-bottom: 24px; text-align: center;">
       <h2 style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 15px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; color: #111111; margin: 0; line-height: 1.2;">BEST SELLERS BY STUDIO EXTRAIT</h2>
     </div>
 
@@ -2632,7 +2634,7 @@
 
   <!-- SECOND PRODUCTS SECTION (VIEW CATALOG CTA) -->
   <section class="second-products-outer-wrap"
-    style="padding: 25px 0 45px; width: 100%; background: #ffffff; border: none;">
+    style="padding: 40px 0 45px; width: 100%; background: #ffffff; border: none;">
     <div class="second-products-section" style="width: 100%;">
       <div class="products-header-center" style="padding: 0 20px; margin-bottom: 20px; text-align: center;">
         <h2 style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 15px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; color: #111111; margin: 0; line-height: 1.2;">EXPLORE MORE FRAGRANCES</h2>
