@@ -1723,6 +1723,103 @@
     .header-account .account-trigger:hover {
       opacity: 0.5 !important;
     }
+
+    /* SECOND HERO / OUR MISSION SECTION */
+    #secondHero {
+      background: #ffffff !important;
+      position: relative;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      justify-content: center;
+      overflow: hidden;
+      margin-top: 0;
+      margin-bottom: 0;
+      border-top: 1px solid #eaeaea;
+      border-bottom: 1px solid #eaeaea;
+      z-index: 200 !important;
+    }
+
+    .second-hero-left-wrap {
+      flex: 1 1 50%;
+      max-width: 50%;
+      min-height: 480px;
+      position: relative;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .second-hero-left-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .second-hero-right-wrap {
+      flex: 1 1 50%;
+      max-width: 50%;
+      padding: 70px 60px 70px 60px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      text-align: left;
+      background: #ffffff;
+    }
+
+    .mission-title {
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-style: italic;
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #000000;
+      margin-bottom: 24px;
+    }
+
+    .mission-text {
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.75;
+      color: #333333;
+      letter-spacing: 0.02em;
+      margin-bottom: 20px;
+    }
+
+    .mission-text:last-child {
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 900px) {
+      .second-hero-left-wrap {
+        flex: 0 0 100%;
+        max-width: 100%;
+        min-height: 300px;
+        height: 300px;
+      }
+
+      .second-hero-right-wrap {
+        flex: 0 0 100%;
+        max-width: 100%;
+        padding: 40px 24px 48px 24px;
+      }
+
+      .mission-title {
+        font-size: 21px;
+        margin-bottom: 18px;
+      }
+
+      .mission-text {
+        font-size: 12px;
+        line-height: 1.65;
+        margin-bottom: 16px;
+      }
+    }
   </style>
   <script>
     (function () {
@@ -1802,7 +1899,7 @@
             max-width: ${isMobile ? (s.logoHomeMobileWidth !== undefined ? s.logoHomeMobileWidth + "vw" : "88vw") : "none"};
           }
           #secondHero {
-            height: ${isMobile ? (sSec.mobileHeight === "auto" ? "180px" : sSec.mobileHeight) : (sSec.desktopHeight || "80vh")};
+            height: auto;
           }
           ${heroHeightRule}
           ${heroHideRightRule}
@@ -2180,17 +2277,17 @@
     // SECOND HERO LAYOUT CONTROLLER
     (function () {
       let settings = {
-        leftImage: "",
+        leftImage: "images/second-hero/studio-extrait-perfumes.avif",
         rightImage: "",
         mobileImage: "",
-        leftFlex: 1.3,
+        leftFlex: 1.0,
         leftScale: 1.0,
         leftX: 50,
         leftY: 50,
         rightScale: 1.0,
         rightX: 50,
         rightY: 50,
-        desktopHeight: "80vh",
+        desktopHeight: "auto",
         mobileHeight: "auto",
         mobileScale: 1.0,
         mobileX: 50,
@@ -2213,66 +2310,28 @@
         const imgL = document.getElementById("secImgL");
         const imgR = document.getElementById("secImgR");
         const hero = document.getElementById("secondHero");
-        const imgRWrapper = document.getElementById("secImgRWrapper");
 
-        if (!imgL || !imgR || !hero) return;
+        if (!imgL || !hero) return;
 
-        const hasLeft = !!settings.leftImage;
-        const hasRight = !!settings.rightImage;
-        const hasMobile = !!settings.mobileImage;
+        const imageSrc = isMobile
+          ? (settings.mobileImage || settings.leftImage || "images/second-hero/studio-extrait-perfumes.avif")
+          : (settings.leftImage || "images/second-hero/studio-extrait-perfumes.avif");
 
-        if (isMobile) {
-          if (hasMobile) {
-            imgR.src = settings.mobileImage;
-            imgR.style.display = "block";
-            if (imgRWrapper) imgRWrapper.style.display = "block";
-          } else {
-            imgR.style.display = "none";
-            if (imgRWrapper) imgRWrapper.style.display = "none";
-          }
-          imgL.style.display = "none";
-          imgL.removeAttribute("src");
+        if (imgL.getAttribute("src") !== imageSrc) {
+          imgL.src = imageSrc;
+        }
+        imgL.style.display = "block";
 
-          if (settings.mobileHeight === "auto") {
-            hero.style.height = hasMobile ? "auto" : "170px";
-            if (imgRWrapper) {
-              imgRWrapper.style.height = "auto";
-              imgRWrapper.style.flex = "";
-            }
-            imgR.style.height = "auto";
-            imgR.style.width = "100%";
-            imgR.style.objectFit = "cover";
-          } else {
-            hero.style.height = settings.mobileHeight || "170px";
-            if (imgRWrapper) {
-              imgRWrapper.style.height = "100%";
-              imgRWrapper.style.flex = "";
-            }
-            imgR.style.height = "100%";
-            imgR.style.width = "100%";
-            imgR.style.objectFit = "cover";
-          }
+        const scale = isMobile ? (settings.mobileScale || 1.0) : (settings.leftScale || 1.0);
+        const posX = isMobile ? (settings.mobileX || 50) : (settings.leftX || 50);
+        const posY = isMobile ? (settings.mobileY || 50) : (settings.leftY || 50);
 
-          imgR.style.transform = `scale(${settings.mobileScale || 1.0})`;
-          imgR.style.objectPosition = `${settings.mobileX || 50}% ${settings.mobileY || 50}%`;
-          imgR.style.transformOrigin = `${settings.mobileX || 50}% ${settings.mobileY || 50}%`;
-        } else {
-          // DESKTOP: Only use the single first image (leftImage), 100% full width
-          imgL.src = settings.leftImage || "images/second-hero/studio-extrait-perfumes.avif";
-          imgL.style.display = "block";
-          imgL.style.flex = "1";
-          imgL.style.width = "100%";
-          imgL.style.height = "100%";
-          imgL.style.objectFit = "cover";
-          if (imgRWrapper) imgRWrapper.style.display = "none";
+        imgL.style.transform = `scale(${scale})`;
+        imgL.style.objectPosition = `${posX}% ${posY}%`;
+        imgL.style.transformOrigin = `${posX}% ${posY}%`;
+
+        if (imgR) {
           imgR.style.display = "none";
-          imgR.removeAttribute("src");
-
-          hero.style.height = settings.desktopHeight || "55vh";
-
-          imgL.style.transform = `scale(${settings.leftScale || 1.0})`;
-          imgL.style.objectPosition = `${settings.leftX || 50}% ${settings.leftY || 50}%`;
-          imgL.style.transformOrigin = `${settings.leftX || 50}% ${settings.leftY || 50}%`;
         }
       }
 
@@ -2461,13 +2520,29 @@
     </div>
   </section>
 
-  <!-- SECOND HERO IMAGE SECTION -->
-  <section id="secondHero" class="hero"
-    style="background: #000; position: relative; width: 100vw; display: flex; overflow: hidden; margin-top: 0; margin-bottom: 0;">
-    <img id="secImgL" style="height: 100%; object-fit: cover; transition: opacity .3s ease; display: none;"
-      onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
-    <div id="secImgRWrapper" style="position:relative; flex: 0.7; height: 100%; display: none;">
-      <img id="secImgR" style="width:100%; height:100%; object-fit:cover;"
+  <!-- SECOND HERO IMAGE & MISSION SECTION -->
+  <section id="secondHero">
+    <div class="second-hero-left-wrap">
+      <img id="secImgL" src="images/second-hero/studio-extrait-perfumes.avif" alt="Studio Extrait Fragrance Mission"
+        onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
+    </div>
+    <div class="second-hero-right-wrap">
+      <h2 class="mission-title">OUR MISSION</h2>
+      <p class="mission-text">
+        At Studio Extrait, we are on a mission to redefine what luxury means in the world of fragrance.
+      </p>
+      <p class="mission-text">
+        We believe that the most iconic scents should not be treasures locked behind high price tags. By dismantling the traditional 'Brand Tax' that inflates costs without enhancing quality, we offer you high-end fragrances at honest, accessible prices.
+      </p>
+      <p class="mission-text">
+        Our goal is to democratize luxury, making it possible for everyone to experience the world's most exquisite aromas.
+      </p>
+      <p class="mission-text">
+        At Studio Extrait, luxury isn't just sold; it's shared generously, ensuring that every spritz is an invitation to indulge in premium perfumery without compromise.
+      </p>
+    </div>
+    <div id="secImgRWrapper" style="display: none;">
+      <img id="secImgR" style="display: none;"
         onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
     </div>
   </section>
