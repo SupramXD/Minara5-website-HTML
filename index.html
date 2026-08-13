@@ -1818,14 +1818,6 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    .second-hero-header-wrap .brand-title-large em {
-      font-family: 'Gotham Narrow Bold', sans-serif;
-      font-weight: 900;
-      font-style: italic;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
     .brand-features-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -1836,13 +1828,12 @@
     }
 
     .second-hero-left-wrap {
+      align-self: center;
       width: 100vw;
       max-width: 100vw;
       position: relative;
-      left: 50%;
-      right: 50%;
-      margin-left: -50vw;
-      margin-right: -50vw;
+      left: 0;
+      transform: none;
       min-height: 720px;
       height: 720px;
       overflow: hidden;
@@ -1907,6 +1898,7 @@
         max-width: calc(100% + 32px);
         left: auto;
         right: auto;
+        transform: none;
         margin: 28px -16px 0 -16px;
         min-height: 380px;
         height: 380px;
@@ -2521,7 +2513,7 @@
   <!-- SECOND HERO IMAGE & BRAND FEATURES SECTION -->
   <section id="secondHero">
     <div class="second-hero-header-wrap">
-      <h2 class="brand-title-large">Why You'll Love <em>Studio Extrait</em></h2>
+      <h2 class="brand-title-large">Why You'll Love Studio Extrait</h2>
     </div>
 
     <div class="brand-features-grid">
@@ -2933,10 +2925,10 @@
         const lockPt = (secondHeroBottom + topbarHeight) - logoHeight + stickOffset;
 
         // Mobile Visibility Rule: Logo MUST ONLY SHOW over the 2 hero images.
-        // Over Hero 1: currentTopAbsolute < heroBottom
-        // Over Hero 2: currentTopAbsolute >= secImgLTop - 30 AND currentTopAbsolute <= secondHeroBottom + 20
-        const isOverHero1 = currentTopAbsolute < heroBottom;
-        const isOverHero2 = (currentTopAbsolute >= secImgLTop - 30) && (currentTopAbsolute <= secondHeroBottom + 20);
+        // Hero 1 Exit: Disappears the moment the user starts scrolling down past top hero photo (y > 40)
+        // Hero 2 Entry: Spawns just before 2nd hero photo enters viewport (y + windowHeight >= secImgLTop - 40)
+        const isOverHero1 = y < 40;
+        const isOverHero2 = (y + windowHeight >= secImgLTop - 40) && (currentTopAbsolute <= secondHeroBottom + 20);
 
         if (isOverHero1 || isOverHero2) {
           logo.style.opacity = '1';
