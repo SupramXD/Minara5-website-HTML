@@ -1771,26 +1771,59 @@
       background: #ffffff !important;
       position: relative;
       width: 100%;
-      padding-left: 25px;
+      max-width: 1320px;
+      margin: 55px auto 45px auto;
+      padding: 0 30px;
       box-sizing: border-box;
       display: flex;
-      flex-wrap: wrap;
-      align-items: stretch;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
       overflow: hidden;
-      margin-top: 35px;
-      margin-bottom: 35px;
       z-index: 200 !important;
     }
 
+    .second-hero-right-wrap {
+      width: 100%;
+      max-width: 100%;
+      padding: 0 0 45px 0;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: #ffffff;
+    }
+
+    .second-hero-right-wrap .brand-title-large {
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      text-align: center;
+      margin-bottom: 35px;
+      color: #1a1a1a;
+    }
+
+    .second-hero-right-wrap .brand-features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 36px 32px;
+      margin-top: 0;
+      width: 100%;
+      text-align: left;
+    }
+
     .second-hero-left-wrap {
-      flex: 1 1 calc(50% - 25px);
-      max-width: calc(50% - 25px);
-      min-height: 480px;
-      height: 480px;
+      width: 100%;
+      max-width: 100%;
+      min-height: 440px;
+      height: 440px;
       position: relative;
       overflow: hidden;
       background: transparent;
+      border-radius: 4px;
     }
 
     .second-hero-left-wrap img {
@@ -1800,38 +1833,6 @@
       object-position: 50% 20% !important;
       display: block;
       transition: transform 0.3s ease;
-    }
-
-    .second-hero-right-wrap {
-      flex: 1 1 50%;
-      max-width: 50%;
-      padding: 30px 25px;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
-      text-align: left;
-      background: #ffffff;
-    }
-
-    .second-hero-right-wrap .brand-title-large {
-      font-family: 'Gotham Narrow Bold', sans-serif;
-      font-size: 20px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      text-align: left;
-      margin-bottom: 25px;
-      color: #1a1a1a;
-    }
-
-    .second-hero-right-wrap .brand-features-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px 16px;
-      margin-top: 0;
-      width: 100%;
     }
 
     @media (max-width: 900px) {
@@ -1858,44 +1859,25 @@
       }
 
       #secondHero {
-        padding-left: 0;
-        margin-top: 25px;
-        margin-bottom: 25px;
+        padding: 0 16px;
+        margin-top: 36px;
+        margin-bottom: 36px;
         flex-direction: column;
       }
 
-      .second-hero-left-wrap {
-        flex: 0 0 calc(100% - 30px);
-        max-width: calc(100% - 30px);
-        margin: 0 auto 15px auto;
-        min-height: 260px;
-        height: 260px;
-        background: transparent;
+      .second-hero-right-wrap {
+        width: 100%;
+        max-width: 100%;
+        padding: 0 0 28px 0;
         order: 1;
       }
 
-      .second-hero-left-wrap img {
-        width: 100%;
-        height: 100%;
-        max-height: 260px;
-        object-fit: cover;
-        object-position: 50% 20% !important;
-        display: block;
-      }
-
-      .second-hero-right-wrap {
-        flex: 0 0 100%;
-        max-width: 100%;
-        padding: 20px 20px 35px 20px;
-        order: 2;
-      }
-
       .second-hero-right-wrap .brand-title-large {
-        font-size: 18px;
+        font-size: 15px;
         letter-spacing: 0.12em;
         text-align: center !important;
         width: 100% !important;
-        margin-bottom: 20px !important;
+        margin-bottom: 24px !important;
       }
 
       .second-hero-right-wrap .brand-subtitle {
@@ -1905,7 +1887,26 @@
 
       .second-hero-right-wrap .brand-features-grid {
         grid-template-columns: 1fr;
-        gap: 24px;
+        gap: 26px;
+      }
+
+      .second-hero-left-wrap {
+        width: 100%;
+        max-width: 100%;
+        margin: 10px auto 0 auto;
+        min-height: 260px;
+        height: 260px;
+        background: transparent;
+        order: 2;
+      }
+
+      .second-hero-left-wrap img {
+        width: 100%;
+        height: 100%;
+        max-height: 260px;
+        object-fit: cover;
+        object-position: 50% 20% !important;
+        display: block;
       }
     }
 
@@ -2501,10 +2502,6 @@
 
   <!-- SECOND HERO IMAGE & BRAND FEATURES SECTION -->
   <section id="secondHero">
-    <div class="second-hero-left-wrap">
-      <img id="secImgL" src="images/second-hero/studio-extrait-perfumes.avif" alt="Studio Extrait Fragrances"
-        onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
-    </div>
     <div class="second-hero-right-wrap">
       <h2 class="brand-title-large">Why You'll Love Studio Extrait</h2>
 
@@ -2622,6 +2619,12 @@
         </div>
       </div>
     </div>
+
+    <div class="second-hero-left-wrap">
+      <img id="secImgL" src="images/second-hero/studio-extrait-perfumes.avif" alt="Studio Extrait Fragrances"
+        onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
+    </div>
+
     <div id="secImgRWrapper" style="display: none;">
       <img id="secImgR" style="display: none;"
         onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
