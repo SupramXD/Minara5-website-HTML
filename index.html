@@ -2923,12 +2923,12 @@
         const floatTopViewportHero1 = topbarHeight + (s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -95);
         const floatTopViewportHero2 = topbarHeight + (s.logoMobileSpawn2 !== undefined ? s.logoMobileSpawn2 : 180);
 
-        const lockPtHero1 = (heroBottom + 45) - logoHeight + stickOffset;
+        const lockPtHero1 = (heroBottom + 45) - logoHeight + stickOffset + 25;
         const lockPtHero2 = (secondHeroBottom + topbarHeight) - logoHeight + stickOffset - 15;
 
         // Hero 2 Symmetrical Trigger:
-        // Spawns when the second hero image reaches the logo position, and disappears at the EXACT same place when scrolling up
-        const hero2SpawnY = secImgLTop - floatTopViewportHero2 + 20;
+        // Spawns when the second hero image enters the view, and disappears at the EXACT same place when scrolling up
+        const hero2SpawnY = (secImgLTop + 265) - windowHeight;
 
         if (y < hero2SpawnY) {
           // HERO 1 ZONE OR PRODUCTS/TEXT ZONE
