@@ -2875,36 +2875,52 @@
             }
           }
 
-          // 2. logo styling guard on DESKTOP:
-          // Locks at bottom of FIRST hero (heroBottom). Does NOT show on second hero image on desktop!
+          // 2. Desktop Logo Dual-Hero Logic:
           const spawnPercent = desktopSpawn;
           const stickOffset = s.logoDesktopStick !== undefined ? s.logoDesktopStick : -34;
           const dX = s.logoDesktopX !== undefined ? s.logoDesktopX : 0;
-
           const spawnY = windowHeight * (spawnPercent / 100);
-          const shouldLockDesktop = y + spawnY + logoHeight / 2 + stickOffset >= heroBottom;
 
-          if (shouldLockDesktop) {
-            if (lastLogoState !== "desktop-absolute") {
-              logo.style.position = 'absolute';
-              logo.style.top = (heroBottom - logoHeight - stickOffset) + 'px';
-              logo.style.transform = `translate3d(calc(-50% + ${dX}px), 0, 0)`;
-              lastLogoState = "desktop-absolute";
+          // Hero 1 Exit: 60px later (y < 100)
+          // Hero 2 Entry: 400px later (y + windowHeight >= secImgLTop + 360) so it never spawns over text
+          const isDesktopOverHero1 = y < 100;
+          const isDesktopOverHero2 = (y + windowHeight >= secImgLTop + 360) && (y + spawnY <= secondHeroBottom + 20);
+
+          if (isDesktopOverHero1 || isDesktopOverHero2) {
+            if (logo) {
+              logo.style.opacity = '1';
+              logo.style.visibility = 'visible';
+              logo.style.pointerEvents = 'none';
+              logo.style.zIndex = '250';
+            }
+
+            // Lock 15px earlier at second hero bottom
+            const lockPtDesktop = secondHeroBottom - logoHeight - stickOffset - 15;
+            const shouldLockDesktop = (y + spawnY + logoHeight / 2 + stickOffset >= secondHeroBottom - 15);
+
+            if (shouldLockDesktop) {
+              if (lastLogoState !== "desktop-absolute") {
+                logo.style.position = 'absolute';
+                logo.style.top = lockPtDesktop + 'px';
+                logo.style.transform = `translate3d(calc(-50% + ${dX}px), 0, 0)`;
+                lastLogoState = "desktop-absolute";
+              }
+            } else {
+              const logoFixedStyle = `fixed-${spawnPercent}-${dX}`;
+              if (lastLogoState !== logoFixedStyle) {
+                logo.style.position = 'fixed';
+                logo.style.top = spawnPercent + '%';
+                logo.style.transform = `translate3d(calc(-50% + ${dX}px), -50%, 0)`;
+                lastLogoState = logoFixedStyle;
+              }
             }
           } else {
-            const logoFixedStyle = `fixed-${spawnPercent}-${dX}`;
-            if (lastLogoState !== logoFixedStyle) {
-              logo.style.position = 'fixed';
-              logo.style.top = spawnPercent + '%';
-              logo.style.transform = `translate3d(calc(-50% + ${dX}px), -50%, 0)`;
-              lastLogoState = logoFixedStyle;
+            // Hidden over product boxes, catalog CTA, and 6 text blocks on desktop
+            if (logo) {
+              logo.style.opacity = '0';
+              logo.style.visibility = 'hidden';
+              logo.style.pointerEvents = 'none';
             }
-          }
-
-          if (logo) {
-            logo.style.opacity = '1';
-            logo.style.visibility = 'visible';
-            logo.style.pointerEvents = 'none';
           }
 
           // Reset mobile state tracking when on desktop
@@ -2922,13 +2938,13 @@
 
         const floatTopViewport = topbarHeight + spawnOffset;
         const currentTopAbsolute = y + floatTopViewport;
-        const lockPt = (secondHeroBottom + topbarHeight) - logoHeight + stickOffset;
+        const lockPt = (secondHeroBottom + topbarHeight) - logoHeight + stickOffset - 15; // 15px earlier
 
-        // Mobile Visibility Rule: Logo MUST ONLY SHOW over the 2 hero images.
-        // Hero 1 Exit: Disappears the moment the user starts scrolling down past top hero photo (y > 40)
-        // Hero 2 Entry: Spawns just before 2nd hero photo enters viewport (y + windowHeight >= secImgLTop - 40)
-        const isOverHero1 = y < 40;
-        const isOverHero2 = (y + windowHeight >= secImgLTop - 40) && (currentTopAbsolute <= secondHeroBottom + 20);
+        // Mobile Visibility Rules:
+        // 1. Hero 1 Exit: Disappears 60px later (y < 100)
+        // 2. Hero 2 Entry: Spawns 400px later (y + windowHeight >= secImgLTop + 360) so it NEVER spawns over text
+        const isOverHero1 = y < 100;
+        const isOverHero2 = (y + windowHeight >= secImgLTop + 360) && (currentTopAbsolute <= secondHeroBottom + 20);
 
         if (isOverHero1 || isOverHero2) {
           logo.style.opacity = '1';
