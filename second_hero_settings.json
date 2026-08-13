@@ -1,5 +1,5 @@
 {
-  "leftImage": "images/second-hero/left.png",
+  "leftImage": "images/second-hero/left.jpg",
   "rightImage": "images/second-hero/right.avif",
   "mobileImage": "images/second-hero/mobile.avif",
   "leftFlex": 1.4,
@@ -14,5 +14,5 @@
   "mobileScale": 1,
   "mobileX": 50,
   "mobileY": 50,
-  "timestamp": "2026-08-13T09:33:48.316Z"
+  "timestamp": "2026-08-13T09:36:17.135Z"
 }
