@@ -2927,9 +2927,9 @@
 
         // Mobile Visibility Rules:
         // 1. Hero 1 Exit: Disappears 60px later (y < 100)
-        // 2. Hero 2 Entry: Spawns 230px higher up (y + windowHeight >= secImgLTop + 130)
+        // 2. Hero 2 Entry: Spawns 35px lower (y + windowHeight >= secImgLTop + 165)
         const isOverHero1 = y < 100;
-        const isOverHero2 = (y + windowHeight >= secImgLTop + 130) && (currentTopAbsolute <= secondHeroBottom + 20);
+        const isOverHero2 = (y + windowHeight >= secImgLTop + 165) && (currentTopAbsolute <= secondHeroBottom + 20);
 
         if (isOverHero1 || isOverHero2) {
           logo.style.opacity = '1';
