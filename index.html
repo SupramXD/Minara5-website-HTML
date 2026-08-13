@@ -2923,16 +2923,16 @@
         const floatTopViewportHero1 = topbarHeight + (s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -95);
         const floatTopViewportHero2 = topbarHeight + (s.logoMobileSpawn2 !== undefined ? s.logoMobileSpawn2 : 180);
 
-        const lockPtHero1 = heroBottom - logoHeight + stickOffset;
+        const lockPtHero1 = (heroBottom + 45) - logoHeight + stickOffset;
         const lockPtHero2 = (secondHeroBottom + topbarHeight) - logoHeight + stickOffset - 15;
 
-        // Mobile Visibility Trigger:
-        // Hero 2 spawns when the second hero image enters the view, and disappears at the EXACT same place when scrolling up
-        const hero2SpawnY = (secImgLTop + 265) - windowHeight;
+        // Hero 2 Symmetrical Trigger:
+        // Spawns when the second hero image reaches the logo position, and disappears at the EXACT same place when scrolling up
+        const hero2SpawnY = secImgLTop - floatTopViewportHero2 + 20;
 
         if (y < hero2SpawnY) {
           // HERO 1 ZONE OR PRODUCTS/TEXT ZONE
-          const isHero1Visible = (y <= heroBottom + 80);
+          const isHero1Visible = (y <= lockPtHero1 + logoHeight + 60);
           if (isHero1Visible) {
             logo.style.opacity = '1';
             logo.style.visibility = 'visible';
@@ -2967,7 +2967,7 @@
             }
           }
         } else {
-          // HERO 2 ZONE & EVERYTHING BELOW (Never disappears when locked at the bottom!)
+          // HERO 2 ZONE & EVERYTHING BELOW (Persistent lock: stays visible and never disappears at the bottom!)
           logo.style.opacity = '1';
           logo.style.visibility = 'visible';
           logo.style.pointerEvents = 'none';
