@@ -1773,7 +1773,6 @@
     }
 
     /* SECOND HERO / WHY YOU'LL LOVE STUDIO EXTRAIT SECTION */
-    /* SECOND HERO / WHY YOU'LL LOVE STUDIO EXTRAIT SECTION */
     #secondHero {
       background: #ffffff !important;
       position: relative;
@@ -1789,6 +1788,26 @@
       z-index: 200 !important;
     }
 
+    .second-hero-header-wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .second-hero-header-wrap .brand-title-large {
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      text-align: center;
+      margin-bottom: 0;
+      color: #1a1a1a;
+    }
+
     .brand-features-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -1798,75 +1817,25 @@
       text-align: left;
     }
 
-    .top-features-grid {
-      margin-bottom: 45px;
-    }
-
-    .bottom-features-grid {
-      margin-top: 45px;
-    }
-
-    .second-hero-split-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      gap: 48px;
-      width: 100%;
-    }
-
     .second-hero-left-wrap {
-      flex: 1 1 50%;
-      max-width: 50%;
-      min-height: 480px;
-      height: 480px;
+      width: 100%;
+      max-width: 100%;
+      min-height: 560px;
+      height: 560px;
       position: relative;
       overflow: hidden;
       background: transparent;
       border-radius: 4px;
+      margin-top: 45px;
     }
 
     .second-hero-left-wrap img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: 50% 25% !important;
+      object-position: 50% 20% !important;
       display: block;
       transition: transform 0.3s ease;
-    }
-
-    .second-hero-mission-wrap {
-      flex: 1 1 50%;
-      max-width: 50%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      text-align: left;
-      padding-left: 10px;
-    }
-
-    .brand-mission-heading {
-      font-family: 'Gotham Narrow Bold', sans-serif;
-      font-size: 26px;
-      font-weight: 900;
-      font-style: italic;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #1a1a1a;
-      margin-bottom: 22px;
-    }
-
-    .brand-mission-p {
-      font-family: Helvetica, Arial, sans-serif;
-      font-size: 13.5px;
-      line-height: 1.65;
-      color: #444444;
-      letter-spacing: 0.02em;
-      margin-bottom: 18px;
-    }
-
-    .brand-mission-p:last-child {
-      margin-bottom: 0;
     }
 
     @media (max-width: 900px) {
@@ -1894,67 +1863,39 @@
 
       #secondHero {
         padding: 0 16px;
-        margin-top: 45px;
-        margin-bottom: 36px;
+        margin-top: 52px;
+        margin-bottom: 40px;
         flex-direction: column;
         overflow: hidden;
       }
 
-      .top-features-grid,
-      .bottom-features-grid {
-        grid-template-columns: 1fr;
-        gap: 26px;
-        margin-top: 0;
-        margin-bottom: 28px;
-      }
-
-      .bottom-features-grid {
-        margin-top: 28px;
+      .second-hero-header-wrap .brand-title-large {
+        font-size: 15px;
+        letter-spacing: 0.12em;
         margin-bottom: 0;
       }
 
-      .second-hero-split-row {
-        flex-direction: column;
-        gap: 28px;
+      .brand-features-grid {
+        grid-template-columns: 1fr;
+        gap: 26px;
       }
 
       .second-hero-left-wrap {
-        flex: 0 0 100%;
         width: calc(100% + 32px);
         max-width: calc(100% + 32px);
-        margin: 10px -16px 20px -16px;
-        min-height: 320px;
-        height: 320px;
+        margin: 28px -16px 0 -16px;
+        min-height: 350px;
+        height: 350px;
         border-radius: 0;
-        order: 2;
       }
 
       .second-hero-left-wrap img {
         width: 100%;
         height: 100%;
-        max-height: 320px;
+        max-height: 350px;
         object-fit: cover;
         object-position: 50% 20% !important;
         display: block !important;
-      }
-
-      .second-hero-mission-wrap {
-        flex: 0 0 100%;
-        max-width: 100%;
-        padding-left: 0;
-        order: 1;
-      }
-
-      .brand-mission-heading {
-        font-size: 20px;
-        letter-spacing: 0.1em;
-        margin-bottom: 16px;
-      }
-
-      .brand-mission-p {
-        font-size: 12.5px;
-        line-height: 1.6;
-        margin-bottom: 14px;
       }
     }
 
@@ -2555,8 +2496,11 @@
 
   <!-- SECOND HERO IMAGE & BRAND FEATURES SECTION -->
   <section id="secondHero">
-    <!-- Top 3 Features Row -->
-    <div class="brand-features-grid top-features-grid">
+    <div class="second-hero-header-wrap">
+      <h2 class="brand-title-large">Why You'll Love Studio Extrait</h2>
+    </div>
+
+    <div class="brand-features-grid">
       <!-- Feature 1: EXTRAIT DE PARFUM CONCENTRATION -->
       <div class="brand-feature-item">
         <div class="brand-feature-header">
@@ -2609,26 +2553,7 @@
         <p class="brand-feature-description">Fast 2-3 day delivery straight to your door. Free on orders over R600 (flat
           R85 fee applies to smaller orders).</p>
       </div>
-    </div>
 
-    <!-- Main Split Row: Image Left, Our Mission Right -->
-    <div class="second-hero-split-row">
-      <div class="second-hero-left-wrap">
-        <img id="secImgL" src="images/second-hero/studio-extrait-perfumes.avif" alt="Studio Extrait Fragrances"
-          onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
-      </div>
-
-      <div class="second-hero-mission-wrap">
-        <h2 class="brand-mission-heading">OUR MISSION</h2>
-        <p class="brand-mission-p">At Studio Extrait, we are on a mission to redefine what luxury means in the world of fragrance.</p>
-        <p class="brand-mission-p">We believe that the most iconic scents should not be treasures locked behind high price tags. By dismantling the traditional 'Brand Tax' that inflates costs without enhancing quality, we offer you high-end fragrances at honest, accessible prices.</p>
-        <p class="brand-mission-p">Our goal is to formulate at a dense 20%+ Extrait de Parfum concentration using imported French oils, making it possible for everyone to experience the world's most exquisite aromas.</p>
-        <p class="brand-mission-p">At Studio Extrait, luxury isn't just sold; it's shared generously, ensuring that every spritz is an invitation to indulge in premium perfumery without compromise.</p>
-      </div>
-    </div>
-
-    <!-- Bottom 3 Features Row -->
-    <div class="brand-features-grid bottom-features-grid">
       <!-- Feature 4: SIDE EFFECT:COMPLIMENTS -->
       <div class="brand-feature-item">
         <div class="brand-feature-header">
@@ -2678,6 +2603,12 @@
         <p class="brand-feature-description">Every batch undergoes strict maceration to perfectly mature the oils. This
           eliminates harsh openings, leaving a flawlessly smooth profile.</p>
       </div>
+    </div>
+
+    <!-- Taller Full-Width Hero Image Below Text Blocks -->
+    <div class="second-hero-left-wrap">
+      <img id="secImgL" src="images/second-hero/studio-extrait-perfumes.avif" alt="Studio Extrait Fragrances"
+        onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
     </div>
 
     <div id="secImgRWrapper" style="display: none;">
