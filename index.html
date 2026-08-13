@@ -1817,20 +1817,21 @@
 
     .second-hero-left-wrap {
       width: 100%;
-      max-width: 100%;
-      min-height: 440px;
-      height: 440px;
+      max-width: 920px;
+      margin: 10px auto 0 auto;
+      min-height: 520px;
+      height: 520px;
       position: relative;
       overflow: hidden;
       background: transparent;
-      border-radius: 4px;
+      border-radius: 6px;
     }
 
     .second-hero-left-wrap img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: 50% 20% !important;
+      object-position: 50% 25% !important;
       display: block;
       transition: transform 0.3s ease;
     }
@@ -1860,15 +1861,15 @@
 
       #secondHero {
         padding: 0 16px;
-        margin-top: 36px;
-        margin-bottom: 36px;
+        margin-top: 52px;
+        margin-bottom: 40px;
         flex-direction: column;
       }
 
       .second-hero-right-wrap {
         width: 100%;
         max-width: 100%;
-        padding: 0 0 28px 0;
+        padding: 0 0 32px 0;
         order: 1;
       }
 
@@ -1891,11 +1892,12 @@
       }
 
       .second-hero-left-wrap {
-        width: 100%;
-        max-width: 100%;
-        margin: 10px auto 0 auto;
-        min-height: 260px;
-        height: 260px;
+        width: calc(100% + 32px);
+        max-width: calc(100% + 32px);
+        margin: 15px -16px 0 -16px;
+        min-height: 350px;
+        height: 350px;
+        border-radius: 0;
         background: transparent;
         order: 2;
       }
@@ -1903,7 +1905,7 @@
       .second-hero-left-wrap img {
         width: 100%;
         height: 100%;
-        max-height: 260px;
+        max-height: 350px;
         object-fit: cover;
         object-position: 50% 20% !important;
         display: block;
