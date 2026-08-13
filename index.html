@@ -2917,52 +2917,63 @@
         }
 
         // --- MOBILE LOGIC ---
-        const spawnOffset = mobileSpawn;
         const stickOffset = s.logoMobileStick !== undefined ? s.logoMobileStick : 10;
         const mX = s.logoMobileX !== undefined ? s.logoMobileX : 0;
 
-        const floatTopViewport = topbarHeight + spawnOffset;
-        const currentTopAbsolute = y + floatTopViewport;
+        const floatTopViewportHero1 = topbarHeight + (s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -95);
+        const floatTopViewportHero2 = topbarHeight + (s.logoMobileSpawn2 !== undefined ? s.logoMobileSpawn2 : 180);
+
         const lockPtHero1 = heroBottom - logoHeight + stickOffset;
-        const lockPtHero2 = (secondHeroBottom + topbarHeight) - logoHeight + stickOffset - 15; // 15px earlier
+        const lockPtHero2 = (secondHeroBottom + topbarHeight) - logoHeight + stickOffset - 15;
 
-        // Mobile Visibility Rules:
-        // 1. Hero 1 Exit: Moves/locks to Hero 1 bottom and scrolls up with hero 1 (visible until y reaches heroBottom + 50)
-        // 2. Hero 2 Entry: Spawns 100px lower (y + windowHeight >= secImgLTop + 265) so it only appears over second hero image and never over the text blocks
-        const isOverHero1 = (y <= heroBottom + 50);
-        const isOverHero2 = (y + windowHeight >= secImgLTop + 265) && (currentTopAbsolute <= secondHeroBottom + 20);
+        // Mobile Visibility Trigger:
+        // Hero 2 spawns when the second hero image enters the view, and disappears at the EXACT same place when scrolling up
+        const hero2SpawnY = (secImgLTop + 265) - windowHeight;
 
-        if (isOverHero1) {
-          logo.style.opacity = '1';
-          logo.style.visibility = 'visible';
-          logo.style.pointerEvents = 'none';
-          logo.style.zIndex = '1500';
+        if (y < hero2SpawnY) {
+          // HERO 1 ZONE OR PRODUCTS/TEXT ZONE
+          const isHero1Visible = (y <= heroBottom + 80);
+          if (isHero1Visible) {
+            logo.style.opacity = '1';
+            logo.style.visibility = 'visible';
+            logo.style.pointerEvents = 'none';
+            logo.style.zIndex = '1500';
 
-          const shouldLockHero1 = currentTopAbsolute >= lockPtHero1;
-          if (shouldLockHero1) {
-            const hero1AbsStyle = `mobile-hero1-absolute-${lockPtHero1}-${mX}`;
-            if (lastLogoState !== hero1AbsStyle) {
-              logo.style.position = 'absolute';
-              logo.style.top = lockPtHero1 + 'px';
-              logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0)`;
-              lastLogoState = hero1AbsStyle;
+            const shouldLockHero1 = (y + floatTopViewportHero1) >= lockPtHero1;
+            if (shouldLockHero1) {
+              const hero1AbsStyle = `mobile-hero1-absolute-${lockPtHero1}-${mX}`;
+              if (lastLogoState !== hero1AbsStyle) {
+                logo.style.position = 'absolute';
+                logo.style.top = lockPtHero1 + 'px';
+                logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0)`;
+                lastLogoState = hero1AbsStyle;
+              }
+            } else {
+              const hero1FixedStyle = `mobile-hero1-fixed-${floatTopViewportHero1}-${mX}`;
+              if (lastLogoState !== hero1FixedStyle) {
+                logo.style.position = 'fixed';
+                logo.style.top = floatTopViewportHero1 + 'px';
+                logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0)`;
+                lastLogoState = hero1FixedStyle;
+              }
             }
           } else {
-            const logoMobileFixedStyle = `mobile-fixed-${floatTopViewport}-${mX}`;
-            if (lastLogoState !== logoMobileFixedStyle) {
-              logo.style.position = 'fixed';
-              logo.style.top = floatTopViewport + 'px';
-              logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0)`;
-              lastLogoState = logoMobileFixedStyle;
+            // Hidden over products & 6 text blocks
+            if (lastLogoState !== "hidden") {
+              logo.style.opacity = '0';
+              logo.style.visibility = 'hidden';
+              logo.style.pointerEvents = 'none';
+              lastLogoState = "hidden";
             }
           }
-        } else if (isOverHero2) {
+        } else {
+          // HERO 2 ZONE & EVERYTHING BELOW (Never disappears when locked at the bottom!)
           logo.style.opacity = '1';
           logo.style.visibility = 'visible';
           logo.style.pointerEvents = 'none';
           logo.style.zIndex = '1500';
 
-          const shouldLockHero2 = currentTopAbsolute >= lockPtHero2;
+          const shouldLockHero2 = (y + floatTopViewportHero2) >= lockPtHero2;
           if (shouldLockHero2) {
             const hero2AbsStyle = `mobile-hero2-absolute-${lockPtHero2}-${mX}`;
             if (lastLogoState !== hero2AbsStyle) {
@@ -2972,24 +2983,18 @@
               lastLogoState = hero2AbsStyle;
             }
           } else {
-            const logoMobileFixedStyle = `mobile-fixed-${floatTopViewport}-${mX}`;
-            if (lastLogoState !== logoMobileFixedStyle) {
+            const hero2FixedStyle = `mobile-hero2-fixed-${floatTopViewportHero2}-${mX}`;
+            if (lastLogoState !== hero2FixedStyle) {
               logo.style.position = 'fixed';
-              logo.style.top = floatTopViewport + 'px';
+              logo.style.top = floatTopViewportHero2 + 'px';
               logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0)`;
-              lastLogoState = logoMobileFixedStyle;
+              lastLogoState = hero2FixedStyle;
             }
           }
-        } else {
-          // Completely hidden over product boxes, catalog button, and 6 text blocks!
-          logo.style.opacity = '0';
-          logo.style.visibility = 'hidden';
-          logo.style.pointerEvents = 'none';
-          lastLogoState = "hidden";
         }
 
         // Reset desktop state tracking when on mobile
-        if (lastLogoState.startsWith && (lastLogoState.startsWith("desktop-") || lastLogoState.startsWith("fixed-"))) {
+        if (lastLogoState && (lastLogoState.startsWith("desktop-") || lastLogoState.startsWith("fixed-"))) {
           lastLogoState = "";
         }
         lastBagsBtnState = "";
