@@ -1792,7 +1792,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      overflow: hidden;
+      overflow: visible !important;
       z-index: 200 !important;
     }
 
@@ -1836,15 +1836,19 @@
     }
 
     .second-hero-left-wrap {
-      width: 100%;
-      max-width: 100%;
-      min-height: 560px;
-      height: 560px;
+      width: 100vw;
+      max-width: 100vw;
       position: relative;
+      left: 50%;
+      right: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+      min-height: 720px;
+      height: 720px;
       overflow: hidden;
       background: transparent;
-      border-radius: 4px;
-      margin-top: 45px;
+      border-radius: 0;
+      margin-top: 55px;
     }
 
     .second-hero-left-wrap img {
@@ -1901,9 +1905,11 @@
       .second-hero-left-wrap {
         width: calc(100% + 32px);
         max-width: calc(100% + 32px);
+        left: auto;
+        right: auto;
         margin: 28px -16px 0 -16px;
-        min-height: 350px;
-        height: 350px;
+        min-height: 380px;
+        height: 380px;
         border-radius: 0;
       }
 
@@ -2856,21 +2862,6 @@
           }
         }
 
-        // Dynamic Z-Index Layering:
-        // Logo is visible OVER hero 1 photo.
-        // Between hero 1 and hero 2 photo (product cards & 6 text blocks), logo drops behind white content (z-index: 1).
-        // At second hero photo, logo pops back to top (z-index: 1500 on mobile, 250 on desktop).
-        if (logo) {
-          const logoTopViewport = mobileView ? (topbarHeight + mobileSpawn) : (windowHeight * (desktopSpawn / 100));
-          const currentLogoAbs = y + logoTopViewport;
-
-          if (currentLogoAbs >= heroBottom && currentLogoAbs < secImgLTop - 40) {
-            logo.style.zIndex = '1';
-          } else {
-            logo.style.zIndex = mobileView ? '1500' : '250';
-          }
-        }
-
         if (!mobileView) {
           // --- DESKTOP LOGIC ---
           const fixedOffset = 48;
@@ -2892,20 +2883,21 @@
             }
           }
 
-          // 2. logo styling guard (locks at bottom of SECOND hero)
+          // 2. logo styling guard on DESKTOP:
+          // Locks at bottom of FIRST hero (heroBottom). Does NOT show on second hero image on desktop!
           const spawnPercent = desktopSpawn;
           const stickOffset = s.logoDesktopStick !== undefined ? s.logoDesktopStick : -34;
           const dX = s.logoDesktopX !== undefined ? s.logoDesktopX : 0;
 
           const spawnY = windowHeight * (spawnPercent / 100);
-          const shouldLock = y + spawnY + logoHeight / 2 + stickOffset >= secondHeroBottom;
+          const shouldLockDesktop = y + spawnY + logoHeight / 2 + stickOffset >= heroBottom;
 
-          if (shouldLock) {
-            if (lastLogoState !== "absolute") {
+          if (shouldLockDesktop) {
+            if (lastLogoState !== "desktop-absolute") {
               logo.style.position = 'absolute';
-              logo.style.top = (secondHeroBottom - logoHeight - stickOffset) + 'px';
+              logo.style.top = (heroBottom - logoHeight - stickOffset) + 'px';
               logo.style.transform = `translate3d(calc(-50% + ${dX}px), 0, 0)`;
-              lastLogoState = "absolute";
+              lastLogoState = "desktop-absolute";
             }
           } else {
             const logoFixedStyle = `fixed-${spawnPercent}-${dX}`;
@@ -2915,6 +2907,12 @@
               logo.style.transform = `translate3d(calc(-50% + ${dX}px), -50%, 0)`;
               lastLogoState = logoFixedStyle;
             }
+          }
+
+          if (logo) {
+            logo.style.opacity = '1';
+            logo.style.visibility = 'visible';
+            logo.style.pointerEvents = 'none';
           }
 
           // Reset mobile state tracking when on desktop
@@ -2933,23 +2931,41 @@
         const floatTopViewport = topbarHeight + spawnOffset;
         const currentTopAbsolute = y + floatTopViewport;
         const lockPt = (secondHeroBottom + topbarHeight) - logoHeight + stickOffset;
-        const shouldLockMobile = currentTopAbsolute >= lockPt;
 
-        if (shouldLockMobile) {
-          if (lastLogoState !== "mobile-absolute") {
-            logo.style.position = 'absolute';
-            logo.style.top = lockPt + 'px';
-            logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0)`;
-            lastLogoState = "mobile-absolute";
+        // Mobile Visibility Rule: Logo MUST ONLY SHOW over the 2 hero images.
+        // Over Hero 1: currentTopAbsolute < heroBottom
+        // Over Hero 2: currentTopAbsolute >= secImgLTop - 30 AND currentTopAbsolute <= secondHeroBottom + 20
+        const isOverHero1 = currentTopAbsolute < heroBottom;
+        const isOverHero2 = (currentTopAbsolute >= secImgLTop - 30) && (currentTopAbsolute <= secondHeroBottom + 20);
+
+        if (isOverHero1 || isOverHero2) {
+          logo.style.opacity = '1';
+          logo.style.visibility = 'visible';
+          logo.style.pointerEvents = 'none';
+          logo.style.zIndex = '1500';
+
+          const shouldLockMobile = currentTopAbsolute >= lockPt;
+          if (shouldLockMobile) {
+            if (lastLogoState !== "mobile-absolute") {
+              logo.style.position = 'absolute';
+              logo.style.top = lockPt + 'px';
+              logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0)`;
+              lastLogoState = "mobile-absolute";
+            }
+          } else {
+            const logoMobileFixedStyle = `mobile-fixed-${floatTopViewport}-${mX}`;
+            if (lastLogoState !== logoMobileFixedStyle) {
+              logo.style.position = 'fixed';
+              logo.style.top = floatTopViewport + 'px';
+              logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0)`;
+              lastLogoState = logoMobileFixedStyle;
+            }
           }
         } else {
-          const logoMobileFixedStyle = `mobile-fixed-${floatTopViewport}-${mX}`;
-          if (lastLogoState !== logoMobileFixedStyle) {
-            logo.style.position = 'fixed';
-            logo.style.top = floatTopViewport + 'px';
-            logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0)`;
-            lastLogoState = logoMobileFixedStyle;
-          }
+          // Completely hidden over product boxes, catalog button, and 6 text blocks!
+          logo.style.opacity = '0';
+          logo.style.visibility = 'hidden';
+          logo.style.pointerEvents = 'none';
         }
 
         // Reset desktop state tracking when on mobile
