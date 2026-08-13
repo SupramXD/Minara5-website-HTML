@@ -57,6 +57,14 @@
       font-display: swap;
     }
 
+    @font-face {
+      font-family: 'Gotham Narrow Book';
+      src: url('Gotham Narrow Book.otf') format('opentype');
+      font-weight: 300;
+      font-style: normal;
+      font-display: swap;
+    }
+
 
     /* --- B. MOBILE BUTTON STYLING (The high-end look) --- */
     @media (max-width: 900px) {
@@ -1798,14 +1806,24 @@
     }
 
     .second-hero-header-wrap .brand-title-large {
-      font-family: 'Gotham Narrow Bold', sans-serif;
-      font-size: 20px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
+      font-family: 'Gotham Narrow Book', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 32px;
+      font-weight: 300;
+      font-style: italic;
+      letter-spacing: 0.05em;
+      text-transform: none;
       text-align: center;
       margin-bottom: 0;
-      color: #1a1a1a;
+      color: #111111;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .second-hero-header-wrap .brand-title-large em {
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-weight: 900;
+      font-style: italic;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
 
     .brand-features-grid {
@@ -1870,8 +1888,8 @@
       }
 
       .second-hero-header-wrap .brand-title-large {
-        font-size: 15px;
-        letter-spacing: 0.12em;
+        font-size: 22px;
+        letter-spacing: 0.03em;
         margin-bottom: 0;
       }
 
@@ -2497,7 +2515,7 @@
   <!-- SECOND HERO IMAGE & BRAND FEATURES SECTION -->
   <section id="secondHero">
     <div class="second-hero-header-wrap">
-      <h2 class="brand-title-large">Why You'll Love Studio Extrait</h2>
+      <h2 class="brand-title-large">Why You'll Love <em>Studio Extrait</em></h2>
     </div>
 
     <div class="brand-features-grid">
@@ -2746,6 +2764,7 @@
       let imgRBottom = 0;
       let secondHeroBottom = 0;
       let secImgRBottom = 0;
+      let secImgLTop = 0;
       let bagsBtnHeight = 0;
       let logoHeight = 0;
       let topbarHeight = 45; // Default header height
@@ -2775,6 +2794,13 @@
         }
         secondHeroBottom = secondHero.offsetTop + secHeight - 45;
         secImgRBottom = window.scrollY + secImgR.getBoundingClientRect().bottom;
+
+        const secWrap = document.querySelector('.second-hero-left-wrap');
+        if (secWrap && secondHero) {
+          secImgLTop = secondHero.offsetTop + secWrap.offsetTop;
+        } else if (secondHero) {
+          secImgLTop = secondHero.offsetTop;
+        }
 
         if (bagsBtn) {
           bagsBtnHeight = bagsBtn.offsetHeight;
@@ -2827,6 +2853,21 @@
               const ySwitch = (yStart + yEnd) / 2;
               mobileSpawn = y < ySwitch ? spawnOffset : spawnOffset2;
             }
+          }
+        }
+
+        // Dynamic Z-Index Layering:
+        // Logo is visible OVER hero 1 photo.
+        // Between hero 1 and hero 2 photo (product cards & 6 text blocks), logo drops behind white content (z-index: 1).
+        // At second hero photo, logo pops back to top (z-index: 1500 on mobile, 250 on desktop).
+        if (logo) {
+          const logoTopViewport = mobileView ? (topbarHeight + mobileSpawn) : (windowHeight * (desktopSpawn / 100));
+          const currentLogoAbs = y + logoTopViewport;
+
+          if (currentLogoAbs >= heroBottom && currentLogoAbs < secImgLTop - 40) {
+            logo.style.zIndex = '1';
+          } else {
+            logo.style.zIndex = mobileView ? '1500' : '250';
           }
         }
 
