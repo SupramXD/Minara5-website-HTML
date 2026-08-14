@@ -1132,34 +1132,32 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 14px;
-      width: calc(100% - 40px);
-      max-width: 460px;
-      height: 52px;
-      background: #ffffff;
+      padding: 17px 32px;
+      background: #F8F8F8;
       color: #000000;
-      border: 1.5px solid #000000;
+      border: none;
       text-decoration: none;
-      font-family: 'Gotham Narrow Bold', sans-serif;
-      font-size: 10.5px;
-      font-weight: 900;
-      letter-spacing: 3.5px;
+      font-family: 'Gotham Narrow Bold', Arial, sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.1px;
       text-transform: uppercase;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      line-height: normal;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background-color 0.25s ease, opacity 0.25s ease;
       border-radius: 0px;
       box-shadow: none !important;
+      cursor: pointer;
     }
 
     .bottom-catalog-long-btn:hover {
-      background: #000000;
-      color: #ffffff;
-      letter-spacing: 4.5px;
-      border-color: #000000;
+      background: #E8E8E8;
+      color: #000000;
     }
 
-    .bottom-catalog-long-btn:hover svg {
-      stroke: #ffffff !important;
-      transform: translateX(4px);
+    .bottom-catalog-long-btn:active {
+      background: #DFDFDF;
     }
 
     @media(min-width: 901px) {
@@ -2644,13 +2642,7 @@
         <!-- Dynamic product cards populated via JS -->
       </div>
       <div class="bottom-catalog-cta-wrap" style="width: 100%; text-align: center; margin-top: 38px;">
-        <a href="catalog.html" class="bottom-catalog-long-btn">
-          <span>VIEW FULL CATALOG</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.3s ease;">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
-          </svg>
-        </a>
+        <a href="catalog.html" class="bottom-catalog-long-btn">VIEW FULL CATALOG</a>
       </div>
     </div>
   </section>
