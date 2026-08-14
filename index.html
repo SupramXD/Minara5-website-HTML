@@ -1151,7 +1151,7 @@
       white-space: nowrap;
     }
 
-    /* Animation #1: Baseline hidden, pops in smoothly only when physically on screen */
+    /* Animation #1: Baseline hidden, pops in smoothly when scrolled comfortably on screen */
     .second-hero-tagline {
       font-family: 'Gotham Narrow Book', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
       font-size: 11px;
@@ -1162,8 +1162,8 @@
       text-decoration: none;
       text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
       opacity: 0;
-      transform: translateY(12px);
-      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), letter-spacing 0.3s ease, text-shadow 0.3s ease;
+      transform: translateY(10px);
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       pointer-events: auto;
       user-select: none;
       cursor: pointer;
@@ -1204,12 +1204,10 @@
       white-space: nowrap;
     }
 
-    /* Animation #2: Light interactive animation on text and button when crosshair gets close */
+    /* Animation #2: Minimal matching lift on text and button when crosshair gets close */
     .second-hero-cta-group.btn-proximity .second-hero-tagline {
       opacity: 1;
-      letter-spacing: 4.2px;
       transform: translateY(-2px);
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.4), 0 2px 8px rgba(0, 0, 0, 0.85);
     }
 
     .second-hero-cta-group.btn-proximity .bottom-catalog-long-btn {
@@ -3129,9 +3127,8 @@
         const ctaRect = ctaGroupElem.getBoundingClientRect();
         const winH = window.innerHeight || document.documentElement.clientHeight;
 
-        // Animation #1: ONLY triggers when the CTA text physically enters the user's visible screen (viewport)
-        // If it's below the screen, it stays hidden (opacity: 0) so the user actually sees the pop-up animation as they scroll to it
-        const isTextOnScreen = (ctaRect.top <= winH - 30 && ctaRect.bottom >= 20);
+        // Animation #1: ONLY triggers when the CTA area has scrolled comfortably into view (not prematurely at the very edge)
+        const isTextOnScreen = (ctaRect.top <= winH * 0.78 && ctaRect.bottom >= 20);
 
         let mouseInButtonProximity = false;
 
