@@ -1151,7 +1151,7 @@
       white-space: nowrap;
     }
 
-    /* Animation #1: Baseline hidden, pops in smoothly when triggered */
+    /* Animation #1: Baseline hidden, pops in smoothly only when physically on screen */
     .second-hero-tagline {
       font-family: 'Gotham Narrow Book', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
       font-size: 11px;
@@ -1162,8 +1162,8 @@
       text-decoration: none;
       text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
       opacity: 0;
-      transform: translateY(8px);
-      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease;
+      transform: translateY(12px);
+      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), letter-spacing 0.3s ease, text-shadow 0.3s ease;
       pointer-events: auto;
       user-select: none;
       cursor: pointer;
@@ -1204,11 +1204,12 @@
       white-space: nowrap;
     }
 
-    /* Animation #2: User moves close to the button */
+    /* Animation #2: Light interactive animation on text and button when crosshair gets close */
     .second-hero-cta-group.btn-proximity .second-hero-tagline {
       opacity: 1;
+      letter-spacing: 4.2px;
       transform: translateY(-2px);
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.4), 0 2px 8px rgba(0, 0, 0, 0.85);
     }
 
     .second-hero-cta-group.btn-proximity .bottom-catalog-long-btn {
@@ -3116,7 +3117,7 @@
         updateSecondHeroTaglineDesktop();
       }
 
-      // Desktop: Tagline appears ONLY when user is about halfway scrolled into the second photo (or cursor in bottom half), plus light proximity animation
+      // Desktop: Tagline appears ONLY when the CTA text physically enters the visible screen, plus light proximity animation
       const secWrapElem = document.querySelector('.second-hero-left-wrap');
       const secHeroElem = document.getElementById('secondHero');
       const ctaGroupElem = document.querySelector('.second-hero-cta-group');
@@ -3124,40 +3125,28 @@
       let lastClientY = null;
 
       function updateSecondHeroTaglineDesktop() {
-        if (window.innerWidth <= 900 || !secWrapElem) return;
-        const rect = secWrapElem.getBoundingClientRect();
+        if (window.innerWidth <= 900 || !secWrapElem || !ctaGroupElem) return;
+        const ctaRect = ctaGroupElem.getBoundingClientRect();
         const winH = window.innerHeight || document.documentElement.clientHeight;
 
-        // Animation #1: Active ONLY when about halfway (50%) scrolled into the image, and hides when above it or past it
-        const scrolledIntoImage = winH - rect.top;
-        const isHalfwayIntoImage = (scrolledIntoImage >= rect.height * 0.50 && rect.bottom >= 80);
+        // Animation #1: ONLY triggers when the CTA text physically enters the user's visible screen (viewport)
+        // If it's below the screen, it stays hidden (opacity: 0) so the user actually sees the pop-up animation as they scroll to it
+        const isTextOnScreen = (ctaRect.top <= winH - 30 && ctaRect.bottom >= 20);
 
-        let mouseInTriggerZone = false;
         let mouseInButtonProximity = false;
 
         if (lastClientY !== null && lastClientX !== null) {
-          if (lastClientX >= rect.left && lastClientX <= rect.right &&
-              lastClientY >= rect.top && lastClientY <= rect.bottom) {
-            const relativeY = lastClientY - rect.top;
-            if (relativeY >= rect.height * 0.50) {
-              mouseInTriggerZone = true;
-            }
-          }
-
-          // Animation #2: Light animation when crosshair gets close to the button (within 160px)
-          if (ctaGroupElem) {
-            const ctaRect = ctaGroupElem.getBoundingClientRect();
-            const ctaCenterX = ctaRect.left + ctaRect.width / 2;
-            const ctaCenterY = ctaRect.top + ctaRect.height / 2;
-            const dist = Math.hypot(lastClientX - ctaCenterX, lastClientY - ctaCenterY);
-            if (dist <= 160) {
-              mouseInButtonProximity = true;
-            }
+          // Animation #2: Light animation when crosshair gets close to the button/text (within 160px)
+          const ctaCenterX = ctaRect.left + ctaRect.width / 2;
+          const ctaCenterY = ctaRect.top + ctaRect.height / 2;
+          const dist = Math.hypot(lastClientX - ctaCenterX, lastClientY - ctaCenterY);
+          if (dist <= 160) {
+            mouseInButtonProximity = true;
           }
         }
 
-        // Tagline only shows when halfway into image or hovering lower half
-        if (isHalfwayIntoImage || mouseInTriggerZone) {
+        // Tagline only pops up when physically on screen
+        if (isTextOnScreen) {
           secWrapElem.classList.add('tagline-visible');
           if (secHeroElem) secHeroElem.classList.add('tagline-visible');
           if (ctaGroupElem) ctaGroupElem.classList.add('tagline-visible');
@@ -3168,12 +3157,10 @@
         }
 
         // Animation #2: Light proximity animation
-        if (ctaGroupElem) {
-          if (mouseInButtonProximity) {
-            ctaGroupElem.classList.add('btn-proximity');
-          } else {
-            ctaGroupElem.classList.remove('btn-proximity');
-          }
+        if (mouseInButtonProximity && isTextOnScreen) {
+          ctaGroupElem.classList.add('btn-proximity');
+        } else {
+          ctaGroupElem.classList.remove('btn-proximity');
         }
       }
 
