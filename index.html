@@ -968,6 +968,27 @@
       gap: 0;
     }
 
+    .second-products-logo-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 22px;
+      padding-top: 15px;
+    }
+
+    .second-products-brand-logo {
+      width: 270px;
+      max-width: 80%;
+      height: auto;
+      display: block;
+      filter: invert(0%);
+    }
+
+    @media (max-width: 900px) {
+      .second-products-logo-wrap {
+        display: none !important;
+      }
+    }
 
     .home-product-card {
       display: block;
@@ -2741,9 +2762,12 @@
 
   <!-- SECOND PRODUCTS SECTION (VIEW CATALOG CTA) -->
   <section class="second-products-outer-wrap"
-    style="padding: 40px 0 45px; width: 100%; background: #ffffff; border: none;">
+    style="padding: 50px 0 45px; width: 100%; background: #ffffff; border: none;">
     <div class="second-products-section" style="width: 100%;">
-      <div class="products-header-center" style="padding: 0 20px; margin-bottom: 20px; text-align: center;">
+      <div class="products-header-center" style="padding: 0 20px; margin-bottom: 25px; text-align: center;">
+        <div class="second-products-logo-wrap">
+          <img src="minara 5 transparent 2.svg" alt="Studio Extrait" class="second-products-brand-logo">
+        </div>
         <h2 style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 15px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; color: #111111; margin: 0; line-height: 1.2;">MAKE THEM REMEMBER</h2>
       </div>
       <div class="home-products-list second-products-list">
