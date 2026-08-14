@@ -3055,8 +3055,8 @@
 
           const shouldLockHero2 = (y + floatTopViewportHero2) >= lockPtHero2;
           const photoBottom = secImgLTop + secWrapHeight;
-          const logoDocBottom = y + floatTopViewportHero2 + logoHeight;
-          const isOverWhite = (logoDocBottom >= photoBottom - 15) || shouldLockHero2;
+          const logoDocTop = y + floatTopViewportHero2;
+          const isOverWhite = (logoDocTop >= photoBottom - 10) || shouldLockHero2;
 
           if (isOverWhite) {
             if (logo) logo.classList.add('locked-white-zone');
@@ -3069,7 +3069,7 @@
             if (lastLogoState !== hero2AbsStyle) {
               logo.style.position = 'absolute';
               logo.style.top = lockPtHero2 + 'px';
-              logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0)`;
+              logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0) scale(0.99)`;
               lastLogoState = hero2AbsStyle;
             }
           } else {
@@ -3077,7 +3077,7 @@
             if (lastLogoState !== hero2FixedStyle) {
               logo.style.position = 'fixed';
               logo.style.top = floatTopViewportHero2 + 'px';
-              logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0)`;
+              logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0) scale(0.99)`;
               lastLogoState = hero2FixedStyle;
             }
           }
@@ -3090,7 +3090,7 @@
         lastBagsBtnState = "";
       }
 
-      // Desktop: Tagline only appears when user's mouse is halfway through the second photo
+      // Desktop: Tagline appears when user's mouse is 66% to the top of the second photo (bottom 66%)
       const secWrapElem = document.querySelector('.second-hero-left-wrap');
       const secHeroElem = document.getElementById('secondHero');
       const ctaGroupElem = document.querySelector('.second-hero-cta-group');
@@ -3099,7 +3099,7 @@
           if (window.innerWidth <= 900) return;
           const rect = secWrapElem.getBoundingClientRect();
           const relativeY = e.clientY - rect.top;
-          if (relativeY >= rect.height * 0.5) {
+          if (relativeY >= rect.height * 0.34) {
             secWrapElem.classList.add('mouse-halfway');
             if (secHeroElem) secHeroElem.classList.add('mouse-halfway');
           } else {
