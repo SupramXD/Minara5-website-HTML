@@ -485,6 +485,12 @@
     #logo img {
       width: 100%;
       filter: invert(100%);
+      transition: filter 0.3s ease;
+    }
+
+    #logo.locked-white-zone img,
+    #logo.logo-dark img {
+      filter: invert(0%) !important;
     }
 
     /* DESKTOP GIFTS */
@@ -1140,7 +1146,7 @@
       align-items: center;
       justify-content: center;
       gap: 12px;
-      z-index: 1600;
+      z-index: 2000;
       pointer-events: none;
       white-space: nowrap;
     }
@@ -1160,7 +1166,7 @@
       user-select: none;
     }
 
-    .second-hero-left-wrap.halfway-in-view:hover .second-hero-tagline {
+    .second-hero-left-wrap.mouse-halfway .second-hero-tagline {
       opacity: 1;
       transform: translateY(0) scale(1);
     }
@@ -1851,7 +1857,7 @@
       flex-direction: column;
       align-items: center;
       overflow: visible !important;
-      z-index: 200 !important;
+      z-index: auto !important;
     }
 
     .second-hero-header-wrap {
@@ -1890,6 +1896,7 @@
       width: 100vw;
       max-width: 100vw;
       position: relative;
+      z-index: 10;
       left: 0;
       transform: none;
       min-height: 720px;
@@ -2923,6 +2930,7 @@
         }
 
         if (!mobileView) {
+          if (logo) logo.classList.remove('locked-white-zone');
           // --- DESKTOP LOGIC ---
           const fixedOffset = 48;
           const bottom = y + fixedOffset + bagsBtnHeight;
@@ -2992,7 +3000,7 @@
         const floatTopViewportHero2 = topbarHeight + (s.logoMobileSpawn2 !== undefined ? s.logoMobileSpawn2 : 180);
 
         const lockPtHero1 = (heroBottom + 45) - logoHeight + stickOffset + 25;
-        const lockPtHero2 = (secondHeroBottom + topbarHeight) - logoHeight + stickOffset - 12;
+        const lockPtHero2 = (secondHeroBottom + topbarHeight) + stickOffset + 25;
 
         // Hero 2 Symmetrical Trigger:
         // Spawns when the second hero image enters the view, and disappears at the EXACT same place when scrolling up
@@ -3000,6 +3008,7 @@
         const hero2SpawnY = (secImgLTop + 190) - viewportH;
 
         if (y < hero2SpawnY) {
+          if (logo) logo.classList.remove('locked-white-zone');
           // HERO 1 ZONE OR PRODUCTS/TEXT ZONE
           const isHero1Visible = (y <= lockPtHero1 + logoHeight + 60);
           if (isHero1Visible) {
@@ -3044,6 +3053,7 @@
 
           const shouldLockHero2 = (y + floatTopViewportHero2) >= lockPtHero2;
           if (shouldLockHero2) {
+            if (logo) logo.classList.add('locked-white-zone');
             const hero2AbsStyle = `mobile-hero2-absolute-${lockPtHero2}-${mX}`;
             if (lastLogoState !== hero2AbsStyle) {
               logo.style.position = 'absolute';
@@ -3052,6 +3062,7 @@
               lastLogoState = hero2AbsStyle;
             }
           } else {
+            if (logo) logo.classList.remove('locked-white-zone');
             const hero2FixedStyle = `mobile-hero2-fixed-${floatTopViewportHero2}-${mX}`;
             if (lastLogoState !== hero2FixedStyle) {
               logo.style.position = 'fixed';
@@ -3067,6 +3078,24 @@
           lastLogoState = "";
         }
         lastBagsBtnState = "";
+      }
+
+      // Desktop: Tagline only appears when user's mouse is halfway through the second photo
+      const secWrapElem = document.querySelector('.second-hero-left-wrap');
+      if (secWrapElem) {
+        secWrapElem.addEventListener('mousemove', (e) => {
+          if (window.innerWidth <= 900) return;
+          const rect = secWrapElem.getBoundingClientRect();
+          const relativeY = e.clientY - rect.top;
+          if (relativeY >= rect.height * 0.5) {
+            secWrapElem.classList.add('mouse-halfway');
+          } else {
+            secWrapElem.classList.remove('mouse-halfway');
+          }
+        });
+        secWrapElem.addEventListener('mouseleave', () => {
+          secWrapElem.classList.remove('mouse-halfway');
+        });
       }
 
       window.updateLogoPosition = function () {
