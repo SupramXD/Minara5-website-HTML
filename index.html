@@ -1147,7 +1147,7 @@
       justify-content: center;
       gap: 12px;
       z-index: 2500;
-      pointer-events: none;
+      pointer-events: auto;
       white-space: nowrap;
     }
 
@@ -1163,7 +1163,7 @@
       text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
       opacity: 0;
       transform: translateY(12px);
-      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       pointer-events: none;
       user-select: none;
       cursor: pointer;
@@ -1199,29 +1199,37 @@
       line-height: normal;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      transition: background-color 0.25s ease, opacity 0.25s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+      transition: background-color 0.25s ease, opacity 0.25s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
       border-radius: 0px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
       cursor: pointer;
       white-space: nowrap;
     }
 
-    /* Animation #2: Simple minimal lift when cursor gets close */
-    .second-hero-cta-group.tagline-proximity .second-hero-tagline {
+    /* Animation #2: Unified, connected lift for both text and button on hover or proximity */
+    .second-hero-cta-group.tagline-visible.tagline-proximity .second-hero-tagline,
+    .second-hero-cta-group.tagline-visible:hover .second-hero-tagline {
       opacity: 1;
       transform: translateY(-4px);
     }
 
-    .second-hero-cta-group.tagline-proximity .bottom-catalog-long-btn {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+    .second-hero-cta-group.tagline-visible.tagline-proximity .bottom-catalog-long-btn,
+    .second-hero-cta-group.tagline-visible:hover .bottom-catalog-long-btn {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
       background: #FFFFFF;
     }
 
-    /* Hover state on tagline */
-    .second-hero-tagline:hover {
-      opacity: 0.8 !important;
-      transform: translateY(-6px) !important;
+    .second-hero-cta-group .bottom-catalog-long-btn:hover {
+      background: #F0F0F0;
+      color: #000000;
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .second-hero-cta-group .bottom-catalog-long-btn:active {
+      background: #DFDFDF !important;
+      transform: translateY(0) !important;
     }
 
     .bottom-catalog-long-btn:hover {
