@@ -1146,7 +1146,7 @@
       align-items: center;
       justify-content: center;
       gap: 12px;
-      z-index: 2000;
+      z-index: 2500;
       pointer-events: none;
       white-space: nowrap;
     }
@@ -1166,6 +1166,7 @@
       user-select: none;
     }
 
+    #secondHero.mouse-halfway .second-hero-tagline,
     .second-hero-left-wrap.mouse-halfway .second-hero-tagline {
       opacity: 1;
       transform: translateY(0) scale(1);
@@ -2691,10 +2692,11 @@
     <div class="second-hero-left-wrap">
       <img id="secImgL" src="images/second-hero/studio-extrait-perfumes.avif" alt="Studio Extrait Fragrances"
         onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
-      <div class="second-hero-cta-group">
-        <span class="second-hero-tagline">Discover Your Signature</span>
-        <a href="catalog.html" class="bottom-catalog-long-btn">VIEW FULL CATALOG</a>
-      </div>
+    </div>
+
+    <div class="second-hero-cta-group">
+      <span class="second-hero-tagline">Discover Your Signature</span>
+      <a href="catalog.html" class="bottom-catalog-long-btn">VIEW FULL CATALOG</a>
     </div>
 
     <div id="secImgRWrapper" style="display: none;">
@@ -3000,7 +3002,7 @@
         const floatTopViewportHero2 = topbarHeight + (s.logoMobileSpawn2 !== undefined ? s.logoMobileSpawn2 : 180);
 
         const lockPtHero1 = (heroBottom + 45) - logoHeight + stickOffset + 25;
-        const lockPtHero2 = (secondHeroBottom + topbarHeight) + stickOffset + 25;
+        const lockPtHero2 = (secondHeroBottom + topbarHeight) + stickOffset - 125;
 
         // Hero 2 Symmetrical Trigger:
         // Spawns when the second hero image enters the view, and disappears at the EXACT same place when scrolling up
@@ -3052,8 +3054,17 @@
           logo.style.zIndex = '1500';
 
           const shouldLockHero2 = (y + floatTopViewportHero2) >= lockPtHero2;
-          if (shouldLockHero2) {
+          const photoBottom = secImgLTop + secWrapHeight;
+          const logoDocBottom = y + floatTopViewportHero2 + logoHeight;
+          const isOverWhite = (logoDocBottom >= photoBottom - 15) || shouldLockHero2;
+
+          if (isOverWhite) {
             if (logo) logo.classList.add('locked-white-zone');
+          } else {
+            if (logo) logo.classList.remove('locked-white-zone');
+          }
+
+          if (shouldLockHero2) {
             const hero2AbsStyle = `mobile-hero2-absolute-${lockPtHero2}-${mX}`;
             if (lastLogoState !== hero2AbsStyle) {
               logo.style.position = 'absolute';
@@ -3062,7 +3073,6 @@
               lastLogoState = hero2AbsStyle;
             }
           } else {
-            if (logo) logo.classList.remove('locked-white-zone');
             const hero2FixedStyle = `mobile-hero2-fixed-${floatTopViewportHero2}-${mX}`;
             if (lastLogoState !== hero2FixedStyle) {
               logo.style.position = 'fixed';
@@ -3082,6 +3092,8 @@
 
       // Desktop: Tagline only appears when user's mouse is halfway through the second photo
       const secWrapElem = document.querySelector('.second-hero-left-wrap');
+      const secHeroElem = document.getElementById('secondHero');
+      const ctaGroupElem = document.querySelector('.second-hero-cta-group');
       if (secWrapElem) {
         secWrapElem.addEventListener('mousemove', (e) => {
           if (window.innerWidth <= 900) return;
@@ -3089,12 +3101,22 @@
           const relativeY = e.clientY - rect.top;
           if (relativeY >= rect.height * 0.5) {
             secWrapElem.classList.add('mouse-halfway');
+            if (secHeroElem) secHeroElem.classList.add('mouse-halfway');
           } else {
             secWrapElem.classList.remove('mouse-halfway');
+            if (secHeroElem) secHeroElem.classList.remove('mouse-halfway');
           }
         });
         secWrapElem.addEventListener('mouseleave', () => {
           secWrapElem.classList.remove('mouse-halfway');
+          if (secHeroElem) secHeroElem.classList.remove('mouse-halfway');
+        });
+      }
+      if (ctaGroupElem) {
+        ctaGroupElem.addEventListener('mouseenter', () => {
+          if (window.innerWidth <= 900) return;
+          if (secWrapElem) secWrapElem.classList.add('mouse-halfway');
+          if (secHeroElem) secHeroElem.classList.add('mouse-halfway');
         });
       }
 
