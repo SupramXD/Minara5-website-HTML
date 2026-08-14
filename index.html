@@ -1129,6 +1129,10 @@
     }
 
     .bottom-catalog-long-btn {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -1145,19 +1149,32 @@
       line-height: normal;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      transition: background-color 0.25s ease, opacity 0.25s ease;
+      transition: background-color 0.25s ease, opacity 0.25s ease, transform 0.2s ease;
       border-radius: 0px;
-      box-shadow: none !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
       cursor: pointer;
+      z-index: 100;
+      white-space: nowrap;
     }
 
     .bottom-catalog-long-btn:hover {
       background: #E8E8E8;
       color: #000000;
+      transform: translateX(-50%) translateY(-1px);
     }
 
     .bottom-catalog-long-btn:active {
       background: #DFDFDF;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 900px) {
+      .bottom-catalog-long-btn {
+        bottom: 24px;
+        padding: 14px 28px;
+        font-size: 11px;
+        letter-spacing: 1.1px;
+      }
     }
 
     @media(min-width: 901px) {
@@ -2623,6 +2640,7 @@
     <div class="second-hero-left-wrap">
       <img id="secImgL" src="images/second-hero/studio-extrait-perfumes.avif" alt="Studio Extrait Fragrances"
         onload="if(typeof window.updateLogoPosition === 'function') { window.updateLogoPosition(); }">
+      <a href="catalog.html" class="bottom-catalog-long-btn">VIEW FULL CATALOG</a>
     </div>
 
     <div id="secImgRWrapper" style="display: none;">
@@ -2640,9 +2658,6 @@
       </div>
       <div class="home-products-list second-products-list">
         <!-- Dynamic product cards populated via JS -->
-      </div>
-      <div class="bottom-catalog-cta-wrap" style="width: 100%; text-align: center; margin-top: 38px;">
-        <a href="catalog.html" class="bottom-catalog-long-btn">VIEW FULL CATALOG</a>
       </div>
     </div>
   </section>
