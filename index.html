@@ -1140,7 +1140,7 @@
       align-items: center;
       justify-content: center;
       gap: 12px;
-      z-index: 100;
+      z-index: 1600;
       pointer-events: none;
       white-space: nowrap;
     }
@@ -1160,7 +1160,7 @@
       user-select: none;
     }
 
-    .second-hero-left-wrap:hover .second-hero-tagline {
+    .second-hero-left-wrap.halfway-in-view:hover .second-hero-tagline {
       opacity: 1;
       transform: translateY(0) scale(1);
     }
@@ -2817,6 +2817,7 @@
       let secondHeroBottom = 0;
       let secImgRBottom = 0;
       let secImgLTop = 0;
+      let secWrapHeight = 0;
       let bagsBtnHeight = 0;
       let logoHeight = 0;
       let topbarHeight = 45; // Default header height
@@ -2850,8 +2851,10 @@
         const secWrap = document.querySelector('.second-hero-left-wrap');
         if (secWrap && secondHero) {
           secImgLTop = secondHero.offsetTop + secWrap.offsetTop;
+          secWrapHeight = secWrap.offsetHeight || 720;
         } else if (secondHero) {
           secImgLTop = secondHero.offsetTop;
+          secWrapHeight = 720;
         }
 
         if (bagsBtn) {
@@ -2869,6 +2872,17 @@
       function update() {
         const y = window.scrollY;
         const s = window.heroSettings || {};
+
+        // Desktop second hero halfway detection for tagline animation
+        const secWrap = document.querySelector('.second-hero-left-wrap');
+        if (secWrap) {
+          const isHalfway = !mobileView && ((y + windowHeight) >= (secImgLTop + (secWrapHeight * 0.5))) && (y < (secImgLTop + secWrapHeight));
+          if (isHalfway) {
+            secWrap.classList.add('halfway-in-view');
+          } else {
+            secWrap.classList.remove('halfway-in-view');
+          }
+        }
 
         let desktopSpawn = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 44;
         let mobileSpawn = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -100;
@@ -2978,7 +2992,7 @@
         const floatTopViewportHero2 = topbarHeight + (s.logoMobileSpawn2 !== undefined ? s.logoMobileSpawn2 : 180);
 
         const lockPtHero1 = (heroBottom + 45) - logoHeight + stickOffset + 25;
-        const lockPtHero2 = (secondHeroBottom + topbarHeight) - logoHeight + stickOffset - 115;
+        const lockPtHero2 = (secondHeroBottom + topbarHeight) - logoHeight + stickOffset - 12;
 
         // Hero 2 Symmetrical Trigger:
         // Spawns when the second hero image enters the view, and disappears at the EXACT same place when scrolling up
