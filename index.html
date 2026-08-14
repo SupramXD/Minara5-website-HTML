@@ -1161,61 +1161,23 @@
       text-decoration: none;
       text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
       opacity: 0;
-      transform: translateY(10px) scale(0.96);
-      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), letter-spacing 0.3s ease, color 0.3s ease;
+      transform: translateY(8px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
       pointer-events: auto;
       user-select: none;
       cursor: pointer;
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      padding-bottom: 4px;
+      display: block;
     }
 
-    .second-hero-tagline::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%) scaleX(0);
-      width: 28px;
-      height: 1px;
-      background: #ffffff;
-      box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
-      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      transform-origin: center;
-    }
-
-    #secondHero.mouse-halfway .second-hero-tagline,
-    .second-hero-left-wrap.mouse-halfway .second-hero-tagline,
-    .second-hero-cta-group.mouse-halfway .second-hero-tagline {
-      opacity: 0.92;
-      transform: translateY(0) scale(1);
-    }
-
-    /* Proximity trigger: User gets closer to the tagline / button */
-    .second-hero-cta-group.tagline-proximity .second-hero-tagline {
+    #secondHero.mouse-in-zone .second-hero-tagline,
+    .second-hero-left-wrap.mouse-in-zone .second-hero-tagline,
+    .second-hero-cta-group.mouse-in-zone .second-hero-tagline {
       opacity: 1;
-      letter-spacing: 4px;
-      transform: translateY(-2px) scale(1.03);
-      color: #ffffff;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
-    }
-
-    .second-hero-cta-group.tagline-proximity .second-hero-tagline::after {
-      transform: translateX(-50%) scaleX(1);
-      width: 100%;
-    }
-
-    .second-hero-cta-group.tagline-proximity .bottom-catalog-long-btn {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
-      transform: translateY(-2px);
+      transform: translateY(0);
     }
 
     .second-hero-tagline:hover {
-      letter-spacing: 4.5px !important;
-      transform: translateY(-3px) scale(1.05) !important;
+      opacity: 0.8 !important;
     }
 
     .bottom-catalog-long-btn {
@@ -3139,7 +3101,7 @@
         updateSecondHeroTaglineDesktop();
       }
 
-      // Desktop: Tagline appearances on scroll & mouse tracking + proximity animation
+      // Desktop: Tagline only appears when user's mouse is in the bottom 60% of the second photo (60% to top mark)
       const secWrapElem = document.querySelector('.second-hero-left-wrap');
       const secHeroElem = document.getElementById('secondHero');
       const ctaGroupElem = document.querySelector('.second-hero-cta-group');
@@ -3149,52 +3111,28 @@
       function updateSecondHeroTaglineDesktop() {
         if (window.innerWidth <= 900 || !secWrapElem) return;
         const rect = secWrapElem.getBoundingClientRect();
-        const winH = window.innerHeight || document.documentElement.clientHeight;
-
-        // Automatically active when the bottom 66% area of the second photo is scrolled into viewport
-        const triggerLineInView = rect.top + (rect.height * 0.34) <= winH * 0.85 && rect.bottom >= 100;
 
         let mouseInTriggerZone = false;
-        let mouseInProximity = false;
 
         if (lastClientY !== null && lastClientX !== null) {
           if (lastClientX >= rect.left && lastClientX <= rect.right &&
               lastClientY >= rect.top && lastClientY <= rect.bottom) {
             const relativeY = lastClientY - rect.top;
-            if (relativeY >= rect.height * 0.34) {
+            // 60% to top mark = bottom 60% of photo (Y >= 40% from top)
+            if (relativeY >= rect.height * 0.40) {
               mouseInTriggerZone = true;
             }
           }
-
-          if (ctaGroupElem) {
-            const ctaRect = ctaGroupElem.getBoundingClientRect();
-            const ctaCenterX = ctaRect.left + ctaRect.width / 2;
-            const ctaCenterY = ctaRect.top + ctaRect.height / 2;
-            const dist = Math.hypot(lastClientX - ctaCenterX, lastClientY - ctaCenterY);
-            if (dist <= 190) {
-              mouseInProximity = true;
-            }
-          }
         }
 
-        // Show tagline on scroll OR on mouse zone
-        if (triggerLineInView || mouseInTriggerZone) {
-          secWrapElem.classList.add('mouse-halfway');
-          if (secHeroElem) secHeroElem.classList.add('mouse-halfway');
-          if (ctaGroupElem) ctaGroupElem.classList.add('mouse-halfway');
+        if (mouseInTriggerZone) {
+          secWrapElem.classList.add('mouse-in-zone');
+          if (secHeroElem) secHeroElem.classList.add('mouse-in-zone');
+          if (ctaGroupElem) ctaGroupElem.classList.add('mouse-in-zone');
         } else {
-          secWrapElem.classList.remove('mouse-halfway');
-          if (secHeroElem) secHeroElem.classList.remove('mouse-halfway');
-          if (ctaGroupElem) ctaGroupElem.classList.remove('mouse-halfway');
-        }
-
-        // Proximity animation
-        if (ctaGroupElem) {
-          if (mouseInProximity) {
-            ctaGroupElem.classList.add('tagline-proximity');
-          } else {
-            ctaGroupElem.classList.remove('tagline-proximity');
-          }
+          secWrapElem.classList.remove('mouse-in-zone');
+          if (secHeroElem) secHeroElem.classList.remove('mouse-in-zone');
+          if (ctaGroupElem) ctaGroupElem.classList.remove('mouse-in-zone');
         }
       }
 
@@ -3207,7 +3145,9 @@
       window.addEventListener('mouseleave', () => {
         lastClientX = null;
         lastClientY = null;
-        if (ctaGroupElem) ctaGroupElem.classList.remove('tagline-proximity');
+        if (secWrapElem) secWrapElem.classList.remove('mouse-in-zone');
+        if (secHeroElem) secHeroElem.classList.remove('mouse-in-zone');
+        if (ctaGroupElem) ctaGroupElem.classList.remove('mouse-in-zone');
       });
 
       window.updateLogoPosition = function () {
