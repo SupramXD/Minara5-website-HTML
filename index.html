@@ -3116,7 +3116,7 @@
         updateSecondHeroTaglineDesktop();
       }
 
-      // Desktop: Tagline appears when user scrolls to 60% mark or enters that area, plus proximity animation when getting close to button
+      // Desktop: Tagline appears ONLY when user is about halfway scrolled into the second photo (or cursor in bottom half), plus light proximity animation
       const secWrapElem = document.querySelector('.second-hero-left-wrap');
       const secHeroElem = document.getElementById('secondHero');
       const ctaGroupElem = document.querySelector('.second-hero-cta-group');
@@ -3128,8 +3128,9 @@
         const rect = secWrapElem.getBoundingClientRect();
         const winH = window.innerHeight || document.documentElement.clientHeight;
 
-        // Animation #1: Active when user scrolls so second hero is 60% towards top of viewport
-        const isScrolledTo60 = (rect.top <= winH * 0.60 && rect.bottom >= 100);
+        // Animation #1: Active ONLY when about halfway (50%) scrolled into the image, and hides when above it or past it
+        const scrolledIntoImage = winH - rect.top;
+        const isHalfwayIntoImage = (scrolledIntoImage >= rect.height * 0.50 && rect.bottom >= 80);
 
         let mouseInTriggerZone = false;
         let mouseInButtonProximity = false;
@@ -3138,25 +3139,25 @@
           if (lastClientX >= rect.left && lastClientX <= rect.right &&
               lastClientY >= rect.top && lastClientY <= rect.bottom) {
             const relativeY = lastClientY - rect.top;
-            if (relativeY >= rect.height * 0.40) {
+            if (relativeY >= rect.height * 0.50) {
               mouseInTriggerZone = true;
             }
           }
 
-          // Animation #2: User's mouse gets close to the button (within 180px)
+          // Animation #2: Light animation when crosshair gets close to the button (within 160px)
           if (ctaGroupElem) {
             const ctaRect = ctaGroupElem.getBoundingClientRect();
             const ctaCenterX = ctaRect.left + ctaRect.width / 2;
             const ctaCenterY = ctaRect.top + ctaRect.height / 2;
             const dist = Math.hypot(lastClientX - ctaCenterX, lastClientY - ctaCenterY);
-            if (dist <= 180) {
+            if (dist <= 160) {
               mouseInButtonProximity = true;
             }
           }
         }
 
-        // Animation #1 visibility: triggers on scroll OR on mouse entering zone
-        if (isScrolledTo60 || mouseInTriggerZone) {
+        // Tagline only shows when halfway into image or hovering lower half
+        if (isHalfwayIntoImage || mouseInTriggerZone) {
           secWrapElem.classList.add('tagline-visible');
           if (secHeroElem) secHeroElem.classList.add('tagline-visible');
           if (ctaGroupElem) ctaGroupElem.classList.add('tagline-visible');
@@ -3166,7 +3167,7 @@
           if (ctaGroupElem) ctaGroupElem.classList.remove('tagline-visible');
         }
 
-        // Animation #2: Proximity to button
+        // Animation #2: Light proximity animation
         if (ctaGroupElem) {
           if (mouseInButtonProximity) {
             ctaGroupElem.classList.add('btn-proximity');
