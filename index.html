@@ -1151,35 +1151,32 @@
       white-space: nowrap;
     }
 
-    /* Baseline: Hidden until scrolled into the second hero photo */
+    /* Baseline: Hidden until the CTA area is scrolled into view */
     .second-hero-tagline {
       font-family: 'Gotham Narrow Book', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
       font-size: 11px;
       font-weight: 500;
       letter-spacing: 3px;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.88);
+      color: #ffffff;
       text-decoration: none;
-      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
       opacity: 0;
-      transform: translateY(14px);
-      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), letter-spacing 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease, text-shadow 0.3s ease;
-      pointer-events: auto;
+      transform: translateY(12px);
+      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
       user-select: none;
       cursor: pointer;
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      padding: 4px 8px;
+      display: block;
     }
 
-    /* Animation #1: Pop into view when scrolled into second hero */
+    /* Animation #1: Pop smoothly into view as the user scrolls into the CTA area */
     #secondHero.tagline-visible .second-hero-tagline,
     .second-hero-left-wrap.tagline-visible .second-hero-tagline,
     .second-hero-cta-group.tagline-visible .second-hero-tagline {
       opacity: 0.92;
       transform: translateY(0);
+      pointer-events: auto;
     }
 
     .bottom-catalog-long-btn {
@@ -1202,33 +1199,29 @@
       line-height: normal;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      transition: background-color 0.25s ease, opacity 0.25s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+      transition: background-color 0.25s ease, opacity 0.25s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
       border-radius: 0px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
       cursor: pointer;
       white-space: nowrap;
     }
 
-    /* Animation #2: Dynamic interactive proximity animation when cursor gets close */
+    /* Animation #2: Simple minimal lift when cursor gets close */
     .second-hero-cta-group.tagline-proximity .second-hero-tagline {
       opacity: 1;
-      color: #ffffff;
-      letter-spacing: 4.5px;
-      transform: translateY(-5px);
-      text-shadow: 0 0 14px rgba(255, 255, 255, 0.6), 0 2px 10px rgba(0, 0, 0, 0.9);
+      transform: translateY(-4px);
     }
 
     .second-hero-cta-group.tagline-proximity .bottom-catalog-long-btn {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
       background: #FFFFFF;
     }
 
     /* Hover state on tagline */
     .second-hero-tagline:hover {
-      letter-spacing: 5px !important;
-      transform: translateY(-7px) scale(1.03) !important;
-      color: #ffffff !important;
+      opacity: 0.8 !important;
+      transform: translateY(-6px) !important;
     }
 
     .bottom-catalog-long-btn:hover {
@@ -3146,32 +3139,30 @@
         const secHero = secHeroElem || document.getElementById('secondHero');
         if (!secWrap || !ctaGroup) return;
 
-        const imgRect = secWrap.getBoundingClientRect();
+        const ctaRect = ctaGroup.getBoundingClientRect();
         const winH = window.innerHeight || document.documentElement.clientHeight;
 
-        // Animation #1: Visible ONLY when user is scrolled into the second hero photo (top of photo <= 42% of viewport and bottom >= 100px)
-        // When above the photo (reading feature cards), imgRect.top > winH * 0.42 -> strictly FALSE
-        const isScrolledIn = (imgRect.top <= winH * 0.42 && imgRect.bottom >= 100);
+        // Animation #1: Appears ONLY when the user scrolls into the CTA area (when the button scrolls into view: ctaRect.top <= winH * 0.88 and hasn't scrolled past)
+        const isScrolledIn = (ctaRect.top <= winH * 0.88 && ctaRect.bottom >= 40);
 
         if (isScrolledIn) {
-          secWrap.classList.add('tagline-visible');
-          if (secHero) secHero.classList.add('tagline-visible');
           ctaGroup.classList.add('tagline-visible');
+          if (secWrap) secWrap.classList.add('tagline-visible');
+          if (secHero) secHero.classList.add('tagline-visible');
         } else {
-          secWrap.classList.remove('tagline-visible');
-          if (secHero) secHero.classList.remove('tagline-visible');
           ctaGroup.classList.remove('tagline-visible');
           ctaGroup.classList.remove('tagline-proximity');
+          if (secWrap) secWrap.classList.remove('tagline-visible');
+          if (secHero) secHero.classList.remove('tagline-visible');
         }
 
-        // Animation #2: Interactive crosshair proximity animation within 220px
+        // Animation #2: Simple proximity animation when cursor is close (within 180px)
         if (isScrolledIn && lastClientX !== null && lastClientY !== null) {
-          const ctaRect = ctaGroup.getBoundingClientRect();
           const ctaCenterX = ctaRect.left + ctaRect.width / 2;
           const ctaCenterY = ctaRect.top + ctaRect.height / 2;
           const dist = Math.hypot(lastClientX - ctaCenterX, lastClientY - ctaCenterY);
 
-          if (dist <= 220) {
+          if (dist <= 180) {
             ctaGroup.classList.add('tagline-proximity');
           } else {
             ctaGroup.classList.remove('tagline-proximity');
