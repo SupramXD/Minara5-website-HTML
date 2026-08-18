@@ -716,6 +716,37 @@
       box-shadow: 0 0 10px rgba(204, 255, 0, 0.3);
     }
 
+    .visitor-subtab-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 7px 16px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .visitor-subtab-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .visitor-subtab-btn.active {
+      background: rgba(204, 255, 0, 0.12);
+      color: var(--accent);
+      border-color: var(--accent);
+      font-weight: 900;
+      box-shadow: 0 0 10px rgba(204, 255, 0, 0.15);
+    }
+
     .analytics-kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1089,13 +1120,23 @@
               <div class="console-panel full-width-panel" style="margin-bottom: 30px;">
                 
                 <!-- TOP HEADER & CONTROLS -->
-                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
                   <div>
-                    <h2 class="panel-title" style="font-size: 20px; color: var(--accent);">📊 General Statistics & Visitor Intelligence</h2>
-                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Unified real-time traffic, revenue metrics, conversion funnel, and live visitor activity stream</p>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <h2 class="panel-title" style="font-size: 20px; color: var(--accent);">📊 General Statistics & Visitor Intelligence</h2>
+                      <span id="activeModeBadge" style="font-size: 10px; background: rgba(204, 255, 0, 0.15); color: var(--accent); border: 1px solid rgba(204, 255, 0, 0.3); padding: 2px 8px; border-radius: 12px; font-weight: bold; text-transform: uppercase;">⚡ Clean Optimised</span>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Unified real-time traffic, revenue metrics, conversion funnel, and deduplicated visitor activity</p>
                   </div>
 
                   <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <!-- OPTIMISED VS RAW TOGGLE -->
+                    <div class="period-filter-group" id="statsModeFilters" style="background: rgba(0, 0, 0, 0.3); border-color: rgba(255, 255, 255, 0.15);">
+                      <button id="modeBtn_optimised" class="period-btn active" onclick="setStatsDataMode('optimised')" title="Removes crawlers/bots, merges duplicate test IP sessions, filters 0s bounces & geoblocked hits">⚡ Optimised</button>
+                      <button id="modeBtn_raw" class="period-btn" onclick="setStatsDataMode('raw')" title="Raw unfiltered Firestore logs with all repeat test pings and crawlers">🌐 Raw Data</button>
+                    </div>
+
+                    <!-- TIME PERIOD TOGGLE -->
                     <div class="period-filter-group" id="generalStatsPeriodFilters">
                       <button class="period-btn" onclick="setStatsPeriod('today')">Today (24h)</button>
                       <button class="period-btn active" onclick="setStatsPeriod('7d')">Last 7 Days</button>
@@ -1103,8 +1144,24 @@
                       <button class="period-btn" onclick="setStatsPeriod('90d')">Last 90 Days</button>
                       <button class="period-btn" onclick="setStatsPeriod('all')">All Time</button>
                     </div>
+
                     <button onclick="loadAdminSessions(true)" class="action-btn-small" style="background: var(--accent); color: #000; font-weight: bold; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 11px; text-transform: uppercase;">🔄 Refresh All</button>
                     <button onclick="clearAllSessions()" class="action-btn-small" style="background: rgba(255, 59, 48, 0.15); color: var(--danger); border: 1px solid rgba(255, 59, 48, 0.25); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 11px; text-transform: uppercase;">🗑️ Clear Logs</button>
+                  </div>
+                </div>
+
+                <!-- OPTIMISATION TELEMETRY INFO BANNER -->
+                <div id="optimisationInfoBanner" style="background: rgba(204, 255, 0, 0.03); border: 1px solid rgba(204, 255, 0, 0.15); border-radius: 6px; padding: 10px 16px; margin-bottom: 25px; font-size: 11.5px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                  <div style="display: flex; align-items: center; gap: 8px; color: #fff;">
+                    <span id="bannerModeIcon" style="color: var(--accent); font-size: 14px;">⚡</span>
+                    <span id="optimisationSummaryText" style="color: var(--text-muted);">
+                      <strong style="color: #fff;">Optimised Mode Active:</strong> Bots/spiders purged, geoblocked hits excluded, and recurring test sessions grouped to show genuine human customer reach.
+                    </span>
+                  </div>
+                  <div id="filterTelemetryBadges" style="display: flex; gap: 6px; font-family: monospace; font-size: 10px;">
+                    <span id="telemetryBotsBadge" style="background: rgba(255, 59, 48, 0.12); color: #ff3b30; padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(255, 59, 48, 0.25);">0 Bots Purged</span>
+                    <span id="telemetryGeoBadge" style="background: rgba(255, 159, 10, 0.12); color: #ff9f0a; padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(255, 159, 10, 0.25);">0 Geoblocked</span>
+                    <span id="telemetryDupesBadge" style="background: rgba(9, 165, 219, 0.12); color: #09A5DB; padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(9, 165, 219, 0.25);">0 Repeat Sessions Merged</span>
                   </div>
                 </div>
 
@@ -1125,7 +1182,7 @@
                       <span style="font-size: 16px;">✨</span>
                     </div>
                     <div class="analytics-kpi-value" id="kpiUniqueVisitors">0</div>
-                    <div class="analytics-kpi-sub">Deduplicated Clients</div>
+                    <div class="analytics-kpi-sub" id="kpiUniqueSub">Deduplicated Clients</div>
                   </div>
 
                   <div class="analytics-kpi-card">
@@ -1303,20 +1360,36 @@
 
                 <!-- 3. LIVE VISITOR SESSIONS STREAM WITH DATES & TIMESTAMPS -->
                 <div style="border-top: 1px solid var(--border-color); padding-top: 25px; margin-top: 10px;">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                  
+                  <!-- STREAM HEADER & SUB-TABS -->
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 12px;">
                     <div>
                       <h3 style="font-size: 16px; font-family: 'Outfit', sans-serif; text-transform: uppercase; letter-spacing: 1px; color: #fff; display: flex; align-items: center; gap: 8px;">
-                        <span>👥</span> Live Visitor Sessions Stream
+                        <span>👥</span> Live Visitor Activity & Audience Inspector
                       </h3>
-                      <p style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">Inspect click pathways, navigation sequences, and detailed IP session timestamps in the selected period</p>
+                      <p style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">Inspect click pathways, navigation sequences, recurring test IPs, and exact session timestamps</p>
                     </div>
                     <span id="sessionsStats" class="stat-label" style="font-size: 11px; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 4px; border: 1px solid var(--border-color);">0 Sessions Loaded</span>
                   </div>
 
+                  <!-- VISITOR STREAM SUB-TABS -->
+                  <div style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; flex-wrap: wrap;">
+                    <button class="visitor-subtab-btn active" id="visitorSubTab_unique" onclick="switchVisitorSubTab('unique')">
+                      🌟 Unique Visitors (<span id="uniqueVisitorsBadge">0</span>)
+                    </button>
+                    <button class="visitor-subtab-btn" id="visitorSubTab_recurring" onclick="switchVisitorSubTab('recurring')">
+                      🔁 Recurring & Testing IPs (<span id="recurringIpsBadge">0</span>)
+                    </button>
+                    <button class="visitor-subtab-btn" id="visitorSubTab_raw" onclick="switchVisitorSubTab('raw')">
+                      🌐 All Raw Sessions Stream (<span id="allRawBadge">0</span>)
+                    </button>
+                  </div>
+
+                  <!-- SESSIONS LIST & DETAIL DUAL-PANEL -->
                   <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 25px;">
                     <!-- Left side: Session List -->
                     <div style="border-right: 1px solid var(--border-color); padding-right: 20px; max-height: 750px; overflow-y: auto;">
-                      <div style="font-weight: bold; font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; letter-spacing: 1px;">Recent Visitor Sessions (Filtered)</div>
+                      <div id="sessionListHeaderTitle" style="font-weight: bold; font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; letter-spacing: 1px;">Unique Visitors (Deduplicated)</div>
                       <div id="sessionListContainer" style="display: flex; flex-direction: column; gap: 10px;">
                         <p style="opacity: 0.5; font-size: 12px;">Loading visitor sessions...</p>
                       </div>
@@ -1326,7 +1399,7 @@
                     <div id="sessionDetailContainer" style="padding-left: 10px; max-height: 750px; overflow-y: auto;">
                       <div style="border: 1px dashed var(--border-color); border-radius: 6px; padding: 40px; text-align: center; color: var(--text-muted);">
                         <span style="font-size: 32px; display: block; margin-bottom: 15px;">🔍</span>
-                        Select a visitor session from the left column to view full dates, scroll pathways, page flows, and custom interaction logs.
+                        Select any visitor session or recurring IP from the left column to view full dates, scroll pathways, page flows, and custom interaction logs.
                       </div>
                     </div>
                   </div>
@@ -6587,7 +6660,10 @@
     let adminSessions = [];
     let chartInstances = {};
     let currentStatsPeriod = '7d';
-    let selectedSessionId = null;
+    let currentStatsDataMode = 'optimised'; // 'optimised' | 'raw'
+    let currentVisitorSubTab = 'unique';    // 'unique' | 'recurring' | 'raw'
+    let selectedSessionOrIpId = null;
+    let lastProcessedData = null;
 
     // Helper: Formats full date and time (e.g. "18 Aug 2026 • 20:15:32")
     function formatSessionDateTime(isoStr) {
@@ -6653,6 +6729,46 @@
       });
     }
 
+    // Mode Controller: Optimised vs Raw
+    window.setStatsDataMode = function(mode) {
+      currentStatsDataMode = mode;
+      
+      const optBtn = document.getElementById("modeBtn_optimised");
+      const rawBtn = document.getElementById("modeBtn_raw");
+      const badge = document.getElementById("activeModeBadge");
+      const bannerText = document.getElementById("optimisationSummaryText");
+      const bannerIcon = document.getElementById("bannerModeIcon");
+
+      if (optBtn) optBtn.classList.toggle("active", mode === "optimised");
+      if (rawBtn) rawBtn.classList.toggle("active", mode === "raw");
+
+      if (mode === "optimised") {
+        if (badge) {
+          badge.textContent = "⚡ Clean Optimised";
+          badge.style.color = "var(--accent)";
+          badge.style.borderColor = "rgba(204, 255, 0, 0.3)";
+          badge.style.background = "rgba(204, 255, 0, 0.15)";
+        }
+        if (bannerIcon) bannerIcon.textContent = "⚡";
+        if (bannerText) {
+          bannerText.innerHTML = `<strong style="color: #fff;">Optimised Mode Active:</strong> Bots/spiders purged, geoblocked hits excluded, and duplicate test sessions grouped into unique visitor journeys.`;
+        }
+      } else {
+        if (badge) {
+          badge.textContent = "🌐 Raw Unfiltered";
+          badge.style.color = "#09A5DB";
+          badge.style.borderColor = "rgba(9, 165, 219, 0.3)";
+          badge.style.background = "rgba(9, 165, 219, 0.15)";
+        }
+        if (bannerIcon) bannerIcon.textContent = "🌐";
+        if (bannerText) {
+          bannerText.innerHTML = `<strong style="color: #fff;">Raw Mode Active:</strong> Showing all unedited Firestore records, repeat testing pings, crawlers, and geoblocked events.`;
+        }
+      }
+
+      renderGeneralStatistics();
+    };
+
     // Period Controller
     window.setStatsPeriod = function(period) {
       currentStatsPeriod = period;
@@ -6665,6 +6781,136 @@
       }
       renderGeneralStatistics();
     };
+
+    // Visitor Sub-tab Switcher
+    window.switchVisitorSubTab = function(subTab) {
+      currentVisitorSubTab = subTab;
+      document.querySelectorAll(".visitor-subtab-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.id === `visitorSubTab_${subTab}`);
+      });
+
+      const titleEl = document.getElementById("sessionListHeaderTitle");
+      if (titleEl) {
+        if (subTab === 'unique') titleEl.textContent = "Unique Visitors (Deduplicated)";
+        else if (subTab === 'recurring') titleEl.textContent = "Recurring & Frequent Testing IPs";
+        else titleEl.textContent = "All Raw Session Logs (Chronological)";
+      }
+
+      if (lastProcessedData) {
+        renderCurrentVisitorSubTabList(lastProcessedData);
+      }
+    };
+
+    /* SMART ANALYTICS PROCESSOR: DETECTS BOTS, GEOBLOCKS & RECURRING IPS */
+    function processSessionsData(rawSessions, mode) {
+      const botRegex = /bot|spider|crawl|slurp|lighthouse|headless|facebookexternalhit|bytespider|yandex|curl|wget|python|postman|insomnia|preview|archive\.org|petalbot|semrush|ahrefs|bingbot|googlebot/i;
+
+      let botsPurged = 0;
+      let geoblockedPurged = 0;
+      let ghostsPurged = 0;
+
+      const validSessions = [];
+
+      rawSessions.forEach(s => {
+        const ua = s.userAgent || "";
+        const loc = s.location || "";
+        const ip = s.ip || "";
+
+        const isBot = botRegex.test(ua) || (ua.length < 15 && ua.toLowerCase().includes("bot"));
+        const isGeoBlocked = loc.includes("Geo Blocked") || loc.includes("Unknown / VPN") || ip === "Pending..." || ip === "Unknown / VPN";
+        
+        const start = new Date(s.createdAt || s.lastActive).getTime();
+        const end = new Date(s.lastActive || s.createdAt).getTime();
+        const durationSec = Math.max(0, Math.round((end - start) / 1000));
+        const pagesCount = (s.pages && Array.isArray(s.pages)) ? s.pages.length : 1;
+        const clicksCount = (s.clicks && Array.isArray(s.clicks)) ? s.clicks.length : 0;
+        const isGhost = durationSec < 2 && pagesCount <= 1 && clicksCount === 0 && (Number(s.maxScrollDepth) || 0) === 0;
+
+        if (mode === "optimised") {
+          if (isBot) {
+            botsPurged++;
+            return;
+          }
+          if (isGeoBlocked) {
+            geoblockedPurged++;
+            return;
+          }
+          if (isGhost) {
+            ghostsPurged++;
+            return;
+          }
+        }
+
+        validSessions.push({ ...s, isBot, isGeoBlocked, isGhost });
+      });
+
+      // Group & Deduplicate by IP / Session Identity
+      const ipGroups = {};
+      validSessions.forEach(s => {
+        const key = s.ip && s.ip !== "Unknown IP" ? s.ip : (s.sessionId || s.id);
+        if (!ipGroups[key]) {
+          ipGroups[key] = {
+            ipKey: key,
+            ip: s.ip || key,
+            location: s.location || "Unknown Location",
+            device: s.device || "Desktop",
+            userAgent: s.userAgent || "Unknown",
+            firstSeen: s.createdAt || s.lastActive,
+            lastActive: s.lastActive || s.createdAt,
+            maxScrollDepth: Number(s.maxScrollDepth) || 0,
+            allPages: [],
+            allClicks: [],
+            sessions: []
+          };
+        }
+
+        const group = ipGroups[key];
+        group.sessions.push(s);
+
+        if (new Date(s.createdAt) < new Date(group.firstSeen)) group.firstSeen = s.createdAt;
+        if (new Date(s.lastActive) > new Date(group.lastActive)) {
+          group.lastActive = s.lastActive;
+          group.location = s.location || group.location;
+          group.device = s.device || group.device;
+        }
+
+        if ((Number(s.maxScrollDepth) || 0) > group.maxScrollDepth) {
+          group.maxScrollDepth = Number(s.maxScrollDepth) || 0;
+        }
+
+        if (s.pages && Array.isArray(s.pages)) {
+          s.pages.forEach(p => {
+            if (!group.allPages.some(existing => existing.page === p.page && existing.timestamp === p.timestamp)) {
+              group.allPages.push(p);
+            }
+          });
+        }
+        if (s.clicks && Array.isArray(s.clicks)) {
+          s.clicks.forEach(c => group.allClicks.push(c));
+        }
+      });
+
+      // Prepare distinct list arrays
+      const uniqueVisitorsList = Object.values(ipGroups);
+      uniqueVisitorsList.sort((a, b) => new Date(b.lastActive) - new Date(a.lastActive));
+
+      const recurringIpsList = uniqueVisitorsList.filter(g => g.sessions.length > 1);
+      recurringIpsList.sort((a, b) => b.sessions.length - a.sessions.length);
+
+      const duplicatesMerged = validSessions.length - uniqueVisitorsList.length;
+
+      return {
+        rawSessions: validSessions,
+        uniqueVisitorsList: uniqueVisitorsList,
+        recurringIpsList: recurringIpsList,
+        telemetry: {
+          botsPurged,
+          geoblockedPurged,
+          ghostsPurged,
+          duplicatesMerged
+        }
+      };
+    }
 
     window.loadAdminSessions = async function(forceRefresh = false) {
       const listContainer = document.getElementById("sessionListContainer");
@@ -6707,25 +6953,52 @@
     };
 
     function renderGeneralStatistics() {
-      const filteredSessions = filterByPeriod(adminSessions, currentStatsPeriod, 'createdAt');
+      const filteredRawSessions = filterByPeriod(adminSessions, currentStatsPeriod, 'createdAt');
       const filteredOrders = filterByPeriod(adminOrders, currentStatsPeriod, 'createdAt');
 
+      // Process sessions based on current data mode (optimised vs raw)
+      const processed = processSessionsData(filteredRawSessions, currentStatsDataMode);
+      lastProcessedData = processed;
+
+      // Update Telemetry Badges in Header Banner
+      const bBots = document.getElementById("telemetryBotsBadge");
+      const bGeo = document.getElementById("telemetryGeoBadge");
+      const bDupes = document.getElementById("telemetryDupesBadge");
+
+      if (bBots) bBots.textContent = `${processed.telemetry.botsPurged} Bots Purged`;
+      if (bGeo) bGeo.textContent = `${processed.telemetry.geoblockedPurged} Geoblocked Filtered`;
+      if (bDupes) bDupes.textContent = `${processed.telemetry.duplicatesMerged} Repeat Sessions Merged`;
+
+      // Update Sub-tab Counter Badges
+      const badgeUnique = document.getElementById("uniqueVisitorsBadge");
+      const badgeRecur = document.getElementById("recurringIpsBadge");
+      const badgeRaw = document.getElementById("allRawBadge");
+
+      if (badgeUnique) badgeUnique.textContent = processed.uniqueVisitorsList.length;
+      if (badgeRecur) badgeRecur.textContent = processed.recurringIpsList.length;
+      if (badgeRaw) badgeRaw.textContent = processed.rawSessions.length;
+
       // 1. Calculate Traffic & Behavior KPIs
-      const totalVisits = filteredSessions.length;
-      const uniqueIps = new Set(filteredSessions.map(s => s.ip || s.sessionId || s.id)).size;
+      // In Optimised mode, visits count represents unique visitor reach. In Raw mode, it represents total raw hits.
+      const statsSessionsForCharts = currentStatsDataMode === 'optimised' 
+        ? processed.uniqueVisitorsList.map(u => ({ ...u, pages: u.allPages, clicks: u.allClicks }))
+        : processed.rawSessions;
+
+      const totalVisits = currentStatsDataMode === 'optimised' ? processed.uniqueVisitorsList.length : processed.rawSessions.length;
+      const uniqueIps = processed.uniqueVisitorsList.length;
       
       let totalDurationSec = 0;
       let totalScroll = 0;
       let bounceCount = 0;
 
-      filteredSessions.forEach(s => {
-        const start = new Date(s.createdAt || s.lastActive).getTime();
+      statsSessionsForCharts.forEach(s => {
+        const start = new Date(s.firstSeen || s.createdAt || s.lastActive).getTime();
         const end = new Date(s.lastActive || s.createdAt).getTime();
         const diffSec = Math.max(0, Math.min(86400, Math.round((end - start) / 1000)));
         totalDurationSec += diffSec;
         totalScroll += Number(s.maxScrollDepth) || 0;
         
-        const pagesCount = (s.pages && Array.isArray(s.pages)) ? s.pages.length : 1;
+        const pagesCount = (s.pages && Array.isArray(s.pages)) ? s.pages.length : (s.allPages?.length || 1);
         if (pagesCount <= 1 && diffSec < 10) {
           bounceCount++;
         }
@@ -6740,11 +7013,14 @@
       const paidOrders = filteredOrders.filter(o => o.paid || o.status === "paid" || o.status === "Shipped" || o.status === "Delivered");
       const grossRevenue = paidOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
       const aov = paidOrders.length > 0 ? Math.round(grossRevenue / paidOrders.length) : 0;
-      const conversionRate = totalVisits > 0 ? ((paidOrders.length / totalVisits) * 100).toFixed(1) : '0.0';
+      const conversionRate = uniqueIps > 0 ? ((paidOrders.length / uniqueIps) * 100).toFixed(1) : '0.0';
 
       // 3. Update KPI DOM Elements
       const elVisits = document.getElementById("kpiTotalVisits");
       if (elVisits) elVisits.textContent = totalVisits.toLocaleString();
+      const elVisitsSub = document.getElementById("kpiVisitsSub");
+      if (elVisitsSub) elVisitsSub.textContent = currentStatsDataMode === 'optimised' ? 'Unique Customer Journeys' : 'Total Raw Hits';
+
       const elUnique = document.getElementById("kpiUniqueVisitors");
       if (elUnique) elUnique.textContent = uniqueIps.toLocaleString();
       const elGross = document.getElementById("kpiGrossRevenue");
@@ -6763,107 +7039,260 @@
       if (elBounceSub) elBounceSub.textContent = `${bounceRate}% Bounce Rate`;
 
       const statsCounterEl = document.getElementById("sessionsStats");
-      if (statsCounterEl) statsCounterEl.textContent = `${filteredSessions.length} Sessions (${adminSessions.length} Total)`;
+      if (statsCounterEl) statsCounterEl.textContent = `${processed.uniqueVisitorsList.length} Unique • ${processed.rawSessions.length} Total Logs`;
 
       const badgeEl = document.getElementById("trafficTrendBadge");
       if (badgeEl) {
         const labelMap = { today: 'Hourly (24h)', '7d': 'Last 7 Days', '30d': 'Last 30 Days', '90d': 'Last 90 Days', all: 'All Time' };
-        badgeEl.textContent = labelMap[currentStatsPeriod] || 'Daily Visits';
+        badgeEl.textContent = `${labelMap[currentStatsPeriod] || 'Daily Visits'} (${currentStatsDataMode.toUpperCase()})`;
       }
 
-      // 4. Render All Visual Charts
-      renderTrafficTrendChart(filteredSessions, currentStatsPeriod);
+      // 4. Render All Visual Charts with Cleaned/Selected Dataset
+      renderTrafficTrendChart(statsSessionsForCharts, currentStatsPeriod);
       renderSalesRevenueTimelineChart(filteredOrders, currentStatsPeriod);
-      renderDevicePieChart(filteredSessions);
-      renderReferrerBarChart(filteredSessions);
-      renderGeoBarChart(filteredSessions);
-      renderTopPagesChart(filteredSessions);
+      renderDevicePieChart(statsSessionsForCharts);
+      renderReferrerBarChart(statsSessionsForCharts);
+      renderGeoBarChart(statsSessionsForCharts);
+      renderTopPagesChart(statsSessionsForCharts);
       renderOrderStatusChart(filteredOrders);
       renderTopProductsChart(paidOrders);
-      renderFunnelChart(filteredSessions, paidOrders);
-      renderCtaClicksChart(filteredSessions);
+      renderFunnelChart(statsSessionsForCharts, paidOrders);
+      renderCtaClicksChart(statsSessionsForCharts);
 
-      // 5. Render Filtered Session Stream
-      renderSessionsList(filteredSessions);
+      // 5. Render Selected Visitor Sub-tab
+      renderCurrentVisitorSubTabList(processed);
     }
 
-    function renderSessionsList(sessions) {
+    function renderCurrentVisitorSubTabList(processed) {
       const listContainer = document.getElementById("sessionListContainer");
       if (!listContainer) return;
 
-      const sessionsToRender = sessions || adminSessions;
+      let itemsToRender = [];
+      if (currentVisitorSubTab === 'unique') {
+        itemsToRender = processed.uniqueVisitorsList;
+      } else if (currentVisitorSubTab === 'recurring') {
+        itemsToRender = processed.recurringIpsList;
+      } else {
+        itemsToRender = processed.rawSessions;
+      }
 
-      if (sessionsToRender.length === 0) {
-        listContainer.innerHTML = `<p style="opacity: 0.5; font-size: 12px; padding: 25px; text-align: center;">No visitor sessions recorded for this time period.</p>`;
+      if (itemsToRender.length === 0) {
+        listContainer.innerHTML = `<p style="opacity: 0.5; font-size: 12px; padding: 25px; text-align: center;">No ${currentVisitorSubTab} visitor records found for this period.</p>`;
         return;
       }
 
       listContainer.innerHTML = "";
-      sessionsToRender.forEach(session => {
+      itemsToRender.forEach(item => {
+        const isGroup = !!item.sessions; // true if unique or recurring group
         const div = document.createElement("div");
         div.style.cssText = "background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 14px 16px; border-radius: 6px; cursor: pointer; transition: all 0.2s;";
         div.onmouseover = () => div.style.borderColor = "var(--accent)";
         div.onmouseout = () => {
-          if (selectedSessionId !== session.id) div.style.borderColor = "var(--border-color)";
+          if (selectedSessionOrIpId !== (item.ipKey || item.id)) div.style.borderColor = "var(--border-color)";
         };
-        div.onclick = () => selectSession(session.id);
+        
+        const targetId = item.ipKey || item.id;
+        div.onclick = () => {
+          if (isGroup) selectVisitorGroup(item);
+          else selectSession(item.id);
+        };
 
-        if (selectedSessionId === session.id) {
+        if (selectedSessionOrIpId === targetId) {
           div.style.borderColor = "var(--accent)";
           div.style.background = "rgba(204, 255, 0, 0.05)";
         }
 
-        const isOnline = (Date.now() - new Date(session.lastActive).getTime()) < 300000;
+        const isOnline = (Date.now() - new Date(item.lastActive).getTime()) < 300000;
         const activeDot = isOnline 
           ? `<span style="display:inline-block; width:7px; height:7px; background:#34c759; border-radius:50%; margin-right:6px; box-shadow: 0 0 6px #34c759;" title="Online Now"></span>` 
           : `<span style="display:inline-block; width:6px; height:6px; background:rgba(255,255,255,0.25); border-radius:50%; margin-right:6px;" title="Offline"></span>`;
 
-        const formattedDate = formatSessionDateTime(session.createdAt || session.lastActive);
-        const relTime = formatRelativeTime(session.lastActive);
+        const formattedDate = formatSessionDateTime(item.lastActive || item.createdAt);
+        const relTime = formatRelativeTime(item.lastActive);
 
-        const pagesCount = (session.pages && Array.isArray(session.pages)) ? session.pages.length : 1;
-        const clicksCount = (session.clicks && Array.isArray(session.clicks)) ? session.clicks.length : 0;
-        const scrollDepth = session.maxScrollDepth || 0;
+        const pagesCount = isGroup ? (item.allPages?.length || 1) : (item.pages?.length || 1);
+        const clicksCount = isGroup ? (item.allClicks?.length || 0) : (item.clicks?.length || 0);
+        const scrollDepth = item.maxScrollDepth || 0;
+        const visitCount = isGroup ? item.sessions.length : 1;
+
+        const recurringBadge = visitCount > 1 
+          ? `<span style="background: rgba(204,255,0,0.15); color: var(--accent); font-weight: bold; padding: 2px 7px; border-radius: 10px; font-size: 9.5px; border: 1px solid rgba(204,255,0,0.3); margin-left: 6px;">🔁 ${visitCount} VISITS</span>` 
+          : '';
 
         div.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <div style="font-weight:bold; font-size:12px; color:#fff; display:flex; align-items:center;">
-              ${activeDot} <span style="font-family:monospace; color:var(--accent);">${session.ip || "Unknown IP"}</span>
+            <div style="font-weight:bold; font-size:12px; color:#fff; display:flex; align-items:center; flex-wrap:wrap;">
+              ${activeDot} <span style="font-family:monospace; color:var(--accent);">${item.ip || "Unknown IP"}</span>
+              ${recurringBadge}
             </div>
             <span style="font-size:10px; color:var(--text-muted); font-family:monospace;">📅 ${formattedDate}</span>
           </div>
           
           <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; margin-bottom:6px;">
-            <span>📍 <strong>${session.location || "Unknown Location"}</strong></span>
-            <span>📱 ${session.device || "Desktop"} (${relTime})</span>
+            <span>📍 <strong>${item.location || "Unknown Location"}</strong></span>
+            <span>📱 ${item.device || "Desktop"} (${relTime})</span>
           </div>
 
           <div style="display:flex; gap:8px; font-size:10px; color:rgba(255,255,255,0.7); flex-wrap:wrap;">
             <span style="background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:3px; border:1px solid rgba(255,255,255,0.08);">📄 ${pagesCount} Pages</span>
             <span style="background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:3px; border:1px solid rgba(255,255,255,0.08);">🖱️ ${clicksCount} Clicks</span>
-            <span style="background:rgba(204,255,0,0.08); color:var(--accent); padding:2px 6px; border-radius:3px; border:1px solid rgba(204,255,0,0.2);">📜 ${scrollDepth}% Scroll</span>
+            <span style="background:rgba(204,255,0,0.08); color:var(--accent); padding:2px 6px; border-radius:3px; border:1px solid rgba(204,255,0,0.2);">📜 ${scrollDepth}% Max Scroll</span>
           </div>
         `;
         listContainer.appendChild(div);
       });
     }
 
+    // Detail Inspector for Aggregated IP Visitor Groups
+    window.selectVisitorGroup = function(group) {
+      selectedSessionOrIpId = group.ipKey;
+      const detailContainer = document.getElementById("sessionDetailContainer");
+      if (!detailContainer) return;
+
+      const firstSeenStr = formatSessionDateTime(group.firstSeen);
+      const lastActiveStr = formatSessionDateTime(group.lastActive);
+      const totalSessionsCount = group.sessions.length;
+
+      // Build pages visited list
+      let pagesHtml = '';
+      if (group.allPages && group.allPages.length > 0) {
+        group.allPages.forEach(p => {
+          const pageTime = formatSessionDateTime(p.timestamp);
+          pagesHtml += `<div style="padding: 8px 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 4px; font-size: 11px; margin-bottom: 6px; font-family: monospace; display:flex; justify-content:space-between; align-items:center;">
+            <span>🖥️ /<strong>${p.page}</strong></span>
+            <span style="font-size: 10px; color: var(--text-muted);">${pageTime}</span>
+          </div>`;
+        });
+      }
+
+      // Build clicks list
+      let clicksHtml = '';
+      if (group.allClicks && group.allClicks.length > 0) {
+        group.allClicks.forEach(c => {
+          const clickTime = formatSessionDateTime(c.timestamp);
+          clicksHtml += `
+            <div style="display: flex; gap: 10px; font-size: 11px; margin-bottom: 10px; border-left: 2px solid var(--accent); padding-left: 10px; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <span style="color: var(--accent); font-weight: bold;">[${(c.element || 'CLICK').toUpperCase()}]</span> 
+                clicked <strong>"${c.text}"</strong> on page <span style="font-family: monospace; opacity: 0.8;">/${c.page}</span>
+              </div>
+              <span style="font-size: 9.5px; color: var(--text-muted); white-space: nowrap; margin-left: 10px; font-family:monospace;">${clickTime}</span>
+            </div>`;
+        });
+      } else {
+        clicksHtml = `<p style="opacity:0.5; font-size:11px; padding: 10px;">No interaction clicks recorded across this visitor's sessions.</p>`;
+      }
+
+      // Build Individual Sessions Breakdown (Timeline Accordion)
+      let sessionsTimelineHtml = '';
+      group.sessions.forEach((s, idx) => {
+        const sTime = formatSessionDateTime(s.createdAt || s.lastActive);
+        const sPages = s.pages?.length || 1;
+        const sClicks = s.clicks?.length || 0;
+        const sScroll = s.maxScrollDepth || 0;
+        sessionsTimelineHtml += `
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 4px; padding: 10px 14px; margin-bottom: 8px; font-size: 11px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+            <div>
+              <span style="color: var(--accent); font-weight: bold;">Session #${group.sessions.length - idx}</span>
+              <span style="margin-left: 10px; color: #fff; font-family: monospace;">📅 ${sTime}</span>
+            </div>
+            <div style="display: flex; gap: 8px; font-size: 10px; color: var(--text-muted);">
+              <span>📄 ${sPages} Pages</span>
+              <span>🖱️ ${sClicks} Clicks</span>
+              <span>📜 ${sScroll}% Scroll</span>
+              <button onclick="deleteSession('${s.id}')" style="background: transparent; color: var(--danger); border: none; cursor: pointer; text-decoration: underline; font-size: 9.5px;">Delete</button>
+            </div>
+          </div>`;
+      });
+
+      detailContainer.innerHTML = `
+        <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 20px; border-radius: 8px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border-color); padding-bottom:15px; margin-bottom:20px; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <h3 style="font-size:16px; color:#fff; font-family:'Outfit',sans-serif;">Visitor Journey Profile</h3>
+                <span style="font-size: 10px; background: rgba(204, 255, 0, 0.15); color: var(--accent); border: 1px solid rgba(204, 255, 0, 0.3); padding: 2px 8px; border-radius: 12px; font-weight: bold;">${totalSessionsCount} Total Sessions</span>
+              </div>
+              <p style="font-size:11px; color:var(--text-muted); font-family:monospace; margin-top: 4px;">IP / Client: ${group.ip}</p>
+            </div>
+            <button onclick="clearVisitorGroupSessions('${group.ipKey}')" style="background:rgba(255,59,48,0.15); color:var(--danger); border:1px solid rgba(255,59,48,0.25); font-size:10px; font-weight:bold; padding:6px 12px; border-radius:3px; cursor:pointer; text-transform:uppercase;">Delete All ${totalSessionsCount} Logs</button>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; margin-bottom:20px; font-size:11.5px; background:rgba(0,0,0,0.2); padding:15px; border-radius:6px; border:1px solid var(--border-color);">
+            <div><strong>IP Address:</strong> <span style="font-family:monospace; color:var(--accent);">${group.ip}</span></div>
+            <div><strong>Location:</strong> ${group.location}</div>
+            <div><strong>Primary Device:</strong> ${group.device}</div>
+            <div><strong>Total Visits Logged:</strong> ${totalSessionsCount} Times</div>
+            <div><strong>📅 First Seen:</strong> ${firstSeenStr}</div>
+            <div><strong>⏱️ Latest Activity:</strong> ${lastActiveStr}</div>
+            <div style="grid-column: span 2;"><strong>User Agent:</strong> <span style="font-size: 10px; opacity: 0.6; word-break: break-all;">${group.userAgent}</span></div>
+          </div>
+
+          <div style="display:flex; gap:15px; margin-bottom:25px;">
+            <div style="flex:1; background:rgba(204,255,0,0.05); border:1px solid var(--accent); border-radius:6px; padding:12px; text-align:center;">
+              <span style="display:block; font-size:22px; font-family:'Outfit',sans-serif; font-weight:bold; color:var(--accent);">${group.maxScrollDepth}%</span>
+              <span style="font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:bold; letter-spacing:0.5px;">Max Scroll Reached</span>
+            </div>
+            <div style="flex:1; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:6px; padding:12px; text-align:center;">
+              <span style="display:block; font-size:22px; font-family:'Outfit',sans-serif; font-weight:bold; color:#fff;">${group.allPages?.length || 1}</span>
+              <span style="font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:bold; letter-spacing:0.5px;">Total Pages Visited</span>
+            </div>
+            <div style="flex:1; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:6px; padding:12px; text-align:center;">
+              <span style="display:block; font-size:22px; font-family:'Outfit',sans-serif; font-weight:bold; color:#fff;">${group.allClicks?.length || 0}</span>
+              <span style="font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:bold; letter-spacing:0.5px;">Total Interactions</span>
+            </div>
+          </div>
+
+          <div style="margin-bottom:25px;">
+            <h4 style="font-size:12px; text-transform:uppercase; color:#fff; margin-bottom:10px; letter-spacing:0.5px;">Logged Session Timeline (${totalSessionsCount} Sessions)</h4>
+            <div style="max-height: 180px; overflow-y: auto; padding-right: 5px;">
+              ${sessionsTimelineHtml}
+            </div>
+          </div>
+
+          <div style="margin-bottom:25px;">
+            <h4 style="font-size:12px; text-transform:uppercase; color:#fff; margin-bottom:10px; letter-spacing:0.5px;">Aggregated Page Pathway Flow</h4>
+            ${pagesHtml || '<p style="opacity:0.5; font-size:11px;">No page pathway recorded.</p>'}
+          </div>
+
+          <div>
+            <h4 style="font-size:12px; text-transform:uppercase; color:#fff; margin-bottom:12px; letter-spacing:0.5px;">Aggregated User Action & Click Log</h4>
+            <div style="background:rgba(0,0,0,0.15); border:1px solid var(--border-color); padding:15px; border-radius:6px; max-height:240px; overflow-y:auto;">
+              ${clicksHtml}
+            </div>
+          </div>
+        </div>
+      `;
+    };
+
+    window.clearVisitorGroupSessions = async function(ipKey) {
+      if (!confirm(`Are you sure you want to delete all logged sessions for IP: ${ipKey}?`)) return;
+      try {
+        if (!window.db || !window.dbDoc || !window.dbDeleteDoc) return;
+        const toDelete = adminSessions.filter(s => (s.ip || s.sessionId || s.id) === ipKey);
+        for (const s of toDelete) {
+          await window.dbDeleteDoc(window.dbDoc(window.db, "sessions", s.id));
+        }
+        alert("Visitor IP sessions deleted.");
+        document.getElementById("sessionDetailContainer").innerHTML = `
+          <div style="border: 1px dashed var(--border-color); border-radius: 6px; padding: 40px; text-align: center; color: var(--text-muted);">
+            <span style="font-size: 32px; display: block; margin-bottom: 15px;">🔍</span>
+            Select any visitor session or recurring IP from the left column to view full dates, scroll pathways, page flows, and custom interaction logs.
+          </div>`;
+        window.loadAdminSessions(true);
+      } catch (err) {
+        console.error("Delete IP sessions failed:", err);
+        alert("Delete failed: " + err.message);
+      }
+    };
+
     window.selectSession = function(sessionId) {
-      selectedSessionId = sessionId;
+      selectedSessionOrIpId = sessionId;
       const detailContainer = document.getElementById("sessionDetailContainer");
       if (!detailContainer) return;
 
       const session = adminSessions.find(s => s.id === sessionId);
       if (!session) return;
-
-      // Re-highlight list
-      const listContainer = document.getElementById("sessionListContainer");
-      if (listContainer) {
-        Array.from(listContainer.children).forEach(child => {
-          child.style.borderColor = "var(--border-color)";
-          child.style.background = "rgba(255,255,255,0.02)";
-        });
-      }
 
       const createdStr = formatSessionDateTime(session.createdAt);
       const lastActiveStr = formatSessionDateTime(session.lastActive);
@@ -6904,7 +7333,7 @@
         <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 20px; border-radius: 8px;">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border-color); padding-bottom:15px; margin-bottom:20px;">
             <div>
-              <h3 style="font-size:16px; color:#fff; font-family:'Outfit',sans-serif; margin-bottom:4px;">Session Deep-Dive</h3>
+              <h3 style="font-size:16px; color:#fff; font-family:'Outfit',sans-serif; margin-bottom:4px;">Single Session Details</h3>
               <p style="font-size:11px; color:var(--text-muted); font-family:monospace;">ID: ${session.sessionId || session.id}</p>
             </div>
             <button onclick="deleteSession('${session.id}')" style="background:rgba(255,59,48,0.15); color:var(--danger); border:1px solid rgba(255,59,48,0.25); font-size:10px; font-weight:bold; padding:6px 12px; border-radius:3px; cursor:pointer; text-transform:uppercase;">Delete Log</button>
@@ -6959,7 +7388,7 @@
         document.getElementById("sessionDetailContainer").innerHTML = `
           <div style="border: 1px dashed var(--border-color); border-radius: 6px; padding: 40px; text-align: center; color: var(--text-muted);">
             <span style="font-size: 32px; display: block; margin-bottom: 15px;">🔍</span>
-            Select a visitor session from the left column to view full dates, scroll pathways, page flows, and custom interaction logs.
+            Select any visitor session or recurring IP from the left column to view full dates, scroll pathways, page flows, and custom interaction logs.
           </div>`;
         window.loadAdminSessions(true);
       } catch (err) {
