@@ -875,131 +875,257 @@
       max-height: 320px;
     }
 
-    /* HAUTE PARFUMERIE ORDERS & ATELIER COMMAND CENTER STYLES */
-    .order-card {
-      background: linear-gradient(180deg, #101017 0%, #0b0b10 100%);
+    /* MODULAR BOX TILES & ATELIER COMMAND CENTER STYLES */
+    .order-box-tile {
+      background: #0d0d14;
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 22px 24px;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      border-radius: 6px;
+      padding: 18px 20px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
       position: relative;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       cursor: pointer;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     }
 
-    .order-card:hover {
-      border-color: rgba(255, 255, 255, 0.22);
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 255, 255, 0.03);
+    .order-box-tile:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      background: #11111a;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
     }
 
-    .order-card.selected {
-      border-color: #ffffff;
-      background: linear-gradient(180deg, #14141e 0%, #0e0e15 100%);
-      box-shadow: 0 0 24px rgba(255, 255, 255, 0.08);
-    }
-
-    .order-card-accent-line {
-      position: absolute;
-      top: 0;
-      left: 16px;
-      right: 16px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-    }
-
-    .order-status-pill {
+    .order-box-status-badge {
       font-size: 10px;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: 0.8px;
       text-transform: uppercase;
-      padding: 4px 10px;
-      border-radius: 20px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: monospace;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .order-box-status-badge.paid {
+      background: rgba(16, 185, 129, 0.12);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .order-box-status-badge.pending {
+      background: rgba(245, 158, 11, 0.12);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .order-box-status-badge.shipped {
+      background: rgba(14, 165, 233, 0.12);
+      color: #38bdf8;
+      border: 1px solid rgba(14, 165, 233, 0.3);
+    }
+
+    .order-box-status-badge.delivered {
+      background: rgba(168, 85, 247, 0.12);
+      color: #c084fc;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .order-box-status-badge.cancelled {
+      background: rgba(244, 63, 94, 0.12);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+
+    .order-meta-box-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .order-meta-box {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .order-meta-box-icon {
+      font-size: 14px;
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+
+    .order-meta-box-content {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .order-meta-box-label {
+      font-size: 8.5px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.4);
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      display: block;
+    }
+
+    .order-meta-box-val {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+      margin-top: 1px;
+    }
+
+    .order-bottles-strip {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      overflow-x: auto;
+      padding: 4px 0;
+    }
+
+    .order-bottle-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 4px;
+      padding: 4px 8px;
+      flex-shrink: 0;
+    }
+
+    .order-bottle-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 3px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: #000;
+    }
+
+    .order-bottle-tag {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #ffffff;
+      max-width: 130px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .order-bottle-qty {
+      font-size: 9.5px;
+      font-family: monospace;
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .order-open-details-btn {
+      width: 100%;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      padding: 9px 14px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Outfit', sans-serif;
+      transition: all 0.2s ease;
+    }
+
+    .order-open-details-btn:hover {
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+      box-shadow: 0 0 14px rgba(255, 255, 255, 0.2);
+    }
+
+    .order-quick-action-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .order-quick-action-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #ffffff;
+    }
+
+    .order-quick-action-btn.accent {
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+    }
+
+    .order-quick-action-btn.dispatch {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #38bdf8;
+    }
+
+    .order-quick-action-btn.dispatch:hover {
+      background: #0369a1;
+      box-shadow: 0 0 12px rgba(2, 132, 199, 0.4);
+    }
+
+    .order-filter-chip {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.6);
+      padding: 7px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
       display: inline-flex;
       align-items: center;
       gap: 6px;
       font-family: 'Outfit', sans-serif;
     }
 
-    .order-status-pill.paid {
-      background: rgba(16, 185, 129, 0.1);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.25);
-    }
-    .order-status-pill.paid .status-dot {
-      background: #10b981;
-      box-shadow: 0 0 8px #10b981;
+    .order-filter-chip:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
-    .order-status-pill.pending {
-      background: rgba(245, 158, 11, 0.1);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.25);
-    }
-    .order-status-pill.pending .status-dot {
-      background: #f59e0b;
-      box-shadow: 0 0 8px #f59e0b;
-    }
-
-    .order-status-pill.shipped {
-      background: rgba(14, 165, 233, 0.1);
-      color: #38bdf8;
-      border: 1px solid rgba(14, 165, 233, 0.25);
-    }
-    .order-status-pill.shipped .status-dot {
-      background: #0ea5e9;
-      box-shadow: 0 0 8px #0ea5e9;
-    }
-
-    .order-status-pill.delivered {
-      background: rgba(168, 85, 247, 0.1);
-      color: #c084fc;
-      border: 1px solid rgba(168, 85, 247, 0.25);
-    }
-    .order-status-pill.delivered .status-dot {
-      background: #a855f7;
-      box-shadow: 0 0 8px #a855f7;
-    }
-
-    .order-status-pill.cancelled {
-      background: rgba(244, 63, 94, 0.1);
-      color: #fb7185;
-      border: 1px solid rgba(244, 63, 94, 0.25);
-    }
-    .order-status-pill.cancelled .status-dot {
-      background: #f43f5e;
-    }
-
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .order-section-title {
-      font-family: 'Gotham Narrow Bold', 'Outfit', sans-serif;
-      font-size: 9.5px;
-      font-weight: 800;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.4);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-
-    .order-data-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 4px 0;
+    .order-filter-chip.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.35);
     }
 
     .copy-btn {
@@ -1023,60 +1149,26 @@
       background: rgba(255, 255, 255, 0.15);
       color: #ffffff;
       border-color: rgba(255, 255, 255, 0.3);
-      transform: translateY(-1px);
-    }
-
-    .order-item-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 12px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 8px;
-      margin-bottom: 6px;
-      transition: all 0.2s ease;
-    }
-
-    .order-item-card:hover {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(255, 255, 255, 0.12);
-    }
-
-    .order-item-thumbnail {
-      width: 44px;
-      height: 44px;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: #08080c;
-      flex-shrink: 0;
-      transition: transform 0.2s ease;
-    }
-
-    .order-item-card:hover .order-item-thumbnail {
-      transform: scale(1.06);
-      border-color: rgba(255, 255, 255, 0.3);
     }
 
     .order-pack-checkbox {
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 10.5px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
       letter-spacing: 0.4px;
       cursor: pointer;
-      padding: 5px 10px;
-      border-radius: 6px;
+      padding: 6px 12px;
+      border-radius: 4px;
       transition: all 0.2s ease;
       user-select: none;
     }
 
     .order-pack-checkbox.packed {
-      background: rgba(16, 185, 129, 0.12);
+      background: rgba(16, 185, 129, 0.15);
       color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      border: 1px solid rgba(16, 185, 129, 0.35);
     }
 
     .order-pack-checkbox.unpacked {
@@ -1086,85 +1178,45 @@
     }
 
     .order-pack-checkbox:hover {
-      border-color: rgba(255, 255, 255, 0.25);
-    }
-
-    .order-quick-action-btn {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #ffffff;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.6px;
-      text-transform: uppercase;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-family: 'Outfit', sans-serif;
-    }
-
-    .order-quick-action-btn:hover {
-      background: rgba(255, 255, 255, 0.14);
       border-color: rgba(255, 255, 255, 0.3);
-      transform: translateY(-1px);
     }
 
-    .order-quick-action-btn.accent {
-      background: #ffffff;
-      color: #000000;
-      border-color: #ffffff;
-    }
-
-    .order-quick-action-btn.accent:hover {
-      background: #f0f0f0;
-      box-shadow: 0 0 16px rgba(255, 255, 255, 0.2);
-    }
-
-    .order-quick-action-btn.dispatch {
-      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-      color: #ffffff;
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
-    }
-
-    .order-quick-action-btn.dispatch:hover {
-      background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
-      border-color: #38bdf8;
-      box-shadow: 0 6px 18px rgba(2, 132, 199, 0.4);
-    }
-
-    .order-filter-chip {
-      background: rgba(255, 255, 255, 0.03);
+    /* FUNNEL INTELLIGENCE MODAL STYLES */
+    .funnel-pipeline-step {
+      background: #0d0d14;
       border: 1px solid rgba(255, 255, 255, 0.08);
-      color: rgba(255, 255, 255, 0.6);
-      padding: 8px 16px;
-      font-size: 11px;
+      border-radius: 6px;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .funnel-bar-track {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .funnel-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8 0%, #34d399 100%);
+      border-radius: 4px;
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .funnel-dropoff-tag {
+      font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.5px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
+      color: #fb7185;
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.25);
+      padding: 2px 7px;
+      border-radius: 4px;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      font-family: 'Outfit', sans-serif;
-    }
-
-    .order-filter-chip:hover {
-      background: rgba(255, 255, 255, 0.07);
-      color: #ffffff;
-      border-color: rgba(255, 255, 255, 0.18);
-    }
-
-    .order-filter-chip.active {
-      background: rgba(255, 255, 255, 0.12);
-      color: #ffffff;
-      border-color: rgba(255, 255, 255, 0.35);
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
+      gap: 4px;
     }
 
     /* Mobile Responsive Optimizations */
@@ -1504,13 +1556,13 @@
                     <div class="analytics-kpi-sub" id="kpiScrollSub">0% Avg Scroll Depth</div>
                   </div>
 
-                  <div class="analytics-kpi-card">
+                  <div class="analytics-kpi-card" id="kpiConversionCard" onclick="openConversionDeepDiveModal()" style="cursor: pointer; position: relative; transition: all 0.2s ease;" title="Click to open in-depth Conversion & Drop-off Intelligence">
                     <div class="analytics-kpi-header">
                       <span class="analytics-kpi-label">Conversion Rate</span>
-                      <span style="font-size: 16px;">🎯</span>
+                      <span style="font-size: 9.5px; font-weight: 800; background: rgba(255,255,255,0.08); color: var(--accent); padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase;">🔍 INSPECT FUNNEL</span>
                     </div>
                     <div class="analytics-kpi-value" id="kpiConversionRate">0%</div>
-                    <div class="analytics-kpi-sub" id="kpiBounceSub">0% Bounce Rate</div>
+                    <div class="analytics-kpi-sub" id="kpiBounceSub">0% Bounce Rate • Click to inspect drop-off</div>
                   </div>
                 </div>
 
@@ -1697,6 +1749,29 @@
                   </div>
                 </div>
 
+              </div>
+            </div>
+
+            <!-- CONVERSION & DROP-OFF INTELLIGENCE MODAL -->
+            <div id="conversionDeepDiveModal" class="edit-modal">
+              <div class="edit-modal-content" style="max-width: 880px; max-height: 90vh; overflow-y: auto; background: #0c0c14; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,0.85);">
+                <div class="edit-modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 15px;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 22px;">🎯</span>
+                    <div>
+                      <h3 class="edit-modal-title" style="color: #ffffff; font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; text-transform: uppercase;">Conversion & Funnel Intelligence</h3>
+                      <p style="font-size: 11.5px; color: rgba(255,255,255,0.5); margin-top: 2px;">Comprehensive drop-off diagnostic: from initial landing to bottle discovery, cart initiation, and paid checkout.</p>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 10px; align-items: center;">
+                    <span class="order-box-status-badge paid" id="modalConvOverallBadge">0.0% CONV</span>
+                    <span class="edit-modal-close" onclick="closeConversionDeepDiveModal()" style="cursor: pointer; font-size: 12px; color: rgba(255,255,255,0.6); font-weight: 700;">✕ CLOSE</span>
+                  </div>
+                </div>
+
+                <div id="conversionModalBody" style="padding: 20px 0;">
+                  <!-- Dynamic Funnel Visualization & Drop-off Diagnostics injected here -->
+                </div>
               </div>
             </div>
 
@@ -1904,8 +1979,8 @@
                     <div class="form-group">
                       <label for="heroLeftFlex">Desktop Width Split Ratio (Left Image width vs Right Image width)</label>
                       <div style="display: flex; align-items: center; gap: 15px;">
-                        <input type="range" id="heroLeftFlex" min="0.4" max="1.6" step="0.01" value="1.3" style="flex: 1;" oninput="document.getElementById('heroLeftFlexVal').value = Number(this.value).toFixed(2); updateHeroPreview();">
-                        <input type="number" id="heroLeftFlexVal" min="0.4" max="1.6" step="0.01" value="1.30" style="width: 65px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; font-family: monospace; font-size: 12px; text-align: right;" oninput="document.getElementById('heroLeftFlex').value = this.value; updateHeroPreview();">
+                        <input type="range" id="heroLeftFlex" min="0.1" max="1.9" step="0.01" value="1.3" style="flex: 1;" oninput="if(document.getElementById('heroLeftFlexVal')) document.getElementById('heroLeftFlexVal').value = Number(this.value).toFixed(2); updateHeroPreview();">
+                        <input type="number" id="heroLeftFlexVal" min="0.1" max="1.9" step="0.01" value="1.30" style="width: 65px; background: #1a1a24; color: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; font-family: monospace; font-size: 12px; text-align: right;" oninput="if(this.value) { document.getElementById('heroLeftFlex').value = this.value; updateHeroPreview(); }">
                       </div>
                     </div>
 
@@ -5126,9 +5201,13 @@
         if (el) el.disabled = hideRight;
       });
 
-      const leftFlex = parseFloat(document.getElementById("heroLeftFlex").value);
-      const rightFlex = 2.0 - leftFlex;
-      document.getElementById("heroLeftFlexVal").value = leftFlex.toFixed(2);
+      const leftFlexEl = document.getElementById("heroLeftFlex");
+      const leftFlexValEl = document.getElementById("heroLeftFlexVal");
+      const leftFlex = leftFlexEl ? (parseFloat(leftFlexEl.value) || 1.3) : 1.3;
+      const rightFlex = Math.max(0.1, 2.0 - leftFlex);
+      if (leftFlexValEl && document.activeElement !== leftFlexValEl) {
+        leftFlexValEl.value = leftFlex.toFixed(2);
+      }
 
       const leftScale = document.getElementById("heroLeftScale").value;
       const leftX = document.getElementById("heroLeftX").value;
@@ -5396,7 +5475,11 @@
         document.getElementById("heroRightImage").value = s.rightImage || "";
         document.getElementById("heroMobileImage").value = s.mobileImage || "";
         
-        document.getElementById("heroLeftFlex").value = s.leftFlex !== undefined ? s.leftFlex : 1.3;
+        const initLeftFlex = s.leftFlex !== undefined ? s.leftFlex : 1.3;
+        document.getElementById("heroLeftFlex").value = initLeftFlex;
+        if (document.getElementById("heroLeftFlexVal")) {
+          document.getElementById("heroLeftFlexVal").value = Number(initLeftFlex).toFixed(2);
+        }
         document.getElementById("heroLeftScale").value = s.leftScale !== undefined ? s.leftScale : 1.0;
         document.getElementById("heroLeftX").value = s.leftX !== undefined ? s.leftX : 50;
         document.getElementById("heroLeftY").value = s.leftY !== undefined ? s.leftY : 50;
@@ -7018,17 +7101,17 @@
       renderOrdersTable(filtered);
     }
 
-    // Render 1: Interactive Order Cards Grid (Haute Parfumerie Atelier Aesthetic)
+    // Render 1: Interactive Order Cards Grid (Simple Modular Box Tiles System)
     function renderOrderCards(orders) {
       const container = document.getElementById("ordersCardsContainer");
       if (!container) return;
 
       if (orders.length === 0) {
         container.innerHTML = `
-          <div style="grid-column: 1 / -1; text-align: center; opacity: 0.4; padding: 70px 20px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; background: rgba(255,255,255,0.01);">
+          <div style="grid-column: 1 / -1; text-align: center; opacity: 0.4; padding: 70px 20px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 6px; background: #0d0d14;">
             <span style="font-size: 32px; display: block; margin-bottom: 12px; opacity: 0.6;">📦</span>
-            <div style="font-size: 13px; font-weight: 700; color: #fff; letter-spacing: 0.5px; text-transform: uppercase;">No Matching Orders</div>
-            <div style="font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px;">No customer orders found matching your selected search query or status filter.</div>
+            <div style="font-size: 13px; font-weight: 700; color: #fff; letter-spacing: 0.5px; text-transform: uppercase;">No Orders Found</div>
+            <div style="font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px;">No customer orders found matching your search query or filter.</div>
           </div>`;
         return;
       }
@@ -7037,15 +7120,14 @@
       orders.forEach(order => {
         const orderRef = order.orderId || order.id;
         const rawDate = order.createdAt || order.timestamp;
-        const dateStr = formatSessionDateTime(rawDate);
         const relTime = rawDate ? formatRelativeTime(rawDate) : '';
         const name = order.customerName || `${order.firstName || ''} ${order.lastName || ''}`.trim() || "Customer";
-        const email = order.email || "No email provided";
-        const phone = order.phone || "";
-        const cleanPhone = phone.replace(/[^0-9+]/g, '');
-        const whatsappUrl = cleanPhone ? `https://wa.me/${cleanPhone.replace('+', '')}` : '#';
-        const address = order.address || "Standard Delivery (Address not specified)";
+        const address = order.address || "Standard Delivery";
         const total = order.total || 0;
+        
+        // Calculate items count and preview items
+        const items = order.items && Array.isArray(order.items) ? order.items : [];
+        const totalBottles = items.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
 
         // Status Determination
         const isPaid = order.paid || order.status === "paid" || order.status === "Pending Shipment";
@@ -7057,147 +7139,103 @@
           statusLabel = "Delivered";
         } else if (order.status === "Shipped") {
           statusKey = "shipped";
-          statusLabel = "In Transit / Shipped";
+          statusLabel = "In Transit";
         } else if (isPaid) {
           statusKey = "paid";
-          statusLabel = "Paid (Ready to Pack)";
+          statusLabel = "Paid / To Pack";
         } else if (order.status === "Cancelled") {
           statusKey = "cancelled";
           statusLabel = "Cancelled";
         }
 
-        // Build Items Gallery & Checklist
-        let itemsHtml = '';
-        if (order.items && Array.isArray(order.items) && order.items.length > 0) {
-          order.items.forEach((item, idx) => {
-            const thumbUrl = getProductImageForItem(item);
-            const packed = isItemPacked(order.id, idx);
-            let scentsHtml = '';
-            if (item.selectedScents && item.selectedScents.length > 0) {
-              const names = item.selectedScents.map(s => typeof s === 'object' && s ? (s.nameShort || s.name) : s);
-              scentsHtml = `<div style="color: rgba(255, 255, 255, 0.7); font-size: 10px; margin-top: 3px; font-family: monospace;">✨ Fragrances: <strong>${names.join(', ')}</strong></div>`;
-            }
-            const customisationTag = item.selectedBottleCustomisation 
-              ? `<span style="font-size: 9px; font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #ffffff; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase; margin-left: 6px;">🏷️ ${item.selectedBottleCustomisation}</span>` 
-              : '';
+        // Clean destination city extraction
+        let shortAddress = address.split(',')[0] || "Standard Delivery";
+        if (address.length > 28) shortAddress = address.substring(0, 26) + "...";
 
-            itemsHtml += `
-              <div class="order-item-card">
-                <img src="${thumbUrl}" alt="Perfume" class="order-item-thumbnail" onerror="this.src='Studio Extrait Icon Svg only logo.svg'" />
-                <div style="flex: 1; min-width: 0;">
-                  <div style="font-weight: 700; color: #ffffff; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center;">
-                    <span style="overflow: hidden; text-overflow: ellipsis;">${item.name || item.nameShort || 'Perfume'}</span>
-                    ${customisationTag}
-                  </div>
-                  <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5); display: flex; gap: 10px; margin-top: 3px; font-family: monospace;">
-                    <span>Size: <strong style="color: #ffffff;">${item.size || '100ml'}</strong></span>
-                    <span>Qty: <strong style="color: #ffffff;">x${item.quantity}</strong></span>
-                    <span>R${(Number(item.price) || 0) * (Number(item.quantity) || 1)}</span>
-                  </div>
-                  ${scentsHtml}
-                </div>
-                <div class="order-pack-checkbox ${packed ? 'packed' : 'unpacked'}" onclick="toggleItemPacked('${order.id}', ${idx}, event)" title="Toggle packed status for this item">
-                  <span>${packed ? '✓ Packed' : '○ To Pack'}</span>
-                </div>
+        // Build compact bottle preview icons
+        let bottleStripHtml = '';
+        if (items.length > 0) {
+          items.slice(0, 4).forEach(item => {
+            const thumbUrl = getProductImageForItem(item);
+            const shortName = item.nameShort || item.name || "Perfume";
+            bottleStripHtml += `
+              <div class="order-bottle-box">
+                <img src="${thumbUrl}" alt="Perfume" class="order-bottle-thumb" onerror="this.src='Studio Extrait Icon Svg only logo.svg'" />
+                <span class="order-bottle-tag">${shortName}</span>
+                <span class="order-bottle-qty">x${item.quantity || 1}</span>
               </div>`;
           });
-        } else {
-          itemsHtml = `<p style="opacity: 0.4; font-size: 11px; padding: 6px;">No line items found.</p>`;
+          if (items.length > 4) {
+            bottleStripHtml += `<span style="font-size: 10px; opacity: 0.5; align-self: center; padding: 0 4px;">+${items.length - 4} more</span>`;
+          }
         }
 
-        // Waybill info
-        const waybillHtml = order.waybill 
-          ? `<div style="display: flex; align-items: center; justify-content: space-between; background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 6px; padding: 8px 12px; font-size: 11px; margin-top: 6px;">
-               <div style="display: flex; align-items: center; gap: 6px;">
-                 <span style="color: #38bdf8; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">🚚 Courier Guy Waybill:</span>
-                 <span style="font-family: monospace; color: #ffffff; font-weight: 700;">${order.waybill}</span>
-               </div>
-               <button onclick="copyOrderField('${order.waybill}', 'Waybill', event)" class="copy-btn">Copy</button>
-             </div>`
-          : '';
-
         const card = document.createElement("div");
-        card.className = "order-card";
+        card.className = "order-box-tile";
         card.onclick = () => openOrderDetailModal(order.id);
 
         card.innerHTML = `
-          <div class="order-card-accent-line"></div>
-
-          <!-- Card Top Bar: Reference & Status Pill -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
-            <div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-family: monospace; font-weight: 900; color: #ffffff; font-size: 14px; letter-spacing: 0.5px;">#${orderRef}</span>
-                <button onclick="copyOrderField('${orderRef}', 'Order Reference', event)" class="copy-btn">Copy</button>
-              </div>
-              <div style="font-size: 10.5px; color: rgba(255, 255, 255, 0.45); margin-top: 4px; font-family: monospace;">
-                ${dateStr} ${relTime ? `• ${relTime}` : ''}
-              </div>
+          <!-- Header Bar: Ref, Time & Status -->
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-family: monospace; font-weight: 800; color: #ffffff; font-size: 13.5px;">#${orderRef}</span>
+              <button onclick="copyOrderField('${orderRef}', 'Order Reference', event)" class="copy-btn">📋</button>
+              ${relTime ? `<span style="font-size: 10.5px; color: rgba(255, 255, 255, 0.4); font-family: monospace;">• ${relTime}</span>` : ''}
             </div>
-            <div class="order-status-pill ${statusKey}">
-              <span class="status-dot"></span>
+            <div class="order-box-status-badge ${statusKey}">
               ${statusLabel}
             </div>
           </div>
 
-          <!-- Customer Contact & Delivery Info -->
-          <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-weight: 700; color: #ffffff; font-size: 12.5px;">${name}</span>
-              <button onclick="copyOrderField('${name.replace(/'/g, "\\'")}', 'Customer Name', event)" class="copy-btn">Copy Name</button>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="color: rgba(255, 255, 255, 0.6); font-size: 11px; font-family: monospace;">${email}</span>
-              <button onclick="copyOrderField('${email}', 'Email', event)" class="copy-btn">Copy Email</button>
-            </div>
-
-            ${phone ? `
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <a href="${whatsappUrl}" target="_blank" onclick="event.stopPropagation()" style="color: #34d399; text-decoration: none; font-weight: 700; font-size: 11px; display: inline-flex; align-items: center; gap: 5px; font-family: monospace;">
-                  <span>💬 WhatsApp (${phone})</span>
-                </a>
-                <button onclick="copyOrderField('${phone}', 'Phone', event)" class="copy-btn">Copy Phone</button>
+          <!-- Modular 4-Box Stats Grid -->
+          <div class="order-meta-box-grid">
+            <div class="order-meta-box">
+              <span class="order-meta-box-icon">👤</span>
+              <div class="order-meta-box-content">
+                <span class="order-meta-box-label">Customer</span>
+                <span class="order-meta-box-val">${name}</span>
               </div>
+            </div>
+
+            <div class="order-meta-box">
+              <span class="order-meta-box-icon">📦</span>
+              <div class="order-meta-box-content">
+                <span class="order-meta-box-label">Packages</span>
+                <span class="order-meta-box-val">${totalBottles} ${totalBottles === 1 ? 'Bottle' : 'Bottles'}</span>
+              </div>
+            </div>
+
+            <div class="order-meta-box">
+              <span class="order-meta-box-icon">💳</span>
+              <div class="order-meta-box-content">
+                <span class="order-meta-box-label">Total Amount</span>
+                <span class="order-meta-box-val" style="color: #ffffff;">R${formatRetailPrice(total)}</span>
+              </div>
+            </div>
+
+            <div class="order-meta-box">
+              <span class="order-meta-box-icon">📍</span>
+              <div class="order-meta-box-content">
+                <span class="order-meta-box-label">Destination</span>
+                <span class="order-meta-box-val">${shortAddress}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fragrance Bottle Icons Showcase Strip -->
+          ${bottleStripHtml ? `<div class="order-bottles-strip">${bottleStripHtml}</div>` : ''}
+
+          <!-- Bottom Action Buttons -->
+          <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;" onclick="event.stopPropagation()">
+            <button onclick="openOrderDetailModal('${order.id}')" class="order-open-details-btn">
+              <span>🔍 View Full Order & Packing Slip</span>
+            </button>
+            ${isPaid && order.status !== 'Shipped' && order.status !== 'Delivered' ? `
+              <button onclick="dispatchCourierGuyOrder('${order.id}')" class="order-quick-action-btn dispatch" style="padding: 9px 14px; flex-shrink: 0;" title="Dispatch via The Courier Guy">🚚</button>
             ` : ''}
-
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 8px; margin-top: 2px;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
-                <span class="order-section-title" style="margin-bottom: 0;">📍 Delivery Destination</span>
-                <button onclick="copyOrderField(\`${address.replace(/`/g, '\\`')}\`, 'Delivery Address', event)" class="copy-btn">Copy Address</button>
-              </div>
-              <div style="color: rgba(255, 255, 255, 0.8); line-height: 1.45; font-size: 11px; white-space: pre-wrap;">${address}</div>
-              ${order.deliveryDate ? `<div style="color: #38bdf8; font-size: 10.5px; margin-top: 4px; font-family: monospace;">📅 Requested Delivery: <strong>${order.deliveryDate}</strong></div>` : ''}
-              ${order.instructions ? `<div style="color: #fbbf24; font-size: 10.5px; margin-top: 3px; font-family: monospace;">📝 Notes: <strong>${order.instructions}</strong></div>` : ''}
-              ${waybillHtml}
-            </div>
-          </div>
-
-          <!-- Line Items Gallery -->
-          <div>
-            <div class="order-section-title">
-              Fragrance Packages (${order.items?.length || 0})
-            </div>
-            ${itemsHtml}
-          </div>
-
-          <!-- Bottom Action Dock & Order Total -->
-          <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 14px; margin-top: 2px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-            <div>
-              <span style="font-size: 9.5px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); display: block;">Total Paid (ZAR)</span>
-              <span style="font-size: 20px; font-family: 'Outfit', sans-serif; font-weight: 900; color: #ffffff;">R${formatRetailPrice(total)}</span>
-            </div>
-
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;" onclick="event.stopPropagation()">
-              ${!isPaid ? `<button onclick="quickUpdateOrderStatus('${order.id}', 'paid', event)" class="order-quick-action-btn accent">Mark Paid ✓</button>` : ''}
-              ${isPaid && order.status !== 'Shipped' && order.status !== 'Delivered' ? `
-                <button onclick="dispatchCourierGuyOrder('${order.id}')" class="order-quick-action-btn dispatch">🚚 Dispatch</button>
-              ` : ''}
-              ${order.status === 'Shipped' ? `
-                <button onclick="quickUpdateOrderStatus('${order.id}', 'Delivered', event)" class="order-quick-action-btn" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.3);">✓ Mark Delivered</button>
-              ` : ''}
-              <button onclick="openOrderDetailModal('${order.id}')" class="order-quick-action-btn">Inspect</button>
-            </div>
+            ${!isPaid ? `
+              <button onclick="quickUpdateOrderStatus('${order.id}', 'paid', event)" class="order-quick-action-btn accent" style="padding: 9px 12px; flex-shrink: 0;" title="Mark Paid">✓ Paid</button>
+            ` : ''}
           </div>
         `;
 
@@ -7976,27 +8014,65 @@
       const totalVisits = currentStatsDataMode === 'optimised' ? processed.uniqueVisitorsList.length : processed.rawSessions.length;
       const uniqueIps = processed.uniqueVisitorsList.length;
       
+      // Calculate Dwell Time & Scroll Depth strictly across genuine unique visitors
+      // Caps single session duration at 900s (15m) to prevent background open tabs from inflating numbers
+      let validDwellCount = 0;
       let totalDurationSec = 0;
       let totalScroll = 0;
       let bounceCount = 0;
 
-      statsSessionsForCharts.forEach(s => {
-        const start = new Date(s.firstSeen || s.createdAt || s.lastActive).getTime();
-        const end = new Date(s.lastActive || s.createdAt).getTime();
-        const diffSec = Math.max(0, Math.min(86400, Math.round((end - start) / 1000)));
-        totalDurationSec += diffSec;
-        totalScroll += Number(s.maxScrollDepth) || 0;
-        
-        const pagesCount = (s.pages && Array.isArray(s.pages)) ? s.pages.length : (s.allPages?.length || 1);
-        if (pagesCount <= 1 && diffSec < 10) {
-          bounceCount++;
-        }
-      });
+      if (currentStatsDataMode === 'optimised') {
+        processed.uniqueVisitorsList.forEach(u => {
+          // If this IP has abnormal recurring hits (>15 sessions), it is an internal/admin device; exclude it from visitor dwell averages
+          if (u.sessions && u.sessions.length > 15) return;
 
-      const avgDuration = totalVisits > 0 ? Math.round(totalDurationSec / totalVisits) : 0;
+          let visitorDwellSec = 0;
+          if (u.sessions && u.sessions.length > 0) {
+            u.sessions.forEach(s => {
+              const start = new Date(s.createdAt || s.lastActive).getTime();
+              const end = new Date(s.lastActive || s.createdAt).getTime();
+              const rawDiff = Math.max(0, Math.round((end - start) / 1000));
+              const sessionSec = Math.min(900, rawDiff); // Cap at 15m per active session
+              visitorDwellSec += sessionSec;
+            });
+          } else {
+            const start = new Date(u.firstSeen || u.lastActive).getTime();
+            const end = new Date(u.lastActive || u.firstSeen).getTime();
+            const rawDiff = Math.max(0, Math.round((end - start) / 1000));
+            visitorDwellSec = Math.min(900, rawDiff);
+          }
+
+          // Individual visitor active dwell capped at 1200s (20 mins)
+          const cappedDuration = Math.min(1200, visitorDwellSec);
+          totalDurationSec += cappedDuration;
+          totalScroll += Number(u.maxScrollDepth) || 0;
+          validDwellCount++;
+
+          const pagesCount = u.allPages?.length || 1;
+          if (pagesCount <= 1 && cappedDuration < 10 && (Number(u.maxScrollDepth) || 0) < 15) {
+            bounceCount++;
+          }
+        });
+      } else {
+        processed.rawSessions.forEach(s => {
+          const start = new Date(s.createdAt || s.lastActive).getTime();
+          const end = new Date(s.lastActive || s.createdAt).getTime();
+          const diffSec = Math.max(0, Math.min(1200, Math.round((end - start) / 1000)));
+          totalDurationSec += diffSec;
+          totalScroll += Number(s.maxScrollDepth) || 0;
+          validDwellCount++;
+
+          const pagesCount = (s.pages && Array.isArray(s.pages)) ? s.pages.length : 1;
+          if (pagesCount <= 1 && diffSec < 10) {
+            bounceCount++;
+          }
+        });
+      }
+
+      const avgDuration = validDwellCount > 0 ? Math.round(totalDurationSec / validDwellCount) : 0;
       const avgDurationStr = avgDuration >= 60 ? `${Math.floor(avgDuration / 60)}m ${avgDuration % 60}s` : `${avgDuration}s`;
-      const avgScroll = totalVisits > 0 ? Math.round(totalScroll / totalVisits) : 0;
-      const bounceRate = totalVisits > 0 ? Math.round((bounceCount / totalVisits) * 100) : 0;
+      const avgScroll = validDwellCount > 0 ? Math.round(totalScroll / validDwellCount) : 0;
+      const bounceRate = validDwellCount > 0 ? Math.round((bounceCount / validDwellCount) * 100) : 0;
 
       // 2. Calculate Orders & Revenue KPIs
       const paidOrders = filteredOrders.filter(o => o.paid || o.status === "paid" || o.status === "Shipped" || o.status === "Delivered");
@@ -8025,7 +8101,7 @@
       const elConv = document.getElementById("kpiConversionRate");
       if (elConv) elConv.textContent = `${conversionRate}%`;
       const elBounceSub = document.getElementById("kpiBounceSub");
-      if (elBounceSub) elBounceSub.textContent = `${bounceRate}% Bounce Rate`;
+      if (elBounceSub) elBounceSub.textContent = `${bounceRate}% Bounce Rate • Click to inspect drop-off`;
 
       const statsCounterEl = document.getElementById("sessionsStats");
       if (statsCounterEl) statsCounterEl.textContent = `${processed.uniqueVisitorsList.length} Unique • ${processed.rawSessions.length} Total Logs`;
@@ -8051,6 +8127,253 @@
       // 5. Render Selected Visitor Sub-tab
       renderCurrentVisitorSubTabList(processed);
     }
+
+    // CONVERSION & FUNNEL INTELLIGENCE MODAL CONTROLLER
+    window.openConversionDeepDiveModal = function() {
+      const modal = document.getElementById("conversionDeepDiveModal");
+      const body = document.getElementById("conversionModalBody");
+      const badge = document.getElementById("modalConvOverallBadge");
+      if (!modal || !body) return;
+
+      const filteredRawSessions = filterByPeriod(adminSessions, currentStatsPeriod, 'createdAt');
+      const filteredOrders = filterByPeriod(adminOrders, currentStatsPeriod, 'createdAt');
+      const processed = lastProcessedData || processSessionsData(filteredRawSessions, currentStatsDataMode);
+      
+      const uniqueVisitors = processed.uniqueVisitorsList.length;
+      const paidOrders = filteredOrders.filter(o => o.paid || o.status === "paid" || o.status === "Shipped" || o.status === "Delivered");
+      const paidCount = paidOrders.length;
+      const overallConv = uniqueVisitors > 0 ? ((paidCount / uniqueVisitors) * 100).toFixed(1) : '0.0';
+
+      if (badge) badge.textContent = `${overallConv}% CONVERSION RATE`;
+
+      // Calculate 5 Stage Funnel Metrics
+      // 1. Landing (All Unique Visitors)
+      const stage1_Landing = Math.max(uniqueVisitors, paidCount);
+      
+      // 2. Explored Catalog / Perfumes
+      let stage2_Explored = 0;
+      let stage3_Cart = 0;
+      let stage4_Checkout = 0;
+
+      processed.uniqueVisitorsList.forEach(u => {
+        const pages = u.allPages || [];
+        const clicks = u.allClicks || [];
+        
+        const exploredCatalog = pages.some(p => p.page && (p.page.includes("catalog") || p.page.includes("product") || p.page.includes("perfume") || p.page.includes("shop"))) || (Number(u.maxScrollDepth) || 0) > 25;
+        if (exploredCatalog) stage2_Explored++;
+
+        const addedCart = clicks.some(c => c.text && (c.text.toLowerCase().includes("cart") || c.text.toLowerCase().includes("bag") || c.text.toLowerCase().includes("order") || c.text.toLowerCase().includes("buy") || c.text.toLowerCase().includes("gift"))) || pages.some(p => p.page && p.page.includes("cart"));
+        if (addedCart) stage3_Cart++;
+
+        const reachedCheckout = clicks.some(c => c.text && (c.text.toLowerCase().includes("checkout") || c.text.toLowerCase().includes("pay") || c.text.toLowerCase().includes("dispatch"))) || pages.some(p => p.page && p.page.includes("checkout"));
+        if (reachedCheckout) stage4_Checkout++;
+      });
+
+      // Ensure logical progressive hierarchy
+      stage2_Explored = Math.max(stage2_Explored, stage3_Cart, paidCount);
+      stage3_Cart = Math.max(stage3_Cart, stage4_Checkout, paidCount);
+      stage4_Checkout = Math.max(stage4_Checkout, paidCount);
+
+      // Drop-off Calculations
+      const drop1_Bounce = Math.max(0, stage1_Landing - stage2_Explored);
+      const drop1_Rate = stage1_Landing > 0 ? ((drop1_Bounce / stage1_Landing) * 100).toFixed(1) : '0.0';
+
+      const drop2_Catalog = Math.max(0, stage2_Explored - stage3_Cart);
+      const drop2_Rate = stage2_Explored > 0 ? ((drop2_Catalog / stage2_Explored) * 100).toFixed(1) : '0.0';
+
+      const drop3_CartAbandon = Math.max(0, stage3_Cart - stage4_Checkout);
+      const drop3_Rate = stage3_Cart > 0 ? ((drop3_CartAbandon / stage3_Cart) * 100).toFixed(1) : '0.0';
+
+      const drop4_CheckoutAbandon = Math.max(0, stage4_Checkout - paidCount);
+      const drop4_Rate = stage4_Checkout > 0 ? ((drop4_CheckoutAbandon / stage4_Checkout) * 100).toFixed(1) : '0.0';
+
+      // Device Breakdown
+      let mobileVisitors = 0, desktopVisitors = 0;
+      processed.uniqueVisitorsList.forEach(u => {
+        if ((u.device || '').toLowerCase().includes("mobile") || (u.userAgent || '').toLowerCase().includes("mobi")) {
+          mobileVisitors++;
+        } else {
+          desktopVisitors++;
+        }
+      });
+      const mobilePaid = paidOrders.filter(o => (o.device || '').toLowerCase().includes("mobile")).length;
+      const desktopPaid = paidCount - mobilePaid;
+      const mobileConv = mobileVisitors > 0 ? ((mobilePaid / mobileVisitors) * 100).toFixed(1) : '0.0';
+      const desktopConv = desktopVisitors > 0 ? ((desktopPaid / desktopVisitors) * 100).toFixed(1) : '0.0';
+
+      body.innerHTML = `
+        <!-- Top Metrics Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 24px;">
+          <div class="order-meta-box" style="padding: 12px 14px;">
+            <div class="order-meta-box-content">
+              <span class="order-meta-box-label">Unique Traffic</span>
+              <span class="order-meta-box-val" style="font-size: 16px;">${stage1_Landing} Visitors</span>
+            </div>
+          </div>
+
+          <div class="order-meta-box" style="padding: 12px 14px;">
+            <div class="order-meta-box-content">
+              <span class="order-meta-box-label">Cart Add Rate</span>
+              <span class="order-meta-box-val" style="font-size: 16px; color: #38bdf8;">${stage1_Landing > 0 ? ((stage3_Cart / stage1_Landing) * 100).toFixed(1) : 0}%</span>
+            </div>
+          </div>
+
+          <div class="order-meta-box" style="padding: 12px 14px;">
+            <div class="order-meta-box-content">
+              <span class="order-meta-box-label">Cart to Paid Rate</span>
+              <span class="order-meta-box-val" style="font-size: 16px; color: #34d399;">${stage3_Cart > 0 ? ((paidCount / stage3_Cart) * 100).toFixed(1) : 0}%</span>
+            </div>
+          </div>
+
+          <div class="order-meta-box" style="padding: 12px 14px;">
+            <div class="order-meta-box-content">
+              <span class="order-meta-box-label">Completed Orders</span>
+              <span class="order-meta-box-val" style="font-size: 16px; color: var(--accent);">${paidCount} Orders</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5-Stage Visual Retention & Drop-Off Funnel -->
+        <div style="margin-bottom: 25px;">
+          <h4 class="order-section-title" style="margin-bottom: 12px;">5-Stage Funnel Retention & Drop-Off Breakdown</h4>
+
+          <!-- Step 1 -->
+          <div class="funnel-pipeline-step">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <span style="font-weight: 800; font-size: 12px; color: #ffffff;">1. Landing & Discovery</span>
+                <span style="font-size: 11px; color: rgba(255,255,255,0.5); margin-left: 8px;">Initial pageview & hero load</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-family: monospace; font-weight: 800; font-size: 13px; color: #ffffff;">${stage1_Landing} Visitors (100%)</span>
+              </div>
+            </div>
+            <div class="funnel-bar-track">
+              <div class="funnel-bar-fill" style="width: 100%;"></div>
+            </div>
+            ${drop1_Bounce > 0 ? `
+              <div style="margin-top: 8px; display: flex; justify-content: flex-end;">
+                <span class="funnel-dropoff-tag">🔻 ${drop1_Bounce} Bounced before exploring (${drop1_Rate}%)</span>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Step 2 -->
+          <div class="funnel-pipeline-step">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <span style="font-weight: 800; font-size: 12px; color: #ffffff;">2. Fragrance Exploration</span>
+                <span style="font-size: 11px; color: rgba(255,255,255,0.5); margin-left: 8px;">Browsed bottle descriptions & notes</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-family: monospace; font-weight: 800; font-size: 13px; color: #ffffff;">${stage2_Explored} (${stage1_Landing > 0 ? ((stage2_Explored/stage1_Landing)*100).toFixed(0) : 0}%)</span>
+              </div>
+            </div>
+            <div class="funnel-bar-track">
+              <div class="funnel-bar-fill" style="width: ${stage1_Landing > 0 ? (stage2_Explored/stage1_Landing)*100 : 0}%;"></div>
+            </div>
+            ${drop2_Catalog > 0 ? `
+              <div style="margin-top: 8px; display: flex; justify-content: flex-end;">
+                <span class="funnel-dropoff-tag">🔻 ${drop2_Catalog} Explored but didn't add to cart (${drop2_Rate}%)</span>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Step 3 -->
+          <div class="funnel-pipeline-step">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <span style="font-weight: 800; font-size: 12px; color: #ffffff;">3. Added to Cart / Bag</span>
+                <span style="font-size: 11px; color: rgba(255,255,255,0.5); margin-left: 8px;">Configured bottle & added to bag</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-family: monospace; font-weight: 800; font-size: 13px; color: #ffffff;">${stage3_Cart} (${stage1_Landing > 0 ? ((stage3_Cart/stage1_Landing)*100).toFixed(0) : 0}%)</span>
+              </div>
+            </div>
+            <div class="funnel-bar-track">
+              <div class="funnel-bar-fill" style="width: ${stage1_Landing > 0 ? (stage3_Cart/stage1_Landing)*100 : 0}%;"></div>
+            </div>
+            ${drop3_CartAbandon > 0 ? `
+              <div style="margin-top: 8px; display: flex; justify-content: flex-end;">
+                <span class="funnel-dropoff-tag">🔻 ${drop3_CartAbandon} Cart Abandonments (${drop3_Rate}%)</span>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Step 4 -->
+          <div class="funnel-pipeline-step">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <span style="font-weight: 800; font-size: 12px; color: #ffffff;">4. Initiated Checkout</span>
+                <span style="font-size: 11px; color: rgba(255,255,255,0.5); margin-left: 8px;">Entered delivery info & payment step</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-family: monospace; font-weight: 800; font-size: 13px; color: #ffffff;">${stage4_Checkout} (${stage1_Landing > 0 ? ((stage4_Checkout/stage1_Landing)*100).toFixed(0) : 0}%)</span>
+              </div>
+            </div>
+            <div class="funnel-bar-track">
+              <div class="funnel-bar-fill" style="width: ${stage1_Landing > 0 ? (stage4_Checkout/stage1_Landing)*100 : 0}%;"></div>
+            </div>
+            ${drop4_CheckoutAbandon > 0 ? `
+              <div style="margin-top: 8px; display: flex; justify-content: flex-end;">
+                <span class="funnel-dropoff-tag">🔻 ${drop4_CheckoutAbandon} Abandoned at payment gate (${drop4_Rate}%)</span>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Step 5 -->
+          <div class="funnel-pipeline-step" style="border-color: rgba(52, 211, 153, 0.3); background: rgba(16, 185, 129, 0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <span style="font-weight: 800; font-size: 12.5px; color: #34d399;">5. Completed Orders (Paid)</span>
+                <span style="font-size: 11px; color: rgba(255,255,255,0.6); margin-left: 8px;">Confirmed checkout & paid in full</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-family: monospace; font-weight: 900; font-size: 14px; color: #34d399;">${paidCount} Orders (${overallConv}%)</span>
+              </div>
+            </div>
+            <div class="funnel-bar-track">
+              <div class="funnel-bar-fill" style="width: ${stage1_Landing > 0 ? Math.max(4, (paidCount/stage1_Landing)*100) : 0}%; background: #34d399;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Platform & Device Diagnostics Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 14px;">
+            <div class="order-section-title">📱 Mobile Conversion</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+              <span style="font-size: 12px; color: rgba(255,255,255,0.7);">${mobileVisitors} Visitors • ${mobilePaid} Orders</span>
+              <span style="font-family: monospace; font-weight: 800; font-size: 14px; color: #38bdf8;">${mobileConv}%</span>
+            </div>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 14px;">
+            <div class="order-section-title">💻 Desktop Conversion</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+              <span style="font-size: 12px; color: rgba(255,255,255,0.7);">${desktopVisitors} Visitors • ${desktopPaid} Orders</span>
+              <span style="font-family: monospace; font-weight: 800; font-size: 14px; color: #34d399;">${desktopConv}%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actionable CRO Recommendations -->
+        <div style="background: rgba(204, 255, 0, 0.03); border: 1px solid rgba(204, 255, 0, 0.2); border-radius: 6px; padding: 14px;">
+          <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--accent); letter-spacing: 1px; margin-bottom: 6px;">💡 Conversion Optimization Insight</div>
+          <div style="font-size: 11.5px; color: rgba(255,255,255,0.8); line-height: 1.5;">
+            ${Number(drop3_Rate) > 40 ? `⚠️ High Cart Abandonment (${drop3_Rate}%). Consider highlighting free courier shipping on checkout or offering 1-click WhatsApp assistance.` : `✨ Solid cart-to-paid completion rate (${stage3_Cart > 0 ? ((paidCount / stage3_Cart) * 100).toFixed(1) : 0}%).`}
+            ${Number(drop1_Rate) > 50 ? ` Explore simplifying hero section copy to lower landing bounce rates.` : ` Discovery engagement is performing efficiently.`}
+          </div>
+        </div>
+      `;
+
+      modal.classList.add("active");
+    };
+
+    window.closeConversionDeepDiveModal = function() {
+      const modal = document.getElementById("conversionDeepDiveModal");
+      if (modal) modal.classList.remove("active");
+    };
 
     function renderCurrentVisitorSubTabList(processed) {
       const listContainer = document.getElementById("sessionListContainer");
