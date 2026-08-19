@@ -29,29 +29,7 @@
     ],
     "isBundle": false,
     "bundleSize": 0,
-    "sortOrder": 1,
-    "scentProfile": {
-      "keyNotes": [
-        {
-          "name": "Lavender",
-          "icon": "Perfume Note Icons/Lavender.webp"
-        },
-        {
-          "name": "Cardamom",
-          "icon": "Perfume Note Icons/Cardamom.webp"
-        },
-        {
-          "name": "Vanilla",
-          "icon": "Perfume Note Icons/Vanilla.webp"
-        }
-      ],
-      "topNotes": "Lavender, Mint, Cardamom, Bergamot",
-      "topNotesDesc": "The first notes you smell",
-      "middleNotes": "Cinnamon, Orange Blossom, Caraway",
-      "middleNotesDesc": "The heart of the perfume",
-      "baseNotes": "Vanilla, Tonka Bean, Amber, Sandalwood, Cedar",
-      "baseNotesDesc": "The notes that linger all day"
-    }
+    "sortOrder": 1
   },
   {
     "id": "any-2-50ml-fragrances",
