@@ -416,6 +416,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
               isBundle: isBundle !== undefined ? !!isBundle : false,
               bundleSize: bundleSize !== undefined ? Number(bundleSize) : 0,
               sortOrder: p.sortOrder,
+              scentProfile: scentProfile !== undefined ? scentProfile : null,
               timestamp: new Date().toISOString(),
             });
           } else {

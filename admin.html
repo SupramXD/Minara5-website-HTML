@@ -4195,14 +4195,15 @@
                           sizes: data.sizes || ["50ml", "100ml"],
                           isBundle: !!data.isBundle,
                           bundleSize: Number(data.bundleSize) || 0,
-                          sortOrder: data.sortOrder !== undefined && data.sortOrder !== null ? Number(data.sortOrder) : null
+                          sortOrder: data.sortOrder !== undefined && data.sortOrder !== null ? Number(data.sortOrder) : null,
+                          scentProfile: data.scentProfile || null
                       };
                       firestoreProds.push(p);
                       
                       const existingIdx = products.findIndex(item => item.id === p.id);
                       if (existingIdx > -1) {
                           const current = products[existingIdx];
-                          if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.image_thumb !== p.image_thumb || current.description !== p.description || current.flair !== p.flair || current.invisibleFlair !== p.invisibleFlair || current.standardBottleImg !== p.standardBottleImg || current.masculinePremiumBottleImg !== p.masculinePremiumBottleImg || current.femininePremiumBottleImg !== p.femininePremiumBottleImg || JSON.stringify(current.customisations) !== JSON.stringify(p.customisations) || JSON.stringify(current.sizes) !== JSON.stringify(p.sizes) || current.isBundle !== p.isBundle || current.bundleSize !== p.bundleSize || current.sortOrder !== p.sortOrder) {
+                          if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.image_thumb !== p.image_thumb || current.description !== p.description || current.flair !== p.flair || current.invisibleFlair !== p.invisibleFlair || current.standardBottleImg !== p.standardBottleImg || current.masculinePremiumBottleImg !== p.masculinePremiumBottleImg || current.femininePremiumBottleImg !== p.femininePremiumBottleImg || JSON.stringify(current.customisations) !== JSON.stringify(p.customisations) || JSON.stringify(current.sizes) !== JSON.stringify(p.sizes) || current.isBundle !== p.isBundle || current.bundleSize !== p.bundleSize || current.sortOrder !== p.sortOrder || JSON.stringify(current.scentProfile) !== JSON.stringify(p.scentProfile)) {
                               products[existingIdx] = p;
                               updated = true;
                           }
@@ -4220,7 +4221,7 @@
                           const idx = localProds.findIndex(lp => lp.id === fp.id);
                           if (idx > -1) {
                               const cur = localProds[idx];
-                              if (cur.nameShort !== fp.nameShort || cur.name !== fp.name || cur.price !== fp.price || cur.retailPrice !== fp.retailPrice || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.image_thumb !== fp.image_thumb || cur.description !== fp.description || cur.flair !== fp.flair || cur.invisibleFlair !== fp.invisibleFlair || cur.standardBottleImg !== fp.standardBottleImg || cur.masculinePremiumBottleImg !== fp.masculinePremiumBottleImg || cur.femininePremiumBottleImg !== fp.femininePremiumBottleImg || JSON.stringify(cur.customisations) !== JSON.stringify(fp.customisations) || JSON.stringify(cur.sizes) !== JSON.stringify(fp.sizes) || cur.isBundle !== fp.isBundle || cur.bundleSize !== fp.bundleSize || cur.sortOrder !== fp.sortOrder) {
+                              if (cur.nameShort !== fp.nameShort || cur.name !== fp.name || cur.price !== fp.price || cur.retailPrice !== fp.retailPrice || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.image_thumb !== fp.image_thumb || cur.description !== fp.description || cur.flair !== fp.flair || cur.invisibleFlair !== fp.invisibleFlair || cur.standardBottleImg !== fp.standardBottleImg || cur.masculinePremiumBottleImg !== fp.masculinePremiumBottleImg || cur.femininePremiumBottleImg !== fp.femininePremiumBottleImg || JSON.stringify(cur.customisations) !== JSON.stringify(fp.customisations) || JSON.stringify(cur.sizes) !== JSON.stringify(fp.sizes) || cur.isBundle !== fp.isBundle || cur.bundleSize !== fp.bundleSize || cur.sortOrder !== fp.sortOrder || JSON.stringify(cur.scentProfile) !== JSON.stringify(fp.scentProfile)) {
                                   localProds[idx] = { ...fp, syncStatus: "synced" };
                                   localUpdated = true;
                               }
