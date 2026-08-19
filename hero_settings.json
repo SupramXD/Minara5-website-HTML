@@ -27,6 +27,6 @@
   "logoHomeDesktopWidth": 1200,
   "logoHomeMobileWidth": 100,
   "showGiftsButton": false,
-  "hideRightImageDesktop": true,
-  "timestamp": "2026-08-19T08:16:23.580Z"
+  "hideRightImageDesktop": false,
+  "timestamp": "2026-08-19T10:23:00.000Z"
 }

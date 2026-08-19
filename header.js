@@ -194,30 +194,61 @@ async function startSessionTracker(db, doc, setDoc) {
         }
     }
 
-    // Load Geo IP / location
+    // Load Geo IP / location (includes VPNs, Proxies & Geoblocked hits)
     if (isNewSession || sessionData.ip === "Pending...") {
+        let detectedIp = null;
+        let detectedLocation = null;
+        let isGeoBlockedOrVpn = false;
+
         try {
-            const res = await fetch("https://ipapi.co/json/");
+            const res = await fetch("https://ipapi.co/json/", { cache: "no-store" });
             if (res.ok) {
                 const geo = await res.json();
-                sessionData.ip = geo.ip || "Unknown IP";
-                sessionData.location = `${geo.city || ""}, ${geo.region || ""}, ${geo.country_name || ""}`.trim() || "Unknown Location";
-            } else {
-                throw new Error();
+                if (geo && geo.ip) {
+                    detectedIp = geo.ip;
+                    const parts = [geo.city, geo.region, geo.country_name].filter(Boolean);
+                    detectedLocation = parts.join(", ") || "Unknown Location";
+                }
             }
         } catch (e) {
+            // ipapi failed or blocked by VPN/adblock/georestriction
+        }
+
+        if (!detectedIp) {
+            // Fallback 1: ipify IPv4
             try {
                 const res = await fetch("https://api.ipify.org?format=json");
                 if (res.ok) {
                     const ipify = await res.json();
-                    sessionData.ip = ipify.ip || "Unknown IP";
-                    sessionData.location = "Unknown (Geo Blocked)";
+                    if (ipify && ipify.ip) {
+                        detectedIp = ipify.ip;
+                        detectedLocation = "Unknown (VPN / Geoblocked)";
+                        isGeoBlockedOrVpn = true;
+                    }
                 }
-            } catch (err) {
-                sessionData.ip = "Unknown / VPN";
-                sessionData.location = "Unknown";
-            }
+            } catch (err) {}
         }
+
+        if (!detectedIp) {
+            // Fallback 2: ipify universal IPv4/IPv6
+            try {
+                const res = await fetch("https://api64.ipify.org?format=json");
+                if (res.ok) {
+                    const ipify64 = await res.json();
+                    if (ipify64 && ipify64.ip) {
+                        detectedIp = ipify64.ip;
+                        detectedLocation = "Unknown (VPN / Geoblocked)";
+                        isGeoBlockedOrVpn = true;
+                    }
+                }
+            } catch (err) {}
+        }
+
+        sessionData.ip = detectedIp || "Protected / VPN";
+        sessionData.location = detectedLocation || "Unknown Location";
+        sessionData.isGeoBlocked = isGeoBlockedOrVpn || (sessionData.location && (sessionData.location.includes("Geo Blocked") || sessionData.location.includes("VPN")));
+        sessionData.isVpn = isGeoBlockedOrVpn || (sessionData.ip && sessionData.ip.includes("VPN"));
+
         saveCache();
         await syncFirestore();
     } else {
