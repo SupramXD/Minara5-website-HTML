@@ -766,12 +766,143 @@
         }
 
         .accordion-content.active {
-            max-height: 500px;
+            max-height: 1400px;
             padding: 8px 0 12px 0;
         }
 
         .accordion-content p {
             margin: 0;
+        }
+
+        /* Scent Profile & Fragrance Pyramid Styles */
+        .scent-profile-section {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .scent-key-notes-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+            gap: 28px;
+            padding: 10px 4px 18px 4px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #EBEBEB;
+            flex-wrap: wrap;
+        }
+
+        .scent-note-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-width: 60px;
+        }
+
+        .scent-note-icon-wrap {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .scent-note-icon-wrap img {
+            max-width: 44px;
+            max-height: 44px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));
+        }
+
+        .scent-note-label {
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #000;
+            line-height: 1.2;
+        }
+
+        .scent-pyramid-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .scent-pyramid-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: #FFFFFF;
+            border: 1px solid #E6E6E6;
+            border-radius: 8px;
+            padding: 10px 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            transition: border-color 0.2s ease;
+        }
+
+        .scent-pyramid-card:hover {
+            border-color: #D0D0D0;
+        }
+
+        .scent-pyramid-icon {
+            width: 26px;
+            height: 36px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scent-pyramid-icon svg {
+            width: 24px;
+            height: 34px;
+        }
+
+        .scent-pyramid-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .scent-pyramid-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 3px;
+            flex-wrap: wrap;
+        }
+
+        .scent-tier-badge {
+            display: inline-block;
+            background: #000000;
+            color: #FFFFFF;
+            font-family: inherit;
+            font-size: 8.5px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            line-height: 1.2;
+        }
+
+        .scent-tier-desc {
+            font-family: inherit;
+            font-size: 11px;
+            color: #222222;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+        }
+
+        .scent-tier-notes {
+            font-family: inherit;
+            font-size: 11.5px;
+            color: #444444;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+            line-height: 1.4;
         }
 
         .lab-badges {
@@ -2574,6 +2705,9 @@
                         <span class="accordion-icon">›</span>
                     </button>
                     <div class="accordion-content">
+                        <!-- Scent Profile & Fragrance Breakdown Section -->
+                        <div id="productScentProfileContainer" class="scent-profile-section"></div>
+
                         <div class="lab-badges">
                             <span class="lab-badge">VEGAN</span>
                             <span class="lab-badge">CRUELTY-FREE</span>
@@ -3029,6 +3163,140 @@
                 return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
             });
         };
+
+        // Render Scent Profile & Fragrance Pyramid (Notes Breakdown)
+        function renderProductScentProfile(p) {
+            const container = document.getElementById('productScentProfileContainer');
+            if (!container) return;
+            container.innerHTML = "";
+
+            const profile = p.scentProfile || {};
+            const keyNotes = profile.keyNotes || [];
+            const topNotes = profile.topNotes || "";
+            const topNotesDesc = profile.topNotesDesc || "The first notes you smell";
+            const middleNotes = profile.middleNotes || "";
+            const middleNotesDesc = profile.middleNotesDesc || "The heart of the perfume";
+            const baseNotes = profile.baseNotes || "";
+            const baseNotesDesc = profile.baseNotesDesc || "The notes that linger all day";
+
+            // If no scent profile info at all, don't show empty boxes
+            if (keyNotes.length === 0 && !topNotes && !middleNotes && !baseNotes) {
+                container.style.display = "none";
+                return;
+            }
+            container.style.display = "block";
+
+            let html = "";
+
+            // 1. Key Note Icons Showcase
+            if (keyNotes.length > 0) {
+                html += `<div class="scent-key-notes-row">`;
+                keyNotes.forEach(note => {
+                    const noteName = typeof note === "string" ? note : (note.name || "");
+                    let noteIcon = typeof note === "string" ? `Perfume Note Icons/${note.replace(/\s+/g, '_')}.webp` : (note.icon || "");
+                    if (!noteIcon && noteName) {
+                        noteIcon = `Perfume Note Icons/${noteName.replace(/\s+/g, '_')}.webp`;
+                    }
+                    html += `
+                        <div class="scent-note-item">
+                            <div class="scent-note-icon-wrap">
+                                <img src="${noteIcon}" alt="${noteName}" loading="lazy" onerror="this.style.display='none'">
+                            </div>
+                            <span class="scent-note-label">${noteName}</span>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            // SVG icons for Top, Middle, Base
+            const topBottleSvg = `
+                <svg viewBox="0 0 26 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="9.5" y="1" width="7" height="4.5" rx="0.8" stroke="#000" stroke-width="1.3" fill="none"/>
+                    <rect x="11.5" y="5.5" width="3" height="2" fill="#000"/>
+                    <rect x="2.5" y="7.5" width="21" height="26.5" rx="1.5" stroke="#000" stroke-width="1.3" fill="none"/>
+                    <path d="M 3.8 8.2 L 22.2 8.2 A 1 1 0 0 1 23 9 L 23 16.5 L 3 16.5 L 3 9 A 1 1 0 0 1 3.8 8.2 Z" fill="#000"/>
+                    <line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#000" stroke-width="1.1"/>
+                    <line x1="2.5" y1="25" x2="23.5" y2="25" stroke="#000" stroke-width="1.1"/>
+                </svg>
+            `;
+
+            const middleBottleSvg = `
+                <svg viewBox="0 0 26 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="9.5" y="1" width="7" height="4.5" rx="0.8" stroke="#000" stroke-width="1.3" fill="none"/>
+                    <rect x="11.5" y="5.5" width="3" height="2" fill="#000"/>
+                    <rect x="2.5" y="7.5" width="21" height="26.5" rx="1.5" stroke="#000" stroke-width="1.3" fill="none"/>
+                    <rect x="3.2" y="16.5" width="19.6" height="8.5" fill="#000"/>
+                    <line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#000" stroke-width="1.1"/>
+                    <line x1="2.5" y1="25" x2="23.5" y2="25" stroke="#000" stroke-width="1.1"/>
+                </svg>
+            `;
+
+            const baseBottleSvg = `
+                <svg viewBox="0 0 26 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="9.5" y="1" width="7" height="4.5" rx="0.8" stroke="#000" stroke-width="1.3" fill="none"/>
+                    <rect x="11.5" y="5.5" width="3" height="2" fill="#000"/>
+                    <rect x="2.5" y="7.5" width="21" height="26.5" rx="1.5" stroke="#000" stroke-width="1.3" fill="none"/>
+                    <path d="M 3 25 L 23 25 L 23 32.2 A 1 1 0 0 1 22.2 33.2 L 3.8 33.2 A 1 1 0 0 1 3 32.2 Z" fill="#000"/>
+                    <line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#000" stroke-width="1.1"/>
+                    <line x1="2.5" y1="25" x2="23.5" y2="25" stroke="#000" stroke-width="1.1"/>
+                </svg>
+            `;
+
+            // 2. Pyramid Cards Container
+            if (topNotes || middleNotes || baseNotes) {
+                html += `<div class="scent-pyramid-container">`;
+
+                if (topNotes) {
+                    html += `
+                        <div class="scent-pyramid-card">
+                            <div class="scent-pyramid-icon">${topBottleSvg}</div>
+                            <div class="scent-pyramid-content">
+                                <div class="scent-pyramid-header">
+                                    <span class="scent-tier-badge">TOP</span>
+                                    <span class="scent-tier-desc">— ${topNotesDesc}</span>
+                                </div>
+                                <div class="scent-tier-notes">${topNotes}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (middleNotes) {
+                    html += `
+                        <div class="scent-pyramid-card">
+                            <div class="scent-pyramid-icon">${middleBottleSvg}</div>
+                            <div class="scent-pyramid-content">
+                                <div class="scent-pyramid-header">
+                                    <span class="scent-tier-badge">MIDDLE</span>
+                                    <span class="scent-tier-desc">— ${middleNotesDesc}</span>
+                                </div>
+                                <div class="scent-tier-notes">${middleNotes}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (baseNotes) {
+                    html += `
+                        <div class="scent-pyramid-card">
+                            <div class="scent-pyramid-icon">${baseBottleSvg}</div>
+                            <div class="scent-pyramid-content">
+                                <div class="scent-pyramid-header">
+                                    <span class="scent-tier-badge">BASE</span>
+                                    <span class="scent-tier-desc">— ${baseNotesDesc}</span>
+                                </div>
+                                <div class="scent-tier-notes">${baseNotes}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += `</div>`;
+            }
+
+            container.innerHTML = html;
+        }
 
         async function initProductDetails() {
             const addToBagBtn = document.querySelector('.add-to-cart');
@@ -4110,6 +4378,9 @@
                     ingredientsText.innerHTML = `<strong>INGREDIENTS:</strong> ` + ingContent;
                 }
 
+                // Render Scent Profile & Fragrance Pyramid
+                renderProductScentProfile(p);
+
                 // 4. Shipping & Returns
                 const shippingReturnsText = document.getElementById('shippingReturnsText');
                 if (shippingReturnsText) {
@@ -4508,7 +4779,8 @@
                                     customisations: d.customisations || [],
                                     sizes: d.sizes || ["50ml"],
                                     isBundle: !!d.isBundle,
-                                    bundleSize: Number(d.bundleSize) || 0
+                                    bundleSize: Number(d.bundleSize) || 0,
+                                    scentProfile: d.scentProfile || null
                                 });
                             });
                         } catch (fsListErr) {
@@ -4546,7 +4818,8 @@
                             customisations: dataInJson.customisations || [],
                             sizes: dataInJson.sizes || ["50ml"],
                             isBundle: !!dataInJson.isBundle,
-                            bundleSize: Number(dataInJson.bundleSize) || 0
+                            bundleSize: Number(dataInJson.bundleSize) || 0,
+                            scentProfile: dataInJson.scentProfile || null
                         };
                     }
 
@@ -4555,7 +4828,8 @@
 
                         // Only swap if values changed or we didn't have local cache!
                         const custsChanged = JSON.stringify(product ? product.customisations : null) !== JSON.stringify(liveProduct.customisations);
-                        if (!product || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair || product.invisibleFlair !== liveProduct.invisibleFlair || product.standardBottleImg !== liveProduct.standardBottleImg || product.masculinePremiumBottleImg !== liveProduct.masculinePremiumBottleImg || product.femininePremiumBottleImg !== liveProduct.femininePremiumBottleImg || JSON.stringify(product.sizes) !== JSON.stringify(liveProduct.sizes) || product.isBundle !== liveProduct.isBundle || product.bundleSize !== liveProduct.bundleSize || custsChanged) {
+                        const scentChanged = JSON.stringify(product ? product.scentProfile : null) !== JSON.stringify(liveProduct.scentProfile);
+                        if (!product || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair || product.invisibleFlair !== liveProduct.invisibleFlair || product.standardBottleImg !== liveProduct.standardBottleImg || product.masculinePremiumBottleImg !== liveProduct.masculinePremiumBottleImg || product.femininePremiumBottleImg !== liveProduct.femininePremiumBottleImg || JSON.stringify(product.sizes) !== JSON.stringify(liveProduct.sizes) || product.isBundle !== liveProduct.isBundle || product.bundleSize !== liveProduct.bundleSize || custsChanged || scentChanged) {
                             product = liveProduct;
                             swapContent(product);
                         }

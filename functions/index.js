@@ -225,7 +225,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
 
   try {
     if (action === "saveProduct") {
-      const {id, nameShort, name, price, retailPrice, stock, image, image_thumb, description, status, flair, invisibleFlair, standardBottleImg, masculinePremiumBottleImg, femininePremiumBottleImg, customisations, sizes, isBundle, bundleSize, sortOrder} = payload;
+      const {id, nameShort, name, price, retailPrice, stock, image, image_thumb, description, status, flair, invisibleFlair, standardBottleImg, masculinePremiumBottleImg, femininePremiumBottleImg, customisations, sizes, isBundle, bundleSize, sortOrder, scentProfile} = payload;
 
       const {sha: jsonSha, content: jsonContent} = await getFileShaAndContent("products.json", token);
       let productsList = [];
@@ -360,6 +360,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         bundleSize: bundleSize !== undefined ? Number(bundleSize) : 0,
         sortOrder: sortOrder !== undefined && sortOrder !== null ?
           Number(sortOrder) : null,
+        scentProfile: scentProfile !== undefined ? scentProfile : null,
       };
 
       if (updatedProduct.status === "Active" &&

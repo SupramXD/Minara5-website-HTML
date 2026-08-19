@@ -3093,9 +3093,10 @@
                 <input type="hidden" id="editProdId">
                 
                 <!-- EDIT MODAL TABS NAVIGATION -->
-                <div style="display: flex; gap: 10px; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; padding-bottom: 10px;">
-                  <button type="button" id="tabBtnGeneral" onclick="switchEditModalTab('general')" style="background: transparent; border: none; border-bottom: 2px solid var(--accent); color: #fff; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; padding: 8px 12px;">General Details</button>
-                  <button type="button" id="tabBtnCustomisation" onclick="switchEditModalTab('customisation')" style="background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; padding: 8px 12px;">Customisation Options</button>
+                <div style="display: flex; gap: 10px; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; padding-bottom: 10px; overflow-x: auto;">
+                  <button type="button" id="tabBtnGeneral" onclick="switchEditModalTab('general')" style="background: transparent; border: none; border-bottom: 2px solid var(--accent); color: #fff; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; padding: 8px 12px; white-space: nowrap;">General Details</button>
+                  <button type="button" id="tabBtnCustomisation" onclick="switchEditModalTab('customisation')" style="background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; padding: 8px 12px; white-space: nowrap;">Customisation Options</button>
+                  <button type="button" id="tabBtnScentNotes" onclick="switchEditModalTab('scent-notes')" style="background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; padding: 8px 12px; white-space: nowrap;">Scent Profile & Notes</button>
                 </div>
 
                 <!-- TAB 1: GENERAL INFO -->
@@ -3230,6 +3231,88 @@
                   </div>
                   <div id="editCustomisationBlocksContainer" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px;"></div>
                   <button type="button" class="btn-action accent-btn" onclick="addEditCustomisationBlock()" style="width: 100%; padding: 12px; font-weight: bold; font-family: inherit;">+ ADD CUSTOMISATION BLOCK</button>
+                </div>
+
+                <!-- TAB 3: SCENT PROFILE & NOTES -->
+                <div id="editTabContentScentNotes" class="edit-tab-content" style="display: none;">
+                  <!-- Section 1: Key Note Icons Showcase Selector -->
+                  <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 6px; padding: 16px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+                      <div style="font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: var(--accent);">Key Note Icons Showcase</div>
+                      <span style="font-size: 10px; color: var(--text-muted);">Displays prominent note icons at top of product scent profile</span>
+                    </div>
+
+                    <!-- Currently Selected Notes Chips -->
+                    <div style="margin-bottom: 14px;">
+                      <label style="font-size: 10px; color: var(--text-muted); margin-bottom: 6px; display: block;">Selected Key Notes (<span id="editSelectedKeyNotesCount">0</span> selected):</label>
+                      <div id="editSelectedKeyNotesContainer" style="display: flex; flex-wrap: wrap; gap: 8px; min-height: 48px; padding: 8px; background: #121218; border: 1px dashed var(--border-color); border-radius: 4px; align-items: center;">
+                        <span style="font-size: 10px; color: var(--text-muted); font-style: italic;">No key notes selected yet. Click any note icon below to select.</span>
+                      </div>
+                    </div>
+
+                    <!-- Search input for notes library -->
+                    <div class="form-group" style="margin-bottom: 10px;">
+                      <label for="editNoteSearchInput" style="font-size: 10px; color: var(--text-muted);">Search Note Library (55 icons available)</label>
+                      <input type="text" id="editNoteSearchInput" class="form-input" placeholder="🔍 Search fragrance notes (e.g. Amberwood, Cedar, Saffron, Bergamot)..." oninput="handleNoteSearch(this.value)" style="background: #1a1a24; color: #fff; padding: 8px 12px;">
+                    </div>
+
+                    <!-- Visual Note Grid Picker -->
+                    <div id="editNoteLibraryGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; max-height: 220px; overflow-y: auto; padding: 8px; background: #0c0c10; border: 1px solid var(--border-color); border-radius: 4px;">
+                      <!-- Populated dynamically via JS -->
+                    </div>
+                  </div>
+
+                  <!-- Section 2: Fragrance Breakdown Pyramid -->
+                  <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 6px; padding: 16px; margin-bottom: 20px;">
+                    <div style="font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 14px;">Fragrance Pyramid Breakdown</div>
+
+                    <!-- TOP NOTES -->
+                    <div style="margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                      <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+                        <span style="background: #000; color: #fff; font-size: 9px; font-weight: bold; padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.2);">TOP</span>
+                        <label for="editProdTopNotes" style="font-size: 11px; font-weight: bold; color: #fff; margin-bottom: 0;">Top Notes</label>
+                      </div>
+                      <input type="text" id="editProdTopNotes" class="form-input" placeholder="e.g. Saffron, Orange Blossom, Bergamot" style="background:#1a1a24; color: #fff; margin-bottom: 6px;" oninput="updateScentProfileLivePreview()">
+                      <div style="display: flex; gap: 8px; align-items: center;">
+                        <span style="font-size: 9px; color: var(--text-muted); white-space: nowrap;">Subtitle:</span>
+                        <input type="text" id="editProdTopNotesDesc" class="form-input" placeholder="The first notes you smell" value="The first notes you smell" style="background:#14141c; color: #aaa; font-size: 10px; padding: 4px 8px; height: 26px;" oninput="updateScentProfileLivePreview()">
+                      </div>
+                    </div>
+
+                    <!-- MIDDLE NOTES -->
+                    <div style="margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                      <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+                        <span style="background: #000; color: #fff; font-size: 9px; font-weight: bold; padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.2);">MIDDLE</span>
+                        <label for="editProdMiddleNotes" style="font-size: 11px; font-weight: bold; color: #fff; margin-bottom: 0;">Middle / Heart Notes</label>
+                      </div>
+                      <input type="text" id="editProdMiddleNotes" class="form-input" placeholder="e.g. Jasmine, Plum, Cedarwood, Rose" style="background:#1a1a24; color: #fff; margin-bottom: 6px;" oninput="updateScentProfileLivePreview()">
+                      <div style="display: flex; gap: 8px; align-items: center;">
+                        <span style="font-size: 9px; color: var(--text-muted); white-space: nowrap;">Subtitle:</span>
+                        <input type="text" id="editProdMiddleNotesDesc" class="form-input" placeholder="The heart of the perfume" value="The heart of the perfume" style="background:#14141c; color: #aaa; font-size: 10px; padding: 4px 8px; height: 26px;" oninput="updateScentProfileLivePreview()">
+                      </div>
+                    </div>
+
+                    <!-- BASE NOTES -->
+                    <div style="margin-bottom: 8px;">
+                      <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+                        <span style="background: #000; color: #fff; font-size: 9px; font-weight: bold; padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.2);">BASE</span>
+                        <label for="editProdBaseNotes" style="font-size: 11px; font-weight: bold; color: #fff; margin-bottom: 0;">Base Notes</label>
+                      </div>
+                      <input type="text" id="editProdBaseNotes" class="form-input" placeholder="e.g. Oakmoss, Fir Balsam, Amber, Vanilla" style="background:#1a1a24; color: #fff; margin-bottom: 6px;" oninput="updateScentProfileLivePreview()">
+                      <div style="display: flex; gap: 8px; align-items: center;">
+                        <span style="font-size: 9px; color: var(--text-muted); white-space: nowrap;">Subtitle:</span>
+                        <input type="text" id="editProdBaseNotesDesc" class="form-input" placeholder="The notes that linger all day" value="The notes that linger all day" style="background:#14141c; color: #aaa; font-size: 10px; padding: 4px 8px; height: 26px;" oninput="updateScentProfileLivePreview()">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Section 3: Live Preview -->
+                  <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 6px; padding: 14px;">
+                    <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px;">Live Storefront Scent Profile Preview (Light Theme)</div>
+                    <div id="adminScentProfileLivePreview" style="background: #ffffff; color: #000; padding: 16px; border-radius: 6px; border: 1px solid #ddd;">
+                      <!-- Live preview generated here -->
+                    </div>
+                  </div>
                 </div>
 
                 <div class="edit-modal-footer" style="margin-top: 20px;">
@@ -4415,7 +4498,8 @@
           sizes: sizes,
           isBundle: isBundle,
           bundleSize: bundleSize,
-          sortOrder: sortOrder
+          sortOrder: sortOrder,
+          scentProfile: null
       };
 
       try {
@@ -4461,6 +4545,7 @@
                       isBundle: isBundle,
                       bundleSize: bundleSize,
                       sortOrder: sortOrder,
+                      scentProfile: null,
                       timestamp: new Date().toISOString()
                   }),
                   timeoutPromise
@@ -4504,7 +4589,8 @@
                       sizes: sizes,
                       isBundle: isBundle,
                       bundleSize: bundleSize,
-                      sortOrder: sortOrder
+                      sortOrder: sortOrder,
+                      scentProfile: null
                   }
               });
               console.log("GitHub sync successful for: " + name);
@@ -4742,32 +4828,287 @@
       }
     };
 
-    window.currentEditCustomisations = [];
+    // ==========================================
+    // PERFUME NOTE LIBRARY & SCENT PROFILE MANAGER
+    // ==========================================
+    window.PERFUME_NOTE_LIBRARY = [
+      { name: "Amber", file: "Amber.webp" },
+      { name: "Ambergris", file: "Ambergris.webp" },
+      { name: "Amberwood", file: "Amberwood.webp" },
+      { name: "Ambrox", file: "Ambrox.webp" },
+      { name: "Ambroxan", file: "Ambroxan.webp" },
+      { name: "Apple", file: "Apple.webp" },
+      { name: "Basil", file: "Basil.webp" },
+      { name: "Bergamot", file: "Bergamot.webp" },
+      { name: "Bitter Almond", file: "Bitter_Almond.webp" },
+      { name: "Black Cherry", file: "Black_Cherry.avif" },
+      { name: "Black Coffee", file: "Black_Coffee.webp" },
+      { name: "Black Tea", file: "Black_Tea.webp" },
+      { name: "Blackcurrant", file: "Blackcurrant.webp" },
+      { name: "Calabrian Bergamot", file: "Calabrian_Bergamot.webp" },
+      { name: "Cardamom", file: "Cardamom.webp" },
+      { name: "Cedar", file: "Cedar.webp" },
+      { name: "Cedarwood", file: "Cedarwood.webp" },
+      { name: "Ceylon Cinnamon", file: "Ceylon_Cinnamon.webp" },
+      { name: "Citron", file: "Citron.webp" },
+      { name: "Clary Sage", file: "Clary_Sage.webp" },
+      { name: "Fig", file: "Fig.webp" },
+      { name: "Ginger", file: "Ginger.webp" },
+      { name: "Grapefruit", file: "Grapefruit.webp" },
+      { name: "Guaiac Wood", file: "Guaiac_Wood.webp" },
+      { name: "Jasmine", file: "Jasmine.webp" },
+      { name: "Jasmine Sambac", file: "Jasmine_Sambac.webp" },
+      { name: "Lavender", file: "Lavender.webp" },
+      { name: "Leather", file: "Leather.webp" },
+      { name: "Lemon", file: "Lemon.webp" },
+      { name: "Lily of the Valley", file: "Lily_of_the_Valley.webp" },
+      { name: "Lychee", file: "Lychee.webp" },
+      { name: "Marshmallow", file: "Marshmallow.webp" },
+      { name: "May Rose", file: "May_Rose.webp" },
+      { name: "Neroli", file: "Neroli.webp" },
+      { name: "Oakmoss", file: "Oakmoss.webp" },
+      { name: "Orange Blossom", file: "Orange_Blossom.webp" },
+      { name: "Orris", file: "Orris.webp" },
+      { name: "Oud", file: "Oud.webp" },
+      { name: "Patchouli", file: "Patchouli.webp" },
+      { name: "Peony", file: "Peony.webp" },
+      { name: "Pineapple", file: "Pineapple.webp" },
+      { name: "Pink Pepper", file: "Pink_Pepper.webp" },
+      { name: "Roasted Tonka Bean", file: "Roasted_Tonka_Bean.webp" },
+      { name: "Rose", file: "Rose.webp" },
+      { name: "Saffron", file: "Saffron.webp" },
+      { name: "Sandalwood", file: "Sandalwood.webp" },
+      { name: "Sicilian Orange", file: "Sicilian_Orange.webp" },
+      { name: "Tonka Bean", file: "Tonka_Bean.webp" },
+      { name: "Tunisian", file: "Tunisian.webp" },
+      { name: "Turkish Rose", file: "Turkish_Rose.webp" },
+      { name: "Vanilla", file: "Vanilla.webp" },
+      { name: "Vetiver", file: "Vetiver.webp" },
+      { name: "Violet", file: "Violet.webp" },
+      { name: "Violet Leaf", file: "Violet_Leaf.webp" },
+      { name: "White Peach", file: "White_Peach.webp" }
+    ];
+
+    window.currentEditKeyNotes = [];
 
     window.switchEditModalTab = function(tabName) {
       const tabGen = document.getElementById("tabBtnGeneral");
       const tabCust = document.getElementById("tabBtnCustomisation");
+      const tabScent = document.getElementById("tabBtnScentNotes");
       const contentGen = document.getElementById("editTabContentGeneral");
       const contentCust = document.getElementById("editTabContentCustomisation");
+      const contentScent = document.getElementById("editTabContentScentNotes");
 
-      if (!tabGen || !tabCust || !contentGen || !contentCust) return;
+      if (!tabGen || !tabCust || !tabScent || !contentGen || !contentCust || !contentScent) return;
+
+      // Reset tabs
+      [tabGen, tabCust, tabScent].forEach(btn => {
+        btn.style.borderBottomColor = "transparent";
+        btn.style.color = "var(--text-muted)";
+      });
+      [contentGen, contentCust, contentScent].forEach(c => {
+        c.style.display = "none";
+      });
 
       if (tabName === "customisation") {
-        tabGen.style.borderBottomColor = "transparent";
-        tabGen.style.color = "var(--text-muted)";
         tabCust.style.borderBottomColor = "var(--accent)";
         tabCust.style.color = "#fff";
-        contentGen.style.display = "none";
         contentCust.style.display = "block";
+      } else if (tabName === "scent-notes") {
+        tabScent.style.borderBottomColor = "var(--accent)";
+        tabScent.style.color = "#fff";
+        contentScent.style.display = "block";
+        window.renderEditKeyNotesSelection();
+        window.renderNoteLibraryGrid(document.getElementById("editNoteSearchInput") ? document.getElementById("editNoteSearchInput").value : '');
+        window.updateScentProfileLivePreview();
       } else {
         tabGen.style.borderBottomColor = "var(--accent)";
         tabGen.style.color = "#fff";
-        tabCust.style.borderBottomColor = "transparent";
-        tabCust.style.color = "var(--text-muted)";
         contentGen.style.display = "block";
-        contentCust.style.display = "none";
       }
     };
+
+    window.renderEditKeyNotesSelection = function() {
+      const container = document.getElementById("editSelectedKeyNotesContainer");
+      const countEl = document.getElementById("editSelectedKeyNotesCount");
+      if (!container) return;
+
+      if (countEl) countEl.textContent = (window.currentEditKeyNotes || []).length;
+
+      if (!window.currentEditKeyNotes || window.currentEditKeyNotes.length === 0) {
+        container.innerHTML = `<span style="font-size: 10px; color: var(--text-muted); font-style: italic;">No key notes selected yet. Click any note icon below to select.</span>`;
+        return;
+      }
+
+      container.innerHTML = "";
+      window.currentEditKeyNotes.forEach((item, idx) => {
+        const chip = document.createElement("div");
+        chip.style.cssText = "display: inline-flex; align-items: center; gap: 6px; background: rgba(204, 255, 0, 0.08); border: 1px solid var(--accent); padding: 4px 8px; border-radius: 4px; color: #fff;";
+        
+        const noteName = typeof item === "string" ? item : (item.name || "");
+        const noteIcon = typeof item === "string" ? `Perfume Note Icons/${item.replace(/\s+/g, '_')}.webp` : (item.icon || "");
+
+        chip.innerHTML = `
+          <img src="${noteIcon}" style="width: 20px; height: 20px; object-fit: contain;" onerror="this.style.display='none'">
+          <span style="font-size: 10.5px; font-weight: bold;">${noteName}</span>
+          <span onclick="removeKeyNote(${idx})" style="cursor: pointer; color: #ff5555; font-size: 12px; margin-left: 4px; font-weight: bold;" title="Remove note">✕</span>
+        `;
+        container.appendChild(chip);
+      });
+    };
+
+    window.removeKeyNote = function(idx) {
+      if (window.currentEditKeyNotes && idx >= 0 && idx < window.currentEditKeyNotes.length) {
+        window.currentEditKeyNotes.splice(idx, 1);
+        window.renderEditKeyNotesSelection();
+        window.renderNoteLibraryGrid(document.getElementById("editNoteSearchInput") ? document.getElementById("editNoteSearchInput").value : '');
+        window.updateScentProfileLivePreview();
+      }
+    };
+
+    window.toggleKeyNoteSelection = function(noteName, noteFile) {
+      if (!window.currentEditKeyNotes) window.currentEditKeyNotes = [];
+      const iconPath = `Perfume Note Icons/${noteFile}`;
+      const existingIdx = window.currentEditKeyNotes.findIndex(k => (typeof k === "string" ? k : k.name).toLowerCase() === noteName.toLowerCase());
+      
+      if (existingIdx > -1) {
+        window.currentEditKeyNotes.splice(existingIdx, 1);
+      } else {
+        window.currentEditKeyNotes.push({
+          name: noteName,
+          icon: iconPath
+        });
+      }
+      window.renderEditKeyNotesSelection();
+      window.renderNoteLibraryGrid(document.getElementById("editNoteSearchInput") ? document.getElementById("editNoteSearchInput").value : '');
+      window.updateScentProfileLivePreview();
+    };
+
+    window.handleNoteSearch = function(val) {
+      window.renderNoteLibraryGrid(val);
+    };
+
+    window.renderNoteLibraryGrid = function(filterText) {
+      const grid = document.getElementById("editNoteLibraryGrid");
+      if (!grid) return;
+      grid.innerHTML = "";
+
+      const query = (filterText || "").trim().toLowerCase();
+      const filtered = window.PERFUME_NOTE_LIBRARY.filter(n => n.name.toLowerCase().includes(query));
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-size: 10px; padding: 15px;">No fragrance notes found matching "${filterText}".</div>`;
+        return;
+      }
+
+      filtered.forEach(note => {
+        const isSelected = (window.currentEditKeyNotes || []).some(k => (typeof k === "string" ? k : k.name).toLowerCase() === note.name.toLowerCase());
+        const card = document.createElement("div");
+        card.style.cssText = `display: flex; flex-direction: column; align-items: center; padding: 6px 4px; background: ${isSelected ? 'rgba(204, 255, 0, 0.15)' : 'rgba(255, 255, 255, 0.03)'}; border: 1px solid ${isSelected ? 'var(--accent)' : 'rgba(255, 255, 255, 0.08)'}; border-radius: 4px; cursor: pointer; text-align: center; transition: all 0.15s ease; user-select: none; position: relative;`;
+        card.onclick = () => window.toggleKeyNoteSelection(note.name, note.file);
+
+        card.innerHTML = `
+          <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px;">
+            <img src="Perfume Note Icons/${note.file}" style="max-width: 30px; max-height: 30px; object-fit: contain;">
+          </div>
+          <span style="font-size: 9.5px; line-height: 1.1; color: ${isSelected ? 'var(--accent)' : '#fff'}; font-weight: ${isSelected ? 'bold' : 'normal'}; word-break: break-word;">${note.name}</span>
+          ${isSelected ? `<span style="position: absolute; top: 2px; right: 4px; font-size: 8px; color: var(--accent);">✓</span>` : ''}
+        `;
+        grid.appendChild(card);
+      });
+    };
+
+    window.updateScentProfileLivePreview = function() {
+      const previewEl = document.getElementById("adminScentProfileLivePreview");
+      if (!previewEl) return;
+
+      const keyNotes = window.currentEditKeyNotes || [];
+      const topNotes = document.getElementById("editProdTopNotes") ? document.getElementById("editProdTopNotes").value.trim() : "";
+      const topNotesDesc = document.getElementById("editProdTopNotesDesc") ? document.getElementById("editProdTopNotesDesc").value.trim() || "The first notes you smell" : "The first notes you smell";
+      const middleNotes = document.getElementById("editProdMiddleNotes") ? document.getElementById("editProdMiddleNotes").value.trim() : "";
+      const middleNotesDesc = document.getElementById("editProdMiddleNotesDesc") ? document.getElementById("editProdMiddleNotesDesc").value.trim() || "The heart of the perfume" : "The heart of the perfume";
+      const baseNotes = document.getElementById("editProdBaseNotes") ? document.getElementById("editProdBaseNotes").value.trim() : "";
+      const baseNotesDesc = document.getElementById("editProdBaseNotesDesc") ? document.getElementById("editProdBaseNotesDesc").value.trim() || "The notes that linger all day" : "The notes that linger all day";
+
+      if (keyNotes.length === 0 && !topNotes && !middleNotes && !baseNotes) {
+        previewEl.innerHTML = `<div style="text-align: center; color: #888; font-size: 11px; font-style: italic; padding: 10px;">Select key note icons or enter Top, Middle, Base notes above to generate live preview.</div>`;
+        return;
+      }
+
+      let html = "";
+
+      // Key notes row
+      if (keyNotes.length > 0) {
+        html += `<div style="display: flex; gap: 20px; align-items: flex-end; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #ebebeb; flex-wrap: wrap;">`;
+        keyNotes.forEach(item => {
+          const noteName = typeof item === "string" ? item : (item.name || "");
+          const noteIcon = typeof item === "string" ? `Perfume Note Icons/${item.replace(/\s+/g, '_')}.webp` : (item.icon || "");
+          html += `
+            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 50px;">
+              <img src="${noteIcon}" style="max-width: 38px; max-height: 38px; object-fit: contain; margin-bottom: 4px;">
+              <span style="font-size: 10.5px; font-weight: bold; color: #000;">${noteName}</span>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      }
+
+      // Bottle SVGs
+      const topSvg = `<svg viewBox="0 0 26 36" style="width: 22px; height: 30px;"><rect x="9.5" y="1" width="7" height="4.5" rx="0.8" stroke="#000" stroke-width="1.3" fill="none"/><rect x="11.5" y="5.5" width="3" height="2" fill="#000"/><rect x="2.5" y="7.5" width="21" height="26.5" rx="1.5" stroke="#000" stroke-width="1.3" fill="none"/><path d="M 3.8 8.2 L 22.2 8.2 A 1 1 0 0 1 23 9 L 23 16.5 L 3 16.5 L 3 9 A 1 1 0 0 1 3.8 8.2 Z" fill="#000"/><line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#000" stroke-width="1.1"/><line x1="2.5" y1="25" x2="23.5" y2="25" stroke="#000" stroke-width="1.1"/></svg>`;
+      const midSvg = `<svg viewBox="0 0 26 36" style="width: 22px; height: 30px;"><rect x="9.5" y="1" width="7" height="4.5" rx="0.8" stroke="#000" stroke-width="1.3" fill="none"/><rect x="11.5" y="5.5" width="3" height="2" fill="#000"/><rect x="2.5" y="7.5" width="21" height="26.5" rx="1.5" stroke="#000" stroke-width="1.3" fill="none"/><rect x="3.2" y="16.5" width="19.6" height="8.5" fill="#000"/><line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#000" stroke-width="1.1"/><line x1="2.5" y1="25" x2="23.5" y2="25" stroke="#000" stroke-width="1.1"/></svg>`;
+      const baseSvg = `<svg viewBox="0 0 26 36" style="width: 22px; height: 30px;"><rect x="9.5" y="1" width="7" height="4.5" rx="0.8" stroke="#000" stroke-width="1.3" fill="none"/><rect x="11.5" y="5.5" width="3" height="2" fill="#000"/><rect x="2.5" y="7.5" width="21" height="26.5" rx="1.5" stroke="#000" stroke-width="1.3" fill="none"/><path d="M 3 25 L 23 25 L 23 32.2 A 1 1 0 0 1 22.2 33.2 L 3.8 33.2 A 1 1 0 0 1 3 32.2 Z" fill="#000"/><line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#000" stroke-width="1.1"/><line x1="2.5" y1="25" x2="23.5" y2="25" stroke="#000" stroke-width="1.1"/></svg>`;
+
+      if (topNotes || middleNotes || baseNotes) {
+        html += `<div style="display: flex; flex-direction: column; gap: 6px;">`;
+        if (topNotes) {
+          html += `
+            <div style="display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #e6e6e6; border-radius: 6px; padding: 8px 12px;">
+              <div>${topSvg}</div>
+              <div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                  <span style="background: #000; color: #fff; font-size: 8px; font-weight: bold; padding: 1px 5px; border-radius: 2px;">TOP</span>
+                  <span style="font-size: 10.5px; color: #333;">— ${topNotesDesc}</span>
+                </div>
+                <div style="font-size: 11px; color: #555;">${topNotes}</div>
+              </div>
+            </div>
+          `;
+        }
+        if (middleNotes) {
+          html += `
+            <div style="display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #e6e6e6; border-radius: 6px; padding: 8px 12px;">
+              <div>${midSvg}</div>
+              <div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                  <span style="background: #000; color: #fff; font-size: 8px; font-weight: bold; padding: 1px 5px; border-radius: 2px;">MIDDLE</span>
+                  <span style="font-size: 10.5px; color: #333;">— ${middleNotesDesc}</span>
+                </div>
+                <div style="font-size: 11px; color: #555;">${middleNotes}</div>
+              </div>
+            </div>
+          `;
+        }
+        if (baseNotes) {
+          html += `
+            <div style="display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #e6e6e6; border-radius: 6px; padding: 8px 12px;">
+              <div>${baseSvg}</div>
+              <div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                  <span style="background: #000; color: #fff; font-size: 8px; font-weight: bold; padding: 1px 5px; border-radius: 2px;">BASE</span>
+                  <span style="font-size: 10.5px; color: #333;">— ${baseNotesDesc}</span>
+                </div>
+                <div style="font-size: 11px; color: #555;">${baseNotes}</div>
+              </div>
+            </div>
+          `;
+        }
+        html += `</div>`;
+      }
+
+      previewEl.innerHTML = html;
+    };
+
+    window.currentEditCustomisations = [];
 
     window.renderEditCustomisationBlocks = function() {
       const container = document.getElementById("editCustomisationBlocksContainer");
@@ -4930,6 +5271,40 @@
       document.getElementById("editProdSize50").checked = pSizes.includes("50ml");
       document.getElementById("editProdSize100").checked = pSizes.includes("100ml");
 
+      // Populate Scent Profile
+      const sp = product.scentProfile || {};
+      window.currentEditKeyNotes = sp.keyNotes ? JSON.parse(JSON.stringify(sp.keyNotes)) : [];
+      if (document.getElementById("editProdTopNotes")) {
+        document.getElementById("editProdTopNotes").value = sp.topNotes || "";
+      }
+      if (document.getElementById("editProdTopNotesDesc")) {
+        document.getElementById("editProdTopNotesDesc").value = sp.topNotesDesc || "The first notes you smell";
+      }
+      if (document.getElementById("editProdMiddleNotes")) {
+        document.getElementById("editProdMiddleNotes").value = sp.middleNotes || "";
+      }
+      if (document.getElementById("editProdMiddleNotesDesc")) {
+        document.getElementById("editProdMiddleNotesDesc").value = sp.middleNotesDesc || "The heart of the perfume";
+      }
+      if (document.getElementById("editProdBaseNotes")) {
+        document.getElementById("editProdBaseNotes").value = sp.baseNotes || "";
+      }
+      if (document.getElementById("editProdBaseNotesDesc")) {
+        document.getElementById("editProdBaseNotesDesc").value = sp.baseNotesDesc || "The notes that linger all day";
+      }
+      if (document.getElementById("editNoteSearchInput")) {
+        document.getElementById("editNoteSearchInput").value = "";
+      }
+      if (typeof window.renderEditKeyNotesSelection === "function") {
+        window.renderEditKeyNotesSelection();
+      }
+      if (typeof window.renderNoteLibraryGrid === "function") {
+        window.renderNoteLibraryGrid('');
+      }
+      if (typeof window.updateScentProfileLivePreview === "function") {
+        window.updateScentProfileLivePreview();
+      }
+
       window.currentEditCustomisations = product.customisations ? JSON.parse(JSON.stringify(product.customisations)) : [];
       if (typeof window.switchEditModalTab === "function") {
         window.switchEditModalTab("general");
@@ -4972,6 +5347,24 @@
       const bundleSize = isBundle ? parseInt(document.getElementById("editProdBundleSize").value) : 0;
       const sortOrderVal = document.getElementById("editProdSortOrder").value.trim();
       const sortOrder = sortOrderVal !== "" ? parseInt(sortOrderVal) : null;
+
+      // Extract Scent Profile
+      const topNotes = document.getElementById("editProdTopNotes") ? document.getElementById("editProdTopNotes").value.trim() : "";
+      const topNotesDesc = (document.getElementById("editProdTopNotesDesc") ? document.getElementById("editProdTopNotesDesc").value.trim() : "") || "The first notes you smell";
+      const middleNotes = document.getElementById("editProdMiddleNotes") ? document.getElementById("editProdMiddleNotes").value.trim() : "";
+      const middleNotesDesc = (document.getElementById("editProdMiddleNotesDesc") ? document.getElementById("editProdMiddleNotesDesc").value.trim() : "") || "The heart of the perfume";
+      const baseNotes = document.getElementById("editProdBaseNotes") ? document.getElementById("editProdBaseNotes").value.trim() : "";
+      const baseNotesDesc = (document.getElementById("editProdBaseNotesDesc") ? document.getElementById("editProdBaseNotesDesc").value.trim() : "") || "The notes that linger all day";
+
+      const scentProfile = {
+        keyNotes: window.currentEditKeyNotes || [],
+        topNotes: topNotes,
+        topNotesDesc: topNotesDesc,
+        middleNotes: middleNotes,
+        middleNotesDesc: middleNotesDesc,
+        baseNotes: baseNotes,
+        baseNotesDesc: baseNotesDesc
+      };
 
       if (!id || !name || isNaN(price) || isNaN(stock)) return;
       if (!imageInput && !fileInput) {
@@ -5037,7 +5430,8 @@
           sizes: sizes,
           isBundle: isBundle,
           bundleSize: bundleSize,
-          sortOrder: sortOrder
+          sortOrder: sortOrder,
+          scentProfile: scentProfile
       };
 
       if (window.minaraProducts) {
@@ -5097,6 +5491,7 @@
                       isBundle: isBundle,
                       bundleSize: bundleSize,
                       sortOrder: sortOrder,
+                      scentProfile: scentProfile,
                       timestamp: new Date().toISOString()
                   }),
                   timeoutPromise
@@ -5144,7 +5539,8 @@
                       sizes: sizes,
                       isBundle: isBundle,
                       bundleSize: bundleSize,
-                      sortOrder: sortOrder
+                      sortOrder: sortOrder,
+                      scentProfile: scentProfile
                   }
               });
               window.logAdminSave("✓ GitHub sync successful: " + (res.data ? res.data.message : "OK"));

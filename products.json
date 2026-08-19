@@ -29,7 +29,29 @@
     ],
     "isBundle": false,
     "bundleSize": 0,
-    "sortOrder": 1
+    "sortOrder": 1,
+    "scentProfile": {
+      "keyNotes": [
+        {
+          "name": "Lavender",
+          "icon": "Perfume Note Icons/Lavender.webp"
+        },
+        {
+          "name": "Cardamom",
+          "icon": "Perfume Note Icons/Cardamom.webp"
+        },
+        {
+          "name": "Vanilla",
+          "icon": "Perfume Note Icons/Vanilla.webp"
+        }
+      ],
+      "topNotes": "Lavender, Mint, Cardamom, Bergamot",
+      "topNotesDesc": "The first notes you smell",
+      "middleNotes": "Cinnamon, Orange Blossom, Caraway",
+      "middleNotesDesc": "The heart of the perfume",
+      "baseNotes": "Vanilla, Tonka Bean, Amber, Sandalwood, Cedar",
+      "baseNotesDesc": "The notes that linger all day"
+    }
   },
   {
     "id": "any-2-50ml-fragrances",
@@ -53,7 +75,29 @@
     ],
     "isBundle": true,
     "bundleSize": 2,
-    "sortOrder": 2
+    "sortOrder": 2,
+    "scentProfile": {
+      "keyNotes": [
+        {
+          "name": "Amberwood",
+          "icon": "Perfume Note Icons/Amberwood.webp"
+        },
+        {
+          "name": "Cedar",
+          "icon": "Perfume Note Icons/Cedar.webp"
+        },
+        {
+          "name": "Saffron",
+          "icon": "Perfume Note Icons/Saffron.webp"
+        }
+      ],
+      "topNotes": "Saffron, Orange Blossom",
+      "topNotesDesc": "The first notes you smell",
+      "middleNotes": "Jasmine, Plum, Cedarwood",
+      "middleNotesDesc": "The heart of the perfume",
+      "baseNotes": "Oakmoss, Fir Balsam, Amber",
+      "baseNotesDesc": "The notes that linger all day"
+    }
   },
   {
     "id": "inspired-by-creed-aventus",
@@ -90,7 +134,29 @@
     ],
     "isBundle": false,
     "bundleSize": 0,
-    "sortOrder": 3
+    "sortOrder": 3,
+    "scentProfile": {
+      "keyNotes": [
+        {
+          "name": "Pineapple",
+          "icon": "Perfume Note Icons/Pineapple.webp"
+        },
+        {
+          "name": "Bergamot",
+          "icon": "Perfume Note Icons/Bergamot.webp"
+        },
+        {
+          "name": "Oakmoss",
+          "icon": "Perfume Note Icons/Oakmoss.webp"
+        }
+      ],
+      "topNotes": "Pineapple, Bergamot, Blackcurrant, Apple",
+      "topNotesDesc": "The first notes you smell",
+      "middleNotes": "Birch, Patchouli, Moroccan Jasmine, Rose",
+      "middleNotesDesc": "The heart of the perfume",
+      "baseNotes": "Musk, Oakmoss, Ambergris, Vanilla",
+      "baseNotesDesc": "The notes that linger all day"
+    }
   },
   {
     "id": "inspired-by-parfums-de-marly-delina",
@@ -110,6 +176,28 @@
     ],
     "isBundle": false,
     "bundleSize": 0,
-    "sortOrder": 4
+    "sortOrder": 4,
+    "scentProfile": {
+      "keyNotes": [
+        {
+          "name": "Lychee",
+          "icon": "Perfume Note Icons/Lychee.webp"
+        },
+        {
+          "name": "Turkish Rose",
+          "icon": "Perfume Note Icons/Turkish_Rose.webp"
+        },
+        {
+          "name": "Vanilla",
+          "icon": "Perfume Note Icons/Vanilla.webp"
+        }
+      ],
+      "topNotes": "Lychee, Rhubarb, Bergamot, Nutmeg",
+      "topNotesDesc": "The first notes you smell",
+      "middleNotes": "Turkish Rose, Peony, Musk, Petalia, Vanilla",
+      "middleNotesDesc": "The heart of the perfume",
+      "baseNotes": "Cashmeran, Cedar, Incense, Haitian Vetiver",
+      "baseNotesDesc": "The notes that linger all day"
+    }
   }
 ]
