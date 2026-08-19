@@ -2,7 +2,7 @@
   "leftImage": "images/hero/left.avif",
   "rightImage": "images/hero/right.png",
   "mobileImage": "images/hero/mobile.avif",
-  "leftFlex": 1.6,
+  "leftFlex": 1,
   "leftScale": 1,
   "leftX": 67,
   "leftY": 61,
@@ -28,5 +28,5 @@
   "logoHomeMobileWidth": 100,
   "showGiftsButton": false,
   "hideRightImageDesktop": false,
-  "timestamp": "2026-08-19T10:23:00.000Z"
+  "timestamp": "2026-08-19T13:01:12.427Z"
 }
