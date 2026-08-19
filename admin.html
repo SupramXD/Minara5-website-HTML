@@ -2625,6 +2625,25 @@
                       </div>
                     </div>
 
+                    <div style="border-top: 1px solid var(--border-color); margin: 20px 0; padding-top: 15px;">
+                      <div style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px;">Scent Profile & Notes (Optional)</div>
+                      
+                      <div class="form-group">
+                        <label for="addProdTopNotes">Top Notes</label>
+                        <input type="text" id="addProdTopNotes" class="form-input" placeholder="e.g. Saffron, Orange Blossom, Bergamot" style="background:#1a1a24; color: #fff;">
+                      </div>
+
+                      <div class="form-group">
+                        <label for="addProdMiddleNotes">Middle / Heart Notes</label>
+                        <input type="text" id="addProdMiddleNotes" class="form-input" placeholder="e.g. Jasmine, Plum, Cedarwood" style="background:#1a1a24; color: #fff;">
+                      </div>
+
+                      <div class="form-group">
+                        <label for="addProdBaseNotes">Base Notes</label>
+                        <input type="text" id="addProdBaseNotes" class="form-input" placeholder="e.g. Oakmoss, Fir Balsam, Amber" style="background:#1a1a24; color: #fff;">
+                      </div>
+                    </div>
+
                     <button type="submit" class="btn-action accent-btn" style="width: 100%; padding: 14px; margin-top: 10px;">Inject Product into Catalog</button>
                   </form>
                 </div>
@@ -4447,6 +4466,24 @@
       const sortOrderVal = document.getElementById("prodSortOrder").value.trim();
       const sortOrder = sortOrderVal !== "" ? parseInt(sortOrderVal) : null;
 
+      // Extract Scent Profile
+      const addTopNotes = document.getElementById("addProdTopNotes") ? document.getElementById("addProdTopNotes").value.trim() : "";
+      const addMiddleNotes = document.getElementById("addProdMiddleNotes") ? document.getElementById("addProdMiddleNotes").value.trim() : "";
+      const addBaseNotes = document.getElementById("addProdBaseNotes") ? document.getElementById("addProdBaseNotes").value.trim() : "";
+      
+      let scentProfile = null;
+      if (addTopNotes || addMiddleNotes || addBaseNotes) {
+        scentProfile = {
+          keyNotes: [],
+          topNotes: addTopNotes,
+          topNotesDesc: "The first notes you smell",
+          middleNotes: addMiddleNotes,
+          middleNotesDesc: "The heart of the perfume",
+          baseNotes: addBaseNotes,
+          baseNotesDesc: "The notes that linger all day"
+        };
+      }
+
       if (!name || isNaN(price) || isNaN(stock) || !description) return;
       if (!imageInput && !fileInput) {
         alert("Please either provide an Image Path/URL or select a file to upload.");
@@ -4499,7 +4536,7 @@
           isBundle: isBundle,
           bundleSize: bundleSize,
           sortOrder: sortOrder,
-          scentProfile: null
+          scentProfile: scentProfile
       };
 
       try {
@@ -4545,7 +4582,7 @@
                       isBundle: isBundle,
                       bundleSize: bundleSize,
                       sortOrder: sortOrder,
-                      scentProfile: null,
+                      scentProfile: scentProfile,
                       timestamp: new Date().toISOString()
                   }),
                   timeoutPromise
@@ -4590,7 +4627,7 @@
                       isBundle: isBundle,
                       bundleSize: bundleSize,
                       sortOrder: sortOrder,
-                      scentProfile: null
+                      scentProfile: scentProfile
                   }
               });
               console.log("GitHub sync successful for: " + name);
