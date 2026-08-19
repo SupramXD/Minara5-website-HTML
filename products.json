@@ -37,19 +37,27 @@
           "icon": "Perfume Note Icons/Lavender.webp"
         },
         {
-          "name": "Cardamom",
-          "icon": "Perfume Note Icons/Cardamom.webp"
-        },
-        {
           "name": "Vanilla",
           "icon": "Perfume Note Icons/Vanilla.webp"
+        },
+        {
+          "name": "Bergamot",
+          "icon": "Perfume Note Icons/Bergamot.webp"
+        },
+        {
+          "name": "Ceylon Cinnamon",
+          "icon": "Perfume Note Icons/Ceylon_Cinnamon.webp"
+        },
+        {
+          "name": "Amber",
+          "icon": "Perfume Note Icons/Amber.webp"
         }
       ],
-      "topNotes": "Lavender, Mint, Cardamom, Bergamot, Artemisia",
+      "topNotes": "Lavender, Vanilla Bergamot",
       "topNotesDesc": "The first notes you smell",
-      "middleNotes": "Cinnamon, Orange Blossom, Caraway",
+      "middleNotes": "Cinnamon",
       "middleNotesDesc": "The heart of the perfume",
-      "baseNotes": "Vanilla, Tonka Bean, Amber, Sandalwood, Cedar",
+      "baseNotes": "Vanilla, Amber",
       "baseNotesDesc": "The notes that linger all day"
     }
   },
