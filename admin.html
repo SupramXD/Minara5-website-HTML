@@ -3194,6 +3194,7 @@
     // ==========================================
     // Product edit modal & scent profile moved to js/admin/admin-products.js
     window.updateHeroPreview = function() {
+      const hideRight = document.getElementById("heroHideRightImageDesktop") ? document.getElementById("heroHideRightImageDesktop").checked : false;
       const leftFlexEl = document.getElementById("heroLeftFlex");
       const leftFlexValEl = document.getElementById("heroLeftFlexVal");
       if (leftFlexEl) leftFlexEl.disabled = false;
@@ -3692,74 +3693,92 @@
       }
 
       // Setup Drag-and-Drop Drop Zones
-      document.querySelectorAll(".drop-zone").forEach(dropZone => {
-        const input = dropZone.querySelector("input[type='file']");
-        if (!input) return;
+      window.setupDropZones = function() {
+        document.querySelectorAll(".drop-zone").forEach(dropZone => {
+          if (dropZone.dataset.dropInit === "true") return;
+          dropZone.dataset.dropInit = "true";
+          const input = dropZone.querySelector("input[type='file']");
+          if (!input) return;
 
-        // Click to browse
-        dropZone.addEventListener("click", (e) => {
-          if (e.target !== input) {
-            input.click();
-          }
-        });
+          // Click to browse
+          dropZone.addEventListener("click", (e) => {
+            if (e.target !== input) {
+              input.click();
+            }
+          });
 
-        // Drag over
-        dropZone.addEventListener("dragover", (e) => {
-          e.preventDefault();
-          dropZone.classList.add("drag-over");
-        });
+          // Drag over
+          dropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add("drag-over");
+          });
 
-        ["dragleave", "dragend"].forEach(type => {
-          dropZone.addEventListener(type, () => {
+          ["dragleave", "dragend"].forEach(type => {
+            dropZone.addEventListener(type, (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              dropZone.classList.remove("drag-over");
+            });
+          });
+
+          // Drop file
+          dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             dropZone.classList.remove("drag-over");
-          });
-        });
 
-        // Drop file
-        dropZone.addEventListener("drop", (e) => {
-          e.preventDefault();
-          dropZone.classList.remove("drag-over");
-
-          if (e.dataTransfer.files.length) {
-            input.files = e.dataTransfer.files;
-            
-            // Trigger change event
-            const event = new Event("change", { bubbles: true });
-            input.dispatchEvent(event);
-          }
-        });
-
-        // Update label/prompt on file change
-        input.addEventListener("change", () => {
-          let filenameSpan = dropZone.querySelector(".drop-zone__filename");
-          if (!filenameSpan) {
-            filenameSpan = document.createElement("span");
-            filenameSpan.className = "drop-zone__filename";
-            dropZone.appendChild(filenameSpan);
-          }
-
-          if (input.files.length) {
-            const file = input.files[0];
-            filenameSpan.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-            const prompt = dropZone.querySelector(".drop-zone__prompt");
-            if (prompt) prompt.style.display = "none";
-          } else {
-            filenameSpan.remove();
-            const prompt = dropZone.querySelector(".drop-zone__prompt");
-            if (prompt) prompt.style.display = "block";
-          }
-        });
-
-        // Handle form reset
-        const form = dropZone.closest("form");
-        if (form) {
-          form.addEventListener("reset", () => {
-            setTimeout(() => {
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+              try {
+                input.files = e.dataTransfer.files;
+              } catch (err) {
+                try {
+                  const dt = new DataTransfer();
+                  for (let i = 0; i < e.dataTransfer.files.length; i++) {
+                    dt.items.add(e.dataTransfer.files[i]);
+                  }
+                  input.files = dt.files;
+                } catch (dtErr) {}
+              }
+              
+              // Trigger change event
               input.dispatchEvent(new Event("change", { bubbles: true }));
-            }, 0);
+            }
           });
-        }
-      });
+
+          // Update label/prompt on file change
+          input.addEventListener("change", () => {
+            let filenameSpan = dropZone.querySelector(".drop-zone__filename");
+            if (!filenameSpan) {
+              filenameSpan = document.createElement("span");
+              filenameSpan.className = "drop-zone__filename";
+              dropZone.appendChild(filenameSpan);
+            }
+
+            if (input.files && input.files.length) {
+              const file = input.files[0];
+              filenameSpan.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+              const prompt = dropZone.querySelector(".drop-zone__prompt");
+              if (prompt) prompt.style.display = "none";
+            } else {
+              filenameSpan.remove();
+              const prompt = dropZone.querySelector(".drop-zone__prompt");
+              if (prompt) prompt.style.display = "block";
+            }
+          });
+
+          // Handle form reset
+          const form = dropZone.closest("form");
+          if (form) {
+            form.addEventListener("reset", () => {
+              setTimeout(() => {
+                input.dispatchEvent(new Event("change", { bubbles: true }));
+              }, 0);
+            });
+          }
+        });
+      };
+      window.setupDropZones();
 
       setTimeout(async () => {
         if (window.dbPromise) {
