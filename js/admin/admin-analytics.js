@@ -1724,7 +1724,7 @@ Total: R${order.total || 0}
     }
 
     function renderOrderStatusChart(orders) {
-      
+      let shipped = 0;
       let pending = 0;
       let delivered = 0;
       let cancelled = 0;
