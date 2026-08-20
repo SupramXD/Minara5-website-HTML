@@ -91,12 +91,14 @@
             renderAdminDashboard();
             
             document.body.style.display = "block";
-            fetchSubscribers();
-            loadCatalog();
-            fetchUsers();
-            loadHeroSettings();
-            loadCustomTextSettings();
-            loadAdminOrders();
+            if (typeof fetchSubscribers === "function") fetchSubscribers();
+            if (typeof loadCatalog === "function") loadCatalog();
+            else if (typeof window.loadCatalog === "function") window.loadCatalog();
+            if (typeof fetchUsers === "function") fetchUsers();
+            if (typeof loadHeroSettings === "function") loadHeroSettings();
+            if (typeof loadCustomTextSettings === "function") loadCustomTextSettings();
+            if (typeof loadAdminOrders === "function") loadAdminOrders();
+            else if (typeof window.loadAdminOrders === "function") window.loadAdminOrders();
             return;
           }
         } catch (e) {
