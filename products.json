@@ -194,5 +194,38 @@
       "baseNotes": "Cashmeran, Cedar, Incense, Haitian Vetiver",
       "baseNotesDesc": "The notes that linger all day"
     }
+  },
+  {
+    "id": "test",
+    "nameShort": "test",
+    "name": "test",
+    "price": 444,
+    "retailPrice": 1333,
+    "stock": 3,
+    "image": "images/products/test.webp",
+    "image_thumb": "images/products/test_thumb.webp",
+    "description": "testesttestes",
+    "status": "Active",
+    "flair": "Unisex",
+    "invisibleFlair": "unisex",
+    "standardBottleImg": "",
+    "masculinePremiumBottleImg": "",
+    "femininePremiumBottleImg": "",
+    "customisations": [],
+    "sizes": [
+      "50ml"
+    ],
+    "isBundle": false,
+    "bundleSize": 0,
+    "sortOrder": 5,
+    "scentProfile": {
+      "keyNotes": [],
+      "topNotes": "affron",
+      "topNotesDesc": "The first notes you smell",
+      "middleNotes": "jasmine",
+      "middleNotesDesc": "The heart of the perfume",
+      "baseNotes": "oakmoss",
+      "baseNotesDesc": "The notes that linger all day"
+    }
   }
 ]
