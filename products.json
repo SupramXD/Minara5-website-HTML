@@ -219,7 +219,24 @@
     "bundleSize": 0,
     "sortOrder": 5,
     "scentProfile": {
-      "keyNotes": [],
+      "keyNotes": [
+        {
+          "name": "Amber",
+          "icon": "Perfume Note Icons/Amber.webp"
+        },
+        {
+          "name": "Ambergris",
+          "icon": "Perfume Note Icons/Ambergris.webp"
+        },
+        {
+          "name": "Amberwood",
+          "icon": "Perfume Note Icons/Amberwood.webp"
+        },
+        {
+          "name": "Basil",
+          "icon": "Perfume Note Icons/Basil.webp"
+        }
+      ],
       "topNotes": "affron",
       "topNotesDesc": "The first notes you smell",
       "middleNotes": "jasmine",
