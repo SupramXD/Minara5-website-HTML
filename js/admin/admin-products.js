@@ -3,24 +3,74 @@ window.minaraProducts = window.minaraProducts || [];
 var minaraProducts = window.minaraProducts;
 
 function compressImage(file, maxWidth = 1200, quality = 0.80) {
-  if (typeof window.compressImage === 'function') return window.compressImage(file, maxWidth, quality);
-  return new Promise((resolve) => resolve(''));
+  return new Promise((resolve, reject) => {
+    if (!file) return resolve('');
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/webp', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = function(err) { reject(err); };
+      img.src = event.target.result;
+    };
+    reader.onerror = function(err) { reject(err); };
+    reader.readAsDataURL(file);
+  });
 }
+window.compressImage = compressImage;
+
 function sanitizeImageUrl(url) {
-  if (typeof window.sanitizeImageUrl === 'function') return window.sanitizeImageUrl(url);
-  return (url || '').trim();
+  if (!url || typeof url !== 'string') return "";
+  const trimmed = url.trim();
+  if (trimmed.startsWith("file:") || trimmed.includes(":\\") || trimmed.includes("antigravity-ide")) {
+    const idx = trimmed.indexOf("images/");
+    if (idx !== -1) {
+      return trimmed.substring(idx);
+    }
+    return "";
+  }
+  return trimmed;
 }
+window.sanitizeImageUrl = sanitizeImageUrl;
+
 function logAdminSave(msg, isError = false) {
-  if (typeof window.logAdminSave === 'function') window.logAdminSave(msg, isError);
+  console.log("[AdminSaveLog]", msg);
+  const box = document.getElementById("adminSaveLogBox");
+  if (box) {
+    box.style.display = "block";
+    const timestamp = new Date().toLocaleTimeString();
+    const color = isError ? "#ff4444" : "#00ff66";
+    box.innerHTML += `<div style="color: ${color}; margin-bottom: 3px;">[${timestamp}] ${msg}</div>`;
+    box.scrollTop = box.scrollHeight;
+  }
 }
+window.logAdminSave = logAdminSave;
+
 function formatPrice(val) {
-  if (typeof window.formatPrice === 'function') return window.formatPrice(val);
-  return val ? Math.round(Number(val)).toString() : "0";
+  return (val !== undefined && val !== null && !isNaN(val)) ? Math.round(Number(val)).toString() : "0";
 }
+window.formatPrice = formatPrice;
+
 function formatRetailPrice(val) {
-  if (typeof window.formatRetailPrice === 'function') return window.formatRetailPrice(val);
-  return val ? Math.round(Number(val)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "0";
+  if (val === undefined || val === null || isNaN(val)) return "0";
+  return Math.round(Number(val)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+window.formatRetailPrice = formatRetailPrice;
 
 // --- 1. CATALOG LOADING & PRODUCT TABLE ---
 async function loadCatalog() {
