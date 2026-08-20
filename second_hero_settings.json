@@ -1,7 +1,7 @@
 {
   "leftImage": "images/second-hero/left.avif",
   "rightImage": "images/second-hero/right.avif",
-  "mobileImage": "images/second-hero/studio-extrait-perfumes.avif",
+  "mobileImage": "images/second-hero/mobile.avif",
   "leftFlex": 1.4,
   "leftScale": 1,
   "leftX": 50,
@@ -14,5 +14,5 @@
   "mobileScale": 1,
   "mobileX": 50,
   "mobileY": 50,
-  "timestamp": "2026-08-13T09:43:34.990Z"
+  "timestamp": "2026-08-20T13:01:49.141Z"
 }
