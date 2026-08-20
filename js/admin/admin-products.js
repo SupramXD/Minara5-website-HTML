@@ -2,6 +2,26 @@
 window.minaraProducts = window.minaraProducts || [];
 var minaraProducts = window.minaraProducts;
 
+function compressImage(file, maxWidth = 1200, quality = 0.80) {
+  if (typeof window.compressImage === 'function') return window.compressImage(file, maxWidth, quality);
+  return new Promise((resolve) => resolve(''));
+}
+function sanitizeImageUrl(url) {
+  if (typeof window.sanitizeImageUrl === 'function') return window.sanitizeImageUrl(url);
+  return (url || '').trim();
+}
+function logAdminSave(msg, isError = false) {
+  if (typeof window.logAdminSave === 'function') window.logAdminSave(msg, isError);
+}
+function formatPrice(val) {
+  if (typeof window.formatPrice === 'function') return window.formatPrice(val);
+  return val ? Math.round(Number(val)).toString() : "0";
+}
+function formatRetailPrice(val) {
+  if (typeof window.formatRetailPrice === 'function') return window.formatRetailPrice(val);
+  return val ? Math.round(Number(val)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "0";
+}
+
 // --- 1. CATALOG LOADING & PRODUCT TABLE ---
 async function loadCatalog() {
       const tableBody = document.querySelector("#catalogTable tbody");
@@ -1067,6 +1087,11 @@ window.PERFUME_NOTE_LIBRARY = [
       const bundleSize = isBundle ? parseInt(document.getElementById("editProdBundleSize").value) : 0;
       const sortOrderVal = document.getElementById("editProdSortOrder").value.trim();
       const sortOrder = sortOrderVal !== "" ? parseInt(sortOrderVal) : null;
+
+      const sizes = [];
+      if (document.getElementById("editProdSize50") && document.getElementById("editProdSize50").checked) sizes.push("50ml");
+      if (document.getElementById("editProdSize100") && document.getElementById("editProdSize100").checked) sizes.push("100ml");
+      if (sizes.length === 0) sizes.push("50ml", "100ml");
 
       // Extract Scent Profile
       const topNotes = document.getElementById("editProdTopNotes") ? document.getElementById("editProdTopNotes").value.trim() : "";
