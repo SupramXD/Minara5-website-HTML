@@ -225,7 +225,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
 
   try {
     if (action === "saveProduct") {
-      const {id, nameShort, name, price, retailPrice, stock, image, image_thumb, description, status, flair, invisibleFlair, standardBottleImg, masculinePremiumBottleImg, femininePremiumBottleImg, customisations, sizes, isBundle, bundleSize, sortOrder, scentProfile} = payload;
+      const {id, nameShort, name, price, retailPrice, stock, image, image_thumb, galleryImages, description, status, flair, invisibleFlair, standardBottleImg, masculinePremiumBottleImg, femininePremiumBottleImg, customisations, sizes, isBundle, bundleSize, sortOrder, scentProfile} = payload;
 
       const {sha: jsonSha, content: jsonContent} = await getFileShaAndContent("products.json", token);
       let productsList = [];
@@ -346,6 +346,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
           Number(retailPrice) : null,
         stock: Number(stock),
         image: mainImagePath,
+        galleryImages: galleryImages || (mainImagePath ? mainImagePath.split(",").map((s) => s.trim()) : []),
         image_thumb: thumbImagePath || "",
         description: description || "",
         status: status || "Active",
@@ -403,6 +404,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
                 Number(retailPrice) : null,
               stock: Number(stock),
               image: mainImagePath,
+              galleryImages: galleryImages || (mainImagePath ? mainImagePath.split(",").map((s) => s.trim()) : []),
               image_thumb: thumbImagePath || "",
               description: description || "",
               status: status || "Active",

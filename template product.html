@@ -931,14 +931,13 @@
             opacity: 0.8;
         }
 
-        /* =============== IMAGE SLIDER & DOTS =============== */
+        /* =============== IMAGE GALLERY (DESKTOP: STACKED / MOBILE: SWIPE SLIDER) =============== */
         .slider {
-            width: 80% !important;
-            margin: 0 auto !important;
-            aspect-ratio: 1 / 1;
-            overflow: hidden;
+            width: 100% !important;
+            margin: 0 !important;
+            overflow: visible;
             position: relative;
-            background: #fcfaf8;
+            background: transparent;
         }
 
         .slider.bundle-slider {
@@ -963,77 +962,28 @@
 
         .slider-track {
             display: flex;
-            transition: transform 0.45s cubic-bezier(.45, 0, .25, 1);
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
         }
 
         .slider-track img {
             width: 100%;
             aspect-ratio: 1 / 1;
             object-fit: cover;
-            flex: 0 0 100%;
+            display: block;
+            border-radius: 4px;
             user-select: none;
+            background: #fcfaf8;
+            transition: opacity 0.2s ease;
         }
 
         .arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 32px;
-            color: #000;
-            background: transparent;
-            width: auto;
-            height: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            user-select: none;
-            transition: opacity 0.2s ease;
-            z-index: 5;
-            opacity: 0;
-            border: none;
-            padding: 0 10px;
-        }
-
-        .arrow:hover {
-            opacity: 0.6;
-        }
-
-        .arrow-left {
-            left: 15px;
-        }
-
-        .arrow-right {
-            right: 15px;
-        }
-
-        .arrow.visible {
-            opacity: 1;
+            display: none !important;
         }
 
         .slider-dots {
-            display: flex;
-            justify-content: center;
-            margin: 12px 0 0px;
-            gap: 6px;
-        }
-
-        .slider-dots div {
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: #000;
-            opacity: 0.15;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .slider-dots div.active {
-            opacity: 0.6;
-        }
-
-        .slider-dots div:hover {
-            opacity: 0.4;
+            display: none;
         }
 
         /* =============== PRODUCT DESCRIPTION & BACK =============== */
@@ -1049,14 +999,17 @@
         }
 
         .back-link {
-            font-size: 9px;
-            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
             color: #000;
             text-decoration: none;
-            font-weight: normal;
+            margin-bottom: 20px;
             transition: opacity 0.2s ease;
-            display: inline-block;
         }
 
         .back-link:hover {
@@ -1085,11 +1038,11 @@
         .product-media-wrap {
             width: 55% !important;
             max-width: 620px !important;
-            position: sticky !important;
-            top: 85px !important;
+            position: relative !important;
+            top: auto !important;
             display: flex !important;
             flex-direction: column !important;
-            align-items: center !important;
+            align-items: flex-start !important;
             box-sizing: border-box;
         }
 
@@ -1101,6 +1054,9 @@
             flex-direction: column !important;
             align-items: flex-start !important;
             box-sizing: border-box;
+            position: sticky !important;
+            top: 85px !important;
+            align-self: flex-start !important;
         }
 
         #topRatingSummary {
@@ -1141,13 +1097,69 @@
                 width: 100% !important;
                 max-width: 100% !important;
                 position: relative !important;
-                top: 0 !important;
+                top: auto !important;
+                align-items: center !important;
+            }
+
+            .product-info-wrap {
+                width: 100% !important;
+                max-width: 100% !important;
+                position: relative !important;
+                top: auto !important;
             }
 
             .slider {
-                width: 80% !important;
+                width: 100% !important;
+                max-width: 440px !important;
                 margin: 0 auto !important;
-                aspect-ratio: 1 / 1;
+                aspect-ratio: 1 / 1 !important;
+                overflow: hidden !important;
+                position: relative !important;
+                border-radius: 4px;
+                background: #fcfaf8;
+                touch-action: pan-y;
+            }
+
+            .slider-track {
+                display: flex !important;
+                flex-direction: row !important;
+                gap: 0 !important;
+                transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+                width: 100% !important;
+                height: 100% !important;
+            }
+
+            .slider-track img {
+                width: 100% !important;
+                min-width: 100% !important;
+                flex: 0 0 100% !important;
+                aspect-ratio: 1 / 1 !important;
+                object-fit: cover !important;
+                border-radius: 4px;
+            }
+
+            .slider-dots {
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                gap: 6px !important;
+                margin-top: 12px !important;
+                width: 100% !important;
+            }
+
+            .slider-dots div {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: rgba(0, 0, 0, 0.2);
+                cursor: pointer;
+                transition: all 0.25s ease;
+            }
+
+            .slider-dots div.active {
+                width: 18px;
+                border-radius: 3px;
+                background: #000;
             }
 
             .slider.bundle-slider {
@@ -2638,14 +2650,6 @@
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <div>
                         <label
-                            style="display: block; font-size: 8px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.5; letter-spacing: 0.5px;">When
-                            to Wear It</label>
-                        <textarea id="editWearingOccasion"
-                            style="width: 100%; font-size: 11px; font-family: inherit; border: 0.5px solid #ccc; padding: 8px; box-sizing: border-box; resize: vertical; outline: none;"
-                            rows="2"></textarea>
-                    </div>
-                    <div>
-                        <label
                             style="display: block; font-size: 8px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.5; letter-spacing: 0.5px;">Honest
                             Comparison (Inspired - use {brand} placeholder)</label>
                         <textarea id="editHonestInspired"
@@ -2680,18 +2684,6 @@
             </div>
 
             <div class="accordion-container">
-                <div class="accordion-item">
-                    <button class="accordion-header" onclick="toggleAccordion(this)">
-                        <span>When to Wear It</span>
-                        <span class="accordion-icon">›</span>
-                    </button>
-                    <div class="accordion-content">
-                        <p id="wearingOccasion">Crafted with high oil concentration for excellent 8-12 hour longevity
-                            and powerful projection. Ideal for daily signatures, special nights out, or seasonal
-                            versatility.</p>
-                    </div>
-                </div>
-
                 <div class="accordion-item">
                     <button class="accordion-header" onclick="toggleAccordion(this)">
                         <span>Honest Comparison</span>
@@ -4062,25 +4054,15 @@
                 }
 
                 const updateMainSliderImage = (opt) => {
-                    const track = document.querySelector('.slider-track');
-                    if (!track) return;
-
                     const targetImg = (opt.img && opt.img.trim()) ? opt.img.trim() : (opt.fallbackImg || (p.image ? p.image.split(',')[0].trim() : ""));
-                    if (targetImg) {
-                        track.innerHTML = "";
-                        const imgEl = document.createElement('img');
-                        imgEl.src = targetImg;
-                        imgEl.alt = p.name || 'Product';
-                        imgEl.onerror = () => {
-                            if (opt.dataImg && imgEl.src !== opt.dataImg) {
-                                imgEl.src = opt.dataImg;
-                            } else if (opt.fallbackImg && imgEl.src !== opt.fallbackImg) {
-                                imgEl.src = opt.fallbackImg;
-                            } else if (p.image) {
-                                imgEl.src = p.image.split(',')[0].trim();
-                            }
-                        };
-                        track.appendChild(imgEl);
+                    const rawImages = p.galleryImages && Array.isArray(p.galleryImages) && p.galleryImages.length > 0 
+                        ? p.galleryImages 
+                        : (p.image ? (p.image.startsWith('data:') ? [p.image] : p.image.split(',').map(s => s.trim()).filter(Boolean)) : []);
+                    
+                    const remainingGallery = rawImages.slice(1);
+                    const fullImagesList = targetImg ? [targetImg, ...remainingGallery] : rawImages;
+                    if (typeof window.renderProductGallery === 'function') {
+                        window.renderProductGallery(fullImagesList, p);
                     }
                 };
 
@@ -4488,53 +4470,125 @@
                     deliveryDates.textContent = `${formatDate(d3_start)} to ${formatDate(d3_end)}`;
                 }
 
-                // Image slider
-                const track = document.querySelector('.slider-track');
-                const sliderWrap = document.getElementById('slider');
-                if (sliderWrap) {
-                    if (p.isBundle) {
+                // Render Product Gallery (Desktop stacked / Mobile swipe carousel)
+                window.renderProductGallery = function(images, prod) {
+                    const track = document.getElementById('sliderTrack') || document.querySelector('.slider-track');
+                    const sliderWrap = document.getElementById('slider');
+                    const dotsContainer = document.querySelector('.slider-dots');
+                    if (!track || !sliderWrap) return;
+
+                    if (prod && prod.isBundle) {
                         sliderWrap.classList.add('bundle-slider');
                     } else {
                         sliderWrap.classList.remove('bundle-slider');
                     }
-                }
-                if (track && p.image) {
-                    track.innerHTML = ""; // Clear safely
-                    const images = p.image.startsWith('data:') ? [p.image] : p.image.split(',');
-                    images.forEach(img => {
-                        const src = img.trim();
+
+                    track.innerHTML = "";
+                    let imgList = images;
+                    if (!imgList || !Array.isArray(imgList) || imgList.length === 0) {
+                        imgList = prod && prod.image ? (prod.image.startsWith('data:') ? [prod.image] : prod.image.split(',').map(s => s.trim()).filter(Boolean)) : ["Studio Extrait Icon Svg only logo.svg"];
+                    }
+
+                    imgList.forEach((src, idx) => {
+                        const cleanSrc = (src || "").trim();
+                        if (!cleanSrc) return;
                         const imgEl = document.createElement('img');
-                        imgEl.src = src;
-                        imgEl.setAttribute('alt', p.name || 'Product');
+                        imgEl.src = cleanSrc;
+                        imgEl.alt = `${(prod && prod.name) || 'Product'} ${idx + 1}`;
+                        imgEl.loading = idx === 0 ? "eager" : "lazy";
+                        imgEl.onerror = () => {
+                            if (idx === 0 && prod && prod.image) {
+                                imgEl.src = prod.image.split(',')[0].trim();
+                            }
+                        };
                         track.appendChild(imgEl);
                     });
 
-                    // Re-setup slider dots if there are multiple images
-                    const dotsContainer = document.querySelector('.slider-dots');
-                    if (dotsContainer) {
-                        if (images.length > 1) {
-                            let dotsHtml = "";
-                            images.forEach((_, i) => {
-                                dotsHtml += `<div class="${i === 0 ? 'active' : ''}"></div>`;
-                            });
-                            dotsContainer.innerHTML = dotsHtml;
+                    const totalSlides = track.children.length;
+                    let currentSlide = 0;
 
-                            // Re-bind dots clicks
-                            const dots = dotsContainer.querySelectorAll('div');
-                            dots.forEach((dot, idx) => {
-                                dot.onclick = () => {
-                                    // Find slider track width
-                                    const imgWidth = track.querySelector('img').offsetWidth;
-                                    track.style.transform = `translateX(-${idx * imgWidth}px)`;
-                                    dots.forEach(d => d.classList.remove('active'));
-                                    dot.classList.add('active');
-                                };
-                            });
+                    function goToSlide(index) {
+                        if (index < 0) index = 0;
+                        if (index >= totalSlides) index = totalSlides - 1;
+                        currentSlide = index;
+
+                        if (window.innerWidth <= 900) {
+                            const slideWidth = sliderWrap.offsetWidth || window.innerWidth;
+                            track.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
                         } else {
-                            dotsContainer.innerHTML = ""; // Hide dots if only 1 image
+                            track.style.transform = "none";
+                        }
+
+                        if (dotsContainer) {
+                            const dots = dotsContainer.querySelectorAll('div');
+                            dots.forEach((d, i) => {
+                                if (i === currentSlide) d.classList.add('active');
+                                else d.classList.remove('active');
+                            });
                         }
                     }
-                }
+                    window.goToProductSlide = goToSlide;
+
+                    // Setup dots for mobile
+                    if (dotsContainer) {
+                        if (totalSlides > 1) {
+                            let dotsHtml = "";
+                            for (let i = 0; i < totalSlides; i++) {
+                                dotsHtml += `<div class="${i === 0 ? 'active' : ''}" onclick="window.goToProductSlide(${i})"></div>`;
+                            }
+                            dotsContainer.innerHTML = dotsHtml;
+                        } else {
+                            dotsContainer.innerHTML = "";
+                        }
+                    }
+
+                    // Touch swipe listeners for mobile
+                    let touchStartX = 0;
+                    let touchStartY = 0;
+                    let touchEndX = 0;
+                    let isSwiping = false;
+
+                    sliderWrap.ontouchstart = function(e) {
+                        if (window.innerWidth > 900 || totalSlides <= 1) return;
+                        touchStartX = e.touches[0].clientX;
+                        touchStartY = e.touches[0].clientY;
+                        touchEndX = touchStartX;
+                        isSwiping = true;
+                    };
+
+                    sliderWrap.ontouchmove = function(e) {
+                        if (!isSwiping || window.innerWidth > 900 || totalSlides <= 1) return;
+                        const currentX = e.touches[0].clientX;
+                        const currentY = e.touches[0].clientY;
+                        const diffX = currentX - touchStartX;
+                        const diffY = currentY - touchStartY;
+                        if (Math.abs(diffX) > Math.abs(diffY)) {
+                            touchEndX = currentX;
+                        }
+                    };
+
+                    sliderWrap.ontouchend = function() {
+                        if (!isSwiping || window.innerWidth > 900 || totalSlides <= 1) return;
+                        isSwiping = false;
+                        const swipeDiff = touchStartX - touchEndX;
+                        if (Math.abs(swipeDiff) > 35) {
+                            if (swipeDiff > 0) {
+                                goToSlide(currentSlide + 1);
+                            } else {
+                                goToSlide(currentSlide - 1);
+                            }
+                        }
+                        touchStartX = 0;
+                        touchEndX = 0;
+                    };
+
+                    goToSlide(0);
+                };
+
+                const initialGalleryImages = p.galleryImages && Array.isArray(p.galleryImages) && p.galleryImages.length > 0
+                    ? p.galleryImages
+                    : (p.image ? (p.image.startsWith('data:') ? [p.image] : p.image.split(',').map(s => s.trim()).filter(Boolean)) : []);
+                window.renderProductGallery(initialGalleryImages, p);
 
                 // Description (bio)
                 const descEl = document.querySelector('.desc');

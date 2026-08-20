@@ -3152,14 +3152,28 @@
                     <div id="editOrderSlotsContainer" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;"></div>
                   </div>
 
-                  <div class="form-group">
-                    <label for="editProdImage">Product Image Path(s) / URL(s) <span style="text-transform: none; opacity: 0.5;">(comma-separated)</span></label>
-                    <input type="text" id="editProdImage" class="form-input">
+                  <!-- PRODUCT IMAGES & GALLERY MANAGER -->
+                  <div class="form-group" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 6px; padding: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                      <label style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 0;">Product Gallery & Photos</label>
+                      <button type="button" onclick="window.addEditGallerySlot()" style="background: rgba(204, 255, 0, 0.12); border: 1px solid var(--accent); color: var(--accent); font-size: 10px; font-weight: bold; padding: 4px 10px; border-radius: 4px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s ease;">+ Add More Images</button>
+                    </div>
+
+                    <!-- Main Image -->
+                    <label for="editProdImage" style="font-size: 11px; font-weight: bold;">Main Featured Photo (URL / Path)</label>
+                    <input type="text" id="editProdImage" class="form-input" placeholder="e.g. images/products/no23.avif">
+                    
                     <div style="margin: 8px 0; text-align: center; font-size: 10px; opacity: 0.5;">— OR UPLOAD & AUTOMATICALLY COMPRESS —</div>
-                    <div class="drop-zone">
+                    <div class="drop-zone" style="margin-bottom: 12px;">
                       <span class="drop-zone__icon">📤</span>
                       <span class="drop-zone__prompt">Drag & drop photo here or click to browse</span>
                       <input type="file" id="editProdFile" accept="image/*,.avif" style="display: none;">
+                    </div>
+
+                    <!-- Additional Gallery Images Stack -->
+                    <div style="margin-top: 12px;">
+                      <label style="font-size: 10.5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(255,255,255,0.7); margin-bottom: 6px;">Additional Gallery Images (Scrolls under main image on desktop / Swipes on mobile)</label>
+                      <div id="editGallerySlotsContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
                     </div>
                   </div>
 
@@ -5269,6 +5283,67 @@
       }
     };
 
+    // Gallery Images Manager functions
+    window.currentEditGalleryImages = [];
+
+    window.renderEditGallerySlots = function() {
+      const container = document.getElementById("editGallerySlotsContainer");
+      if (!container) return;
+      container.innerHTML = "";
+
+      if (!window.currentEditGalleryImages || window.currentEditGalleryImages.length === 0) {
+        container.innerHTML = `<div style="font-size: 11px; opacity: 0.4; font-style: italic; padding: 4px 0;">No additional gallery photos added yet. Click "+ Add More Images" above to add scrollable photos.</div>`;
+        return;
+      }
+
+      window.currentEditGalleryImages.forEach((imgUrl, idx) => {
+        const slot = document.createElement("div");
+        slot.style.display = "flex";
+        slot.style.alignItems = "center";
+        slot.style.gap = "8px";
+        slot.style.background = "rgba(255, 255, 255, 0.03)";
+        slot.style.border = "1px solid rgba(255, 255, 255, 0.08)";
+        slot.style.borderRadius = "4px";
+        slot.style.padding = "6px 8px";
+
+        slot.innerHTML = `
+          <img src="${imgUrl || 'Studio Extrait Icon Svg only logo.svg'}" style="width: 36px; height: 36px; border-radius: 4px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); background: #000; flex-shrink: 0;" onerror="this.src='Studio Extrait Icon Svg only logo.svg'" />
+          <input type="text" class="form-input edit-gallery-slot-input" value="${imgUrl}" placeholder="Image Path/URL (e.g. images/products/gallery-1.avif)" style="font-size: 11px; padding: 6px 8px; flex: 1;" oninput="this.previousElementSibling.src = this.value.trim() || 'Studio Extrait Icon Svg only logo.svg'; window.currentEditGalleryImages[${idx}] = this.value.trim();">
+          <label style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 10.5px; font-weight: bold; margin-bottom: 0;">
+            📁 Upload
+            <input type="file" accept="image/*,.avif" style="display:none;" onchange="window.handleGallerySlotUpload(${idx}, event)">
+          </label>
+          <button type="button" onclick="window.removeEditGallerySlot(${idx})" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 11px; font-weight: bold;" title="Remove this gallery image">✕</button>
+        `;
+        container.appendChild(slot);
+      });
+    };
+
+    window.addEditGallerySlot = function(initialUrl = '') {
+      if (!window.currentEditGalleryImages) window.currentEditGalleryImages = [];
+      window.currentEditGalleryImages.push(initialUrl);
+      window.renderEditGallerySlots();
+    };
+
+    window.removeEditGallerySlot = function(idx) {
+      if (!window.currentEditGalleryImages) return;
+      window.currentEditGalleryImages.splice(idx, 1);
+      window.renderEditGallerySlots();
+    };
+
+    window.handleGallerySlotUpload = async function(idx, event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const compressedBase64 = await compressImage(file, 1200, 0.90);
+        window.currentEditGalleryImages[idx] = compressedBase64;
+        window.renderEditGallerySlots();
+      } catch (err) {
+        console.error("Gallery image upload failed:", err);
+        alert("Failed to compress gallery image: " + err.message);
+      }
+    };
+
     window.openEditModal = function(productId) {
       if (!window.minaraProducts) return;
       const product = window.minaraProducts.find(p => p.id === productId);
@@ -5293,7 +5368,19 @@
       if (typeof window.renderOrderSlots === "function") {
           window.renderOrderSlots(editSortOrderInput, editHelpEl, editContainerEl, product.id);
       }
-      document.getElementById("editProdImage").value = sanitizeImageUrl(product.image);
+
+      // Populate Images & Additional Gallery Images
+      const rawImages = (product.image || "").split(",").map(s => s.trim()).filter(Boolean);
+      const mainImg = rawImages[0] || "";
+      const galleryImgs = (product.galleryImages && Array.isArray(product.galleryImages))
+        ? product.galleryImages
+        : rawImages.slice(1);
+
+      document.getElementById("editProdImage").value = sanitizeImageUrl(mainImg);
+      window.currentEditGalleryImages = galleryImgs.map(img => sanitizeImageUrl(img));
+      if (typeof window.renderEditGallerySlots === "function") {
+        window.renderEditGallerySlots();
+      }
       document.getElementById("editProdDesc").value = product.description;
       document.getElementById("editProdStatus").value = product.status;
       document.getElementById("editProdFlair").value = product.flair || "";
@@ -5446,9 +5533,16 @@
         }
       }
 
-      const sizes = [];
-      if (document.getElementById("editProdSize50").checked) sizes.push("50ml");
-      if (document.getElementById("editProdSize100").checked) sizes.push("100ml");
+      // Collect additional gallery images
+      const galleryInputs = document.querySelectorAll('.edit-gallery-slot-input');
+      const additionalGallery = [];
+      galleryInputs.forEach(input => {
+        const v = sanitizeImageUrl(input.value.trim());
+        if (v) additionalGallery.push(v);
+      });
+
+      const fullImageArray = [mainImageBase64, ...additionalGallery].filter(Boolean);
+      const combinedImageStr = fullImageArray.join(', ');
 
       const updatedProduct = {
           id: id,
@@ -5457,7 +5551,8 @@
           price: price,
           retailPrice: retailPrice,
           stock: stock,
-          image: mainImageBase64,
+          image: combinedImageStr,
+          galleryImages: fullImageArray,
           image_thumb: thumbImageBase64,
           description: description,
           status: status,
@@ -7303,24 +7398,78 @@
     }
     loadProductsCatalogForOrders();
 
-    // Helper: Find product thumbnail from order item or catalog
+    // Helper: Find product thumbnail from order item or catalog with customisation / bottle support
     function getProductImageForItem(item) {
-      if (item.image_thumb && typeof item.image_thumb === 'string' && item.image_thumb.trim()) {
-        return item.image_thumb.trim();
+      if (!item) return 'Studio Extrait Icon Svg only logo.svg';
+
+      // 1. Direct customisation / bottle / thumbnail image on the item itself
+      if (item.customImage && typeof item.customImage === 'string' && item.customImage.trim()) {
+        return item.customImage.trim();
       }
-      if (item.image && typeof item.image === 'string' && item.image.trim()) {
-        const splitted = item.image.split(',')[0].trim();
-        if (splitted) return splitted;
+      if (item.customImageThumb && typeof item.customImageThumb === 'string' && item.customImageThumb.trim()) {
+        return item.customImageThumb.trim();
       }
-      // Look up in catalog
+      if (item.bottleImg && typeof item.bottleImg === 'string' && item.bottleImg.trim()) {
+        return item.bottleImg.trim();
+      }
+
+      // 2. Look up product in catalog
       const nameToMatch = (item.name || item.nameShort || item.id || '').toLowerCase().trim();
       const found = minaraCatalogProducts.find(p => 
         (p.name && p.name.toLowerCase().trim() === nameToMatch) ||
         (p.nameShort && p.nameShort.toLowerCase().trim() === nameToMatch) ||
         (p.id && p.id.toLowerCase().trim() === nameToMatch)
       );
+
+      const customName = (item.selectedBottleCustomisation || item.bottleCustomisation || item.customisation || '').toLowerCase().trim();
+      const sizeName = (item.size || '').toLowerCase().trim();
+
       if (found) {
+        // If Masculine Premium bottle customisation
+        if ((customName.includes('masculine') || customName.includes('men')) && found.masculinePremiumBottleImg) {
+          return found.masculinePremiumBottleImg;
+        }
+        // If Feminine Premium bottle customisation
+        if ((customName.includes('feminine') || customName.includes('women')) && found.femininePremiumBottleImg) {
+          return found.femininePremiumBottleImg;
+        }
+        // If Standard bottle customisation
+        if (customName.includes('standard') && found.standardBottleImg) {
+          return found.standardBottleImg;
+        }
+        // Check found.customisations array
+        if (found.customisations && Array.isArray(found.customisations)) {
+          const matchedCust = found.customisations.find(c => {
+            const cName = (c.name || '').toLowerCase().trim();
+            return (customName && (customName.includes(cName) || cName.includes(customName))) ||
+                   (sizeName && (sizeName.includes(cName) || cName.includes(sizeName)));
+          });
+          if (matchedCust && (matchedCust.image || matchedCust.image_thumb)) {
+            return matchedCust.image_thumb || matchedCust.image;
+          }
+        }
+        // If size is 100ml and product has standardBottleImg
+        if (sizeName.includes('100ml') && found.standardBottleImg) {
+          if (!customName || customName.includes('standard')) {
+            return found.standardBottleImg;
+          }
+        }
+        if (item.image_thumb && typeof item.image_thumb === 'string' && item.image_thumb.trim()) {
+          return item.image_thumb.trim();
+        }
+        if (item.image && typeof item.image === 'string' && item.image.trim()) {
+          const splitted = item.image.split(',')[0].trim();
+          if (splitted) return splitted;
+        }
         return found.image_thumb || (found.image ? found.image.split(',')[0].trim() : '') || 'Studio Extrait Icon Svg only logo.svg';
+      }
+
+      if (item.image_thumb && typeof item.image_thumb === 'string' && item.image_thumb.trim()) {
+        return item.image_thumb.trim();
+      }
+      if (item.image && typeof item.image === 'string' && item.image.trim()) {
+        const splitted = item.image.split(',')[0].trim();
+        if (splitted) return splitted;
       }
       return 'Studio Extrait Icon Svg only logo.svg';
     }
@@ -7783,10 +7932,13 @@
         if (order.items && Array.isArray(order.items)) {
           order.items.forEach(item => {
             const thumbUrl = getProductImageForItem(item);
+            const customTag = (item.selectedBottleCustomisation || item.bottleCustomisation || item.customisation) 
+              ? `<span style="font-size: 8.5px; background: rgba(255,255,255,0.1); color: #fff; padding: 1px 4px; border-radius: 3px; margin-left: 4px;">🏷️ ${item.selectedBottleCustomisation || item.bottleCustomisation || item.customisation}</span>`
+              : '';
             itemsHtml += `
               <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                <img src="${thumbUrl}" style="width: 26px; height: 26px; border-radius: 4px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1);" onerror="this.src='Studio Extrait Icon Svg only logo.svg'" />
-                <span><strong style="color:#fff;">${item.name || item.nameShort}</strong> (${item.size || '100ml'}) x${item.quantity}</span>
+                <img src="${thumbUrl}" style="width: 26px; height: 26px; border-radius: 4px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); background: #000;" onerror="this.src='Studio Extrait Icon Svg only logo.svg'" />
+                <span><strong style="color:#fff;">${item.name || item.nameShort}</strong> (${item.size || '100ml'}) ${customTag} x${item.quantity}</span>
               </div>`;
           });
         }
