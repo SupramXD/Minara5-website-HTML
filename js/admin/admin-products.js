@@ -84,6 +84,12 @@ async function loadCatalog() {
       try {
           const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
           localProds.forEach(p => {
+              if (p.customisations && Array.isArray(p.customisations)) {
+                  p.customisations = p.customisations.map(c => ({
+                      ...c,
+                      stock: (c.stock !== undefined && c.stock !== null && !isNaN(c.stock)) ? Number(c.stock) : 10
+                  }));
+              }
               const existingIdx = products.findIndex(item => item.id === p.id);
               if (existingIdx > -1) {
                   products[existingIdx] = {
@@ -148,7 +154,7 @@ async function loadCatalog() {
               stockTd.id = `stock-level-${p.id}`;
               let stockText = `${p.stock} units`;
               if (p.customisations && Array.isArray(p.customisations) && p.customisations.length > 0) {
-                  const custBreakdown = p.customisations.map(c => `${c.label || 'OPT'}: ${c.stock !== undefined && c.stock !== null ? c.stock : '∞'}`).join(', ');
+                  const custBreakdown = p.customisations.map(c => `${c.label || 'OPT'}: ${(c.stock !== undefined && c.stock !== null && !isNaN(c.stock)) ? c.stock : 10}`).join(', ');
                   stockText += `<br><span style="font-size: 9px; opacity: 0.7; font-weight: normal; color: var(--text-muted);">${custBreakdown}</span>`;
               }
               stockTd.innerHTML = stockText;
