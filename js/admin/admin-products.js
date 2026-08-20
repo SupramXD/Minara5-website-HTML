@@ -365,7 +365,8 @@ async function loadCatalog() {
                           flair: data.flair || "",
                           invisibleFlair: data.invisibleFlair || "",
                           standardBottleImg: data.standardBottleImg || "",
-                          masculinePremiumBottleImg: data.masculinePremiumBottleImg || "",
+                          femininePremiumBottleImg: data.femininePremiumBottleImg || "",
+                          galleryImages: data.galleryImages || (data.image ? data.image.split(",").map(s => s.trim()).filter(Boolean) : []),
                           customisations: (data.customisations && Array.isArray(data.customisations))
                             ? data.customisations.map(c => ({
                                 label: c.label || "",
@@ -377,6 +378,7 @@ async function loadCatalog() {
                                 stock: (c.stock !== undefined && c.stock !== null && c.stock !== "" && !isNaN(c.stock)) ? Number(c.stock) : 0
                               }))
                             : [],
+                          sizes: Array.isArray(data.sizes) ? data.sizes : ["50ml", "100ml"],
                           isBundle: !!data.isBundle,
                           bundleSize: Number(data.bundleSize) || 0,
                           sortOrder: data.sortOrder !== undefined && data.sortOrder !== null ? Number(data.sortOrder) : null,
@@ -1070,7 +1072,7 @@ window.PERFUME_NOTE_LIBRARY = [
       document.getElementById("editProdBundleSize").value = product.bundleSize || "1";
       document.getElementById("editProdBundleSizeGroup").style.display = isBundle ? "block" : "none";
 
-      const pSizes = product.sizes || ["50ml", "100ml"];
+      const pSizes = Array.isArray(product.sizes) ? product.sizes : ["50ml", "100ml"];
       document.getElementById("editProdSize50").checked = pSizes.includes("50ml");
       document.getElementById("editProdSize100").checked = pSizes.includes("100ml");
 
@@ -1164,7 +1166,6 @@ window.PERFUME_NOTE_LIBRARY = [
       const sizes = [];
       if (document.getElementById("editProdSize50") && document.getElementById("editProdSize50").checked) sizes.push("50ml");
       if (document.getElementById("editProdSize100") && document.getElementById("editProdSize100").checked) sizes.push("100ml");
-      if (sizes.length === 0) sizes.push("50ml", "100ml");
 
       // Extract Scent Profile
       const topNotes = document.getElementById("editProdTopNotes") ? document.getElementById("editProdTopNotes").value.trim() : "";

@@ -357,7 +357,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         masculinePremiumBottleImg: masculinePremiumBottleImgPath || "",
         femininePremiumBottleImg: femininePremiumBottleImgPath || "",
         customisations: processedCustomisations,
-        sizes: sizes || ["50ml", "100ml"],
+        sizes: Array.isArray(sizes) ? sizes : ["50ml", "100ml"],
         isBundle: isBundle !== undefined ? !!isBundle : false,
         bundleSize: bundleSize !== undefined ? Number(bundleSize) : 0,
         sortOrder: sortOrder !== undefined && sortOrder !== null ?
