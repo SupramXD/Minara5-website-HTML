@@ -3998,55 +3998,16 @@
                     });
                 } else {
                     options.push(standardOption);
-
-                    if (isUnisex) {
-                        // Unisex has BOTH masculine and feminine premium bottle images: 3 boxes in total
-                        options.push({
-                            id: "premium_masculine",
-                            label: "PREMIUM (HIM)",
-                            size: "100ml",
-                            img: p.masculinePremiumBottleImg || "",
-                            thumbImg: p.masculinePremiumBottleImgThumb || p.masculinePremiumBottleImg || "",
-                            fallbackImg: p.masculinePremiumBottleImg || "",
-                            title: "Premium Masculine Bottle",
-                            priceExtra: 145
-                        });
-                        options.push({
-                            id: "premium_feminine",
-                            label: "PREMIUM (HER)",
-                            size: "100ml",
-                            img: p.femininePremiumBottleImg || "",
-                            thumbImg: p.femininePremiumBottleImgThumb || p.femininePremiumBottleImg || "",
-                            fallbackImg: p.femininePremiumBottleImg || "",
-                            title: "Premium Feminine Bottle",
-                            priceExtra: 145
-                        });
-                    } else if (isFeminine && !isMasculine) {
-                        // Feminine: 2 boxes in total (Standard & Feminine Premium)
-                        options.push({
-                            id: "premium_feminine",
-                            label: "PREMIUM",
-                            size: "100ml",
-                            img: p.femininePremiumBottleImg || "",
-                            thumbImg: p.femininePremiumBottleImgThumb || p.femininePremiumBottleImg || "",
-                            fallbackImg: p.femininePremiumBottleImg || "",
-                            title: "Premium Feminine Bottle",
-                            priceExtra: 145
-                        });
-                    } else {
-                        // Masculine (or unspecified default): 2 boxes in total (Standard & Masculine Premium)
-                        options.push({
-                            id: "premium_masculine",
-                            label: "PREMIUM",
-                            size: "100ml",
-                            img: p.masculinePremiumBottleImg || "",
-                            thumbImg: p.masculinePremiumBottleImgThumb || p.masculinePremiumBottleImg || "",
-                            fallbackImg: p.masculinePremiumBottleImg || "",
-                            title: "Premium Masculine Bottle",
-                            priceExtra: 145
-                        });
-                    }
                 }
+
+                if (options.length <= 1) {
+                    container.style.display = "none";
+                    window.selectedBottleCustomisation = options[0] ? options[0].label : null;
+                    window.selectedBottlePriceExtra = 0;
+                    return;
+                }
+
+                container.style.display = "block";
 
                 // Default selection: Standard if unset or invalid
                 if (!window.selectedBottleCustomisation || !options.some(o => o.label === window.selectedBottleCustomisation)) {
