@@ -12,6 +12,26 @@ var selectedOrderForModal = window.selectedOrderForModal;
 window.minaraCatalogProducts = window.minaraCatalogProducts || [];
 var minaraCatalogProducts = window.minaraCatalogProducts;
 
+function formatSessionDateTime(isoStr) {
+  if (typeof window.formatSessionDateTime === 'function') return window.formatSessionDateTime(isoStr);
+  if (!isoStr) return "N/A";
+  const d = new Date(isoStr);
+  if (isNaN(d.getTime())) return "N/A";
+  const datePart = d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  const timePart = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  return `${datePart} • ${timePart}`;
+}
+
+function formatPrice(val) {
+  if (typeof window.formatPrice === 'function') return window.formatPrice(val);
+  return val ? Math.round(Number(val)).toString() : "0";
+}
+
+function formatRetailPrice(val) {
+  if (typeof window.formatRetailPrice === 'function') return window.formatRetailPrice(val);
+  return val ? Math.round(Number(val)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "0";
+}
+
 // Preload products.json for instant perfume thumbnail matching
 async function loadProductsCatalogForOrders() {
   try {

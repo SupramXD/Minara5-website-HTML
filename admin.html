@@ -77,8 +77,26 @@
         const cleanVal = Math.round(Number(value)).toString();
         return cleanVal.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     };
+    window.formatSessionDateTime = function(isoStr) {
+      if (!isoStr) return "N/A";
+      const d = new Date(isoStr);
+      if (isNaN(d.getTime())) return "N/A";
+      const datePart = d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+      const timePart = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      return `${datePart} • ${timePart}`;
+    };
+    window.formatRelativeTime = function(isoStr) {
+      if (!isoStr) return "";
+      const diffSec = Math.round((Date.now() - new Date(isoStr).getTime()) / 1000);
+      if (diffSec < 45) return "Online Now";
+      if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+      if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
+      return `${Math.floor(diffSec / 86400)}d ago`;
+    };
     const formatPrice = window.formatPrice;
     const formatRetailPrice = window.formatRetailPrice;
+    const formatSessionDateTime = window.formatSessionDateTime;
+    const formatRelativeTime = window.formatRelativeTime;
 
     // Secure router / rendering engine
     onAuthStateChanged(auth, async (user) => {
