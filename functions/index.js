@@ -333,8 +333,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
             image: blockImg,
             image_thumb: blockThumb || blockImg,
             image_data: rawData,
-            priceExtra: block.priceExtra !== undefined && block.priceExtra !== null ? Number(block.priceExtra) : ((block.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0),
-            stock: block.stock !== undefined && block.stock !== null && block.stock !== "" ? Number(block.stock) : null,
+            stock: (block.stock !== undefined && block.stock !== null && !isNaN(block.stock)) ? Number(block.stock) : 10,
           });
         }
       }

@@ -360,9 +360,17 @@ async function loadCatalog() {
                           invisibleFlair: data.invisibleFlair || "",
                           standardBottleImg: data.standardBottleImg || "",
                           masculinePremiumBottleImg: data.masculinePremiumBottleImg || "",
-                          femininePremiumBottleImg: data.femininePremiumBottleImg || "",
-                          customisations: data.customisations || [],
-                          sizes: data.sizes || ["50ml", "100ml"],
+                          customisations: (data.customisations && Array.isArray(data.customisations))
+                            ? data.customisations.map(c => ({
+                                label: c.label || "",
+                                size: c.size || (c.label && c.label.toUpperCase().includes("50ML") ? "50ml" : "100ml"),
+                                image: c.image || "",
+                                image_thumb: c.image_thumb || "",
+                                image_data: c.image_data || "",
+                                priceExtra: c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : ((c.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0),
+                                stock: (c.stock !== undefined && c.stock !== null && !isNaN(c.stock)) ? Number(c.stock) : 10
+                              }))
+                            : [],
                           isBundle: !!data.isBundle,
                           bundleSize: Number(data.bundleSize) || 0,
                           sortOrder: data.sortOrder !== undefined && data.sortOrder !== null ? Number(data.sortOrder) : null,
@@ -843,7 +851,7 @@ window.PERFUME_NOTE_LIBRARY = [
 
         const imgPreview = block.image_thumb || block.image || block.image_data;
         const extraVal = block.priceExtra !== undefined && block.priceExtra !== null ? block.priceExtra : ((block.label || '').toUpperCase().includes('PREMIUM') ? 145 : 0);
-        const stockVal = block.stock !== undefined && block.stock !== null ? block.stock : '';
+        const stockVal = (block.stock !== undefined && block.stock !== null && !isNaN(block.stock)) ? Number(block.stock) : 10;
         const sizeVal = block.size || block.ml || ((block.label || '').toUpperCase().includes('50ML') ? '50ml' : '100ml');
 
         itemDiv.innerHTML = `
@@ -866,7 +874,7 @@ window.PERFUME_NOTE_LIBRARY = [
             </div>
             <div class="form-group" style="margin-bottom: 0; width: 85px;">
               <label style="font-size: 10px; opacity: 0.8;">Option Stock</label>
-              <input type="number" value="${stockVal}" class="form-input edit-cust-stock-input" oninput="window.updateCustomisationBlockStock(${idx}, this.value)" onchange="window.updateCustomisationBlockStock(${idx}, this.value)" style="background:#1a1a24; color:#fff;" min="0" placeholder="e.g. 10">
+              <input type="number" value="${stockVal}" class="form-input edit-cust-stock-input" oninput="window.updateCustomisationBlockStock(${idx}, this.value)" onchange="window.updateCustomisationBlockStock(${idx}, this.value)" style="background:#1a1a24; color:#fff;" min="0" placeholder="10">
             </div>
           </div>
           <div style="display: flex; gap: 12px; align-items: center;">
@@ -903,8 +911,8 @@ window.PERFUME_NOTE_LIBRARY = [
 
     window.updateCustomisationBlockStock = function(idx, val) {
       if (window.currentEditCustomisations && window.currentEditCustomisations[idx]) {
-        const trimmed = (val !== undefined && val !== null) ? val.toString().trim() : '';
-        window.currentEditCustomisations[idx].stock = trimmed === "" ? null : (parseInt(trimmed, 10) || 0);
+        const num = parseInt(val, 10);
+        window.currentEditCustomisations[idx].stock = isNaN(num) ? 0 : num;
       }
     };
 
@@ -1095,7 +1103,17 @@ window.PERFUME_NOTE_LIBRARY = [
         window.updateScentProfileLivePreview();
       }
 
-      window.currentEditCustomisations = product.customisations ? JSON.parse(JSON.stringify(product.customisations)) : [];
+      window.currentEditCustomisations = (product.customisations && Array.isArray(product.customisations))
+        ? product.customisations.map(c => ({
+            label: c.label || "",
+            size: c.size || (c.label && c.label.toUpperCase().includes("50ML") ? "50ml" : "100ml"),
+            image: c.image || "",
+            image_thumb: c.image_thumb || "",
+            image_data: c.image_data || "",
+            priceExtra: c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : ((c.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0),
+            stock: (c.stock !== undefined && c.stock !== null && !isNaN(c.stock)) ? Number(c.stock) : 10
+          }))
+        : [];
       if (typeof window.switchEditModalTab === "function") {
         window.switchEditModalTab("general");
       }
@@ -1217,7 +1235,7 @@ window.PERFUME_NOTE_LIBRARY = [
           if (priceInput) window.currentEditCustomisations[idx].priceExtra = parseFloat(priceInput.value) || 0;
           if (stockInput) {
             const rawVal = stockInput.value.trim();
-            window.currentEditCustomisations[idx].stock = rawVal === "" ? null : (parseInt(rawVal, 10) || 0);
+            window.currentEditCustomisations[idx].stock = isNaN(parseInt(rawVal, 10)) ? 0 : parseInt(rawVal, 10);
           }
         });
       }
