@@ -87,7 +87,7 @@ async function loadCatalog() {
               if (p.customisations && Array.isArray(p.customisations)) {
                   p.customisations = p.customisations.map(c => ({
                       ...c,
-                      stock: (c.stock !== undefined && c.stock !== null && !isNaN(c.stock)) ? Number(c.stock) : 10
+                      stock: (c.stock !== undefined && c.stock !== null && c.stock !== "" && !isNaN(c.stock)) ? Number(c.stock) : 0
                   }));
               }
               const existingIdx = products.findIndex(item => item.id === p.id);
@@ -154,7 +154,7 @@ async function loadCatalog() {
               stockTd.id = `stock-level-${p.id}`;
               let stockText = `${p.stock} units`;
               if (p.customisations && Array.isArray(p.customisations) && p.customisations.length > 0) {
-                  const custBreakdown = p.customisations.map(c => `${c.label || 'OPT'}: ${(c.stock !== undefined && c.stock !== null && !isNaN(c.stock)) ? c.stock : 10}`).join(', ');
+                  const custBreakdown = p.customisations.map(c => `${c.label || 'OPT'}: ${(c.stock !== undefined && c.stock !== null && c.stock !== '' && !isNaN(c.stock)) ? Number(c.stock) : 0}`).join(', ');
                   stockText += `<br><span style="font-size: 9px; opacity: 0.7; font-weight: normal; color: var(--text-muted);">${custBreakdown}</span>`;
               }
               stockTd.innerHTML = stockText;
@@ -374,7 +374,7 @@ async function loadCatalog() {
                                 image_thumb: c.image_thumb || "",
                                 image_data: c.image_data || "",
                                 priceExtra: c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : ((c.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0),
-                                stock: (c.stock !== undefined && c.stock !== null && !isNaN(c.stock)) ? Number(c.stock) : 10
+                                stock: (c.stock !== undefined && c.stock !== null && c.stock !== "" && !isNaN(c.stock)) ? Number(c.stock) : 0
                               }))
                             : [],
                           isBundle: !!data.isBundle,
@@ -857,7 +857,7 @@ window.PERFUME_NOTE_LIBRARY = [
 
         const imgPreview = block.image_thumb || block.image || block.image_data;
         const extraVal = block.priceExtra !== undefined && block.priceExtra !== null ? block.priceExtra : ((block.label || '').toUpperCase().includes('PREMIUM') ? 145 : 0);
-        const stockVal = (block.stock !== undefined && block.stock !== null && !isNaN(block.stock)) ? Number(block.stock) : 10;
+        const stockVal = (block.stock !== undefined && block.stock !== null && block.stock !== '' && !isNaN(block.stock)) ? Number(block.stock) : 0;
         const sizeVal = block.size || block.ml || ((block.label || '').toUpperCase().includes('50ML') ? '50ml' : '100ml');
 
         itemDiv.innerHTML = `
@@ -880,7 +880,7 @@ window.PERFUME_NOTE_LIBRARY = [
             </div>
             <div class="form-group" style="margin-bottom: 0; width: 85px;">
               <label style="font-size: 10px; opacity: 0.8;">Option Stock</label>
-              <input type="number" value="${stockVal}" class="form-input edit-cust-stock-input" oninput="window.updateCustomisationBlockStock(${idx}, this.value)" onchange="window.updateCustomisationBlockStock(${idx}, this.value)" style="background:#1a1a24; color:#fff;" min="0" placeholder="10">
+              <input type="number" value="${stockVal}" class="form-input edit-cust-stock-input" oninput="window.updateCustomisationBlockStock(${idx}, this.value)" onchange="window.updateCustomisationBlockStock(${idx}, this.value)" style="background:#1a1a24; color:#fff;" min="0">
             </div>
           </div>
           <div style="display: flex; gap: 12px; align-items: center;">
@@ -917,8 +917,7 @@ window.PERFUME_NOTE_LIBRARY = [
 
     window.updateCustomisationBlockStock = function(idx, val) {
       if (window.currentEditCustomisations && window.currentEditCustomisations[idx]) {
-        const num = parseInt(val, 10);
-        window.currentEditCustomisations[idx].stock = isNaN(num) ? 0 : num;
+        window.currentEditCustomisations[idx].stock = val === "" ? "" : (parseInt(val, 10) || 0);
       }
     };
 
@@ -1117,7 +1116,7 @@ window.PERFUME_NOTE_LIBRARY = [
             image_thumb: c.image_thumb || "",
             image_data: c.image_data || "",
             priceExtra: c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : ((c.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0),
-            stock: (c.stock !== undefined && c.stock !== null && !isNaN(c.stock)) ? Number(c.stock) : 10
+            stock: (c.stock !== undefined && c.stock !== null && c.stock !== "" && !isNaN(c.stock)) ? Number(c.stock) : 0
           }))
         : [];
       if (typeof window.switchEditModalTab === "function") {

@@ -1071,15 +1071,15 @@ async function deductStockForOrder(orderData, firestore) {
       const pData = prodSnap.data();
       const currentStock = Number(pData.stock) || 0;
       const newStock = Math.max(0, currentStock - qty);
-      const updateObj = { stock: newStock, updatedAt: new Date().toISOString() };
+      const updateObj = {stock: newStock, updatedAt: new Date().toISOString()};
 
       // Deduct customization block stock if applicable
       if (item.bottleCustomisation && Array.isArray(pData.customisations)) {
         const custLabel = item.bottleCustomisation.toUpperCase().trim();
-        const updatedCustomisations = pData.customisations.map(c => {
+        const updatedCustomisations = pData.customisations.map((c) => {
           if ((c.label || "").toUpperCase().trim() === custLabel && c.stock !== undefined && c.stock !== null) {
             const currentCStock = Number(c.stock) || 0;
-            return Object.assign({}, c, { stock: Math.max(0, currentCStock - qty) });
+            return Object.assign({}, c, {stock: Math.max(0, currentCStock - qty)});
           }
           return c;
         });
@@ -1127,7 +1127,7 @@ exports.verifyPayFastPayment = onCall({}, async (request) => {
     if (orderData.paid || orderData.status === "paid") {
       if (!orderData.stockDeducted) {
         await deductStockForOrder(orderData, firestore);
-        await orderSnap.ref.update({ stockDeducted: true });
+        await orderSnap.ref.update({stockDeducted: true});
       }
       return {
         success: true,
