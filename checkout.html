@@ -2370,6 +2370,7 @@
           instructions,
         },
         items: activeItems.map(item => ({
+          id: item.id || item.productId || '',
           name: item.nameShort || item.name,
           quantity: item.quantity,
           price: (Number(item.price) || 0) + (Number(item.priceExtra) || 0),

@@ -970,7 +970,7 @@ exports.createPaystackTransaction = onCall({}, async (request) => {
 /**
  * Handle incoming Instant Transaction Notifications (ITN webhooks) from PayFast.
  */
-exports.payfastWebhook = onRequest({}, async (req, res) => {
+exports.payfastWebhook = onRequest({secrets: [githubTokenSecret]}, async (req, res) => {
   if (req.method !== "POST") {
     res.status(405).send("Method Not Allowed");
     return;
@@ -1018,6 +1018,12 @@ exports.payfastWebhook = onRequest({}, async (req, res) => {
 
   const reference = pfData.m_payment_id;
   const paymentStatus = pfData.payment_status;
+  let ghToken = null;
+  try {
+    ghToken = githubTokenSecret.value();
+  } catch (e) {
+    ghToken = null;
+  }
 
   if (reference) {
     const orderRef = firestore.collection("orders").doc(reference);
@@ -1038,7 +1044,7 @@ exports.payfastWebhook = onRequest({}, async (req, res) => {
     if (orderSnap.exists) {
       const existingData = orderSnap.data();
       if (isPaid && !existingData.stockDeducted) {
-        await deductStockForOrder(existingData, firestore);
+        await deductStockForOrder(existingData, firestore, ghToken);
         updateData.stockDeducted = true;
       }
       await orderRef.update(updateData);
@@ -1058,25 +1064,52 @@ exports.payfastWebhook = onRequest({}, async (req, res) => {
   res.status(200).send("ITN Received");
 });
 
-async function deductStockForOrder(orderData, firestore) {
+async function deductStockForOrder(orderData, firestore, token) {
   try {
     if (!orderData || !orderData.items || !Array.isArray(orderData.items)) return;
-    for (const item of orderData.items) {
-      if (!item || !item.id) continue;
-      const qty = Number(item.quantity) || 1;
-      const prodRef = firestore.collection("products").doc(item.id);
-      const prodSnap = await prodRef.get();
-      if (!prodSnap.exists) continue;
+    const modifiedProds = {};
 
+    for (const item of orderData.items) {
+      if (!item) continue;
+      const qty = Number(item.quantity) || 1;
+      let prodRef = null;
+      let prodSnap = null;
+
+      const targetId = item.id || item.productId;
+      if (targetId) {
+        prodRef = firestore.collection("products").doc(targetId);
+        prodSnap = await prodRef.get();
+      }
+
+      if (!prodSnap || !prodSnap.exists) {
+        const itemName = (item.name || "").trim().toLowerCase();
+        if (itemName) {
+          const q = await firestore.collection("products").get();
+          for (const doc of q.docs) {
+            const d = doc.data();
+            if ((d.name && d.name.trim().toLowerCase() === itemName) ||
+                (d.nameShort && d.nameShort.trim().toLowerCase() === itemName) ||
+                (doc.id.toLowerCase() === itemName.replace(/\s+/g, "-"))) {
+              prodRef = doc.ref;
+              prodSnap = doc;
+              break;
+            }
+          }
+        }
+      }
+
+      if (!prodSnap || !prodSnap.exists) continue;
+
+      const pId = prodSnap.id;
       const pData = prodSnap.data();
       const currentStock = Number(pData.stock) || 0;
       const newStock = Math.max(0, currentStock - qty);
       const updateObj = {stock: newStock, updatedAt: new Date().toISOString()};
 
-      // Deduct customization block stock if applicable
+      let updatedCustomisations = pData.customisations;
       if (item.bottleCustomisation && Array.isArray(pData.customisations)) {
         const custLabel = item.bottleCustomisation.toUpperCase().trim();
-        const updatedCustomisations = pData.customisations.map((c) => {
+        updatedCustomisations = pData.customisations.map((c) => {
           if ((c.label || "").toUpperCase().trim() === custLabel && c.stock !== undefined && c.stock !== null) {
             const currentCStock = Number(c.stock) || 0;
             return Object.assign({}, c, {stock: Math.max(0, currentCStock - qty)});
@@ -1087,7 +1120,34 @@ async function deductStockForOrder(orderData, firestore) {
       }
 
       await prodRef.update(updateObj);
-      logger.info(`Stock deducted for product ${item.id}: ${currentStock} -> ${newStock}`);
+      modifiedProds[pId] = {stock: newStock, customisations: updatedCustomisations};
+      logger.info(`Stock deducted for product ${pId}: ${currentStock} -> ${newStock}`);
+    }
+
+    if (token && Object.keys(modifiedProds).length > 0) {
+      try {
+        const {sha, content} = await getFileShaAndContent("products.json", token);
+        if (content) {
+          const prodsList = JSON.parse(content);
+          let changed = false;
+          prodsList.forEach((p) => {
+            if (modifiedProds[p.id]) {
+              p.stock = modifiedProds[p.id].stock;
+              if (modifiedProds[p.id].customisations && Array.isArray(p.customisations)) {
+                p.customisations = modifiedProds[p.id].customisations;
+              }
+              changed = true;
+            }
+          });
+          if (changed) {
+            const updatedBase64 = Buffer.from(JSON.stringify(prodsList, null, 2), "utf8").toString("base64");
+            await writeFileToGitHub("products.json", updatedBase64, `Deduct inventory stock after completed order ${orderData.orderId || orderData.id || ""}`, sha, token);
+            logger.info("Successfully updated products.json stock on GitHub for order.");
+          }
+        }
+      } catch (ghErr) {
+        logger.warn("GitHub products.json stock update warning:", ghErr);
+      }
     }
   } catch (err) {
     logger.error("Error deducting stock for order:", err);
@@ -1104,12 +1164,19 @@ exports.paystackWebhook = onRequest({}, async (req, res) => {
 /**
  * Verify PayFast payment status server-side upon client callback.
  */
-exports.verifyPayFastPayment = onCall({}, async (request) => {
+exports.verifyPayFastPayment = onCall({secrets: [githubTokenSecret]}, async (request) => {
   const {reference, m_payment_id} = request.data || {};
   const activeRef = reference || m_payment_id;
 
   if (!activeRef) {
     throw new HttpsError("invalid-argument", "Transaction reference or m_payment_id is required.");
+  }
+
+  let ghToken = null;
+  try {
+    ghToken = githubTokenSecret.value();
+  } catch (e) {
+    ghToken = null;
   }
 
   const orderRef = firestore.collection("orders").doc(activeRef);
@@ -1126,7 +1193,7 @@ exports.verifyPayFastPayment = onCall({}, async (request) => {
     const orderData = orderSnap.data();
     if (orderData.paid || orderData.status === "paid") {
       if (!orderData.stockDeducted) {
-        await deductStockForOrder(orderData, firestore);
+        await deductStockForOrder(orderData, firestore, ghToken);
         await orderSnap.ref.update({stockDeducted: true});
       }
       return {
@@ -1136,7 +1203,7 @@ exports.verifyPayFastPayment = onCall({}, async (request) => {
       };
     } else {
       // Mark as paid when verified via client callback
-      await deductStockForOrder(orderData, firestore);
+      await deductStockForOrder(orderData, firestore, ghToken);
       await orderSnap.ref.update({
         status: "paid",
         paid: true,

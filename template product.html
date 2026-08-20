@@ -1036,8 +1036,8 @@
         }
 
         .product-media-wrap {
-            width: 55% !important;
-            max-width: 620px !important;
+            width: 50% !important;
+            max-width: 480px !important;
             position: relative !important;
             top: auto !important;
             display: flex !important;
@@ -1047,8 +1047,8 @@
         }
 
         .product-info-wrap {
-            width: 38% !important;
-            max-width: 380px !important;
+            width: 46% !important;
+            max-width: 460px !important;
             margin-top: 0 !important;
             display: flex !important;
             flex-direction: column !important;
@@ -4067,6 +4067,38 @@
                     }
                 };
 
+                const updateCustomisationButtonState = (selectedOpt) => {
+                    const addToBagBtn = document.getElementById("addToBagButton") || document.querySelector(".add-to-bag-btn");
+                    if (!addToBagBtn) return;
+
+                    const isOptOOS = (selectedOpt && selectedOpt.stock !== undefined && selectedOpt.stock !== null && Number(selectedOpt.stock) <= 0) || (Number(p.stock) <= 0);
+                    const notifyContainer = document.getElementById("outOfStockNotifyContainer");
+                    const notifyForm = document.getElementById("outOfStockNotifyForm");
+                    const notifySuccess = document.getElementById("outOfStockNotifySuccess");
+
+                    if (isOptOOS) {
+                        addToBagBtn.innerHTML = "OUT OF STOCK";
+                        addToBagBtn.disabled = true;
+                        addToBagBtn.style.opacity = "0.5";
+                        addToBagBtn.style.cursor = "not-allowed";
+
+                        if (notifyContainer) {
+                            notifyContainer.style.display = "block";
+                            if (notifyForm) notifyForm.style.display = "flex";
+                            if (notifySuccess) notifySuccess.style.display = "none";
+                        }
+                    } else {
+                        addToBagBtn.innerHTML = "ADD TO BAG";
+                        addToBagBtn.disabled = false;
+                        addToBagBtn.style.opacity = "";
+                        addToBagBtn.style.cursor = "pointer";
+
+                        if (notifyContainer) {
+                            notifyContainer.style.display = "none";
+                        }
+                    }
+                };
+
                 options.forEach(opt => {
                     const isOptOutOfStock = opt.stock !== undefined && opt.stock !== null && Number(opt.stock) <= 0;
                     const box = document.createElement("div");
@@ -4112,38 +4144,6 @@
                         lowStockBadge.textContent = `ONLY ${opt.stock} LEFT`;
                         box.appendChild(lowStockBadge);
                     }
-
-                    const updateCustomisationButtonState = (selectedOpt) => {
-                        const addToBagBtn = document.getElementById("addToBagButton") || document.querySelector(".add-to-bag-btn");
-                        if (!addToBagBtn) return;
-
-                        const isOptOOS = (selectedOpt && selectedOpt.stock !== undefined && selectedOpt.stock !== null && Number(selectedOpt.stock) <= 0) || (Number(p.stock) <= 0);
-                        const notifyContainer = document.getElementById("outOfStockNotifyContainer");
-                        const notifyForm = document.getElementById("outOfStockNotifyForm");
-                        const notifySuccess = document.getElementById("outOfStockNotifySuccess");
-
-                        if (isOptOOS) {
-                            addToBagBtn.innerHTML = "OUT OF STOCK";
-                            addToBagBtn.disabled = true;
-                            addToBagBtn.style.opacity = "0.5";
-                            addToBagBtn.style.cursor = "not-allowed";
-
-                            if (notifyContainer) {
-                                notifyContainer.style.display = "block";
-                                if (notifyForm) notifyForm.style.display = "flex";
-                                if (notifySuccess) notifySuccess.style.display = "none";
-                            }
-                        } else {
-                            addToBagBtn.innerHTML = "ADD TO BAG";
-                            addToBagBtn.disabled = false;
-                            addToBagBtn.style.opacity = "";
-                            addToBagBtn.style.cursor = "pointer";
-
-                            if (notifyContainer) {
-                                notifyContainer.style.display = "none";
-                            }
-                        }
-                    };
 
                     box.onclick = () => {
                         window.selectedBottleCustomisation = opt.label;
