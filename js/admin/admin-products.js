@@ -1201,6 +1201,22 @@ window.PERFUME_NOTE_LIBRARY = [
         }
       }
 
+      // Direct DOM sync for customisation blocks before saving
+      const blockElements = document.querySelectorAll("#editCustomisationBlocksContainer > div");
+      if (blockElements && blockElements.length > 0 && Array.isArray(window.currentEditCustomisations)) {
+        blockElements.forEach((el, idx) => {
+          if (!window.currentEditCustomisations[idx]) return;
+          const inputs = el.querySelectorAll("input");
+          if (inputs[0]) window.currentEditCustomisations[idx].label = inputs[0].value.trim().toUpperCase();
+          if (inputs[1]) window.currentEditCustomisations[idx].size = inputs[1].value.trim();
+          if (inputs[2]) window.currentEditCustomisations[idx].priceExtra = parseFloat(inputs[2].value) || 0;
+          if (inputs[3]) {
+            const val = inputs[3].value.trim();
+            window.currentEditCustomisations[idx].stock = val === "" ? null : (parseInt(val, 10) || 0);
+          }
+        });
+      }
+
       // Collect additional gallery images
       const galleryInputs = document.querySelectorAll('.edit-gallery-slot-input');
       const additionalGallery = [];

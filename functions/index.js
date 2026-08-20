@@ -1037,6 +1037,11 @@ exports.payfastWebhook = onRequest({}, async (req, res) => {
     };
 
     if (orderSnap.exists) {
+      const existingData = orderSnap.data();
+      if (isPaid && !existingData.stockDeducted) {
+        await deductStockForOrder(existingData, firestore);
+        updateData.stockDeducted = true;
+      }
       await orderRef.update(updateData);
     } else {
       await orderRef.set({
@@ -1053,6 +1058,42 @@ exports.payfastWebhook = onRequest({}, async (req, res) => {
 
   res.status(200).send("ITN Received");
 });
+
+async function deductStockForOrder(orderData, firestore) {
+  try {
+    if (!orderData || !orderData.items || !Array.isArray(orderData.items)) return;
+    for (const item of orderData.items) {
+      if (!item || !item.id) continue;
+      const qty = Number(item.quantity) || 1;
+      const prodRef = firestore.collection("products").doc(item.id);
+      const prodSnap = await prodRef.get();
+      if (!prodSnap.exists) continue;
+
+      const pData = prodSnap.data();
+      const currentStock = Number(pData.stock) || 0;
+      const newStock = Math.max(0, currentStock - qty);
+      const updateObj = { stock: newStock, updatedAt: new Date().toISOString() };
+
+      // Deduct customization block stock if applicable
+      if (item.bottleCustomisation && Array.isArray(pData.customisations)) {
+        const custLabel = item.bottleCustomisation.toUpperCase().trim();
+        const updatedCustomisations = pData.customisations.map(c => {
+          if ((c.label || "").toUpperCase().trim() === custLabel && c.stock !== undefined && c.stock !== null) {
+            const currentCStock = Number(c.stock) || 0;
+            return Object.assign({}, c, { stock: Math.max(0, currentCStock - qty) });
+          }
+          return c;
+        });
+        updateObj.customisations = updatedCustomisations;
+      }
+
+      await prodRef.update(updateObj);
+      logger.info(`Stock deducted for product ${item.id}: ${currentStock} -> ${newStock}`);
+    }
+  } catch (err) {
+    logger.error("Error deducting stock for order:", err);
+  }
+}
 
 /**
  * Backwards compatibility alias for paystackWebhook -> payfastWebhook
@@ -1085,6 +1126,10 @@ exports.verifyPayFastPayment = onCall({}, async (request) => {
   if (orderSnap.exists) {
     const orderData = orderSnap.data();
     if (orderData.paid || orderData.status === "paid") {
+      if (!orderData.stockDeducted) {
+        await deductStockForOrder(orderData, firestore);
+        await orderSnap.ref.update({ stockDeducted: true });
+      }
       return {
         success: true,
         verified: true,
@@ -1092,9 +1137,11 @@ exports.verifyPayFastPayment = onCall({}, async (request) => {
       };
     } else {
       // Mark as paid when verified via client callback
+      await deductStockForOrder(orderData, firestore);
       await orderSnap.ref.update({
         status: "paid",
         paid: true,
+        stockDeducted: true,
         paidAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
