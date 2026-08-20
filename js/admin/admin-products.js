@@ -854,19 +854,19 @@ window.PERFUME_NOTE_LIBRARY = [
           <div style="display: flex; gap: 10px;">
             <div class="form-group" style="margin-bottom: 0; flex: 1;">
               <label style="font-size: 10px; opacity: 0.8;">Option Label (e.g. STANDARD, PREMIUM)</label>
-              <input type="text" value="${block.label || ''}" oninput="updateCustomisationBlockLabel(${idx}, this.value)" class="form-input" style="background:#1a1a24; color:#fff;" placeholder="Option Label">
+              <input type="text" value="${block.label || ''}" class="form-input edit-cust-label-input" oninput="window.updateCustomisationBlockLabel(${idx}, this.value)" onchange="window.updateCustomisationBlockLabel(${idx}, this.value)" style="background:#1a1a24; color:#fff;" placeholder="Option Label">
             </div>
             <div class="form-group" style="margin-bottom: 0; width: 85px;">
               <label style="font-size: 10px; opacity: 0.8;">Size / ml</label>
-              <input type="text" value="${sizeVal}" oninput="updateCustomisationBlockSize(${idx}, this.value)" class="form-input" style="background:#1a1a24; color:#fff;" placeholder="e.g. 100ml">
+              <input type="text" value="${sizeVal}" class="form-input edit-cust-size-input" oninput="window.updateCustomisationBlockSize(${idx}, this.value)" onchange="window.updateCustomisationBlockSize(${idx}, this.value)" style="background:#1a1a24; color:#fff;" placeholder="e.g. 100ml">
             </div>
             <div class="form-group" style="margin-bottom: 0; width: 85px;">
               <label style="font-size: 10px; opacity: 0.8;">Price Extra (R)</label>
-              <input type="number" value="${extraVal}" oninput="updateCustomisationBlockPriceExtra(${idx}, this.value)" class="form-input" style="background:#1a1a24; color:#fff;" min="0">
+              <input type="number" value="${extraVal}" class="form-input edit-cust-price-input" oninput="window.updateCustomisationBlockPriceExtra(${idx}, this.value)" onchange="window.updateCustomisationBlockPriceExtra(${idx}, this.value)" style="background:#1a1a24; color:#fff;" min="0">
             </div>
             <div class="form-group" style="margin-bottom: 0; width: 85px;">
               <label style="font-size: 10px; opacity: 0.8;">Option Stock</label>
-              <input type="number" value="${stockVal}" oninput="updateCustomisationBlockStock(${idx}, this.value)" class="form-input" style="background:#1a1a24; color:#fff;" min="0" placeholder="e.g. 10">
+              <input type="number" value="${stockVal}" class="form-input edit-cust-stock-input" oninput="window.updateCustomisationBlockStock(${idx}, this.value)" onchange="window.updateCustomisationBlockStock(${idx}, this.value)" style="background:#1a1a24; color:#fff;" min="0" placeholder="e.g. 10">
             </div>
           </div>
           <div style="display: flex; gap: 12px; align-items: center;">
@@ -885,7 +885,7 @@ window.PERFUME_NOTE_LIBRARY = [
 
     window.updateCustomisationBlockLabel = function(idx, val) {
       if (window.currentEditCustomisations && window.currentEditCustomisations[idx]) {
-        window.currentEditCustomisations[idx].label = val.trim().toUpperCase();
+        window.currentEditCustomisations[idx].label = (val || '').trim().toUpperCase();
       }
     };
 
@@ -903,7 +903,7 @@ window.PERFUME_NOTE_LIBRARY = [
 
     window.updateCustomisationBlockStock = function(idx, val) {
       if (window.currentEditCustomisations && window.currentEditCustomisations[idx]) {
-        const trimmed = (val || '').toString().trim();
+        const trimmed = (val !== undefined && val !== null) ? val.toString().trim() : '';
         window.currentEditCustomisations[idx].stock = trimmed === "" ? null : (parseInt(trimmed, 10) || 0);
       }
     };
@@ -1202,17 +1202,22 @@ window.PERFUME_NOTE_LIBRARY = [
       }
 
       // Direct DOM sync for customisation blocks before saving
-      const blockElements = document.querySelectorAll("#editCustomisationBlocksContainer > div");
-      if (blockElements && blockElements.length > 0 && Array.isArray(window.currentEditCustomisations)) {
-        blockElements.forEach((el, idx) => {
+      // Direct DOM sync for customisation blocks before saving
+      const blockContainers = document.querySelectorAll("#editCustomisationBlocksContainer > div");
+      if (blockContainers && blockContainers.length > 0 && Array.isArray(window.currentEditCustomisations)) {
+        blockContainers.forEach((containerEl, idx) => {
           if (!window.currentEditCustomisations[idx]) return;
-          const inputs = el.querySelectorAll("input");
-          if (inputs[0]) window.currentEditCustomisations[idx].label = inputs[0].value.trim().toUpperCase();
-          if (inputs[1]) window.currentEditCustomisations[idx].size = inputs[1].value.trim();
-          if (inputs[2]) window.currentEditCustomisations[idx].priceExtra = parseFloat(inputs[2].value) || 0;
-          if (inputs[3]) {
-            const val = inputs[3].value.trim();
-            window.currentEditCustomisations[idx].stock = val === "" ? null : (parseInt(val, 10) || 0);
+          const labelInput = containerEl.querySelector(".edit-cust-label-input") || containerEl.querySelectorAll("input")[0];
+          const sizeInput = containerEl.querySelector(".edit-cust-size-input") || containerEl.querySelectorAll("input")[1];
+          const priceInput = containerEl.querySelector(".edit-cust-price-input") || containerEl.querySelectorAll("input")[2];
+          const stockInput = containerEl.querySelector(".edit-cust-stock-input") || containerEl.querySelectorAll("input")[3];
+
+          if (labelInput) window.currentEditCustomisations[idx].label = labelInput.value.trim().toUpperCase();
+          if (sizeInput) window.currentEditCustomisations[idx].size = sizeInput.value.trim();
+          if (priceInput) window.currentEditCustomisations[idx].priceExtra = parseFloat(priceInput.value) || 0;
+          if (stockInput) {
+            const rawVal = stockInput.value.trim();
+            window.currentEditCustomisations[idx].stock = rawVal === "" ? null : (parseInt(rawVal, 10) || 0);
           }
         });
       }
