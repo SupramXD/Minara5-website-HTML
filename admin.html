@@ -3518,11 +3518,23 @@
         }
 
         const previewL = document.getElementById("previewImgL");
-        if (previewL) previewL.src = s.leftImage || "images/hero/studio-extrait-clone-fragrances.avif";
+        if (previewL) {
+          const lSrc = s.leftImage || "images/hero/studio-extrait-clone-fragrances.avif";
+          previewL.src = lSrc + (lSrc.includes('?') ? '&' : '?') + 't=' + Date.now();
+          previewL.onerror = () => { previewL.src = "images/hero/studio-extrait-clone-fragrances.avif"; };
+        }
         const previewR = document.getElementById("previewImgR");
-        if (previewR) previewR.src = s.rightImage || "images/hero/right.png";
+        if (previewR) {
+          const rSrc = s.rightImage || "images/hero/right.png";
+          previewR.src = rSrc + (rSrc.includes('?') ? '&' : '?') + 't=' + Date.now();
+          previewR.onerror = () => { previewR.src = "images/hero/right.png"; };
+        }
         const previewM = document.getElementById("previewImgMobile");
-        if (previewM) previewM.src = s.mobileImage || "images/hero/studio-extrait-clone-fragrances-2.avif";
+        if (previewM) {
+          const mSrc = s.mobileImage || "images/hero/studio-extrait-clone-fragrances-2.avif";
+          previewM.src = mSrc + (mSrc.includes('?') ? '&' : '?') + 't=' + Date.now();
+          previewM.onerror = () => { previewM.src = "images/hero/studio-extrait-clone-fragrances-2.avif"; };
+        }
 
         window.updateHeroPreview();
       };
