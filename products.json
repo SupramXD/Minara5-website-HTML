@@ -29,8 +29,7 @@
       }
     ],
     "sizes": [
-      "50ml",
-      "100ml"
+      "50ml"
     ],
     "isBundle": false,
     "bundleSize": 0,
@@ -38,24 +37,24 @@
     "scentProfile": {
       "keyNotes": [
         {
-          "icon": "Perfume Note Icons/Lavender.webp",
-          "name": "Lavender"
+          "name": "Lavender",
+          "icon": "Perfume Note Icons/Lavender.webp"
         },
         {
-          "name": "Vanilla",
-          "icon": "Perfume Note Icons/Vanilla.webp"
+          "icon": "Perfume Note Icons/Vanilla.webp",
+          "name": "Vanilla"
         },
         {
-          "icon": "Perfume Note Icons/Bergamot.webp",
-          "name": "Bergamot"
+          "name": "Bergamot",
+          "icon": "Perfume Note Icons/Bergamot.webp"
         },
         {
-          "icon": "Perfume Note Icons/Ceylon_Cinnamon.webp",
-          "name": "Ceylon Cinnamon"
+          "name": "Ceylon Cinnamon",
+          "icon": "Perfume Note Icons/Ceylon_Cinnamon.webp"
         },
         {
-          "name": "Amber",
-          "icon": "Perfume Note Icons/Amber.webp"
+          "icon": "Perfume Note Icons/Amber.webp",
+          "name": "Amber"
         }
       ],
       "topNotes": "Lavender, Vanilla Bergamot",
