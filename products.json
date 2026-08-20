@@ -33,24 +33,24 @@
     "scentProfile": {
       "keyNotes": [
         {
-          "name": "Lavender",
-          "icon": "Perfume Note Icons/Lavender.webp"
+          "icon": "Perfume Note Icons/Lavender.webp",
+          "name": "Lavender"
         },
         {
-          "icon": "Perfume Note Icons/Vanilla.webp",
-          "name": "Vanilla"
+          "name": "Vanilla",
+          "icon": "Perfume Note Icons/Vanilla.webp"
         },
         {
-          "name": "Bergamot",
-          "icon": "Perfume Note Icons/Bergamot.webp"
+          "icon": "Perfume Note Icons/Bergamot.webp",
+          "name": "Bergamot"
         },
         {
-          "name": "Ceylon Cinnamon",
-          "icon": "Perfume Note Icons/Ceylon_Cinnamon.webp"
+          "icon": "Perfume Note Icons/Ceylon_Cinnamon.webp",
+          "name": "Ceylon Cinnamon"
         },
         {
-          "icon": "Perfume Note Icons/Amber.webp",
-          "name": "Amber"
+          "name": "Amber",
+          "icon": "Perfume Note Icons/Amber.webp"
         }
       ],
       "topNotes": "Lavender, Vanilla Bergamot",
