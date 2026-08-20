@@ -784,9 +784,9 @@
             display: flex;
             align-items: flex-start;
             justify-content: flex-start;
-            gap: 20px;
-            padding: 4px 0 14px 0;
-            margin-bottom: 14px;
+            gap: 6px;
+            padding: 4px 0 10px 0;
+            margin-bottom: 12px;
             border-bottom: 1px solid #EBEBEB;
             flex-wrap: wrap;
         }
@@ -796,34 +796,34 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
-            flex: 0 0 calc(25% - 15px);
-            max-width: calc(25% - 15px);
+            flex: 0 0 calc(20% - 5px);
+            max-width: calc(20% - 5px);
             box-sizing: border-box;
         }
 
         .scent-note-icon-wrap {
-            width: 44px;
-            height: 44px;
+            width: 38px;
+            height: 38px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         .scent-note-icon-wrap img {
-            max-width: 40px;
-            max-height: 40px;
+            max-width: 34px;
+            max-height: 34px;
             object-fit: contain;
             filter: drop-shadow(0 1px 3px rgba(0,0,0,0.06));
         }
 
         .scent-note-label {
             font-family: inherit;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
             color: #000;
-            line-height: 1.2;
+            line-height: 1.15;
             text-align: center;
             word-break: break-word;
         }
@@ -831,19 +831,19 @@
         .scent-pyramid-container {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            margin-bottom: 14px;
+            gap: 8px;
+            margin-bottom: 16px;
         }
 
         .scent-pyramid-card {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             background: #FFFFFF;
             border: 1px solid #E6E6E6;
-            border-radius: 6px;
-            padding: 7px 12px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+            border-radius: 8px;
+            padding: 10px 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
             transition: border-color 0.2s ease;
         }
 
@@ -852,8 +852,8 @@
         }
 
         .scent-pyramid-icon {
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 36px;
             flex-shrink: 0;
             display: flex;
             align-items: center;
@@ -862,7 +862,7 @@
 
         .scent-pyramid-icon svg {
             width: 24px;
-            height: 24px;
+            height: 34px;
             display: block;
         }
 
@@ -3214,37 +3214,37 @@
                 html += `</div>`;
             }
 
-            // SVG icons for Top, Middle, Base (Square 1:1 flacon)
+            // SVG icons for Top, Middle, Base (Taller vertical bottle flacons)
             const topBottleSvg = `
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="9" y="1.5" width="6" height="3" rx="0.6" stroke="#000" stroke-width="1.2" fill="none"/>
-                    <rect x="10.5" y="4.5" width="3" height="1.5" fill="#000"/>
-                    <rect x="3" y="6" width="18" height="16.5" rx="1.2" stroke="#000" stroke-width="1.2" fill="none"/>
-                    <path d="M 4.2 7 L 19.8 7 A 0.6 0.6 0 0 1 20.4 7.6 L 20.4 11.5 L 3.6 11.5 L 3.6 7.6 A 0.6 0.6 0 0 1 4.2 7 Z" fill="#000"/>
-                    <line x1="3" y1="11.5" x2="21" y2="11.5" stroke="#000" stroke-width="1"/>
-                    <line x1="3" y1="17" x2="21" y2="17" stroke="#000" stroke-width="1"/>
+                <svg viewBox="0 0 26 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="9.5" y="1" width="7" height="4.5" rx="0.8" stroke="#000" stroke-width="1.3" fill="none"/>
+                    <rect x="11.5" y="5.5" width="3" height="2" fill="#000"/>
+                    <rect x="2.5" y="7.5" width="21" height="26.5" rx="1.5" stroke="#000" stroke-width="1.3" fill="none"/>
+                    <path d="M 3.8 8.2 L 22.2 8.2 A 1 1 0 0 1 23 9 L 23 16.5 L 3 16.5 L 3 9 A 1 1 0 0 1 3.8 8.2 Z" fill="#000"/>
+                    <line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#000" stroke-width="1.1"/>
+                    <line x1="2.5" y1="25" x2="23.5" y2="25" stroke="#000" stroke-width="1.1"/>
                 </svg>
             `;
 
             const middleBottleSvg = `
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="9" y="1.5" width="6" height="3" rx="0.6" stroke="#000" stroke-width="1.2" fill="none"/>
-                    <rect x="10.5" y="4.5" width="3" height="1.5" fill="#000"/>
-                    <rect x="3" y="6" width="18" height="16.5" rx="1.2" stroke="#000" stroke-width="1.2" fill="none"/>
-                    <rect x="3.6" y="11.5" width="16.8" height="5.5" fill="#000"/>
-                    <line x1="3" y1="11.5" x2="21" y2="11.5" stroke="#000" stroke-width="1"/>
-                    <line x1="3" y1="17" x2="21" y2="17" stroke="#000" stroke-width="1"/>
+                <svg viewBox="0 0 26 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="9.5" y="1" width="7" height="4.5" rx="0.8" stroke="#000" stroke-width="1.3" fill="none"/>
+                    <rect x="11.5" y="5.5" width="3" height="2" fill="#000"/>
+                    <rect x="2.5" y="7.5" width="21" height="26.5" rx="1.5" stroke="#000" stroke-width="1.3" fill="none"/>
+                    <rect x="3.2" y="16.5" width="19.6" height="8.5" fill="#000"/>
+                    <line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#000" stroke-width="1.1"/>
+                    <line x1="2.5" y1="25" x2="23.5" y2="25" stroke="#000" stroke-width="1.1"/>
                 </svg>
             `;
 
             const baseBottleSvg = `
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="9" y="1.5" width="6" height="3" rx="0.6" stroke="#000" stroke-width="1.2" fill="none"/>
-                    <rect x="10.5" y="4.5" width="3" height="1.5" fill="#000"/>
-                    <rect x="3" y="6" width="18" height="16.5" rx="1.2" stroke="#000" stroke-width="1.2" fill="none"/>
-                    <path d="M 3.6 17 L 20.4 17 L 20.4 21.4 A 0.6 0.6 0 0 1 19.8 22 L 4.2 22 A 0.6 0.6 0 0 1 3.6 21.4 Z" fill="#000"/>
-                    <line x1="3" y1="11.5" x2="21" y2="11.5" stroke="#000" stroke-width="1"/>
-                    <line x1="3" y1="17" x2="21" y2="17" stroke="#000" stroke-width="1"/>
+                <svg viewBox="0 0 26 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="9.5" y="1" width="7" height="4.5" rx="0.8" stroke="#000" stroke-width="1.3" fill="none"/>
+                    <rect x="11.5" y="5.5" width="3" height="2" fill="#000"/>
+                    <rect x="2.5" y="7.5" width="21" height="26.5" rx="1.5" stroke="#000" stroke-width="1.3" fill="none"/>
+                    <path d="M 3 25 L 23 25 L 23 32.2 A 1 1 0 0 1 22.2 33.2 L 3.8 33.2 A 1 1 0 0 1 3 32.2 Z" fill="#000"/>
+                    <line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#000" stroke-width="1.1"/>
+                    <line x1="2.5" y1="25" x2="23.5" y2="25" stroke="#000" stroke-width="1.1"/>
                 </svg>
             `;
 
