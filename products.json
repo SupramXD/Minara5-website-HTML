@@ -37,8 +37,8 @@
           "icon": "Perfume Note Icons/Lavender.webp"
         },
         {
-          "name": "Vanilla",
-          "icon": "Perfume Note Icons/Vanilla.webp"
+          "icon": "Perfume Note Icons/Vanilla.webp",
+          "name": "Vanilla"
         },
         {
           "name": "Bergamot",
@@ -49,8 +49,8 @@
           "icon": "Perfume Note Icons/Ceylon_Cinnamon.webp"
         },
         {
-          "name": "Amber",
-          "icon": "Perfume Note Icons/Amber.webp"
+          "icon": "Perfume Note Icons/Amber.webp",
+          "name": "Amber"
         }
       ],
       "topNotes": "Lavender, Vanilla Bergamot",
