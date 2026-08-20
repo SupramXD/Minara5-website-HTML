@@ -2152,6 +2152,25 @@
               }
             `;
           }
+        } else {
+          const mHeight = s.mobileHeight || "180px";
+          heroHeightRule = `#hero { height: ${mHeight} !important; }`;
+          heroHideRightRule = `
+            #hero #picL {
+              display: none !important;
+            }
+            #hero #imgRWrapper {
+              display: block !important;
+              width: 100% !important;
+              height: 100% !important;
+            }
+            #hero #imgRWrapper picture, #hero #imgR {
+              display: block !important;
+              width: 100% !important;
+              height: 100% !important;
+              object-fit: cover !important;
+            }
+          `;
         }
 
         style.innerHTML = `

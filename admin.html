@@ -5077,26 +5077,26 @@
 
       // Key notes row
       if (keyNotes.length > 0) {
-        html += `<div style="display: flex; align-items: flex-start; justify-content: flex-start; gap: 6px; padding: 4px 0 10px 0; margin-bottom: 12px; border-bottom: 1px solid #ebebeb; flex-wrap: wrap;">`;
+        html += `<div style="display: flex; align-items: flex-start; justify-content: flex-start; gap: 16px; padding: 4px 0 12px 0; margin-bottom: 14px; border-bottom: 1px solid #ebebeb; flex-wrap: wrap;">`;
         keyNotes.forEach(item => {
           const noteName = typeof item === "string" ? item : (item.name || "");
           const noteIcon = typeof item === "string" ? `Perfume Note Icons/${item.replace(/\s+/g, '_')}.webp` : (item.icon || "");
           html += `
-            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 0 0 calc(20% - 5px); max-width: calc(20% - 5px); box-sizing: border-box;">
-              <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; margin-bottom: 3px;">
-                <img src="${noteIcon}" style="max-width: 32px; max-height: 32px; object-fit: contain;" onerror="this.style.display='none'">
+            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 0 0 calc(25% - 12px); max-width: calc(25% - 12px); box-sizing: border-box;">
+              <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin-bottom: 3px;">
+                <img src="${noteIcon}" style="max-width: 36px; max-height: 36px; object-fit: contain;" onerror="this.style.display='none'">
               </div>
-              <span style="font-size: 10px; font-weight: bold; color: #000; line-height: 1.15; word-break: break-word;">${noteName}</span>
+              <span style="font-size: 10.5px; font-weight: bold; color: #000; line-height: 1.15; word-break: break-word;">${noteName}</span>
             </div>
           `;
         });
         html += `</div>`;
       }
 
-      // Bottle SVGs (Box-shaped compact flacon)
-      const topSvg = `<svg viewBox="0 0 24 20" style="width: 24px; height: 20px;" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="1" width="6" height="3" rx="0.5" stroke="#000" stroke-width="1.2" fill="none"/><rect x="10.5" y="4" width="3" height="1.5" fill="#000"/><rect x="2" y="5.5" width="20" height="13.5" rx="1.2" stroke="#000" stroke-width="1.2" fill="none"/><path d="M 3.2 6.5 L 20.8 6.5 A 0.5 0.5 0 0 1 21.2 7 L 21.2 10 L 2.8 10 L 2.8 7 A 0.5 0.5 0 0 1 3.2 6.5 Z" fill="#000"/><line x1="2" y1="10" x2="22" y2="10" stroke="#000" stroke-width="1"/><line x1="2" y1="14.5" x2="22" y2="14.5" stroke="#000" stroke-width="1"/></svg>`;
-      const midSvg = `<svg viewBox="0 0 24 20" style="width: 24px; height: 20px;" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="1" width="6" height="3" rx="0.5" stroke="#000" stroke-width="1.2" fill="none"/><rect x="10.5" y="4" width="3" height="1.5" fill="#000"/><rect x="2" y="5.5" width="20" height="13.5" rx="1.2" stroke="#000" stroke-width="1.2" fill="none"/><rect x="2.8" y="10" width="18.4" height="4.5" fill="#000"/><line x1="2" y1="10" x2="22" y2="10" stroke="#000" stroke-width="1"/><line x1="2" y1="14.5" x2="22" y2="14.5" stroke="#000" stroke-width="1"/></svg>`;
-      const baseSvg = `<svg viewBox="0 0 24 20" style="width: 24px; height: 20px;" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="1" width="6" height="3" rx="0.5" stroke="#000" stroke-width="1.2" fill="none"/><rect x="10.5" y="4" width="3" height="1.5" fill="#000"/><rect x="2" y="5.5" width="20" height="13.5" rx="1.2" stroke="#000" stroke-width="1.2" fill="none"/><path d="M 2.8 14.5 L 21.2 14.5 L 21.2 17.9 A 0.5 0.5 0 0 1 20.8 18.5 L 3.2 18.5 A 0.5 0.5 0 0 1 2.8 17.9 Z" fill="#000"/><line x1="2" y1="10" x2="22" y2="10" stroke="#000" stroke-width="1"/><line x1="2" y1="14.5" x2="22" y2="14.5" stroke="#000" stroke-width="1"/></svg>`;
+      // Bottle SVGs (Square 1:1 flacon)
+      const topSvg = `<svg viewBox="0 0 24 24" style="width: 24px; height: 24px;" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="1.5" width="6" height="3" rx="0.6" stroke="#000" stroke-width="1.2" fill="none"/><rect x="10.5" y="4.5" width="3" height="1.5" fill="#000"/><rect x="3" y="6" width="18" height="16.5" rx="1.2" stroke="#000" stroke-width="1.2" fill="none"/><path d="M 4.2 7 L 19.8 7 A 0.6 0.6 0 0 1 20.4 7.6 L 20.4 11.5 L 3.6 11.5 L 3.6 7.6 A 0.6 0.6 0 0 1 4.2 7 Z" fill="#000"/><line x1="3" y1="11.5" x2="21" y2="11.5" stroke="#000" stroke-width="1"/><line x1="3" y1="17" x2="21" y2="17" stroke="#000" stroke-width="1"/></svg>`;
+      const midSvg = `<svg viewBox="0 0 24 24" style="width: 24px; height: 24px;" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="1.5" width="6" height="3" rx="0.6" stroke="#000" stroke-width="1.2" fill="none"/><rect x="10.5" y="4.5" width="3" height="1.5" fill="#000"/><rect x="3" y="6" width="18" height="16.5" rx="1.2" stroke="#000" stroke-width="1.2" fill="none"/><rect x="3.6" y="11.5" width="16.8" height="5.5" fill="#000"/><line x1="3" y1="11.5" x2="21" y2="11.5" stroke="#000" stroke-width="1"/><line x1="3" y1="17" x2="21" y2="17" stroke="#000" stroke-width="1"/></svg>`;
+      const baseSvg = `<svg viewBox="0 0 24 24" style="width: 24px; height: 24px;" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="1.5" width="6" height="3" rx="0.6" stroke="#000" stroke-width="1.2" fill="none"/><rect x="10.5" y="4.5" width="3" height="1.5" fill="#000"/><rect x="3" y="6" width="18" height="16.5" rx="1.2" stroke="#000" stroke-width="1.2" fill="none"/><path d="M 3.6 17 L 20.4 17 L 20.4 21.4 A 0.6 0.6 0 0 1 19.8 22 L 4.2 22 A 0.6 0.6 0 0 1 3.6 21.4 Z" fill="#000"/><line x1="3" y1="11.5" x2="21" y2="11.5" stroke="#000" stroke-width="1"/><line x1="3" y1="17" x2="21" y2="17" stroke="#000" stroke-width="1"/></svg>`;
 
       if (topNotes || middleNotes || baseNotes) {
         html += `<div style="display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px;">`;
