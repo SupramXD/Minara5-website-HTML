@@ -1,45 +1,54 @@
 // Studio Extrait - Admin Orders Management Module
-(function() {
-let adminOrders = [];
-    let activeOrderFilter = "all";
-    let orderSearchQuery = "";
-    let ordersViewMode = "cards"; // 'cards' | 'table'
-    let selectedOrderForModal = null;
-    let minaraCatalogProducts = [];
+window.adminOrders = window.adminOrders || [];
+var adminOrders = window.adminOrders;
+window.activeOrderFilter = "all";
+var activeOrderFilter = window.activeOrderFilter;
+window.orderSearchQuery = "";
+var orderSearchQuery = window.orderSearchQuery;
+window.ordersViewMode = "cards"; // 'cards' | 'table'
+var ordersViewMode = window.ordersViewMode;
+window.selectedOrderForModal = null;
+var selectedOrderForModal = window.selectedOrderForModal;
+window.minaraCatalogProducts = window.minaraCatalogProducts || [];
+var minaraCatalogProducts = window.minaraCatalogProducts;
 
-    // Preload products.json for instant perfume thumbnail matching
-    async function loadProductsCatalogForOrders() {
-      try {
-        const res = await fetch("products.json");
-        if (res.ok) {
-          minaraCatalogProducts = await res.json();
-        }
-      } catch (e) {
-        console.warn("Could not preload products.json for order icons", e);
-      }
+// Preload products.json for instant perfume thumbnail matching
+async function loadProductsCatalogForOrders() {
+  try {
+    const res = await fetch("products.json");
+    if (res.ok) {
+      minaraCatalogProducts = await res.json();
+      window.minaraCatalogProducts = minaraCatalogProducts;
     }
-    loadProductsCatalogForOrders();
+  } catch (e) {
+    console.warn("Could not preload products.json for order icons", e);
+  }
+}
+loadProductsCatalogForOrders();
 
-    // Helper: Find product thumbnail from order item or catalog with customisation / bottle support
-    function getProductImageForItem(item) {
-      if (!item) return 'Studio Extrait Icon Svg only logo.svg';
+// Helper: Find product thumbnail from order item or catalog with customisation / bottle support
+function getProductImageForItem(item) {
+  if (!item) return 'Studio Extrait Icon Svg only logo.svg';
 
-      // 1. Direct customisation / bottle / thumbnail image on the item itself
-      if (item.customImage && typeof item.customImage === 'string' && item.customImage.trim()) {
-        return item.customImage.trim();
-      }
-      if (item.customImageThumb && typeof item.customImageThumb === 'string' && item.customImageThumb.trim()) {
-        return item.customImageThumb.trim();
-      }
-      if (item.bottleImg && typeof item.bottleImg === 'string' && item.bottleImg.trim()) {
-        return item.bottleImg.trim();
-      }
+  // 1. Direct customisation / bottle / thumbnail image on the item itself
+  if (item.customImage && typeof item.customImage === 'string' && item.customImage.trim()) {
+    return item.customImage.trim();
+  }
+  if (item.customImageThumb && typeof item.customImageThumb === 'string' && item.customImageThumb.trim()) {
+    return item.customImageThumb.trim();
+  }
+  if (item.bottleImg && typeof item.bottleImg === 'string' && item.bottleImg.trim()) {
+    return item.bottleImg.trim();
+  }
 
-      // 2. Look up product in catalog
-      const nameToMatch = (item.name || item.nameShort || item.id || '').toLowerCase().trim();
-      const found = minaraCatalogProducts.find(p => 
-        (p.name && p.name.toLowerCase().trim() === nameToMatch) ||
-        (p.nameShort && p.nameShort.toLowerCase().trim() === nameToMatch) ||
+  // 2. Look up product in catalog
+  const nameToMatch = (item.name || item.nameShort || item.id || '').toLowerCase().trim();
+  const found = minaraCatalogProducts.find(p => 
+    (p.name && p.name.toLowerCase().trim() === nameToMatch) ||
+    (p.nameShort && p.nameShort.toLowerCase().trim() === nameToMatch) ||
+    (p.id && p.id.toLowerCase().trim() === nameToMatch)
+  );
+    (p.nameShort && p.nameShort.toLowerCase().trim() === nameToMatch) ||
         (p.id && p.id.toLowerCase().trim() === nameToMatch)
       );
 
@@ -922,4 +931,8 @@ let adminOrders = [];
         try { printWindow.print(); } catch (e) {}
       }, 400);
     };
-})();
+
+// Global Exports for Admin Console
+window.getProductImageForItem = getProductImageForItem;
+window.renderOrdersView = renderOrdersView;
+window.renderOrdersTable = renderOrdersTable;
