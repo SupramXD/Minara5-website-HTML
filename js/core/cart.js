@@ -58,8 +58,18 @@
     }
 
     // Determine target size
-    const sizeToUse = selectedSize || (sizes && sizes.length > 0 ? sizes[0] : "100ml");
-    const priceExtraToUse = priceExtra !== undefined && priceExtra !== null ? Number(priceExtra) : ((bottleCustomisation || '').toUpperCase().includes('PREMIUM') ? 145 : 0);
+    let sizeToUse = selectedSize || (sizes && sizes.length > 0 ? sizes[0] : "50ml");
+    if (bottleCustomisation && typeof bottleCustomisation === 'string' && bottleCustomisation.toUpperCase().includes("100ML")) {
+      sizeToUse = "100ml";
+    }
+
+    let priceExtraToUse = priceExtra !== undefined && priceExtra !== null ? Number(priceExtra) : ((bottleCustomisation || '').toUpperCase().includes('PREMIUM') ? 145 : 0);
+
+    // If size is 100ml and base product price is 50ml price (<= 550) with 0 extra, add standard 100ml upgrade (+254 -> R749)
+    const baseProdPrice = Number(product.price) || 0;
+    if (sizeToUse.toLowerCase().includes("100ml") && baseProdPrice <= 550 && priceExtraToUse === 0) {
+      priceExtraToUse = 254;
+    }
 
     const existingItem = cart.find(item => {
       const idMatches = item.id === productId;

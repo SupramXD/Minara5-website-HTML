@@ -3966,7 +3966,18 @@
 
                     p.customisations.forEach((c, idx) => {
                         const lbl = (c.label || `OPTION ${idx + 1}`).toUpperCase().trim();
-                        const extra = c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : (lbl.includes("PREMIUM") ? 145 : 0);
+                        const optSize = c.size || c.ml || (lbl.includes("100ML") ? "100ml" : "50ml");
+                        const is100ml = optSize.toLowerCase().includes("100ml") || lbl.includes("100ML");
+                        const basePrice = Number(p.price) || 0;
+                        
+                        let extra = 0;
+                        if (c.priceExtra !== undefined && c.priceExtra !== null) {
+                            extra = Number(c.priceExtra);
+                        } else if (lbl.includes("PREMIUM")) {
+                            extra = 145;
+                        } else if (is100ml && basePrice <= 550) {
+                            extra = 254; // 100ml upgrade from R495 base to R749
+                        }
 
                         let defaultFallback = "";
                         if (lbl.includes("STANDARD")) {
@@ -3980,9 +3991,8 @@
                         const mainImg = c.image_data || (c.image && c.image.trim() ? c.image.trim() : defaultFallback);
                         const thumbImg = c.image_data || (c.image_thumb && c.image_thumb.trim() ? c.image_thumb.trim() : (c.image || defaultFallback));
 
-                        console.log(`[Bottle Customisation] Product "${p.name}": Option #${idx + 1} "${lbl}" -> Image: "${mainImg ? mainImg.substring(0, 50) + '...' : 'EMPTY'}", PriceExtra: +R${extra}`);
+                        console.log(`[Bottle Customisation] Product "${p.name}": Option #${idx + 1} "${lbl}" (${optSize}) -> PriceExtra: +R${extra}`);
 
-                        const optSize = c.size || c.ml || (lbl.includes("100ML") ? "100ml" : "50ml");
                         options.push({
                             id: (c.label || "option").toLowerCase().replace(/[^a-z0-9]+/g, '_'),
                             label: lbl,
@@ -4710,10 +4720,11 @@
                         addToBagBtn.onclick = () => {
                             const opts = window.currentBottleCustomisationOptions || [];
                             const activeOpt = opts.find(o => o.label === window.selectedBottleCustomisation);
-                            const customImage = activeOpt ? activeOpt.img : null;
-                            const customImageThumb = activeOpt ? activeOpt.thumbImg : null;
+                            const customImage = activeOpt ? (activeOpt.img || activeOpt.dataImg) : null;
+                            const customImageThumb = activeOpt ? (activeOpt.thumbImg || activeOpt.dataImg) : null;
+                            const finalSize = (activeOpt && activeOpt.size) ? activeOpt.size : (window.selectedProductSize || selectedSize || "50ml");
 
-                            window.addToCart(p.id, window.selectedProductSize || selectedSize, null, window.selectedBottleCustomisation, window.selectedBottlePriceExtra, customImage, customImageThumb);
+                            window.addToCart(p.id, finalSize, null, window.selectedBottleCustomisation, window.selectedBottlePriceExtra, customImage, customImageThumb);
                         };
                     }
                     addToBagBtn.style.display = "";

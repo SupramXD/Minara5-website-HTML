@@ -51,15 +51,20 @@ loadProductsCatalogForOrders();
 function getProductImageForItem(item) {
   if (!item) return 'Studio Extrait Icon Svg only logo.svg';
 
+  const customName = (item.selectedBottleCustomisation || item.bottleCustomisation || item.customisation || '').toLowerCase().trim();
+  const isCustomised = customName && !customName.includes('standard');
+
   // 1. Direct customisation / bottle / thumbnail image on the item itself
-  if (item.customImage && typeof item.customImage === 'string' && item.customImage.trim()) {
-    return item.customImage.trim();
-  }
-  if (item.customImageThumb && typeof item.customImageThumb === 'string' && item.customImageThumb.trim()) {
-    return item.customImageThumb.trim();
-  }
-  if (item.bottleImg && typeof item.bottleImg === 'string' && item.bottleImg.trim()) {
-    return item.bottleImg.trim();
+  if (isCustomised) {
+    if (item.customImage && typeof item.customImage === 'string' && item.customImage.trim()) {
+      return item.customImage.trim();
+    }
+    if (item.customImageThumb && typeof item.customImageThumb === 'string' && item.customImageThumb.trim()) {
+      return item.customImageThumb.trim();
+    }
+    if (item.bottleImg && typeof item.bottleImg === 'string' && item.bottleImg.trim()) {
+      return item.bottleImg.trim();
+    }
   }
 
   // 2. Look up product in catalog
@@ -70,39 +75,29 @@ function getProductImageForItem(item) {
     (p.id && p.id.toLowerCase().trim() === nameToMatch)
   );
 
-  const customName = (item.selectedBottleCustomisation || item.bottleCustomisation || item.customisation || '').toLowerCase().trim();
   const sizeName = (item.size || '').toLowerCase().trim();
 
   if (found) {
-    // If Masculine Premium bottle customisation
-    if ((customName.includes('masculine') || customName.includes('men')) && found.masculinePremiumBottleImg) {
-      return found.masculinePremiumBottleImg;
-    }
-    // If Feminine Premium bottle customisation
-    if ((customName.includes('feminine') || customName.includes('women')) && found.femininePremiumBottleImg) {
-      return found.femininePremiumBottleImg;
-    }
-    // If Standard bottle customisation
-    if (customName.includes('standard') && found.standardBottleImg) {
-      return found.standardBottleImg;
-    }
-    // Check found.customisations array
-    if (found.customisations && Array.isArray(found.customisations)) {
-      const matchedCust = found.customisations.find(c => {
-        const cName = (c.name || '').toLowerCase().trim();
-        return (customName && (customName.includes(cName) || cName.includes(customName))) ||
-               (sizeName && (sizeName.includes(cName) || cName.includes(sizeName)));
-      });
-      if (matchedCust && (matchedCust.image || matchedCust.image_thumb)) {
-        return matchedCust.image_thumb || matchedCust.image;
+    // If specific customisation was selected (and not standard)
+    if (isCustomised) {
+      if ((customName.includes('masculine') || customName.includes('men')) && found.masculinePremiumBottleImg) {
+        return found.masculinePremiumBottleImg;
+      }
+      if ((customName.includes('feminine') || customName.includes('women')) && found.femininePremiumBottleImg) {
+        return found.femininePremiumBottleImg;
+      }
+      if (found.customisations && Array.isArray(found.customisations)) {
+        const matchedCust = found.customisations.find(c => {
+          const cName = (c.label || c.name || '').toLowerCase().trim();
+          return cName && (customName === cName || customName.includes(cName) || cName.includes(customName));
+        });
+        if (matchedCust && (matchedCust.image_data || matchedCust.image_thumb || matchedCust.image)) {
+          return matchedCust.image_data || matchedCust.image_thumb || matchedCust.image;
+        }
       }
     }
-    // If size is 100ml and product has standardBottleImg
-    if (sizeName.includes('100ml') && found.standardBottleImg) {
-      if (!customName || customName.includes('standard')) {
-        return found.standardBottleImg;
-      }
-    }
+
+    // If standard product or size without customisation
     if (item.image_thumb && typeof item.image_thumb === 'string' && item.image_thumb.trim()) {
       return item.image_thumb.trim();
     }
@@ -110,7 +105,7 @@ function getProductImageForItem(item) {
       const splitted = item.image.split(',')[0].trim();
       if (splitted) return splitted;
     }
-    return found.image_thumb || (found.image ? found.image.split(',')[0].trim() : '') || 'Studio Extrait Icon Svg only logo.svg';
+    return found.image_thumb || (found.image ? found.image.split(',')[0].trim() : '') || found.standardBottleImg || 'Studio Extrait Icon Svg only logo.svg';
   }
 
   if (item.image_thumb && typeof item.image_thumb === 'string' && item.image_thumb.trim()) {
