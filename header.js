@@ -3,15 +3,7 @@ import "./js/core/cart.js?v=20260821_1050";
 import "./js/core/search.js?v=20260821_1050";
 import "./js/core/auth.js?v=20260821_1050";
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { 
-    getAuth, 
-    onAuthStateChanged, 
-    signOut, 
-    sendPasswordResetEmail, 
-    sendEmailVerification,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 
 // --- DYNAMICALLY INJECT FADE-IN & CUSTOM LOGO SIZE CSS ---
