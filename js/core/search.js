@@ -744,76 +744,6 @@
   const closeSearch = window.closeSearch;
   const openSearch = window.openSearch;
 
-  function injectSearchButtons() {
-    const headerUl = document.querySelector("header nav ul, header .header-right ul, header ul");
-    let searchLi = document.getElementById("searchHeaderLi");
-    
-    if (headerUl && !searchLi) {
-      searchLi = document.createElement("li");
-      searchLi.id = "searchHeaderLi";
-      searchLi.innerHTML = `
-        <a href="#" id="searchHeaderBtn" style="display: flex; align-items: center; gap: 6px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <span>Search</span>
-        </a>
-      `;
-      
-      const accountLi = headerUl.querySelector(".header-account");
-      if (accountLi) {
-        headerUl.insertBefore(searchLi, accountLi);
-      } else {
-        headerUl.appendChild(searchLi);
-      }
-      
-      const btn = document.getElementById("searchHeaderBtn");
-      if (btn) {
-        btn.onclick = (e) => {
-          e.preventDefault();
-          openSearch();
-        };
-      }
-    }
-
-    const mobileCart = document.querySelector(".mobile-cart, .cart-btn.mobile-cart, .cart-header-btn.mobile-cart, .cart-btn");
-    let mobileSearch = document.getElementById("mobileSearchBtn");
-    
-    if (mobileCart && !mobileSearch) {
-      mobileSearch = document.createElement("span");
-      mobileSearch.id = "mobileSearchBtn";
-      mobileSearch.className = mobileCart.className;
-      mobileSearch.classList.remove("mobile-cart");
-      mobileSearch.style.cssText = `
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        position: absolute;
-        right: 86px;
-        top: 10px;
-        cursor: pointer;
-        transition: opacity 0.3s ease;
-      `;
-      mobileSearch.innerHTML = `
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-      `;
-      
-      mobileCart.parentNode.insertBefore(mobileSearch, mobileCart);
-      
-      mobileSearch.onclick = (e) => {
-        e.preventDefault();
-        openSearch();
-      };
-      
-      mobileSearch.onmouseenter = () => { mobileSearch.style.opacity = "0.5"; };
-      mobileSearch.onmouseleave = () => { mobileSearch.style.opacity = "1"; };
-    }
-  }
-
   function normalizeString(str) {
     if (!str) return "";
     return str.toLowerCase()
@@ -1321,8 +1251,6 @@
   }
 
   const initSearchSystem = () => {
-    injectSearchButtons();
-
     // Fetch products in background for search
     fetch("products.json?t=" + Date.now())
       .then(res => res.json())

@@ -5,6 +5,29 @@ import "./js/core/auth.js?v=20260821_1050";
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
+// Global helpers (Available immediately to all inline page scripts)
+window.escapeHTML = function(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+};
+window.formatPrice = function(value) {
+    if (value === undefined || value === null || isNaN(value)) return "0";
+    return Math.round(Number(value)).toString();
+};
+window.getThumbnailImageUrl = function(src, thumbSrc) {
+    if (thumbSrc) return thumbSrc;
+    if (!src) return "";
+    const cleanSrc = src.split(',')[0].trim();
+    if (cleanSrc.endsWith("-main.avif")) {
+        return cleanSrc.replace("-main.avif", "-thumb.avif");
+    }
+    return cleanSrc;
+};
 
 // --- DYNAMICALLY INJECT FADE-IN & CUSTOM LOGO SIZE CSS ---
 function applyDynamicLogoStyles(settings) {

@@ -1,5 +1,6 @@
 // Studio Extrait - Authentication & Account Management Core Module
 
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { 
   getAuth, 
   onAuthStateChanged, 
@@ -10,12 +11,25 @@ import {
   signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyC8srbzH_DcCYQJXe9MNOyy2OHZSaLidIo",
+  authDomain: "minara5.firebaseapp.com",
+  projectId: "minara5",
+  storageBucket: "minara5.firebasestorage.app",
+  messagingSenderId: "860405871052",
+  appId: "1:860405871052:web:2aead90773c24721f72d69"
+};
+
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const auth = getAuth(app);
+window.auth = auth;
+
 let currentUser = null;
 let currentUserRole = "Customer";
 
 function getAuthInstance() {
   if (window.auth) return window.auth;
-  return getAuth();
+  return auth;
 }
 
 window.login = function() {
@@ -380,7 +394,7 @@ function initAuthModule() {
     
     const headerAccs = document.querySelectorAll(".header-account");
     headerAccs.forEach(el => {
-      el.style.display = user ? "block" : "none";
+      el.style.display = (user && role === "Admin") ? "block" : "none";
     });
 
     const label = document.getElementById("accountLabel");
