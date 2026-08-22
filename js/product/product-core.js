@@ -71,6 +71,18 @@
         await window.dbSetDoc(window.dbDoc(window.db, "settings", "custom_text"), customText);
       }
 
+      if (!window.syncToGithubCallable) {
+        try {
+          const { getFunctions, httpsCallable } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js");
+          const { getApp } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js");
+          const app = getApp();
+          const functions = getFunctions(app);
+          window.syncToGithubCallable = httpsCallable(functions, "syncToGithub");
+        } catch (fnErr) {
+          console.warn("Failed to initialize syncToGithubCallable:", fnErr);
+        }
+      }
+
       if (window.syncToGithubCallable) {
         const res = await window.syncToGithubCallable({
           action: "saveCustomText",
@@ -141,23 +153,18 @@
     const allIcons = document.querySelectorAll('.accordion-icon');
 
     allItems.forEach((item, index) => {
-      if (item !== content) {
+      if (item !== content && item.classList.contains('active')) {
         item.classList.remove('active');
-        if (allIcons[index]) allIcons[index].textContent = '›';
+        allIcons[index].classList.remove('active');
       }
     });
 
-    if (content.classList.contains('active')) {
-      content.classList.remove('active');
-      if (icon) icon.textContent = '›';
-    } else {
-      content.classList.add('active');
-      if (icon) icon.textContent = '⌄';
-    }
+    content.classList.toggle('active');
+    icon.classList.toggle('active');
   };
 
-  // Format Brand Scent Title helper
-  const formatBrandName = (brandName) => {
+  // Capitalize Brand Name helper
+  function formatBrandName(brandName) {
     if (!brandName) return "";
     return brandName.replace(/\w\S*/g, (txt) => {
       const lower = txt.toLowerCase();
@@ -165,7 +172,7 @@
       if (lower === 'le') return 'Le';
       return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     });
-  };
+  }
   window.formatBrandName = formatBrandName;
 
   // Render Scent Profile & Fragrance Pyramid (Notes Breakdown)
@@ -174,7 +181,40 @@
     if (!container || !p) return;
     container.innerHTML = "";
 
-    // If product is a Bundle product, render the dynamic multi-fragrance bundle profile
+    const topBottleSvg = `
+      <svg viewBox="0 0 26 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="9.5" y="1" width="7" height="4.5" rx="0.8" stroke="#000" stroke-width="1.3" fill="none"/>
+        <rect x="11.5" y="5.5" width="3" height="2" fill="#000"/>
+        <rect x="2.5" y="7.5" width="21" height="26.5" rx="1.5" stroke="#000" stroke-width="1.3" fill="none"/>
+        <path d="M 3.8 8.2 L 22.2 8.2 A 1 1 0 0 1 23 9 L 23 16.5 L 3 16.5 L 3 9 A 1 1 0 0 1 3.8 8.2 Z" fill="#000"/>
+        <line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#000" stroke-width="1.1"/>
+        <line x1="2.5" y1="25" x2="23.5" y2="25" stroke="#000" stroke-width="1.1"/>
+      </svg>
+    `;
+
+    const middleBottleSvg = `
+      <svg viewBox="0 0 26 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="9.5" y="1" width="7" height="4.5" rx="0.8" stroke="#000" stroke-width="1.3" fill="none"/>
+        <rect x="11.5" y="5.5" width="3" height="2" fill="#000"/>
+        <rect x="2.5" y="7.5" width="21" height="26.5" rx="1.5" stroke="#000" stroke-width="1.3" fill="none"/>
+        <rect x="3.2" y="16.5" width="19.6" height="8.5" fill="#000"/>
+        <line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#000" stroke-width="1.1"/>
+        <line x1="2.5" y1="25" x2="23.5" y2="25" stroke="#000" stroke-width="1.1"/>
+      </svg>
+    `;
+
+    const baseBottleSvg = `
+      <svg viewBox="0 0 26 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="9.5" y="1" width="7" height="4.5" rx="0.8" stroke="#000" stroke-width="1.3" fill="none"/>
+        <rect x="11.5" y="5.5" width="3" height="2" fill="#000"/>
+        <rect x="2.5" y="7.5" width="21" height="26.5" rx="1.5" stroke="#000" stroke-width="1.3" fill="none"/>
+        <path d="M 3 25 L 23 25 L 23 32.2 A 1 1 0 0 1 22.2 33.2 L 3.8 33.2 A 1 1 0 0 1 3 32.2 Z" fill="#000"/>
+        <line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#000" stroke-width="1.1"/>
+        <line x1="2.5" y1="25" x2="23.5" y2="25" stroke="#000" stroke-width="1.1"/>
+      </svg>
+    `;
+
+    // If product is a Bundle product, render the dynamic multi-fragrance bundle profile (matching single bottle aesthetic)
     if (p.isBundle) {
       container.style.display = "block";
       let bundleScents = selectedBundleScents;
@@ -228,26 +268,79 @@
         const profile = prod.scentProfile || {};
         const keyNotes = profile.keyNotes || [];
         const topNotes = profile.topNotes || "";
+        const topNotesDesc = profile.topNotesDesc || "The first notes you smell";
         const middleNotes = profile.middleNotes || "";
+        const middleNotesDesc = profile.middleNotesDesc || "The heart of the perfume";
         const baseNotes = profile.baseNotes || "";
+        const baseNotesDesc = profile.baseNotesDesc || "The notes that linger all day";
 
-        let chipsHtml = "";
+        let keyNotesHtml = "";
         if (keyNotes.length > 0) {
-          chipsHtml = `<div class="bundle-scent-keynotes-chips">`;
+          keyNotesHtml = `<div class="scent-key-notes-row">`;
           keyNotes.forEach(note => {
             const noteName = typeof note === "string" ? note : (note.name || "");
             let noteIcon = typeof note === "string" ? `Perfume Note Icons/${note.replace(/\s+/g, '_')}.webp` : (note.icon || "");
             if (!noteIcon && noteName) {
               noteIcon = `Perfume Note Icons/${noteName.replace(/\s+/g, '_')}.webp`;
             }
-            chipsHtml += `
-              <span class="bundle-scent-chip">
-                <img src="${noteIcon}" alt="${noteName}" loading="lazy" onerror="this.style.display='none'">
-                ${noteName}
-              </span>
+            keyNotesHtml += `
+              <div class="scent-note-item">
+                <div class="scent-note-icon-wrap">
+                  <img src="${noteIcon}" alt="${noteName}" loading="lazy" onerror="this.style.display='none'">
+                </div>
+                <span class="scent-note-label">${noteName}</span>
+              </div>
             `;
           });
-          chipsHtml += `</div>`;
+          keyNotesHtml += `</div>`;
+        }
+
+        let pyramidHtml = "";
+        if (topNotes || middleNotes || baseNotes) {
+          pyramidHtml = `<div class="scent-pyramid-container">`;
+          if (topNotes) {
+            pyramidHtml += `
+              <div class="scent-pyramid-card">
+                <div class="scent-pyramid-icon">${topBottleSvg}</div>
+                <div class="scent-pyramid-content">
+                  <div class="scent-pyramid-header">
+                    <span class="scent-tier-badge">TOP</span>
+                    <span class="scent-tier-desc">— ${topNotesDesc}</span>
+                  </div>
+                  <div class="scent-tier-notes">${topNotes}</div>
+                </div>
+              </div>
+            `;
+          }
+          if (middleNotes) {
+            pyramidHtml += `
+              <div class="scent-pyramid-card">
+                <div class="scent-pyramid-icon">${middleBottleSvg}</div>
+                <div class="scent-pyramid-content">
+                  <div class="scent-pyramid-header">
+                    <span class="scent-tier-badge">MIDDLE</span>
+                    <span class="scent-tier-desc">— ${middleNotesDesc}</span>
+                  </div>
+                  <div class="scent-tier-notes">${middleNotes}</div>
+                </div>
+              </div>
+            `;
+          }
+          if (baseNotes) {
+            pyramidHtml += `
+              <div class="scent-pyramid-card">
+                <div class="scent-pyramid-icon">${baseBottleSvg}</div>
+                <div class="scent-pyramid-content">
+                  <div class="scent-pyramid-header">
+                    <span class="scent-tier-badge">BASE</span>
+                    <span class="scent-tier-desc">— ${baseNotesDesc}</span>
+                  </div>
+                  <div class="scent-tier-notes">${baseNotes}</div>
+                </div>
+              </div>
+            `;
+          }
+          pyramidHtml += `</div>`;
         }
 
         const nameTitle = (prod.nameShort || prod.name || `Fragrance #${entry.slotNumber}`).toUpperCase();
@@ -260,40 +353,16 @@
         }
 
         bundleHtml += `
-          <div class="bundle-scent-card">
-            <div class="bundle-scent-card-header">
+          <div class="bundle-scent-column">
+            <div class="bundle-scent-column-header">
               <span class="bundle-scent-slot-tag">BOTTLE ${entry.slotNumber} OF ${bundleSize}</span>
               <span class="bundle-scent-title">${nameTitle}</span>
               ${inspiredSubtitle ? `<span class="bundle-scent-inspired">${inspiredSubtitle}</span>` : ''}
             </div>
 
-            ${chipsHtml}
+            ${keyNotesHtml}
 
-            <div class="bundle-scent-pyramid-compact">
-              ${topNotes ? `
-                <div class="bundle-pyramid-row">
-                  <span class="bundle-pyramid-label">TOP NOTES</span>
-                  <span class="bundle-pyramid-val">${topNotes}</span>
-                </div>
-              ` : ''}
-              ${middleNotes ? `
-                <div class="bundle-pyramid-row">
-                  <span class="bundle-pyramid-label">HEART NOTES</span>
-                  <span class="bundle-pyramid-val">${middleNotes}</span>
-                </div>
-              ` : ''}
-              ${baseNotes ? `
-                <div class="bundle-pyramid-row">
-                  <span class="bundle-pyramid-label">BASE NOTES</span>
-                  <span class="bundle-pyramid-val">${baseNotes}</span>
-                </div>
-              ` : ''}
-              ${!topNotes && !middleNotes && !baseNotes ? `
-                <div class="bundle-pyramid-row">
-                  <span class="bundle-pyramid-val" style="font-style: italic; opacity: 0.6;">Extraits de Parfum high-concentration formulation.</span>
-                </div>
-              ` : ''}
-            </div>
+            ${pyramidHtml}
           </div>
         `;
       });
@@ -339,39 +408,6 @@
       });
       html += `</div>`;
     }
-
-    const topBottleSvg = `
-      <svg viewBox="0 0 26 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="9.5" y="1" width="7" height="4.5" rx="0.8" stroke="#000" stroke-width="1.3" fill="none"/>
-        <rect x="11.5" y="5.5" width="3" height="2" fill="#000"/>
-        <rect x="2.5" y="7.5" width="21" height="26.5" rx="1.5" stroke="#000" stroke-width="1.3" fill="none"/>
-        <path d="M 3.8 8.2 L 22.2 8.2 A 1 1 0 0 1 23 9 L 23 16.5 L 3 16.5 L 3 9 A 1 1 0 0 1 3.8 8.2 Z" fill="#000"/>
-        <line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#000" stroke-width="1.1"/>
-        <line x1="2.5" y1="25" x2="23.5" y2="25" stroke="#000" stroke-width="1.1"/>
-      </svg>
-    `;
-
-    const middleBottleSvg = `
-      <svg viewBox="0 0 26 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="9.5" y="1" width="7" height="4.5" rx="0.8" stroke="#000" stroke-width="1.3" fill="none"/>
-        <rect x="11.5" y="5.5" width="3" height="2" fill="#000"/>
-        <rect x="2.5" y="7.5" width="21" height="26.5" rx="1.5" stroke="#000" stroke-width="1.3" fill="none"/>
-        <rect x="3.2" y="16.5" width="19.6" height="8.5" fill="#000"/>
-        <line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#000" stroke-width="1.1"/>
-        <line x1="2.5" y1="25" x2="23.5" y2="25" stroke="#000" stroke-width="1.1"/>
-      </svg>
-    `;
-
-    const baseBottleSvg = `
-      <svg viewBox="0 0 26 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="9.5" y="1" width="7" height="4.5" rx="0.8" stroke="#000" stroke-width="1.3" fill="none"/>
-        <rect x="11.5" y="5.5" width="3" height="2" fill="#000"/>
-        <rect x="2.5" y="7.5" width="21" height="26.5" rx="1.5" stroke="#000" stroke-width="1.3" fill="none"/>
-        <path d="M 3 25 L 23 25 L 23 32.2 A 1 1 0 0 1 22.2 33.2 L 3.8 33.2 A 1 1 0 0 1 3 32.2 Z" fill="#000"/>
-        <line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#000" stroke-width="1.1"/>
-        <line x1="2.5" y1="25" x2="23.5" y2="25" stroke="#000" stroke-width="1.1"/>
-      </svg>
-    `;
 
     if (topNotes || middleNotes || baseNotes) {
       html += `<div class="scent-pyramid-container">`;

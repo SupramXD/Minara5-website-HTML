@@ -828,7 +828,20 @@ function applyCustomText(data) {
         console.error("Failed to load cached custom text:", e);
     }
     
-    const fetchLatest = () => {
+    const fetchLatest = async () => {
+        try {
+            if (window.dbPromise) await window.dbPromise;
+            if (window.db && window.dbDoc && window.dbGetDoc) {
+                const docSnap = await window.dbGetDoc(window.dbDoc(window.db, "settings", "custom_text"));
+                if (docSnap && docSnap.exists()) {
+                    const data = docSnap.data();
+                    localStorage.setItem("minara_custom_text", JSON.stringify(data));
+                    applyCustomText(data);
+                    return;
+                }
+            }
+        } catch (fsErr) { }
+
         fetch('custom_text_settings.json?t=' + Date.now())
             .then(res => {
                 if (!res.ok) throw new Error("Status " + res.status);
