@@ -5,7 +5,7 @@
     "name": "JPG LE MALE",
     "price": 495,
     "retailPrice": 2200,
-    "stock": 1,
+    "stock": 0,
     "image": "images/products/inspired-by-jpg-le-male.webp",
     "galleryImages": [
       "images/products/inspired-by-jpg-le-male.webp"
@@ -71,7 +71,7 @@
     "name": "Any 2 50ml fragrances",
     "price": 749,
     "retailPrice": 3000,
-    "stock": 10,
+    "stock": 9,
     "image": "images/products/any-2-50ml-fragrances.webp",
     "image_thumb": "images/products/any-2-50ml-fragrances_thumb.webp",
     "description": "2 fragrance bundle",
