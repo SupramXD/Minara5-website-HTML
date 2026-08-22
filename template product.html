@@ -711,41 +711,6 @@
             });
         }
 
-        /* SLIDER */
-        let currentSlide = 0;
-        const track = document.getElementById("sliderTrack");
-        const slides = track.querySelectorAll("img");
-        const dots = document.querySelectorAll(".slider-dots div");
-        const arrowLeft = document.getElementById("arrowLeft");
-        const arrowRight = document.getElementById("arrowRight");
-
-        function updateSlider() {
-            track.style.transform = "translateX(" + (-currentSlide * 100) + "%)";
-            dots.forEach((d, i) => d.classList.toggle("active", i === currentSlide));
-            arrowLeft.classList.toggle("visible", currentSlide > 0);
-            arrowRight.classList.toggle("visible", currentSlide < slides.length - 1);
-        }
-        updateSlider();
-
-        function goToSlide(n) { currentSlide = Math.max(0, Math.min(n, slides.length - 1)); updateSlider(); }
-        function nextSlide() { if (currentSlide < slides.length - 1) { currentSlide++; updateSlider(); } }
-        function prevSlide() { if (currentSlide > 0) { currentSlide--; updateSlider(); } }
-
-        /* SWIPE */
-        (function () {
-            const slider = document.getElementById("slider");
-            let startX = 0, touching = false;
-            slider.addEventListener("touchstart", e => { startX = e.touches[0].clientX; touching = true; }, { passive: true });
-            slider.addEventListener("touchend", e => {
-                if (!touching) return;
-                const delta = e.changedTouches[0].clientX - startX;
-                if (delta > 40) prevSlide();
-                if (delta < -40) nextSlide();
-                touching = false;
-            }, { passive: true });
-        })();
-
-
         window.openCart = function () {
             // #1 Fix: This function should ALWAYS run regardless of cart content
             const panel = document.getElementById('cartPanel');
@@ -768,6 +733,7 @@
         <a href="#" onclick="logout()" class="acc-item">LOG OUT</a>
     </div>
     <script src="js/product/product-customisation.js"></script>
+    <script src="js/product/product-gallery.js"></script>
     <script type="module">
         let doc, getDoc, collection, addDoc, getDocs, query, where, orderBy;
 
@@ -1830,125 +1796,13 @@
                     deliveryDates.textContent = `${formatDate(d3_start)} to ${formatDate(d3_end)}`;
                 }
 
-                // Render Product Gallery (Desktop stacked / Mobile swipe carousel)
-                window.renderProductGallery = function(images, prod) {
-                    const track = document.getElementById('sliderTrack') || document.querySelector('.slider-track');
-                    const sliderWrap = document.getElementById('slider');
-                    const dotsContainer = document.querySelector('.slider-dots');
-                    if (!track || !sliderWrap) return;
-
-                    if (prod && prod.isBundle) {
-                        sliderWrap.classList.add('bundle-slider');
-                    } else {
-                        sliderWrap.classList.remove('bundle-slider');
-                    }
-
-                    track.innerHTML = "";
-                    let imgList = images;
-                    if (!imgList || !Array.isArray(imgList) || imgList.length === 0) {
-                        imgList = prod && prod.image ? (prod.image.startsWith('data:') ? [prod.image] : prod.image.split(',').map(s => s.trim()).filter(Boolean)) : ["Studio Extrait Icon Svg only logo.svg"];
-                    }
-
-                    imgList.forEach((src, idx) => {
-                        const cleanSrc = (src || "").trim();
-                        if (!cleanSrc) return;
-                        const imgEl = document.createElement('img');
-                        imgEl.src = cleanSrc;
-                        imgEl.alt = `${(prod && prod.name) || 'Product'} ${idx + 1}`;
-                        imgEl.loading = idx === 0 ? "eager" : "lazy";
-                        imgEl.onerror = () => {
-                            if (idx === 0 && prod && prod.image) {
-                                imgEl.src = prod.image.split(',')[0].trim();
-                            }
-                        };
-                        track.appendChild(imgEl);
-                    });
-
-                    const totalSlides = track.children.length;
-                    let currentSlide = 0;
-
-                    function goToSlide(index) {
-                        if (index < 0) index = 0;
-                        if (index >= totalSlides) index = totalSlides - 1;
-                        currentSlide = index;
-
-                        if (window.innerWidth <= 900) {
-                            const slideWidth = sliderWrap.offsetWidth || window.innerWidth;
-                            track.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
-                        } else {
-                            track.style.transform = "none";
-                        }
-
-                        if (dotsContainer) {
-                            const dots = dotsContainer.querySelectorAll('div');
-                            dots.forEach((d, i) => {
-                                if (i === currentSlide) d.classList.add('active');
-                                else d.classList.remove('active');
-                            });
-                        }
-                    }
-                    window.goToProductSlide = goToSlide;
-
-                    // Setup dots for mobile
-                    if (dotsContainer) {
-                        if (totalSlides > 1) {
-                            let dotsHtml = "";
-                            for (let i = 0; i < totalSlides; i++) {
-                                dotsHtml += `<div class="${i === 0 ? 'active' : ''}" onclick="window.goToProductSlide(${i})"></div>`;
-                            }
-                            dotsContainer.innerHTML = dotsHtml;
-                        } else {
-                            dotsContainer.innerHTML = "";
-                        }
-                    }
-
-                    // Touch swipe listeners for mobile
-                    let touchStartX = 0;
-                    let touchStartY = 0;
-                    let touchEndX = 0;
-                    let isSwiping = false;
-
-                    sliderWrap.ontouchstart = function(e) {
-                        if (window.innerWidth > 900 || totalSlides <= 1) return;
-                        touchStartX = e.touches[0].clientX;
-                        touchStartY = e.touches[0].clientY;
-                        touchEndX = touchStartX;
-                        isSwiping = true;
-                    };
-
-                    sliderWrap.ontouchmove = function(e) {
-                        if (!isSwiping || window.innerWidth > 900 || totalSlides <= 1) return;
-                        const currentX = e.touches[0].clientX;
-                        const currentY = e.touches[0].clientY;
-                        const diffX = currentX - touchStartX;
-                        const diffY = currentY - touchStartY;
-                        if (Math.abs(diffX) > Math.abs(diffY)) {
-                            touchEndX = currentX;
-                        }
-                    };
-
-                    sliderWrap.ontouchend = function() {
-                        if (!isSwiping || window.innerWidth > 900 || totalSlides <= 1) return;
-                        isSwiping = false;
-                        const swipeDiff = touchStartX - touchEndX;
-                        if (Math.abs(swipeDiff) > 35) {
-                            if (swipeDiff > 0) {
-                                goToSlide(currentSlide + 1);
-                            } else {
-                                goToSlide(currentSlide - 1);
-                            }
-                        }
-                        touchStartX = 0;
-                        touchEndX = 0;
-                    };
-
-                    goToSlide(0);
-                };
-
+                // Render Product Gallery (delegated to js/product/product-gallery.js)
                 const initialGalleryImages = p.galleryImages && Array.isArray(p.galleryImages) && p.galleryImages.length > 0
                     ? p.galleryImages
                     : (p.image ? (p.image.startsWith('data:') ? [p.image] : p.image.split(',').map(s => s.trim()).filter(Boolean)) : []);
-                window.renderProductGallery(initialGalleryImages, p);
+                if (typeof window.renderProductGallery === 'function') {
+                    window.renderProductGallery(initialGalleryImages, p);
+                }
 
                 // Description (bio)
                 const descEl = document.querySelector('.desc');
