@@ -169,10 +169,139 @@
   window.formatBrandName = formatBrandName;
 
   // Render Scent Profile & Fragrance Pyramid (Notes Breakdown)
-  function renderProductScentProfile(p) {
+  function renderProductScentProfile(p, selectedBundleScents, catalogList) {
     const container = document.getElementById('productScentProfileContainer');
-    if (!container) return;
+    if (!container || !p) return;
     container.innerHTML = "";
+
+    // If product is a Bundle product, render the dynamic multi-fragrance bundle profile
+    if (p.isBundle) {
+      container.style.display = "block";
+      let bundleScents = selectedBundleScents;
+      if (!bundleScents) {
+        try {
+          const pending = JSON.parse(sessionStorage.getItem("bundle_selections_pending") || "{}");
+          const bundleSize = Number(p.bundleSize) || 2;
+          bundleScents = Array(bundleSize).fill(null);
+          Object.keys(pending).forEach(k => {
+            const idx = Number(k);
+            if (idx >= 0 && idx < bundleSize) {
+              bundleScents[idx] = pending[idx];
+            }
+          });
+        } catch (e) {
+          bundleScents = [];
+        }
+      }
+
+      const activeList = catalogList || window.activeCatalogFragrances || [];
+      const bundleSize = Number(p.bundleSize) || (bundleScents ? bundleScents.length : 2) || 2;
+      const validItems = [];
+
+      if (Array.isArray(bundleScents)) {
+        bundleScents.forEach((item, slotIdx) => {
+          if (item) {
+            let fullData = activeList.find(c => c.id === item.id) || item;
+            validItems.push({
+              slotIndex: slotIdx,
+              slotNumber: slotIdx + 1,
+              item: fullData,
+              inspiredBy: item.inspiredBy || (fullData.name ? (fullData.name.match(/Inspired\s+by\s+(.+)/i) ? fullData.name.match(/Inspired\s+by\s+(.+)/i)[1] : "") : "")
+            });
+          }
+        });
+      }
+
+      if (validItems.length === 0) {
+        container.innerHTML = `
+          <div class="bundle-scent-empty-notice">
+            Select your fragrances above to view their scent profiles and olfactory notes
+          </div>
+        `;
+        return;
+      }
+
+      let bundleHtml = `<div class="bundle-scents-grid" style="${validItems.length === 1 ? 'grid-template-columns: 1fr;' : ''}">`;
+
+      validItems.forEach(entry => {
+        const prod = entry.item;
+        const profile = prod.scentProfile || {};
+        const keyNotes = profile.keyNotes || [];
+        const topNotes = profile.topNotes || "";
+        const middleNotes = profile.middleNotes || "";
+        const baseNotes = profile.baseNotes || "";
+
+        let chipsHtml = "";
+        if (keyNotes.length > 0) {
+          chipsHtml = `<div class="bundle-scent-keynotes-chips">`;
+          keyNotes.forEach(note => {
+            const noteName = typeof note === "string" ? note : (note.name || "");
+            let noteIcon = typeof note === "string" ? `Perfume Note Icons/${note.replace(/\s+/g, '_')}.webp` : (note.icon || "");
+            if (!noteIcon && noteName) {
+              noteIcon = `Perfume Note Icons/${noteName.replace(/\s+/g, '_')}.webp`;
+            }
+            chipsHtml += `
+              <span class="bundle-scent-chip">
+                <img src="${noteIcon}" alt="${noteName}" loading="lazy" onerror="this.style.display='none'">
+                ${noteName}
+              </span>
+            `;
+          });
+          chipsHtml += `</div>`;
+        }
+
+        const nameTitle = (prod.nameShort || prod.name || `Fragrance #${entry.slotNumber}`).toUpperCase();
+        let inspiredSubtitle = "";
+        if (entry.inspiredBy) {
+          const formatted = typeof window.formatBrandName === 'function' ? window.formatBrandName(entry.inspiredBy) : entry.inspiredBy;
+          inspiredSubtitle = `INSPIRED BY ${formatted.toUpperCase()}`;
+        } else if (prod.flair) {
+          inspiredSubtitle = prod.flair.toUpperCase();
+        }
+
+        bundleHtml += `
+          <div class="bundle-scent-card">
+            <div class="bundle-scent-card-header">
+              <span class="bundle-scent-slot-tag">BOTTLE ${entry.slotNumber} OF ${bundleSize}</span>
+              <span class="bundle-scent-title">${nameTitle}</span>
+              ${inspiredSubtitle ? `<span class="bundle-scent-inspired">${inspiredSubtitle}</span>` : ''}
+            </div>
+
+            ${chipsHtml}
+
+            <div class="bundle-scent-pyramid-compact">
+              ${topNotes ? `
+                <div class="bundle-pyramid-row">
+                  <span class="bundle-pyramid-label">TOP NOTES</span>
+                  <span class="bundle-pyramid-val">${topNotes}</span>
+                </div>
+              ` : ''}
+              ${middleNotes ? `
+                <div class="bundle-pyramid-row">
+                  <span class="bundle-pyramid-label">HEART NOTES</span>
+                  <span class="bundle-pyramid-val">${middleNotes}</span>
+                </div>
+              ` : ''}
+              ${baseNotes ? `
+                <div class="bundle-pyramid-row">
+                  <span class="bundle-pyramid-label">BASE NOTES</span>
+                  <span class="bundle-pyramid-val">${baseNotes}</span>
+                </div>
+              ` : ''}
+              ${!topNotes && !middleNotes && !baseNotes ? `
+                <div class="bundle-pyramid-row">
+                  <span class="bundle-pyramid-val" style="font-style: italic; opacity: 0.6;">Extraits de Parfum high-concentration formulation.</span>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      });
+
+      bundleHtml += `</div>`;
+      container.innerHTML = bundleHtml;
+      return;
+    }
 
     const profile = p.scentProfile || {};
     const keyNotes = profile.keyNotes || [];

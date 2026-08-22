@@ -212,9 +212,18 @@
       });
     };
 
-    const originalDisplay = addToBagBtn.style.display && addToBagBtn.style.display !== "none" ? addToBagBtn.style.display : "block";
+    const originalDisplay = addToBagBtn ? (addToBagBtn.style.display && addToBagBtn.style.display !== "none" ? addToBagBtn.style.display : "block") : "block";
+
+    const syncScentProfile = () => {
+      if (typeof window.renderProductScentProfile === 'function') {
+        window.renderProductScentProfile(p, selectedScents, activeCatalogFragrances);
+      }
+    };
 
     const updateAddToBagBtnState = () => {
+      syncScentProfile();
+      if (!addToBagBtn) return;
+
       if (p.stock <= 0) {
         addToBagBtn.style.display = originalDisplay;
         addToBagBtn.innerHTML = "OUT OF STOCK";
