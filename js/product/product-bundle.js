@@ -48,6 +48,10 @@
     const bundleSize = Number(p.bundleSize) || 1;
     const selectedScents = Array(bundleSize).fill(null);
 
+    // Expose active catalog and selections to window
+    window.activeCatalogFragrances = activeCatalogFragrances;
+    window.selectedBundleScents = selectedScents;
+
     // Load pending selections from sessionStorage (e.g. from bundleView redirects)
     try {
       const pending = JSON.parse(sessionStorage.getItem("bundle_selections_pending") || "{}");
@@ -56,15 +60,15 @@
         if (idx >= 0 && idx < bundleSize) {
           const item = pending[idx];
           if (item) {
-            if (!item.inspiredBy && item.id) {
-              const fullP = activeCatalogFragrances.find(fp => fp.id === item.id);
-              if (fullP) {
+            const fullP = activeCatalogFragrances.find(fp => fp.id === item.id);
+            if (fullP) {
+              item.scentProfile = fullP.scentProfile;
+              if (!item.nameShort) item.nameShort = fullP.nameShort || fullP.name;
+              if (!item.image) item.image = getThumbnailUrl(fullP);
+              if (!item.inspiredBy) {
                 const m = fullP.name ? fullP.name.match(/Inspired\s+by\s+(.+)/i) : null;
-                if (m) {
-                  item.inspiredBy = m[1];
-                } else if (fullP.id && fullP.id.startsWith("inspired-by-")) {
-                  item.inspiredBy = fullP.name;
-                }
+                if (m) item.inspiredBy = m[1];
+                else if (fullP.id && fullP.id.startsWith("inspired-by-")) item.inspiredBy = fullP.name;
               }
             }
             selectedScents[idx] = item;
@@ -138,51 +142,62 @@
         itemEl.style.cssText = "display: flex; align-items: center; padding: 8px 12px; border-bottom: 1px solid #f9f9f9; cursor: pointer; justify-content: space-between; width: 100%; box-sizing: border-box;";
 
         const thumb = getThumbnailUrl(prod);
-        const displayName = prod.nameShort || prod.name;
-
-        let inspiredByText = "";
-        const inspiredMatch = prod.name ? prod.name.match(/Inspired\s+by\s+(.+)/i) : null;
-        if (inspiredMatch) {
-          inspiredByText = inspiredMatch[1];
-        } else if (prod.id && prod.id.startsWith("inspired-by-")) {
-          inspiredByText = prod.name;
-        }
-
-        let descHtml = inspiredByText
-          ? `<span style="font-size: 8.5px; color: #777; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">INSPIRED BY ${inspiredByText.toUpperCase()}</span>`
-          : `<span style="font-size: 9px; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.5px;">${prod.flair || "Extrait de Parfum"}</span>`;
-
-        if (match.type === 'recommendation') {
-          descHtml = `<span style="font-size: 8px; color: #1106e8; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">RECOMMENDED MATCH</span>`;
-        }
 
         const leftContainer = document.createElement("div");
-        leftContainer.style.cssText = "display: flex; align-items: center; gap: 10px; min-width: 0; flex-grow: 1;";
-        leftContainer.innerHTML = `
-          <img src="${thumb}" style="width: 28px; height: 38px; object-fit: contain; flex-shrink: 0; border: 1px solid #eaeaea; background: #fff;">
-          <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
-            <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}</span>
-            ${descHtml}
-          </div>
-        `;
+        leftContainer.style.cssText = "display: flex; align-items: center; gap: 10px; flex-grow: 1; min-width: 0;";
+
+        const imgEl = document.createElement("img");
+        imgEl.src = thumb;
+        imgEl.style.cssText = "width: 24px; height: 32px; object-fit: contain; flex-shrink: 0;";
+
+        const textContainer = document.createElement("div");
+        textContainer.style.cssText = "display: flex; flex-direction: column; min-width: 0;";
+
+        const nameEl = document.createElement("span");
+        nameEl.style.cssText = "font-size: 11px; font-weight: bold; text-transform: uppercase; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;";
+        nameEl.textContent = prod.nameShort || prod.name;
+
+        let inspiredByText = "";
+        const m = prod.name ? prod.name.match(/Inspired\s+by\s+(.+)/i) : null;
+        if (m) {
+          inspiredByText = formatBrandName(m[1]);
+        } else if (prod.id && prod.id.startsWith("inspired-by-")) {
+          inspiredByText = formatBrandName(prod.name);
+        } else if (prod.flair) {
+          inspiredByText = prod.flair;
+        }
+
+        const subEl = document.createElement("span");
+        subEl.style.cssText = "font-size: 8.5px; color: #777; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;";
+        subEl.textContent = inspiredByText ? `INSPIRED BY ${inspiredByText.toUpperCase()}` : (prod.flair || "");
+
+        textContainer.appendChild(nameEl);
+        if (inspiredByText || prod.flair) textContainer.appendChild(subEl);
+
+        leftContainer.appendChild(imgEl);
+        leftContainer.appendChild(textContainer);
 
         const viewLink = document.createElement("a");
-        viewLink.href = "#";
-        viewLink.textContent = "ADD";
-        viewLink.style.cssText = "font-size: 9px; color: #fff; background: #000; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; text-decoration: none; padding: 5px 12px; flex-shrink: 0; user-select: none; z-index: 10; border: none; text-align: center; display: inline-flex; align-items: center; justify-content: center; min-width: 45px; height: 24px; box-sizing: border-box; border-radius: 0;";
+        viewLink.href = `template product.html?id=${prod.id}`;
+        viewLink.target = "_blank";
+        viewLink.style.cssText = "font-size: 8.5px; color: #000; text-decoration: underline; text-transform: uppercase; margin-left: 8px; flex-shrink: 0;";
+        viewLink.textContent = "VIEW";
 
         const handleSelectProduct = (e) => {
-          if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
+          if (e.target === viewLink) return;
+          e.stopPropagation();
+
           selectedScents[index] = {
             id: prod.id,
             name: prod.name,
             nameShort: prod.nameShort || prod.name,
             image: thumb,
-            inspiredBy: inspiredByText
+            inspiredBy: inspiredByText,
+            scentProfile: prod.scentProfile || null
           };
+
+          window.selectedBundleScents = selectedScents;
+          window.activeCatalogFragrances = activeCatalogFragrances;
 
           try {
             const pending = JSON.parse(sessionStorage.getItem("bundle_selections_pending") || "{}");
@@ -198,13 +213,14 @@
           displayBox.style.display = "flex";
           dropdownEl.style.display = "none";
 
+          window.bundleScentActiveIndex = index;
           updateAddToBagBtnState();
         };
 
         itemEl.appendChild(leftContainer);
         itemEl.appendChild(viewLink);
 
-        viewLink.onclick = handleSelectProduct;
+        viewLink.onclick = (e) => { e.stopPropagation(); };
         leftContainer.onclick = handleSelectProduct;
         itemEl.onclick = handleSelectProduct;
 
@@ -215,6 +231,8 @@
     const originalDisplay = addToBagBtn ? (addToBagBtn.style.display && addToBagBtn.style.display !== "none" ? addToBagBtn.style.display : "block") : "block";
 
     const syncScentProfile = () => {
+      window.selectedBundleScents = selectedScents;
+      window.activeCatalogFragrances = activeCatalogFragrances;
       if (typeof window.renderProductScentProfile === 'function') {
         window.renderProductScentProfile(p, selectedScents, activeCatalogFragrances);
       }

@@ -219,14 +219,21 @@
     window.switchBundleScentView = function (idx) {
       window.bundleScentActiveIndex = idx;
       if (window.product) {
-        renderProductScentProfile(window.product);
+        renderProductScentProfile(
+          window.product,
+          window.selectedBundleScents || window.cachedBundleScents,
+          window.activeCatalogFragrances || window.cachedCatalogList
+        );
       }
     };
 
     // If product is a Bundle product, render the interactive tab switcher + standard single item view
     if (p.isBundle) {
       container.style.display = "block";
-      let bundleScents = selectedBundleScents;
+      if (selectedBundleScents) window.cachedBundleScents = selectedBundleScents;
+      if (catalogList) window.cachedCatalogList = catalogList;
+
+      let bundleScents = selectedBundleScents || window.cachedBundleScents || window.selectedBundleScents;
       if (!bundleScents) {
         try {
           const pending = JSON.parse(sessionStorage.getItem("bundle_selections_pending") || "{}");
@@ -243,14 +250,30 @@
         }
       }
 
-      const activeList = catalogList || window.activeCatalogFragrances || [];
+      let activeList = catalogList || window.activeCatalogFragrances || window.cachedCatalogList || [];
+      if (!activeList || activeList.length === 0) {
+        try {
+          const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+          activeList = localProds.filter(prod => prod.status === "Active" && prod.isBundle !== true && prod.isBundle !== "true");
+        } catch (e) { }
+      }
+
       const bundleSize = Number(p.bundleSize) || (bundleScents ? bundleScents.length : 2) || 2;
       const validItems = [];
 
       if (Array.isArray(bundleScents)) {
         bundleScents.forEach((item, slotIdx) => {
           if (item) {
-            let fullData = activeList.find(c => c.id === item.id) || item;
+            let fullData = activeList.find(c => c.id === item.id);
+            if (!fullData && item.scentProfile) fullData = item;
+            if (!fullData) {
+              try {
+                const minaraProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+                fullData = minaraProds.find(c => c.id === item.id);
+              } catch (e) {}
+            }
+            if (!fullData) fullData = item;
+
             validItems.push({
               slotIndex: slotIdx,
               slotNumber: slotIdx + 1,
