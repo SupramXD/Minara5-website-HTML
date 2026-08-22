@@ -333,6 +333,7 @@
         displayBox.style.display = "flex";
         dropdownEl.style.display = "none";
 
+        window.bundleScentActiveIndex = i;
         updateAddToBagBtnState();
       };
 

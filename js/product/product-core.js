@@ -214,7 +214,16 @@
       </svg>
     `;
 
-    // If product is a Bundle product, render the dynamic multi-fragrance bundle profile (matching single bottle aesthetic)
+    window.bundleScentActiveIndex = typeof window.bundleScentActiveIndex === 'number' ? window.bundleScentActiveIndex : 0;
+
+    window.switchBundleScentView = function (idx) {
+      window.bundleScentActiveIndex = idx;
+      if (window.product) {
+        renderProductScentProfile(window.product);
+      }
+    };
+
+    // If product is a Bundle product, render the interactive tab switcher + standard single item view
     if (p.isBundle) {
       container.style.display = "block";
       let bundleScents = selectedBundleScents;
@@ -255,120 +264,122 @@
       if (validItems.length === 0) {
         container.innerHTML = `
           <div class="bundle-scent-empty-notice">
-            Select your fragrances above to view their scent profiles and olfactory notes
+            Select your fragrances above to view their scent profile & olfactory notes
           </div>
         `;
         return;
       }
 
-      let bundleHtml = `<div class="bundle-scents-grid" style="${validItems.length === 1 ? 'grid-template-columns: 1fr;' : ''}">`;
+      if (window.bundleScentActiveIndex >= validItems.length) {
+        window.bundleScentActiveIndex = 0;
+      }
 
-      validItems.forEach(entry => {
-        const prod = entry.item;
-        const profile = prod.scentProfile || {};
-        const keyNotes = profile.keyNotes || [];
-        const topNotes = profile.topNotes || "";
-        const topNotesDesc = profile.topNotesDesc || "The first notes you smell";
-        const middleNotes = profile.middleNotes || "";
-        const middleNotesDesc = profile.middleNotesDesc || "The heart of the perfume";
-        const baseNotes = profile.baseNotes || "";
-        const baseNotesDesc = profile.baseNotesDesc || "The notes that linger all day";
-
-        let keyNotesHtml = "";
-        if (keyNotes.length > 0) {
-          keyNotesHtml = `<div class="scent-key-notes-row">`;
-          keyNotes.forEach(note => {
-            const noteName = typeof note === "string" ? note : (note.name || "");
-            let noteIcon = typeof note === "string" ? `Perfume Note Icons/${note.replace(/\s+/g, '_')}.webp` : (note.icon || "");
-            if (!noteIcon && noteName) {
-              noteIcon = `Perfume Note Icons/${noteName.replace(/\s+/g, '_')}.webp`;
-            }
-            keyNotesHtml += `
-              <div class="scent-note-item">
-                <div class="scent-note-icon-wrap">
-                  <img src="${noteIcon}" alt="${noteName}" loading="lazy" onerror="this.style.display='none'">
-                </div>
-                <span class="scent-note-label">${noteName}</span>
-              </div>
-            `;
-          });
-          keyNotesHtml += `</div>`;
-        }
-
-        let pyramidHtml = "";
-        if (topNotes || middleNotes || baseNotes) {
-          pyramidHtml = `<div class="scent-pyramid-container">`;
-          if (topNotes) {
-            pyramidHtml += `
-              <div class="scent-pyramid-card">
-                <div class="scent-pyramid-icon">${topBottleSvg}</div>
-                <div class="scent-pyramid-content">
-                  <div class="scent-pyramid-header">
-                    <span class="scent-tier-badge">TOP</span>
-                    <span class="scent-tier-desc">— ${topNotesDesc}</span>
-                  </div>
-                  <div class="scent-tier-notes">${topNotes}</div>
-                </div>
-              </div>
-            `;
+      let tabsHtml = "";
+      if (validItems.length > 1) {
+        tabsHtml = `<div class="bundle-scent-switcher-tabs">`;
+        validItems.forEach((entry, idx) => {
+          const prod = entry.item;
+          const nameTitle = (prod.nameShort || prod.name || `Fragrance #${entry.slotNumber}`).toUpperCase();
+          let inspiredSubtitle = "";
+          if (entry.inspiredBy) {
+            const formatted = typeof window.formatBrandName === 'function' ? window.formatBrandName(entry.inspiredBy) : entry.inspiredBy;
+            inspiredSubtitle = `INSPIRED BY ${formatted.toUpperCase()}`;
+          } else if (prod.flair) {
+            inspiredSubtitle = prod.flair.toUpperCase();
           }
-          if (middleNotes) {
-            pyramidHtml += `
-              <div class="scent-pyramid-card">
-                <div class="scent-pyramid-icon">${middleBottleSvg}</div>
-                <div class="scent-pyramid-content">
-                  <div class="scent-pyramid-header">
-                    <span class="scent-tier-badge">MIDDLE</span>
-                    <span class="scent-tier-desc">— ${middleNotesDesc}</span>
-                  </div>
-                  <div class="scent-tier-notes">${middleNotes}</div>
-                </div>
-              </div>
-            `;
-          }
-          if (baseNotes) {
-            pyramidHtml += `
-              <div class="scent-pyramid-card">
-                <div class="scent-pyramid-icon">${baseBottleSvg}</div>
-                <div class="scent-pyramid-content">
-                  <div class="scent-pyramid-header">
-                    <span class="scent-tier-badge">BASE</span>
-                    <span class="scent-tier-desc">— ${baseNotesDesc}</span>
-                  </div>
-                  <div class="scent-tier-notes">${baseNotes}</div>
-                </div>
-              </div>
-            `;
-          }
-          pyramidHtml += `</div>`;
-        }
+          const isActive = idx === window.bundleScentActiveIndex;
+          tabsHtml += `
+            <button type="button" class="bundle-scent-tab ${isActive ? 'active' : ''}" onclick="window.switchBundleScentView(${idx})">
+              <span class="bundle-tab-tag">BOTTLE ${entry.slotNumber} OF ${bundleSize}</span>
+              <span class="bundle-tab-title">${nameTitle}</span>
+              ${inspiredSubtitle ? `<span class="bundle-tab-sub">${inspiredSubtitle}</span>` : ''}
+            </button>
+          `;
+        });
+        tabsHtml += `</div>`;
+      }
 
-        const nameTitle = (prod.nameShort || prod.name || `Fragrance #${entry.slotNumber}`).toUpperCase();
-        let inspiredSubtitle = "";
-        if (entry.inspiredBy) {
-          const formatted = typeof window.formatBrandName === 'function' ? window.formatBrandName(entry.inspiredBy) : entry.inspiredBy;
-          inspiredSubtitle = `INSPIRED BY ${formatted.toUpperCase()}`;
-        } else if (prod.flair) {
-          inspiredSubtitle = prod.flair.toUpperCase();
-        }
+      const activeEntry = validItems[window.bundleScentActiveIndex] || validItems[0];
+      const prod = activeEntry.item;
+      const profile = prod.scentProfile || {};
+      const keyNotes = profile.keyNotes || [];
+      const topNotes = profile.topNotes || "";
+      const topNotesDesc = profile.topNotesDesc || "The first notes you smell";
+      const middleNotes = profile.middleNotes || "";
+      const middleNotesDesc = profile.middleNotesDesc || "The heart of the perfume";
+      const baseNotes = profile.baseNotes || "";
+      const baseNotesDesc = profile.baseNotesDesc || "The notes that linger all day";
 
-        bundleHtml += `
-          <div class="bundle-scent-column">
-            <div class="bundle-scent-column-header">
-              <span class="bundle-scent-slot-tag">BOTTLE ${entry.slotNumber} OF ${bundleSize}</span>
-              <span class="bundle-scent-title">${nameTitle}</span>
-              ${inspiredSubtitle ? `<span class="bundle-scent-inspired">${inspiredSubtitle}</span>` : ''}
+      let keyNotesHtml = "";
+      if (keyNotes.length > 0) {
+        keyNotesHtml = `<div class="scent-key-notes-row">`;
+        keyNotes.forEach(note => {
+          const noteName = typeof note === "string" ? note : (note.name || "");
+          let noteIcon = typeof note === "string" ? `Perfume Note Icons/${note.replace(/\s+/g, '_')}.webp` : (note.icon || "");
+          if (!noteIcon && noteName) {
+            noteIcon = `Perfume Note Icons/${noteName.replace(/\s+/g, '_')}.webp`;
+          }
+          keyNotesHtml += `
+            <div class="scent-note-item">
+              <div class="scent-note-icon-wrap">
+                <img src="${noteIcon}" alt="${noteName}" loading="lazy" onerror="this.style.display='none'">
+              </div>
+              <span class="scent-note-label">${noteName}</span>
             </div>
+          `;
+        });
+        keyNotesHtml += `</div>`;
+      }
 
-            ${keyNotesHtml}
+      let pyramidHtml = "";
+      if (topNotes || middleNotes || baseNotes) {
+        pyramidHtml = `<div class="scent-pyramid-container">`;
+        if (topNotes) {
+          pyramidHtml += `
+            <div class="scent-pyramid-card">
+              <div class="scent-pyramid-icon">${topBottleSvg}</div>
+              <div class="scent-pyramid-content">
+                <div class="scent-pyramid-header">
+                  <span class="scent-tier-badge">TOP</span>
+                  <span class="scent-tier-desc">— ${topNotesDesc}</span>
+                </div>
+                <div class="scent-tier-notes">${topNotes}</div>
+              </div>
+            </div>
+          `;
+        }
+        if (middleNotes) {
+          pyramidHtml += `
+            <div class="scent-pyramid-card">
+              <div class="scent-pyramid-icon">${middleBottleSvg}</div>
+              <div class="scent-pyramid-content">
+                <div class="scent-pyramid-header">
+                  <span class="scent-tier-badge">MIDDLE</span>
+                  <span class="scent-tier-desc">— ${middleNotesDesc}</span>
+                </div>
+                <div class="scent-tier-notes">${middleNotes}</div>
+              </div>
+            </div>
+          `;
+        }
+        if (baseNotes) {
+          pyramidHtml += `
+            <div class="scent-pyramid-card">
+              <div class="scent-pyramid-icon">${baseBottleSvg}</div>
+              <div class="scent-pyramid-content">
+                <div class="scent-pyramid-header">
+                  <span class="scent-tier-badge">BASE</span>
+                  <span class="scent-tier-desc">— ${baseNotesDesc}</span>
+                </div>
+                <div class="scent-tier-notes">${baseNotes}</div>
+              </div>
+            </div>
+          `;
+        }
+        pyramidHtml += `</div>`;
+      }
 
-            ${pyramidHtml}
-          </div>
-        `;
-      });
-
-      bundleHtml += `</div>`;
-      container.innerHTML = bundleHtml;
+      container.innerHTML = tabsHtml + keyNotesHtml + pyramidHtml;
       return;
     }
 

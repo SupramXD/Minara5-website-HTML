@@ -913,209 +913,103 @@
             opacity: 0.8;
         }
 
-        /* =============== BUNDLE SCENT PROFILES (SIDE-BY-SIDE COMPACT MIRRORING PHOTO 2) =============== */
-        .bundle-scents-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        /* =============== BUNDLE SCENT PROFILES (INTERACTIVE TAB SWITCHER + STANDARD PRESENTATION) =============== */
+        .bundle-scent-switcher-tabs {
+            display: flex;
             gap: 10px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             width: 100%;
             box-sizing: border-box;
         }
 
-        .bundle-scent-column {
-            background: #FFFFFF;
-            border: 1px solid #EAEAEA;
+        .bundle-scent-tab {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 10px 14px;
+            background: #FAFAFA;
+            border: 1.5px solid #EAEAEA;
             border-radius: 6px;
-            padding: 10px 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            font-family: inherit;
             box-sizing: border-box;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            min-width: 0;
         }
 
-        .bundle-scent-column:hover {
-            border-color: #D4D4D4;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        .bundle-scent-tab:hover {
+            border-color: #000000;
+            background: #F4F4F4;
         }
 
-        .bundle-scent-column-header {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            border-bottom: 1px solid #F0F0F0;
-            padding-bottom: 6px;
+        .bundle-scent-tab.active {
+            background: #000000;
+            border-color: #000000;
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
         }
 
-        .bundle-scent-slot-tag {
-            font-size: 7.5px;
+        .bundle-tab-tag {
+            font-size: 8px;
             font-weight: 800;
-            letter-spacing: 0.8px;
+            letter-spacing: 1px;
             text-transform: uppercase;
             color: #1106e8;
-            line-height: 1;
+            margin-bottom: 2px;
+            line-height: 1.2;
         }
 
-        .bundle-scent-title {
-            font-size: 10px;
+        .bundle-scent-tab.active .bundle-tab-tag {
+            color: #a5b4fc;
+        }
+
+        .bundle-tab-title {
+            font-size: 11px;
             font-weight: 800;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
             color: #000000;
             line-height: 1.2;
-            word-break: break-word;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
         }
 
-        .bundle-scent-inspired {
-            font-size: 7.5px;
+        .bundle-scent-tab.active .bundle-tab-title {
+            color: #FFFFFF;
+        }
+
+        .bundle-tab-sub {
+            font-size: 8px;
             letter-spacing: 0.3px;
             text-transform: uppercase;
             color: #666666;
-            font-weight: 600;
-            line-height: 1.2;
-        }
-
-        .bundle-scent-column .scent-key-notes-row {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 6px;
-            flex-wrap: wrap;
-            margin-bottom: 2px;
-            padding: 2px 0;
-        }
-
-        .bundle-scent-column .scent-note-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            flex: 0 0 auto;
-            max-width: 48px;
-        }
-
-        .bundle-scent-column .scent-note-icon-wrap {
-            width: 26px;
-            height: 26px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 2px;
-        }
-
-        .bundle-scent-column .scent-note-icon-wrap img {
-            max-width: 22px;
-            max-height: 22px;
-            object-fit: contain;
-            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.06));
-        }
-
-        .bundle-scent-column .scent-note-label {
-            font-size: 8px;
-            font-weight: 700;
-            letter-spacing: 0.2px;
-            color: #000000;
-            line-height: 1.1;
-            text-align: center;
-            word-break: break-word;
-        }
-
-        .bundle-scent-column .scent-pyramid-container {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            margin-bottom: 0;
-        }
-
-        .bundle-scent-column .scent-pyramid-card {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #FFFFFF;
-            border: 1px solid #ECECEC;
-            border-radius: 6px;
-            padding: 6px 8px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.015);
-            transition: border-color 0.2s ease;
-            box-sizing: border-box;
-        }
-
-        .bundle-scent-column .scent-pyramid-card:hover {
-            border-color: #D4D4D4;
-        }
-
-        .bundle-scent-column .scent-pyramid-icon {
-            width: 16px;
-            height: 24px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .bundle-scent-column .scent-pyramid-icon svg {
-            width: 15px;
-            height: 22px;
-            display: block;
-        }
-
-        .bundle-scent-column .scent-pyramid-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .bundle-scent-column .scent-pyramid-header {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-bottom: 1px;
-            flex-wrap: wrap;
-        }
-
-        .bundle-scent-column .scent-tier-badge {
-            display: inline-block;
-            background: #000000;
-            color: #FFFFFF;
-            font-size: 7px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            padding: 1px 4px;
-            border-radius: 2px;
-            text-transform: uppercase;
-            line-height: 1.1;
-        }
-
-        .bundle-scent-column .scent-tier-desc {
-            font-size: 7.5px;
-            color: #666666;
-            font-weight: 400;
-            letter-spacing: 0.1px;
-        }
-
-        .bundle-scent-column .scent-tier-notes {
-            font-size: 8.5px;
-            color: #222222;
+            margin-top: 2px;
             font-weight: 500;
-            letter-spacing: 0.1px;
-            line-height: 1.25;
-            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .bundle-scent-tab.active .bundle-tab-sub {
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .bundle-scent-empty-notice {
-            padding: 14px 12px;
+            padding: 18px 16px;
             background: #FAFAFA;
             border: 1px dashed #D0D0D0;
-            border-radius: 6px;
-            font-size: 9px;
-            letter-spacing: 0.8px;
+            border-radius: 8px;
+            font-size: 9.5px;
+            letter-spacing: 1px;
             text-transform: uppercase;
             color: #666666;
             text-align: center;
-            margin-bottom: 14px;
-            line-height: 1.4;
+            margin-bottom: 16px;
+            line-height: 1.5;
             font-weight: 600;
         }
 
