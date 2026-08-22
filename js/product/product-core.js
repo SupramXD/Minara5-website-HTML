@@ -548,12 +548,18 @@
         const btnContainer = document.getElementById("adminEditBtnContainer");
         if (btnContainer) btnContainer.style.display = "block";
         const editPanel = document.getElementById("adminAccordionEditPanel");
-        if (editPanel && !document.getElementById("editWearingOccasion").value) {
-          document.getElementById("editWearingOccasion").value = accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.";
-          document.getElementById("editHonestInspired").value = accs.honestComparisonInspired || "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.";
-          document.getElementById("editHonestNonInspired").value = accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.";
-          document.getElementById("editIngredients").value = accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.";
-          document.getElementById("editShippingReturns").value = accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.";
+        if (editPanel) {
+          const editWearingOccasionEl = document.getElementById("editWearingOccasion");
+          const editHonestInspiredEl = document.getElementById("editHonestInspired");
+          const editHonestNonInspiredEl = document.getElementById("editHonestNonInspired");
+          const editIngredientsEl = document.getElementById("editIngredients");
+          const editShippingReturnsEl = document.getElementById("editShippingReturns");
+
+          if (editWearingOccasionEl && !editWearingOccasionEl.value) editWearingOccasionEl.value = accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.";
+          if (editHonestInspiredEl && !editHonestInspiredEl.value) editHonestInspiredEl.value = accs.honestComparisonInspired || "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.";
+          if (editHonestNonInspiredEl && !editHonestNonInspiredEl.value) editHonestNonInspiredEl.value = accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.";
+          if (editIngredientsEl && !editIngredientsEl.value) editIngredientsEl.value = accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.";
+          if (editShippingReturnsEl && !editShippingReturnsEl.value) editShippingReturnsEl.value = accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.";
         }
       }
 
@@ -942,7 +948,7 @@
           const liveProduct = data;
           const custsChanged = JSON.stringify(product ? product.customisations : null) !== JSON.stringify(liveProduct.customisations);
           const scentChanged = JSON.stringify(product ? product.scentProfile : null) !== JSON.stringify(liveProduct.scentProfile);
-          if (!product || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair || product.invisibleFlair !== liveProduct.invisibleFlair || product.standardBottleImg !== liveProduct.standardBottleImg || product.masculinePremiumBottleImg !== liveProduct.masculinePremiumBottleImg || product.femininePremiumBottleImg !== liveProduct.femininePremiumBottleImg || JSON.stringify(product.sizes) !== JSON.stringify(liveProduct.sizes) || product.isBundle !== liveProduct.isBundle || product.bundleSize !== liveProduct.bundleSize || custsChanged || scentChanged) {
+          if (!product || liveProduct.isBundle || product.nameShort !== liveProduct.nameShort || product.name !== liveProduct.name || product.price !== liveProduct.price || product.retailPrice !== liveProduct.retailPrice || product.stock !== liveProduct.stock || product.image !== liveProduct.image || product.image_thumb !== liveProduct.image_thumb || product.description !== liveProduct.description || product.status !== liveProduct.status || product.flair !== liveProduct.flair || product.invisibleFlair !== liveProduct.invisibleFlair || product.standardBottleImg !== liveProduct.standardBottleImg || product.masculinePremiumBottleImg !== liveProduct.masculinePremiumBottleImg || product.femininePremiumBottleImg !== liveProduct.femininePremiumBottleImg || JSON.stringify(product.sizes) !== JSON.stringify(liveProduct.sizes) || product.isBundle !== liveProduct.isBundle || product.bundleSize !== liveProduct.bundleSize || custsChanged || scentChanged) {
             product = liveProduct;
             swapContent(product);
           }

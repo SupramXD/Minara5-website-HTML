@@ -29,10 +29,16 @@
   function setupBundleSelectors(p, catalogList, reviewsMapData) {
     const container = document.getElementById("bundlePickerContainer");
     const wrap = document.getElementById("bundleChoicesWrap");
-    const addToBagBtn = document.getElementById("addToBagButton") || document.querySelector(".add-to-bag-btn");
-    if (!container || !wrap || !addToBagBtn) return;
+    const addToBagBtn = document.getElementById("addToBagBtn") || document.getElementById("addToBagButton") || document.querySelector(".add-to-cart") || document.querySelector(".add-to-bag-btn");
+    if (!container || !wrap) return;
 
-    const activeCatalogFragrances = catalogList || window.activeCatalogFragrances || [];
+    let activeCatalogFragrances = catalogList || window.activeCatalogFragrances || [];
+    if (activeCatalogFragrances.length === 0) {
+      try {
+        const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+        activeCatalogFragrances = localProds.filter(prod => prod.status === "Active" && prod.isBundle !== true && prod.isBundle !== "true");
+      } catch (e) { }
+    }
     const reviewsMap = reviewsMapData || window.reviewsMap || {};
     const formatBrandName = window.formatBrandName || defaultFormatBrandName;
 

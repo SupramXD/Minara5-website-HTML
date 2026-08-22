@@ -1,4 +1,4 @@
-﻿        /* --- A. GLOBAL FONT DECLARATION --- */
+        /* --- A. GLOBAL FONT DECLARATION --- */
         @font-face {
             font-family: 'Gotham Narrow Bold';
             src: url('Gotham Narrow Bold.woff2') format('woff2'),
@@ -1412,7 +1412,7 @@
           }
         }
 
-        /* MENU PANEL â€” HIGH FASHION RICK OWENS AESTHETIC */
+        /* MENU PANEL — HIGH FASHION RICK OWENS AESTHETIC */
         .slideout {
             position: fixed;
             top: 0;

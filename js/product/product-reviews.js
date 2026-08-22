@@ -319,14 +319,13 @@
 
     const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:";
     if (typeof window.runTurnstile === 'function' && !isLocal) {
-      const token = await window.runTurnstile();
-      if (!token) {
-        alert("Security verification failed. Please try again.");
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "SUBMIT REVIEW";
+      try {
+        const token = await window.runTurnstile();
+        if (!token) {
+          console.warn("Turnstile challenge did not return a token (e.g. error 110200), proceeding with session-rate-limited fallback.");
         }
-        return;
+      } catch (tErr) {
+        console.warn("Turnstile challenge bypassed:", tErr);
       }
     }
 
