@@ -1421,4 +1421,233 @@ window.PERFUME_NOTE_LIBRARY = [
       }
     };
 
+    window.toggleBundleSizeInput = function(action) {
+      if (action === 'add') {
+        const isBundle = document.getElementById("prodIsBundle") ? document.getElementById("prodIsBundle").checked : false;
+        const group = document.getElementById("prodBundleSizeGroup");
+        if (group) group.style.display = isBundle ? "block" : "none";
+      } else {
+        const isBundle = document.getElementById("editProdIsBundle") ? document.getElementById("editProdIsBundle").checked : false;
+        const group = document.getElementById("editProdBundleSizeGroup");
+        if (group) group.style.display = isBundle ? "block" : "none";
+      }
+    };
+
+    window.handleAddProduct = async function(e) {
+      e.preventDefault();
+      
+      const nameShort = document.getElementById("prodNameShort") ? document.getElementById("prodNameShort").value.trim() : "";
+      const name = document.getElementById("prodName") ? document.getElementById("prodName").value.trim() : "";
+      const price = parseFloat(document.getElementById("prodPrice") ? document.getElementById("prodPrice").value : "0");
+      const retailPriceVal = document.getElementById("prodRetailPrice") ? document.getElementById("prodRetailPrice").value.trim() : "";
+      const retailPrice = retailPriceVal !== "" ? parseFloat(retailPriceVal) : null;
+      const stock = parseInt(document.getElementById("prodStock") ? document.getElementById("prodStock").value : "0");
+      const imageInput = document.getElementById("prodImage") ? document.getElementById("prodImage").value.trim() : "";
+      const fileInput = document.getElementById("prodFile") && document.getElementById("prodFile").files ? document.getElementById("prodFile").files[0] : null;
+      const description = document.getElementById("prodDesc") ? document.getElementById("prodDesc").value.trim() : "";
+      const status = document.getElementById("prodStatus") ? document.getElementById("prodStatus").value : "active";
+      const flair = document.getElementById("prodFlair") ? document.getElementById("prodFlair").value : "";
+      const invisibleFlair = document.getElementById("prodInvisibleFlair") ? document.getElementById("prodInvisibleFlair").value : "";
+      const standardBottleImg = document.getElementById("prodStandardBottleImg") ? document.getElementById("prodStandardBottleImg").value.trim() : "";
+      const masculinePremiumBottleImg = document.getElementById("prodMasculinePremiumBottleImg") ? document.getElementById("prodMasculinePremiumBottleImg").value.trim() : "";
+      const femininePremiumBottleImg = document.getElementById("prodFemininePremiumBottleImg") ? document.getElementById("prodFemininePremiumBottleImg").value.trim() : "";
+      const isBundle = document.getElementById("prodIsBundle") ? document.getElementById("prodIsBundle").checked : false;
+      const bundleSize = isBundle && document.getElementById("prodBundleSize") ? parseInt(document.getElementById("prodBundleSize").value) || 0 : 0;
+      const sortOrderVal = document.getElementById("prodSortOrder") ? document.getElementById("prodSortOrder").value.trim() : "";
+      const sortOrder = sortOrderVal !== "" ? parseInt(sortOrderVal) : null;
+
+      // Extract Scent Profile
+      const addTopNotes = document.getElementById("addProdTopNotes") ? document.getElementById("addProdTopNotes").value.trim() : "";
+      const addMiddleNotes = document.getElementById("addProdMiddleNotes") ? document.getElementById("addProdMiddleNotes").value.trim() : "";
+      const addBaseNotes = document.getElementById("addProdBaseNotes") ? document.getElementById("addProdBaseNotes").value.trim() : "";
+      
+      let scentProfile = null;
+      if (addTopNotes || addMiddleNotes || addBaseNotes) {
+        scentProfile = {
+          keyNotes: [],
+          topNotes: addTopNotes,
+          topNotesDesc: "The first notes you smell",
+          middleNotes: addMiddleNotes,
+          middleNotesDesc: "The heart of the perfume",
+          baseNotes: addBaseNotes,
+          baseNotesDesc: "The notes that linger all day"
+        };
+      }
+
+      if (!name || isNaN(price) || isNaN(stock) || !description) {
+        alert("Please fill in all required fields (Name, Price, Stock, Description).");
+        return;
+      }
+      if (!imageInput && !fileInput) {
+        alert("Please either provide an Image Path/URL or select a file to upload.");
+        return;
+      }
+
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn ? submitBtn.innerHTML : "";
+      if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = "INJECTING...";
+      }
+
+      let mainImageBase64 = imageInput;
+      let thumbImageBase64 = "";
+
+      if (fileInput) {
+        try {
+          if (typeof window.compressImage === 'function') {
+            mainImageBase64 = await window.compressImage(fileInput, 1200, 0.90);
+            thumbImageBase64 = await window.compressImage(fileInput, 800, 0.85);
+          }
+        } catch (compressErr) {
+          console.error(compressErr);
+          mainImageBase64 = imageInput;
+        }
+      }
+
+      const sizes = [];
+      if (document.getElementById("prodSize50") && document.getElementById("prodSize50").checked) sizes.push("50ml");
+      if (document.getElementById("prodSize100") && document.getElementById("prodSize100").checked) sizes.push("100ml");
+
+      const idStr = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const newProduct = {
+          id: idStr,
+          nameShort: nameShort,
+          name: name,
+          price: price,
+          retailPrice: retailPrice,
+          stock: stock,
+          image: mainImageBase64,
+          image_thumb: thumbImageBase64,
+          description: description,
+          status: status,
+          flair: flair,
+          invisibleFlair: invisibleFlair,
+          standardBottleImg: standardBottleImg,
+          masculinePremiumBottleImg: masculinePremiumBottleImg,
+          femininePremiumBottleImg: femininePremiumBottleImg,
+          customisations: [],
+          sizes: sizes,
+          isBundle: isBundle,
+          bundleSize: bundleSize,
+          sortOrder: sortOrder,
+          scentProfile: scentProfile
+      };
+
+      try {
+          const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+          const idx = localProds.findIndex(p => p.id === idStr);
+          newProduct.syncStatus = "pending";
+          if (idx > -1) {
+              localProds[idx] = newProduct;
+          } else {
+              localProds.push(newProduct);
+          }
+          localStorage.setItem("minara_products", JSON.stringify(localProds));
+      } catch (err) {
+          console.error(err);
+      }
+
+      let firestoreSuccess = false;
+      let firestoreErrorMsg = "";
+
+      if (window.db && window.dbDoc && window.dbSetDoc) {
+          try {
+              const timeoutPromise = new Promise((_, reject) => 
+                  setTimeout(() => reject(new Error("Timeout")), 20000)
+              );
+              await Promise.race([
+                  window.dbSetDoc(window.dbDoc(window.db, "products", idStr), {
+                      nameShort: nameShort,
+                      name: name,
+                      price: price,
+                      retailPrice: retailPrice,
+                      stock: stock,
+                      image: mainImageBase64,
+                      image_thumb: thumbImageBase64,
+                      description: description,
+                      status: status,
+                      flair: flair,
+                      invisibleFlair: invisibleFlair,
+                      standardBottleImg: standardBottleImg,
+                      masculinePremiumBottleImg: masculinePremiumBottleImg,
+                      femininePremiumBottleImg: femininePremiumBottleImg,
+                      customisations: [],
+                      sizes: sizes,
+                      isBundle: isBundle,
+                      bundleSize: bundleSize,
+                      sortOrder: sortOrder,
+                      scentProfile: scentProfile,
+                      timestamp: new Date().toISOString()
+                  }),
+                  timeoutPromise
+              ]);
+              firestoreSuccess = true;
+              
+              try {
+                  const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+                  const idx = localProds.findIndex(p => p.id === idStr);
+                  if (idx > -1) {
+                      localProds[idx].syncStatus = "synced";
+                      localStorage.setItem("minara_products", JSON.stringify(localProds));
+                  }
+              } catch (cacheErr) {}
+          } catch (dbErr) {
+              firestoreErrorMsg = dbErr.message || dbErr;
+          }
+      }
+
+      // Sync to GitHub static repo
+      if (firestoreSuccess && window.syncToGithubCallable) {
+          try {
+              await window.syncToGithubCallable({
+                  action: "saveProduct",
+                  payload: {
+                      id: idStr,
+                      nameShort: nameShort,
+                      name: name,
+                      price: price,
+                      retailPrice: retailPrice,
+                      stock: stock,
+                      image: mainImageBase64,
+                      image_thumb: thumbImageBase64,
+                      description: description,
+                      status: status,
+                      flair: flair,
+                      invisibleFlair: invisibleFlair,
+                      standardBottleImg: standardBottleImg,
+                      masculinePremiumBottleImg: masculinePremiumBottleImg,
+                      femininePremiumBottleImg: femininePremiumBottleImg,
+                      sizes: sizes,
+                      isBundle: isBundle,
+                      bundleSize: bundleSize,
+                      sortOrder: sortOrder,
+                      scentProfile: scentProfile
+                  }
+              });
+              console.log("GitHub sync successful for: " + name);
+          } catch (gitHubErr) {
+              console.error("Failed to sync to GitHub:", gitHubErr);
+              alert("Warning: Product was saved to database, but GitHub sync failed: " + (gitHubErr.message || gitHubErr));
+          }
+      }
+
+      const form = document.getElementById("productForm");
+      if (form) form.reset();
+      if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+      }
+
+      if (firestoreSuccess) {
+          alert("Success! " + name + " has been successfully injected and synced.");
+      } else {
+          alert("Warning: " + name + " was saved locally, but failed to sync online.\nError: " + firestoreErrorMsg);
+      }
+      
+      if (typeof window.loadCatalog === 'function') {
+          window.loadCatalog();
+      }
+    };
+
     

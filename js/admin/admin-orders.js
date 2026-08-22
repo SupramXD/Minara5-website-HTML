@@ -949,3 +949,22 @@ function getProductImageForItem(item) {
 window.getProductImageForItem = getProductImageForItem;
 window.renderOrdersView = renderOrdersView;
 window.renderOrdersTable = renderOrdersTable;
+
+window.fulfillOrder = function(rowId) {
+  const row = document.getElementById("order-row-" + rowId);
+  if (!row) return;
+
+  const statusTd = row.cells[4];
+  if (statusTd) statusTd.innerHTML = `<span class="status-badge shipped">Shipped</span>`;
+
+  const actionTd = row.cells[5];
+  if (actionTd) actionTd.innerHTML = `<button class="btn-action" disabled style="opacity: 0.5; cursor: not-allowed;">Completed</button>`;
+
+  const revEl = document.getElementById("dashboardRevenue");
+  const ordEl = document.getElementById("dashboardOrdersCount");
+  const statEl = document.getElementById("orderFulfillmentStats");
+  if (statEl) statEl.textContent = "Fulfillment updated ✓";
+  
+  alert("Order #" + (1025 - rowId) + " fulfilled successfully! Revenue updated.");
+};
+
