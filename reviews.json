@@ -2,9 +2,9 @@
   {
     "productId": "inspired-by-jpg-le-male",
     "name": "test",
-    "text": "Test review",
+    "text": "test",
     "rating": 5,
-    "timestamp": "2026-06-15T13:28:58.051Z"
+    "timestamp": "2026-08-22T10:30:02.769Z"
   },
   {
     "productId": "inspired-by-creed-aventus",
@@ -40,5 +40,12 @@
     "text": "terstt",
     "rating": 5,
     "timestamp": "2026-06-07T15:30:05.625Z"
+  },
+  {
+    "productId": "inspired-by-jpg-le-male",
+    "name": "test",
+    "text": "Test review",
+    "rating": 5,
+    "timestamp": "2025-06-15T13:28:00.000Z"
   }
 ]
