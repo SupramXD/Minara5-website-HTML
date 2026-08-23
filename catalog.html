@@ -1061,10 +1061,10 @@
 
 
         <div class="left-nav">
-            <a href="catalog.html" class="desktop-only">fragrances</a>
+            <a href="catalog.html" class="desktop-only">Fragrances</a>
             <a href="catalog.html?gender=men" class="desktop-only" style="margin-left:22px;">men</a>
             <a href="catalog.html?gender=women" class="desktop-only" style="margin-left:22px;">women</a>
-            <a href="catalog.html?gender=unisex" class="desktop-only" style="margin-left:22px;">unisex</a>
+            <a href="catalog.html?gender=gifts" class="desktop-only" style="margin-left:22px;">Gifts</a>
             <div class="menu-icon" onclick="openMenu()"><img src="menu.svg"></div>
         </div>
 
@@ -1155,7 +1155,7 @@
             <a href="catalog.html">SHOP ALL FRAGRANCES</a>
             <a href="catalog.html?gender=men">MEN'S</a>
             <a href="catalog.html?gender=women">WOMEN'S</a>
-            <a href="catalog.html?gender=unisex">UNISEX</a>
+            <a href="catalog.html?gender=gifts">GIFTS</a>
         </div>
 
         <div class="menu-nav-group">
@@ -1464,9 +1464,9 @@
                     } else if (genderFilter === 'women') {
                         heading.textContent = "WOMEN'S FRAGRANCES";
                         document.title = "Studio Extrait - Shop Women's Fragrances";
-                    } else if (genderFilter === 'unisex') {
-                        heading.textContent = "UNISEX FRAGRANCES";
-                        document.title = "Studio Extrait - Shop Unisex Fragrances";
+                    } else if (genderFilter === 'gifts') {
+                        heading.textContent = "GIFTS & SETS";
+                        document.title = "Studio Extrait - Shop Gifts";
                     } else {
                         heading.textContent = "CATALOG";
                         document.title = "Studio Extrait | Extrait De Parfum | South Africa";
@@ -1475,7 +1475,7 @@
 
                 let activeProducts = products.filter(p => p.status === 'Active');
 
-                // 1. Filter by Gender Classification (flair / invisibleFlair)
+                // 1. Filter by Gender / Category Classification
                 if (genderFilter === 'men') {
                     activeProducts = activeProducts.filter(p => {
                         const f = (p.flair || '').toLowerCase();
@@ -1488,12 +1488,40 @@
                         const invF = (p.invisibleFlair || '').toLowerCase();
                         return f === 'feminine' || f === 'unisex' || invF === 'women' || invF === 'unisex' || p.isBundle;
                     });
-                } else if (genderFilter === 'unisex') {
-                    activeProducts = activeProducts.filter(p => {
-                        const f = (p.flair || '').toLowerCase();
-                        const invF = (p.invisibleFlair || '').toLowerCase();
-                        return f === 'unisex' || invF === 'unisex' || p.isBundle;
+                } else if (genderFilter === 'gifts') {
+                    const giftItems = [];
+                    activeProducts.forEach(p => {
+                        if (p.customisations && Array.isArray(p.customisations) && p.customisations.length > 0) {
+                            p.customisations.forEach((c, idx) => {
+                                const lbl = (c.label || '').toUpperCase().trim();
+                                if (lbl === 'STANDARD') return;
+
+                                const basePrice = Number(p.price) || 0;
+                                let extra = (c.priceExtra !== undefined && c.priceExtra !== null) ? Number(c.priceExtra) : 0;
+                                let finalPrice = basePrice + extra;
+                                let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
+
+                                giftItems.push({
+                                    ...p,
+                                    id: p.id,
+                                    name: `${rawName} – ${lbl}`,
+                                    nameShort: `${p.nameShort || rawName}`,
+                                    price: finalPrice,
+                                    retailPrice: p.retailPrice ? (p.retailPrice + extra) : null,
+                                    stock: (c.stock !== undefined && c.stock !== null && c.stock !== '') ? Number(c.stock) : p.stock,
+                                    image: c.image || c.image_thumb || p.image,
+                                    image_thumb: c.image_thumb || c.image || p.image_thumb || p.image,
+                                    url: `template product.html?id=${p.id}&customisation=${idx}`,
+                                    isGiftItem: true,
+                                    giftLabel: lbl,
+                                    isBundle: false
+                                });
+                            });
+                        } else if (p.isBundle || (p.flair && p.flair.toLowerCase().includes('gift')) || (p.invisibleFlair && p.invisibleFlair.toLowerCase().includes('gift'))) {
+                            giftItems.push(p);
+                        }
                     });
+                    activeProducts = giftItems;
                 }
 
                 // 2. Filter by search query if active
@@ -1654,7 +1682,20 @@
                         typeEl.style.display = 'block';
                     }
 
-                    if (inspiredMatch || p.id.startsWith("inspired-by-")) {
+                    if (p.isGiftItem && p.giftLabel) {
+                        titleEl.textContent = p.nameShort || rawName;
+                        titleEl.style.fontSize = "12px";
+                        titleEl.style.color = "#111111";
+                        titleEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";
+                        titleEl.style.fontWeight = "700";
+                        titleEl.style.display = 'block';
+                        titleEl.style.textTransform = "uppercase";
+                        titleEl.style.letterSpacing = "0.04em";
+                        titleEl.style.marginBottom = "2px";
+
+                        inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #1106e8; letter-spacing: 0.8px; text-transform: uppercase; display: block; margin-bottom: 6px;">${p.giftLabel}</span>`;
+                        inspiredEl.style.display = 'block';
+                    } else if (inspiredMatch || p.id.startsWith("inspired-by-")) {
                         const fragranceName = inspiredMatch ? inspiredMatch[1] : rawName;
 
                         titleEl.textContent = p.nameShort || rawName;

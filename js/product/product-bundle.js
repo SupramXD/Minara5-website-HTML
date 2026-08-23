@@ -177,14 +177,12 @@
         leftContainer.appendChild(imgEl);
         leftContainer.appendChild(textContainer);
 
-        const viewLink = document.createElement("a");
-        viewLink.href = `template product.html?id=${prod.id}`;
-        viewLink.target = "_blank";
-        viewLink.style.cssText = "font-size: 8.5px; color: #000; text-decoration: underline; text-transform: uppercase; margin-left: 8px; flex-shrink: 0;";
-        viewLink.textContent = "VIEW";
+        const addBtn = document.createElement("button");
+        addBtn.className = "bundle-item-add-btn";
+        addBtn.style.cssText = "background: #000; color: #fff; border: none; padding: 6px 12px; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8.5px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-weight: bold; border-radius: 2px; transition: background 0.2s; white-space: nowrap; flex-shrink: 0; margin-left: 8px;";
+        addBtn.textContent = "ADD";
 
         const handleSelectProduct = (e) => {
-          if (e.target === viewLink) return;
           e.stopPropagation();
 
           selectedScents[index] = {
@@ -218,9 +216,9 @@
         };
 
         itemEl.appendChild(leftContainer);
-        itemEl.appendChild(viewLink);
+        itemEl.appendChild(addBtn);
 
-        viewLink.onclick = (e) => { e.stopPropagation(); };
+        addBtn.onclick = handleSelectProduct;
         leftContainer.onclick = handleSelectProduct;
         itemEl.onclick = handleSelectProduct;
 

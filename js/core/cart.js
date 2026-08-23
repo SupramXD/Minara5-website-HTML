@@ -451,12 +451,6 @@
         }
       });
       
-      // Minimalist simple text link for Continue Shopping
-      html += `
-      <div class="continue-shopping-row" style="width:100%; box-sizing:border-box; padding:12px 20px; text-align:center; border-bottom:1px solid #eaeaea;">
-        <a href="#" onclick="event.preventDefault(); if (typeof closeCart === 'function') closeCart(); else if (typeof window.closeCart === 'function') window.closeCart();" style="font-family:Helvetica, Arial, sans-serif; font-size:10px; letter-spacing:1.2px; text-transform:uppercase; cursor:pointer; font-weight:500; color:#666666; text-decoration:none; transition:color 0.2s ease;" onmouseover="this.style.color='#000000';" onmouseout="this.style.color='#666666';">← Continue Shopping</a>
-      </div>`;
-
       html += '</div>';
     } else {
       html += '<div style="padding:10px 25px; flex-grow:1; display:flex; flex-direction:column; align-items:flex-start;">';

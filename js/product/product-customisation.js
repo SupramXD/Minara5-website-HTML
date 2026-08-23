@@ -108,6 +108,25 @@
 
     container.style.display = "block";
 
+    // URL parameter pre-selection for gifts and custom presentation boxes
+    const urlParams = new URLSearchParams(window.location.search);
+    const custParam = urlParams.get('customisation');
+    if (custParam !== null) {
+      const paramNum = parseInt(custParam, 10);
+      if (!isNaN(paramNum) && p.customisations && p.customisations[paramNum]) {
+        const targetLbl = (p.customisations[paramNum].label || '').toUpperCase().trim();
+        const matchOpt = options.find(o => o.label.toUpperCase().trim() === targetLbl);
+        if (matchOpt) {
+          window.selectedBottleCustomisation = matchOpt.label;
+        }
+      } else {
+        const matchOpt = options.find(o => o.label.toLowerCase() === custParam.toLowerCase() || o.id.toLowerCase() === custParam.toLowerCase());
+        if (matchOpt) {
+          window.selectedBottleCustomisation = matchOpt.label;
+        }
+      }
+    }
+
     // Default selection: Standard if unset or invalid
     if (!window.selectedBottleCustomisation || !options.some(o => o.label === window.selectedBottleCustomisation)) {
       window.selectedBottleCustomisation = options[0].label;
