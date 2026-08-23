@@ -21,12 +21,12 @@
   "logoMobileSpawn": -95,
   "logoMobileSpawn2": 180,
   "logoMobileStick": 10,
-  "logoMobileX": 0,
+  "logoMobileX": -50,
   "logoHeaderDesktopHeight": 50,
   "logoHeaderMobileHeight": 36,
   "logoHomeDesktopWidth": 1200,
   "logoHomeMobileWidth": 100,
   "showGiftsButton": false,
-  "hideRightImageDesktop": false,
-  "timestamp": "2026-08-20T14:48:35.969Z"
+  "hideRightImageDesktop": true,
+  "timestamp": "2026-08-23T19:02:14.135Z"
 }
