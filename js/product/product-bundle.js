@@ -250,16 +250,18 @@
       }
 
       const allSelected = selectedScents.every(s => s !== null);
+      const selectedCount = selectedScents.filter(s => s !== null).length;
       if (allSelected) {
         addToBagBtn.style.display = originalDisplay;
-        const selectionsLabel = selectedScents.map(s => (s.nameShort || s.name || "").toUpperCase()).join(" + ");
-        addToBagBtn.innerHTML = `ADD TO BAG (${selectionsLabel})`;
+        addToBagBtn.innerHTML = `ADD TO BAG <span style="font-size: 8.5px; opacity: 0.85; margin-left: 6px; letter-spacing: 1px; font-weight: 700; vertical-align: middle;">• ${bundleSize} SELECTED</span>`;
         addToBagBtn.disabled = false;
         addToBagBtn.style.opacity = "";
         addToBagBtn.style.cursor = "pointer";
       } else {
         addToBagBtn.style.display = originalDisplay;
-        addToBagBtn.innerHTML = "ADD TO BAG";
+        addToBagBtn.innerHTML = selectedCount > 0 
+          ? `ADD TO BAG <span style="font-size: 8.5px; opacity: 0.6; margin-left: 6px; letter-spacing: 1px; font-weight: 700; vertical-align: middle;">• ${selectedCount}/${bundleSize} SELECTED</span>`
+          : "ADD TO BAG";
         addToBagBtn.disabled = false;
         addToBagBtn.style.opacity = "1";
         addToBagBtn.style.cursor = "pointer";

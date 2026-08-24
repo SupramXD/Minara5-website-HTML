@@ -2062,11 +2062,14 @@
       }
 
       #logo .mobile-logo {
-        display: block;
+        display: block !important;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        margin: 0 auto;
       }
 
       #logo .desktop-logo {
-        display: none;
+        display: none !important;
       }
     }
-  </style>
