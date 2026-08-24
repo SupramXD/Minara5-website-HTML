@@ -2056,6 +2056,8 @@
       try {
         const cached = localStorage.getItem("minara_hero_settings");
         let s = {
+          desktopHeight: "calc(115vh - 45px)",
+          leftFlex: 1.3,
           logoDesktopSpawn: 50,
           logoDesktopX: -232,
           logoMobileSpawn: -95,
@@ -2063,7 +2065,8 @@
           logoHeaderDesktopHeight: 50,
           logoHeaderMobileHeight: 36,
           logoHomeDesktopWidth: 800,
-          logoHomeMobileWidth: 100
+          logoHomeMobileWidth: 100,
+          hideRightImageDesktop: true
         };
         if (cached) {
           s = Object.assign({}, s, JSON.parse(cached));
@@ -2340,10 +2343,10 @@
         leftImage: "images/hero/left.avif",
         rightImage: "images/hero/right.jpg",
         mobileImage: "images/hero/mobile.avif",
-        leftFlex: 1.6,
+        leftFlex: 1.3,
         leftScale: 1.0,
-        leftX: 50,
-        leftY: 20,
+        leftX: 67,
+        leftY: 61,
         rightScale: 1.0,
         rightX: 80,
         rightY: 92,
@@ -2359,13 +2362,13 @@
         logoMobileSpawn: -95,
         logoMobileSpawn2: 180,
         logoMobileStick: 10,
-        logoMobileX: 0,
+        logoMobileX: -50,
         logoHeaderDesktopHeight: 50,
         logoHeaderMobileHeight: 36,
         logoHomeDesktopWidth: 1200,
         logoHomeMobileWidth: 100,
         showGiftsButton: false,
-        hideRightImageDesktop: false
+        hideRightImageDesktop: true
       };
 
       try {
@@ -2409,6 +2412,8 @@
           }
         }
 
+        const initStyle = document.getElementById("minara-logo-init-style");
+
         if (isMobile) {
           const targetMobileSrc = activeSettings.mobileImage || "images/hero/studio-extrait-clone-fragrances-2.avif";
           if (picR) {
@@ -2420,10 +2425,12 @@
           if (imgR.getAttribute("src") !== targetMobileSrc) {
             imgR.src = targetMobileSrc;
           }
-          if (imgRWrapper) imgRWrapper.style.display = "block";
-          imgR.style.display = "block";
-          if (picL) picL.style.display = "none";
-          imgL.style.display = "none";
+          if (imgRWrapper) {
+            imgRWrapper.style.setProperty("display", "block", "important");
+          }
+          imgR.style.setProperty("display", "block", "important");
+          if (picL) picL.style.setProperty("display", "none", "important");
+          imgL.style.setProperty("display", "none", "important");
 
           if (activeSettings.mobileHeight === "auto") {
             hero.style.height = "auto";
@@ -2451,28 +2458,31 @@
         } else {
           hero.style.height = activeSettings.desktopHeight || "calc(115vh - 45px)";
           if (picL) {
-            picL.style.display = "block";
+            picL.style.setProperty("display", "block", "important");
           }
-          imgL.style.display = "block";
+          imgL.style.setProperty("display", "block", "important");
 
           if (activeSettings.hideRightImageDesktop) {
-            const targetMobileSrc = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+            const blankGif = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
             if (picR) {
-              const source = picR.querySelector("source[media*='max-width']");
-              if (source) source.setAttribute("srcset", targetMobileSrc);
+              picR.querySelectorAll("source").forEach(s => s.setAttribute("srcset", blankGif));
             }
-            imgR.src = targetMobileSrc;
+            imgR.src = blankGif;
             if (imgRWrapper) {
-              imgRWrapper.style.display = "none";
+              imgRWrapper.style.setProperty("display", "none", "important");
             }
             if (picL) {
-              picL.style.flex = "1";
-              picL.style.height = "100%";
+              picL.style.setProperty("flex", "1", "important");
+              picL.style.setProperty("width", "100%", "important");
+              picL.style.setProperty("height", "100%", "important");
+              picL.style.setProperty("display", "block", "important");
             }
-            imgL.style.flex = "1";
-            imgL.style.height = "100%";
-            imgL.style.width = "100%";
-            imgL.style.objectFit = "cover";
+            imgL.style.setProperty("flex", "1", "important");
+            imgL.style.setProperty("width", "100%", "important");
+            imgL.style.setProperty("height", "100%", "important");
+            imgL.style.setProperty("object-fit", "cover", "important");
+            imgL.style.setProperty("display", "block", "important");
+
             const targetLeftSrc = activeSettings.leftImage || "images/hero/studio-extrait-clone-fragrances.avif";
             if (picL) {
               const source = picL.querySelector("source[media*='min-width']");
@@ -2487,14 +2497,34 @@
             imgL.style.transform = `scale(${activeSettings.leftScale || 1.0})`;
             imgL.style.objectPosition = `${activeSettings.leftX || 50}% ${activeSettings.leftY || 50}%`;
             imgL.style.transformOrigin = `${activeSettings.leftX || 50}% ${activeSettings.leftY || 50}%`;
-          } else {
-            if (imgRWrapper) {
-              imgRWrapper.style.display = "block";
+
+            if (initStyle) {
+              initStyle.innerHTML = initStyle.innerHTML
+                .replace(/#imgRWrapper\s*\{[^}]*\}/g, "#imgRWrapper { display: none !important; }")
+                .replace(/#hero #picL\s*\{[^}]*\}/g, "#hero #picL { flex: 1 !important; width: 100% !important; height: 100% !important; display: block !important; }")
+                .replace(/#hero #imgL\s*\{[^}]*\}/g, "#hero #imgL { flex: 1 !important; width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; }");
             }
-            imgL.style.display = "block";
-            imgL.style.height = "100%";
-            imgL.style.width = "100%";
-            imgL.style.objectFit = "cover";
+          } else {
+            const leftFlex = activeSettings.leftFlex !== undefined ? parseFloat(activeSettings.leftFlex) : 1.3;
+            const rightFlex = Math.max(0.1, 2.0 - leftFlex);
+
+            if (imgRWrapper) {
+              imgRWrapper.style.setProperty("display", "block", "important");
+              imgRWrapper.style.setProperty("flex", String(rightFlex), "important");
+              imgRWrapper.style.setProperty("height", "100%", "important");
+            }
+            if (picL) {
+              picL.style.setProperty("flex", String(leftFlex), "important");
+              picL.style.setProperty("width", "", "");
+              picL.style.setProperty("height", "100%", "important");
+              picL.style.setProperty("display", "block", "important");
+            }
+            imgL.style.setProperty("flex", String(leftFlex), "important");
+            imgL.style.setProperty("width", "100%", "important");
+            imgL.style.setProperty("height", "100%", "important");
+            imgL.style.setProperty("object-fit", "cover", "important");
+            imgL.style.setProperty("display", "block", "important");
+
             const targetLeftSrc = activeSettings.leftImage || "images/hero/studio-extrait-clone-fragrances.avif";
             if (picL) {
               const source = picL.querySelector("source[media*='min-width']");
@@ -2504,19 +2534,6 @@
             }
             if (imgL.getAttribute("src") !== targetLeftSrc) {
               imgL.src = targetLeftSrc;
-            }
-
-            const leftFlex = activeSettings.leftFlex !== undefined ? parseFloat(activeSettings.leftFlex) : 1.3;
-            const rightFlex = 2.0 - leftFlex;
-
-            if (picL) {
-              picL.style.flex = leftFlex;
-              picL.style.height = "100%";
-            }
-            imgL.style.flex = leftFlex;
-            if (imgRWrapper) {
-              imgRWrapper.style.flex = rightFlex;
-              imgRWrapper.style.height = "100%";
             }
 
             imgL.style.transform = `scale(${activeSettings.leftScale || 1.0})`;
@@ -2525,21 +2542,35 @@
 
             const targetRightSrc = activeSettings.rightImage || "images/hero/right.png";
             if (picR) {
-              const source = picR.querySelector("source[media*='min-width']");
-              if (source && source.getAttribute("srcset") !== targetRightSrc) {
-                source.setAttribute("srcset", targetRightSrc);
+              const minSource = picR.querySelector("source[media*='min-width']");
+              if (minSource && minSource.getAttribute("srcset") !== targetRightSrc) {
+                minSource.setAttribute("srcset", targetRightSrc);
+              }
+              const maxSource = picR.querySelector("source[media*='max-width']");
+              const mobileSrc = activeSettings.mobileImage || "images/hero/mobile.avif";
+              if (maxSource && maxSource.getAttribute("srcset") !== mobileSrc) {
+                maxSource.setAttribute("srcset", mobileSrc);
               }
             }
-            if (imgR.getAttribute("src") !== targetRightSrc) {
+            if (imgR && imgR.getAttribute("src") !== targetRightSrc) {
               imgR.src = targetRightSrc;
             }
 
-            imgR.style.transform = `scale(${activeSettings.rightScale || 1.0})`;
-            imgR.style.objectPosition = `${activeSettings.rightX || 80}% ${activeSettings.rightY || 50}%`;
-            imgR.style.transformOrigin = `${activeSettings.rightX || 80}% ${activeSettings.rightY || 50}%`;
-            imgR.style.height = "100%";
-            imgR.style.width = "100%";
-            imgR.style.objectFit = "cover";
+            if (imgR) {
+              imgR.style.setProperty("display", "block", "important");
+              imgR.style.transform = `scale(${activeSettings.rightScale || 1.0})`;
+              imgR.style.objectPosition = `${activeSettings.rightX || 80}% ${activeSettings.rightY || 50}%`;
+              imgR.style.transformOrigin = `${activeSettings.rightX || 80}% ${activeSettings.rightY || 50}%`;
+              imgR.style.height = "100%";
+              imgR.style.width = "100%";
+              imgR.style.objectFit = "cover";
+            }
+
+            if (initStyle) {
+              initStyle.innerHTML = initStyle.innerHTML
+                .replace(/#imgRWrapper\s*\{[^}]*\}/g, `#imgRWrapper { display: block !important; flex: ${rightFlex} !important; height: 100% !important; }`)
+                .replace(/#hero #picL\s*\{[^}]*\}/g, `#hero #picL { flex: ${leftFlex} !important; height: 100% !important; display: block !important; }`);
+            }
           }
         }
       }
