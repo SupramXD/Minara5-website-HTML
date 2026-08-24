@@ -182,7 +182,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!mobileView) {
-      if (logo) logo.classList.remove('locked-white-zone');
+      if (logo) {
+        logo.classList.remove('locked-white-zone');
+        logo.style.left = '50%';
+      }
       // --- DESKTOP LOGIC ---
       const fixedOffset = 48;
       const bottom = y + fixedOffset + bagsBtnHeight;
@@ -245,6 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- MOBILE LOGIC ---
+    if (logo) logo.style.left = '50%';
     const stickOffset = s.logoMobileStick !== undefined ? s.logoMobileStick : 10;
     const mX = s.logoMobileX !== undefined ? s.logoMobileX : 0;
 
