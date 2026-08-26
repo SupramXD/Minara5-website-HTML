@@ -28,6 +28,29 @@
     }
   };
 
+  // Convert raw textarea text (with line breaks/paragraphs) to clean HTML paragraphs
+  function formatParagraphs(text) {
+    if (!text) return "";
+    const trimmed = text.trim();
+    if (!trimmed) return "";
+    if (/^<p[\s>]/i.test(trimmed)) {
+      return trimmed.replace(/\n\s*\n+/g, '</p><p>').replace(/(?<!>)\n/g, '<br>');
+    }
+    const paras = trimmed.split(/\n\s*\n+/);
+    return paras.map(p => `<p style="margin-bottom: 10px;">${p.replace(/\n/g, '<br>')}</p>`).join('');
+  }
+
+  // Convert HTML back to clean editable text in textareas (preserving user gaps/linebreaks)
+  function htmlToText(html) {
+    if (!html) return "";
+    let str = html;
+    str = str.replace(/<\/p>\s*<p[^>]*>/gi, '\n\n');
+    str = str.replace(/<p[^>]*>/gi, '');
+    str = str.replace(/<\/p>/gi, '');
+    str = str.replace(/<br\s*\/?>/gi, '\n');
+    return str.trim();
+  }
+
   // Admin Accordion Texts Editor logic
   window.toggleAdminEditPanel = function () {
     const editPanel = document.getElementById("adminAccordionEditPanel");
@@ -36,11 +59,26 @@
     if (editPanel.style.display === "none" || !editPanel.style.display) {
       editPanel.style.display = "block";
       if (toggleBtn) toggleBtn.textContent = "✕ CLOSE EDITING";
+      populateProductEditInputs();
     } else {
       editPanel.style.display = "none";
       if (toggleBtn) toggleBtn.textContent = "⚙ EDIT PRODUCT TEXT";
     }
   };
+
+  function populateProductEditInputs() {
+    let customText = {};
+    try {
+      const cached = localStorage.getItem("minara_custom_text");
+      if (cached) customText = JSON.parse(cached);
+    } catch (e) { }
+    const accs = customText.accordions || {};
+    if (document.getElementById("editWearingOccasion")) document.getElementById("editWearingOccasion").value = htmlToText(accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.");
+    if (document.getElementById("editHonestInspired")) document.getElementById("editHonestInspired").value = htmlToText(accs.honestComparisonInspired || "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.");
+    if (document.getElementById("editHonestNonInspired")) document.getElementById("editHonestNonInspired").value = htmlToText(accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.");
+    if (document.getElementById("editIngredients")) document.getElementById("editIngredients").value = htmlToText(accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.");
+    if (document.getElementById("editShippingReturns")) document.getElementById("editShippingReturns").value = htmlToText(accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.");
+  }
 
   window.saveAdminAccordionTexts = async function () {
     const btn = document.getElementById("saveAccordionTextsBtn");
@@ -56,12 +94,18 @@
       if (cached) customText = JSON.parse(cached);
     } catch (e) { }
 
+    const rawWearing = document.getElementById("editWearingOccasion") ? document.getElementById("editWearingOccasion").value : "";
+    const rawInspired = document.getElementById("editHonestInspired") ? document.getElementById("editHonestInspired").value : "";
+    const rawNonInspired = document.getElementById("editHonestNonInspired") ? document.getElementById("editHonestNonInspired").value : "";
+    const rawIngredients = document.getElementById("editIngredients") ? document.getElementById("editIngredients").value : "";
+    const rawShipping = document.getElementById("editShippingReturns") ? document.getElementById("editShippingReturns").value : "";
+
     customText.accordions = {
-      wearingOccasion: document.getElementById("editWearingOccasion") ? document.getElementById("editWearingOccasion").value : "",
-      honestComparisonInspired: document.getElementById("editHonestInspired") ? document.getElementById("editHonestInspired").value : "",
-      honestComparisonNonInspired: document.getElementById("editHonestNonInspired") ? document.getElementById("editHonestNonInspired").value : "",
-      ingredients: document.getElementById("editIngredients") ? document.getElementById("editIngredients").value : "",
-      shippingReturns: document.getElementById("editShippingReturns") ? document.getElementById("editShippingReturns").value : ""
+      wearingOccasion: rawWearing.trim(),
+      honestComparisonInspired: rawInspired.trim(),
+      honestComparisonNonInspired: rawNonInspired.trim(),
+      ingredients: rawIngredients.trim(),
+      shippingReturns: rawShipping.trim()
     };
 
     try {
@@ -111,39 +155,36 @@
     }
   };
 
-  // Listen to Auth State change to render accordion editor button
-  (async function () {
-    try {
-      if (window.dbPromise) await window.dbPromise;
-      if (window.auth) {
-        const { onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js");
-        onAuthStateChanged(window.auth, (user) => {
-          if (user) {
-            setTimeout(() => {
-              if (window.currentUserRole === "Admin") {
-                const btnContainer = document.getElementById("adminEditBtnContainer");
-                if (btnContainer) btnContainer.style.display = "block";
+  function checkAndRevealProductAdmin() {
+    const isCachedAdmin = localStorage.getItem("minara_auth_role") === "Admin";
+    const isGlobalAdmin = window.currentUserRole === "Admin";
 
-                let customText = {};
-                try {
-                  const cached = localStorage.getItem("minara_custom_text");
-                  if (cached) customText = JSON.parse(cached);
-                } catch (e) { }
-                const accs = customText.accordions || {};
-                if (document.getElementById("editWearingOccasion")) document.getElementById("editWearingOccasion").value = accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.";
-                if (document.getElementById("editHonestInspired")) document.getElementById("editHonestInspired").value = accs.honestComparisonInspired || "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.";
-                if (document.getElementById("editHonestNonInspired")) document.getElementById("editHonestNonInspired").value = accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.";
-                if (document.getElementById("editIngredients")) document.getElementById("editIngredients").value = accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.";
-                if (document.getElementById("editShippingReturns")) document.getElementById("editShippingReturns").value = accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.";
-              }
-            }, 1200);
-          }
-        });
-      }
-    } catch (e) {
-      console.error("Auth listen for Accordion Editor failed:", e);
+    if (isCachedAdmin || isGlobalAdmin) {
+      const btnContainer = document.getElementById("adminEditBtnContainer");
+      if (btnContainer) btnContainer.style.display = "block";
+      populateProductEditInputs();
+      return true;
     }
-  })();
+    return false;
+  }
+
+  // Listen to multiple events for guaranteed admin detection
+  window.addEventListener("authRoleReady", (e) => {
+    if (e && e.detail && e.detail.role === "Admin") {
+      checkAndRevealProductAdmin();
+    }
+  });
+
+  window.addEventListener("load", checkAndRevealProductAdmin);
+
+  // Polling interval fallback
+  let prodCheckCount = 0;
+  const prodPollInterval = setInterval(() => {
+    prodCheckCount++;
+    if (checkAndRevealProductAdmin() || prodCheckCount > 25) {
+      clearInterval(prodPollInterval);
+    }
+  }, 250);
 
   // Accordions Collapse / Expand
   window.toggleAccordion = function (element) {
@@ -715,7 +756,7 @@
 
       const wearingOccasion = document.getElementById('wearingOccasion');
       if (wearingOccasion) {
-        wearingOccasion.textContent = accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.";
+        wearingOccasion.innerHTML = formatParagraphs(accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.");
       }
 
       const honestComparisonText = document.getElementById('honestComparisonText');
@@ -724,43 +765,26 @@
         if (match || (p.id && p.id.startsWith("inspired-by-"))) {
           const fragranceName = match ? match[1] : p.name;
           const inspiredTemplate = accs.honestComparisonInspired || "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.";
-          honestComparisonText.innerHTML = inspiredTemplate.replace("{brand}", formatBrandName(fragranceName));
+          honestComparisonText.innerHTML = formatParagraphs(inspiredTemplate.replace("{brand}", formatBrandName(fragranceName)));
         } else {
-          honestComparisonText.innerHTML = accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.";
+          honestComparisonText.innerHTML = formatParagraphs(accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.");
         }
       }
 
       const ingredientsText = document.getElementById('ingredientsText');
       if (ingredientsText) {
         const ingContent = accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.";
-        ingredientsText.innerHTML = `<strong>INGREDIENTS:</strong> ` + ingContent;
+        ingredientsText.innerHTML = `<strong>INGREDIENTS:</strong> ` + formatParagraphs(ingContent).replace(/^<p[^>]*>/, '').replace(/<\/p>$/, '');
       }
 
       renderProductScentProfile(p);
 
       const shippingReturnsText = document.getElementById('shippingReturnsText');
       if (shippingReturnsText) {
-        shippingReturnsText.textContent = accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.";
+        shippingReturnsText.innerHTML = formatParagraphs(accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.");
       }
 
-      if (window.currentUserRole === "Admin") {
-        const btnContainer = document.getElementById("adminEditBtnContainer");
-        if (btnContainer) btnContainer.style.display = "block";
-        const editPanel = document.getElementById("adminAccordionEditPanel");
-        if (editPanel) {
-          const editWearingOccasionEl = document.getElementById("editWearingOccasion");
-          const editHonestInspiredEl = document.getElementById("editHonestInspired");
-          const editHonestNonInspiredEl = document.getElementById("editHonestNonInspired");
-          const editIngredientsEl = document.getElementById("editIngredients");
-          const editShippingReturnsEl = document.getElementById("editShippingReturns");
-
-          if (editWearingOccasionEl && !editWearingOccasionEl.value) editWearingOccasionEl.value = accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.";
-          if (editHonestInspiredEl && !editHonestInspiredEl.value) editHonestInspiredEl.value = accs.honestComparisonInspired || "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.";
-          if (editHonestNonInspiredEl && !editHonestNonInspiredEl.value) editHonestNonInspiredEl.value = accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.";
-          if (editIngredientsEl && !editIngredientsEl.value) editIngredientsEl.value = accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.";
-          if (editShippingReturnsEl && !editShippingReturnsEl.value) editShippingReturnsEl.value = accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.";
-        }
-      }
+      checkAndRevealProductAdmin();
 
       const stockEl = document.querySelector('.product-stock');
       if (stockEl && p.stock !== undefined) {

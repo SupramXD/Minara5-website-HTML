@@ -12,6 +12,33 @@
     supportEmail: "jadon@studioextrait.co.za"
   };
 
+  // Convert raw textarea text (with line breaks/paragraphs) to clean HTML paragraphs
+  function textToParagraphs(text) {
+    if (!text) return "";
+    const trimmed = text.trim();
+    if (!trimmed) return "";
+    // If user already wrote complete HTML tags (<p>...</p>)
+    if (/^<p[\s>]/i.test(trimmed)) {
+      return trimmed.replace(/\n\s*\n+/g, '</p><p>').replace(/(?<!>)\n/g, '<br>');
+    }
+    // Split by double newlines into paragraphs, and single newlines into <br>
+    const paras = trimmed.split(/\n\s*\n+/);
+    return paras.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+  }
+
+  // Convert HTML back to clean editable text in textareas (preserving user gaps/linebreaks)
+  function htmlToText(html) {
+    if (!html) return "";
+    let str = html;
+    // Replace closing paragraph tags with double newlines
+    str = str.replace(/<\/p>\s*<p[^>]*>/gi, '\n\n');
+    str = str.replace(/<p[^>]*>/gi, '');
+    str = str.replace(/<\/p>/gi, '');
+    // Replace <br> tags with single newlines
+    str = str.replace(/<br\s*\/?>/gi, '\n');
+    return str.trim();
+  }
+
   function getPolicyData() {
     try {
       const cached = localStorage.getItem("minara_custom_text");
@@ -34,19 +61,19 @@
     if (shipHeadingEl) shipHeadingEl.textContent = p.shippingHeading || defaultPolicy.shippingHeading;
 
     const shipTextEl = document.getElementById("policyShippingText");
-    if (shipTextEl) shipTextEl.innerHTML = p.shippingText || defaultPolicy.shippingText;
+    if (shipTextEl) shipTextEl.innerHTML = textToParagraphs(p.shippingText || defaultPolicy.shippingText);
 
     const retHeadingEl = document.getElementById("policyReturnsHeading");
     if (retHeadingEl) retHeadingEl.textContent = p.returnsHeading || defaultPolicy.returnsHeading;
 
     const retTextEl = document.getElementById("policyReturnsText");
-    if (retTextEl) retTextEl.innerHTML = p.returnsText || defaultPolicy.returnsText;
+    if (retTextEl) retTextEl.innerHTML = textToParagraphs(p.returnsText || defaultPolicy.returnsText);
 
     const discHeadingEl = document.getElementById("policyDisclaimerHeading");
     if (discHeadingEl) discHeadingEl.textContent = p.disclaimerHeading || defaultPolicy.disclaimerHeading;
 
     const discTextEl = document.getElementById("policyDisclaimerText");
-    if (discTextEl) discTextEl.innerHTML = p.disclaimerText || defaultPolicy.disclaimerText;
+    if (discTextEl) discTextEl.innerHTML = textToParagraphs(p.disclaimerText || defaultPolicy.disclaimerText);
 
     const supPromptEl = document.getElementById("policySupportPrompt");
     if (supPromptEl) supPromptEl.textContent = p.supportPrompt || defaultPolicy.supportPrompt;
@@ -58,17 +85,16 @@
       supEmailEl.textContent = email;
     }
 
-    // Populate inputs if editor panel exists
     populateEditInputs(p);
   }
 
   function populateEditInputs(p) {
     if (document.getElementById("editShippingHeading")) document.getElementById("editShippingHeading").value = p.shippingHeading || defaultPolicy.shippingHeading;
-    if (document.getElementById("editShippingText")) document.getElementById("editShippingText").value = p.shippingText || defaultPolicy.shippingText;
+    if (document.getElementById("editShippingText")) document.getElementById("editShippingText").value = htmlToText(p.shippingText || defaultPolicy.shippingText);
     if (document.getElementById("editReturnsHeading")) document.getElementById("editReturnsHeading").value = p.returnsHeading || defaultPolicy.returnsHeading;
-    if (document.getElementById("editReturnsText")) document.getElementById("editReturnsText").value = p.returnsText || defaultPolicy.returnsText;
+    if (document.getElementById("editReturnsText")) document.getElementById("editReturnsText").value = htmlToText(p.returnsText || defaultPolicy.returnsText);
     if (document.getElementById("editDisclaimerHeading")) document.getElementById("editDisclaimerHeading").value = p.disclaimerHeading || defaultPolicy.disclaimerHeading;
-    if (document.getElementById("editDisclaimerText")) document.getElementById("editDisclaimerText").value = p.disclaimerText || defaultPolicy.disclaimerText;
+    if (document.getElementById("editDisclaimerText")) document.getElementById("editDisclaimerText").value = htmlToText(p.disclaimerText || defaultPolicy.disclaimerText);
     if (document.getElementById("editSupportPrompt")) document.getElementById("editSupportPrompt").value = p.supportPrompt || defaultPolicy.supportPrompt;
     if (document.getElementById("editSupportEmail")) document.getElementById("editSupportEmail").value = p.supportEmail || defaultPolicy.supportEmail;
   }
@@ -84,7 +110,7 @@
       populateEditInputs(getPolicyData());
     } else {
       editPanel.style.display = "none";
-      if (toggleBtn) toggleBtn.textContent = "⚙ EDIT PAGE TEXT";
+      if (toggleBtn) toggleBtn.textContent = "⚙ EDIT POLICY TEXT";
     }
   };
 
@@ -103,13 +129,17 @@
       if (cached) customText = JSON.parse(cached);
     } catch (e) { }
 
+    const rawShipText = document.getElementById("editShippingText") ? document.getElementById("editShippingText").value : "";
+    const rawRetText = document.getElementById("editReturnsText") ? document.getElementById("editReturnsText").value : "";
+    const rawDiscText = document.getElementById("editDisclaimerText") ? document.getElementById("editDisclaimerText").value : "";
+
     customText.returns_shipping = {
       shippingHeading: document.getElementById("editShippingHeading") ? document.getElementById("editShippingHeading").value : defaultPolicy.shippingHeading,
-      shippingText: document.getElementById("editShippingText") ? document.getElementById("editShippingText").value : defaultPolicy.shippingText,
+      shippingText: textToParagraphs(rawShipText || defaultPolicy.shippingText),
       returnsHeading: document.getElementById("editReturnsHeading") ? document.getElementById("editReturnsHeading").value : defaultPolicy.returnsHeading,
-      returnsText: document.getElementById("editReturnsText") ? document.getElementById("editReturnsText").value : defaultPolicy.returnsText,
+      returnsText: textToParagraphs(rawRetText || defaultPolicy.returnsText),
       disclaimerHeading: document.getElementById("editDisclaimerHeading") ? document.getElementById("editDisclaimerHeading").value : defaultPolicy.disclaimerHeading,
-      disclaimerText: document.getElementById("editDisclaimerText") ? document.getElementById("editDisclaimerText").value : defaultPolicy.disclaimerText,
+      disclaimerText: textToParagraphs(rawDiscText || defaultPolicy.disclaimerText),
       supportPrompt: document.getElementById("editSupportPrompt") ? document.getElementById("editSupportPrompt").value : defaultPolicy.supportPrompt,
       supportEmail: document.getElementById("editSupportEmail") ? document.getElementById("editSupportEmail").value : defaultPolicy.supportEmail
     };
@@ -159,9 +189,26 @@
     }
   };
 
+  // Robust check to display admin edit button
+  function checkAndRevealAdmin() {
+    const isCachedAdmin = localStorage.getItem("minara_auth_role") === "Admin";
+    const isGlobalAdmin = window.currentUserRole === "Admin";
+
+    if (isCachedAdmin || isGlobalAdmin) {
+      const btnContainer = document.getElementById("adminEditBtnContainer");
+      if (btnContainer) {
+        btnContainer.style.display = "block";
+      }
+      populateEditInputs(getPolicyData());
+      return true;
+    }
+    return false;
+  }
+
   // Initial render from local cache / defaults
-  document.addEventListener("DOMContentLoaded", () => {
+  function init() {
     renderPolicy();
+    checkAndRevealAdmin();
 
     // Fetch latest JSON in background if available
     fetch('custom_text_settings.json?t=' + Date.now())
@@ -179,28 +226,48 @@
         }
       })
       .catch(err => console.warn("Background fetch custom_text_settings failed:", err));
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+
+  // Listen to multiple events for guaranteed admin detection
+  window.addEventListener("authRoleReady", (e) => {
+    if (e && e.detail && e.detail.role === "Admin") {
+      checkAndRevealAdmin();
+    }
   });
 
-  // Listen to Auth State change to reveal admin edit toggle button
+  window.addEventListener("load", checkAndRevealAdmin);
+
+  // Polling interval fallback
+  let checkCount = 0;
+  const pollInterval = setInterval(() => {
+    checkCount++;
+    if (checkAndRevealAdmin() || checkCount > 25) {
+      clearInterval(pollInterval);
+    }
+  }, 250);
+
+  // Firebase auth state observer fallback
   (async function () {
     try {
       if (window.dbPromise) await window.dbPromise;
-      if (window.auth) {
-        const { onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js");
-        onAuthStateChanged(window.auth, (user) => {
-          if (user) {
-            setTimeout(() => {
-              if (window.currentUserRole === "Admin") {
-                const btnContainer = document.getElementById("adminEditBtnContainer");
-                if (btnContainer) btnContainer.style.display = "block";
-                populateEditInputs(getPolicyData());
-              }
-            }, 1200);
-          }
-        });
-      }
+      const { getAuth, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js");
+      const { getApp } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js");
+      const app = getApp();
+      const auth = getAuth(app);
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          setTimeout(checkAndRevealAdmin, 500);
+          setTimeout(checkAndRevealAdmin, 1500);
+        }
+      });
     } catch (e) {
-      console.warn("Returns policy auth listener init error:", e);
+      // Ignore if already initialized
     }
   })();
 })();

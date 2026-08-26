@@ -368,6 +368,9 @@ window.closeAccDropdown = function() {
 };
 
 window.logout = function() {
+  try {
+    localStorage.removeItem("minara_auth_role");
+  } catch(e) {}
   const auth = getAuthInstance();
   signOut(auth)
     .then(() => {
@@ -389,6 +392,14 @@ function initAuthModule() {
     const role = await getUserRole(user);
     currentUserRole = role;
     window.currentUserRole = role;
+    try {
+      if (user && role === "Admin") {
+        localStorage.setItem("minara_auth_role", "Admin");
+      } else {
+        localStorage.removeItem("minara_auth_role");
+      }
+    } catch(e) {}
+    window.dispatchEvent(new CustomEvent("authRoleReady", { detail: { user, role } }));
     
     if (await protectRoutes(user, role)) return;
     
