@@ -2032,46 +2032,59 @@
     ===================== */
     #logo {
       position: fixed;
-      left: 50% !important;
-      transform: translate3d(-50%, 0, 0);
-      z-index: 1500;
+      left: 50%;
+      transform: translate(-50%, 0);
+      width: 800px;
+      z-index: 10;
       pointer-events: none;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-
-    #logo .mobile-logo {
-      display: none;
-      width: 100%;
-      height: auto;
-    }
-
-    #logo .desktop-logo {
-      display: block;
-      width: 100%;
-      height: auto;
+      will-change: transform, top, position;
     }
 
     @media (max-width: 900px) {
       #logo {
-        left: 50% !important;
-        transform: translate3d(-50%, 0, 0);
-        z-index: 1500;
-        width: 100%;
+        z-index: 1500 !important;
+        margin-top: -21px;
+        width: auto;
         max-width: 88vw;
+        max-height: 36vh;
+      }
+    }
+
+    #logo img {
+      width: 100%;
+      filter: invert(100%);
+      transition: filter 0.3s ease;
+    }
+
+    #logo.locked-white-zone img,
+    #logo.logo-dark img {
+      filter: invert(0%) !important;
+    }
+
+    #logo img.mobile-logo {
+      display: none;
+    }
+
+    #logo img.desktop-logo {
+      display: block;
+    }
+
+    @media (max-width: 900px) {
+      #logo img.mobile-logo {
+        display: block;
       }
 
-      #logo .mobile-logo {
-        display: block !important;
-        width: 100%;
-        max-width: 100%;
-        height: auto;
-        margin: 0 auto;
+      #logo img.desktop-logo {
+        display: none;
+      }
+    }
+
+    @media (min-width: 901px) {
+      #logo img.mobile-logo {
+        display: none;
       }
 
-      #logo .desktop-logo {
-        display: none !important;
+      #logo img.desktop-logo {
+        display: block;
       }
     }

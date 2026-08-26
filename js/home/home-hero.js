@@ -75,7 +75,7 @@
         logo.style.width = (activeSettings.logoHomeDesktopWidth !== undefined ? activeSettings.logoHomeDesktopWidth + "px" : "1200px");
         logo.style.maxWidth = "none";
       } else {
-        logo.style.width = (activeSettings.logoHomeMobileWidth !== undefined ? activeSettings.logoHomeMobileWidth + "vw" : "88vw");
+        logo.style.width = "auto";
         logo.style.maxWidth = (activeSettings.logoHomeMobileWidth !== undefined ? activeSettings.logoHomeMobileWidth + "vw" : "88vw");
       }
     }
