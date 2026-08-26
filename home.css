@@ -524,7 +524,12 @@
       text-decoration: none;
     }
 
-    /* SLIDEOUT MENU â€” HIGH FASHION RICK OWENS AESTHETIC */
+    /* REMOVED RULE THAT MADE SHOP NOW ALWAYS SHOW */
+    #bagsBtn span {
+      display: none;
+    }
+
+    /* SLIDEOUT MENU — HIGH FASHION RICK OWENS AESTHETIC */
     .slideout {
       position: fixed;
       top: 0;

@@ -645,10 +645,65 @@
     <div class="policy-title">Returns & Shipping</div>
     <div class="brand-header">STUDIO EXTRAIT</div>
 
+    <!-- Admin Edit Button Toggle -->
+    <div id="adminEditBtnContainer" style="display: none; margin-bottom: 20px;">
+      <button id="adminToggleEditBtn" onclick="window.toggleAdminReturnsEditPanel()"
+        style="background: transparent; color: #000; border: 1px solid #000; padding: 7px 14px; font-size: 9px; font-family: inherit; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s ease;">⚙ EDIT POLICY TEXT</button>
+    </div>
+
+    <!-- Admin Returns & Shipping Editor Panel -->
+    <div id="adminReturnsEditPanel"
+      style="display: none; border: 1px solid #000; background: #fdfdfd; padding: 20px; margin-bottom: 30px; box-sizing: border-box; width: 100%;">
+      <div
+        style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 10px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 15px; color: #000; display: flex; justify-content: space-between; align-items: center;">
+        <span>⚙ Admin: Edit Returns & Shipping Policy Text</span>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" onclick="window.toggleAdminReturnsEditPanel()"
+            style="background: #eee; color: #000; border: none; padding: 7px 12px; font-size: 9px; font-family: inherit; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;">Cancel</button>
+          <button id="saveReturnsTextsBtn" onclick="window.saveAdminReturnsTexts()"
+            style="background: #000; color: #fff; border: none; padding: 7px 14px; font-size: 9px; font-family: inherit; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: opacity 0.2s;">Save Changes</button>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div>
+          <label style="display: block; font-size: 8px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.5; letter-spacing: 0.5px;">Section 1: Shipping Policy Heading</label>
+          <input type="text" id="editShippingHeading" style="width: 100%; font-size: 11px; font-family: inherit; border: 0.5px solid #ccc; padding: 8px; box-sizing: border-box; outline: none;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 8px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.5; letter-spacing: 0.5px;">Section 1: Shipping Policy Content (HTML supported)</label>
+          <textarea id="editShippingText" style="width: 100%; font-size: 11px; font-family: inherit; border: 0.5px solid #ccc; padding: 8px; box-sizing: border-box; resize: vertical; outline: none;" rows="5"></textarea>
+        </div>
+        <div>
+          <label style="display: block; font-size: 8px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.5; letter-spacing: 0.5px;">Section 2: Returns & Exchanges Heading</label>
+          <input type="text" id="editReturnsHeading" style="width: 100%; font-size: 11px; font-family: inherit; border: 0.5px solid #ccc; padding: 8px; box-sizing: border-box; outline: none;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 8px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.5; letter-spacing: 0.5px;">Section 2: Returns & Exchanges Content (HTML supported)</label>
+          <textarea id="editReturnsText" style="width: 100%; font-size: 11px; font-family: inherit; border: 0.5px solid #ccc; padding: 8px; box-sizing: border-box; resize: vertical; outline: none;" rows="7"></textarea>
+        </div>
+        <div>
+          <label style="display: block; font-size: 8px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.5; letter-spacing: 0.5px;">Section 3: Product & Brand Disclaimer Heading</label>
+          <input type="text" id="editDisclaimerHeading" style="width: 100%; font-size: 11px; font-family: inherit; border: 0.5px solid #ccc; padding: 8px; box-sizing: border-box; outline: none;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 8px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.5; letter-spacing: 0.5px;">Section 3: Product & Brand Disclaimer Content (HTML supported)</label>
+          <textarea id="editDisclaimerText" style="width: 100%; font-size: 11px; font-family: inherit; border: 0.5px solid #ccc; padding: 8px; box-sizing: border-box; resize: vertical; outline: none;" rows="4"></textarea>
+        </div>
+        <div>
+          <label style="display: block; font-size: 8px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.5; letter-spacing: 0.5px;">Support Contact Prompt</label>
+          <input type="text" id="editSupportPrompt" style="width: 100%; font-size: 11px; font-family: inherit; border: 0.5px solid #ccc; padding: 8px; box-sizing: border-box; outline: none;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 8px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; opacity: 0.5; letter-spacing: 0.5px;">Support Contact Email</label>
+          <input type="text" id="editSupportEmail" style="width: 100%; font-size: 11px; font-family: inherit; border: 0.5px solid #ccc; padding: 8px; box-sizing: border-box; outline: none;">
+        </div>
+      </div>
+    </div>
+
     <!-- 1. SHIPPING POLICY -->
     <div class="policy-section">
-      <div class="section-heading">1. Express Shipping Policy</div>
-      <div class="policy-text">
+      <div class="section-heading" id="policyShippingHeading">1. Express Shipping Policy</div>
+      <div class="policy-text" id="policyShippingText">
         <p>STUDIO EXTRAIT provides reliable, door-to-door courier dispatch to any address within South Africa powered by The Courier Guy.</p>
         <p><strong>Dispatch & Processing:</strong> Orders are packaged and dispatched within 24 to 48 hours of payment confirmation (excluding weekends and public holidays).</p>
         <p><strong>Delivery Timeframe:</strong> Express courier delivery nationwide typically takes 2 to 4 business days to major centers, and up to 5 business days for regional areas.</p>
@@ -659,8 +714,8 @@
 
     <!-- 2. RETURNS & EXCHANGES -->
     <div class="policy-section">
-      <div class="section-heading">2. Returns & Exchanges Policy</div>
-      <div class="policy-text">
+      <div class="section-heading" id="policyReturnsHeading">2. Returns & Exchanges Policy</div>
+      <div class="policy-text" id="policyReturnsText">
         <p>STUDIO EXTRAIT is committed to ensuring your satisfaction with every Extrait de Parfum purchase. Recognizing the subjective and personal nature of fine fragrances, we offer our customers the option to exchange or refund their goods within 7 days from the date of delivery.</p>
         <p><strong>Exchanges Policy:</strong> For exchanges, the customer will be responsible for the two-way courier fee (R85 x 2 = R170 total).</p>
         <p><strong>Refunds Policy:</strong> For refunds, the customer will be responsible for the one-way return courier fee (R85 x 1). If your refund is approved upon inspection, courier fees will be deducted from the final refund amount, and a net refund will be processed back to your original payment method. For refunds, we also reserve the right to apply a 15% administrative fee on the total order value.</p>
@@ -671,8 +726,8 @@
 
     <!-- 3. PRODUCT DISCLAIMER -->
     <div class="policy-section">
-      <div class="section-heading">3. Product & Brand Disclaimer</div>
-      <div class="policy-text">
+      <div class="section-heading" id="policyDisclaimerHeading">3. Product & Brand Disclaimer</div>
+      <div class="policy-text" id="policyDisclaimerText">
         <p>STUDIO EXTRAIT offers original Extraits de Parfum formulated independently and sold under its own brand label. While certain products are described as "inspired by" famous designer fragrances, this is done solely to provide an olfactory frame of reference for the scent profile.</p>
         <p>Our products are not associated with, endorsed by, sponsored by, or manufactured by the owners of any designer brands mentioned. Any reference to third-party trademarks or brand names is made strictly for descriptive purposes. All trademark rights remain the property of their respective owners.</p>
         <p>Our custom packaging and bottle designs are intentionally unique to STUDIO EXTRAIT and do not imitate or copy third-party designer logos or trade dress.</p>
@@ -680,8 +735,8 @@
     </div>
 
     <div class="policy-email">
-      <p style="font-size: 11px; color: #666; margin-bottom: 8px; letter-spacing: 1px;">TO INITIATE A RETURN OR EXCHANGE, CONTACT OUR SUPPORT TEAM:</p>
-      <a href="mailto:jadon@studioextrait.co.za">jadon@studioextrait.co.za</a>
+      <p style="font-size: 11px; color: #666; margin-bottom: 8px; letter-spacing: 1px;" id="policySupportPrompt">TO INITIATE A RETURN OR EXCHANGE, CONTACT OUR SUPPORT TEAM:</p>
+      <a href="mailto:jadon@studioextrait.co.za" id="policySupportEmail">jadon@studioextrait.co.za</a>
     </div>
 
     <div style="margin-top: 40px;">
@@ -740,6 +795,7 @@
     function closeMenu() { document.getElementById("menuPanel").classList.remove("open"); }
   </script>
   <script type="module" src="header.js"></script>
+  <script src="js/pages/returns-shipping.js"></script>
 
 </body>
 

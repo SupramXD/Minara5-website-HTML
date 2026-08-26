@@ -440,7 +440,7 @@
       logoMobileSpawn: -50,
       logoMobileSpawn2: 50,
       logoMobileStick: 0,
-      logoMobileX: -50,
+      logoMobileX: 0,
       showGiftsButton: true
     };
 
@@ -865,7 +865,7 @@
       logoMobileSpawn: parseInt(document.getElementById("logoMobileSpawn").value) || -50,
       logoMobileSpawn2: parseInt(document.getElementById("logoMobileSpawn2").value) || 50,
       logoMobileStick: parseInt(document.getElementById("logoMobileStick").value) || 0,
-      logoMobileX: parseInt(document.getElementById("logoMobileX").value) || -50,
+      logoMobileX: parseInt(document.getElementById("logoMobileX").value) || 0,
       logoHeaderDesktopHeight: parseInt(document.getElementById("logoHeaderDesktopHeight").value) || 50,
       logoHeaderMobileHeight: parseInt(document.getElementById("logoHeaderMobileHeight").value) || 36,
       logoHomeDesktopWidth: parseInt(document.getElementById("logoHomeDesktopWidth").value) || 1200,
@@ -1191,6 +1191,18 @@
         if (ing) ing.value = accs.ingredients || "";
         if (shipping) shipping.value = accs.shippingReturns || "";
       }
+
+      if (data.returns_shipping) {
+        const rs = data.returns_shipping;
+        if (document.getElementById("adminRetShipHeading")) document.getElementById("adminRetShipHeading").value = rs.shippingHeading || "1. Express Shipping Policy";
+        if (document.getElementById("adminRetShipText")) document.getElementById("adminRetShipText").value = rs.shippingText || "";
+        if (document.getElementById("adminRetReturnsHeading")) document.getElementById("adminRetReturnsHeading").value = rs.returnsHeading || "2. Returns & Exchanges Policy";
+        if (document.getElementById("adminRetReturnsText")) document.getElementById("adminRetReturnsText").value = rs.returnsText || "";
+        if (document.getElementById("adminRetDisclaimerHeading")) document.getElementById("adminRetDisclaimerHeading").value = rs.disclaimerHeading || "3. Product & Brand Disclaimer";
+        if (document.getElementById("adminRetDisclaimerText")) document.getElementById("adminRetDisclaimerText").value = rs.disclaimerText || "";
+        if (document.getElementById("adminRetSupportPrompt")) document.getElementById("adminRetSupportPrompt").value = rs.supportPrompt || "TO INITIATE A RETURN OR EXCHANGE, CONTACT OUR SUPPORT TEAM:";
+        if (document.getElementById("adminRetSupportEmail")) document.getElementById("adminRetSupportEmail").value = rs.supportEmail || "jadon@studioextrait.co.za";
+      }
     };
 
     populateFields(textData);
@@ -1273,6 +1285,16 @@
         honestComparisonNonInspired: document.getElementById("accordionHonestNonInspired") ? document.getElementById("accordionHonestNonInspired").value : "",
         ingredients: document.getElementById("accordionIngredients") ? document.getElementById("accordionIngredients").value : "",
         shippingReturns: document.getElementById("accordionShippingReturns") ? document.getElementById("accordionShippingReturns").value : ""
+      },
+      returns_shipping: {
+        shippingHeading: document.getElementById("adminRetShipHeading") ? document.getElementById("adminRetShipHeading").value : "1. Express Shipping Policy",
+        shippingText: document.getElementById("adminRetShipText") ? document.getElementById("adminRetShipText").value : "",
+        returnsHeading: document.getElementById("adminRetReturnsHeading") ? document.getElementById("adminRetReturnsHeading").value : "2. Returns & Exchanges Policy",
+        returnsText: document.getElementById("adminRetReturnsText") ? document.getElementById("adminRetReturnsText").value : "",
+        disclaimerHeading: document.getElementById("adminRetDisclaimerHeading") ? document.getElementById("adminRetDisclaimerHeading").value : "3. Product & Brand Disclaimer",
+        disclaimerText: document.getElementById("adminRetDisclaimerText") ? document.getElementById("adminRetDisclaimerText").value : "",
+        supportPrompt: document.getElementById("adminRetSupportPrompt") ? document.getElementById("adminRetSupportPrompt").value : "TO INITIATE A RETURN OR EXCHANGE, CONTACT OUR SUPPORT TEAM:",
+        supportEmail: document.getElementById("adminRetSupportEmail") ? document.getElementById("adminRetSupportEmail").value : "jadon@studioextrait.co.za"
       }
     };
 
