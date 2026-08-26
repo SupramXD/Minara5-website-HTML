@@ -75,9 +75,11 @@
       try {
         const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
         localProds.forEach(p => {
+          const itemCustomisations = (p.customisations && Array.isArray(p.customisations)) ? p.customisations : [];
           if (!products.some(item => item.id === p.id)) {
             products.push({
               ...p,
+              customisations: itemCustomisations,
               isBundle: !!p.isBundle,
               bundleSize: Number(p.bundleSize) || 0,
               url: `template product.html?id=${p.id}`
@@ -88,6 +90,7 @@
               products[existingIdx] = {
                 ...products[existingIdx],
                 ...p,
+                customisations: itemCustomisations.length > 0 ? itemCustomisations : (products[existingIdx].customisations || []),
                 isBundle: !!p.isBundle,
                 bundleSize: Number(p.bundleSize) || 0,
                 url: `template product.html?id=${p.id}`
@@ -156,9 +159,17 @@
               if (lbl === 'STANDARD') return;
 
               const basePrice = Number(p.price) || 0;
-              let extra = (c.priceExtra !== undefined && c.priceExtra !== null) ? Number(c.priceExtra) : 0;
+              let extra = 0;
+              if (c.priceExtra !== undefined && c.priceExtra !== null) {
+                extra = Number(c.priceExtra);
+              } else if (lbl.includes("PREMIUM")) {
+                extra = 145;
+              } else if (lbl.includes("100ML") && basePrice <= 550) {
+                extra = 254;
+              }
               let finalPrice = basePrice + extra;
               let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
+              let optSize = c.size || (lbl.includes("100ML") ? "100ml" : "50ml");
 
               giftItems.push({
                 ...p,
@@ -166,17 +177,22 @@
                 name: `${rawName} – ${lbl}`,
                 nameShort: `${p.nameShort || rawName}`,
                 price: finalPrice,
+                basePrice: basePrice,
+                priceExtra: extra,
+                giftSize: optSize,
                 retailPrice: p.retailPrice ? (p.retailPrice + extra) : null,
                 stock: (c.stock !== undefined && c.stock !== null && c.stock !== '') ? Number(c.stock) : p.stock,
-                image: c.image || c.image_thumb || p.image,
-                image_thumb: c.image_thumb || c.image || p.image_thumb || p.image,
+                image: c.image || c.image_data || c.image_thumb || p.image,
+                image_thumb: c.image_thumb || c.image || c.image_data || p.image_thumb || p.image,
                 url: `template product.html?id=${p.id}&customisation=${idx}`,
                 isGiftItem: true,
+                giftIndex: idx,
                 giftLabel: lbl,
                 isBundle: false
               });
             });
-          } else if (p.isBundle || (p.flair && p.flair.toLowerCase().includes('gift')) || (p.invisibleFlair && p.invisibleFlair.toLowerCase().includes('gift'))) {
+          }
+          if (p.isBundle || (p.flair && p.flair.toLowerCase().includes('gift')) || (p.invisibleFlair && p.invisibleFlair.toLowerCase().includes('gift'))) {
             giftItems.push(p);
           }
         });
@@ -473,6 +489,21 @@
             btn.style.opacity = "";
             btn.style.cursor = "pointer";
             btn.setAttribute('onclick', `window.location.href='${p.url}'`);
+          } else if (p.isGiftItem) {
+            btn.innerHTML = `
+              <svg class="cart-icon" style="width: 12px; height: 12px;" viewBox="0 0 30 30" fill="none">
+                <rect x="7" y="12" width="16" height="11" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path d="M10 12 V7 H20 V12" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span>ADD TO BAG</span>
+            `;
+            btn.disabled = false;
+            btn.style.opacity = "";
+            btn.style.cursor = "pointer";
+            const safeLabel = (p.giftLabel || '').replace(/'/g, "\\'");
+            const safeImg = (p.image || '').replace(/'/g, "\\'");
+            const safeThumb = (p.image_thumb || '').replace(/'/g, "\\'");
+            btn.setAttribute('onclick', `addToCart('${p.id}', '${p.giftSize || "50ml"}', null, '${safeLabel}', ${p.priceExtra || 0}, '${safeImg}', '${safeThumb}')`);
           } else {
             btn.innerHTML = `
               <svg class="cart-icon" style="width: 12px; height: 12px;" viewBox="0 0 30 30" fill="none">
@@ -567,6 +598,7 @@
             status: data.status,
             flair: data.flair || "",
             invisibleFlair: data.invisibleFlair || "",
+            customisations: (data.customisations && Array.isArray(data.customisations)) ? data.customisations : [],
             isBundle: !!data.isBundle,
             bundleSize: Number(data.bundleSize) || 0,
             sortOrder: data.sortOrder !== undefined && data.sortOrder !== null ? Number(data.sortOrder) : null,
@@ -588,6 +620,7 @@
               current.status !== p.status ||
               current.flair !== p.flair ||
               current.invisibleFlair !== p.invisibleFlair ||
+              JSON.stringify(current.customisations || []) !== JSON.stringify(p.customisations || []) ||
               current.isBundle !== p.isBundle ||
               current.bundleSize !== p.bundleSize ||
               current.sortOrder !== p.sortOrder

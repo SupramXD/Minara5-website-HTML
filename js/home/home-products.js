@@ -91,6 +91,7 @@
               image_thumb: p.image_thumb || "",
               status: p.status,
               flair: p.flair || "",
+              customisations: (p.customisations && Array.isArray(p.customisations)) ? p.customisations : [],
               isBundle: !!p.isBundle,
               bundleSize: Number(p.bundleSize) || 0,
               sortOrder: p.sortOrder !== undefined && p.sortOrder !== null ? Number(p.sortOrder) : null,
@@ -452,6 +453,7 @@
             status: data.status,
             flair: data.flair || "",
             invisibleFlair: data.invisibleFlair || "",
+            customisations: (data.customisations && Array.isArray(data.customisations)) ? data.customisations : [],
             isBundle: !!data.isBundle,
             bundleSize: Number(data.bundleSize) || 0,
             sortOrder: data.sortOrder !== undefined && data.sortOrder !== null ? Number(data.sortOrder) : null,
@@ -473,6 +475,7 @@
               current.status !== p.status ||
               current.flair !== p.flair ||
               current.invisibleFlair !== p.invisibleFlair ||
+              JSON.stringify(current.customisations || []) !== JSON.stringify(p.customisations || []) ||
               current.isBundle !== p.isBundle ||
               current.bundleSize !== p.bundleSize ||
               current.sortOrder !== p.sortOrder
@@ -489,6 +492,7 @@
                 status: p.status,
                 flair: p.flair,
                 invisibleFlair: p.invisibleFlair,
+                customisations: p.customisations,
                 isBundle: p.isBundle,
                 bundleSize: p.bundleSize,
                 sortOrder: p.sortOrder

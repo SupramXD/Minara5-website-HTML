@@ -2059,6 +2059,8 @@
         left: 50% !important;
         transform: translate3d(-50%, 0, 0);
         z-index: 1500;
+        width: 100%;
+        max-width: 88vw;
       }
 
       #logo .mobile-logo {
