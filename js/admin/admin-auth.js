@@ -49,6 +49,11 @@ onAuthStateChanged(auth, async (user) => {
       const userDocRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userDocRef);
       if (userSnap.exists() && userSnap.data().role === "Admin") {
+        try {
+          localStorage.setItem("minara_auth_role", "Admin");
+        } catch(e) {}
+        window.currentUserRole = "Admin";
+        
         // Unlock admin interface
         const guardEl = document.getElementById("admin-security-guard");
         if (guardEl) guardEl.style.display = "none";

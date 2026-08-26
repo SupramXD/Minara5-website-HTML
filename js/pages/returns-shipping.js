@@ -190,11 +190,12 @@
   };
 
   // Robust check to display admin edit button
-  function checkAndRevealAdmin() {
+  function checkAndRevealAdmin(user) {
     const isCachedAdmin = localStorage.getItem("minara_auth_role") === "Admin";
     const isGlobalAdmin = window.currentUserRole === "Admin";
+    const isUserEmailAdmin = (user && user.email === "sub2meboyi@gmail.com") || (window.currentUser && window.currentUser.email === "sub2meboyi@gmail.com");
 
-    if (isCachedAdmin || isGlobalAdmin) {
+    if (isCachedAdmin || isGlobalAdmin || isUserEmailAdmin) {
       const btnContainer = document.getElementById("adminEditBtnContainer");
       if (btnContainer) {
         btnContainer.style.display = "block";
@@ -236,12 +237,12 @@
 
   // Listen to multiple events for guaranteed admin detection
   window.addEventListener("authRoleReady", (e) => {
-    if (e && e.detail && e.detail.role === "Admin") {
-      checkAndRevealAdmin();
+    if (e && e.detail && (e.detail.role === "Admin" || (e.detail.user && e.detail.user.email === "sub2meboyi@gmail.com"))) {
+      checkAndRevealAdmin(e.detail.user);
     }
   });
 
-  window.addEventListener("load", checkAndRevealAdmin);
+  window.addEventListener("load", () => checkAndRevealAdmin());
 
   // Polling interval fallback
   let checkCount = 0;
@@ -260,10 +261,24 @@
       const { getApp } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js");
       const app = getApp();
       const auth = getAuth(app);
-      onAuthStateChanged(auth, (user) => {
+      onAuthStateChanged(auth, async (user) => {
         if (user) {
-          setTimeout(checkAndRevealAdmin, 500);
-          setTimeout(checkAndRevealAdmin, 1500);
+          if (user.email === "sub2meboyi@gmail.com") {
+            try { localStorage.setItem("minara_auth_role", "Admin"); } catch(e){}
+            window.currentUserRole = "Admin";
+            checkAndRevealAdmin(user);
+          } else {
+            try {
+              const { getFirestore, doc, getDoc } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js");
+              const db = getFirestore(app);
+              const snap = await getDoc(doc(db, "users", user.uid));
+              if (snap.exists() && snap.data().role === "Admin") {
+                try { localStorage.setItem("minara_auth_role", "Admin"); } catch(e){}
+                window.currentUserRole = "Admin";
+                checkAndRevealAdmin(user);
+              }
+            } catch(err) {}
+          }
         }
       });
     } catch (e) {

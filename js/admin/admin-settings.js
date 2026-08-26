@@ -1192,17 +1192,36 @@
         if (shipping) shipping.value = accs.shippingReturns || "";
       }
 
-      if (data.returns_shipping) {
-        const rs = data.returns_shipping;
-        if (document.getElementById("adminRetShipHeading")) document.getElementById("adminRetShipHeading").value = rs.shippingHeading || "1. Express Shipping Policy";
-        if (document.getElementById("adminRetShipText")) document.getElementById("adminRetShipText").value = rs.shippingText || "";
-        if (document.getElementById("adminRetReturnsHeading")) document.getElementById("adminRetReturnsHeading").value = rs.returnsHeading || "2. Returns & Exchanges Policy";
-        if (document.getElementById("adminRetReturnsText")) document.getElementById("adminRetReturnsText").value = rs.returnsText || "";
-        if (document.getElementById("adminRetDisclaimerHeading")) document.getElementById("adminRetDisclaimerHeading").value = rs.disclaimerHeading || "3. Product & Brand Disclaimer";
-        if (document.getElementById("adminRetDisclaimerText")) document.getElementById("adminRetDisclaimerText").value = rs.disclaimerText || "";
-        if (document.getElementById("adminRetSupportPrompt")) document.getElementById("adminRetSupportPrompt").value = rs.supportPrompt || "TO INITIATE A RETURN OR EXCHANGE, CONTACT OUR SUPPORT TEAM:";
-        if (document.getElementById("adminRetSupportEmail")) document.getElementById("adminRetSupportEmail").value = rs.supportEmail || "jadon@studioextrait.co.za";
+      function adminHtmlToText(html) {
+        if (!html) return "";
+        let str = html;
+        str = str.replace(/<\/p>\s*<p[^>]*>/gi, '\n\n');
+        str = str.replace(/<p[^>]*>/gi, '');
+        str = str.replace(/<\/p>/gi, '');
+        str = str.replace(/<br\s*\/?>/gi, '\n');
+        return str.trim();
       }
+
+      const defaultAdminPolicy = {
+        shippingHeading: "1. Express Shipping Policy",
+        shippingText: "STUDIO EXTRAIT provides reliable, door-to-door courier dispatch to any address within South Africa powered by The Courier Guy.\n\nDispatch & Processing: Orders are packaged and dispatched within 24 to 48 hours of payment confirmation (excluding weekends and public holidays).\n\nDelivery Timeframe: Express courier delivery nationwide typically takes 2 to 4 business days to major centers, and up to 5 business days for regional areas.\n\nLive Order Tracking: Upon dispatch, you will automatically receive an SMS and Email containing your Courier Guy waybill tracking link to monitor your delivery in real-time.\n\nCourier Rates: Standard door-to-door nationwide delivery is R85 per order, or FREE on qualifying orders and promotional offers.",
+        returnsHeading: "2. Returns & Exchanges Policy",
+        returnsText: "STUDIO EXTRAIT is committed to ensuring your satisfaction with every Extrait de Parfum purchase. Recognizing the subjective and personal nature of fine fragrances, we offer our customers the option to exchange or refund their goods within 7 days from the date of delivery.\n\nExchanges Policy: For exchanges, the customer will be responsible for the two-way courier fee (R85 x 2 = R170 total).\n\nRefunds Policy: For refunds, the customer will be responsible for the one-way return courier fee (R85 x 1). If your refund is approved upon inspection, courier fees will be deducted from the final refund amount, and a net refund will be processed back to your original payment method. For refunds, we also reserve the right to apply a 15% administrative fee on the total order value.\n\nExchange & Refund Restrictions: In order to maintain fairness and prevent system abuse, STUDIO EXTRAIT reserves the right to impose limitations on the number of exchanges allowed per customer. Frequent and repetitive exchanges, viewed as an attempt to exploit the system for obtaining free samples, may be considered an abuse of our policy. Determination of such behavior remains at the sole discretion of STUDIO EXTRAIT management.\n\nDamaged Merchandise: We place meticulous care in packaging our extraits to ensure pristine condition upon delivery. Should you encounter a damaged or leaking bottle upon arrival, please notify our team within 7 days of receipt via email at jadon@studioextrait.co.za or WhatsApp with a description and photographic evidence. Upon verification, an exchange will be facilitated and a replacement item dispatched, subject to stock availability.",
+        disclaimerHeading: "3. Product & Brand Disclaimer",
+        disclaimerText: "STUDIO EXTRAIT offers original Extraits de Parfum formulated independently and sold under its own brand label. While certain products are described as \"inspired by\" famous designer fragrances, this is done solely to provide an olfactory frame of reference for the scent profile.\n\nOur products are not associated with, endorsed by, sponsored by, or manufactured by the owners of any designer brands mentioned. Any reference to third-party trademarks or brand names is made strictly for descriptive purposes. All trademark rights remain the property of their respective owners.\n\nOur custom packaging and bottle designs are intentionally unique to STUDIO EXTRAIT and do not imitate or copy third-party designer logos or trade dress.",
+        supportPrompt: "TO INITIATE A RETURN OR EXCHANGE, CONTACT OUR SUPPORT TEAM:",
+        supportEmail: "jadon@studioextrait.co.za"
+      };
+
+      const rs = data.returns_shipping || defaultAdminPolicy;
+      if (document.getElementById("adminRetShipHeading")) document.getElementById("adminRetShipHeading").value = rs.shippingHeading || defaultAdminPolicy.shippingHeading;
+      if (document.getElementById("adminRetShipText")) document.getElementById("adminRetShipText").value = adminHtmlToText(rs.shippingText) || defaultAdminPolicy.shippingText;
+      if (document.getElementById("adminRetReturnsHeading")) document.getElementById("adminRetReturnsHeading").value = rs.returnsHeading || defaultAdminPolicy.returnsHeading;
+      if (document.getElementById("adminRetReturnsText")) document.getElementById("adminRetReturnsText").value = adminHtmlToText(rs.returnsText) || defaultAdminPolicy.returnsText;
+      if (document.getElementById("adminRetDisclaimerHeading")) document.getElementById("adminRetDisclaimerHeading").value = rs.disclaimerHeading || defaultAdminPolicy.disclaimerHeading;
+      if (document.getElementById("adminRetDisclaimerText")) document.getElementById("adminRetDisclaimerText").value = adminHtmlToText(rs.disclaimerText) || defaultAdminPolicy.disclaimerText;
+      if (document.getElementById("adminRetSupportPrompt")) document.getElementById("adminRetSupportPrompt").value = rs.supportPrompt || defaultAdminPolicy.supportPrompt;
+      if (document.getElementById("adminRetSupportEmail")) document.getElementById("adminRetSupportEmail").value = rs.supportEmail || defaultAdminPolicy.supportEmail;
     };
 
     populateFields(textData);
@@ -1287,14 +1306,26 @@
         shippingReturns: document.getElementById("accordionShippingReturns") ? document.getElementById("accordionShippingReturns").value : ""
       },
       returns_shipping: {
-        shippingHeading: document.getElementById("adminRetShipHeading") ? document.getElementById("adminRetShipHeading").value : "1. Express Shipping Policy",
-        shippingText: document.getElementById("adminRetShipText") ? document.getElementById("adminRetShipText").value : "",
-        returnsHeading: document.getElementById("adminRetReturnsHeading") ? document.getElementById("adminRetReturnsHeading").value : "2. Returns & Exchanges Policy",
-        returnsText: document.getElementById("adminRetReturnsText") ? document.getElementById("adminRetReturnsText").value : "",
-        disclaimerHeading: document.getElementById("adminRetDisclaimerHeading") ? document.getElementById("adminRetDisclaimerHeading").value : "3. Product & Brand Disclaimer",
-        disclaimerText: document.getElementById("adminRetDisclaimerText") ? document.getElementById("adminRetDisclaimerText").value : "",
-        supportPrompt: document.getElementById("adminRetSupportPrompt") ? document.getElementById("adminRetSupportPrompt").value : "TO INITIATE A RETURN OR EXCHANGE, CONTACT OUR SUPPORT TEAM:",
-        supportEmail: document.getElementById("adminRetSupportEmail") ? document.getElementById("adminRetSupportEmail").value : "jadon@studioextrait.co.za"
+        shippingHeading: document.getElementById("adminRetShipHeading") ? document.getElementById("adminRetShipHeading").value.trim() : "1. Express Shipping Policy",
+        shippingText: document.getElementById("adminRetShipText") ? (function(t){
+          const trimmed = t.trim();
+          if (/^<p[\s>]/i.test(trimmed)) return trimmed;
+          return trimmed.split(/\n\s*\n+/).map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+        })(document.getElementById("adminRetShipText").value) : "",
+        returnsHeading: document.getElementById("adminRetReturnsHeading") ? document.getElementById("adminRetReturnsHeading").value.trim() : "2. Returns & Exchanges Policy",
+        returnsText: document.getElementById("adminRetReturnsText") ? (function(t){
+          const trimmed = t.trim();
+          if (/^<p[\s>]/i.test(trimmed)) return trimmed;
+          return trimmed.split(/\n\s*\n+/).map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+        })(document.getElementById("adminRetReturnsText").value) : "",
+        disclaimerHeading: document.getElementById("adminRetDisclaimerHeading") ? document.getElementById("adminRetDisclaimerHeading").value.trim() : "3. Product & Brand Disclaimer",
+        disclaimerText: document.getElementById("adminRetDisclaimerText") ? (function(t){
+          const trimmed = t.trim();
+          if (/^<p[\s>]/i.test(trimmed)) return trimmed;
+          return trimmed.split(/\n\s*\n+/).map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+        })(document.getElementById("adminRetDisclaimerText").value) : "",
+        supportPrompt: document.getElementById("adminRetSupportPrompt") ? document.getElementById("adminRetSupportPrompt").value.trim() : "TO INITIATE A RETURN OR EXCHANGE, CONTACT OUR SUPPORT TEAM:",
+        supportEmail: document.getElementById("adminRetSupportEmail") ? document.getElementById("adminRetSupportEmail").value.trim() : "jadon@studioextrait.co.za"
       }
     };
 
