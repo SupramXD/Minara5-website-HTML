@@ -516,6 +516,16 @@
             margin-bottom: 6px;
             line-height: 1.4;
         }
+        .product-retail-price {
+            font-family: 'Gotham Narrow Book', sans-serif;
+            font-size: 9px;
+            font-weight: 400;
+            color: #8a8a8a;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-top: 2px;
+            margin-bottom: 6px;
+        }
 
         .product-reviews-row {
             display: flex;

@@ -600,12 +600,12 @@
       background: #ffffff;
       z-index: 5000;
       transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      padding: 55px 36px 40px 36px;
+      padding: 64px 36px 40px 36px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      box-shadow: 20px 0 60px rgba(0, 0, 0, 0.08);
-      border-right: 1px solid #eaeaea;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.05);
+      border-right: 1px solid #efefef;
     }
 
     @media (max-width: 600px) {
@@ -643,23 +643,23 @@
 
     .menu-group-label {
       font-family: 'Gotham Narrow Bold', sans-serif;
-      font-size: 8.5px;
-      font-weight: 900;
-      letter-spacing: 3.5px;
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: 4px;
       text-transform: uppercase;
-      color: #999999;
-      margin-bottom: 16px;
+      color: #a8a8a8;
+      margin-bottom: 18px;
       display: block;
     }
 
     .slideout a {
       display: block;
-      font-family: 'Gotham Narrow Bold', sans-serif;
-      font-size: 12.5px;
-      font-weight: 700;
+      font-family: 'Gotham Narrow Book', sans-serif;
+      font-size: 10.5px;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.32em;
-      margin-bottom: 16px;
+      letter-spacing: 0.3em;
+      margin-bottom: 20px;
       color: #111111;
       text-decoration: none;
       transition: opacity 0.25s ease, transform 0.25s ease;
@@ -1331,6 +1331,30 @@
         letter-spacing: 1.1px;
       }
     }
+    @media (max-width: 900px) {
+      .second-hero-cta-group .bottom-catalog-long-btn {
+        display: none !important;
+      }
+      .second-hero-mobile-cta {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        text-align: center;
+      }
+      .second-hero-mobile-tagline {
+        font-family: 'Gotham Narrow Book', sans-serif;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        color: #ffffff;
+        text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6);
+      }
+    }
+    @media (min-width: 901px) {
+      .second-hero-mobile-cta {
+        display: none !important;
+      }
+    }
 
     @media(min-width: 901px) {
       .desktop-none {
@@ -1823,9 +1847,10 @@
       }
 
       .mobile-account-link {
-        font-size: 14px;
+        font-size: 10.5px;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.28em;
+        letter-spacing: 0.3em;
         margin: 0 0 24px 0;
         cursor: pointer;
         color: #000;
@@ -1844,9 +1869,9 @@
 
       .mobile-account-dropdown .acc-item {
         border-bottom: none;
-        padding: 16px 0;
-        font-size: 13px;
-        letter-spacing: 0.22em;
+        padding: 12px 0;
+        font-size: 10.5px;
+        letter-spacing: 0.28em;
       }
     }
 

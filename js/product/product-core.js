@@ -806,9 +806,9 @@
           dot.style.backgroundColor = '#ff3b30';
           text.textContent = "OUT OF STOCK";
           text.style.fontWeight = "bold";
-        } else if (p.stock <= 4) {
+        } else if (p.stock <= 5) {
           dot.style.backgroundColor = '#b82d2d';
-          text.textContent = `ONLY ${p.stock} BOTTLES LEFT`;
+          text.textContent = `ONLY ${p.stock} LEFT`;
           text.style.fontWeight = "bold";
         } else {
           dot.style.backgroundColor = '#2e7d32';

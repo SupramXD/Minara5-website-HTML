@@ -313,6 +313,7 @@
               <h3 class="product-title"></h3>
               <div class="product-type" style="font-family: Georgia, serif; font-style: italic; font-size: 9px; opacity: 0.6; color: #555; text-transform: none; letter-spacing: 0.5px; margin-top: 1px; margin-bottom: 6px; display: none;"></div>
               <div class="product-inspired"></div>
+              <div class="product-retail-price" style="display:none;"></div>
               <div class="product-reviews-row">
                 <span class="product-stars">★★★★★</span>
                 <span class="product-reviews-count"></span>
@@ -349,7 +350,7 @@
 
         const typeEl = item.querySelector('.product-type');
         if (typeEl) {
-          typeEl.textContent = "Extrait de Parfum";
+          typeEl.textContent = p.isBundle ? "PICK ANY 2 / 50ML" : "Extrait de Parfum";
           typeEl.style.display = 'block';
         }
 
@@ -382,7 +383,7 @@
           inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}</i>`;
           inspiredEl.style.display = 'block';
         } else {
-          titleEl.textContent = rawName;
+          titleEl.textContent = (p.isBundle && p.nameShort) ? p.nameShort : rawName;
           titleEl.style.fontSize = "12px";
           titleEl.style.color = "#111111";
           titleEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";
@@ -393,6 +394,13 @@
 
           inspiredEl.innerHTML = "";
           inspiredEl.style.display = 'none';
+        }
+
+        const retailPriceEl = item.querySelector('.product-retail-price');
+        if (retailPriceEl && p.retailPrice && !isNaN(Number(p.retailPrice)) && Number(p.retailPrice) > 0) {
+          const rText = Number(p.retailPrice).toLocaleString('en-US');
+          retailPriceEl.textContent = `${p.isBundle ? 'Value' : 'Designer'} R${rText}`;
+          retailPriceEl.style.display = 'block';
         }
 
         // Bind static URL
