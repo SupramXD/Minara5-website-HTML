@@ -292,6 +292,9 @@
           starsHtml = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`.repeat(5);
         }
 
+        let typeText = p.isBundle ? 'PICK ANY 2 / 50ML' : 'Extrait de Parfum';
+        const retailVal = (p.retailPrice && !isNaN(p.retailPrice) && Number(p.retailPrice) > 0) ? Number(p.retailPrice) : null;
+        const retailHtml = retailVal ? `<span class="hp-retail-price">${p.isBundle ? 'Value' : 'Designer'} R${formatRetailPrice(retailVal)}</span>` : '';
         let priceHtml = '';
         if (hasDiscount) {
           const salePrice = Math.round(p.price * 0.95);
@@ -321,8 +324,9 @@
             <div class="hp-info">
               <a href="${p.url}" class="product-link-anchor-2" style="text-decoration:none; color:inherit; display:block;">
                 <h3 class="hp-title" style="font-size:12px; color:#111; font-family:'Gotham Narrow Bold', sans-serif; font-weight:700; display:block; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:2px;">${titleText}</h3>
-                <div class="hp-type" style="font-family: Georgia, serif; font-style: italic; font-size: 9px; opacity: 0.6; color: #555; letter-spacing: 0.5px; margin-top: 1px; margin-bottom: 6px; display: block;">Extrait de Parfum</div>
+                <div class="hp-type" style="font-family: Georgia, serif; font-style: italic; font-size: 9px; opacity: 0.6; color: #555; letter-spacing: 0.5px; margin-top: 1px; margin-bottom: 6px; display: block;">${typeText}</div>
                 <div class="hp-inspired">${inspiredHtml}</div>
+                ${retailHtml}
                 <div class="hp-reviews-row" style="opacity: ${reviewsOpacity}; margin-top: 4px;">
                   <span class="hp-stars">${starsHtml}</span>
                   <span class="hp-reviews-count">${reviewsCountText}</span>

@@ -398,6 +398,66 @@
       background: #000;
       box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.12), 0 6px 12px -4px rgba(0, 0, 0, 0.08);
     }
+    .hero-1-scrim {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 150px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.45), transparent);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .hero-1-cta-group {
+      position: absolute;
+      bottom: 48px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      pointer-events: auto;
+    }
+
+    .hero-1-tagline {
+      font-family: 'Gotham Narrow Book', sans-serif;
+      font-size: 11.5px;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      color: #ffffff;
+      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
+    }
+
+    .hero-1-cta-btn {
+      display: inline-block;
+      padding: 13px 30px;
+      background: rgba(255, 255, 255, 0.94);
+      color: #000000;
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.25s, transform 0.25s, box-shadow 0.25s;
+    }
+
+    .hero-1-cta-btn:hover {
+      background: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+    }
+
+    @media (max-width: 900px) {
+      .hero-1-cta-group,
+      .hero-1-scrim {
+        display: none !important;
+      }
+    }
 
     #picL {
       flex: 1;
@@ -1049,6 +1109,15 @@
       font-weight: 500;
       color: #6B7280;
       letter-spacing: 0.02em;
+    }
+    .hp-retail-price {
+      font-family: 'Gotham Narrow Book', sans-serif;
+      font-size: 9px;
+      font-weight: 400;
+      color: #8a8a8a;
+      letter-spacing: 0.5px;
+      display: block;
+      margin-top: 2px;
     }
 
     .hp-stock-status {
