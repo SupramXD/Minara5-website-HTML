@@ -68,11 +68,14 @@
   {
     "id": "any-2-50ml-fragrances",
     "nameShort": "The Discovery Duet",
-    "name": "Any 2 50ml fragrances",
+    "name": "The Discovery Duet",
     "price": 749,
     "retailPrice": 3000,
     "stock": 9,
     "image": "images/products/any-2-50ml-fragrances.webp",
+    "galleryImages": [
+      "images/products/any-2-50ml-fragrances.webp"
+    ],
     "image_thumb": "images/products/any-2-50ml-fragrances_thumb.webp",
     "description": "2 fragrance bundle",
     "status": "Active",
@@ -89,25 +92,12 @@
     "bundleSize": 2,
     "sortOrder": 2,
     "scentProfile": {
-      "keyNotes": [
-        {
-          "name": "Amberwood",
-          "icon": "Perfume Note Icons/Amberwood.webp"
-        },
-        {
-          "name": "Cedar",
-          "icon": "Perfume Note Icons/Cedar.webp"
-        },
-        {
-          "name": "Saffron",
-          "icon": "Perfume Note Icons/Saffron.webp"
-        }
-      ],
-      "topNotes": "Saffron, Orange Blossom",
+      "keyNotes": [],
+      "topNotes": "",
       "topNotesDesc": "The first notes you smell",
-      "middleNotes": "Jasmine, Plum, Cedarwood",
+      "middleNotes": "",
       "middleNotesDesc": "The heart of the perfume",
-      "baseNotes": "Oakmoss, Fir Balsam, Amber",
+      "baseNotes": "",
       "baseNotesDesc": "The notes that linger all day"
     }
   },
