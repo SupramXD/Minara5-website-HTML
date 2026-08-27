@@ -1041,6 +1041,7 @@
 
 
     .hp-box {
+      position: relative;
       width: 100%;
       aspect-ratio: 3 / 4;
       display: flex;
@@ -1048,6 +1049,24 @@
       align-items: center;
       background: #fcfaf8;
       overflow: hidden;
+    }
+
+    .se-card-badge {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(180, 83, 9, 0.95);
+      color: #ffffff;
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 6.5px;
+      font-weight: bold;
+      text-align: center;
+      padding: 2px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      z-index: 2;
+      pointer-events: none;
     }
 
     .hp-box:empty {

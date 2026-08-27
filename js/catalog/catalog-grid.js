@@ -416,6 +416,13 @@
           img.style.display = 'none';
         }
         img.setAttribute('alt', rawName);
+        const pBox = item.querySelector('.product-box');
+        if (pBox && p.stock > 0 && Number(p.stock) <= 2 && !p.isBundle) {
+          const cardBadge = document.createElement('span');
+          cardBadge.className = 'se-card-badge';
+          cardBadge.textContent = `ONLY ${p.stock} LEFT`;
+          pBox.appendChild(cardBadge);
+        }
 
         // Reviews & stars
         const reviewsCountEl = item.querySelector('.product-reviews-count');

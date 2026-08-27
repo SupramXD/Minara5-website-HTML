@@ -319,6 +319,7 @@
             <a href="${p.url}" class="product-link-anchor" style="text-decoration:none; color:inherit; display:block;">
               <div class="hp-box">
                 ${tSrc ? `<img class="product-img" loading="lazy" decoding="async" src="${tSrc}" alt="${rawName}">` : ''}
+                ${(p.stock > 0 && p.stock <= 2 && !p.isBundle) ? `<span class="se-card-badge">ONLY ${p.stock} LEFT</span>` : ''}
               </div>
             </a>
             <div class="hp-info">

@@ -800,7 +800,7 @@
         if (p.stock <= 0) {
           badgeText = 'OUT OF STOCK';
           badgeBg = 'rgba(0,0,0,0.85)';
-        } else if (p.stock <= 5) {
+        } else if (p.stock <= 3) {
           badgeText = `ONLY ${p.stock} LEFT`;
           badgeBg = 'rgba(180,83,9,0.95)';
         }

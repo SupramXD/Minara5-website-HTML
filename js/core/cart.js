@@ -458,6 +458,36 @@
       html += '</div>';
     }
 
+    // FREE SHIPPING PROGRESS + SMART BUNDLE NUDGE (minimal, low-friction)
+    if (hasItems) {
+      const subtotal = pricing.subtotalAfterBundle;
+      const diff = Math.max(0, 600 - subtotal);
+      const pct = Math.max(0, Math.min(100, Math.round((subtotal / 600) * 100)));
+      const free = subtotal >= 600;
+      const bundleInCart = activeCartItems.some(it => (it.id && it.id.indexOf('any-2-50ml') > -1) || it.isBundle);
+      const label = free
+        ? 'FREE SHIPPING UNLOCKED'
+        : `<span>YOU'RE <b style="color:#000; font-weight:700;">R${getFormattedPrice(diff)}</b> FROM FREE SHIPPING</span>`;
+      let upsell = '';
+      if (!free && !bundleInCart && activeCartItems.length >= 1) {
+        upsell = `
+          <a href="template product.html?id=any-2-50ml-fragrances" style="margin-top:10px; display:flex; align-items:center; justify-content:space-between; font-family:'Gotham Narrow Book', sans-serif; font-size:9.5px; letter-spacing:0.8px; text-transform:uppercase; color:#000; text-decoration:none; padding-top:10px; border-top:1px solid #eaeaea;">
+            <span>Add the Discovery Duet — R241 off + free shipping</span><span style="color:#6b7280;">›</span>
+          </a>`;
+      }
+      html += `
+        <div style="padding: 12px 20px 0 20px; width:100%; box-sizing:border-box;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; font-family:'Gotham Narrow Bold', sans-serif; font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; color:#6b7280; margin-bottom:7px;">
+            ${label}
+            <span>FREE OVER R600</span>
+          </div>
+          <div style="height:3px; background:#eaeaea; width:100%; overflow:hidden; border-radius:2px;">
+            <div style="height:100%; width:${pct}%; background:${free ? '#2e7d32' : '#000'}; transition:width .3s ease;"></div>
+          </div>
+          ${upsell}
+        </div>`;
+    }
+
     // FOOTER
     const footBoxHeight = hasItems ? (pricing.bundleDiscount > 0 ? "64px" : "45px") : "80px"; 
     const paymentBoxHeight = hasItems ? "auto" : "50px"; 
