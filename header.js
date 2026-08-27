@@ -784,6 +784,8 @@ function setupDesktopNewsletter() {
 }
 
 // --- DYNAMIC CUSTOM TEXT LOADER ---
+const DEFAULT_FOOTER_DESCRIPTION = "Designer-inspired extraits, crafted at 20%+ concentration to match 95% of the iconic scents you love — for a fraction of the price. Macerated to perfection, with free delivery across South Africa on orders over R600. Find your signature scent.";
+
 function applyCustomText(data) {
     if (!data) return;
     
@@ -810,6 +812,12 @@ function applyCustomText(data) {
             }
         });
     }
+
+    // 3. Update footer description (single master injected on every page)
+    const footerDescription = data.footer_description || DEFAULT_FOOTER_DESCRIPTION;
+    document.querySelectorAll('.footer-description').forEach(footerEl => {
+        footerEl.textContent = footerDescription;
+    });
 }
 
 // Immediately load cache and fetch update

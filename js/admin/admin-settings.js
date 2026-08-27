@@ -1120,7 +1120,8 @@
           title: "Trusted Clone Brand",
           description: "Soon to be selling on Takealot and Amazon. Studio Extrait has 100% premium quality formulation matching original scents. Safe and secure checkout options using PayFast, Google and Apple Pay."
         }
-      ]
+      ],
+      footer_description: "Designer-inspired extraits, crafted at 20%+ concentration to match 95% of the iconic scents you love — for a fraction of the price. Macerated to perfection, with free delivery across South Africa on orders over R600. Find your signature scent."
     };
 
     try {
@@ -1177,6 +1178,8 @@
           if (descEl) descEl.value = item.description || "";
         });
       }
+      const footDescEl = document.getElementById("footerDescription");
+      if (footDescEl) footDescEl.value = data.footer_description || "";
       if (data.accordions) {
         const accs = data.accordions;
         const wearing = document.getElementById("accordionWearing");
@@ -1326,7 +1329,8 @@
         })(document.getElementById("adminRetDisclaimerText").value) : "",
         supportPrompt: document.getElementById("adminRetSupportPrompt") ? document.getElementById("adminRetSupportPrompt").value.trim() : "TO INITIATE A RETURN OR EXCHANGE, CONTACT OUR SUPPORT TEAM:",
         supportEmail: document.getElementById("adminRetSupportEmail") ? document.getElementById("adminRetSupportEmail").value.trim() : "jadon@studioextrait.co.za"
-      }
+      },
+      footer_description: document.getElementById("footerDescription") ? document.getElementById("footerDescription").value.trim() : ""
     };
 
     for (let i = 0; i < 6; i++) {
