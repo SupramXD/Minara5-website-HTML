@@ -458,38 +458,50 @@
       html += '</div>';
     }
 
-    // FREE SHIPPING PROGRESS + SMART BUNDLE NUDGE (minimal, low-friction)
+    // FREE SHIPPING PROGRESS + SMART 2-BOTTLE NUDGE (computed, minimal)
     if (hasItems) {
       const subtotal = pricing.subtotalAfterBundle;
       const diff = Math.max(0, 600 - subtotal);
       const pct = Math.max(0, Math.min(100, Math.round((subtotal / 600) * 100)));
       const free = subtotal >= 600;
-      const bundleInCart = activeCartItems.some(it => (it.id && it.id.indexOf('any-2-50ml') > -1) || it.isBundle);
-      const label = free
+      const statusText = free
         ? 'FREE SHIPPING UNLOCKED'
-        : `<span>YOU'RE <b style="color:#000; font-weight:700;">R${getFormattedPrice(diff)}</b> FROM FREE SHIPPING</span>`;
-      let upsell = '';
-      if (!free && !bundleInCart && activeCartItems.length >= 1) {
-        upsell = `
-          <a href="template product.html?id=any-2-50ml-fragrances" style="margin-top:10px; display:flex; align-items:center; justify-content:space-between; font-family:'Gotham Narrow Book', sans-serif; font-size:9.5px; letter-spacing:0.8px; text-transform:uppercase; color:#000; text-decoration:none; padding-top:10px; border-top:1px solid #eaeaea;">
-            <span>Add the Discovery Duet — R241 off + free shipping</span><span style="color:#6b7280;">›</span>
+        : `R${getFormattedPrice(diff)} FROM FREE SHIPPING`;
+      let nudge = '';
+      const bundleInCart = activeCartItems.some(it => (it.id && it.id.indexOf('any-2-50ml') > -1) || it.isBundle);
+      if (!free && !bundleInCart) {
+        const singles = activeCartItems.filter(it => !it.isBundle);
+        const repPrice = singles.length ? ((Number(singles[0].price) || 0) + (Number(singles[0].priceExtra) || 0)) : 495;
+        const projCount = pricing.totalBottles + 1;
+        const projSub = subtotal + repPrice;
+        let saving = 0;
+        if (projCount === 2 && projSub >= 900) saving = 241;
+        else if (projCount === 3 && projSub >= 1300) saving = 486;
+        else if (projCount > 3 && projSub >= 1400) saving = Math.floor(projCount / 2) * 241;
+        if (saving > 0 && projSub >= 600) {
+          nudge = `
+          <a href="template product.html?id=any-2-50ml-fragrances" style="margin-top:12px; display:flex; align-items:center; gap:8px; padding-top:11px; border-top:1px solid #ececec; font-family:'Gotham Narrow Book', sans-serif; font-size:9px; letter-spacing:0.9px; text-transform:uppercase; color:#000; text-decoration:none;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" style="flex-shrink:0;"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Add 1 more bottle — save R${saving} + free shipping</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" style="margin-left:auto; flex-shrink:0;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </a>`;
+        }
       }
       html += `
         <div style="padding: 12px 20px 0 20px; width:100%; box-sizing:border-box;">
-          <div style="display:flex; justify-content:space-between; align-items:baseline; font-family:'Gotham Narrow Bold', sans-serif; font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; color:#6b7280; margin-bottom:7px;">
-            ${label}
+          <div style="display:flex; justify-content:space-between; align-items:baseline; font-family:'Gotham Narrow Bold', sans-serif; font-size:9px; letter-spacing:1.1px; text-transform:uppercase; color:#9aa0a6; margin-bottom:6px;">
+            <span style="color:${free ? '#3c763d' : '#000'};">${statusText}</span>
             <span>FREE OVER R600</span>
           </div>
-          <div style="height:3px; background:#eaeaea; width:100%; overflow:hidden; border-radius:2px;">
-            <div style="height:100%; width:${pct}%; background:${free ? '#2e7d32' : '#000'}; transition:width .3s ease;"></div>
+          <div style="height:2px; background:#ececec; width:100%; border-radius:99px; overflow:hidden;">
+            <div style="height:100%; width:${pct}%; background:${free ? '#3c763d' : '#000'}; transition:width .3s ease;"></div>
           </div>
-          ${upsell}
+          ${nudge}
         </div>`;
     }
 
     // FOOTER
-    const footBoxHeight = hasItems ? (pricing.bundleDiscount > 0 ? "64px" : "45px") : "80px"; 
+    const footBoxHeight = hasItems ? (pricing.bundleDiscount > 0 ? "72px" : "56px") : "80px"; 
     const paymentBoxHeight = hasItems ? "auto" : "50px"; 
     const paymentPadding = hasItems ? "20px 20px" : "8px 20px"; 
 
