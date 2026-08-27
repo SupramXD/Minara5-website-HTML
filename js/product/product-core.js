@@ -786,36 +786,31 @@
 
       checkAndRevealProductAdmin();
 
-      const stockEl = document.querySelector('.product-stock');
-      if (stockEl && p.stock !== undefined) {
-        stockEl.innerHTML = "";
-        stockEl.style.display = "flex";
-        stockEl.style.alignItems = "center";
-        stockEl.style.gap = "6px";
-
-        const dot = document.createElement('span');
-        dot.style.display = 'inline-block';
-        dot.style.width = '6px';
-        dot.style.height = '6px';
-        dot.style.borderRadius = '50%';
-
-        const text = document.createElement('span');
-        text.style.color = '#000';
-
-        if (p.stock <= 0) {
-          dot.style.backgroundColor = '#ff3b30';
-          text.textContent = "OUT OF STOCK";
-          text.style.fontWeight = "bold";
-        } else if (p.stock <= 5) {
-          dot.style.backgroundColor = '#b82d2d';
-          text.textContent = `ONLY ${p.stock} LEFT`;
-          text.style.fontWeight = "bold";
-        } else {
-          dot.style.backgroundColor = '#2e7d32';
-          text.textContent = `IN STOCK: ${p.stock} UNITS`;
+      // Stock shown as an overlay badge on the product image block (skipped for bundles)
+      const stockBlock = document.getElementById('slider') || document.querySelector('.slider');
+      if (stockBlock && p.stock !== undefined && !p.isBundle) {
+        if (!stockBlock.style.position || stockBlock.style.position === 'static') {
+          stockBlock.style.position = 'relative';
         }
-        stockEl.appendChild(dot);
-        stockEl.appendChild(text);
+        const prevBadge = stockBlock.querySelector('.se-stock-badge');
+        if (prevBadge) prevBadge.remove();
+
+        let badgeText = '';
+        let badgeBg = '';
+        if (p.stock <= 0) {
+          badgeText = 'OUT OF STOCK';
+          badgeBg = 'rgba(0,0,0,0.85)';
+        } else if (p.stock <= 5) {
+          badgeText = `ONLY ${p.stock} LEFT`;
+          badgeBg = 'rgba(180,83,9,0.95)';
+        }
+        if (badgeText) {
+          const badge = document.createElement('div');
+          badge.className = 'se-stock-badge';
+          badge.style.cssText = 'position:absolute; bottom:0; left:0; right:0; background:' + badgeBg + '; color:#fff; font-size:7px; font-weight:bold; text-align:center; padding:2px 0; text-transform:uppercase; letter-spacing:0.5px; z-index:2;';
+          badge.textContent = badgeText;
+          stockBlock.appendChild(badge);
+        }
       }
 
       const deliveryTimer = document.getElementById('deliveryTimer');

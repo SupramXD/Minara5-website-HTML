@@ -504,7 +504,7 @@
             font-size: 12px;
             font-weight: 700;
             color: #111111;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             text-transform: none;
             letter-spacing: 0.04em;
         }
@@ -524,13 +524,14 @@
             letter-spacing: 0.5px;
             display: block;
             margin-top: 2px;
-            margin-bottom: 6px;
+            margin-bottom: 0;
         }
 
         .product-reviews-row {
             display: flex;
             align-items: center;
             gap: 4px;
+            margin-top: 4px;
             margin-bottom: 8px;
         }
 

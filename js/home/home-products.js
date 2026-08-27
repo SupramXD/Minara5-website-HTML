@@ -270,7 +270,7 @@
           const fragranceName = inspiredMatch ? inspiredMatch[1] : rawName;
           titleText = p.nameShort || rawName;
           inspiredHtml = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}</i>`;
-        }
+        } else if (p.isBundle) { titleText = 'PICK ANY 2 / 50ML'; }
 
         let starsHtml = '';
         let reviewsCountText = '(0)';
@@ -292,7 +292,7 @@
           starsHtml = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`.repeat(5);
         }
 
-        let typeText = p.isBundle ? 'PICK ANY 2 / 50ML' : 'Extrait de Parfum';
+        let typeText = p.isBundle ? 'The Duet Bundle' : 'Extrait de Parfum';
         const retailVal = (p.retailPrice && !isNaN(p.retailPrice) && Number(p.retailPrice) > 0) ? Number(p.retailPrice) : null;
         const retailHtml = retailVal ? `<span class="hp-retail-price">${p.isBundle ? 'Value' : 'Designer'} R${formatRetailPrice(retailVal)}</span>` : '';
         let priceHtml = '';

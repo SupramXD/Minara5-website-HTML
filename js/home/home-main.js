@@ -296,24 +296,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     } else {
-      // HERO 2 ZONE & EVERYTHING BELOW
-      logo.style.opacity = '1';
-      logo.style.visibility = 'visible';
-      logo.style.pointerEvents = 'none';
-      logo.style.zIndex = '1500';
-
+      // HERO 2 ZONE & EVERYTHING BELOW — logo hidden over the image, shown once it locks
       const shouldLockHero2 = (y + floatTopViewportHero2) >= lockPtHero2;
       const photoBottom = secImgLTop + secWrapHeight;
       const logoDocTop = y + floatTopViewportHero2;
       const isOverWhite = (logoDocTop >= photoBottom - 10) || shouldLockHero2;
 
-      if (isOverWhite) {
-        if (logo) logo.classList.add('locked-white-zone');
-      } else {
-        if (logo) logo.classList.remove('locked-white-zone');
-      }
-
       if (shouldLockHero2) {
+        logo.style.opacity = '1';
+        logo.style.visibility = 'visible';
+        logo.style.pointerEvents = 'none';
+        logo.style.zIndex = '1500';
+
+        if (isOverWhite) {
+          if (logo) logo.classList.add('locked-white-zone');
+        } else {
+          if (logo) logo.classList.remove('locked-white-zone');
+        }
+
         const hero2AbsStyle = `mobile-hero2-absolute-${lockPtHero2}-${mX}`;
         if (lastLogoState !== hero2AbsStyle) {
           logo.style.position = 'absolute';
@@ -322,12 +322,12 @@ document.addEventListener('DOMContentLoaded', () => {
           lastLogoState = hero2AbsStyle;
         }
       } else {
-        const hero2FixedStyle = `mobile-hero2-fixed-${floatTopViewportHero2}-${mX}`;
-        if (lastLogoState !== hero2FixedStyle) {
-          logo.style.position = 'fixed';
-          logo.style.top = floatTopViewportHero2 + 'px';
-          logo.style.transform = `translate3d(calc(-50% + ${mX}px), 0, 0) scale(0.99)`;
-          lastLogoState = hero2FixedStyle;
+        // Hidden while travelling across the hero images; appear only when it locks in place
+        if (lastLogoState !== "hidden") {
+          logo.style.opacity = '0';
+          logo.style.visibility = 'hidden';
+          logo.style.pointerEvents = 'none';
+          lastLogoState = "hidden";
         }
       }
     }

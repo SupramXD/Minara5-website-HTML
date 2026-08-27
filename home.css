@@ -1343,11 +1343,14 @@
         text-align: center;
       }
       .second-hero-mobile-tagline {
-        font-family: 'Gotham Narrow Book', sans-serif;
-        font-size: 11px;
-        letter-spacing: 0.08em;
+        font-family: 'Gotham Narrow Bold', sans-serif;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.18em;
         color: #ffffff;
-        text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6);
+        text-transform: uppercase;
+        text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+        line-height: 1.5;
       }
     }
     @media (min-width: 901px) {
