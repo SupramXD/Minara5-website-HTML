@@ -263,13 +263,16 @@
         const rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
         const tSrc = getThumbnailImageUrl(p.image, p.image_thumb);
         const inspiredMatch = rawName.match(/^inspired\s+by\s+(.+)/i);
+        const isInspired = inspiredMatch || p.id.startsWith("inspired-by-");
 
+        const retailVal = (p.retailPrice && !isNaN(p.retailPrice) && Number(p.retailPrice) > 0) ? Number(p.retailPrice) : null;
+        const retailInline = retailVal && !p.isBundle ? ` <span class="hp-retail-price">Designer R${formatRetailPrice(retailVal)}</span>` : '';
         let inspiredHtml = '';
         let titleText = rawName;
         if (inspiredMatch || p.id.startsWith("inspired-by-")) {
           const fragranceName = inspiredMatch ? inspiredMatch[1] : rawName;
           titleText = p.nameShort || rawName;
-          inspiredHtml = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}</i>`;
+          inspiredHtml = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}${retailInline}</i>`;
         } else if (p.isBundle) { titleText = 'PICK ANY 2 / 50ML'; }
 
         let starsHtml = '';
@@ -293,8 +296,8 @@
         }
 
         let typeText = p.isBundle ? 'The Duet Bundle' : 'Extrait de Parfum';
-        const retailVal = (p.retailPrice && !isNaN(p.retailPrice) && Number(p.retailPrice) > 0) ? Number(p.retailPrice) : null;
-        const retailHtml = retailVal ? `<span class="hp-retail-price">${p.isBundle ? 'Value' : 'Designer'} R${formatRetailPrice(retailVal)}</span>` : '';
+        // (retailVal computed above; retail anchor shown inline for singles / Value for bundles)
+        const retailHtml = (retailVal && !isInspired) ? `<span class="hp-retail-price">${p.isBundle ? 'Value' : 'Designer'} R${formatRetailPrice(retailVal)}</span>` : '';
         let priceHtml = '';
         if (hasDiscount) {
           const salePrice = Math.round(p.price * 0.95);
@@ -319,7 +322,7 @@
             <a href="${p.url}" class="product-link-anchor" style="text-decoration:none; color:inherit; display:block;">
               <div class="hp-box">
                 ${tSrc ? `<img class="product-img" loading="lazy" decoding="async" src="${tSrc}" alt="${rawName}">` : ''}
-                ${(p.stock > 0 && p.stock <= 2 && !p.isBundle) ? `<span class="se-card-badge">ONLY ${p.stock} LEFT</span>` : ''}
+                ${(p.stock <= 2 && !p.isBundle) ? `<span class="se-card-badge">${p.stock <= 0 ? 'OUT OF STOCK' : `ONLY ${p.stock} LEFT`}</span>` : ''}
               </div>
             </a>
             <div class="hp-info">

@@ -44,7 +44,8 @@
       thumbImg: stdThumb,
       fallbackImg: stdImg,
       title: "Standard Bottle",
-      priceExtra: 0
+      priceExtra: 0,
+      stock: (p.stock !== undefined && p.stock !== null) ? Number(p.stock) : 0
     };
 
     if (p.customisations && Array.isArray(p.customisations) && p.customisations.length > 0) {

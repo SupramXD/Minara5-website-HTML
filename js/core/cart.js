@@ -229,13 +229,13 @@
       const singleBottleCount = singleBottleItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
       const singleBottleSubtotal = singleBottleItems.reduce((sum, item) => sum + ((Number(item.price) + (Number(item.priceExtra) || 0)) * item.quantity), 0);
 
-      if (singleBottleCount === 2 && singleBottleSubtotal >= 900) {
-        bundleDiscount = 241;
-      } else if (singleBottleCount === 3 && singleBottleSubtotal >= 1300) {
-        bundleDiscount = 486;
-      } else if (singleBottleCount > 3 && singleBottleSubtotal >= 1400) {
-        const duos = Math.floor(singleBottleCount / 2);
-        bundleDiscount = duos * 241;
+      if (singleBottleCount >= 2) {
+        bundleDiscount = (singleBottleCount - 1) * 241;
+      // old tiered logic (now uniform per-extra-bottle discount)
+      // bundleDiscount = 486;
+      // } else if (singleBottleCount > 3 && singleBottleSubtotal >= 1400) {
+      // const duos = Math.floor(singleBottleCount / 2);
+      // bundleDiscount = duos * 241;
       }
     }
 
@@ -475,23 +475,23 @@
         const projCount = pricing.totalBottles + 1;
         const projSub = subtotal + repPrice;
         let saving = 0;
-        if (projCount === 2 && projSub >= 900) saving = 241;
-        else if (projCount === 3 && projSub >= 1300) saving = 486;
-        else if (projCount > 3 && projSub >= 1400) saving = Math.floor(projCount / 2) * 241;
+        if (projCount >= 2) saving = (projCount - 1) * 241;
+        // else if (projCount === 3 && projSub >= 1300) saving = 486;
+        // else if (projCount > 3 && projSub >= 1400) saving = Math.floor(projCount / 2) * 241;
         if (saving > 0 && projSub >= 600) {
           nudge = `
-          <a href="template product.html?id=any-2-50ml-fragrances" style="margin-top:12px; display:flex; align-items:center; gap:8px; padding-top:11px; border-top:1px solid #ececec; font-family:'Gotham Narrow Book', sans-serif; font-size:9px; letter-spacing:0.9px; text-transform:uppercase; color:#000; text-decoration:none;">
+          <a href="catalog.html" style="margin-top:12px; display:flex; align-items:center; justify-content:center; gap:7px; padding-top:11px; border-top:1px solid #ececec; font-family:'Gotham Narrow Book', sans-serif; font-size:9px; letter-spacing:0.9px; text-transform:uppercase; color:#000; text-decoration:none;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" style="flex-shrink:0;"><path d="M12 5v14M5 12h14"/></svg>
             <span>Add 1 more bottle — save R${saving} + free shipping</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" style="margin-left:auto; flex-shrink:0;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" style="flex-shrink:0;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </a>`;
         }
       }
       html += `
         <div style="padding: 12px 20px 0 20px; width:100%; box-sizing:border-box;">
-          <div style="display:flex; justify-content:space-between; align-items:baseline; font-family:'Gotham Narrow Bold', sans-serif; font-size:9px; letter-spacing:1.1px; text-transform:uppercase; color:#9aa0a6; margin-bottom:6px;">
-            <span style="color:${free ? '#3c763d' : '#000'};">${statusText}</span>
-            <span>FREE OVER R600</span>
+          <div style="text-align:center; font-family:'Gotham Narrow Bold', sans-serif; font-size:9px; letter-spacing:1.1px; text-transform:uppercase; color:${free ? '#3c763d' : '#000'}; margin-bottom:6px;">
+            ${statusText}
+            
           </div>
           <div style="height:2px; background:#ececec; width:100%; border-radius:99px; overflow:hidden;">
             <div style="height:100%; width:${pct}%; background:${free ? '#3c763d' : '#000'}; transition:width .3s ease;"></div>
