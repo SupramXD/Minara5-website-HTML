@@ -178,7 +178,7 @@
 
       const shippingEl = document.getElementById("complimentaryShippingText");
       if (shippingEl) {
-        if (finalPrice > 600) {
+        if (finalPrice > 700) {
           shippingEl.style.display = "flex";
         } else {
           shippingEl.style.display = "none";

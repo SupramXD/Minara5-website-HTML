@@ -788,7 +788,7 @@
 
       // Stock shown as an overlay badge on the product image block (skipped for bundles)
       const stockBlock = document.getElementById('slider') || document.querySelector('.slider');
-      if (stockBlock && p.stock !== undefined && !p.isBundle) {
+      if (false) { // stock badge removed from big image — shown only on the selector thumbnails (product-customisation.js)
         if (!stockBlock.style.position || stockBlock.style.position === 'static') {
           stockBlock.style.position = 'relative';
         }

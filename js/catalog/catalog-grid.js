@@ -383,7 +383,7 @@
           titleEl.style.letterSpacing = "0.04em";
           titleEl.style.marginBottom = "2px";
 
-          inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}${retailVal ? ` <span class="hp-retail-price">Designer R${retailRText}</span>` : ''}</i>`;
+          inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}${retailVal ? ` <span class="hp-retail-price">R${retailRText}</span>` : ''}</i>`;
           inspiredEl.style.display = 'block';
         } else {
           titleEl.textContent = p.isBundle ? "PICK ANY 2 / 50ML" : rawName;
@@ -402,7 +402,7 @@
         const retailPriceEl = item.querySelector('.product-retail-price');
         if (retailPriceEl && !isInspired && p.retailPrice && !isNaN(Number(p.retailPrice)) && Number(p.retailPrice) > 0) {
           const rText = Number(p.retailPrice).toLocaleString('en-US');
-          retailPriceEl.textContent = `${p.isBundle ? 'Value' : 'Designer'} R${rText}`;
+          retailPriceEl.textContent = `${p.isBundle ? 'Value' : ''}R${rText}`;
           retailPriceEl.style.display = 'block';
         }
 

@@ -1945,7 +1945,7 @@
         rawSubtotal: activeItems.reduce((sum, item) => sum + (((Number(item.price) || 0) + (Number(item.priceExtra) || 0)) * item.quantity), 0),
         bundleDiscount: 0,
         newsletterDiscountAmount: 0,
-        shippingFee: activeItems.reduce((sum, item) => sum + (((Number(item.price) || 0) + (Number(item.priceExtra) || 0)) * item.quantity), 0) >= 600 ? 0 : 85,
+        shippingFee: activeItems.reduce((sum, item) => sum + (((Number(item.price) || 0) + (Number(item.priceExtra) || 0)) * item.quantity), 0) >= 700 ? 0 : 85,
         finalTotal: activeItems.reduce((sum, item) => sum + (((Number(item.price) || 0) + (Number(item.priceExtra) || 0)) * item.quantity), 0)
       };
 

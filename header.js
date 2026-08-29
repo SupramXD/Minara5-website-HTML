@@ -784,7 +784,7 @@ function setupDesktopNewsletter() {
 }
 
 // --- DYNAMIC CUSTOM TEXT LOADER ---
-const DEFAULT_FOOTER_DESCRIPTION = "Designer-inspired extraits, crafted at 20%+ concentration to match 95% of the iconic scents you love — for a fraction of the price. Macerated to perfection, with free delivery across South Africa on orders over R600. Find your signature scent.";
+const DEFAULT_FOOTER_DESCRIPTION = "Designer-inspired extraits, crafted at 20%+ concentration to match 95% of the iconic scents you love — for a fraction of the price. Macerated to perfection, with free delivery across South Africa on orders over R700. Find your signature scent.";
 
 function applyCustomText(data) {
     if (!data) return;

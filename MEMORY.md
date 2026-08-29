@@ -31,12 +31,14 @@
 ## Conventions
 - Price formatting: `formatPrice` (no commas), `formatRetailPrice` (commas, e.g. R2,200).
 - localStorage keys: `minara_products`, `minara_custom_text`, `minara_discount_5` ("active" = 5% off), `bundle_selections_pending`.
-- Card pattern: title -> type -> inspired (`INSPIRED BY` + name) -> price block -> button. For inspired products the `Designer R<retail>` anchor is rendered INLINE after the name; for bundles/other products it stays as a standalone `Value`/`Designer R` anchor.
+- Card pattern: title -> type -> inspired (`INSPIRED BY` + name) -> price block -> button. For inspired products the retail `R<retail>` anchor is rendered INLINE after the name (styled via `.hp-retail-price`); for bundles/other products it stays as a standalone `Value`/`R` anchor.
 - Cards show `ONLY {X} LEFT` / `OUT OF STOCK` badge (`.se-card-badge`) when stock <= 2 (non-bundle).
 
 ## Gotchas
 - `custom_text_settings.json` default titles differ from `admin-settings.js` defaults (e.g. "OLFACTORY ACCURACY" vs "97% DESIGNER ACCURACY"); `loadCustomTextSettings()` has rescue logic that may normalise/wipe stored edits.
 - Multi-bottle discount = `(count-1) * 241` only when NO bundle in cart and all items are standard bottles (premium/`priceExtra` items are excluded as bundles). Cart free-delivery widget is in `cart.js renderCartUI`; its "add 1 more bottle" nudge links to `catalog.html`.
+- **Free-shipping threshold is R700 site-wide** (cart logic, checkout, product complimentary-shipping line, homepage feature + footer text). `custom_text_settings.json`, `header.js`, `admin-settings.js` all use R700.
+- Product-page stock badge is shown ONLY on the selector thumbnails (`product-customisation.js`); the big gallery image badge is disabled in `product-core.js`.
 - Admin tabs are role-gated; `admin-auth.js` invokes the per-tab loaders.
 
 <!-- FILE_INVENTORY_START -->

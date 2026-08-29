@@ -241,8 +241,8 @@
 
     const subtotalAfterBundle = Math.max(0, rawSubtotal - bundleDiscount);
 
-    // Free shipping threshold: Cart subtotal >= R600 -> FREE shipping, otherwise R85 flat fee
-    const shippingFee = (subtotalAfterBundle >= 600 || activeItems.length === 0) ? 0 : 85;
+    // Free shipping threshold: Cart subtotal >= R700 -> FREE shipping, otherwise R85 flat fee
+    const shippingFee = (subtotalAfterBundle >= 700 || activeItems.length === 0) ? 0 : 85;
     
     const hasNewsletterDiscount = localStorage.getItem("minara_discount_5") === "active";
     const newsletterDiscountAmount = hasNewsletterDiscount ? Math.round(subtotalAfterBundle * 0.05) : 0;
@@ -461,9 +461,9 @@
     // FREE SHIPPING PROGRESS + SMART 2-BOTTLE NUDGE (computed, minimal)
     if (hasItems) {
       const subtotal = pricing.subtotalAfterBundle;
-      const diff = Math.max(0, 600 - subtotal);
-      const pct = Math.max(0, Math.min(100, Math.round((subtotal / 600) * 100)));
-      const free = subtotal >= 600;
+      const diff = Math.max(0, 700 - subtotal);
+      const pct = Math.max(0, Math.min(100, Math.round((subtotal / 700) * 100)));
+      const free = subtotal >= 700;
       const statusText = free
         ? 'FREE SHIPPING UNLOCKED'
         : `R${getFormattedPrice(diff)} FROM FREE SHIPPING`;
@@ -478,11 +478,11 @@
         if (projCount >= 2) saving = (projCount - 1) * 241;
         // else if (projCount === 3 && projSub >= 1300) saving = 486;
         // else if (projCount > 3 && projSub >= 1400) saving = Math.floor(projCount / 2) * 241;
-        if (saving > 0 && projSub >= 600) {
+        if (saving > 0 && projSub >= 700) {
           nudge = `
           <a href="catalog.html" style="margin-top:12px; display:flex; align-items:center; justify-content:center; gap:7px; padding-top:11px; border-top:1px solid #ececec; font-family:'Gotham Narrow Book', sans-serif; font-size:9px; letter-spacing:0.9px; text-transform:uppercase; color:#000; text-decoration:none;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" style="flex-shrink:0;"><path d="M12 5v14M5 12h14"/></svg>
-            <span>Add 1 more bottle — save R${saving} + free shipping</span>
+            <span>Add 1 more bottle for R${saving} off + free shipping</span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" style="flex-shrink:0;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </a>`;
         }
