@@ -67,10 +67,10 @@
   },
   {
     "id": "any-2-50ml-fragrances",
-    "nameShort": "The Duet Bundle",
-    "name": "The Duet Bundle",
+    "nameShort": "The Discovery Duet",
+    "name": "The Discovery Duet",
     "price": 749,
-    "retailPrice": 3000,
+    "retailPrice": null,
     "stock": 9,
     "image": "images/products/any-2-50ml-fragrances.webp",
     "galleryImages": [
