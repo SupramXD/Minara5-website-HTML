@@ -302,7 +302,7 @@
         let priceHtml = '';
         if (!p.isBundle) {
           const salePrice = Math.max(0, p.price - 241);
-          priceHtml = `<span class="sale-price">R${formatPrice(salePrice)}</span><span class="original-price">R${formatPrice(p.price)}</span>`;
+          priceHtml = `<span class="sale-price js-price-empty">R${formatPrice(p.price)}</span><span class="sale-price js-bundle-price">R${formatPrice(salePrice)}</span><span class="original-price js-bundle-was">R${formatPrice(p.price)}</span>`;
         } else {
           priceHtml = `<span class="sale-price">R${formatPrice(p.price)}</span>`;
         }

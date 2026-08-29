@@ -482,8 +482,9 @@
         if (!p.isBundle) {
           const salePrice = Math.max(0, p.price - 241);
           priceBlockEl.innerHTML = `
-            <span class="sale-price">R${formatPrice(salePrice)}</span>
-            <span class="original-price">R${formatPrice(p.price)}</span>
+            <span class="sale-price js-price-empty">R${formatPrice(p.price)}</span>
+            <span class="sale-price js-bundle-price">R${formatPrice(salePrice)}</span>
+            <span class="original-price js-bundle-was">R${formatPrice(p.price)}</span>
           `;
         } else {
           priceBlockEl.innerHTML = `

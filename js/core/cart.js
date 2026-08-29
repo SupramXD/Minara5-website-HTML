@@ -129,6 +129,7 @@
     }
     
     const activeCartItems = cart.filter(item => !item.removed);
+    if (document.body) document.body.classList.toggle('cart-has-items', activeCartItems.length > 0);
     const totalItems = activeCartItems.reduce((sum, item) => sum + item.quantity, 0);
     const countStr = totalItems.toString().padStart(2, '0');
     
@@ -317,6 +318,8 @@
 
     if (hasAnyCartItems) {
       html += '<div class="items-area" style="flex-grow:1; overflow-y:auto;">';
+    let unitsSeen = 0;
+    let discountedUnitsRemaining = bundleQualify ? (stdBottleCount - 1) : 0;
       cart.forEach((item, index) => {
         if (item.removed) {
           let removedScentsHtml = "";
@@ -379,7 +382,14 @@
           const isBundleItem = isCartBundleItem(item);
           let displayPrice = `R${getFormattedPrice(itemPrice)}`;
           if (bundleQualify && !isBundleItem) {
+            const units = item.quantity || 1;
+            const fullUnitsInThisItem = (unitsSeen === 0) ? 1 : 0;
+            const discountedUnits = Math.min(Math.max(0, units - fullUnitsInThisItem), discountedUnitsRemaining);
+            discountedUnitsRemaining -= discountedUnits;
+            unitsSeen += units;
+            if (discountedUnits > 0) {
             displayPrice = `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${getFormattedPrice(itemPrice)}</span><span style="color: #1106e8; font-weight: bold;">R${getFormattedPrice(Math.max(0, itemPrice - 241))}</span>`;
+            }
           } else if (hasDiscount) {
             displayPrice = `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${getFormattedPrice(itemPrice)}</span><span style="color: #1106e8; font-weight: bold;">R${getFormattedPrice(Math.round(itemPrice * 0.95))}</span>`;
           }
@@ -491,7 +501,7 @@
           nudge = `
           <a href="catalog.html" style="margin-top:12px; display:flex; align-items:center; justify-content:center; gap:7px; padding-top:11px; border-top:1px solid #ececec; font-family:'Gotham Narrow Book', sans-serif; font-size:9px; letter-spacing:0.9px; text-transform:uppercase; color:#000; text-decoration:none;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" style="flex-shrink:0;"><path d="M12 5v14M5 12h14"/></svg>
-            <span>Add 1 more bottle for R${bottlePrice} + free shipping</span>
+            <span>Add one more bottle for only R${bottlePrice} + free shipping</span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" style="flex-shrink:0;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </a>`;
         }

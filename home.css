@@ -1184,6 +1184,10 @@
       font-weight: 400;
       font-size: 0.9em;
     }
+    .js-bundle-price, .js-bundle-was { display: none !important; }
+    body.cart-has-items .js-price-empty { display: none !important; }
+    body.cart-has-items .js-bundle-price, body.cart-has-items .js-bundle-was { display: inline !important; }
+
 
     .add-to-cart:disabled {
       background: #000000 !important;
