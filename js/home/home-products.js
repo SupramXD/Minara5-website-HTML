@@ -299,8 +299,8 @@
         // (retailVal computed above; retail anchor shown inline for singles / Value for bundles)
         const retailHtml = (retailVal && !isInspired) ? `<span class="hp-retail-price">${p.isBundle ? 'Value' : ''}R${formatRetailPrice(retailVal)}</span>` : '';
         let priceHtml = '';
-        if (hasDiscount) {
-          const salePrice = Math.round(p.price * 0.95);
+        if (!p.isBundle) {
+          const salePrice = Math.max(0, p.price - 241);
           priceHtml = `<span class="sale-price">R${formatPrice(salePrice)}</span><span class="original-price">R${formatPrice(p.price)}</span>`;
         } else {
           priceHtml = `<span class="sale-price">R${formatPrice(p.price)}</span>`;

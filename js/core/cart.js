@@ -476,13 +476,14 @@
         const projSub = subtotal + repPrice;
         let saving = 0;
         if (projCount >= 2) saving = (projCount - 1) * 241;
+        const bottlePrice = Math.max(0, repPrice - saving);
         // else if (projCount === 3 && projSub >= 1300) saving = 486;
         // else if (projCount > 3 && projSub >= 1400) saving = Math.floor(projCount / 2) * 241;
         if (saving > 0 && projSub >= 700) {
           nudge = `
           <a href="catalog.html" style="margin-top:12px; display:flex; align-items:center; justify-content:center; gap:7px; padding-top:11px; border-top:1px solid #ececec; font-family:'Gotham Narrow Book', sans-serif; font-size:9px; letter-spacing:0.9px; text-transform:uppercase; color:#000; text-decoration:none;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" style="flex-shrink:0;"><path d="M12 5v14M5 12h14"/></svg>
-            <span>Add 1 more bottle for R${saving} off + free shipping</span>
+            <span>Add 1 more bottle for R${bottlePrice} + free shipping</span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" style="flex-shrink:0;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </a>`;
         }

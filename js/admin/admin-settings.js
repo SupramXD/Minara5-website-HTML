@@ -1402,6 +1402,116 @@
   };
 
   // ==========================================
+  // PER-BLOCK CUSTOM TEXT PUBLISH (separate publish buttons)
+  // ==========================================
+  function getCurrentCustomText() {
+    let base = { features: [], trust_banner: [], accordions: {}, returns_shipping: {}, footer_description: "" };
+    try {
+      const cached = localStorage.getItem("minara_custom_text");
+      if (cached) base = { ...base, ...JSON.parse(cached) };
+    } catch (e) {}
+    return base;
+  }
+
+  window.persistCustomTextData = async function(payload, saveBtn) {
+    const originalText = saveBtn ? saveBtn.innerHTML : "";
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.innerHTML = "PUBLISHING..."; }
+    try {
+      localStorage.setItem("minara_custom_text", JSON.stringify(payload));
+      let dbSaved = false;
+      if (window.db && window.dbDoc && window.dbSetDoc) {
+        try { await window.dbSetDoc(window.dbDoc(window.db, "settings", "custom_text"), payload); dbSaved = true; }
+        catch (dbErr) { console.error("Firestore custom text settings save failed:", dbErr); }
+      }
+      let gitHubSynced = false;
+      if (window.syncToGithubCallable) {
+        try {
+          const response = await window.syncToGithubCallable({ action: "saveCustomText", payload });
+          if (response.data && response.data.success) gitHubSynced = true;
+          else throw new Error(response.data ? response.data.message : "GitHub sync failed");
+        } catch (gitHubErr) { console.error("Failed to sync custom text to GitHub:", gitHubErr); throw gitHubErr; }
+      }
+      if (dbSaved && gitHubSynced) alert("Success! Published and synchronized to GitHub.");
+      else if (dbSaved) alert("Warning: saved to database, but GitHub sync failed.");
+      else alert("Warning: Local changes saved, but database and GitHub updates failed.");
+    } catch (err) {
+      console.error("Failed to publish text settings:", err);
+      alert("Error publishing text settings: " + (err.message || err));
+    } finally {
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = originalText; }
+    }
+  };
+
+
+  // ==========================================
+  window.handleSaveFeatures = async function(e) {
+    if (e) e.preventDefault();
+    const data = getCurrentCustomText();
+    data.features = [];
+    for (let i = 0; i < 6; i++) {
+      const t = document.getElementById(`featureTitle${i}`);
+      const d = document.getElementById(`featureDesc${i}`);
+      data.features.push({ title: t ? t.value : "", description: d ? d.value : "" });
+    }
+    await window.persistCustomTextData(data, document.getElementById("saveFeaturesBtn"));
+  };
+
+  window.handleSaveTrustBanner = async function(e) {
+    if (e) e.preventDefault();
+    const data = getCurrentCustomText();
+    data.trust_banner = [];
+    for (let i = 0; i < 2; i++) {
+      const t = document.getElementById(`trustTitle${i}`);
+      const d = document.getElementById(`trustDesc${i}`);
+      data.trust_banner.push({ title: t ? t.value : "", description: d ? d.value : "" });
+    }
+    await window.persistCustomTextData(data, document.getElementById("saveTrustBtn"));
+  };
+
+  window.handleSaveFooterDescription = async function(e) {
+    if (e) e.preventDefault();
+    const data = getCurrentCustomText();
+    const f = document.getElementById("footerDescription");
+    data.footer_description = f ? f.value.trim() : "";
+    await window.persistCustomTextData(data, document.getElementById("saveFooterBtn"));
+  };
+
+  window.handleSaveAccordions = async function(e) {
+    if (e) e.preventDefault();
+    const data = getCurrentCustomText();
+    data.accordions = {
+      wearingOccasion: document.getElementById("accordionWearing") ? document.getElementById("accordionWearing").value : "",
+      honestComparisonInspired: document.getElementById("accordionHonestInspired") ? document.getElementById("accordionHonestInspired").value : "",
+      honestComparisonNonInspired: document.getElementById("accordionHonestNonInspired") ? document.getElementById("accordionHonestNonInspired").value : "",
+      ingredients: document.getElementById("accordionIngredients") ? document.getElementById("accordionIngredients").value : "",
+      shippingReturns: document.getElementById("accordionShippingReturns") ? document.getElementById("accordionShippingReturns").value : ""
+    };
+    await window.persistCustomTextData(data, document.getElementById("saveAccordionsBtn"));
+  };
+
+  const toHtmlText = (text) => {
+    const trimmed = (text || "").trim();
+    if (/^<p[\s>]/i.test(trimmed)) return trimmed;
+    return trimmed.split(/\n\s*\n+/).map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+  };
+
+  window.handleSaveReturnsShipping = async function(e) {
+    if (e) e.preventDefault();
+    const data = getCurrentCustomText();
+    data.returns_shipping = {
+      shippingHeading: document.getElementById("adminRetShipHeading") ? document.getElementById("adminRetShipHeading").value.trim() : "1. Express Shipping Policy",
+      shippingText: toHtmlText(document.getElementById("adminRetShipText") ? document.getElementById("adminRetShipText").value : ""),
+      returnsHeading: document.getElementById("adminRetReturnsHeading") ? document.getElementById("adminRetReturnsHeading").value.trim() : "2. Returns & Exchanges Policy",
+      returnsText: toHtmlText(document.getElementById("adminRetReturnsText") ? document.getElementById("adminRetReturnsText").value : ""),
+      disclaimerHeading: document.getElementById("adminRetDisclaimerHeading") ? document.getElementById("adminRetDisclaimerHeading").value.trim() : "3. Product & Brand Disclaimer",
+      disclaimerText: toHtmlText(document.getElementById("adminRetDisclaimerText") ? document.getElementById("adminRetDisclaimerText").value : ""),
+      supportPrompt: document.getElementById("adminRetSupportPrompt") ? document.getElementById("adminRetSupportPrompt").value.trim() : "TO INITIATE A RETURN OR EXCHANGE, CONTACT OUR SUPPORT TEAM:",
+      supportEmail: document.getElementById("adminRetSupportEmail") ? document.getElementById("adminRetSupportEmail").value.trim() : "jadon@studioextrait.co.za"
+    };
+    await window.persistCustomTextData(data, document.getElementById("saveReturnsBtn"));
+  };
+
+
   // IMAGE OPTIMIZER & SEO TOOL
   // ==========================================
   let activeImages = [];

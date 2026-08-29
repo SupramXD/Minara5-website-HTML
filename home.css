@@ -1135,8 +1135,8 @@
       font-weight: 400;
       color: #8a8a8a;
       letter-spacing: 0.5px;
-      display: block;
-      margin-top: 2px;
+      display: inline;
+      margin-left: 4px;
     }
 
     .hp-stock-status {
