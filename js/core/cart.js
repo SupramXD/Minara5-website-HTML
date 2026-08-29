@@ -70,6 +70,7 @@
     if (sizeToUse.toLowerCase().includes("100ml") && baseProdPrice <= 550 && priceExtraToUse === 0) {
       priceExtraToUse = 254;
     }
+    const splitStandard = !selectedScents && !(Number(priceExtraToUse) > 0) && !((bottleCustomisation || '').toUpperCase().includes('PREMIUM'));
 
     const existingItem = cart.find(item => {
       const idMatches = item.id === productId;
@@ -86,14 +87,12 @@
       return idMatches && sizeMatches && customisationMatches && scentsMatches;
     });
 
-    if (existingItem) {
-      if (existingItem.removed) {
+    if (existingItem && existingItem.removed) {
         delete existingItem.removed;
         existingItem.quantity = 1;
-      } else {
+      } else if (existingItem && !splitStandard) {
         existingItem.quantity += 1;
-      }
-    } else {
+      } else {
       cart.push({
         id: product.id,
         name: product.name,
@@ -129,7 +128,7 @@
     }
     
     const activeCartItems = cart.filter(item => !item.removed);
-    if (document.body) document.body.classList.toggle('cart-has-items', activeCartItems.length > 0);
+
     const totalItems = activeCartItems.reduce((sum, item) => sum + item.quantity, 0);
     const countStr = totalItems.toString().padStart(2, '0');
     
@@ -499,10 +498,10 @@
         // else if (projCount > 3 && projSub >= 1400) saving = Math.floor(projCount / 2) * 241;
         if (saving > 0 && projSub >= 645) {
           nudge = `
-          <a href="catalog.html" style="margin-top:12px; display:flex; align-items:center; justify-content:center; gap:7px; padding-top:11px; border-top:1px solid #ececec; font-family:'Gotham Narrow Book', sans-serif; font-size:9px; letter-spacing:0.9px; text-transform:uppercase; color:#000; text-decoration:none;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" style="flex-shrink:0;"><path d="M12 5v14M5 12h14"/></svg>
-            <span>Add one more bottle for only R${bottlePrice} + free shipping</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" style="flex-shrink:0;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <a href="catalog.html?topup=1" style="margin-top:12px; display:flex; align-items:center; justify-content:center; gap:7px; padding-top:14px; padding-bottom:4px; border-top:1px solid #ececec; font-family:'Gotham Narrow Bold', sans-serif; font-size:10px; letter-spacing:0.9px; text-transform:uppercase; color:#000; text-decoration:none;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1106e8" stroke-width="2" style="flex-shrink:0;"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Add one more bottle for only <span style="color:#1106e8; font-weight:bold;">R${bottlePrice}</span> + free shipping</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1106e8" stroke-width="2" style="flex-shrink:0;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </a>`;
         }
       }

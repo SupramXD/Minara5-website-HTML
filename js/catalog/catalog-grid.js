@@ -20,6 +20,8 @@
   }
 
   async function initCatalog() {
+    const qp = new URLSearchParams(window.location.search);
+    if (qp.get('topup') === '1' && document.body) document.body.classList.add('topup');
     const formatPrice = window.formatPrice || (val => {
       if (val === undefined || val === null || isNaN(val)) return "0";
       return Math.round(Number(val)).toString();
