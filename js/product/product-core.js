@@ -729,12 +729,13 @@
         if (retailPriceRow && p.retailPrice && !p.isBundle) {
           const retailPriceValEl = retailPriceRow.querySelector('.product-retail-price');
           if (retailPriceValEl) {
-            retailPriceValEl.textContent = `Designer Equivalent: R${formatRetailPrice(p.retailPrice)}`;
+            retailPriceValEl.textContent = `Designer Equivalent: ${window.formatRetailLabel ? window.formatRetailLabel(p.retailPrice) : ('R' + formatRetailPrice(p.retailPrice))}`;
           }
           retailPriceRow.style.display = 'flex';
 
           if (comparisonNote) {
-            const savingsPercent = Math.round((1 - p.price / p.retailPrice) * 100);
+            const rNum = window.getRetailNumber ? window.getRetailNumber(p.retailPrice) : (Number(p.retailPrice) || 0);
+            const savingsPercent = rNum > 0 ? Math.round((1 - p.price / rNum) * 100) : 0;
             if (savingsPercent > 0) {
               comparisonNote.textContent = `Save ${savingsPercent}% compared to designer retail`;
               comparisonNote.style.display = 'inline';

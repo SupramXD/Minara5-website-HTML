@@ -344,7 +344,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         name,
         price: Number(price),
         retailPrice: retailPrice !== null && retailPrice !== undefined ?
-          Number(retailPrice) : null,
+          retailPrice : null,
         stock: Number(stock),
         image: mainImagePath,
         galleryImages: galleryImages || (mainImagePath ? mainImagePath.split(",").map((s) => s.trim()) : []),
@@ -402,7 +402,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
               name,
               price: Number(price),
               retailPrice: retailPrice !== null && retailPrice !== undefined ?
-                Number(retailPrice) : null,
+                retailPrice : null,
               stock: Number(stock),
               image: mainImagePath,
               galleryImages: galleryImages || (mainImagePath ? mainImagePath.split(",").map((s) => s.trim()) : []),

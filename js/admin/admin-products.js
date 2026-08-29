@@ -147,7 +147,7 @@ async function loadCatalog() {
               tr.appendChild(priceTd);
               
               const retailTd = document.createElement('td');
-              retailTd.textContent = p.retailPrice ? 'R' + formatRetailPrice(p.retailPrice) : '—';
+              retailTd.textContent = p.retailPrice ? (window.formatRetailLabel ? window.formatRetailLabel(p.retailPrice) : ('R' + formatRetailPrice(p.retailPrice))) : '—';
               tr.appendChild(retailTd);
               
               const stockTd = document.createElement('td');
@@ -1147,7 +1147,7 @@ window.PERFUME_NOTE_LIBRARY = [
       const name = document.getElementById("editProdName").value.trim();
       const price = parseFloat(document.getElementById("editProdPrice").value);
       const retailPriceVal = document.getElementById("editProdRetailPrice").value.trim();
-      const retailPrice = retailPriceVal !== "" ? parseFloat(retailPriceVal) : null;
+      const retailPrice = retailPriceVal !== "" ? retailPriceVal : null;
       const stock = parseInt(document.getElementById("editProdStock").value);
       const imageInput = sanitizeImageUrl(document.getElementById("editProdImage").value);
       const fileInput = document.getElementById("editProdFile").files[0];
@@ -1440,7 +1440,7 @@ window.PERFUME_NOTE_LIBRARY = [
       const name = document.getElementById("prodName") ? document.getElementById("prodName").value.trim() : "";
       const price = parseFloat(document.getElementById("prodPrice") ? document.getElementById("prodPrice").value : "0");
       const retailPriceVal = document.getElementById("prodRetailPrice") ? document.getElementById("prodRetailPrice").value.trim() : "";
-      const retailPrice = retailPriceVal !== "" ? parseFloat(retailPriceVal) : null;
+      const retailPrice = retailPriceVal !== "" ? retailPriceVal : null;
       const stock = parseInt(document.getElementById("prodStock") ? document.getElementById("prodStock").value : "0");
       const imageInput = document.getElementById("prodImage") ? document.getElementById("prodImage").value.trim() : "";
       const fileInput = document.getElementById("prodFile") && document.getElementById("prodFile").files ? document.getElementById("prodFile").files[0] : null;

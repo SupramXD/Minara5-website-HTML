@@ -424,6 +424,22 @@ window.formatPrice = function(value) {
 };
 const formatPrice = window.formatPrice;
 
+// Retail price can be a number (2200) or free text ("R2200+", "+"). Helpers handle both.
+window.formatRetailLabel = function(value) {
+    if (value === undefined || value === null || value === "") return "";
+    const num = Number(value);
+    if (!isNaN(num) && num > 0) {
+        return "R" + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    return String(value).trim();
+};
+window.getRetailNumber = function(value) {
+    if (value === undefined || value === null || value === "") return null;
+    const num = Number(String(value).replace(/[^0-9.]/g, ""));
+    return (!isNaN(num) && num > 0) ? num : null;
+};
+
+
 // Global helper to safely render user input from Firestore and prevent XSS
 window.escapeHTML = function(str) {
     if (str === null || str === undefined) return "";
@@ -784,7 +800,7 @@ function setupDesktopNewsletter() {
 }
 
 // --- DYNAMIC CUSTOM TEXT LOADER ---
-const DEFAULT_FOOTER_DESCRIPTION = "Designer-inspired extraits, crafted at 20%+ concentration to match 95% of the iconic scents you love — for a fraction of the price. Macerated to perfection, with free delivery across South Africa on orders over R700. Find your signature scent.";
+const DEFAULT_FOOTER_DESCRIPTION = "Designer-inspired extraits, crafted at 20%+ concentration to match 95% of the iconic scents you love — for a fraction of the price. Macerated to perfection, with free delivery across South Africa on orders over R645. Find your signature scent.";
 
 function applyCustomText(data) {
     if (!data) return;

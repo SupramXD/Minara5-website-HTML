@@ -241,8 +241,8 @@
 
     const subtotalAfterBundle = Math.max(0, rawSubtotal - bundleDiscount);
 
-    // Free shipping threshold: Cart subtotal >= R700 -> FREE shipping, otherwise R85 flat fee
-    const shippingFee = (subtotalAfterBundle >= 700 || activeItems.length === 0) ? 0 : 85;
+    // Free shipping threshold: Cart subtotal >= R645 -> FREE shipping, otherwise R85 flat fee
+    const shippingFee = (subtotalAfterBundle >= 645 || activeItems.length === 0) ? 0 : 85;
     
     const hasNewsletterDiscount = localStorage.getItem("minara_discount_5") === "active";
     const newsletterDiscountAmount = hasNewsletterDiscount ? Math.round(subtotalAfterBundle * 0.05) : 0;
@@ -282,6 +282,8 @@
 
     const activeCartItems = cart.filter(item => !item.removed);
     const pricing = window.calculateCartPricing(cart);
+    const stdBottleCount = activeCartItems.reduce((s, it) => s + (isCartBundleItem(it) ? 0 : (it.quantity || 1)), 0);
+    const bundleQualify = stdBottleCount >= 2 && !activeCartItems.some(it => isCartBundleItem(it));
     const totalItems = activeCartItems.reduce((sum, item) => sum + item.quantity, 0);
     const hasItems = totalItems > 0;
     const hasAnyCartItems = cart.length > 0;
@@ -374,9 +376,15 @@
         } else {
           const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
           const itemPrice = (Number(item.price) || 0) + (Number(item.priceExtra) || 0);
-          const displayPrice = hasDiscount 
-            ? `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${getFormattedPrice(itemPrice)}</span><span style="color: #1106e8; font-weight: bold;">R${getFormattedPrice(Math.round(itemPrice * 0.95))}</span>` 
-            : `R${getFormattedPrice(itemPrice)}`;
+          const isBundleItem = isCartBundleItem(item);
+          let displayPrice = `R${getFormattedPrice(itemPrice)}`;
+          if (bundleQualify && !isBundleItem) {
+            displayPrice = `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${getFormattedPrice(itemPrice)}</span><span style="color: #1106e8; font-weight: bold;">R${getFormattedPrice(Math.max(0, itemPrice - 241))}</span>`;
+          } else if (hasDiscount) {
+            displayPrice = `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${getFormattedPrice(itemPrice)}</span><span style="color: #1106e8; font-weight: bold;">R${getFormattedPrice(Math.round(itemPrice * 0.95))}</span>`;
+          }
+          
+          
 
           let scentsHtml = "";
           if (item.selectedScents && item.selectedScents.length > 0) {
@@ -461,9 +469,9 @@
     // FREE SHIPPING PROGRESS + SMART 2-BOTTLE NUDGE (computed, minimal)
     if (hasItems) {
       const subtotal = pricing.subtotalAfterBundle;
-      const diff = Math.max(0, 700 - subtotal);
-      const pct = Math.max(0, Math.min(100, Math.round((subtotal / 700) * 100)));
-      const free = subtotal >= 700;
+      const diff = Math.max(0, 645 - subtotal);
+      const pct = Math.max(0, Math.min(100, Math.round((subtotal / 645) * 100)));
+      const free = subtotal >= 645;
       const statusText = free
         ? 'FREE SHIPPING UNLOCKED'
         : `R${getFormattedPrice(diff)} FROM FREE SHIPPING`;
@@ -479,7 +487,7 @@
         const bottlePrice = Math.max(0, repPrice - saving);
         // else if (projCount === 3 && projSub >= 1300) saving = 486;
         // else if (projCount > 3 && projSub >= 1400) saving = Math.floor(projCount / 2) * 241;
-        if (saving > 0 && projSub >= 700) {
+        if (saving > 0 && projSub >= 645) {
           nudge = `
           <a href="catalog.html" style="margin-top:12px; display:flex; align-items:center; justify-content:center; gap:7px; padding-top:11px; border-top:1px solid #ececec; font-family:'Gotham Narrow Book', sans-serif; font-size:9px; letter-spacing:0.9px; text-transform:uppercase; color:#000; text-decoration:none;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" style="flex-shrink:0;"><path d="M12 5v14M5 12h14"/></svg>

@@ -265,8 +265,9 @@
         const inspiredMatch = rawName.match(/^inspired\s+by\s+(.+)/i);
         const isInspired = inspiredMatch || p.id.startsWith("inspired-by-");
 
-        const retailVal = (p.retailPrice && !isNaN(p.retailPrice) && Number(p.retailPrice) > 0) ? Number(p.retailPrice) : null;
-        const retailInline = retailVal && !p.isBundle ? ` <span class="hp-retail-price">R${formatRetailPrice(retailVal)}</span>` : '';
+        const retailVal = window.getRetailNumber ? window.getRetailNumber(p.retailPrice) : null;
+        const retailLabelText = window.formatRetailLabel ? window.formatRetailLabel(p.retailPrice) : '';
+        const retailInline = retailVal && !p.isBundle ? ` <span class="hp-retail-price">${retailLabelText}</span>` : '';
         let inspiredHtml = '';
         let titleText = rawName;
         if (inspiredMatch || p.id.startsWith("inspired-by-")) {
@@ -297,7 +298,7 @@
 
         let typeText = p.isBundle ? 'The Duet Bundle' : 'Extrait de Parfum';
         // (retailVal computed above; retail anchor shown inline for singles / Value for bundles)
-        const retailHtml = (retailVal && !isInspired) ? `<span class="hp-retail-price">${p.isBundle ? 'Value' : ''}R${formatRetailPrice(retailVal)}</span>` : '';
+        const retailHtml = (retailVal && !isInspired) ? `<span class="hp-retail-price">${p.isBundle ? 'Value ' : ''}${retailLabelText}</span>` : '';
         let priceHtml = '';
         if (!p.isBundle) {
           const salePrice = Math.max(0, p.price - 241);

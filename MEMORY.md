@@ -31,13 +31,14 @@
 ## Conventions
 - Price formatting: `formatPrice` (no commas), `formatRetailPrice` (commas, e.g. R2,200).
 - localStorage keys: `minara_products`, `minara_custom_text`, `minara_discount_5` ("active" = 5% off), `bundle_selections_pending`.
-- Card pattern: title -> type -> inspired (`INSPIRED BY` + name) -> price block -> button. For inspired products the retail `R<retail>` anchor is rendered INLINE to the right of the name (`.hp-retail-price`, `display:inline`). Standard (non-bundle) bottles show a bundle sale in the price block: `R<p-241>` (`.sale-price`) crossed-out `R<p>` (`.original-price`).
+- Card pattern: title -> type -> inspired (`INSPIRED BY` + name) -> price block -> button. For inspired products the retail anchor renders INLINE to the right of the name (`.hp-retail-price`). This class is styled in BOTH `home.css` and `catalog.css`. Standard (non-bundle) bottles show a bundle sale in the price block: `R<p-241>` (`.sale-price`) crossed-out `R<p>` (`.original-price`).
 - Cards show `ONLY {X} LEFT` / `OUT OF STOCK` badge (`.se-card-badge`) when stock <= 2 (non-bundle).
 
 ## Gotchas
 - `custom_text_settings.json` default titles differ from `admin-settings.js` defaults (e.g. "OLFACTORY ACCURACY" vs "97% DESIGNER ACCURACY"); `loadCustomTextSettings()` has rescue logic that may normalise/wipe stored edits.
-- Multi-bottle discount = `(count-1) * 241` (equates to each extra bottle being `price - 241`, e.g. R495 → R254). Applies ONLY when NO bundle in cart and all items are standard bottles. Cart free-delivery widget is in `cart.js renderCartUI`; nudge text = "Add 1 more bottle for R{bottlePrice} + free shipping" and links to `catalog.html`.
-- **Free-shipping threshold is R700 site-wide** (cart logic, checkout, product complimentary-shipping line, homepage feature + footer text). `custom_text_settings.json`, `header.js`, `admin-settings.js` all use R700.
+- Multi-bottle discount = `(count-1) * 241` (equates to each extra bottle being `price - 241`, e.g. R495 → R254). Applies ONLY when NO bundle in cart and all items are standard bottles. In the cart, eligible standard bottles render a sale crossout (R495 → R254) when `bundleQualify` (`cart.js renderCartUI`); the "2+ BOTTLE DISCOUNT" line still shows the total. Nudge text = "Add 1 more bottle for R{bottlePrice} + free shipping" and links to `catalog.html`.
+- **Free-shipping threshold is R645 site-wide** (cart logic, checkout, product complimentary-shipping line, homepage feature + footer text). `custom_text_settings.json`, `header.js`, `admin-settings.js` all use R645.
+- Retail price is free-text (admin can type "R2200+"). `header.js` exposes `formatRetailLabel` (numeric → "R2,200", else shows raw text) and `getRetailNumber` (strips non-digits for savings %). Admin inputs are `type="text"`; `functions/index.js` stores retailPrice as-is.
 - Product-page stock badge is shown ONLY on the selector thumbnails (`product-customisation.js`); the big gallery image badge is disabled in `product-core.js`.
 - Admin "Site Texts" tab now has SEPARATE per-block publish buttons (Features, Trust Banner, Footer, Accordions, Returns). Each saves only its block via `persistCustomTextData()` (merges with existing `minara_custom_text` so it never clobbers the others) and syncs to Firestore + GitHub.
 - Admin tabs are role-gated; `admin-auth.js` invokes the per-tab loaders.
