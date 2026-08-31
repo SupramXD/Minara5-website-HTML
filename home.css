@@ -1055,14 +1055,15 @@
       position: absolute;
       bottom: 0;
       left: 0;
-      right: 0;
+      width: fit-content;
+      max-width: 100%;
       background: rgba(180, 83, 9, 0.95);
       color: #ffffff;
       font-family: 'Gotham Narrow Bold', sans-serif;
       font-size: 6.5px;
       font-weight: bold;
-      text-align: center;
-      padding: 2px 0;
+      text-align: left;
+      padding: 2px 6px 2px 4px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       z-index: 2;
@@ -1137,6 +1138,33 @@
       letter-spacing: 0.5px;
       display: inline;
       margin-left: 4px;
+    }
+
+    .hp-title-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+
+    .hp-title-row .hp-title {
+      margin-bottom: 0;
+    }
+
+    .hp-flair {
+      background: #b45309;
+      color: #ffffff;
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 7px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
     }
 
     .hp-stock-status {

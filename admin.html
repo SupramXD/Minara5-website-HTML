@@ -1240,6 +1240,19 @@
                     </div>
 
                     <div class="form-group">
+                      <label for="prodFlairText">Flair Badge Text (Optional)</label>
+                      <input type="text" id="prodFlairText" class="form-input" placeholder="e.g. FLOWERY, GOURMAND, FRESH (leave blank to hide)" style="background:#1a1a24; color:#fff;">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="prodFlairColor">Flair Badge Colour (Optional)</label>
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <input type="color" id="prodFlairColor" value="#b45309" style="width:44px; height:34px; padding:0; border:1px solid #444; background:#1a1a24; cursor:pointer; flex-shrink:0;" oninput="document.getElementById('prodFlairColorText').value=this.value;">
+                        <input type="text" id="prodFlairColorText" class="form-input" value="#b45309" placeholder="#b45309" style="background:#1a1a24; color:#fff; flex:1;">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
                       <label for="prodInvisibleFlair">Invisible Gender Flair (Filtering)</label>
                       <select id="prodInvisibleFlair" class="form-input" style="background:#1a1a24; color: #fff;">
                         <option value="">None / Unspecified</option>
@@ -1949,6 +1962,19 @@
                       <option value="Unisex">Unisex</option>
                       <option value="Feminine">Feminine</option>
                     </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editProdFlairText">Flair Badge Text (Optional)</label>
+                    <input type="text" id="editProdFlairText" class="form-input" placeholder="e.g. FLOWERY, GOURMAND, FRESH (leave blank to hide)" style="background:#1a1a24; color:#fff;">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="editProdFlairColor">Flair Badge Colour (Optional)</label>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <input type="color" id="editProdFlairColor" value="#b45309" style="width:44px; height:34px; padding:0; border:1px solid #444; background:#1a1a24; cursor:pointer; flex-shrink:0;" oninput="document.getElementById('editProdFlairColorText').value=this.value;">
+                      <input type="text" id="editProdFlairColorText" class="form-input" value="#b45309" placeholder="#b45309" style="background:#1a1a24; color:#fff; flex:1;">
+                    </div>
                   </div>
 
                   <div class="form-group">

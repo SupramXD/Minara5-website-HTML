@@ -250,8 +250,9 @@
         });
       }
 
-      // 3. Extract the bundle product
-      const bundleProduct = activeProducts.find(p => p.isBundle);
+      // 3. Extract the bundle product (hidden in the topup flow to reduce friction)
+      const isTopupFlow = !!(document.body && document.body.classList.contains('topup'));
+      const bundleProduct = isTopupFlow ? null : activeProducts.find(p => p.isBundle);
       let nonBundleProducts = activeProducts.filter(p => !p.isBundle);
 
       // Sort non-bundle products
@@ -311,8 +312,10 @@
               <img class="product-img" loading="lazy" src="" alt="">
             </div>
             <div class="product-info" style="display: flex; flex-direction: column; flex-grow: 1;">
-              <div class="product-flair" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8px; opacity: 0.6; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; display: none; color: #1a1a1a;"></div>
-              <h3 class="product-title"></h3>
+              <div class="product-flair-row" style="display:flex; align-items:center; gap:6px;">
+                <div class="product-flair" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; display: none; color: #ffffff; padding: 2px 6px; border-radius: 3px; line-height: 1; flex-shrink: 0;"></div>
+                <h3 class="product-title"></h3>
+              </div>
               <div class="product-type" style="font-family: Georgia, serif; font-style: italic; font-size: 9px; opacity: 0.6; color: #555; text-transform: none; letter-spacing: 0.5px; margin-top: 1px; margin-bottom: 6px; display: none;"></div>
               <div class="product-inspired"></div>
               <div class="product-retail-price" style="display:none;"></div>
@@ -331,7 +334,16 @@
 
         const flairEl = item.querySelector('.product-flair');
         if (flairEl) {
-          flairEl.style.display = 'none';
+          if (p.flairText && p.flairColor) {
+            flairEl.textContent = p.flairText;
+            flairEl.style.display = 'inline-flex';
+            flairEl.style.background = p.flairColor;
+            flairEl.style.color = '#ffffff';
+            flairEl.style.opacity = '1';
+            flairEl.style.width = 'fit-content';
+          } else {
+            flairEl.style.display = 'none';
+          }
         }
 
         const titleEl = item.querySelector('.product-title');
@@ -611,12 +623,14 @@
             nameShort: data.nameShort || "",
             name: window.escapeHTML(data.name),
             price: Number(data.price),
-            retailPrice: data.retailPrice !== undefined && data.retailPrice !== null ? Number(data.retailPrice) : null,
+            retailPrice: (data.retailPrice !== undefined && data.retailPrice !== null && String(data.retailPrice).trim() !== "") ? data.retailPrice : null,
             stock: Number(data.stock),
             image: data.image,
             image_thumb: data.image_thumb || "",
             status: data.status,
             flair: data.flair || "",
+            flairText: data.flairText || "",
+            flairColor: data.flairColor || "",
             invisibleFlair: data.invisibleFlair || "",
             customisations: (data.customisations && Array.isArray(data.customisations)) ? data.customisations : [],
             isBundle: !!data.isBundle,
@@ -639,6 +653,8 @@
               current.image_thumb !== p.image_thumb ||
               current.status !== p.status ||
               current.flair !== p.flair ||
+              current.flairText !== p.flairText ||
+              current.flairColor !== p.flairColor ||
               current.invisibleFlair !== p.invisibleFlair ||
               JSON.stringify(current.customisations || []) !== JSON.stringify(p.customisations || []) ||
               current.isBundle !== p.isBundle ||

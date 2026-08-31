@@ -356,13 +356,15 @@ async function loadCatalog() {
                           nameShort: data.nameShort || "",
                           name: data.name,
                           price: Number(data.price),
-                          retailPrice: data.retailPrice !== undefined ? Number(data.retailPrice) : null,
+                          retailPrice: (data.retailPrice !== undefined && data.retailPrice !== null && String(data.retailPrice).trim() !== "") ? data.retailPrice : null,
                           stock: Number(data.stock),
                           status: data.status,
                           image: data.image,
                           image_thumb: data.image_thumb || "",
                           description: data.description,
                           flair: data.flair || "",
+                          flairText: data.flairText || "",
+                          flairColor: data.flairColor || "",
                           invisibleFlair: data.invisibleFlair || "",
                           standardBottleImg: data.standardBottleImg || "",
                           femininePremiumBottleImg: data.femininePremiumBottleImg || "",
@@ -1063,6 +1065,9 @@ window.PERFUME_NOTE_LIBRARY = [
       document.getElementById("editProdStatus").value = product.status;
       document.getElementById("editProdFlair").value = product.flair || "";
       document.getElementById("editProdInvisibleFlair").value = product.invisibleFlair || "";
+      if (document.getElementById("editProdFlairText")) document.getElementById("editProdFlairText").value = product.flairText || "";
+      if (document.getElementById("editProdFlairColor")) document.getElementById("editProdFlairColor").value = (product.flairColor && /^#[0-9a-fA-F]{6}$/.test(product.flairColor)) ? product.flairColor : "#b45309";
+      if (document.getElementById("editProdFlairColorText")) document.getElementById("editProdFlairColorText").value = product.flairColor || "#b45309";
       document.getElementById("editProdStandardBottleImg").value = sanitizeImageUrl(product.standardBottleImg);
       document.getElementById("editProdMasculinePremiumBottleImg").value = sanitizeImageUrl(product.masculinePremiumBottleImg);
       document.getElementById("editProdFemininePremiumBottleImg").value = sanitizeImageUrl(product.femininePremiumBottleImg);
@@ -1155,6 +1160,8 @@ window.PERFUME_NOTE_LIBRARY = [
       const status = document.getElementById("editProdStatus").value;
       const flair = document.getElementById("editProdFlair").value;
       const invisibleFlair = document.getElementById("editProdInvisibleFlair").value;
+      const flairText = document.getElementById("editProdFlairText") ? document.getElementById("editProdFlairText").value.trim() : "";
+      const flairColor = document.getElementById("editProdFlairColorText") ? document.getElementById("editProdFlairColorText").value.trim() : "";
       const standardBottleImg = sanitizeImageUrl(document.getElementById("editProdStandardBottleImg").value);
       const masculinePremiumBottleImg = sanitizeImageUrl(document.getElementById("editProdMasculinePremiumBottleImg").value);
       const femininePremiumBottleImg = sanitizeImageUrl(document.getElementById("editProdFemininePremiumBottleImg").value);
@@ -1270,6 +1277,8 @@ window.PERFUME_NOTE_LIBRARY = [
           description: description,
           status: status,
           flair: flair,
+          flairText: flairText,
+          flairColor: flairColor,
           invisibleFlair: invisibleFlair,
           standardBottleImg: standardBottleImg,
           masculinePremiumBottleImg: masculinePremiumBottleImg,
@@ -1330,6 +1339,8 @@ window.PERFUME_NOTE_LIBRARY = [
                       description: description,
                       status: status,
                       flair: flair,
+                      flairText: flairText,
+                      flairColor: flairColor,
                       invisibleFlair: invisibleFlair,
                       standardBottleImg: standardBottleImg,
                       masculinePremiumBottleImg: masculinePremiumBottleImg,
@@ -1379,6 +1390,8 @@ window.PERFUME_NOTE_LIBRARY = [
                       description: description,
                       status: status,
                       flair: flair,
+                      flairText: flairText,
+                      flairColor: flairColor,
                       invisibleFlair: invisibleFlair,
                       standardBottleImg: standardBottleImg,
                       masculinePremiumBottleImg: masculinePremiumBottleImg,
@@ -1448,6 +1461,8 @@ window.PERFUME_NOTE_LIBRARY = [
       const status = document.getElementById("prodStatus") ? document.getElementById("prodStatus").value : "active";
       const flair = document.getElementById("prodFlair") ? document.getElementById("prodFlair").value : "";
       const invisibleFlair = document.getElementById("prodInvisibleFlair") ? document.getElementById("prodInvisibleFlair").value : "";
+      const flairText = document.getElementById("prodFlairText") ? document.getElementById("prodFlairText").value.trim() : "";
+      const flairColor = document.getElementById("prodFlairColorText") ? document.getElementById("prodFlairColorText").value.trim() : "";
       const standardBottleImg = document.getElementById("prodStandardBottleImg") ? document.getElementById("prodStandardBottleImg").value.trim() : "";
       const masculinePremiumBottleImg = document.getElementById("prodMasculinePremiumBottleImg") ? document.getElementById("prodMasculinePremiumBottleImg").value.trim() : "";
       const femininePremiumBottleImg = document.getElementById("prodFemininePremiumBottleImg") ? document.getElementById("prodFemininePremiumBottleImg").value.trim() : "";
@@ -1522,6 +1537,8 @@ window.PERFUME_NOTE_LIBRARY = [
           description: description,
           status: status,
           flair: flair,
+          flairText: flairText,
+          flairColor: flairColor,
           invisibleFlair: invisibleFlair,
           standardBottleImg: standardBottleImg,
           masculinePremiumBottleImg: masculinePremiumBottleImg,
@@ -1568,6 +1585,8 @@ window.PERFUME_NOTE_LIBRARY = [
                       description: description,
                       status: status,
                       flair: flair,
+                      flairText: flairText,
+                      flairColor: flairColor,
                       invisibleFlair: invisibleFlair,
                       standardBottleImg: standardBottleImg,
                       masculinePremiumBottleImg: masculinePremiumBottleImg,
@@ -1614,6 +1633,8 @@ window.PERFUME_NOTE_LIBRARY = [
                       description: description,
                       status: status,
                       flair: flair,
+                      flairText: flairText,
+                      flairColor: flairColor,
                       invisibleFlair: invisibleFlair,
                       standardBottleImg: standardBottleImg,
                       masculinePremiumBottleImg: masculinePremiumBottleImg,

@@ -424,14 +424,31 @@ window.formatPrice = function(value) {
 };
 const formatPrice = window.formatPrice;
 
-// Retail price can be a number (2200) or free text ("R2200+", "+"). Helpers handle both.
+// Retail price can be a number (2200) or free text ("3500+", "R2200+", "+"). Helpers handle both.
+window.normalizeRetailPrice = function(value) {
+    if (value === undefined || value === null) return null;
+    const s = String(value).trim();
+    if (s === "") return null;
+    return s;
+};
 window.formatRetailLabel = function(value) {
     if (value === undefined || value === null || value === "") return "";
-    const num = Number(value);
+    const raw = String(value).trim();
+    const hasPlus = raw.indexOf("+") > -1;
+    const num = Number(raw);
     if (!isNaN(num) && num > 0) {
-        return "R" + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return "R" + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (hasPlus ? "+" : "");
     }
-    return String(value).trim();
+    // Free-text that contains digits, e.g. "3500+", "R3500+"
+    const digits = String(raw).replace(/[^0-9]/g, "");
+    if (digits) {
+        const n = Number(digits);
+        if (!isNaN(n) && n > 0) {
+            const formatted = Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            return "R" + formatted + (hasPlus ? "+" : "");
+        }
+    }
+    return raw;
 };
 window.getRetailNumber = function(value) {
     if (value === undefined || value === null || value === "") return null;

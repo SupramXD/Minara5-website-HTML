@@ -225,7 +225,7 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
 
   try {
     if (action === "saveProduct") {
-      const {id, nameShort, name, price, retailPrice, stock, image, image_thumb, galleryImages, description, status, flair, invisibleFlair, standardBottleImg, masculinePremiumBottleImg, femininePremiumBottleImg, customisations, sizes, isBundle, bundleSize, sortOrder, scentProfile} = payload;
+      const {id, nameShort, name, price, retailPrice, stock, image, image_thumb, galleryImages, description, status, flair, flairText, flairColor, invisibleFlair, standardBottleImg, masculinePremiumBottleImg, femininePremiumBottleImg, customisations, sizes, isBundle, bundleSize, sortOrder, scentProfile} = payload;
 
       const {sha: jsonSha, content: jsonContent} = await getFileShaAndContent("products.json", token);
       let productsList = [];
@@ -352,6 +352,8 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         description: description || "",
         status: status || "Active",
         flair: flair || "",
+        flairText: flairText || "",
+        flairColor: flairColor || "",
         invisibleFlair: invisibleFlair || "",
         standardBottleImg: standardBottleImgPath || "",
         masculinePremiumBottleImg: masculinePremiumBottleImgPath || "",
@@ -410,6 +412,8 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
               description: description || "",
               status: status || "Active",
               flair: flair || "",
+              flairText: flairText || "",
+              flairColor: flairColor || "",
               invisibleFlair: invisibleFlair || "",
               standardBottleImg: standardBottleImg || "",
               masculinePremiumBottleImg: masculinePremiumBottleImg || "",

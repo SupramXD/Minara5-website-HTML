@@ -478,14 +478,15 @@
             position: absolute;
             bottom: 0;
             left: 0;
-            right: 0;
+            width: fit-content;
+            max-width: 100%;
             background: rgba(180, 83, 9, 0.95);
             color: #ffffff;
             font-family: 'Gotham Narrow Bold', sans-serif;
             font-size: 6.5px;
             font-weight: bold;
-            text-align: center;
-            padding: 2px 0;
+            text-align: left;
+            padding: 2px 6px 2px 4px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             z-index: 2;
@@ -553,6 +554,31 @@
             letter-spacing: 0.5px;
             display: inline;
             margin-left: 4px;
+        }
+
+        .product-flair-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .product-flair-row .product-title {
+            margin-bottom: 0;
+        }
+
+        .product-flair {
+            background: #b45309;
+            color: #ffffff;
+            font-family: 'Gotham Narrow Bold', sans-serif;
+            font-size: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            line-height: 1;
+            display: none;
+            flex-shrink: 0;
         }
 
 

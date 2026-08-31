@@ -726,10 +726,10 @@
           if (discountBadge) discountBadge.style.display = 'none';
         }
 
-        if (retailPriceRow && p.retailPrice && !p.isBundle) {
+        if (retailPriceRow && p.retailPrice) {
           const retailPriceValEl = retailPriceRow.querySelector('.product-retail-price');
           if (retailPriceValEl) {
-            retailPriceValEl.textContent = `Designer Equivalent: ${window.formatRetailLabel ? window.formatRetailLabel(p.retailPrice) : ('R' + formatRetailPrice(p.retailPrice))}`;
+            retailPriceValEl.textContent = `${p.isBundle ? 'Bundle Value' : 'Designer Equivalent'}: ${window.formatRetailLabel ? window.formatRetailLabel(p.retailPrice) : ('R' + formatRetailPrice(p.retailPrice))}`;
           }
           retailPriceRow.style.display = 'flex';
 
@@ -1106,7 +1106,7 @@
                   name: d.name,
                   nameShort: d.nameShort || "",
                   price: Number(d.price),
-                  retailPrice: d.retailPrice !== undefined && d.retailPrice !== null ? Number(d.retailPrice) : null,
+                  retailPrice: (d.retailPrice !== undefined && d.retailPrice !== null && String(d.retailPrice).trim() !== "") ? d.retailPrice : null,
                   stock: Number(d.stock),
                   image: d.image,
                   image_thumb: d.image_thumb || "",
@@ -1144,7 +1144,7 @@
             nameShort: dataInJson.nameShort || "",
             name: dataInJson.name,
             price: Number(dataInJson.price),
-            retailPrice: dataInJson.retailPrice !== undefined && dataInJson.retailPrice !== null ? Number(dataInJson.retailPrice) : null,
+            retailPrice: (dataInJson.retailPrice !== undefined && dataInJson.retailPrice !== null && String(dataInJson.retailPrice).trim() !== "") ? dataInJson.retailPrice : null,
             stock: Number(dataInJson.stock),
             image: dataInJson.image,
             image_thumb: dataInJson.image_thumb || "",

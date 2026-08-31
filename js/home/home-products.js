@@ -91,6 +91,8 @@
               image_thumb: p.image_thumb || "",
               status: p.status,
               flair: p.flair || "",
+              flairText: p.flairText || "",
+              flairColor: p.flairColor || "",
               customisations: (p.customisations && Array.isArray(p.customisations)) ? p.customisations : [],
               isBundle: !!p.isBundle,
               bundleSize: Number(p.bundleSize) || 0,
@@ -113,6 +115,8 @@
                 image_thumb: p.image_thumb || "",
                 status: p.status,
                 flair: p.flair || "",
+                flairText: p.flairText || "",
+                flairColor: p.flairColor || "",
                 isBundle: !!p.isBundle,
                 bundleSize: Number(p.bundleSize) || 0,
                 sortOrder: p.sortOrder !== undefined && p.sortOrder !== null ? Number(p.sortOrder) : null,
@@ -299,6 +303,7 @@
         let typeText = p.isBundle ? 'The Duet Bundle' : 'Extrait de Parfum';
         // (retailVal computed above; retail anchor shown inline for singles / Value for bundles)
         const retailHtml = (retailVal && !isInspired) ? `<span class="hp-retail-price">${p.isBundle ? 'Value ' : ''}${retailLabelText}</span>` : '';
+        const flairHtml = (p.flairText && p.flairColor) ? `<span class="hp-flair" style="background:${p.flairColor}; color:#ffffff; font-family:'Gotham Narrow Bold', sans-serif; font-size:7px; font-weight:bold; text-transform:uppercase; letter-spacing:0.8px; padding:2px 6px; border-radius:3px; display:inline-flex; align-items:center; line-height:1; flex-shrink:0;">${window.escapeHTML(p.flairText)}</span>` : '';
         let priceHtml = '';
         if (!p.isBundle) {
           const salePrice = Math.max(0, p.price - 241);
@@ -328,7 +333,10 @@
             </a>
             <div class="hp-info">
               <a href="${p.url}" class="product-link-anchor-2" style="text-decoration:none; color:inherit; display:block;">
-                <h3 class="hp-title" style="font-size:12px; color:#111; font-family:'Gotham Narrow Bold', sans-serif; font-weight:700; display:block; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:2px;">${titleText}</h3>
+                <div class="hp-title-row" style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
+                  ${flairHtml}
+                  <h3 class="hp-title" style="font-size:12px; color:#111; font-family:'Gotham Narrow Bold', sans-serif; font-weight:700; display:block; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0;">${titleText}</h3>
+                </div>
                 <div class="hp-type" style="font-family: Georgia, serif; font-style: italic; font-size: 9px; opacity: 0.6; color: #555; letter-spacing: 0.5px; margin-top: 1px; margin-bottom: 6px; display: block;">${typeText}</div>
                 <div class="hp-inspired">${inspiredHtml}</div>
                 ${retailHtml}
@@ -455,12 +463,14 @@
             nameShort: data.nameShort || "",
             name: window.escapeHTML(data.name),
             price: Number(data.price),
-            retailPrice: data.retailPrice !== undefined && data.retailPrice !== null ? Number(data.retailPrice) : null,
+            retailPrice: (data.retailPrice !== undefined && data.retailPrice !== null && String(data.retailPrice).trim() !== "") ? data.retailPrice : null,
             stock: Number(data.stock),
             image: data.image,
             image_thumb: data.image_thumb || "",
             status: data.status,
             flair: data.flair || "",
+            flairText: data.flairText || "",
+            flairColor: data.flairColor || "",
             invisibleFlair: data.invisibleFlair || "",
             customisations: (data.customisations && Array.isArray(data.customisations)) ? data.customisations : [],
             isBundle: !!data.isBundle,
@@ -483,6 +493,8 @@
               current.image_thumb !== p.image_thumb ||
               current.status !== p.status ||
               current.flair !== p.flair ||
+              current.flairText !== p.flairText ||
+              current.flairColor !== p.flairColor ||
               current.invisibleFlair !== p.invisibleFlair ||
               JSON.stringify(current.customisations || []) !== JSON.stringify(p.customisations || []) ||
               current.isBundle !== p.isBundle ||
@@ -500,6 +512,8 @@
                 image_thumb: p.image_thumb,
                 status: p.status,
                 flair: p.flair,
+                flairText: p.flairText,
+                flairColor: p.flairColor,
                 invisibleFlair: p.invisibleFlair,
                 customisations: p.customisations,
                 isBundle: p.isBundle,
@@ -557,6 +571,8 @@
                   image_thumb: p.image_thumb || "",
                   status: p.status,
                   flair: p.flair || "",
+                  flairText: p.flairText || "",
+                  flairColor: p.flairColor || "",
                   invisibleFlair: p.invisibleFlair || "",
                   isBundle: !!p.isBundle,
                   bundleSize: Number(p.bundleSize) || 0,
