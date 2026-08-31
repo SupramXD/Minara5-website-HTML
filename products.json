@@ -70,7 +70,7 @@
     "nameShort": "The Discovery Duet",
     "name": "The Discovery Duet",
     "price": 749,
-    "retailPrice": null,
+    "retailPrice": "3500+",
     "stock": 9,
     "image": "images/products/any-2-50ml-fragrances.webp",
     "galleryImages": [
@@ -80,6 +80,8 @@
     "description": "2 fragrance bundle",
     "status": "Active",
     "flair": "",
+    "flairText": "bundle",
+    "flairColor": "#84bb02",
     "invisibleFlair": "",
     "standardBottleImg": "",
     "masculinePremiumBottleImg": "",
