@@ -9,7 +9,7 @@
 
 ## Build / Deploy
 - Deploy: `firebase deploy` (hosting + functions). Rules: `firestore.rules`; config: `firebase.json`.
-- **`.github/workflows/deploy.yml`**: on push to `main`, runs `firebase deploy --only hosting --project minara5 --token "${{ secrets.FIREBASE_TOKEN }}"`. This is what auto-publishes admin edits (product / Site Texts) that sync to GitHub via `syncToGithub`. Requires the `FIREBASE_TOKEN` secret configured in the repo; until then (or as a fallback) run `firebase deploy --only hosting` manually.
+- **`.github/workflows/deploy.yml`**: on push to `main`, runs `firebase deploy --only hosting --project minara5 --token "${{ secrets.FIREBASE_TOKEN }}"`. This is what auto-publishes admin edits (product / Site Texts) that sync to GitHub via `syncToGithub`. Missing/invalid token → the "Deploy hosting" step fails on auth. **Setup:** run `firebase login:ci`, copy the token, add it as a repo Actions secret named `FIREBASE_TOKEN`, then re-run the failed workflow. Until then (or as a fallback) run `firebase deploy --only hosting` manually.
 - Local: open HTML direct or `firebase serve`. Node is available (functions has package-lock).
 
 ## Data files (repo root)
