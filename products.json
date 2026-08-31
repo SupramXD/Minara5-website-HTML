@@ -4,7 +4,7 @@
     "nameShort": "Le male ambre",
     "name": "JPG LE MALE",
     "price": 495,
-    "retailPrice": 2200,
+    "retailPrice": "2200",
     "stock": 2,
     "image": "images/products/inspired-by-jpg-le-male.webp",
     "galleryImages": [
@@ -14,6 +14,8 @@
     "description": "undefined",
     "status": "Active",
     "flair": "Masculine",
+    "flairText": "",
+    "flairColor": "#b45309",
     "invisibleFlair": "",
     "standardBottleImg": "",
     "masculinePremiumBottleImg": "",
