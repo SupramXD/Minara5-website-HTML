@@ -9,6 +9,7 @@
 
 ## Build / Deploy
 - Deploy: `firebase deploy` (hosting + functions). Rules: `firestore.rules`; config: `firebase.json`.
+- **`.github/workflows/deploy.yml`**: on push to `main`, runs `firebase deploy --only hosting --project minara5 --token "${{ secrets.FIREBASE_TOKEN }}"`. This is what auto-publishes admin edits (product / Site Texts) that sync to GitHub via `syncToGithub`. Requires the `FIREBASE_TOKEN` secret configured in the repo; until then (or as a fallback) run `firebase deploy --only hosting` manually.
 - Local: open HTML direct or `firebase serve`. Node is available (functions has package-lock).
 
 ## Data files (repo root)
@@ -31,7 +32,7 @@
 ## Conventions
 - Price formatting: `formatPrice` (no commas), `formatRetailPrice` (commas, e.g. R2,200).
 - localStorage keys: `minara_products`, `minara_custom_text`, `minara_discount_5` ("active" = 5% off), `bundle_selections_pending`.
-- Card pattern: title -> type -> inspired (`INSPIRED BY` + name) -> price block -> button. For inspired products the retail anchor renders INLINE to the right of the name (`.hp-retail-price`). This class is styled in BOTH `home.css` and `catalog.css`. Standard (non-bundle) bottles show a bundle sale in the price block: `R<p-241>` (`.sale-price`) crossed-out `R<p>` (`.original-price`).
+- Card pattern: title -> type (ONLY on the bundle: `The Duet Bundle`; singles render NO type line — `typeText` is `''`/hidden) -> inspired (`INSPIRED BY` + name) -> price block -> button. For inspired products the retail anchor renders INLINE to the right of the name (`.hp-retail-price`). This class is styled in BOTH `home.css` and `catalog.css`. Standard (non-bundle) bottles show a bundle sale in the price block: `R<p-241>` (`.sale-price`) crossed-out `R<p>` (`.original-price`).
 - Cards show `ONLY {X} LEFT` / `OUT OF STOCK` badge (`.se-card-badge`) when stock <= 2 (non-bundle).
 - **No "AWAITING REVEAL" placeholder boxes** anywhere: catalog + home grids are cleared and populated only with real (Active) products; the dynamic placeholder loops and the static placeholder cards in `catalog.html`/`index.html` are removed.
 
@@ -41,6 +42,7 @@
 - **Free-shipping threshold is R650 site-wide** (cart logic, checkout, homepage feature + footer text). `custom_text_settings.json`, `header.js`, `admin-settings.js` all use R650. In the cart, a standard bottle with qty > 1 (via the +1 stepper) shows a stacked price: the full-price line (R495) and a struck-through R495 → R254 discounted line (`js/core/cart.js` `displayPrice`). The product-box flair is right-aligned (`.hp-title-row`/`.product-flair-row` use `justify-content: space-between`) so it aligns with the add-to-bag / bundle button.
 - Retail price is free-text (admin can type "3500+"). `header.js` exposes `normalizeRetailPrice` (string-preserving), `formatRetailLabel` (numeric → "R2,200"; free-text with `+` → "R3,500+"), and `getRetailNumber` (strips non-digits). Load paths preserve retailPrice as a string (never `Number()`-coerced, which would turn "3500+" → NaN); `product-core.js` now also shows retail on bundles as "Bundle Value". Admin inputs are `type="text"`; `functions/index.js` stores retailPrice as-is.
 - Product-page stock badge is shown ONLY on the selector thumbnails (`product-customisation.js`); the big gallery image badge is disabled in `product-core.js`.
+- Mobile home carousel card width is `60%` (`home.css` `.home-product-card`); a flair pill renders ONLY when **both** `flairText` AND `flairColor` are set — the `flair` field alone is a hidden gender/gift filter, not a visible pill.
 - Admin "Site Texts" tab now has SEPARATE per-block publish buttons (Features, Trust Banner, Footer, Accordions, Returns). Each saves only its block via `persistCustomTextData()` (merges with existing `minara_custom_text` so it never clobbers the others) and syncs to Firestore + GitHub.
 - Admin tabs are role-gated; `admin-auth.js` invokes the per-tab loaders.
 
@@ -49,6 +51,7 @@
 - .firebase
 - .firebaserc
 - .git
+- .github
 - .gitignore
 - AGENTS.md
 - Gotham Narrow Black.otf
