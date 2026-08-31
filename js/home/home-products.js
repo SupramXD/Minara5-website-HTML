@@ -333,7 +333,7 @@
             </a>
             <div class="hp-info">
               <a href="${p.url}" class="product-link-anchor-2" style="text-decoration:none; color:inherit; display:block;">
-                <div class="hp-title-row" style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
+                <div class="hp-title-row" style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:2px;">
                   <h3 class="hp-title" style="font-size:12px; color:#111; font-family:'Gotham Narrow Bold', sans-serif; font-weight:700; display:block; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0;">${titleText}</h3>
                   ${flairHtml}
                 </div>

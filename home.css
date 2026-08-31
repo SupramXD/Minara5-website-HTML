@@ -1143,6 +1143,7 @@
     .hp-title-row {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 6px;
       margin-bottom: 2px;
     }

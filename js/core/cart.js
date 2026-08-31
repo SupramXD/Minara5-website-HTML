@@ -241,8 +241,8 @@
 
     const subtotalAfterBundle = Math.max(0, rawSubtotal - bundleDiscount);
 
-    // Free shipping threshold: Cart subtotal >= R645 -> FREE shipping, otherwise R85 flat fee
-    const shippingFee = (subtotalAfterBundle >= 645 || activeItems.length === 0) ? 0 : 85;
+    // Free shipping threshold: Cart subtotal >= R650 -> FREE shipping, otherwise R85 flat fee
+    const shippingFee = (subtotalAfterBundle >= 650 || activeItems.length === 0) ? 0 : 85;
     
     const hasNewsletterDiscount = localStorage.getItem("minara_discount_5") === "active";
     const newsletterDiscountAmount = hasNewsletterDiscount ? Math.round(subtotalAfterBundle * 0.05) : 0;
@@ -386,9 +386,15 @@
             const discountedUnits = Math.min(Math.max(0, units - fullUnitsInThisItem), discountedUnitsRemaining);
             discountedUnitsRemaining -= discountedUnits;
             unitsSeen += units;
-            if (discountedUnits > 0) {
-            displayPrice = `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${getFormattedPrice(itemPrice)}</span><span style="color: #1106e8; font-weight: bold;">R${getFormattedPrice(Math.max(0, itemPrice - 241))}</span>`;
+            const salePrice = Math.max(0, itemPrice - 241);
+            const priceBlocks = [];
+            if (fullUnitsInThisItem > 0) {
+              priceBlocks.push(`<div style="white-space:nowrap;">${fullUnitsInThisItem > 1 ? fullUnitsInThisItem + ' × ' : ''}R${getFormattedPrice(itemPrice)}</div>`);
             }
+            if (discountedUnits > 0) {
+              priceBlocks.push(`<div style="white-space:nowrap;">${discountedUnits > 1 ? discountedUnits + ' × ' : ''}<span style="text-decoration: line-through; opacity: 0.5; margin-right: 6px;">R${getFormattedPrice(itemPrice)}</span><span style="color: #1106e8; font-weight: bold;">R${getFormattedPrice(salePrice)}</span></div>`);
+            }
+            if (priceBlocks.length > 0) displayPrice = priceBlocks.join('');
           } else if (hasDiscount) {
             displayPrice = `<span style="text-decoration: line-through; opacity: 0.5; margin-right: 8px;">R${getFormattedPrice(itemPrice)}</span><span style="color: #1106e8; font-weight: bold;">R${getFormattedPrice(Math.round(itemPrice * 0.95))}</span>`;
           }
@@ -478,9 +484,9 @@
     // FREE SHIPPING PROGRESS + SMART 2-BOTTLE NUDGE (computed, minimal)
     if (hasItems) {
       const subtotal = pricing.subtotalAfterBundle;
-      const diff = Math.max(0, 645 - subtotal);
-      const pct = Math.max(0, Math.min(100, Math.round((subtotal / 645) * 100)));
-      const free = subtotal >= 645;
+      const diff = Math.max(0, 650 - subtotal);
+      const pct = Math.max(0, Math.min(100, Math.round((subtotal / 650) * 100)));
+      const free = subtotal >= 650;
       const statusText = free
         ? 'FREE SHIPPING UNLOCKED'
         : `R${getFormattedPrice(diff)} FROM FREE SHIPPING`;
@@ -496,7 +502,7 @@
         const bottlePrice = Math.max(0, repPrice - saving);
         // else if (projCount === 3 && projSub >= 1300) saving = 486;
         // else if (projCount > 3 && projSub >= 1400) saving = Math.floor(projCount / 2) * 241;
-        if (saving > 0 && projSub >= 645) {
+        if (saving > 0 && projSub >= 650) {
           nudge = `
           <a href="catalog.html?topup=1" style="margin-top:12px; display:flex; align-items:center; justify-content:center; gap:7px; padding-top:14px; padding-bottom:4px; border-top:1px solid #ececec; font-family:'Gotham Narrow Bold', sans-serif; font-size:10px; letter-spacing:0.9px; text-transform:uppercase; color:#000; text-decoration:none;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1106e8" stroke-width="2" style="flex-shrink:0;"><path d="M12 5v14M5 12h14"/></svg>

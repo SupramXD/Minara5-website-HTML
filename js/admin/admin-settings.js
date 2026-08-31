@@ -1092,8 +1092,8 @@
         description: "We go beyond 'inspired' scents by reverse-engineering the exact molecular blueprints of exclusive designer fragrances. Experience a high-fidelity, indistinguishable profile without the premium markup."
       },
       {
-        title: "FREE DELIVERY",
-        description: "Enjoy accelerated, free shipping on all orders nationwide with no minimum spend required. Delivered, in 2-3 days, straight to your doorstep."
+        title: "FREE DELIVERY OVER R650",
+        description: "Enjoy free delivery on all orders over R650 nationwide (flat R85 fee applies to smaller orders). Delivered, in 2-3 days, straight to your doorstep."
       },
       {
         title: "SIDE EFFECT:COMPLIMENTS",
@@ -1121,7 +1121,7 @@
           description: "Soon to be selling on Takealot and Amazon. Studio Extrait has 100% premium quality formulation matching original scents. Safe and secure checkout options using PayFast, Google and Apple Pay."
         }
       ],
-      footer_description: "Designer-inspired extraits, crafted at 20%+ concentration to match 95% of the iconic scents you love — for a fraction of the price. Macerated to perfection, with free delivery across South Africa on orders over R645. Find your signature scent."
+      footer_description: "Designer-inspired extraits, crafted at 20%+ concentration to match 95% of the iconic scents you love — for a fraction of the price. Macerated to perfection, with free delivery across South Africa on orders over R650. Find your signature scent."
     };
 
     try {

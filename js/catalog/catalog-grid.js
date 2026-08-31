@@ -312,7 +312,7 @@
               <img class="product-img" loading="lazy" src="" alt="">
             </div>
             <div class="product-info" style="display: flex; flex-direction: column; flex-grow: 1;">
-              <div class="product-flair-row" style="display:flex; align-items:center; gap:6px;">
+              <div class="product-flair-row" style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
                 <h3 class="product-title"></h3>
                 <div class="product-flair" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; display: none; padding: 3px 9px; border-radius: 999px; line-height: 1; flex-shrink: 0;"></div>
               </div>
