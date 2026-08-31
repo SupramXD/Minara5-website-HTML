@@ -563,28 +563,6 @@
 
         grid.appendChild(item);
       });
-
-      // Placeholders
-      const placeholdersNeeded = Math.max(0, 5 - activeProducts.length);
-      for (let i = 0; i < placeholdersNeeded; i++) {
-        const item = document.createElement('div');
-        item.className = "catalog-item";
-        item.innerHTML = `
-          <div class="product-link" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; flex-grow:1;">
-            <div class="product-box"></div>
-            <div class="product-info" style="display: flex; flex-direction: column; flex-grow: 1;">
-              <h3 class="product-title placeholder">AWAITING REVEAL</h3>
-            </div>
-          </div>
-          <div class="product-price-action-row">
-            <div class="product-price-block placeholder">
-              <span class="sale-price">R0</span>
-            </div>
-            <button class="add-to-cart-btn placeholder-btn" disabled>COMING SOON</button>
-          </div>
-        `;
-        grid.appendChild(item);
-      }
     };
 
     window.renderCatalogGrid = renderGrid;

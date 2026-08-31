@@ -354,19 +354,6 @@
         `;
       };
 
-      const buildPlaceholderHtml = () => `
-        <div class="home-product-card">
-          <div class="hp-box"></div>
-          <div class="hp-info">
-            <h3 class="hp-title placeholder">AWAITING REVEAL</h3>
-            <div class="hp-price-action-row">
-              <div class="hp-price-block placeholder"><span class="sale-price">R0</span></div>
-              <button class="add-to-cart" disabled>COMING SOON</button>
-            </div>
-          </div>
-        </div>
-      `;
-
       const viewMoreCardHtml = `
         <div class="home-product-card mobile-view-more-card">
           <a href="catalog.html" style="text-decoration:none; color:inherit; display:block;">
@@ -381,22 +368,14 @@
         </div>
       `;
 
-      // Generate Top Grid HTML string
+      // Generate Top Grid HTML string (no "awaiting reveal" placeholders)
       let topHtml = activeProducts.map(buildCardHtml).join('');
-      const placeholdersNeeded = Math.max(0, 5 - activeProducts.length);
-      for (let i = 0; i < placeholdersNeeded; i++) {
-        topHtml += buildPlaceholderHtml();
-      }
       if (isMobile) topHtml += viewMoreCardHtml;
       topGridHtml = topHtml;
 
       // Generate Second Grid HTML string
       const secondProducts = activeProducts.length > 3 ? [...activeProducts].reverse() : activeProducts;
       let secondHtml = secondProducts.map(buildCardHtml).join('');
-      const placeholdersNeededSec = Math.max(0, 5 - secondProducts.length);
-      for (let i = 0; i < placeholdersNeededSec; i++) {
-        secondHtml += buildPlaceholderHtml();
-      }
       if (isMobile) secondHtml += viewMoreCardHtml;
       secondGridHtml = secondHtml;
 
