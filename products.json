@@ -110,7 +110,7 @@
     "nameShort": "Aventus Bleu",
     "name": "Inspired by Creed Aventus",
     "price": 495,
-    "retailPrice": 5550,
+    "retailPrice": "5550",
     "stock": 3,
     "image": "images/products/inspired-by-creed-aventus.webp",
     "galleryImages": [
@@ -120,6 +120,8 @@
     "description": "undefined",
     "status": "Active",
     "flair": "Masculine",
+    "flairText": "Fruity",
+    "flairColor": "#1A1A1A",
     "invisibleFlair": "",
     "standardBottleImg": "",
     "masculinePremiumBottleImg": "",
