@@ -106,9 +106,12 @@
     "nameShort": "Aventus Bleu",
     "name": "Inspired by Creed Aventus",
     "price": 495,
-    "retailPrice": 5600,
+    "retailPrice": 5550,
     "stock": 3,
     "image": "images/products/inspired-by-creed-aventus.webp",
+    "galleryImages": [
+      "images/products/inspired-by-creed-aventus.webp"
+    ],
     "image_thumb": "images/products/inspired-by-creed-aventus_thumb.webp",
     "description": "undefined",
     "status": "Active",
@@ -125,25 +128,12 @@
     "bundleSize": 0,
     "sortOrder": 3,
     "scentProfile": {
-      "keyNotes": [
-        {
-          "name": "Pineapple",
-          "icon": "Perfume Note Icons/Pineapple.webp"
-        },
-        {
-          "name": "Bergamot",
-          "icon": "Perfume Note Icons/Bergamot.webp"
-        },
-        {
-          "name": "Oakmoss",
-          "icon": "Perfume Note Icons/Oakmoss.webp"
-        }
-      ],
-      "topNotes": "Pineapple, Bergamot, Blackcurrant, Apple",
+      "keyNotes": [],
+      "topNotes": "",
       "topNotesDesc": "The first notes you smell",
-      "middleNotes": "Birch, Patchouli, Moroccan Jasmine, Rose",
+      "middleNotes": "",
       "middleNotesDesc": "The heart of the perfume",
-      "baseNotes": "Musk, Oakmoss, Ambergris, Vanilla",
+      "baseNotes": "",
       "baseNotesDesc": "The notes that linger all day"
     }
   },
