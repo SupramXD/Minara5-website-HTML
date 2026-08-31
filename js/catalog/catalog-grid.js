@@ -313,8 +313,8 @@
             </div>
             <div class="product-info" style="display: flex; flex-direction: column; flex-grow: 1;">
               <div class="product-flair-row" style="display:flex; align-items:center; gap:6px;">
-                <div class="product-flair" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; display: none; color: #ffffff; padding: 2px 6px; border-radius: 3px; line-height: 1; flex-shrink: 0;"></div>
                 <h3 class="product-title"></h3>
+                <div class="product-flair" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; display: none; padding: 3px 9px; border-radius: 999px; line-height: 1; flex-shrink: 0;"></div>
               </div>
               <div class="product-type" style="font-family: Georgia, serif; font-style: italic; font-size: 9px; opacity: 0.6; color: #555; text-transform: none; letter-spacing: 0.5px; margin-top: 1px; margin-bottom: 6px; display: none;"></div>
               <div class="product-inspired"></div>
@@ -337,8 +337,8 @@
           if (p.flairText && p.flairColor) {
             flairEl.textContent = p.flairText;
             flairEl.style.display = 'inline-flex';
-            flairEl.style.background = p.flairColor;
-            flairEl.style.color = '#ffffff';
+            flairEl.style.background = 'color-mix(in srgb, ' + p.flairColor + ' 18%, transparent)';
+            flairEl.style.color = p.flairColor;
             flairEl.style.opacity = '1';
             flairEl.style.width = 'fit-content';
           } else {

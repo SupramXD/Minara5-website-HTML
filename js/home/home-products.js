@@ -303,7 +303,7 @@
         let typeText = p.isBundle ? 'The Duet Bundle' : 'Extrait de Parfum';
         // (retailVal computed above; retail anchor shown inline for singles / Value for bundles)
         const retailHtml = (retailVal && !isInspired) ? `<span class="hp-retail-price">${p.isBundle ? 'Value ' : ''}${retailLabelText}</span>` : '';
-        const flairHtml = (p.flairText && p.flairColor) ? `<span class="hp-flair" style="background:${p.flairColor}; color:#ffffff; font-family:'Gotham Narrow Bold', sans-serif; font-size:7px; font-weight:bold; text-transform:uppercase; letter-spacing:0.8px; padding:2px 6px; border-radius:3px; display:inline-flex; align-items:center; line-height:1; flex-shrink:0;">${window.escapeHTML(p.flairText)}</span>` : '';
+        const flairHtml = (p.flairText && p.flairColor) ? `<span class="hp-flair" style="background:color-mix(in srgb, ${p.flairColor} 18%, transparent); color:${p.flairColor}; font-family:'Gotham Narrow Bold', sans-serif; font-size:8px; font-weight:bold; text-transform:uppercase; letter-spacing:0.8px; padding:3px 9px; border-radius:999px; display:inline-flex; align-items:center; line-height:1; flex-shrink:0;">${window.escapeHTML(p.flairText)}</span>` : '';
         let priceHtml = '';
         if (!p.isBundle) {
           const salePrice = Math.max(0, p.price - 241);
@@ -334,8 +334,8 @@
             <div class="hp-info">
               <a href="${p.url}" class="product-link-anchor-2" style="text-decoration:none; color:inherit; display:block;">
                 <div class="hp-title-row" style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
-                  ${flairHtml}
                   <h3 class="hp-title" style="font-size:12px; color:#111; font-family:'Gotham Narrow Bold', sans-serif; font-weight:700; display:block; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0;">${titleText}</h3>
+                  ${flairHtml}
                 </div>
                 <div class="hp-type" style="font-family: Georgia, serif; font-style: italic; font-size: 9px; opacity: 0.6; color: #555; letter-spacing: 0.5px; margin-top: 1px; margin-bottom: 6px; display: block;">${typeText}</div>
                 <div class="hp-inspired">${inspiredHtml}</div>

@@ -1152,15 +1152,15 @@
     }
 
     .hp-flair {
-      background: #b45309;
-      color: #ffffff;
+      background: color-mix(in srgb, #b45309 18%, transparent);
+      color: #b45309;
       font-family: 'Gotham Narrow Bold', sans-serif;
-      font-size: 7px;
+      font-size: 8px;
       font-weight: bold;
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      padding: 2px 6px;
-      border-radius: 3px;
+      padding: 3px 9px;
+      border-radius: 999px;
       line-height: 1;
       display: inline-flex;
       align-items: center;
