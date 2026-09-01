@@ -1027,7 +1027,7 @@
 
     @media (max-width: 900px) {
       .second-products-logo-wrap {
-        display: none !important;
+        display: flex;
       }
     }
 
@@ -1054,16 +1054,17 @@
     .se-card-badge {
       position: absolute;
       bottom: 0;
+      left: 0;
       right: 0;
-      width: fit-content;
+      width: 100%;
       max-width: 100%;
       background: rgba(180, 83, 9, 0.95);
       color: #ffffff;
       font-family: 'Gotham Narrow Bold', sans-serif;
       font-size: 6.5px;
       font-weight: bold;
-      text-align: right;
-      padding: 2px 4px 2px 6px;
+      text-align: center;
+      padding: 3px 0;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       z-index: 2;
@@ -1106,7 +1107,7 @@
       font-family: Helvetica, Arial, sans-serif;
       font-size: 11px;
       color: #6B7280;
-      margin-top: 4px;
+      margin-top: 6px;
       margin-bottom: 6px;
       line-height: 1.4;
     }
@@ -1577,7 +1578,7 @@
 
       .hp-box {
         width: 100%;
-        aspect-ratio: 1 / 1;
+        aspect-ratio: 4 / 5;
         max-width: none;
         margin: 0;
         border-radius: 0;
@@ -1593,7 +1594,7 @@
 
       .hp-box:empty {
         height: auto;
-        aspect-ratio: 1 / 1;
+        aspect-ratio: 4 / 5;
       }
 
       .hp-info {
