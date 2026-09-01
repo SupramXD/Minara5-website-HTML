@@ -655,7 +655,7 @@
     .slideout a {
       display: block;
       font-family: 'Gotham Narrow Book', sans-serif;
-      font-size: 10.5px;
+      font-size: 14px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.3em;
@@ -1566,9 +1566,9 @@
       }
 
       .home-product-card {
-        flex: 0 0 60%;
-        width: 60%;
-        min-width: 60%;
+        flex: 0 0 50%;
+        width: 50%;
+        min-width: 50%;
         scroll-snap-align: start;
         scroll-margin-left: 20px;
         padding: 0;
@@ -2249,7 +2249,7 @@
     @media (min-width: 901px) {
       header {
         height: 54px;
-        align-items: center;
+        align-items: flex-start;
       }
       .hero {
         margin-top: 54px;
