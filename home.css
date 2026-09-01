@@ -1107,7 +1107,7 @@
       font-family: Helvetica, Arial, sans-serif;
       font-size: 11px;
       color: #6B7280;
-      margin-top: 6px;
+      margin-top: 9px;
       margin-bottom: 6px;
       line-height: 1.4;
     }
@@ -1116,7 +1116,7 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .hp-stars {
@@ -1190,9 +1190,9 @@
     .hp-price-action-row {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 8px;
       width: 100%;
-      margin-top: auto;
+      margin-top: 4px;
     }
 
     .hp-price-block {
@@ -1509,7 +1509,7 @@
         justify-content: space-between;
         align-items: center;
         width: 100%;
-        margin-top: auto;
+        margin-top: 4px;
         gap: 8px;
       }
 
@@ -1554,7 +1554,7 @@
         display: flex;
         overflow-x: auto;
         scroll-snap-type: x mandatory;
-        gap: 16px;
+        gap: 12px;
         padding-left: 20px;
         padding-right: 20px;
         padding-bottom: 15px;
@@ -1566,9 +1566,9 @@
       }
 
       .home-product-card {
-        flex: 0 0 50%;
-        width: 50%;
-        min-width: 50%;
+        flex: 0 0 45%;
+        width: 45%;
+        min-width: 45%;
         scroll-snap-align: start;
         scroll-margin-left: 20px;
         padding: 0;
@@ -1623,7 +1623,7 @@
 
       .home-product-card .add-to-cart {
         margin: 0;
-        margin-top: auto;
+        margin-top: 8px;
         width: 100%;
         padding: 9px 10px;
         font-size: 9.5px;

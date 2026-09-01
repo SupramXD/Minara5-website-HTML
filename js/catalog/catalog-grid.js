@@ -583,7 +583,7 @@
           setTimeout(() => reject(new Error("Static products query timed out")), 10000)
         );
         const response = await Promise.race([
-          fetch("products.json"),
+          fetch("products.json?t=" + Date.now()),
           timeoutPromise
         ]);
 
