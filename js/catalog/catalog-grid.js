@@ -367,7 +367,7 @@
 
         const typeEl = item.querySelector('.product-type');
         if (typeEl) {
-          typeEl.textContent = p.isBundle ? "Extrait De Parfum" : "";
+          typeEl.textContent = p.isBundle ? "50ml extraits · you choose the scents" : "";
           typeEl.style.display = p.isBundle ? 'block' : 'none';
         }
 
@@ -400,7 +400,7 @@
           inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}${retailVal ? ` <span class="hp-retail-price">${retailRText}</span>` : ''}</i>`;
           inspiredEl.style.display = 'block';
         } else {
-          titleEl.textContent = p.isBundle ? "PICK ANY 2 / 50ML" : rawName;
+          titleEl.textContent = p.isBundle ? "PICK ANY 2" : rawName;
           titleEl.style.fontSize = "12px";
           titleEl.style.color = "#111111";
           titleEl.style.fontFamily = "'Gotham Narrow Bold', sans-serif";

@@ -1152,6 +1152,11 @@
 
     .hp-title-row .hp-title {
       margin-bottom: 0;
+      flex: 1 1 auto;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .hp-flair {
@@ -1566,9 +1571,9 @@
       }
 
       .home-product-card {
-        flex: 0 0 45%;
-        width: 45%;
-        min-width: 45%;
+        flex: 0 0 63%;
+        width: 63%;
+        min-width: 63%;
         scroll-snap-align: start;
         scroll-margin-left: 20px;
         padding: 0;

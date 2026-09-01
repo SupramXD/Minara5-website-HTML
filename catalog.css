@@ -567,6 +567,11 @@
 
         .product-flair-row .product-title {
             margin-bottom: 0;
+            flex: 1 1 auto;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .product-flair {
