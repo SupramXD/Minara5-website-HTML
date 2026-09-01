@@ -494,7 +494,7 @@
         const priceBlockEl = item.querySelector('.product-price-block');
         const hasDiscount = localStorage.getItem("minara_discount_5") === "active";
         if (!p.isBundle) {
-          const salePrice = Math.max(0, p.price - 241);
+          const salePrice = Math.max(0, p.price - 245);
           priceBlockEl.innerHTML = `
             <span class="sale-price js-price-empty">R${formatPrice(p.price)}</span>
             <span class="sale-price js-bundle-price">R${formatPrice(salePrice)}</span>

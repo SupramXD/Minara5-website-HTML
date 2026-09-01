@@ -302,7 +302,7 @@
 
         let typeText = p.isBundle ? '50ml extraits · you choose the scents' : '';
         // (retailVal computed above; retail anchor shown inline for singles / Value for bundles)
-        const retailHtml = (retailVal && !isInspired) ? `<span class="hp-retail-price">${p.isBundle ? 'Value ' : ''}${retailLabelText}</span>` : '';
+        const retailHtml = (retailVal && !isInspired) ? `<div class="hp-retail-price" style="display:block; margin-left:0; margin-top:1px;">${p.isBundle ? 'Value ' : ''}${retailLabelText}</div>` : '';
         const flairHtml = (p.flairText && p.flairColor) ? `<span class="hp-flair" style="background:color-mix(in srgb, ${p.flairColor} 18%, transparent); color:${p.flairColor}; font-family:'Gotham Narrow Bold', sans-serif; font-size:8px; font-weight:bold; text-transform:uppercase; letter-spacing:0.8px; padding:3px 9px; border-radius:999px; display:inline-flex; align-items:center; line-height:1; flex-shrink:0;">${window.escapeHTML(p.flairText)}</span>` : '';
         let priceHtml = '';
         if (!p.isBundle) {

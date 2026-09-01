@@ -230,7 +230,7 @@
       const singleBottleSubtotal = singleBottleItems.reduce((sum, item) => sum + ((Number(item.price) + (Number(item.priceExtra) || 0)) * item.quantity), 0);
 
       if (singleBottleCount >= 2) {
-        bundleDiscount = (singleBottleCount - 1) * 241;
+        bundleDiscount = (singleBottleCount - 1) * 245;
       // old tiered logic (now uniform per-extra-bottle discount)
       // bundleDiscount = 486;
       // } else if (singleBottleCount > 3 && singleBottleSubtotal >= 1400) {
@@ -386,7 +386,7 @@
             const discountedUnits = Math.min(Math.max(0, units - fullUnitsInThisItem), discountedUnitsRemaining);
             discountedUnitsRemaining -= discountedUnits;
             unitsSeen += units;
-            const salePrice = Math.max(0, itemPrice - 241);
+            const salePrice = Math.max(0, itemPrice - 245);
             const priceBlocks = [];
             if (fullUnitsInThisItem > 0) {
               priceBlocks.push(`<div style="white-space:nowrap;">${fullUnitsInThisItem > 1 ? fullUnitsInThisItem + ' × ' : ''}R${getFormattedPrice(itemPrice)}</div>`);
@@ -498,7 +498,7 @@
         const projCount = pricing.totalBottles + 1;
         const projSub = subtotal + repPrice;
         let saving = 0;
-        if (projCount >= 2) saving = (projCount - 1) * 241;
+        if (projCount >= 2) saving = (projCount - 1) * 245;
         const bottlePrice = Math.max(0, repPrice - saving);
         // else if (projCount === 3 && projSub >= 1300) saving = 486;
         // else if (projCount > 3 && projSub >= 1400) saving = Math.floor(projCount / 2) * 241;
@@ -506,7 +506,7 @@
           nudge = `
           <a href="catalog.html?topup=1" style="margin-top:12px; display:flex; align-items:center; justify-content:center; gap:7px; padding-top:14px; padding-bottom:4px; border-top:1px solid #ececec; font-family:'Gotham Narrow Bold', sans-serif; font-size:10px; letter-spacing:0.9px; text-transform:uppercase; color:#000; text-decoration:none;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1106e8" stroke-width="2" style="flex-shrink:0;"><path d="M12 5v14M5 12h14"/></svg>
-            <span>tap to add one more bottle for only <span style="color:#1106e8; font-weight:bold;">R${bottlePrice}</span> + free shipping</span>
+            <span>tap to add one more bottle for <span style="color:#1106e8; font-weight:bold;">R${bottlePrice}</span> + free shipping</span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1106e8" stroke-width="2" style="flex-shrink:0;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </a>`;
         }

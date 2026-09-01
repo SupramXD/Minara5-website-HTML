@@ -2241,9 +2241,14 @@
       }
     }
 
-/* Keep the big floating brand logo always visible (single logo, no appear/lock) */
+/* Keep the big floating brand logo pinned & always visible (no scroll appear/hide/reposition) */
 #logo {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
   opacity: 1 !important;
   visibility: visible !important;
-  pointer-events: none;
+  pointer-events: none !important;
+  z-index: 1500 !important;
 }
