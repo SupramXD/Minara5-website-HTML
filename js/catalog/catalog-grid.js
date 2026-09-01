@@ -367,7 +367,7 @@
 
         const typeEl = item.querySelector('.product-type');
         if (typeEl) {
-          typeEl.textContent = p.isBundle ? "The Duet Bundle" : "";
+          typeEl.textContent = p.isBundle ? "Extrait De Parfum" : "";
           typeEl.style.display = p.isBundle ? 'block' : 'none';
         }
 

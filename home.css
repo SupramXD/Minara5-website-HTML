@@ -1054,7 +1054,7 @@
     .se-card-badge {
       position: absolute;
       bottom: 0;
-      left: 0;
+      right: 0;
       width: fit-content;
       max-width: 100%;
       background: rgba(180, 83, 9, 0.95);
@@ -1062,8 +1062,8 @@
       font-family: 'Gotham Narrow Bold', sans-serif;
       font-size: 6.5px;
       font-weight: bold;
-      text-align: left;
-      padding: 2px 6px 2px 4px;
+      text-align: right;
+      padding: 2px 4px 2px 6px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       z-index: 2;
@@ -1106,6 +1106,7 @@
       font-family: Helvetica, Arial, sans-serif;
       font-size: 11px;
       color: #6B7280;
+      margin-top: 4px;
       margin-bottom: 6px;
       line-height: 1.4;
     }
@@ -1576,7 +1577,7 @@
 
       .hp-box {
         width: 100%;
-        aspect-ratio: 3 / 4;
+        aspect-ratio: 1 / 1;
         max-width: none;
         margin: 0;
         border-radius: 0;
@@ -1592,7 +1593,7 @@
 
       .hp-box:empty {
         height: auto;
-        aspect-ratio: 3 / 4;
+        aspect-ratio: 1 / 1;
       }
 
       .hp-info {
@@ -2241,5 +2242,15 @@
 
       #logo img.desktop-logo {
         display: block;
+      }
+    }
+
+    @media (min-width: 901px) {
+      header {
+        height: 54px;
+        align-items: center;
+      }
+      .hero {
+        margin-top: 54px;
       }
     }

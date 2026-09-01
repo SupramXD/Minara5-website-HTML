@@ -1012,3 +1012,10 @@
 
         /* Reviews Modal Overlay moved to css/product/product-reviews.css */
         /* Scent Drawer & Bundle Picker styles moved to css/product/product-bundle.css */
+
+        @media (min-width: 901px) {
+            header {
+                height: 54px;
+                align-items: center;
+            }
+        }

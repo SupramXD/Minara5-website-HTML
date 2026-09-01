@@ -300,7 +300,7 @@
           starsHtml = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cea44c" stroke-width="1.5" style="margin-right: 2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`.repeat(5);
         }
 
-        let typeText = p.isBundle ? 'The Duet Bundle' : '';
+        let typeText = p.isBundle ? 'Extrait De Parfum' : '';
         // (retailVal computed above; retail anchor shown inline for singles / Value for bundles)
         const retailHtml = (retailVal && !isInspired) ? `<span class="hp-retail-price">${p.isBundle ? 'Value ' : ''}${retailLabelText}</span>` : '';
         const flairHtml = (p.flairText && p.flairColor) ? `<span class="hp-flair" style="background:color-mix(in srgb, ${p.flairColor} 18%, transparent); color:${p.flairColor}; font-family:'Gotham Narrow Bold', sans-serif; font-size:8px; font-weight:bold; text-transform:uppercase; letter-spacing:0.8px; padding:3px 9px; border-radius:999px; display:inline-flex; align-items:center; line-height:1; flex-shrink:0;">${window.escapeHTML(p.flairText)}</span>` : '';
