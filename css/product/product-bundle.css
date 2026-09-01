@@ -112,11 +112,11 @@
 
 /* =============== BUNDLE IMAGE SLIDER OVERRIDES =============== */
 .slider.bundle-slider {
-    width: 50% !important;
+    width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
-    aspect-ratio: 1 / 1 !important;
-    margin: 0 auto 20px auto !important;
+    aspect-ratio: 10 / 3 !important;
+    margin: 0 auto 14px auto !important;
     overflow: hidden;
 }
 
@@ -127,7 +127,7 @@
 .slider.bundle-slider .slider-track img {
     width: 100% !important;
     height: 100% !important;
-    object-fit: contain !important;
+    object-fit: cover !important;
     object-position: center !important;
 }
 

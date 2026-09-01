@@ -1009,27 +1009,7 @@
       gap: 0;
     }
 
-    .second-products-logo-wrap {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 22px;
-      padding-top: 15px;
-    }
 
-    .second-products-brand-logo {
-      width: 270px;
-      max-width: 80%;
-      height: auto;
-      display: block;
-      filter: invert(0%);
-    }
-
-    @media (max-width: 900px) {
-      .second-products-logo-wrap {
-        display: flex;
-      }
-    }
 
     .home-product-card {
       display: block;
@@ -1583,7 +1563,7 @@
 
       .hp-box {
         width: 100%;
-        aspect-ratio: 4 / 5;
+        aspect-ratio: 1 / 1;
         max-width: none;
         margin: 0;
         border-radius: 0;
@@ -1599,7 +1579,7 @@
 
       .hp-box:empty {
         height: auto;
-        aspect-ratio: 4 / 5;
+        aspect-ratio: 1 / 1;
       }
 
       .hp-info {
@@ -2260,3 +2240,13 @@
         margin-top: 54px;
       }
     }
+
+/* Keep the big floating brand logo always visible (single logo, no appear/lock) */
+#logo {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: none;
+}
+#logo img {
+  filter: invert(0%) !important;
+}
