@@ -316,7 +316,7 @@
                 <h3 class="product-title"></h3>
                 <div class="product-flair" style="font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.2px; display: none; padding: 3px 9px; border-radius: 999px; line-height: 1; flex-shrink: 0;"></div>
               </div>
-              <div class="product-type" style="font-family: Georgia, serif; font-style: italic; font-size: 9px; opacity: 0.6; color: #555; text-transform: none; letter-spacing: 0.5px; margin-top: 1px; margin-bottom: 6px; display: none;"></div>
+              <div class="product-type" style="font-family: Georgia, serif; font-style: italic; font-size: 9px; opacity: 0.6; color: #555; text-transform: none; letter-spacing: 0.5px; margin-top: 1px; margin-bottom: 3px; display: none;"></div>
               <div class="product-inspired"></div>
               <div class="product-retail-price" style="display:none;"></div>
               <div class="product-reviews-row">

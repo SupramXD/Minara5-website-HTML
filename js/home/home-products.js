@@ -337,8 +337,8 @@
                   <h3 class="hp-title" style="font-size:12px; color:#111; font-family:'Gotham Narrow Bold', sans-serif; font-weight:700; display:block; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0;">${titleText}</h3>
                   ${flairHtml}
                 </div>
-                ${typeText ? `<div class="hp-type" style="font-family: Georgia, serif; font-style: italic; font-size: 9px; opacity: 0.6; color: #555; letter-spacing: 0.5px; margin-top: 1px; margin-bottom: 6px; display: block;">${typeText}</div>` : ''}
-                <div class="hp-inspired">${inspiredHtml}</div>
+                ${typeText ? `<div class="hp-type" style="font-family: Georgia, serif; font-style: italic; font-size: 9px; opacity: 0.6; color: #555; letter-spacing: 0.5px; margin-top: 1px; margin-bottom: 3px; display: block;">${typeText}</div>` : ''}
+                ${inspiredHtml ? `<div class="hp-inspired">${inspiredHtml}</div>` : ''}
                 ${retailHtml}
                 <div class="hp-reviews-row" style="opacity: ${reviewsOpacity}; margin-top: 4px;">
                   <span class="hp-stars">${starsHtml}</span>

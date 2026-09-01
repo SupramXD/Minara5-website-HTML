@@ -1573,7 +1573,7 @@
 
       .hp-box img,
       .home-product-card .product-img {
-        object-fit: cover !important;
+        object-fit: contain !important;
         object-position: center !important;
       }
 
@@ -2246,7 +2246,4 @@
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: none;
-}
-#logo img {
-  filter: invert(0%) !important;
 }
