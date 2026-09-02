@@ -172,12 +172,33 @@
     "bundleSize": 0,
     "sortOrder": 4,
     "scentProfile": {
-      "keyNotes": [],
-      "topNotes": "",
+      "keyNotes": [
+        {
+          "name": "Lychee",
+          "icon": "Perfume Note Icons/Lychee.webp"
+        },
+        {
+          "name": "Turkish Rose",
+          "icon": "Perfume Note Icons/Turkish_Rose.webp"
+        },
+        {
+          "name": "Bergamot",
+          "icon": "Perfume Note Icons/Bergamot.webp"
+        },
+        {
+          "name": "Blackcurrant",
+          "icon": "Perfume Note Icons/Blackcurrant.webp"
+        },
+        {
+          "name": "Cedar",
+          "icon": "Perfume Note Icons/Cedar.webp"
+        }
+      ],
+      "topNotes": "Lychee, Bergamot",
       "topNotesDesc": "The first notes you smell",
-      "middleNotes": "",
+      "middleNotes": "Turkish Rose",
       "middleNotesDesc": "The heart of the perfume",
-      "baseNotes": "",
+      "baseNotes": "Cedar",
       "baseNotesDesc": "The notes that linger all day"
     }
   },
