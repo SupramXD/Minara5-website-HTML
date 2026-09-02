@@ -565,6 +565,47 @@
       });
     };
 
+    // Firestore is the source of truth for stock (main + each customisation block).
+    // Override the static/local stock with live values so admin changes appear for
+    // every visitor immediately, without a redeploy.
+    const applyLiveStock = async () => {
+      if (!window.loadLiveProducts) return;
+      const live = await window.loadLiveProducts();
+      if (!live || !Array.isArray(live) || live.length === 0) return;
+      const liveMap = {};
+      live.forEach(l => { liveMap[l.id] = l; });
+      let changed = false;
+      products.forEach(p => {
+        const l = liveMap[p.id];
+        if (!l) return;
+        if (l.stock !== undefined && l.stock !== null && l.stock !== '' && Number(l.stock) !== Number(p.stock)) {
+          p.stock = Number(l.stock);
+          changed = true;
+        }
+        if (Array.isArray(l.customisations) && Array.isArray(p.customisations)) {
+          for (let i = 0; i < p.customisations.length; i++) {
+            const lc = l.customisations[i] || l.customisations.find(x => String(x.label || '') === String(p.customisations[i].label || ''));
+            if (lc && lc.stock !== undefined && lc.stock !== null && lc.stock !== '' && Number(lc.stock) !== Number(p.customisations[i].stock)) {
+              p.customisations[i].stock = Number(lc.stock);
+              changed = true;
+            }
+          }
+        }
+      });
+      if (changed) {
+        try {
+          const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");
+          products.forEach(p => {
+            const idx = localProds.findIndex(x => x.id === p.id);
+            const stored = { ...p, syncStatus: "synced" };
+            if (idx > -1) localProds[idx] = stored; else localProds.push(stored);
+          });
+          localStorage.setItem("minara_products", JSON.stringify(localProds));
+        } catch (e) {}
+        renderGrid();
+      }
+    };
+
     window.renderCatalogGrid = renderGrid;
 
     // Load local cache and render instantly
@@ -697,6 +738,9 @@
       } catch (dbErr) {
         console.error("products.json background load failed:", dbErr);
       }
+
+      // Firestore is the authoritative source for stock — override the static value
+      await applyLiveStock();
     }, 0);
 
     window.addEventListener("minaraDiscountActivated", () => {

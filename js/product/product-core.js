@@ -1164,6 +1164,21 @@
         }
 
         if (data) {
+          // Firestore is the source of truth for stock — override main + customisation block stocks
+          try {
+            const liveList = await window.loadLiveProducts();
+            const l = liveList && liveList.find ? liveList.find(x => x.id === data.id) : null;
+            if (l) {
+              if (l.stock !== undefined && l.stock !== null && l.stock !== '') data.stock = Number(l.stock);
+              if (Array.isArray(l.customisations) && Array.isArray(data.customisations)) {
+                for (let i = 0; i < data.customisations.length; i++) {
+                  const lc = l.customisations[i] || l.customisations.find(x => String(x.label || '') === String(data.customisations[i].label || ''));
+                  if (lc && lc.stock !== undefined && lc.stock !== null && lc.stock !== '') data.customisations[i].stock = Number(lc.stock);
+                }
+              }
+            }
+          } catch (e) {}
+
           const liveProduct = data;
           const custsChanged = JSON.stringify(product ? product.customisations : null) !== JSON.stringify(liveProduct.customisations);
           const scentChanged = JSON.stringify(product ? product.scentProfile : null) !== JSON.stringify(liveProduct.scentProfile);

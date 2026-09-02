@@ -352,6 +352,22 @@ window.dbPromise = import("https://www.gstatic.com/firebasejs/11.0.1/firebase-fi
         console.error("Failed to dynamically load Firestore:", err);
     });
 
+// --- LIVE PRODUCTS HELPER ---
+// Firestore is the source of truth for stock. This fetches the live products
+// collection (publicly readable per firestore.rules) so storefront stock badges
+// reflect admin changes immediately, without waiting for a redeploy.
+window.loadLiveProducts = async () => {
+  try {
+    await window.dbPromise;
+    if (!window.db || !window.dbCollection || !window.dbGetDocs) return null;
+    const snap = await window.dbGetDocs(window.dbCollection(window.db, "products"));
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (err) {
+    console.error("Failed to load live products from Firestore:", err);
+    return null;
+  }
+};
+
 // --- DYNAMICALLY LOAD CLOUDFLARE TURNSTILE DEFERRED ---
 window.addEventListener('load', () => {
     if (!document.getElementById("cloudflare-turnstile-script")) {
