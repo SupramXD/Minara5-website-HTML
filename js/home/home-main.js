@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else {
       // HERO 2 ZONE & EVERYTHING BELOW — logo hidden over the image, shown once it locks
-      const shouldLockHero2 = (y + floatTopViewportHero2) >= lockPtHero2;
+      const shouldLockHero2 = false; // Second sticky logo intentionally removed
       const photoBottom = secImgLTop + secWrapHeight;
       const logoDocTop = y + floatTopViewportHero2;
       const isOverWhite = (logoDocTop >= photoBottom - 10) || shouldLockHero2;

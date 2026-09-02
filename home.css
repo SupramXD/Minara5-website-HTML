@@ -1177,7 +1177,7 @@
       flex-direction: column;
       gap: 8px;
       width: 100%;
-      margin-top: 4px;
+      margin-top: auto;
     }
 
     .hp-price-block {
@@ -1494,7 +1494,7 @@
         justify-content: space-between;
         align-items: center;
         width: 100%;
-        margin-top: 4px;
+        margin-top: auto;
         gap: 8px;
       }
 
@@ -2238,6 +2238,59 @@
       }
       .hero {
         margin-top: 54px;
+      }
+    }
+
+    /* =====================
+       PRODUCT CARD SKELETON PLACEHOLDERS (first-load)
+       + SECOND PRODUCTS STATIC LOGO
+    ===================== */
+    .home-product-card.skel-card {
+      pointer-events: none;
+    }
+
+    .skel-card .hp-box {
+      background: #f0ede7;
+      aspect-ratio: 1 / 1;
+    }
+
+    .skel-card .skel-info {
+      min-height: 118px;
+    }
+
+    .skel-card .skel-line {
+      display: block;
+      height: 8px;
+      border-radius: 4px;
+      background: #e9e4dc;
+      margin-bottom: 9px;
+    }
+
+    .skel-card .skel-line.w60 { width: 60%; }
+    .skel-card .skel-line.w85 { width: 85%; }
+    .skel-card .skel-line.w40 { width: 40%; }
+
+    /* Static watermark placed above the "MAKE THEM REMEMBER" heading (black on white) */
+    .second-products-logo-wrap {
+      text-align: center;
+      line-height: 0;
+      margin-bottom: 14px;
+      padding: 0 20px;
+    }
+
+    .second-products-logo-wrap img {
+      max-width: 340px;
+      width: 72%;
+      height: auto;
+      display: inline-block;
+      filter: none;
+      color: #000;
+    }
+
+    @media (max-width: 900px) {
+      .second-products-logo-wrap img {
+        max-width: 230px;
+        width: 64%;
       }
     }
 

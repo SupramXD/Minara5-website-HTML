@@ -408,9 +408,35 @@
 
     window.renderHomeProducts = renderGrid;
 
+    // Skeleton placeholders: reserve the product-card area during the very first load
+    // so content below doesn't jump up while products.json / Firestore is still being
+    // fetched. The real cards replace the skeletons the moment they render.
+    const renderSkeletons = () => {
+      if (products.length > 0) return;
+      const sk = (grid) => {
+        if (!grid || grid.children.length > 0) return;
+        let html = '';
+        for (let i = 0; i < 5; i++) {
+          html += `
+            <div class="home-product-card skel-card" aria-hidden="true">
+              <div class="hp-box"></div>
+              <div class="hp-info skel-info">
+                <div class="skel-line w60"></div>
+                <div class="skel-line w85"></div>
+                <div class="skel-line w40"></div>
+              </div>
+            </div>`;
+        }
+        grid.innerHTML = html;
+      };
+      sk(topGrid);
+      sk(secondGrid);
+    };
+
     // Load local cache and render instantly!
     loadLocalProducts();
     renderGrid();
+    renderSkeletons();
 
     window.addEventListener('minara_stock_updated', () => {
       loadLocalProducts();
