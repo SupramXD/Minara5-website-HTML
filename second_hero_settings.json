@@ -1,18 +1,18 @@
 {
-  "leftImage": "images/second-hero/left.avif",
+  "leftImage": "images/second-hero/left.webp",
   "rightImage": "images/second-hero/right.avif",
-  "mobileImage": "images/second-hero/mobile.avif",
+  "mobileImage": "images/second-hero/mobile.webp",
   "leftFlex": 1.4,
   "leftScale": 1,
   "leftX": 50,
   "leftY": 50,
   "rightScale": 1,
-  "rightX": 0,
+  "rightX": 50,
   "rightY": 50,
   "desktopHeight": "70vh",
   "mobileHeight": "auto",
   "mobileScale": 1,
   "mobileX": 50,
   "mobileY": 50,
-  "timestamp": "2026-08-20T13:01:49.141Z"
+  "timestamp": "2026-09-02T16:55:30.213Z"
 }
