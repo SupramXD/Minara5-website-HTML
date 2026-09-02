@@ -148,7 +148,7 @@
     "nameShort": "De Marly Rose",
     "name": "Inspired By PDM Delina",
     "price": 495,
-    "retailPrice": 4450,
+    "retailPrice": "4450",
     "stock": 10,
     "image": "images/products/inspired-by-parfums-de-marly-delina.webp",
     "galleryImages": [
@@ -158,6 +158,8 @@
     "description": "delina",
     "status": "Active",
     "flair": "Feminine",
+    "flairText": "Flowery",
+    "flairColor": "#f27ddb",
     "invisibleFlair": "women",
     "standardBottleImg": "",
     "masculinePremiumBottleImg": "",
