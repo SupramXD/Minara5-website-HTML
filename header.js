@@ -353,18 +353,52 @@ window.dbPromise = import("https://www.gstatic.com/firebasejs/11.0.1/firebase-fi
     });
 
 // --- LIVE PRODUCTS HELPER ---
-// Firestore is the source of truth for stock. This fetches the live products
+// Firestore is the source of truth for stock. This reads the live `products`
 // collection (publicly readable per firestore.rules) so storefront stock badges
 // reflect admin changes immediately, without waiting for a redeploy.
+// Primary path uses the Firestore REST API (CORS-enabled for this origin and
+// verified to return live data); falls back to the Web SDK if the fetch fails.
 window.loadLiveProducts = async () => {
+  const intVal = (f) => {
+    if (!f) return undefined;
+    if (f.integerValue !== undefined) return Number(f.integerValue);
+    if (f.stringValue !== undefined) return Number(f.stringValue);
+    return undefined;
+  };
   try {
-    await window.dbPromise;
-    if (!window.db || !window.dbCollection || !window.dbGetDocs) return null;
-    const snap = await window.dbGetDocs(window.dbCollection(window.db, "products"));
-    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const apiKey = "AIzaSyC8srbzH_DcCYQJXe9MNOyy2OHZSaLidIo";
+    const url = "https://firestore.googleapis.com/v1/projects/minara5/databases/(default)/documents/products?key=" + apiKey + "&pageSize=500";
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("REST status " + res.status);
+    const data = await res.json();
+    if (!data.documents) return [];
+    return data.documents.map(d => {
+      const id = (d.name || "").split("/").pop();
+      const f = d.fields || {};
+      const customisations = [];
+      if (f.customisations && f.customisations.arrayValue && f.customisations.arrayValue.values) {
+        f.customisations.arrayValue.values.forEach(v => {
+          const cf = (v && v.mapValue && v.mapValue.fields) || {};
+          customisations.push({
+            label: (cf.label && cf.label.stringValue) ? cf.label.stringValue : "",
+            stock: intVal(cf.stock)
+          });
+        });
+      }
+      return { id, stock: intVal(f.stock), customisations };
+    });
   } catch (err) {
-    console.error("Failed to load live products from Firestore:", err);
-    return null;
+    console.error("loadLiveProducts REST failed:", err);
+    // Fallback: read via the Firestore Web SDK
+    try {
+      await window.dbPromise;
+      if (!window.db || !window.dbCollection || !window.dbGetDocs) return null;
+      const snap = await window.dbGetDocs(window.dbCollection(window.db, "products"));
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (e2) {
+      console.error("loadLiveProducts SDK fallback failed:", e2);
+      return null;
+    }
   }
 };
 
