@@ -1,4 +1,5 @@
 {
+  "footer_description": "STUDIO EXTRAIT — South Africa's home of premium extrait de parfum. We craft niche-inspired clone fragrances at a dense 20%+ concentration that mirror the world's most iconic designer scents — for a fraction of the price. Every bottle is macerated to perfection for powerful projection and all-day longevity, delivering genuine affordable luxury straight to your door. Free nationwide delivery on orders over R650. Find your signature scent.",
   "features": [
     {
       "title": "EXTRAIT DE PARFUM CONCENTRATION",
@@ -35,6 +36,7 @@
       "description": "Soon to be selling on Takealot and Amazon. Studio Extrait has 100% premium quality formulation matching original scents. Safe and secure checkout options using PayFast, Google and Apple Pay."
     }
   ],
+  "returns_shipping": {},
   "accordions": {
     "wearingOccasion": "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.",
     "honestComparisonInspired": "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 97% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours). Pay for the ingredients, Not the Logo.",
@@ -42,7 +44,24 @@
     "ingredients": "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.",
     "shippingReturns": "Enjoy free nationwide shipping on all orders over R650, with a flat rate of R85 for orders under R650. All orders are processed and dispatched within 24 hours. Delivery typically takes 1–3 days nationwide, or up to 5 days for regional areas.\n\nWe provide a 7-day hassle-free return policy. If you're not satisfied with your purchase, contact us within 7 days for an exchange or refund."
   },
-  "returns_shipping": {},
-  "footer_description": "STUDIO EXTRAIT — South Africa's home of premium extrait de parfum. We craft niche-inspired clone fragrances at a dense 20%+ concentration that mirror the world's most iconic designer scents — for a fraction of the price. Every bottle is macerated to perfection for powerful projection and all-day longevity, delivering genuine affordable luxury straight to your door. Free nationwide delivery on orders over R650. Find your signature scent.",
-  "featured_reviews": []
+  "featured_reviews": [
+    {
+      "productId": "inspired-by-jpg-le-male",
+      "name": "test33",
+      "text": "testagain",
+      "rating": 5
+    },
+    {
+      "productId": "inspired-by-jpg-le-male",
+      "name": "test",
+      "text": "test",
+      "rating": 5
+    },
+    {
+      "productId": "inspired-by-creed-aventus",
+      "name": "indeded",
+      "text": "yes",
+      "rating": 3
+    }
+  ]
 }
