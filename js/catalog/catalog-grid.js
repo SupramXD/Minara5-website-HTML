@@ -21,7 +21,13 @@
 
   async function initCatalog() {
     const qp = new URLSearchParams(window.location.search);
-    if (qp.get('topup') === '1' && document.body) document.body.classList.add('topup');
+    const isTopup = qp.get('topup') === '1';
+    if (isTopup && document.body) document.body.classList.add('topup');
+    // Carry the upsell/topup state through to the product page (crossed-out price).
+    try {
+      if (isTopup) sessionStorage.setItem('minara_topup', '1');
+      else sessionStorage.removeItem('minara_topup');
+    } catch (e) {}
     const formatPrice = window.formatPrice || (val => {
       if (val === undefined || val === null || isNaN(val)) return "0";
       return Math.round(Number(val)).toString();

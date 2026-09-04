@@ -1,6 +1,12 @@
 // Studio Extrait - Product Details Core Coordinator & Data Loader Module
 
 (function() {
+  // If the visitor came from the upsell catalog (?topup=1), show the crossed-out
+  // second-bottle price on the product page.
+  try {
+    if (sessionStorage.getItem('minara_topup') === '1' && document.body) document.body.classList.add('topup');
+  } catch (e) {}
+
   let doc, getDoc, collection, addDoc, getDocs, query, where, orderBy;
 
   const setupFirestoreHelpers = async () => {

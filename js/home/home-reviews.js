@@ -5,6 +5,7 @@
 (function() {
   let featuredReviews = [];
   let productNameMap = {};
+  let inspiredMap = {};
   let currentIndex = 0;
   let rotateTimer = null;
 
@@ -80,6 +81,7 @@
 
     const review = featuredReviews[currentIndex % featuredReviews.length];
     const label = resolveProductLabel(review.productId);
+    const rawInspired = inspiredMap[review.productId] || "";
 
     card.classList.add("fading");
     setTimeout(() => {
@@ -88,6 +90,18 @@
       nameEl.textContent = review.name || "Verified Customer";
       productEl.textContent = label;
       productEl.style.display = label ? "" : "none";
+
+      // Inspired-by brand shown beneath the product name.
+      const inspiredEl = document.getElementById("homeTestimonialsInspired");
+      if (inspiredEl) {
+        if (rawInspired) {
+          const fmt = (typeof window.formatBrandName === "function" ? window.formatBrandName(rawInspired) : rawInspired).toUpperCase();
+          inspiredEl.textContent = "INSPIRED BY " + fmt;
+          inspiredEl.style.display = "";
+        } else {
+          inspiredEl.style.display = "none";
+        }
+      }
       card.classList.remove("fading");
 
       // Dots
@@ -166,6 +180,9 @@
           list.forEach(p => {
             if (!p || !p.id) return;
             productNameMap[p.id] = p.nameShort || p.name || p.id;
+            const m = p.name ? p.name.match(/inspired\s+by\s+(.+)/i) : null;
+            if (m) inspiredMap[p.id] = m[1];
+            else if (p.id.indexOf("inspired-by-") === 0) inspiredMap[p.id] = p.name;
           });
         }
       }

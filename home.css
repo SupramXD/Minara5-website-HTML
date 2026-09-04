@@ -2325,7 +2325,7 @@
     }
 
     .home-testimonials-inner {
-      max-width: 760px;
+      max-width: 520px;
       margin: 0 auto;
     }
 
@@ -2374,13 +2374,14 @@
     }
 
     .home-testimonials-card {
-      background: #f7f7f7;
-      border-radius: 18px;
-      padding: 40px 32px 34px;
+      background: #fafafa;
+      border: 1px solid #ececec;
+      border-radius: 14px;
+      padding: 34px 26px 30px;
       margin: 0 auto;
-      max-width: 720px;
+      max-width: 500px;
       box-sizing: border-box;
-      min-height: 250px;
+      min-height: 210px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -2394,39 +2395,39 @@
 
     .home-testimonials-quote {
       font-family: Georgia, 'Times New Roman', serif;
-      font-size: 72px;
+      font-size: 58px;
       line-height: 0.6;
-      height: 40px;
-      color: #111111;
-      margin-bottom: 28px;
+      height: 34px;
+      color: #222222;
+      margin-bottom: 22px;
     }
 
     .home-testimonials-text {
       font-family: 'Gotham Narrow Book', Helvetica, Arial, sans-serif;
-      font-size: clamp(15px, 2.6vw, 18px);
+      font-size: clamp(14px, 2.4vw, 17px);
       line-height: 1.55;
-      color: #222222;
-      max-width: 600px;
-      margin: 0 auto 26px;
+      color: #333333;
+      max-width: 440px;
+      margin: 0 auto 22px;
     }
 
     .home-testimonials-customer {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
 
     .home-testimonials-card-stars {
       color: #cea44c;
-      font-size: 15px;
+      font-size: 13px;
       letter-spacing: 3px;
       display: inline-flex;
     }
 
     .home-testimonials-name {
       font-family: 'Gotham Narrow Bold', sans-serif;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       letter-spacing: 1px;
       text-transform: uppercase;
@@ -2449,11 +2450,20 @@
       text-underline-offset: 3px;
     }
 
+    .home-testimonials-inspired {
+      font-family: 'Gotham Narrow Book', sans-serif;
+      font-size: 8.5px;
+      letter-spacing: 0.8px;
+      color: #9a9a9a;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+
     .home-testimonials-dots {
       display: flex;
       justify-content: center;
       gap: 8px;
-      margin-top: 26px;
+      margin-top: 20px;
     }
 
     .home-testimonials-dots .dot-btn {
