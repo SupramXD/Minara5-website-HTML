@@ -867,7 +867,7 @@ function setupDesktopNewsletter() {
 }
 
 // --- DYNAMIC CUSTOM TEXT LOADER ---
-const DEFAULT_FOOTER_DESCRIPTION = "Designer-inspired extraits, crafted at 20%+ concentration to match 95% of the iconic scents you love — for a fraction of the price. Macerated to perfection, with free delivery across South Africa on orders over R650. Find your signature scent.";
+const DEFAULT_FOOTER_DESCRIPTION = "STUDIO EXTRAIT — South Africa's home of premium extrait de parfum. We craft niche-inspired clone fragrances at a dense 20%+ concentration that mirror the world's most iconic designer scents — for a fraction of the price. Every bottle is macerated to perfection for powerful projection and all-day longevity, delivering genuine affordable luxury straight to your door. Free nationwide delivery on orders over R650. Find your signature scent.";
 
 function applyCustomText(data) {
     if (!data) return;

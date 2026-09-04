@@ -2292,6 +2292,17 @@
         max-width: 230px;
         width: 64%;
       }
+      /* Tighten the whitespace below the second hero on mobile */
+      .second-products-outer-wrap {
+        padding-top: 22px !important;
+        padding-bottom: 24px !important;
+      }
+      .second-products-logo-wrap {
+        margin-bottom: 6px;
+      }
+      .second-products-section .products-header-center {
+        margin-bottom: 16px !important;
+      }
     }
 
     /* ============ FREE DELIVERY COURIER NOTE ============ */

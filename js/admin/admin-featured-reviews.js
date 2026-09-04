@@ -80,17 +80,11 @@
     }
 
     tbody.innerHTML = "";
-    allReviews.forEach((review) => {
+    allReviews.forEach((review, i) => {
       const key = compositeKey(review);
       const isChecked = !!featuredSet[key];
       const tr = document.createElement("tr");
-      tr.setAttribute("data-key", key);
-      tr.setAttribute("data-review", escapeHTML(JSON.stringify({
-        productId: review.productId || "",
-        name: review.name || "",
-        text: review.text || "",
-        rating: Number(review.rating) || 5
-      })));
+      tr.setAttribute("data-index", i);
 
       const tdCheck = document.createElement("td");
       tdCheck.style.textAlign = "center";
@@ -160,10 +154,17 @@
     if (!tbody) return;
 
     const featured = [];
-    tbody.querySelectorAll("tr[data-key]").forEach(tr => {
+    tbody.querySelectorAll("tr[data-index]").forEach(tr => {
       const checked = tr.querySelector("input[type=checkbox]");
       if (checked && checked.checked) {
-        featured.push(JSON.parse(tr.getAttribute("data-review")));
+        const idx = Number(tr.getAttribute("data-index"));
+        const r = allReviews[idx] || {};
+        featured.push({
+          productId: r.productId || "",
+          name: r.name || "",
+          text: r.text || "",
+          rating: Number(r.rating) || 5
+        });
       }
     });
 
