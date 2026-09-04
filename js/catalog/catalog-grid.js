@@ -161,15 +161,21 @@
               if (lbl === 'STANDARD') return;
 
               const basePrice = Number(p.price) || 0;
-              let extra = 0;
-              if (c.priceExtra !== undefined && c.priceExtra !== null) {
-                extra = Number(c.priceExtra);
-              } else if (lbl.includes("PREMIUM")) {
-                extra = 145;
-              } else if (lbl.includes("100ML") && basePrice <= 550) {
-                extra = 254;
+              let finalPrice;
+              if (c.price !== undefined && c.price !== null && c.price !== "") {
+                // Official absolute price set by admin.
+                finalPrice = Number(c.price);
+              } else {
+                let extra = 0;
+                if (c.priceExtra !== undefined && c.priceExtra !== null) {
+                  extra = Number(c.priceExtra);
+                } else if (lbl.includes("PREMIUM")) {
+                  extra = 145;
+                } else if (lbl.includes("100ML") && basePrice <= 550) {
+                  extra = 254;
+                }
+                finalPrice = basePrice + extra;
               }
-              let finalPrice = basePrice + extra;
               let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
               let optSize = c.size || (lbl.includes("100ML") ? "100ml" : "50ml");
 
@@ -180,9 +186,9 @@
                 nameShort: `${p.nameShort || rawName}`,
                 price: finalPrice,
                 basePrice: basePrice,
-                priceExtra: extra,
+                priceExtra: (finalPrice - basePrice),
                 giftSize: optSize,
-                retailPrice: p.retailPrice ? (p.retailPrice + extra) : null,
+                retailPrice: p.retailPrice ? (p.retailPrice + (finalPrice - basePrice)) : null,
                 stock: (c.stock !== undefined && c.stock !== null && c.stock !== '') ? Number(c.stock) : p.stock,
                 image: c.image || c.image_data || c.image_thumb || p.image,
                 image_thumb: c.image_thumb || c.image || c.image_data || p.image_thumb || p.image,

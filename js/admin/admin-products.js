@@ -377,6 +377,7 @@ async function loadCatalog() {
                                 image_thumb: c.image_thumb || "",
                                 image_data: c.image_data || "",
                                 priceExtra: c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : ((c.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0),
+                                price: (c.price !== undefined && c.price !== null && c.price !== "") ? Number(c.price) : undefined,
                                 stock: (c.stock !== undefined && c.stock !== null && c.stock !== "" && !isNaN(c.stock)) ? Number(c.stock) : 0
                               }))
                             : [],
@@ -861,6 +862,10 @@ window.PERFUME_NOTE_LIBRARY = [
 
         const imgPreview = block.image_thumb || block.image || block.image_data;
         const extraVal = block.priceExtra !== undefined && block.priceExtra !== null ? block.priceExtra : ((block.label || '').toUpperCase().includes('PREMIUM') ? 145 : 0);
+        // "Price" is the official absolute price. For legacy blocks (only priceExtra),
+        // pre-fill with the base bottle price + extra so the admin sees the real total.
+        const basePrice = parseFloat((document.getElementById("editProdPrice") ? document.getElementById("editProdPrice").value : "0") || "0") || 0;
+        const priceVal = (block.price !== undefined && block.price !== null && block.price !== "") ? Number(block.price) : (basePrice + Number(extraVal || 0));
         const stockVal = (block.stock !== undefined && block.stock !== null && block.stock !== '' && !isNaN(block.stock)) ? Number(block.stock) : 0;
         const sizeVal = block.size || block.ml || ((block.label || '').toUpperCase().includes('50ML') ? '50ml' : '100ml');
 
@@ -878,9 +883,9 @@ window.PERFUME_NOTE_LIBRARY = [
               <label style="font-size: 10px; opacity: 0.8;">Size / ml</label>
               <input type="text" value="${sizeVal}" class="form-input edit-cust-size-input" oninput="window.updateCustomisationBlockSize(${idx}, this.value)" onchange="window.updateCustomisationBlockSize(${idx}, this.value)" style="background:#1a1a24; color:#fff;" placeholder="e.g. 100ml">
             </div>
-            <div class="form-group" style="margin-bottom: 0; width: 85px;">
-              <label style="font-size: 10px; opacity: 0.8;">Price Extra (R)</label>
-              <input type="number" value="${extraVal}" class="form-input edit-cust-price-input" oninput="window.updateCustomisationBlockPriceExtra(${idx}, this.value)" onchange="window.updateCustomisationBlockPriceExtra(${idx}, this.value)" style="background:#1a1a24; color:#fff;" min="0">
+            <div class="form-group" style="margin-bottom: 0; width: 100px;">
+              <label style="font-size: 10px; opacity: 0.8;">Price (R)</label>
+              <input type="number" value="${priceVal}" class="form-input edit-cust-price-input" oninput="window.updateCustomisationBlockPrice(${idx}, this.value)" onchange="window.updateCustomisationBlockPrice(${idx}, this.value)" style="background:#1a1a24; color:#fff;" min="0">
             </div>
             <div class="form-group" style="margin-bottom: 0; width: 85px;">
               <label style="font-size: 10px; opacity: 0.8;">Option Stock</label>
@@ -919,6 +924,13 @@ window.PERFUME_NOTE_LIBRARY = [
       }
     };
 
+    // Set the official absolute price of a customisation block.
+    window.updateCustomisationBlockPrice = function(idx, val) {
+      if (window.currentEditCustomisations && window.currentEditCustomisations[idx]) {
+        window.currentEditCustomisations[idx].price = parseFloat(val) || 0;
+      }
+    };
+
     window.updateCustomisationBlockStock = function(idx, val) {
       if (window.currentEditCustomisations && window.currentEditCustomisations[idx]) {
         window.currentEditCustomisations[idx].stock = val === "" ? "" : (parseInt(val, 10) || 0);
@@ -933,6 +945,7 @@ window.PERFUME_NOTE_LIBRARY = [
         image: "",
         image_thumb: "",
         priceExtra: 0,
+        price: undefined,
         stock: 10
       });
       window.renderEditCustomisationBlocks();
@@ -1123,6 +1136,7 @@ window.PERFUME_NOTE_LIBRARY = [
             image_thumb: c.image_thumb || "",
             image_data: c.image_data || "",
             priceExtra: c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : ((c.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0),
+            price: (c.price !== undefined && c.price !== null && c.price !== "") ? Number(c.price) : undefined,
             stock: (c.stock !== undefined && c.stock !== null && c.stock !== "" && !isNaN(c.stock)) ? Number(c.stock) : 0
           }))
         : [];

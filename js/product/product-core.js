@@ -1000,7 +1000,7 @@
             const customImageThumb = activeOpt ? (activeOpt.thumbImg || activeOpt.dataImg) : null;
             const finalSize = (activeOpt && activeOpt.size) ? activeOpt.size : (window.selectedProductSize || selectedSize || "50ml");
 
-            window.addToCart(p.id, finalSize, null, window.selectedBottleCustomisation, window.selectedBottlePriceExtra, customImage, customImageThumb);
+            window.addToCart(p.id, finalSize, null, window.selectedBottleCustomisation, window.selectedBottlePriceExtra, customImage, customImageThumb, window.selectedBottleCustomisationPrice);
           };
         }
         addToBagBtn.style.display = "";

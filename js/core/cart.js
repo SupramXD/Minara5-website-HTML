@@ -22,7 +22,7 @@
   }
 
   // 3. THE ADD FUNCTION
-  window.addToCart = function(productId, selectedSize, selectedScents, bottleCustomisation, priceExtra, customImage, customImageThumb) {
+  window.addToCart = function(productId, selectedSize, selectedScents, bottleCustomisation, priceExtra, customImage, customImageThumb, customisationPrice) {
     let product = null;
     let sizes = ["50ml", "100ml"];
     
@@ -63,14 +63,17 @@
       sizeToUse = "100ml";
     }
 
-    let priceExtraToUse = priceExtra !== undefined && priceExtra !== null ? Number(priceExtra) : ((bottleCustomisation || '').toUpperCase().includes('PREMIUM') ? 145 : 0);
+    // An admin-set absolute official price for a customisation block overrides everything.
+    const hasFlatCustomisation = (customisationPrice !== undefined && customisationPrice !== null && customisationPrice !== "" && Number(customisationPrice) >= 0);
+    let priceExtraToUse = hasFlatCustomisation ? 0 : (priceExtra !== undefined && priceExtra !== null ? Number(priceExtra) : ((bottleCustomisation || '').toUpperCase().includes('PREMIUM') ? 145 : 0));
 
     // If size is 100ml and base product price is 50ml price (<= 550) with 0 extra, add standard 100ml upgrade (+254 -> R749)
     const baseProdPrice = Number(product.price) || 0;
-    if (sizeToUse.toLowerCase().includes("100ml") && baseProdPrice <= 550 && priceExtraToUse === 0) {
+    if (!hasFlatCustomisation && sizeToUse.toLowerCase().includes("100ml") && baseProdPrice <= 550 && priceExtraToUse === 0) {
       priceExtraToUse = 254;
     }
-    const splitStandard = !selectedScents && !(Number(priceExtraToUse) > 0) && !((bottleCustomisation || '').toUpperCase().includes('PREMIUM'));
+    const isCustomisedOpt = !!bottleCustomisation && String(bottleCustomisation).trim() !== "";
+    const splitStandard = !selectedScents && !isCustomisedOpt && !(Number(priceExtraToUse) > 0) && !((bottleCustomisation || '').toUpperCase().includes('PREMIUM'));
 
     const existingItem = cart.find(item => {
       const idMatches = item.id === productId;
@@ -97,7 +100,7 @@
         id: product.id,
         name: product.name,
         nameShort: product.nameShort || product.name || "",
-        price: product.price,
+        price: hasFlatCustomisation ? Number(customisationPrice) : product.price,
         priceExtra: priceExtraToUse,
         image: customImage || product.image,
         image_thumb: customImageThumb || product.image_thumb || "",

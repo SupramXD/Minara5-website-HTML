@@ -334,6 +334,8 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
             image_thumb: blockThumb || blockImg,
             image_data: rawData,
             stock: (block.stock !== undefined && block.stock !== null && !isNaN(block.stock)) ? Number(block.stock) : 10,
+            price: (block.price !== undefined && block.price !== null && block.price !== "") ? Number(block.price) : undefined,
+            priceExtra: (block.priceExtra !== undefined && block.priceExtra !== null) ? Number(block.priceExtra) : undefined,
           });
         }
       }

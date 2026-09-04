@@ -3,6 +3,7 @@
 (function() {
   window.selectedBottleCustomisation = null;
   window.selectedBottlePriceExtra = 0;
+  window.selectedBottleCustomisationPrice = null;
   window.currentBottleCustomisationOptions = [];
 
   // Helper to render bottle customisation boxes (Stussy style picker)
@@ -17,6 +18,7 @@
       container.style.display = "none";
       window.selectedBottleCustomisation = null;
       window.selectedBottlePriceExtra = 0;
+      window.selectedBottleCustomisationPrice = null;
       return;
     }
 
@@ -71,6 +73,10 @@
           extra = 254; // 100ml upgrade from R495 base to R749
         }
 
+        // Admin can set one official (absolute) price per customisation block.
+        const hasFlatPrice = c.price !== undefined && c.price !== null && c.price !== "";
+        const flatPrice = hasFlatPrice ? Number(c.price) : null;
+
         let defaultFallback = "";
         if (lbl.includes("STANDARD")) {
           defaultFallback = p.standardBottleImg || (p.image ? p.image.split(',')[0].trim() : "");
@@ -92,6 +98,7 @@
           dataImg: c.image_data || (c.image && c.image.startsWith("data:") ? c.image : ""),
           fallbackImg: defaultFallback,
           title: c.label || "Custom Option",
+          price: flatPrice,
           priceExtra: extra,
           stock: c.stock !== undefined && c.stock !== null ? Number(c.stock) : null
         });
@@ -104,6 +111,7 @@
       container.style.display = "none";
       window.selectedBottleCustomisation = options[0] ? options[0].label : null;
       window.selectedBottlePriceExtra = 0;
+      window.selectedBottleCustomisationPrice = null;
       return;
     }
 
@@ -147,9 +155,21 @@
     };
 
     const updateProductPriceDisplay = (opt) => {
-      window.selectedBottlePriceExtra = opt.priceExtra || 0;
       const basePrice = Number(p.price) || 0;
-      const totalPrice = basePrice + window.selectedBottlePriceExtra;
+      const hasFlat = opt && opt.price !== undefined && opt.price !== null && opt.price !== "";
+      let totalPrice;
+      if (hasFlat) {
+        // Official absolute price set by admin for this customisation block.
+        window.selectedBottleCustomisationPrice = Number(opt.price);
+        window.selectedBottlePriceExtra = 0;
+        totalPrice = Number(opt.price);
+      } else {
+        // Legacy: base bottle price + extra add-on.
+        window.selectedBottleCustomisationPrice = null;
+        const extra = (opt && opt.priceExtra !== undefined && opt.priceExtra !== null) ? Number(opt.priceExtra) : 0;
+        window.selectedBottlePriceExtra = extra;
+        totalPrice = basePrice + extra;
+      }
 
       let finalPrice = totalPrice;
       if (window.activeDiscount) {
