@@ -49,6 +49,10 @@
 - Card-button alignment & first-load + logo fixes: all product boxes (home + catalog) pin the price/button row to the bottom of the card (`margin-top: auto` on `.hp-price-action-row` / `.product-price-action-row`), so every ADD TO BAG / CREATE BUNDLE button sits at the same height regardless of how much title/inspired text each box has. The `.se-card-badge` (ONLY X LEFT) is `position:absolute` over the thumbnail (`bottom:0`), so it never adds vertical height. Fixed the first-load layout jump: `home-products.js` injects 5 `.home-product-card.skel-card` skeleton placeholders into each homepage grid when `products` is empty (before products.json/Firestore resolves); the real cards replace them on mount, so content below no longer slides up. Second sticky logo removed: in `home-main.js` the mobile `shouldLockHero2` is forced to `false` (watermark no longer reappears after the second hero — it only locks at the bottom of the FIRST hero); the same `minara 5 transparent 2.svg` now sits statically above the "MAKE THEM REMEMBER" heading (`.second-products-logo-wrap`, black on white). Skeleton + logo CSS lives at the end of `home.css`.
 - **Stock now reads live from Firestore** (source of truth): the admin writes every stock change to the Firestore `products` collection (`adjustStock`/`saveProduct`). Previously the storefront only read the deployed static `products.json`, which went stale until a redeploy — so admin edits appeared on the admin's own browser (via their `localStorage`) but not for customers, which is why stock looked "inconsistent." Added `window.loadLiveProducts()` in `header.js` (reads the `products` collection; `firestore.rules` already allow public read). `home-products.js`, `catalog-grid.js`, and `product-core.js` now override each product's `stock` (and every customisation block's `stock`) with the live Firestore value after the products.json/local load, then re-render — so stock is correct for every visitor immediately, independent of redeploys. `loadLiveProducts` uses the Firestore REST API (CORS-verified for this origin) as its primary path with a Web SDK fallback. All HTML pages now load `header.js` / `home-products.js` / `catalog-grid.js` / `product-core.js` with a `?v=20260902_1209` cache-buster so returning visitors fetch the updated JS (Firebase Hosting caches unversioned static assets, which is why earlier edits appeared stale). Price/image/name still come from `products.json` (updates on deploy); ask if you want those live too.
 - Admin tabs are role-gated; `admin-auth.js` invokes the per-tab loaders.
+- Homepage "Customers are saying" testimonials: section lives at the bottom of `index.html` (below the 2nd catalog / "MAKE THEM REMEMBER" scroll), rendered by `js/home/home-reviews.js` (auto-rotating single card + dots; hides entirely if no reviews). It reads `featured_reviews` from `custom_text_settings.json` (fetched fresh, falls back to `minara_custom_text` localStorage), resolves product names from `products.json`. Admin curates it via a new **⭐ Homepage Reviews** tab (`admin.html` `#featured-reviews-tab`; `js/admin/admin-featured-reviews.js` exposes `loadFeaturedReviewsAdmin`/`saveFeaturedReviews`). Save writes `featured_reviews` into `settings/custom_text` (Firestore) AND calls the existing `saveCustomText` GitHub sync so it publishes on redeploy. Reviews match by `productId|name|rating|text` composite key (no Firestore id stored).
+- Shipping-day messaging unified to "1–3 days" (product page `template product.html` complimentary shipping text, homepage + `custom_text_settings.json` + `admin-settings.js` feature copy, `returns-shipping.html` + `js/pages/returns-shipping.js` + `admin-settings.js` policy). Also fixed the free-delivery message inconsistencies (`R600`→`R650`, `R645`→`R650`) in `custom_text_settings.json`. Homepage delivery box gained a small grey `(via the courier guy)` note (`.delivery-courier-note`, sibling of the description so `applyCustomText` doesn't overwrite it).
+- Checkout UX: address finder relabelled "Find your address" with an "Auto-fill" pill + "just type your address" hint and placeholder "Start typing your address…"; delivery-instructions placeholder now `e.g. "leave at gate"` with a hint line. Global `.form-input::placeholder { font-style: italic; color:#9ca3af; }` added in `checkout.html` so placeholders read as examples, never as pre-filled input.
+
 
 
 <!-- FILE_INVENTORY_START -->
@@ -93,6 +97,7 @@
 - js/admin/admin-analytics.js
 - js/admin/admin-auth.js
 - js/admin/admin-core.js
+- js/admin/admin-featured-reviews.js
 - js/admin/admin-notifications.js
 - js/admin/admin-orders.js
 - js/admin/admin-products.js
@@ -107,6 +112,7 @@
 - js/home/home-hero.js
 - js/home/home-main.js
 - js/home/home-products.js
+- js/home/home-reviews.js
 - js/pages/returns-shipping.js
 - js/product/product-bundle.js
 - js/product/product-core.js

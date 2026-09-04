@@ -39,6 +39,9 @@
     if (tabId === 'reviews-tab' && typeof window.loadAdminReviews === 'function') {
       window.loadAdminReviews();
     }
+    if (tabId === 'featured-reviews-tab' && typeof window.loadFeaturedReviewsAdmin === 'function') {
+      window.loadFeaturedReviewsAdmin();
+    }
     if (tabId === 'notifications-tab') {
       if (typeof window.fetchUnsupportedRequests === 'function') {
         window.fetchUnsupportedRequests();

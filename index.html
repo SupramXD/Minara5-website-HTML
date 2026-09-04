@@ -21,7 +21,7 @@
 
   <link rel="modulepreload" href="header.js?v=20260902_1209">
 
-  <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="home.css?v=20260904">
   <script>
     (function () {
       try {
@@ -377,8 +377,9 @@
           </span>
           <h3 class="brand-feature-title">FREE DELIVERY OVER R650</h3>
         </div>
-        <p class="brand-feature-description">Fast 2-3 day delivery straight to your door. Free on orders over R650 (flat
+        <p class="brand-feature-description">Fast 1-3 day delivery straight to your door. Free on orders over R650 (flat
           R85 fee applies to smaller orders).</p>
+        <span class="delivery-courier-note">(via the courier guy)</span>
       </div>
 
       <!-- Feature 4: SIDE EFFECT:COMPLIMENTS -->
@@ -469,6 +470,34 @@
     </div>
   </section>
 
+  <!-- CUSTOMER REVIEWS / TESTIMONIALS -->
+  <section class="home-testimonials" id="homeTestimonials">
+    <div class="home-testimonials-inner">
+      <h2 class="home-testimonials-title">Customers are saying</h2>
+
+      <div class="home-testimonials-aggregate" id="homeTestimonialsAggregate">
+        <span class="home-testimonials-stars" id="homeTestimonialsStars"></span>
+        <span class="home-testimonials-score" id="homeTestimonialsScore"></span>
+        <span class="home-testimonials-verified">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Verified
+        </span>
+      </div>
+
+      <div class="home-testimonials-card" id="homeTestimonialsCard">
+        <div class="home-testimonials-quote">&ldquo;</div>
+        <p class="home-testimonials-text" id="homeTestimonialsText"></p>
+        <div class="home-testimonials-customer">
+          <span class="home-testimonials-card-stars" id="homeTestimonialsCardStars"></span>
+          <div class="home-testimonials-name" id="homeTestimonialsName"></div>
+          <div class="home-testimonials-product" id="homeTestimonialsProduct"></div>
+        </div>
+      </div>
+
+      <div class="home-testimonials-dots" id="homeTestimonialsDots"></div>
+    </div>
+  </section>
+
   <section class="brand-section" style="padding-top: 40px; padding-bottom: 110px;">
     <div class="brand-section-inner">
       <!-- DESKTOP NEWSLETTER SIGNUP -->
@@ -537,6 +566,7 @@
   <script src="js/home/home-main.js"></script>
   <script type="module" src="header.js?v=20260902_1209"></script>
   <script src="js/home/home-products.js?v=20260902_1209"></script>
+  <script src="js/home/home-reviews.js?v=20260902_1209"></script>
 </body>
 
 </html>

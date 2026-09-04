@@ -112,6 +112,7 @@
               <button class="tab-btn" onclick="switchTab('notifications-tab')">Notifications & Requests</button>
               <button class="tab-btn" onclick="switchTab('image-optimizer-tab')">Image Optimizer</button>
               <button class="tab-btn" onclick="switchTab('reviews-tab')">Reviews Manager</button>
+              <button class="tab-btn" onclick="switchTab('featured-reviews-tab')">⭐ Homepage Reviews</button>
               <button class="tab-btn" onclick="switchTab('features-tab')">📝 Homepage Feature Boxes & Site Texts (Returns, Accordions, Footer)</button>
             </div>
 
@@ -1601,6 +1602,47 @@
               </div>
             </div>
 
+            <!-- TAB: FEATURED HOMEPAGE REVIEWS -->
+            <div id="featured-reviews-tab" class="tab-content">
+              <div class="console-panel full-width-panel">
+                <div class="panel-header">
+                  <h2 class="panel-title">Homepage Reviews</h2>
+                  <span class="stat-label" style="font-size: 10px;" id="featuredReviewsStats">0 Reviews Loaded</span>
+                </div>
+
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
+                  Tick the reviews you want featured in the homepage <strong>“Customers are saying”</strong> section. Click
+                  <strong>Save &amp; Sync</strong> to publish. Changes appear once the site is redeployed (the same way product
+                  and site-text edits publish). These are stored in <code>custom_text_settings.json</code>.
+                </p>
+
+                <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                  <button class="btn-action accent-btn" id="saveFeaturedReviewsBtn" onclick="saveFeaturedReviews()">Save &amp; Sync</button>
+                  <button class="btn-action" onclick="loadFeaturedReviewsAdmin()">Refresh from Database</button>
+                </div>
+
+                <div class="admin-table-container">
+                  <table class="admin-table" id="featuredReviewsTable">
+                    <thead>
+                      <tr>
+                        <th style="width: 44px;">Featured</th>
+                        <th>Product ID</th>
+                        <th>Rating</th>
+                        <th>Author</th>
+                        <th>Content</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+                    <tbody id="featuredReviewsTableBody">
+                      <tr>
+                        <td colspan="6" style="text-align: center; opacity: 0.5; padding: 30px;">Click “Refresh from Database” to load reviews.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
             <!-- TAB 6: FOOTER & FEATURES CUSTOMIZER -->
             <div id="features-tab" class="tab-content">
               <form id="customTextSettingsForm" onsubmit="handleSaveCustomTextSettings(event)">
@@ -2195,6 +2237,7 @@
   <script src="js/admin/admin-analytics.js?v=20260826_1630"></script>
   <script src="js/admin/admin-settings.js?v=20260826_1630"></script>
   <script src="js/admin/admin-reviews.js?v=20260826_1630"></script>
+  <script src="js/admin/admin-featured-reviews.js?v=20260904"></script>
 
   <!-- Admin Auth & Security Gateway Bootstrapper -->
   <script type="module" src="js/admin/admin-auth.js?v=20260826_1630"></script>
