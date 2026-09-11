@@ -1,5 +1,5 @@
 let lastRemovedItem = null;
-import "./js/core/cart.js?v=20260826_1615";
+import "./js/core/cart.js?v=20260911";
 import "./js/core/search.js?v=20260826_1615";
 import "./js/core/auth.js?v=20260826_1615";
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";

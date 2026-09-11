@@ -189,12 +189,9 @@
 
       const priceEl = document.getElementById("productPrice") || document.querySelector(".product-price");
       if (priceEl) {
-        const isTopup = !!(document.body && document.body.classList.contains('topup'));
-        if (isTopup) {
-          // Upsell second-bottle offer: crossed-out official price + blue discounted price.
-          const topupPrice = Math.max(0, totalPrice - 241);
-          priceEl.innerHTML = `<span style="text-decoration:line-through; opacity:0.5; font-size:0.85em; margin-right:6px;">R ${Math.round(totalPrice).toLocaleString()}</span><span style="color:#1106e8; font-weight:bold;">R ${Math.round(topupPrice).toLocaleString()}</span>`;
-        } else if (window.activeDiscount) {
+        // The upsell/"2nd bottle" price is NEVER shown here — it belongs to the upsell
+        // catalog only (?topup=1 with a bottle already in the bag).
+        if (window.activeDiscount) {
           priceEl.innerHTML = `<span style="text-decoration:line-through; opacity:0.5; font-size:0.85em; margin-right:6px;">R ${totalPrice.toLocaleString()}</span> R ${Math.round(finalPrice).toLocaleString()}`;
         } else {
           priceEl.textContent = `R ${finalPrice.toLocaleString()}`;

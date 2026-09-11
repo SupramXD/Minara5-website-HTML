@@ -21,13 +21,25 @@
 
   async function initCatalog() {
     const qp = new URLSearchParams(window.location.search);
-    const isTopup = qp.get('topup') === '1';
-    if (isTopup && document.body) document.body.classList.add('topup');
-    // Carry the upsell/topup state through to the product page (crossed-out price).
-    try {
-      if (isTopup) sessionStorage.setItem('minara_topup', '1');
-      else sessionStorage.removeItem('minara_topup');
-    } catch (e) {}
+    // The upsell ("2nd bottle") price may ONLY ever appear for a shopper who already has
+    // a bottle in the bag. Guard the URL flag with real bag contents so the discounted
+    // price can never surface on its own (e.g. after the bag is emptied).
+    const requestedTopup = qp.get('topup') === '1';
+    const cartHasItems = () => {
+      if (typeof window.minaraCartHasItems === 'function') return window.minaraCartHasItems();
+      try {
+        const items = JSON.parse(localStorage.getItem('minara_cart')) || [];
+        return Array.isArray(items) && items.some(it => it && !it.removed);
+      } catch (e) {
+        return false;
+      }
+    };
+    const syncTopupState = () => {
+      if (document.body) document.body.classList.toggle('topup', requestedTopup && cartHasItems());
+    };
+    syncTopupState();
+    // Emptying the bag must immediately drop the upsell price from this page too.
+    window.addEventListener('minara:cart-updated', syncTopupState);
     const formatPrice = window.formatPrice || (val => {
       if (val === undefined || val === null || isNaN(val)) return "0";
       return Math.round(Number(val)).toString();

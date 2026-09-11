@@ -1,11 +1,9 @@
 // Studio Extrait - Product Details Core Coordinator & Data Loader Module
 
 (function() {
-  // If the visitor came from the upsell catalog (?topup=1), show the crossed-out
-  // second-bottle price on the product page.
-  try {
-    if (sessionStorage.getItem('minara_topup') === '1' && document.body) document.body.classList.add('topup');
-  } catch (e) {}
+  // NOTE: The upsell/"2nd bottle" discount is intentionally NOT shown on the product
+  // page. The discounted price belongs to the upsell catalog only (?topup=1 with a
+  // bottle already in the bag) — see js/catalog/catalog-grid.js.
 
   let doc, getDoc, collection, addDoc, getDocs, query, where, orderBy;
 

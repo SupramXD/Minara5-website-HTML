@@ -14,6 +14,18 @@
   }
   window.cart = cart;
 
+  // Helper: true when the bag currently holds at least one active (non-removed) item.
+  // Used to gate the upsell ("2nd bottle") pricing so the discounted price can NEVER
+  // render while the bag is empty.
+  window.minaraCartHasItems = function () {
+    try {
+      const items = JSON.parse(localStorage.getItem('minara_cart')) || [];
+      return Array.isArray(items) && items.some(it => it && !it.removed);
+    } catch (e) {
+      return false;
+    }
+  };
+
   // Helper to format price
   function getFormattedPrice(val) {
     if (typeof window.formatPrice === 'function') return window.formatPrice(val);
@@ -149,6 +161,12 @@
     icons.forEach(img => { img.src = totalItems > 0 ? "cart_green.svg" : "cart.svg"; });
 
     renderCartUI();
+
+    // Notify listeners (e.g. the catalog upsell pricing) that the bag contents changed,
+    // so a discounted "2nd bottle" price is dropped the instant the bag empties.
+    try {
+      window.dispatchEvent(new CustomEvent('minara:cart-updated'));
+    } catch (e) {}
   }
   window.saveAndSyncCart = saveAndSyncCart;
 
