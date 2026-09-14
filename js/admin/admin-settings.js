@@ -909,7 +909,7 @@
         console.log("GitHub hero settings sync successful.");
       } catch (gitHubErr) {
         console.error("Failed to sync hero settings to GitHub:", gitHubErr);
-        alert("Warning: Hero settings saved to database, but GitHub sync failed: " + (gitHubErr.message || gitHubErr));
+        alert("Warning: the hero settings were saved to the database, but could NOT be published to GitHub.\n\n" + (window.describeSyncError ? window.describeSyncError(gitHubErr) : (gitHubErr.message || gitHubErr)));
       }
     }
 
@@ -1041,7 +1041,7 @@
         console.log("GitHub second hero settings sync successful.");
       } catch (gitHubErr) {
         console.error("Failed to sync second hero settings to GitHub:", gitHubErr);
-        alert("Warning: Second hero settings saved to database, but GitHub sync failed: " + (gitHubErr.message || gitHubErr));
+        alert("Warning: the second hero settings were saved to the database, but could NOT be published to GitHub.\n\n" + (window.describeSyncError ? window.describeSyncError(gitHubErr) : (gitHubErr.message || gitHubErr)));
       }
     }
 
@@ -1392,7 +1392,7 @@
 
     } catch (err) {
       console.error("Failed to publish text settings:", err);
-      alert("Error publishing text settings: " + (err.message || err));
+      alert("Error publishing text settings: " + (window.describeSyncError ? window.describeSyncError(err) : (err.message || err)));
     } finally {
       if (saveBtn) {
         saveBtn.disabled = false;
@@ -1436,7 +1436,7 @@
       else alert("Warning: Local changes saved, but database and GitHub updates failed.");
     } catch (err) {
       console.error("Failed to publish text settings:", err);
-      alert("Error publishing text settings: " + (err.message || err));
+      alert("Error publishing text settings: " + (window.describeSyncError ? window.describeSyncError(err) : (err.message || err)));
     } finally {
       if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = originalText; }
     }

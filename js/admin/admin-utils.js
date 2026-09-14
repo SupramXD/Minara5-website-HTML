@@ -57,6 +57,39 @@
     }
   };
 
+  // Turns a failed window.syncToGithubCallable(...) call into an actionable message.
+  // IMPORTANT: the Firebase JS SDK collapses *infrastructure* failures (the Cloud
+  // Function never answering / no CORS headers / Cloud Run 5xx) into
+  // FunctionsError("internal", "internal") - so a bare "internal" always means the
+  // sync service itself is down, NOT that the edit was rejected.
+  window.describeSyncError = function(err) {
+    const code = err && err.code ? String(err.code) : "";
+    const raw = String((err && (err.message || err.code)) || err || "unknown error");
+    const flat = (raw + " " + code).toLowerCase();
+
+    if (flat.includes("internal")) {
+      return "The GitHub sync service is UNREACHABLE - the Cloud Function did not answer " +
+        "(a server/infrastructure error, not a problem with your edit).\n\n" +
+        "Your change IS saved in the database, but it was NOT written to GitHub, so the " +
+        "storefront will keep showing the old value until the sync service is fixed " +
+        "(Firebase billing / function deploy).\n\n" +
+        'Quick check: node tools/check-functions-health.js';
+    }
+    if (flat.includes("deadline-exceeded") || flat.includes("timeout")) {
+      return "The GitHub sync timed out. Your change is saved in the database but was not " +
+        "published to GitHub - please save again.";
+    }
+    if (flat.includes("unavailable")) {
+      return "The GitHub sync service is temporarily unavailable. Your change is saved in the " +
+        "database but was not published to GitHub - please try again in a minute.";
+    }
+    if (flat.includes("unauthenticated") || flat.includes("permission-denied")) {
+      return "You are not authorised to sync to GitHub (" + raw + "). Sign in with the admin " +
+        "account and try again.";
+    }
+    return raw;
+  };
+
   window.compressUrlOrPath = function(urlOrPath, maxWidth = 1200, quality = 0.80) {
     return new Promise((resolve) => {
       if (!urlOrPath) {

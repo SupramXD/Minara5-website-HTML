@@ -12,6 +12,13 @@
 - **`.github/workflows/deploy.yml`**: on push to `main`, runs `firebase deploy --only hosting --project minara5 --token "${{ secrets.FIREBASE_TOKEN }}"`. This is what auto-publishes admin edits (product / Site Texts) that sync to GitHub via `syncToGithub`. Missing/invalid token → the "Deploy hosting" step fails on auth. **Setup:** run `firebase login:ci`, copy the token, add it as a repo Actions secret named `FIREBASE_TOKEN`, then re-run the failed workflow. Until then (or as a fallback) run `firebase deploy --only hosting` manually.
 - Local: open HTML direct or `firebase serve`. Node is available (functions has package-lock).
 
+## Troubleshooting (when the admin shows a sync error)
+- **"GitHub sync failed: internal" popup** = the sync Cloud Function did not answer at all. The Firebase JS SDK collapses infrastructure failures (function unreachable / no CORS headers / Cloud Run 5xx) into `FunctionsError("internal", "internal")`, so a bare "internal" is NEVER about the edit itself. Diagnose with `node tools/check-functions-health.js` (probes every HTTP function; healthy = JSON callable response, `DOWN` = Google's HTML 500 page).
+- **2026-09-14 outage (verified)**: every function in project `minara5` (`syncToGithub`, `trackCourierGuyOrder`, payment callables…) returned Google Frontend's generic HTML `500 Server Error` with no CORS headers, so admins could still write to Firestore but nothing could sync to GitHub. Firebase Hosting (`studioextrait.co.za`, 200) and Firestore were fine. Cause: the project has **no active billing** — `firebase functions:secrets:access GITHUB_TOKEN --project minara5` answers `403 … This API method requires billing to be enabled`, and Cloud Functions v2 runs on Cloud Run which requires the Blaze plan. Fix: re-enable billing (Firebase console → Usage and billing) and `firebase deploy --only functions --project minara5`, then re-run the health check.
+- **Auto-publish is broken separately**: the `.github/workflows/deploy.yml` "Deploy hosting" step has failed on every push since 2026-09-04 (`FIREBASE_TOKEN` secret missing/invalid). Until it is fixed, a successful GitHub sync does NOT reach the live site — run `firebase deploy --only hosting --project minara5` manually.
+- **Pending data mismatch** (from the outage): Firestore `products/inspired-by-jpg-le-male`.name = `A warm day` (test rename saved 2026-09-14) while `products.json` still says `JPG LE MALE`. Re-save the product once sync works (or patch `products.json` + push) so both sources agree.
+- Error reporting hardening (2026-09-14): `syncToGithub` now throws `failed-precondition` with the real reason (never the masked `internal` code), reads the `GITHUB_TOKEN` secret defensively, sets `firestore.settings({ignoreUndefinedProperties: true})` (the Admin SDK otherwise rejects the whole batch with `Cannot use "undefined" as a Firestore value` when a customisation block has no `price`), and uses `batch.set(..., {merge: true})` instead of `batch.update` for sort-order shuffling (an `update` on a product missing from Firestore aborted the save). Admin popups now go through `window.describeSyncError()` (`js/admin/admin-utils.js`), which turns `internal` into an actionable "sync service unreachable — your change IS saved in the database" message.
+
 ## Data files (repo root)
 - `products.json` — catalog. Fields: id, name, nameShort, price (ZAR), retailPrice (designer RRP), stock, image/image_thumb/galleryImages, customisations[], isBundle, bundleSize, sizes, status.
 - `custom_text_settings.json` — admin-editable text (accordions, returns, features[6], trust_banner, footer_description).
@@ -148,6 +155,7 @@
 - socials.svg
 - success.html
 - template product.html
+- tmp-test-describe.js
 - track-order.html
 - track.svg
 ```

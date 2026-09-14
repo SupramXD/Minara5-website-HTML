@@ -14,6 +14,12 @@ const path = require("path");
 admin.initializeApp();
 const firestore = admin.firestore();
 
+// Product documents are built from client payloads where optional fields (e.g. a
+// customisation block's `price`) can be `undefined`. Without this the Admin SDK
+// rejects the whole write with "Cannot use "undefined" as a Firestore value",
+// which the admin panel could only report as a masked "internal" error.
+firestore.settings({ignoreUndefinedProperties: true});
+
 // Global Cloud Function configurations
 setGlobalOptions({maxInstances: 10});
 
@@ -216,8 +222,14 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
     throw new HttpsError("permission-denied", "Unauthorized. Only Admins can modify settings.");
   }
 
-  const token = githubTokenSecret.value();
   const {action, payload} = request.data;
+
+  let token = "";
+  try {
+    token = githubTokenSecret.value();
+  } catch (secretErr) {
+    logger.error("GITHUB_TOKEN secret could not be read:", secretErr);
+  }
 
   if (!token) {
     throw new HttpsError("failed-precondition", "GitHub Token secret is missing or empty.");
@@ -429,7 +441,9 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
               timestamp: new Date().toISOString(),
             });
           } else {
-            batch.update(docRef, {sortOrder: p.sortOrder});
+            // set+merge (instead of update) so a product that only exists in
+            // products.json (not in Firestore) can never abort the whole save.
+            batch.set(docRef, {sortOrder: p.sortOrder}, {merge: true});
           }
         }
         await batch.commit();
@@ -754,7 +768,15 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
     }
   } catch (error) {
     logger.error("Error in syncToGithub:", error);
-    throw new HttpsError("internal", error.message || "Failed to synchronize changes to GitHub.");
+    if (error instanceof HttpsError) {
+      throw error;
+    }
+    // Never use the "internal" code here: the callable protocol masks internal
+    // error messages, so the admin panel only ever saw the word "internal".
+    // "failed-precondition" passes the real reason (e.g. the GitHub API response)
+    // through to the browser.
+    throw new HttpsError("failed-precondition",
+        `GitHub sync failed (${action}): ${error.message || error}`);
   }
 });
 

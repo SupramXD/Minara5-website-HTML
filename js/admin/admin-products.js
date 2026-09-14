@@ -498,6 +498,7 @@ window.adjustStock = async function(productId, amount) {
                       }
                   } catch (dbErr) {
                       console.error("Stock sync to database or GitHub failed:", dbErr);
+                      window.logAdminSave("⚠ Stock change could not be synced to the database/GitHub - " + (dbErr.message || dbErr), true);
                   }
               }
           }
@@ -549,7 +550,7 @@ window.adjustStock = async function(productId, amount) {
                   console.log(`GitHub delete sync successful for ${productId}`);
               } catch (gitHubErr) {
                   console.error("GitHub delete sync failed:", gitHubErr);
-                  alert("Warning: Product was deleted from database, but GitHub sync failed: " + (gitHubErr.message || gitHubErr));
+                  alert("Warning: the product was deleted from the database, but it could NOT be removed from GitHub, so it can still appear on the live site.\n\n" + (window.describeSyncError ? window.describeSyncError(gitHubErr) : (gitHubErr.message || gitHubErr)));
               }
           }
           alert("Success! The product has been permanently removed.");
@@ -1387,6 +1388,8 @@ window.PERFUME_NOTE_LIBRARY = [
       }
 
       // Sync edited product to GitHub static repo
+      let gitHubSynced = false;
+      let gitHubSyncError = null;
       if (firestoreSuccess && window.syncToGithubCallable) {
           window.logAdminSave("Calling syncToGithubCallable ('saveProduct')...");
           try {
@@ -1418,10 +1421,14 @@ window.PERFUME_NOTE_LIBRARY = [
                       scentProfile: scentProfile
                   }
               });
+              if (res && res.data && res.data.success === false) {
+                  throw new Error(res.data.message || "GitHub sync failed");
+              }
+              gitHubSynced = true;
               window.logAdminSave("✓ GitHub sync successful: " + (res.data ? res.data.message : "OK"));
           } catch (gitHubErr) {
               window.logAdminSave("⚠ GitHub sync warning: " + (gitHubErr.message || gitHubErr), true);
-              alert("Warning: Product was updated in database, but GitHub sync failed: " + (gitHubErr.message || gitHubErr));
+              gitHubSyncError = gitHubErr;
           }
       }
 
@@ -1438,7 +1445,11 @@ window.PERFUME_NOTE_LIBRARY = [
       }
 
       if (firestoreSuccess) {
-          alert("Success! " + name + " has been successfully updated and synced.");
+          if (gitHubSynced) {
+              alert("Success! \"" + name + "\" has been updated in the database and synced to GitHub.\n(The live site updates after the next hosting deploy.)");
+          } else {
+              alert("Saved - but NOT published!\n\n\"" + name + "\" was updated in the database, but the GitHub sync failed.\n\n" + (window.describeSyncError ? window.describeSyncError(gitHubSyncError) : (gitHubSyncError && gitHubSyncError.message) || gitHubSyncError));
+          }
       } else {
           alert("Warning: " + name + " was updated locally, but failed to sync online.\nError: " + firestoreErrorMsg);
       }
@@ -1631,6 +1642,8 @@ window.PERFUME_NOTE_LIBRARY = [
       }
 
       // Sync to GitHub static repo
+      let gitHubSynced = false;
+      let gitHubSyncError = null;
       if (firestoreSuccess && window.syncToGithubCallable) {
           try {
               await window.syncToGithubCallable({
@@ -1660,10 +1673,11 @@ window.PERFUME_NOTE_LIBRARY = [
                       scentProfile: scentProfile
                   }
               });
+              gitHubSynced = true;
               console.log("GitHub sync successful for: " + name);
           } catch (gitHubErr) {
               console.error("Failed to sync to GitHub:", gitHubErr);
-              alert("Warning: Product was saved to database, but GitHub sync failed: " + (gitHubErr.message || gitHubErr));
+              gitHubSyncError = gitHubErr;
           }
       }
 
@@ -1675,7 +1689,11 @@ window.PERFUME_NOTE_LIBRARY = [
       }
 
       if (firestoreSuccess) {
-          alert("Success! " + name + " has been successfully injected and synced.");
+          if (gitHubSynced) {
+              alert("Success! \"" + name + "\" has been added to the database and synced to GitHub.\n(The live site updates after the next hosting deploy.)");
+          } else {
+              alert("Saved - but NOT published!\n\n\"" + name + "\" was added to the database, but the GitHub sync failed.\n\n" + (window.describeSyncError ? window.describeSyncError(gitHubSyncError) : (gitHubSyncError && gitHubSyncError.message) || gitHubSyncError));
+          }
       } else {
           alert("Warning: " + name + " was saved locally, but failed to sync online.\nError: " + firestoreErrorMsg);
       }
