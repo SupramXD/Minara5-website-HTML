@@ -1183,6 +1183,10 @@
             }
           } catch (e) {}
 
+          // Cache-busting: version the image URLs before rendering so a newly uploaded
+          // photo is fetched immediately (see window.minaraDecorateProductImages).
+          if (window.minaraDecorateProductImages) window.minaraDecorateProductImages([data]);
+
           const liveProduct = data;
           const custsChanged = JSON.stringify(product ? product.customisations : null) !== JSON.stringify(liveProduct.customisations);
           const scentChanged = JSON.stringify(product ? product.scentProfile : null) !== JSON.stringify(liveProduct.scentProfile);

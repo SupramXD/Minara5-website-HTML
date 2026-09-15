@@ -19,14 +19,97 @@ window.formatPrice = function(value) {
     if (value === undefined || value === null || isNaN(value)) return "0";
     return Math.round(Number(value)).toString();
 };
+
+// --- IMAGE CACHE-BUSTING -------------------------------------------------
+// Product/hero images keep the same file name forever and Firebase Hosting caches
+// images aggressively (firebase.json used to allow 7 days), so a photo swapped in the
+// admin panel stayed stale. Every admin-editable image is therefore requested with a
+// `?v=<version>` tag derived from the row's own Firestore `timestamp` (registered by
+// loadLiveProducts / the hero loaders), so only images that actually changed get a new
+// URL - no "hard refresh" needed by anyone.
+window.minaraImageVersions = window.minaraImageVersions || {};
+
+window.minaraRegisterImageVersions = function(paths, version) {
+    if (!version) return;
+    if (!window.minaraImageVersions) window.minaraImageVersions = {};
+    (Array.isArray(paths) ? paths : [paths]).forEach(function(p) {
+        if (!p || typeof p !== "string") return;
+        const clean = p.trim().split("?")[0];
+        if (!clean || clean.startsWith("data:") || clean.startsWith("blob:")) return;
+        window.minaraImageVersions[clean] = version;
+    });
+};
+
+// Idempotent: calling it twice never appends `v` twice.
+window.minaraVersionedImage = function(url) {
+    if (!url || typeof url !== "string") return url || "";
+    const trimmed = url.trim();
+    if (!trimmed || trimmed.startsWith("data:") || trimmed.startsWith("blob:")) return trimmed;
+    if (/[?&](v|t)=/.test(trimmed)) return trimmed;
+    if (/^https?:\/\//i.test(trimmed) && trimmed.indexOf(location.host) === -1) return trimmed;
+    const path = trimmed.split("#")[0].split("?")[0];
+    const version = window.minaraImageVersions ? window.minaraImageVersions[path] : null;
+    if (!version) return trimmed;
+    return trimmed + (trimmed.indexOf("?") === -1 ? "?" : "&") + "v=" + encodeURIComponent(version);
+};
+
+function minaraVersionImageList(value) {
+    if (typeof value !== "string" || !value.trim()) return value;
+    const trimmed = value.trim();
+    if (trimmed.startsWith("data:") || trimmed.startsWith("blob:")) return trimmed;
+    const parts = trimmed.split(",").map(function(s) { return s.trim(); }).filter(Boolean)
+        .map(window.minaraVersionedImage);
+    return parts.length > 1 ? parts.join(", ") : parts[0];
+}
+
+// Rewrites every image field of a product list in place, so ALL renderers (cards,
+// product gallery, customisation thumbs, bundle picker, cart, search) get versioned URLs.
+window.minaraDecorateProductImages = function(products) {
+    if (!Array.isArray(products)) return products;
+    products.forEach(function(p) {
+        if (!p) return;
+        if (p.image) p.image = minaraVersionImageList(p.image);
+        if (p.image_thumb) p.image_thumb = minaraVersionImageList(p.image_thumb);
+        if (Array.isArray(p.galleryImages)) p.galleryImages = p.galleryImages.map(window.minaraVersionedImage);
+        ["standardBottleImg", "masculinePremiumBottleImg", "femininePremiumBottleImg"].forEach(function(k) {
+            if (p[k]) p[k] = window.minaraVersionedImage(p[k]);
+        });
+        if (Array.isArray(p.customisations)) {
+            p.customisations.forEach(function(c) {
+                if (!c) return;
+                if (c.image) c.image = minaraVersionImageList(c.image);
+                if (c.image_thumb) c.image_thumb = minaraVersionImageList(c.image_thumb);
+            });
+        }
+    });
+    return products;
+};
+
+// Hero / second-hero images are versioned from the settings object's own timestamp.
+window.minaraDecorateHeroImages = function(settingsObj) {
+    if (!settingsObj || typeof settingsObj !== "object") return settingsObj;
+    const ts = settingsObj.timestamp ? (Date.parse(settingsObj.timestamp) || settingsObj.timestamp) : "";
+    if (!ts) return settingsObj;
+    ["leftImage", "rightImage", "mobileImage"].forEach(function(k) {
+        const v = settingsObj[k];
+        if (typeof v === "string" && v && !/[?&](v|t)=/.test(v)) {
+            settingsObj[k] = v + (v.indexOf("?") === -1 ? "?" : "&") + "v=" + encodeURIComponent(ts);
+        }
+    });
+    return settingsObj;
+};
+
 window.getThumbnailImageUrl = function(src, thumbSrc) {
-    if (thumbSrc) return thumbSrc;
-    if (!src) return "";
-    const cleanSrc = src.split(',')[0].trim();
-    if (cleanSrc.endsWith("-main.avif")) {
-        return cleanSrc.replace("-main.avif", "-thumb.avif");
+    let out;
+    if (thumbSrc) {
+        out = thumbSrc;
+    } else if (!src) {
+        out = "";
+    } else {
+        const cleanSrc = src.split(',')[0].trim();
+        out = cleanSrc.endsWith("-main.avif") ? cleanSrc.replace("-main.avif", "-thumb.avif") : cleanSrc;
     }
-    return cleanSrc;
+    return window.minaraVersionedImage ? window.minaraVersionedImage(out) : out;
 };
 
 // --- DYNAMICALLY INJECT FADE-IN & CUSTOM LOGO SIZE CSS ---
@@ -375,7 +458,16 @@ window.loadLiveProducts = async () => {
     return data.documents.map(d => {
       const id = (d.name || "").split("/").pop();
       const f = d.fields || {};
+      const strVal = (x) => (x && typeof x.stringValue === "string") ? x.stringValue : "";
       const customisations = [];
+      const imagePaths = [];
+      const collectPaths = (v) => {
+        if (!v) return;
+        v.split(",").forEach(part => {
+          const clean = part.trim().split("?")[0];
+          if (clean && !clean.startsWith("data:") && !clean.startsWith("blob:")) imagePaths.push(clean);
+        });
+      };
       if (f.customisations && f.customisations.arrayValue && f.customisations.arrayValue.values) {
         f.customisations.arrayValue.values.forEach(v => {
           const cf = (v && v.mapValue && v.mapValue.fields) || {};
@@ -383,7 +475,23 @@ window.loadLiveProducts = async () => {
             label: (cf.label && cf.label.stringValue) ? cf.label.stringValue : "",
             stock: intVal(cf.stock)
           });
+          collectPaths(strVal(cf.image));
+          collectPaths(strVal(cf.image_thumb));
         });
+      }
+      // Cache-busting version = the doc's own last-saved timestamp.
+      const tsRaw = strVal(f.timestamp);
+      const version = tsRaw ? (Date.parse(tsRaw) || tsRaw) : "";
+      if (version) {
+        collectPaths(strVal(f.image));
+        collectPaths(strVal(f.image_thumb));
+        collectPaths(strVal(f.standardBottleImg));
+        collectPaths(strVal(f.masculinePremiumBottleImg));
+        collectPaths(strVal(f.femininePremiumBottleImg));
+        if (f.galleryImages && f.galleryImages.arrayValue && f.galleryImages.arrayValue.values) {
+          f.galleryImages.arrayValue.values.forEach(v => collectPaths(strVal(v)));
+        }
+        if (window.minaraRegisterImageVersions) window.minaraRegisterImageVersions(imagePaths, version);
       }
       return { id, stock: intVal(f.stock), customisations };
     });
@@ -460,13 +568,16 @@ window.runTurnstile = function() {
     });
 };
 window.getThumbnailImageUrl = function(src, thumbSrc) {
-    if (thumbSrc) return thumbSrc;
-    if (!src) return "";
-    const cleanSrc = src.split(',')[0].trim();
-    if (cleanSrc.endsWith("-main.avif")) {
-        return cleanSrc.replace("-main.avif", "-thumb.avif");
+    let out;
+    if (thumbSrc) {
+        out = thumbSrc;
+    } else if (!src) {
+        out = "";
+    } else {
+        const cleanSrc = src.split(',')[0].trim();
+        out = cleanSrc.endsWith("-main.avif") ? cleanSrc.replace("-main.avif", "-thumb.avif") : cleanSrc;
     }
-    return cleanSrc;
+    return window.minaraVersionedImage ? window.minaraVersionedImage(out) : out;
 };
 window.formatPrice = function(value) {
     if (value === undefined || value === null || isNaN(value)) return "0";

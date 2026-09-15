@@ -946,7 +946,6 @@ window.PERFUME_NOTE_LIBRARY = [
         image: "",
         image_thumb: "",
         priceExtra: 0,
-        price: undefined,
         stock: 10
       });
       window.renderEditCustomisationBlocks();
@@ -1130,16 +1129,24 @@ window.PERFUME_NOTE_LIBRARY = [
       }
 
       window.currentEditCustomisations = (product.customisations && Array.isArray(product.customisations))
-        ? product.customisations.map(c => ({
-            label: c.label || "",
-            size: c.size || (c.label && c.label.toUpperCase().includes("50ML") ? "50ml" : "100ml"),
-            image: c.image || "",
-            image_thumb: c.image_thumb || "",
-            image_data: c.image_data || "",
-            priceExtra: c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : ((c.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0),
-            price: (c.price !== undefined && c.price !== null && c.price !== "") ? Number(c.price) : undefined,
-            stock: (c.stock !== undefined && c.stock !== null && c.stock !== "" && !isNaN(c.stock)) ? Number(c.stock) : 0
-          }))
+        ? product.customisations.map(c => {
+            const block = {
+              label: c.label || "",
+              size: c.size || (c.label && c.label.toUpperCase().includes("50ML") ? "50ml" : "100ml"),
+              image: c.image || "",
+              image_thumb: c.image_thumb || "",
+              image_data: c.image_data || "",
+              priceExtra: c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : ((c.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0),
+              stock: (c.stock !== undefined && c.stock !== null && c.stock !== "" && !isNaN(c.stock)) ? Number(c.stock) : 0
+            };
+            // NEVER set `price: undefined`: Firestore rejects undefined values and the whole
+            // save fails ("Unsupported field value: undefined"). Leaving the key out is also
+            // meaningful - a block without an official price uses base price + priceExtra.
+            if (c.price !== undefined && c.price !== null && c.price !== "") {
+              block.price = Number(c.price);
+            }
+            return block;
+          })
         : [];
       if (typeof window.switchEditModalTab === "function") {
         window.switchEditModalTab("general");
@@ -1342,8 +1349,7 @@ window.PERFUME_NOTE_LIBRARY = [
               const timeoutPromise = new Promise((_, reject) => 
                   setTimeout(() => reject(new Error("Timeout")), 20000)
               );
-              await Promise.race([
-                  window.dbSetDoc(window.dbDoc(window.db, "products", id), {
+              const productDoc = window.stripUndefinedDeep({
                       nameShort: nameShort,
                       name: name,
                       price: price,
@@ -1367,7 +1373,9 @@ window.PERFUME_NOTE_LIBRARY = [
                       sortOrder: sortOrder,
                       scentProfile: scentProfile,
                       timestamp: new Date().toISOString()
-                  }),
+                  });
+              await Promise.race([
+                  window.dbSetDoc(window.dbDoc(window.db, "products", id), productDoc),
                   timeoutPromise
               ]);
               firestoreSuccess = true;
@@ -1599,7 +1607,7 @@ window.PERFUME_NOTE_LIBRARY = [
                   setTimeout(() => reject(new Error("Timeout")), 20000)
               );
               await Promise.race([
-                  window.dbSetDoc(window.dbDoc(window.db, "products", idStr), {
+                  window.dbSetDoc(window.dbDoc(window.db, "products", idStr), window.stripUndefinedDeep({
                       nameShort: nameShort,
                       name: name,
                       price: price,
@@ -1623,7 +1631,7 @@ window.PERFUME_NOTE_LIBRARY = [
                       sortOrder: sortOrder,
                       scentProfile: scentProfile,
                       timestamp: new Date().toISOString()
-                  }),
+                  })),
                   timeoutPromise
               ]);
               firestoreSuccess = true;

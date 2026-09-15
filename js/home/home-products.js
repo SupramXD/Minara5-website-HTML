@@ -132,13 +132,16 @@
 
     // Dynamic image thumbnail switcher (main/thumbnail quality swap)
     const getThumbnailImageUrl = (src, thumbSrc) => {
-      if (thumbSrc) return thumbSrc;
-      if (!src) return "";
-      const cleanSrc = src.split(',')[0].trim();
-      if (cleanSrc.endsWith("-main.avif")) {
-        return cleanSrc.replace("-main.avif", "-thumb.avif");
+      let out;
+      if (thumbSrc) {
+        out = thumbSrc;
+      } else if (!src) {
+        out = "";
+      } else {
+        const cleanSrc = src.split(',')[0].trim();
+        out = cleanSrc.endsWith("-main.avif") ? cleanSrc.replace("-main.avif", "-thumb.avif") : cleanSrc;
       }
-      return cleanSrc;
+      return window.minaraVersionedImage ? window.minaraVersionedImage(out) : out;
     };
 
     // Lazy load & unload manager for product sections
@@ -433,6 +436,13 @@
           }
         }
       });
+      // Cache-busting: give changed images a new URL so every visitor fetches the new
+      // photo immediately (see window.minaraDecorateProductImages in header.js).
+      if (window.minaraDecorateProductImages) {
+        const beforeImgs = products.map(p => (p.image || '') + '|' + (p.image_thumb || '')).join('~');
+        window.minaraDecorateProductImages(products);
+        if (beforeImgs !== products.map(p => (p.image || '') + '|' + (p.image_thumb || '')).join('~')) changed = true;
+      }
       if (changed) {
         try {
           const localProds = JSON.parse(localStorage.getItem("minara_products") || "[]");

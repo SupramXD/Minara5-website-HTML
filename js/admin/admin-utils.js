@@ -57,6 +57,24 @@
     }
   };
 
+  // Firestore rejects `undefined` ("Unsupported field value: undefined") and the error
+  // aborts the ENTIRE write - which is how one optional customisation `price` used to
+  // break a product save. Run every payload through this before setDoc/updateDoc.
+  window.stripUndefinedDeep = function(value) {
+    if (Array.isArray(value)) {
+      return value.map(window.stripUndefinedDeep).filter(v => v !== undefined);
+    }
+    if (value && typeof value === 'object' && !(value instanceof Date)) {
+      const out = {};
+      Object.keys(value).forEach(k => {
+        const v = window.stripUndefinedDeep(value[k]);
+        if (v !== undefined) out[k] = v;
+      });
+      return out;
+    }
+    return value;
+  };
+
   // Turns a failed window.syncToGithubCallable(...) call into an actionable message.
   // IMPORTANT: the Firebase JS SDK collapses *infrastructure* failures (the Cloud
   // Function never answering / no CORS headers / Cloud Run 5xx) into

@@ -74,6 +74,7 @@ async function fetchProducts({key, project}) {
 }
 
 const imageChanges = [];
+const priceWarnings = [];
 
 // Writes a `data:image/...;base64,...` value out as a real file and returns its repo path.
 // Values that are already a path are returned untouched.
@@ -123,7 +124,7 @@ function normalizeScentProfile(sp) {
   return out;
 }
 
-function toProduct({id, data}) {
+function toProduct({id, data}, previousProduct) {
   const imageEntries = String(data.image || '').split(',').map((s) => s.trim()).filter(Boolean);
   const mainImage = materializeImage(imageEntries[0] || '', 'images/products/' + id);
   const gallerySource = (Array.isArray(data.galleryImages) && data.galleryImages.length)
@@ -158,8 +159,26 @@ function toProduct({id, data}) {
       image_data: rawData,
       stock: (c.stock !== undefined && c.stock !== null && !isNaN(c.stock)) ? Number(c.stock) : 10,
     };
-    if (c.price !== undefined && c.price !== null && c.price !== '') block.price = Number(c.price);
-    if (c.priceExtra !== undefined && c.priceExtra !== null) block.priceExtra = Number(c.priceExtra);
+    // If Firestore lost a block's price (e.g. an earlier failed admin save), keep the value
+    // that is still live in products.json instead of silently dropping the price.
+    const prevBlock = (previousProduct && Array.isArray(previousProduct.customisations))
+      ? (previousProduct.customisations[idx] ||
+         previousProduct.customisations.find((pb) => String(pb.label || '') === String(block.label || '')))
+      : null;
+    const hasPrev = (v) => (v !== undefined && v !== null && v !== '' && !isNaN(Number(v)));
+    const curPrice = (c.price !== undefined && c.price !== null && c.price !== '') ? Number(c.price) : null;
+    if (curPrice !== null) {
+      block.price = curPrice;
+    } else if (prevBlock && hasPrev(prevBlock.price)) {
+      block.price = Number(prevBlock.price);
+      priceWarnings.push(`${id} · "${block.label}": no price in Firestore - kept R${block.price} from products.json (re-save the product in the admin to store it)`);
+    }
+    const curExtra = (c.priceExtra !== undefined && c.priceExtra !== null) ? Number(c.priceExtra) : null;
+    if (curExtra !== null) {
+      block.priceExtra = curExtra;
+    } else if (prevBlock && hasPrev(prevBlock.priceExtra)) {
+      block.priceExtra = Number(prevBlock.priceExtra);
+    }
     return block;
   }) : [];
 
@@ -246,10 +265,13 @@ function reportDiff(before, after) {
     console.error('Firestore returned 0 products - refusing to touch products.json.');
     process.exit(1);
   }
-  const next = orderProducts(docs.map(toProduct));
   const currentJson = fs.existsSync(PRODUCTS_JSON) ? fs.readFileSync(PRODUCTS_JSON, 'utf8') : '';
   let current = [];
   try { current = JSON.parse(currentJson); } catch (e) { /* keep empty */ }
+  const currentById = {};
+  (Array.isArray(current) ? current : []).forEach((p) => { if (p && p.id) currentById[p.id] = p; });
+
+  const next = orderProducts(docs.map((doc) => toProduct(doc, currentById[doc.id])));
 
   console.log((CHECK ? 'Checking' : 'Mirroring') + ' ' + next.length +
     ' product(s) from Firestore (project ' + cfg.project + ')...\n');
@@ -260,6 +282,11 @@ function reportDiff(before, after) {
     imageChanges.forEach((c) => {
       console.log('  ' + (c.created ? '+' : '~') + ' ' + c.repoPath + ' (' + Math.round(c.bytes / 1024) + ' KB)');
     });
+  }
+
+  if (priceWarnings.length) {
+    console.log('\nWARNING - customisation prices missing from Firestore:');
+    priceWarnings.forEach((w) => console.log('  ! ' + w));
   }
 
   if (!changes && !imageChanges.length) {

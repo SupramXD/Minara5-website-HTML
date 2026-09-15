@@ -52,6 +52,9 @@
 
   function applyHeroSettings(s) {
     const activeSettings = (s && typeof s === 'object' && !(s instanceof Event)) ? s : (window.heroSettings || settings);
+    // Cache-bust hero images with the settings' own timestamp so a swapped hero image
+    // shows up for everyone without a hard refresh.
+    if (window.minaraDecorateHeroImages) window.minaraDecorateHeroImages(activeSettings);
     const isMobile = window.matchMedia("(max-width: 900px)").matches;
     const imgL = document.getElementById("imgL");
     const imgR = document.getElementById("imgR");
@@ -293,6 +296,8 @@
   window.secondHeroSettings = settings;
 
   function applySecondHeroSettings() {
+    // Cache-bust the second-hero images (same reasoning as the main hero).
+    if (window.minaraDecorateHeroImages) window.minaraDecorateHeroImages(window.secondHeroSettings || settings);
     const isMobile = window.matchMedia("(max-width: 900px)").matches;
     const imgL = document.getElementById("secImgL");
     const imgR = document.getElementById("secImgR");
