@@ -1,0 +1,66 @@
+name: Sync Firestore products -> products.json
+
+# FALLBACK PUBLISH PATH (no Cloud Functions needed).
+#
+# The normal path is: admin panel -> Firestore -> `syncToGithub` Cloud Function -> GitHub.
+# Cloud Functions v2 (Cloud Run) needs the project to have billing enabled; whenever that
+# is not the case the function cannot run at all and the static products.json goes stale
+# (the admin panel then reports "GitHub sync failed: internal" - see MEMORY.md).
+#
+# The Firestore `products` collection is world-readable, so this workflow can mirror it
+# into products.json with no secrets. It runs every 30 minutes and can also be started by
+# hand from the Actions tab (`Run workflow`).
+#
+# If the repo secret FIREBASE_TOKEN exists, the workflow also deploys Firebase Hosting
+# afterwards (pushes made with the default GITHUB_TOKEN do not trigger other workflows,
+# which is why this step lives here). Without it, run
+# `firebase deploy --only hosting --project minara5` manually after a sync.
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: firestore-product-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Mirror Firestore products into products.json
+        run: node tools/pull-firestore-to-repo.js
+
+      - name: Commit the mirrored data
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Already in sync - nothing to commit."
+            exit 0
+          fi
+          git config user.name "studio-extrait-sync"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A products.json images/products
+          git commit -m "Sync products from Firestore (Cloud Functions fallback)"
+          git push
+
+      - name: Deploy hosting (skipped when FIREBASE_TOKEN is not configured)
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          if [ -z "$FIREBASE_TOKEN" ]; then
+            echo "FIREBASE_TOKEN is not set - skipping hosting deploy."
+            echo "The data above is committed; the live site updates on the next manual deploy."
+            exit 0
+          fi
+          npm install -g firebase-tools
+          firebase deploy --only hosting --project minara5 --token "$FIREBASE_TOKEN" --non-interactive

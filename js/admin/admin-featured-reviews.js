@@ -186,6 +186,7 @@
       }
 
       let gitSynced = false;
+      let gitSyncErr = null;
       if (window.syncToGithubCallable) {
         try {
           const res = await window.syncToGithubCallable({ action: "saveCustomText", payload });
@@ -193,6 +194,7 @@
           else throw new Error(res.data && res.data.message ? res.data.message : "GitHub sync failed");
         } catch (e) {
           console.error("GitHub sync failed", e);
+          gitSyncErr = e;
         }
       }
 
@@ -201,7 +203,7 @@
 
       const msg = gitSynced
         ? `Success! ${featured.length} review${featured.length === 1 ? "" : "s"} featured & synced to GitHub. They'll appear on the homepage after the next deploy.`
-        : `Saved locally${savedLocally ? " to Firestore" : ""}. GitHub auto-sync failed — run the deploy workflow to publish.`;
+        : `Saved locally${savedLocally ? " to Firestore" : ""}, but NOT published to GitHub.\n\n${window.describeSyncError ? window.describeSyncError(gitSyncErr) : ((gitSyncErr && gitSyncErr.message) || "GitHub sync failed")}`;
       alert(msg);
     } catch (err) {
       console.error("Failed to save featured reviews:", err);

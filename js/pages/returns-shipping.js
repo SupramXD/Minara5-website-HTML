@@ -180,7 +180,7 @@
       }
     } catch (err) {
       console.error("Save returns policy texts failed:", err);
-      alert("Error saving returns policy texts: " + (err.message || err));
+      alert("Error saving returns policy texts: " + (window.describeSyncError ? window.describeSyncError(err) : (err.message || err)));
     } finally {
       if (btn) {
         btn.disabled = false;

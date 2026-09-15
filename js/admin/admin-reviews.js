@@ -248,7 +248,7 @@
       }
     } catch (err) {
       console.error("Failed to sync reviews to GitHub:", err);
-      alert("Error syncing reviews to Git: " + (err.message || err));
+      alert("Error syncing reviews to GitHub: " + (window.describeSyncError ? window.describeSyncError(err) : (err.message || err)));
     } finally {
       if (syncBtn) {
         syncBtn.disabled = false;
