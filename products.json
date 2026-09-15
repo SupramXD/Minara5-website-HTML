@@ -145,8 +145,8 @@
   },
   {
     "id": "inspired-by-parfums-de-marly-delina",
-    "nameShort": "De Marly Rose",
-    "name": "Inspired By PDM Delina",
+    "nameShort": "The Boquet",
+    "name": "Inspired By Rose Flowers",
     "price": 495,
     "retailPrice": "4450",
     "stock": 10,
@@ -174,8 +174,8 @@
     "scentProfile": {
       "keyNotes": [
         {
-          "name": "Lychee",
-          "icon": "Perfume Note Icons/Lychee.webp"
+          "icon": "Perfume Note Icons/Lychee.webp",
+          "name": "Lychee"
         },
         {
           "name": "Turkish Rose",
@@ -186,8 +186,8 @@
           "icon": "Perfume Note Icons/Bergamot.webp"
         },
         {
-          "name": "Blackcurrant",
-          "icon": "Perfume Note Icons/Blackcurrant.webp"
+          "icon": "Perfume Note Icons/Blackcurrant.webp",
+          "name": "Blackcurrant"
         },
         {
           "name": "Cedar",
