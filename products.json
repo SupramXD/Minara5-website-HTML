@@ -2,7 +2,7 @@
   {
     "id": "inspired-by-jpg-le-male",
     "nameShort": "Wild Bergamote",
-    "name": "a rainy jungle",
+    "name": "sauvage",
     "price": 495,
     "retailPrice": "2200",
     "stock": 5,
@@ -43,8 +43,8 @@
           "icon": "Perfume Note Icons/Lavender.webp"
         },
         {
-          "name": "Vanilla",
-          "icon": "Perfume Note Icons/Vanilla.webp"
+          "icon": "Perfume Note Icons/Vanilla.webp",
+          "name": "Vanilla"
         },
         {
           "name": "Bergamot",
