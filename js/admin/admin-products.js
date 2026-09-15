@@ -370,16 +370,23 @@ async function loadCatalog() {
                           femininePremiumBottleImg: data.femininePremiumBottleImg || "",
                           galleryImages: data.galleryImages || (data.image ? data.image.split(",").map(s => s.trim()).filter(Boolean) : []),
                           customisations: (data.customisations && Array.isArray(data.customisations))
-                            ? data.customisations.map(c => ({
-                                label: c.label || "",
-                                size: c.size || (c.label && c.label.toUpperCase().includes("50ML") ? "50ml" : "100ml"),
-                                image: c.image || "",
-                                image_thumb: c.image_thumb || "",
-                                image_data: c.image_data || "",
-                                priceExtra: c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : ((c.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0),
-                                price: (c.price !== undefined && c.price !== null && c.price !== "") ? Number(c.price) : undefined,
-                                stock: (c.stock !== undefined && c.stock !== null && c.stock !== "" && !isNaN(c.stock)) ? Number(c.stock) : 0
-                              }))
+                            ? data.customisations.map(c => {
+                                const block = {
+                                  label: c.label || "",
+                                  size: c.size || (c.label && c.label.toUpperCase().includes("50ML") ? "50ml" : "100ml"),
+                                  image: c.image || "",
+                                  image_thumb: c.image_thumb || "",
+                                  image_data: c.image_data || "",
+                                  priceExtra: c.priceExtra !== undefined && c.priceExtra !== null ? Number(c.priceExtra) : ((c.label || "").toUpperCase().includes("PREMIUM") ? 145 : 0),
+                                  stock: (c.stock !== undefined && c.stock !== null && c.stock !== "" && !isNaN(c.stock)) ? Number(c.stock) : 0
+                                };
+                                // Omit the key entirely - `price: undefined` is invalid for Firestore
+                                // and would abort any write that reuses this object.
+                                if (c.price !== undefined && c.price !== null && c.price !== "") {
+                                  block.price = Number(c.price);
+                                }
+                                return block;
+                              })
                             : [],
                           sizes: Array.isArray(data.sizes) ? data.sizes : ["50ml", "100ml"],
                           isBundle: !!data.isBundle,
