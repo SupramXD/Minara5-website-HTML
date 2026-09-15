@@ -146,7 +146,7 @@
   {
     "id": "inspired-by-parfums-de-marly-delina",
     "nameShort": "The Boquet",
-    "name": "Inspired By Rose Flowers",
+    "name": "Inspired By Delina",
     "price": 495,
     "retailPrice": "4450",
     "stock": 10,
@@ -174,24 +174,24 @@
     "scentProfile": {
       "keyNotes": [
         {
-          "name": "Lychee",
-          "icon": "Perfume Note Icons/Lychee.webp"
+          "icon": "Perfume Note Icons/Lychee.webp",
+          "name": "Lychee"
         },
         {
-          "icon": "Perfume Note Icons/Turkish_Rose.webp",
-          "name": "Turkish Rose"
+          "name": "Turkish Rose",
+          "icon": "Perfume Note Icons/Turkish_Rose.webp"
         },
         {
-          "icon": "Perfume Note Icons/Bergamot.webp",
-          "name": "Bergamot"
+          "name": "Bergamot",
+          "icon": "Perfume Note Icons/Bergamot.webp"
         },
         {
-          "name": "Blackcurrant",
-          "icon": "Perfume Note Icons/Blackcurrant.webp"
+          "icon": "Perfume Note Icons/Blackcurrant.webp",
+          "name": "Blackcurrant"
         },
         {
-          "icon": "Perfume Note Icons/Cedar.webp",
-          "name": "Cedar"
+          "name": "Cedar",
+          "icon": "Perfume Note Icons/Cedar.webp"
         }
       ],
       "topNotes": "Lychee, Bergamot",
