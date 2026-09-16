@@ -178,16 +178,16 @@
           "name": "Lychee"
         },
         {
-          "icon": "Perfume Note Icons/Turkish_Rose.webp",
-          "name": "Turkish Rose"
+          "name": "Turkish Rose",
+          "icon": "Perfume Note Icons/Turkish_Rose.webp"
         },
         {
           "name": "Bergamot",
           "icon": "Perfume Note Icons/Bergamot.webp"
         },
         {
-          "name": "Blackcurrant",
-          "icon": "Perfume Note Icons/Blackcurrant.webp"
+          "icon": "Perfume Note Icons/Blackcurrant.webp",
+          "name": "Blackcurrant"
         },
         {
           "name": "Cedar",
