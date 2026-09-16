@@ -174,20 +174,20 @@
     "scentProfile": {
       "keyNotes": [
         {
-          "name": "Lychee",
-          "icon": "Perfume Note Icons/Lychee.webp"
+          "icon": "Perfume Note Icons/Lychee.webp",
+          "name": "Lychee"
         },
         {
-          "name": "Turkish Rose",
-          "icon": "Perfume Note Icons/Turkish_Rose.webp"
+          "icon": "Perfume Note Icons/Turkish_Rose.webp",
+          "name": "Turkish Rose"
         },
         {
-          "icon": "Perfume Note Icons/Bergamot.webp",
-          "name": "Bergamot"
+          "name": "Bergamot",
+          "icon": "Perfume Note Icons/Bergamot.webp"
         },
         {
-          "icon": "Perfume Note Icons/Blackcurrant.webp",
-          "name": "Blackcurrant"
+          "name": "Blackcurrant",
+          "icon": "Perfume Note Icons/Blackcurrant.webp"
         },
         {
           "name": "Cedar",
