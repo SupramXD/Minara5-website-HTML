@@ -134,12 +134,33 @@
     "bundleSize": 0,
     "sortOrder": 3,
     "scentProfile": {
-      "keyNotes": [],
-      "topNotes": "",
+      "keyNotes": [
+        {
+          "name": "Calabrian Bergamot",
+          "icon": "Perfume Note Icons/Calabrian_Bergamot.webp"
+        },
+        {
+          "name": "Pink Pepper",
+          "icon": "Perfume Note Icons/Pink_Pepper.webp"
+        },
+        {
+          "name": "Patchouli",
+          "icon": "Perfume Note Icons/Patchouli.webp"
+        },
+        {
+          "name": "Cedar",
+          "icon": "Perfume Note Icons/Cedar.webp"
+        },
+        {
+          "name": "Lavender",
+          "icon": "Perfume Note Icons/Lavender.webp"
+        }
+      ],
+      "topNotes": "Calabrian Bergamot",
       "topNotesDesc": "The first notes you smell",
-      "middleNotes": "",
+      "middleNotes": "Lavender, Pink Pepper",
       "middleNotesDesc": "The heart of the perfume",
-      "baseNotes": "",
+      "baseNotes": "Cedar Wood",
       "baseNotesDesc": "The notes that linger all day"
     }
   },
