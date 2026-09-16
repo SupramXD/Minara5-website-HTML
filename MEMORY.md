@@ -75,6 +75,7 @@
 
 - Homepage second-catalog mobile spacing: `.second-products-outer-wrap` top/bottom padding reduced to 22/24px on mobile, logo margin-bottom 6px, and the "MAKE THEM REMEMBER" header margin-bottom 16px, to close the gap under the second hero.
 - Footer description rewritten (SEO / AI-entity friendly) across `custom_text_settings.json`, `header.js` `DEFAULT_FOOTER_DESCRIPTION`, and `admin-settings.js` default: leads with "STUDIO EXTRAIT — South Africa's home of premium extrait de parfum", mentions "niche-inspired clone fragrances", "20%+ concentration", "affordable luxury", and free delivery over R650.
+- **Header construction sign & Hero tagline (2026-09-16)**: Added a discreet high-fashion `WEBSITE IN CONSTRUCTION` capsule badge with an animated champagne-gold dot (`.header-construction-sign`) in the header next to navigation on desktop and next to the menu icon on mobile across all storefront pages. Updated homepage hero tagline from `Extrait-grade. Up to 90% less than the designer original.` to `Extrait Grade`.
 
 
 

@@ -183,6 +183,76 @@
             opacity: 0.6;
         }
 
+        /* HIGH-FASHION HEADER CONSTRUCTION SIGN */
+        .header-construction-sign {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.035);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 999px;
+            padding: 3px 8px 2.5px 7px;
+            margin-left: 20px;
+            margin-top: 3px;
+            line-height: 1;
+            white-space: nowrap;
+            user-select: none;
+            pointer-events: none;
+            box-sizing: border-box;
+        }
+
+        .header-construction-sign .construction-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #c5a880;
+            display: inline-block;
+            flex-shrink: 0;
+            animation: minaraDotPulse 2.5s ease-in-out infinite;
+        }
+
+        .header-construction-sign .construction-text {
+            font-family: 'Gotham Narrow Bold', 'Gotham Narrow Book', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            color: #555555;
+        }
+
+        @keyframes minaraDotPulse {
+            0%, 100% { opacity: 0.45; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.15); }
+        }
+
+        @media(max-width:900px) {
+            .header-construction-sign {
+                margin-left: 10px;
+                margin-top: 0;
+                padding: 2.5px 6px 2px 5px;
+                gap: 4px;
+            }
+            .header-construction-sign .construction-dot {
+                width: 3.5px;
+                height: 3.5px;
+            }
+            .header-construction-sign .construction-text {
+                font-size: 7px;
+                letter-spacing: 1.1px;
+            }
+        }
+
+        @media(max-width:380px) {
+            .header-construction-sign {
+                margin-left: 6px;
+                padding: 2px 5px 1.5px 4px;
+            }
+            .header-construction-sign .construction-text {
+                font-size: 6.5px;
+                letter-spacing: 0.8px;
+            }
+        }
+
         .menu-icon {
             display: none;
         }
