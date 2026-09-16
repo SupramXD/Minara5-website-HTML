@@ -174,8 +174,8 @@
     "scentProfile": {
       "keyNotes": [
         {
-          "icon": "Perfume Note Icons/Lychee.webp",
-          "name": "Lychee"
+          "name": "Lychee",
+          "icon": "Perfume Note Icons/Lychee.webp"
         },
         {
           "name": "Turkish Rose",
@@ -186,8 +186,8 @@
           "icon": "Perfume Note Icons/Bergamot.webp"
         },
         {
-          "icon": "Perfume Note Icons/Blackcurrant.webp",
-          "name": "Blackcurrant"
+          "name": "Blackcurrant",
+          "icon": "Perfume Note Icons/Blackcurrant.webp"
         },
         {
           "name": "Cedar",
