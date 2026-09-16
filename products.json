@@ -43,8 +43,8 @@
           "icon": "Perfume Note Icons/Lavender.webp"
         },
         {
-          "icon": "Perfume Note Icons/Vanilla.webp",
-          "name": "Vanilla"
+          "name": "Vanilla",
+          "icon": "Perfume Note Icons/Vanilla.webp"
         },
         {
           "name": "Bergamot",
@@ -182,12 +182,12 @@
           "icon": "Perfume Note Icons/Turkish_Rose.webp"
         },
         {
-          "icon": "Perfume Note Icons/Bergamot.webp",
-          "name": "Bergamot"
+          "name": "Bergamot",
+          "icon": "Perfume Note Icons/Bergamot.webp"
         },
         {
-          "icon": "Perfume Note Icons/Blackcurrant.webp",
-          "name": "Blackcurrant"
+          "name": "Blackcurrant",
+          "icon": "Perfume Note Icons/Blackcurrant.webp"
         },
         {
           "name": "Cedar",
