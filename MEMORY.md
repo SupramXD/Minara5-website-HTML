@@ -7,13 +7,26 @@
 - Firestore used for orders, reviews, users, custom text. `functions/index.js` has a GitHub-sync callable.
 - No build step — files served directly. Fonts: Gotham Narrow (Book/Bold). Currency: ZAR (`R`).
 
+## Payments — Yoco Checkout API (replaced PayFast 2026-09-19)
+- Checkout is **server-side only** (Yoco requires it; the old browser-side PayFast sandbox fallback with hardcoded merchant credentials is gone). `createYocoCheckout` (callable) POSTs `https://payments.yoco.com/api/checkouts` with `Authorization: Bearer <secret>` + `Idempotency-Key: <reference>`, saves a pending `orders/<EXTRAIT-…>` doc (`paymentGateway: "yoco"`, `stockDeducted:false`) and returns `redirectUrl`; the storefront does `window.location.href = redirectUrl` so the browser keeps `studioextrait.co.za` as the referrer (that is what Yoco matches against a verified domain).
+- **Only the webhook may mark an order paid.** `yocoWebhook` (`POST /yocoWebhook`) verifies `webhook-signature` (HMAC-SHA256 of `webhook-id.webhook-timestamp.<rawBody>` with the base64-decoded `whsec_` secret, constant-time compare) → 403 on mismatch; it matches the order via `payload.metadata.orderId` (or `checkoutId`), sets `paid/status/yocoPaymentId/yocoAmountGross/yocoPaymentMethod/yocoCardScheme/yocoCardMask`, then deducts stock once. `success.html` therefore polls `verifyYocoPayment` (15 × 2 s) instead of trusting the browser callback.
+- Secrets: `YOCO_TEST_SECRET_KEY` (`sk_test_…`, also the natural home for the live key later) and `YOCO_WEBHOOK_SECRET` (`whsec_…`). Public test key `pk_test_2dff1e63rrv6qKe6af44` lives in `functions/index.js` (`YOCO_PUBLIC_KEY_DEFAULT`, overridable via `YOCO_PUBLIC_KEY`). Changing a secret's *value* = `firebase functions:secrets:set NAME --data-file <file>` → redeploy functions.
+- Webhook registered in the Yoco account (test mode): `sub_ngop46lJzpvsXnnuPeVuDnxB` → `https://us-central1-minara5.cloudfunctions.net/yocoWebhook`. A **live** webhook must be registered with the live secret key once live keys unlock (limit 5 webhooks/account, test+live share it).
+- Deprecated aliases kept for cached pages: `createPayFastTransaction`, `createPaystackTransaction`, `payfastWebhook`, `paystackWebhook`, `verifyPayFastPayment`, `verifyPaystackPayment` all forward to the Yoco functions — delete them once no cached storefront page calls them.
+- Verified end-to-end on deploy (2026-09-19): checkout creation returned `redirectUrl https://c.yoco.com/checkout/…`; a signed probe event returned `200 {"received":true,"matched":true}`; an unsigned one returned `403`; `verifyYocoPayment` returned `verified:true` for the webhook-paid doc and `pending:true` for an unpaid one (probe orders deleted afterwards).
+
+## Yoco domain verification (pending - blockers found 2026-09-19)
+- Yoco's "Verified Domains" review is manual, so the site must look like a complete, crawlable shop. Fixed in the repo: every storefront page now has `<meta name="description">` + canonical + OG tags (previously none), plus new `robots.txt` and `sitemap.xml` (previously 404 — Cloudflare injected a content-signals robots.txt instead).
+- Still open (owner decisions): the header `WEBSITE IN CONSTRUCTION` badge (`.header-construction-sign`, `header.js`) is shown on every page and reads badly to a reviewer → hide/remove; there is **no Terms/Privacy page** (only Returns & Shipping + Contact); the catalog/HP grids are JS-rendered so a non-JS crawler sees no product names or prices; business registration/VAT/trading address are absent from the site; and "inspired by"/"up to 90% less than designer" positioning carries card-network replica risk despite the disclaimer on `returns-shipping.html`.
+- Sites are served by Cloudflare → GitHub Pages, so a push is required for these fixes to appear on `studioextrait.co.za` (all user agents tested got HTTP 200, so no bot-blocking is in play).
+
 ## Build / Deploy
 - Deploy: `firebase deploy` (hosting + functions). Rules: `firestore.rules`; config: `firebase.json`.
 - **`.github/workflows/deploy.yml`**: on push to `main`, runs `firebase deploy --only hosting --project minara5 --token "${{ secrets.FIREBASE_TOKEN }}"`. This is what auto-publishes admin edits (product / Site Texts) that sync to GitHub via `syncToGithub`. Missing/invalid token → the "Deploy hosting" step fails on auth. **Setup:** run `firebase login:ci`, copy the token, add it as a repo Actions secret named `FIREBASE_TOKEN`, then re-run the failed workflow. Until then (or as a fallback) run `firebase deploy --only hosting` manually.
 - Local: open HTML direct or `firebase serve`. Node is available (functions has package-lock).
 
 ## Troubleshooting (when the admin shows a sync error)
-- **"GitHub sync failed: internal" popup** = the sync Cloud Function did not answer at all. The Firebase JS SDK collapses infrastructure failures (function unreachable / no CORS headers / Cloud Run 5xx) into `FunctionsError("internal", "internal")`, so a bare "internal" is NEVER about the edit itself. Diagnose with `node tools/check-functions-health.js` (probes every HTTP function; healthy = JSON callable response, `DOWN` = Google's HTML 500 page).
+- **"GitHub sync failed: internal" popup** = the sync Cloud Function did not answer at all. The Firebase JS SDK collapses infrastructure failures (function unreachable / no CORS headers / Cloud Run 5xx) into `FunctionsError("internal", "internal")`, so a bare "internal" is NEVER about the edit itself. Diagnose with `node tools/check-functions-health.js` (probes every HTTP function; healthy = JSON callable body **or** an HTTP 401/403/405/2xx from the endpoint — a callable that validates input answers 400 + `{"error":…}` and is healthy, and `yocoWebhook`/`payfastWebhook` *should* answer 403 to a credential-free probe; `DOWN` = 404/5xx or Google's HTML error page).
 - **2026-09-14 outage (verified)**: every function in project `minara5` (`syncToGithub`, `trackCourierGuyOrder`, payment callables…) returned Google Frontend's generic HTML `500 Server Error` with no CORS headers, so admins could still write to Firestore but nothing could sync to GitHub. Firebase Hosting (`studioextrait.co.za`, 200) and Firestore were fine. Cause: the project has **no active billing** — proof: `firebase deploy --only functions --project minara5` fails with `Error: Request to https://secretmanager.googleapis.com/.../secrets/GITHUB_TOKEN had HTTP Error: 403, This API method requires billing to be enabled…`, and Cloud Functions v2 runs on Cloud Run which requires the Blaze plan (hosting-only deploys still succeed). Fix: re-enable billing (Firebase console → Usage and billing → Blaze, or the URL in that error) and `firebase deploy --only functions --project minara5`, then re-run the health check.
 - **Which pipeline serves the live site (verified 2026-09-15)**: `studioextrait.co.za` is **Cloudflare → GitHub Pages**, NOT Firebase Hosting (proof: `/firebase.json` and `/functions/index.js` return 200 on the custom domain but 404 on `minara5.web.app`; Pages' default `cache-control: max-age=600`; `x-github-request-id` / Fastly headers; Cloudflare rewrites asset TTLs to `max-age=14400`). Therefore **every push to `main` publishes the live site** - including the commits made by the `syncToGithub` Cloud Function and by `.github/workflows/sync-firestore-products.yml` (both produce `pages build and deployment … success` runs). `firebase deploy --only hosting` only updates `minara5.web.app`. The `.github/workflows/deploy.yml` "Deploy hosting" step fails on every push (missing/invalid `FIREBASE_TOKEN`) but that is cosmetic for customers - fix it only if `minara5.web.app` should track the repo. Because Pages/Cloudflare ignore custom cache headers, cache-busting on the live domain can only be done with versioned URLs (`?v=`, Cloudflare misses on new query strings - verified).
 - **Firestore → products.json FALLBACK (works without Cloud Functions)**: `node tools/pull-firestore-to-repo.js` rebuilds `products.json` (and writes any base64 images out to `images/products/*`) straight from the world-readable Firestore `products` collection; `--check` only reports the diff. It mirrors the `saveProduct` mapping/ordering of `functions/index.js`, so both writers produce identical files (run twice → "Already in sync"). `.github/workflows/sync-firestore-products.yml` runs it every 30 min + on demand, commits the result, and additionally deploys hosting when the `FIREBASE_TOKEN` secret exists (a push made with the default `GITHUB_TOKEN` never triggers `deploy.yml`, hence the extra step). So product edits publish even while the sync function is down; Site Texts / hero / reviews still require the function (their Firestore docs are admin-read-only, so no public fallback is possible).
@@ -153,7 +166,9 @@
 - question mark.svg
 - returns-shipping.html
 - reviews.json
+- robots.txt
 - second_hero_settings.json
+- sitemap.xml
 - skills-lock.json
 - social media.html
 - socials.svg
@@ -161,6 +176,7 @@
 - template product.html
 - track-order.html
 - track.svg
+- validate-site.js
 ```
 <!-- FILE_INVENTORY_END -->
 

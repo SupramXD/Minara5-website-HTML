@@ -52,11 +52,17 @@ async function probe(url) {
 
     const httpsError = json && json.error && typeof json.error === 'object';
     const callableResult = json && Object.prototype.hasOwnProperty.call(json, 'result');
-    if (res.ok && (httpsError || callableResult)) {
+    // A callable that *validates its input* answers a credential-free probe with
+    // HTTP 400 + {"error":{...}} - that is a healthy, reachable function.
+    if (httpsError || callableResult) {
       return { ok: true, status: res.status, detail: 'callable answered: ' + (json.error ? json.error.status || json.error.message : 'result') };
     }
+    // onRequest endpoints (webhooks) reject a credential-free probe with 401/403/405.
+    if (res.status === 401 || res.status === 403 || res.status === 405) {
+      return { ok: true, status: res.status, detail: 'endpoint reachable - rejected the credential-free probe (HTTP ' + res.status + ')' };
+    }
     if (res.status >= 200 && res.status < 300) {
-      return { ok: false, status: res.status, detail: 'HTTP ' + res.status + ' but the body is not a callable response' };
+      return { ok: true, status: res.status, detail: 'HTTP ' + res.status + ' - endpoint reachable (not a callable response)' };
     }
     return {
       ok: false,

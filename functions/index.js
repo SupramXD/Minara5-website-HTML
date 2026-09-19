@@ -26,6 +26,11 @@ setGlobalOptions({maxInstances: 10});
 // Access secrets configured via Firebase Secret Manager
 const githubTokenSecret = defineSecret("GITHUB_TOKEN");
 const courierGuySecret = defineSecret("COURIER_GUY_API_KEY");
+// Yoco Checkout API keys (test keys today, swap the same secret names for the
+// live keys once the domain is verified in the Yoco App).
+const yocoSecretKey = defineSecret("YOCO_TEST_SECRET_KEY");
+// Signing secret returned once by POST https://payments.yoco.com/api/webhooks.
+const yocoWebhookSecret = defineSecret("YOCO_WEBHOOK_SECRET");
 
 /**
  * Utility function to retrieve active Courier Guy Secret Key
@@ -44,73 +49,104 @@ function getCourierGuySecretKey() {
 }
 
 /**
- * Utility functions for PayFast configuration & MD5 signature generation
+ * Utility functions for the Yoco Checkout API configuration.
+ * Docs: https://yoco.docs.buildwithfern.com/docs/checkout-api
  */
-function getPayFastMerchantId() {
-  return process.env.PAYFAST_MERCHANT_ID || "10000100";
-}
+const YOCO_CHECKOUTS_URL = "https://payments.yoco.com/api/checkouts";
+const YOCO_PUBLIC_KEY_DEFAULT = "pk_test_2dff1e63rrv6qKe6af44";
+const WEBSITE_ORIGIN = "https://studioextrait.co.za";
 
-function getPayFastMerchantKey() {
-  return process.env.PAYFAST_MERCHANT_KEY || "46f0cd694581a";
-}
-
-function getPayFastPassphrase() {
-  return process.env.PAYFAST_PASSPHRASE || "";
-}
-
-function getPayFastEnv() {
-  const env = process.env.PAYFAST_ENV || "sandbox";
-  return String(env).toLowerCase().trim();
-}
-
-function getPayFastProcessUrl() {
-  const env = getPayFastEnv();
-  return env === "live" ?
-    "https://www.payfast.co.za/eng/process" :
-    "https://sandbox.payfast.co.za/eng/process";
-}
-
-function getPayFastValidateUrl() {
-  const env = getPayFastEnv();
-  return env === "live" ?
-    "https://www.payfast.co.za/eng/query/validate" :
-    "https://sandbox.payfast.co.za/eng/query/validate";
+/**
+ * Public (publishable) key of the Yoco integration. Safe to expose to the
+ * browser - it is used for display/debugging only, never to authorise a charge.
+ */
+function getYocoPublicKey() {
+  return process.env.YOCO_PUBLIC_KEY || YOCO_PUBLIC_KEY_DEFAULT;
 }
 
 /**
- * PHP-compatible urlencode for PayFast signature matching.
+ * Yoco Checkout API secret key (test or live). Never returned to the client:
+ * checkout sessions are always created here on the server, as Yoco requires.
  */
-function phpUrlEncode(str) {
-  return encodeURIComponent(String(str).trim()).
-      replace(/%20/g, "+").
-      replace(/!/g, "%21").
-      replace(/'/g, "%27").
-      replace(/\(/g, "%28").
-      replace(/\)/g, "%29").
-      replace(/\*/g, "%2A").
-      replace(/~/g, "%7E");
+function getYocoSecretKey() {
+  let key = "";
+  try {
+    key = yocoSecretKey.value();
+  } catch (e) {
+    // Ignore error if the secret is not initialised (e.g. emulator runs).
+  }
+  if (!key) {
+    key = process.env.YOCO_TEST_SECRET_KEY || process.env.YOCO_SECRET_KEY || "";
+  }
+  return String(key).trim();
 }
 
 /**
- * Generates MD5 signature for PayFast requests and webhooks.
+ * Webhook signing secret (format `whsec_...`). Optional at runtime so a
+ * missing secret can never silently break order fulfilment.
  */
-function generatePayFastSignature(dataObj, passphrase = "") {
-  let getString = "";
-  for (const key in dataObj) {
-    if (Object.prototype.hasOwnProperty.call(dataObj, key)) {
-      const val = dataObj[key];
-      if (key !== "signature" && val !== undefined && val !== null && String(val).trim() !== "") {
-        getString += `${key}=${phpUrlEncode(val)}&`;
-      }
-    }
+function getYocoWebhookSecret() {
+  let secret = "";
+  try {
+    secret = yocoWebhookSecret.value();
+  } catch (e) {
+    // Ignore error if the secret is not initialised.
   }
-  getString = getString.substring(0, getString.length - 1);
+  if (!secret) {
+    secret = process.env.YOCO_WEBHOOK_SECRET || "";
+  }
+  return String(secret).trim();
+}
 
-  if (passphrase && String(passphrase).trim() !== "") {
-    getString += `&passphrase=${phpUrlEncode(passphrase)}`;
+/**
+ * Verifies the `webhook-signature` header of an incoming Yoco event.
+ * Signed content = "<webhook-id>.<webhook-timestamp>.<raw body>", HMAC-SHA256
+ * with the base64-decoded `whsec_` secret, base64 encoded.
+ * @param {object} headers Raw HTTP headers of the request.
+ * @param {string} rawBody Exact request body as received.
+ * @return {{configured: boolean, verified: boolean, reason: string}}
+ */
+function verifyYocoWebhookSignature(headers, rawBody) {
+  const secret = getYocoWebhookSecret();
+  const signatureHeader = headers["webhook-signature"] || "";
+  const eventId = headers["webhook-id"] || "";
+  const timestamp = headers["webhook-timestamp"] || "";
+
+  if (!secret || !secret.startsWith("whsec_")) {
+    return {configured: false, verified: false, reason: "not_configured"};
+  }
+  if (!signatureHeader || !eventId || !timestamp) {
+    return {configured: true, verified: false, reason: "missing_headers"};
+  }
+  if (!rawBody) {
+    // The raw body is required to rebuild the signature - never fail an event
+    // because of a framework quirk, log it instead.
+    return {configured: true, verified: false, reason: "no_raw_body"};
   }
 
-  return crypto.createHash("md5").update(getString).digest("hex");
+  const secretBytes = Buffer.from(secret.split("_")[1], "base64");
+  const expected = crypto.
+      createHmac("sha256", secretBytes).
+      update(`${eventId}.${timestamp}.${rawBody}`).
+      digest("base64");
+
+  const provided = signatureHeader.
+      split(" ").
+      map((part) => part.split(",")[1]).
+      filter(Boolean);
+
+  const expectedBuffer = Buffer.from(expected);
+  const verified = provided.some((sig) => {
+    const sigBuffer = Buffer.from(sig);
+    return sigBuffer.length === expectedBuffer.length &&
+      crypto.timingSafeEqual(sigBuffer, expectedBuffer);
+  });
+
+  return {
+    configured: true,
+    verified,
+    reason: verified ? "ok" : "mismatch",
+  };
 }
 
 const OWNER = "SupramXD";
@@ -847,27 +883,33 @@ exports.onReviewDeleted = onDocumentDeleted({
 });
 
 /**
- * Initialize a PayFast transaction and save a pending order in Firestore.
+ * Create a Yoco Checkout session and save a pending order in Firestore.
+ * The secret key never leaves this server, as required by Yoco.
  */
-/**
- * Initialize a PayFast transaction and save a pending order in Firestore.
- */
-exports.createPayFastTransaction = onCall({}, async (request) => {
+exports.createYocoCheckout = onCall({secrets: [yocoSecretKey]}, async (request) => {
   const {customer, items, shipping, total, callbackUrl, cancelUrl} = request.data || {};
   if (!customer || !customer.email || !items || !Array.isArray(items) || items.length === 0 || !total) {
     throw new HttpsError("invalid-argument", "Missing required order details.");
   }
+  if (!(Number(total) > 0)) {
+    throw new HttpsError("invalid-argument", "The order total must be greater than zero.");
+  }
+
+  const secretKey = getYocoSecretKey();
+  if (!secretKey) {
+    throw new HttpsError("failed-precondition", "The Yoco secret key is not configured on the server.");
+  }
 
   const reference = `EXTRAIT-${Math.floor(Math.random() * 900000 + 100000)}-${Date.now().toString().slice(-4)}`;
-  const merchantId = getPayFastMerchantId();
-  const merchantKey = getPayFastMerchantKey();
-  const passphrase = getPayFastPassphrase();
-  const processUrl = getPayFastProcessUrl();
+  const email = String(customer.email).trim();
+  const firstName = (String(customer.firstName || "").trim() || "Customer");
+  const lastName = (String(customer.lastName || "").trim() || "Order");
+  const customerName = `${firstName} ${lastName}`.trim();
 
   const orderDoc = {
     orderId: reference,
-    customerName: `${customer.firstName || ""} ${customer.lastName || ""}`.trim() || "Customer",
-    email: customer.email,
+    customerName: customerName,
+    email: email,
     emailAlt: customer.emailAlt || "",
     phone: customer.phone || "",
     phoneAlt: customer.phoneAlt || "",
@@ -877,175 +919,150 @@ exports.createPayFastTransaction = onCall({}, async (request) => {
     items: items,
     total: Number(total),
     currency: "ZAR",
-    paymentGateway: "payfast",
+    paymentGateway: "yoco",
     status: "pending_payment",
     paid: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    stockDeducted: false,
   };
 
-  // Save pending order to Firestore
+  // Save the pending order before the customer leaves the site.
   await firestore.collection("orders").doc(reference).set(orderDoc);
 
-  const defaultSuccessUrl = "https://minara5.web.app/success.html";
-  const defaultCancelUrl = "https://minara5.web.app/cancel.html";
-
-  const returnUrl = callbackUrl || `${defaultSuccessUrl}?m_payment_id=${encodeURIComponent(reference)}`;
-  const cancelRedirectUrl = cancelUrl || defaultCancelUrl;
-  const notifyUrl = "https://us-central1-minara5.cloudfunctions.net/payfastWebhook";
-
-  // Construct PayFast payload fields
-  const fields = {
-    merchant_id: merchantId,
-    merchant_key: merchantKey,
-    return_url: returnUrl,
-    cancel_url: cancelRedirectUrl,
-    notify_url: notifyUrl,
-    name_first: (customer.firstName || "Customer").trim(),
-    name_last: (customer.lastName || "Order").trim(),
-    email_address: customer.email.trim(),
-    cell_number: (customer.phone || "").trim(),
-    m_payment_id: reference,
-    amount: Number(total).toFixed(2),
-    item_name: `Studio Extrait Order ${reference}`,
+  const withReference = (baseUrl, fallback) => {
+    const target = baseUrl || fallback;
+    const separator = target.includes("?") ? "&" : "?";
+    return `${target}${separator}reference=${encodeURIComponent(reference)}`;
   };
 
-  // Calculate signature only if a passphrase is configured
-  if (passphrase && passphrase.trim() !== "") {
-    fields.signature = generatePayFastSignature(fields, passphrase);
-  }
+  const successUrl = withReference(callbackUrl, `${WEBSITE_ORIGIN}/success.html`);
+  const cancelRedirectUrl = withReference(cancelUrl, `${WEBSITE_ORIGIN}/cancel.html`);
 
-  logger.info(`Initialized PayFast transaction for order ${reference}`);
+  const lineItems = items.map((item) => {
+    const quantity = Number(item.quantity) || 1;
+    const unitPrice = Number(item.price) || 0;
+    const detail = [item.size, item.bottleCustomisation].filter(Boolean).join(" · ");
+    return {
+      displayName: String(item.name || item.nameShort || "Studio Extrait Extrait de Parfum").slice(0, 120),
+      quantity: quantity,
+      pricingDetails: {price: Math.round(unitPrice * 100)},
+      description: detail.slice(0, 120) || null,
+    };
+  });
 
-  return {
-    success: true,
-    processUrl: processUrl,
-    authorization_url: processUrl,
-    fields: fields,
-    reference: reference,
-  };
-});
-
-/**
- * Backwards compatibility alias for createPaystackTransaction -> createPayFastTransaction
- */
-exports.createPaystackTransaction = onCall({}, async (request) => {
-  const {customer, items, shipping, total, callbackUrl, cancelUrl} = request.data || {};
-  if (!customer || !customer.email || !items || !Array.isArray(items) || items.length === 0 || !total) {
-    throw new HttpsError("invalid-argument", "Missing required order details.");
-  }
-
-  const reference = `EXTRAIT-${Math.floor(Math.random() * 900000 + 100000)}-${Date.now().toString().slice(-4)}`;
-  const merchantId = getPayFastMerchantId();
-  const merchantKey = getPayFastMerchantKey();
-  const passphrase = getPayFastPassphrase();
-  const processUrl = getPayFastProcessUrl();
-
-  const orderDoc = {
-    orderId: reference,
-    customerName: `${customer.firstName || ""} ${customer.lastName || ""}`.trim() || "Customer",
-    email: customer.email,
-    emailAlt: customer.emailAlt || "",
-    phone: customer.phone || "",
-    phoneAlt: customer.phoneAlt || "",
-    address: shipping ? shipping.address || "" : "",
-    deliveryDate: shipping ? shipping.deliveryDate || "" : "",
-    instructions: shipping ? shipping.instructions || "" : "",
-    items: items,
-    total: Number(total),
+  const yocoPayload = {
+    amount: Math.round(Number(total) * 100),
     currency: "ZAR",
-    paymentGateway: "payfast",
-    status: "pending_payment",
-    paid: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    successUrl: successUrl,
+    cancelUrl: cancelRedirectUrl,
+    failureUrl: cancelRedirectUrl,
+    clientReferenceId: reference,
+    externalId: reference,
+    metadata: {
+      orderId: reference,
+      customerEmail: email,
+      customerName: customerName,
+      source: "studioextrait.co.za",
+    },
+    lineItems: lineItems,
   };
 
-  await firestore.collection("orders").doc(reference).set(orderDoc);
-
-  const returnUrl = callbackUrl || `https://minara5.web.app/success.html?m_payment_id=${encodeURIComponent(reference)}`;
-  const cancelRedirectUrl = cancelUrl || "https://minara5.web.app/cancel.html";
-  const notifyUrl = "https://us-central1-minara5.cloudfunctions.net/payfastWebhook";
-
-  const fields = {
-    merchant_id: merchantId,
-    merchant_key: merchantKey,
-    return_url: returnUrl,
-    cancel_url: cancelRedirectUrl,
-    notify_url: notifyUrl,
-    name_first: (customer.firstName || "Customer").trim(),
-    name_last: (customer.lastName || "Order").trim(),
-    email_address: customer.email.trim(),
-    cell_number: (customer.phone || "").trim(),
-    m_payment_id: reference,
-    amount: Number(total).toFixed(2),
-    item_name: `Studio Extrait Order ${reference}`,
-  };
-
-  if (passphrase && passphrase.trim() !== "") {
-    fields.signature = generatePayFastSignature(fields, passphrase);
+  let yocoResponse = null;
+  let yocoBody = null;
+  try {
+    yocoResponse = await fetch(YOCO_CHECKOUTS_URL, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${secretKey}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": reference,
+      },
+      body: JSON.stringify(yocoPayload),
+    });
+    yocoBody = await yocoResponse.json().catch(() => null);
+  } catch (err) {
+    logger.error("Yoco checkout request failed:", err);
+    throw new HttpsError("unavailable", "We could not reach the Yoco payment gateway. Please try again.");
   }
+
+  if (!yocoResponse.ok || !yocoBody || !yocoBody.redirectUrl) {
+    logger.error(`Yoco checkout rejected (HTTP ${yocoResponse.status}):`, yocoBody);
+    throw new HttpsError("internal", "Yoco could not create the secure payment session. Please try again.");
+  }
+
+  await firestore.collection("orders").doc(reference).set({
+    yocoCheckoutId: yocoBody.id || null,
+    yocoCheckoutStatus: yocoBody.status || "created",
+    yocoProcessingMode: yocoBody.processingMode || "test",
+    updatedAt: new Date().toISOString(),
+  }, {merge: true});
+
+  logger.info(`Yoco checkout ${yocoBody.id} created for order ${reference}`);
 
   return {
     success: true,
-    processUrl: processUrl,
-    authorization_url: processUrl,
-    fields: fields,
+    gateway: "yoco",
     reference: reference,
+    checkoutId: yocoBody.id || null,
+    redirectUrl: yocoBody.redirectUrl,
+    processUrl: yocoBody.redirectUrl,
+    authorization_url: yocoBody.redirectUrl,
+    publicKey: getYocoPublicKey(),
+    processingMode: yocoBody.processingMode || "test",
   };
 });
 
 /**
- * Handle incoming Instant Transaction Notifications (ITN webhooks) from PayFast.
+ * Backwards compatibility aliases: cached storefront pages (and the old
+ * PayFast/Paystack integration) still call these names, so they stay wired to
+ * the Yoco Checkout session creator. Safe to delete once nothing calls them.
  */
-exports.payfastWebhook = onRequest({secrets: [githubTokenSecret]}, async (req, res) => {
+exports.createPayFastTransaction = onCall({secrets: [yocoSecretKey]}, async (request) => {
+  return exports.createYocoCheckout.run(request);
+});
+
+exports.createPaystackTransaction = onCall({secrets: [yocoSecretKey]}, async (request) => {
+  return exports.createYocoCheckout.run(request);
+});
+
+/**
+ * Handle Yoco Checkout payment notification events (webhook).
+ * Docs: https://yoco.docs.buildwithfern.com/api-reference/checkout-api/webhook-events/payment-notification
+ */
+async function handleYocoWebhook(req, res) {
   if (req.method !== "POST") {
     res.status(405).send("Method Not Allowed");
     return;
   }
 
-  const pfData = req.body || {};
-  logger.info("PayFast ITN Received:", pfData);
+  const rawBody = req.rawBody ? req.rawBody.toString("utf8") : "";
+  const signature = verifyYocoWebhookSignature(req.headers || {}, rawBody);
 
-  const passphrase = getPayFastPassphrase();
-  const calculatedSignature = generatePayFastSignature(pfData, passphrase);
+  if (signature.reason === "mismatch" || signature.reason === "missing_headers") {
+    logger.error(`Yoco webhook rejected: signature ${signature.reason}.`);
+    res.status(403).send("Invalid signature");
+    return;
+  }
+  if (signature.reason !== "ok") {
+    logger.warn(`Yoco webhook accepted without a verified signature (${signature.reason}).`);
+  }
 
-  if (pfData.signature && calculatedSignature !== pfData.signature) {
-    logger.error("PayFast signature mismatch! Received:", pfData.signature, "Calculated:", calculatedSignature);
-    res.status(400).send("Signature mismatch");
+  const event = req.body || {};
+  const payload = event.payload || {};
+  const metadata = payload.metadata || {};
+  const reference = metadata.orderId || metadata.reference ||
+    payload.externalId || metadata.checkoutId || "";
+  const isPaid = event.type === "payment.succeeded" || payload.status === "succeeded";
+  const isFailed = event.type === "payment.failed" || payload.status === "failed";
+
+  logger.info(`Yoco webhook ${event.type || "unknown"} received for order ${reference || "(unmatched)"}`);
+
+  if (!reference) {
+    res.status(200).json({received: true, matched: false});
     return;
   }
 
-  // Server-to-server validation with PayFast
-  const validateUrl = getPayFastValidateUrl();
-  try {
-    const searchParams = new URLSearchParams();
-    for (const key in pfData) {
-      if (Object.prototype.hasOwnProperty.call(pfData, key)) {
-        searchParams.append(key, pfData[key]);
-      }
-    }
-
-    const validationRes = await fetch(validateUrl, {
-      method: "POST",
-      headers: {"Content-Type": "application/x-www-form-urlencoded"},
-      body: searchParams.toString(),
-    });
-
-    const validationText = await validationRes.text();
-    logger.info("PayFast validation status response:", validationText);
-
-    if (validationText.trim() !== "VALID" && getPayFastEnv() === "live") {
-      logger.error("PayFast ITN validation failed:", validationText);
-      res.status(400).send("Invalid ITN validation");
-      return;
-    }
-  } catch (err) {
-    logger.warn("PayFast ITN validate check warning:", err);
-  }
-
-  const reference = pfData.m_payment_id;
-  const paymentStatus = pfData.payment_status;
   let ghToken = null;
   try {
     ghToken = githubTokenSecret.value();
@@ -1053,44 +1070,73 @@ exports.payfastWebhook = onRequest({secrets: [githubTokenSecret]}, async (req, r
     ghToken = null;
   }
 
-  if (reference) {
-    const orderRef = firestore.collection("orders").doc(reference);
-    const orderSnap = await orderRef.get();
+  const orderRef = firestore.collection("orders").doc(reference);
+  let orderSnap = await orderRef.get();
 
-    const isPaid = paymentStatus === "COMPLETE";
-    const updateData = {
-      status: isPaid ? "paid" : (paymentStatus ? paymentStatus.toLowerCase() : "pending_payment"),
-      paid: isPaid,
-      paidAt: isPaid ? new Date().toISOString() : null,
-      payfastPaymentId: pfData.pf_payment_id || null,
-      payfastAmountGross: pfData.amount_gross || null,
-      payfastAmountFee: pfData.amount_fee || null,
-      payfastAmountNet: pfData.amount_net || null,
-      updatedAt: new Date().toISOString(),
-    };
-
-    if (orderSnap.exists) {
-      const existingData = orderSnap.data();
-      if (isPaid && !existingData.stockDeducted) {
-        await deductStockForOrder(existingData, firestore, ghToken);
-        updateData.stockDeducted = true;
-      }
-      await orderRef.update(updateData);
-    } else {
-      await orderRef.set({
-        orderId: reference,
-        email: pfData.email_address || "",
-        total: pfData.amount_gross ? Number(pfData.amount_gross) : 0,
-        currency: "ZAR",
-        ...updateData,
-        createdAt: new Date().toISOString(),
-      });
+  if (!orderSnap.exists && metadata.checkoutId) {
+    const q = await firestore.collection("orders").
+        where("yocoCheckoutId", "==", metadata.checkoutId).
+        limit(1).
+        get();
+    if (!q.empty) {
+      orderSnap = q.docs[0];
     }
-    logger.info(`Order ${reference} updated via PayFast Webhook. Payment status: ${paymentStatus}`);
   }
 
-  res.status(200).send("ITN Received");
-});
+  const methodDetails = payload.paymentMethodDetails || {};
+  const card = methodDetails.card || {};
+  const updateData = {
+    status: isPaid ? "paid" : (isFailed ? "payment_failed" : "pending_payment"),
+    paid: isPaid,
+    paidAt: isPaid ? new Date().toISOString() : null,
+    yocoPaymentId: payload.id || null,
+    yocoPaymentStatus: payload.status || null,
+    yocoPaymentMode: payload.mode || null,
+    yocoAmountGross: typeof payload.amount === "number" ? payload.amount / 100 : null,
+    yocoPaymentMethod: methodDetails.type || null,
+    yocoCardScheme: card.scheme || null,
+    yocoCardMask: card.maskedCard || null,
+    updatedAt: new Date().toISOString(),
+  };
+
+  if (orderSnap.exists) {
+    const existingData = orderSnap.data();
+    if (isPaid && !existingData.stockDeducted) {
+      await deductStockForOrder(existingData, firestore, ghToken);
+      updateData.stockDeducted = true;
+    }
+    await orderSnap.ref.update(updateData);
+  } else {
+    await orderRef.set({
+      orderId: reference,
+      email: metadata.customerEmail || "",
+      total: typeof payload.amount === "number" ? payload.amount / 100 : 0,
+      currency: payload.currency || "ZAR",
+      paymentGateway: "yoco",
+      ...updateData,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  logger.info(`Order ${reference} updated via Yoco webhook. Paid: ${isPaid}`);
+  res.status(200).json({received: true, matched: true});
+}
+
+exports.yocoWebhook = onRequest({
+  secrets: [yocoSecretKey, yocoWebhookSecret, githubTokenSecret],
+}, handleYocoWebhook);
+
+/**
+ * Backwards compatibility aliases for the retired PayFast/Paystack ITN URLs -
+ * they now process Yoco payment notifications. Safe to delete later.
+ */
+exports.payfastWebhook = onRequest({
+  secrets: [yocoSecretKey, yocoWebhookSecret, githubTokenSecret],
+}, handleYocoWebhook);
+
+exports.paystackWebhook = onRequest({
+  secrets: [yocoSecretKey, yocoWebhookSecret, githubTokenSecret],
+}, handleYocoWebhook);
 
 async function deductStockForOrder(orderData, firestore, token) {
   try {
@@ -1183,21 +1229,17 @@ async function deductStockForOrder(orderData, firestore, token) {
 }
 
 /**
- * Backwards compatibility alias for paystackWebhook -> payfastWebhook
+ * Verify a Yoco payment server-side. Orders are only ever marked paid by the
+ * Yoco webhook (payment notification), never by the browser callback, so this
+ * function reports the trusted Firestore order state back to success.html.
  */
-exports.paystackWebhook = onRequest({}, async (req, res) => {
-  return exports.payfastWebhook(req, res);
-});
+exports.verifyYocoPayment = onCall({secrets: [githubTokenSecret]}, async (request) => {
+  const data = request.data || {};
+  const activeRef = data.reference || data.m_payment_id || data.orderId || "";
+  const checkoutId = data.checkoutId || "";
 
-/**
- * Verify PayFast payment status server-side upon client callback.
- */
-exports.verifyPayFastPayment = onCall({secrets: [githubTokenSecret]}, async (request) => {
-  const {reference, m_payment_id} = request.data || {};
-  const activeRef = reference || m_payment_id;
-
-  if (!activeRef) {
-    throw new HttpsError("invalid-argument", "Transaction reference or m_payment_id is required.");
+  if (!activeRef && !checkoutId) {
+    throw new HttpsError("invalid-argument", "A transaction reference or Yoco checkout id is required.");
   }
 
   let ghToken = null;
@@ -1207,59 +1249,83 @@ exports.verifyPayFastPayment = onCall({secrets: [githubTokenSecret]}, async (req
     ghToken = null;
   }
 
-  const orderRef = firestore.collection("orders").doc(activeRef);
-  let orderSnap = await orderRef.get();
+  let orderSnap = null;
 
-  if (!orderSnap.exists) {
-    const q = await firestore.collection("orders").where("orderId", "==", activeRef).limit(1).get();
+  if (checkoutId) {
+    const q = await firestore.collection("orders").
+        where("yocoCheckoutId", "==", checkoutId).
+        limit(1).
+        get();
     if (!q.empty) {
       orderSnap = q.docs[0];
     }
   }
 
-  if (orderSnap.exists) {
-    const orderData = orderSnap.data();
-    if (orderData.paid || orderData.status === "paid") {
-      if (!orderData.stockDeducted) {
-        await deductStockForOrder(orderData, firestore, ghToken);
-        await orderSnap.ref.update({stockDeducted: true});
-      }
-      return {
-        success: true,
-        verified: true,
-        order: orderData,
-      };
-    } else {
-      // Mark as paid when verified via client callback
-      await deductStockForOrder(orderData, firestore, ghToken);
-      await orderSnap.ref.update({
-        status: "paid",
-        paid: true,
-        stockDeducted: true,
-        paidAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-      const updatedSnap = await orderSnap.ref.get();
-      return {
-        success: true,
-        verified: true,
-        order: updatedSnap.data(),
-      };
+  if (!orderSnap && activeRef) {
+    const snap = await firestore.collection("orders").doc(activeRef).get();
+    if (snap.exists) {
+      orderSnap = snap;
     }
   }
 
+  if (!orderSnap && activeRef) {
+    const q = await firestore.collection("orders").
+        where("orderId", "==", activeRef).
+        limit(1).
+        get();
+    if (!q.empty) {
+      orderSnap = q.docs[0];
+    }
+  }
+
+  if (!orderSnap) {
+    return {
+      success: false,
+      verified: false,
+      pending: false,
+      message: "Order reference not found.",
+    };
+  }
+
+  const orderData = orderSnap.data();
+  const isPaid = orderData.paid === true || orderData.status === "paid";
+
+  if (!isPaid) {
+    // The Yoco webhook has not confirmed the payment yet - let the client retry.
+    return {
+      success: true,
+      verified: false,
+      pending: true,
+      status: orderData.status || "pending_payment",
+      order: orderData,
+    };
+  }
+
+  if (!orderData.stockDeducted) {
+    await deductStockForOrder(orderData, firestore, ghToken);
+    await orderSnap.ref.update({
+      stockDeducted: true,
+      updatedAt: new Date().toISOString(),
+    });
+  }
+
   return {
-    success: false,
-    verified: false,
-    message: "Order reference not found.",
+    success: true,
+    verified: true,
+    pending: false,
+    order: orderData,
   };
 });
 
 /**
- * Backwards compatibility alias for verifyPaystackPayment -> verifyPayFastPayment
+ * Backwards compatibility aliases for cached storefront pages.
  */
-exports.verifyPaystackPayment = onCall({}, async (request) => {
-  return exports.verifyPayFastPayment(request);
+exports.verifyPayFastPayment = onCall({secrets: [githubTokenSecret]}, async (request) => {
+  return exports.verifyYocoPayment.run(request);
+});
+
+exports.verifyPaystackPayment = onCall({secrets: [githubTokenSecret]}, async (request) => {
+  return exports.verifyYocoPayment.run(request);
 });
 
 /**

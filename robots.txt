@@ -1,0 +1,16 @@
+# robots.txt for https://studioextrait.co.za
+# Studio Extrait - extrait de parfum, South Africa
+
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /js/admin/
+Disallow: /template%20product.html
+Disallow: /template product.html
+Disallow: /functions/
+
+# Yoco, PayFast-style payment verifiers and search crawlers are welcome.
+User-agent: Yoco
+Allow: /
+
+Sitemap: https://studioextrait.co.za/sitemap.xml

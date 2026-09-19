@@ -592,8 +592,8 @@
               <rect width="45" height="24" rx="2" fill="#000"/>
               <text x="50%" y="62%" font-family="Helvetica, Arial, sans-serif" font-weight="900" font-size="7" fill="#ccff00" text-anchor="middle">EFT</text>
             </svg>
-            <!-- PayFast Secure badge -->
-            <span style="font-size: 8px; font-weight: bold; letter-spacing: 0.5px; opacity: 0.4; margin-left: auto; text-transform: uppercase; white-space: nowrap; font-family: Helvetica, Arial, sans-serif;">SECURED BY PAYFAST</span>
+            <!-- Yoco Secure badge -->
+            <span title="Payments secured by Yoco" style="font-size: 8px; font-weight: bold; letter-spacing: 0.5px; opacity: 0.4; margin-left: auto; text-transform: uppercase; white-space: nowrap; font-family: Helvetica, Arial, sans-serif;">SECURED BY YOCO</span>
           </div>
         </div>
       </div>

@@ -432,7 +432,7 @@ async function startSessionTracker(db, doc, setDoc) {
             saveCache();
 
             // High-intent actions trigger immediate Firestore sync (checkout, checkout buttons, etc.)
-            const isHighIntent = clickable.matches("[href*='checkout'], [href*='payfast'], [href*='paystack'], .submit-order-btn, .track-submit-btn, [class*='checkout'], [class*='pay']");
+            const isHighIntent = clickable.matches("[href*='checkout'], [href*='yoco'], .submit-order-btn, .track-submit-btn, [class*='checkout'], [class*='pay']");
             if (isHighIntent) {
                 syncFirestore();
             }
