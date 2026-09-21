@@ -280,7 +280,7 @@
         if (inspiredMatch || (p.id.startsWith("inspired-by-") || p.id.startsWith("profile-"))) {
           const fragranceName = inspiredMatch ? inspiredMatch[1] : rawName;
           titleText = p.nameShort || rawName;
-          inspiredHtml = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">SCENT PROFILE</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}${retailInline}</i>`;
+          inspiredHtml = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}${retailInline}</i>`;
         } else if (p.isBundle) { titleText = 'PICK ANY 2'; }
 
         let starsHtml = '';

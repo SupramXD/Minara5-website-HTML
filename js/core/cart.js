@@ -367,7 +367,7 @@
                 
                 if (match || (scent.id && (scent.id.startsWith("inspired-by-") || scent.id.startsWith("profile-")))) {
                   const fragranceName = match ? match[1] : clean;
-                  inspiredText = `SCENT PROFILE ${formatBrandName(fragranceName)}`;
+                  inspiredText = `INSPIRED BY ${formatBrandName(fragranceName)}`;
                 }
               }
               
@@ -447,7 +447,7 @@
                 
                 if (match || (scent.id && (scent.id.startsWith("inspired-by-") || scent.id.startsWith("profile-")))) {
                   const fragranceName = match ? match[1] : clean;
-                  inspiredText = `SCENT PROFILE ${formatBrandName(fragranceName)}`;
+                  inspiredText = `INSPIRED BY ${formatBrandName(fragranceName)}`;
                 }
               }
               

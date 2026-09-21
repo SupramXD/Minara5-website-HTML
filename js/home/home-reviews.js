@@ -96,7 +96,7 @@
       if (inspiredEl) {
         if (rawInspired) {
           const fmt = (typeof window.formatBrandName === "function" ? window.formatBrandName(rawInspired) : rawInspired).toUpperCase();
-          inspiredEl.textContent = "SCENT PROFILE " + fmt;
+          inspiredEl.textContent = "INSPIRED BY " + fmt;
           inspiredEl.style.display = "";
         } else {
           inspiredEl.style.display = "none";

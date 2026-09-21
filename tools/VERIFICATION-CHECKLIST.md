@@ -9,8 +9,8 @@ Domains** review (and for any other payment gateway or card-network review).
 * Product ids, names and descriptions are brand-free: `profile-a-warm-day` (A Warm Day /
   Caribbean), `profile-wild-bergamot` (A Bright Green Day / Wild Bergamot), `profile-the-bouquet`
   (A Rose Garden Evening / The Bouquet) and the `any-2-50ml-fragrances` bundle.
-* The card / product / cart / review label that used to read "INSPIRED BY <brand>" now reads
-  "SCENT PROFILE <descriptor>".
+* The card / product / cart / review line still reads **"INSPIRED BY …"** exactly as before, but what follows it is our own brand-free descriptor taken from the product's `name` field ("Inspired by A Warm Day" → shows "INSPIRED BY A WARM DAY"). The product title is unchanged: it stays the fragrance's own theme/short name (`Caribbean`, `Wild Bergamot`, `The Bouquet`), so nothing was moved onto the title.
+* The product page **"Honest Comparison" accordion can never claim a match with another house**: `product-core.js` ignores any stored value containing a brand placeholder, "designer", "similarity index" or "olfactory profile" and falls back to our own-formulation sentence. The admin labels in `product.html` / `admin.html` were retargeted accordingly.
 * All designer-RRP comparison pricing is gone: `retailPrice` is null for every product, and the
   product page label is "Comparable Retail" with "Save X% off comparable retail pricing".
 * The old designer-brand reference dataset `popular_fragrances.json` is now an empty array, so the

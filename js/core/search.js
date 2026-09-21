@@ -18,7 +18,7 @@
 
     if (match || (id && (id.startsWith("inspired-by-") || id.startsWith("profile-")))) {
       const fragranceName = match ? match[1] : clean;
-      return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block; margin-bottom: 2px;">${nameShort || clean}</span><span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase; display: block;">SCENT PROFILE <i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11.5px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: inline-block;">${formatBrandName(fragranceName)}</i></span>`;
+      return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block; margin-bottom: 2px;">${nameShort || clean}</span><span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase; display: block;">INSPIRED BY <i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11.5px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: inline-block;">${formatBrandName(fragranceName)}</i></span>`;
     }
     return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block;">${nameShort || clean}</span>`;
   };
@@ -40,7 +40,7 @@
 
     if (match || (id && (id.startsWith("inspired-by-") || id.startsWith("profile-")))) {
       const fragranceName = match ? match[1] : clean;
-      return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11px; display: block; text-transform: uppercase; color: #111111; margin-bottom: 2px;">${nameShort || clean}</span><span style="font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1px; display: block;">SCENT PROFILE <i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: inline-block;">${formatBrandName(fragranceName)}</i></span>`;
+      return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11px; display: block; text-transform: uppercase; color: #111111; margin-bottom: 2px;">${nameShort || clean}</span><span style="font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1px; display: block;">INSPIRED BY <i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: inline-block;">${formatBrandName(fragranceName)}</i></span>`;
     }
     return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11px; display: block; text-transform: uppercase; color: #111111;">${nameShort || clean}</span>`;
   };

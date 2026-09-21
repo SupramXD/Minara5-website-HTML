@@ -2,7 +2,7 @@
   {
     "id": "profile-a-warm-day",
     "nameShort": "Caribbean",
-    "name": "A Warm Day",
+    "name": "Inspired by A Warm Day",
     "price": 495,
     "retailPrice": null,
     "stock": 5,
@@ -108,7 +108,7 @@
   {
     "id": "profile-wild-bergamot",
     "nameShort": "Wild Bergamot",
-    "name": "A Bright Green Day",
+    "name": "Inspired by A Bright Green Day",
     "price": 495,
     "retailPrice": null,
     "stock": 6,
@@ -167,7 +167,7 @@
   {
     "id": "profile-the-bouquet",
     "nameShort": "The Bouquet",
-    "name": "A Rose Garden Evening",
+    "name": "Inspired by A Rose Garden Evening",
     "price": 495,
     "retailPrice": null,
     "stock": 10,

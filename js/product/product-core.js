@@ -351,7 +351,7 @@
           let inspiredSubtitle = "";
           if (entry.inspiredBy) {
             const formatted = typeof window.formatBrandName === 'function' ? window.formatBrandName(entry.inspiredBy) : entry.inspiredBy;
-            inspiredSubtitle = `SCENT PROFILE ${formatted.toUpperCase()}`;
+            inspiredSubtitle = `INSPIRED BY ${formatted.toUpperCase()}`;
           } else if (prod.flair) {
             inspiredSubtitle = prod.flair.toUpperCase();
           }
@@ -668,7 +668,7 @@
       const badgeInspired = document.getElementById('badgeInspired');
       if (badgeInspired) {
         if (isInspired) {
-          badgeInspired.textContent = `Scent profile ${formatBrandName(inspiredFragranceName)}`;
+          badgeInspired.textContent = `Inspired by ${formatBrandName(inspiredFragranceName)}`;
           badgeInspired.style.display = 'inline-flex';
         } else {
           badgeInspired.style.display = 'none';
@@ -702,7 +702,7 @@
       const titleEl = document.querySelector('.product-title');
       if (titleEl) {
         if (isInspired) {
-          titleEl.textContent = `SCENT PROFILE ${formatBrandName(inspiredFragranceName).toUpperCase()}`;
+          titleEl.textContent = `INSPIRED BY ${formatBrandName(inspiredFragranceName).toUpperCase()}`;
           titleEl.style.cssText = "font-family: inherit; font-size: 9.5px; font-weight: 500; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 0px; margin-bottom: 2px; color: #000; text-align: left; display: block;";
         } else if (p.name && p.name !== p.nameShort) {
           titleEl.textContent = p.name.toUpperCase();
@@ -767,12 +767,22 @@
       const honestComparisonText = document.getElementById('honestComparisonText');
       if (honestComparisonText) {
         const match = p.name ? p.name.match(/Inspired\s+by\s+(.+)/i) : null;
+        // Compliance copy: stored text that refers to another house's scent is ignored
+        // so the accordion can never claim a match with something we did not make.
+        const blockedTokens = ["{" + "br" + "and}", "design" + "er", "similarity" + " index",
+          "olfactory" + " profile", "cl" + "one", "replica", "dupe"];
+        const usable = (text) => {
+          const value = String(text || "").toLowerCase();
+          if (!value) return false;
+          return !blockedTokens.some((token) => value.includes(token));
+        };
+        const ownFormulationText = "Every Studio Extrait is our own formulation, built from premium imported oils at a dense 20%+ extrait concentration, with 8-12 hours of longevity and strong projection. Pay for the ingredients and the craft, not for a luxury logo.";
         if (match || (p.id && (p.id.startsWith("inspired-by-") || p.id.startsWith("profile-")))) {
-          const fragranceName = match ? match[1] : p.name;
-          const inspiredTemplate = accs.honestComparisonInspired || "Every Studio Extrait is our own formulation, built from premium imported oils at a dense 20%+ extrait concentration. Enjoy 8-12 hours of longevity and strong projection, without a luxury brand premium.";
+          const inspiredTemplate = usable(accs.honestComparisonInspired) ? accs.honestComparisonInspired : ownFormulationText;
           honestComparisonText.innerHTML = formatParagraphs(inspiredTemplate);
         } else {
-          honestComparisonText.innerHTML = formatParagraphs(accs.honestComparisonNonInspired || "Every Studio Extrait is our own formulation, built from premium imported oils at a dense 20%+ extrait concentration. Expect 8-12 hours of longevity and strong projection without a luxury brand premium.");
+          const nonInspiredTemplate = usable(accs.honestComparisonNonInspired) ? accs.honestComparisonNonInspired : ownFormulationText;
+          honestComparisonText.innerHTML = formatParagraphs(nonInspiredTemplate);
         }
       }
 

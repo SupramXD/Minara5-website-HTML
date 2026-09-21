@@ -169,7 +169,7 @@
 
         const subEl = document.createElement("span");
         subEl.style.cssText = "font-size: 8.5px; color: #777; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;";
-        subEl.textContent = inspiredByText ? `SCENT PROFILE ${inspiredByText.toUpperCase()}` : (prod.flair || "");
+        subEl.textContent = inspiredByText ? `INSPIRED BY ${inspiredByText.toUpperCase()}` : (prod.flair || "");
 
         textContainer.appendChild(nameEl);
         if (inspiredByText || prod.flair) textContainer.appendChild(subEl);
@@ -204,7 +204,7 @@
           } catch (err) { }
 
           selectedNameEl.textContent = (prod.nameShort || prod.name).toUpperCase();
-          selectedInspiredEl.innerHTML = inspiredByText ? `<span style="opacity: 0.6; font-size: 8px;">SCENT PROFILE</span> ${inspiredByText.toUpperCase()}` : "";
+          selectedInspiredEl.innerHTML = inspiredByText ? `<span style="opacity: 0.6; font-size: 8px;">INSPIRED BY</span> ${inspiredByText.toUpperCase()}` : "";
           selectedImgEl.src = thumb;
 
           inputBox.style.display = "none";
@@ -288,7 +288,7 @@
           }
         }
         if (isp) {
-          preInspiredText = `<span style="opacity: 0.6; font-size: 8px;">SCENT PROFILE</span> ` + isp.toUpperCase();
+          preInspiredText = `<span style="opacity: 0.6; font-size: 8px;">INSPIRED BY</span> ` + isp.toUpperCase();
         }
       }
 
@@ -345,7 +345,7 @@
         } else {
           inspiredText = productSelected.name;
         }
-        selectedInspiredEl.innerHTML = inspiredText ? `<span style="opacity: 0.6; font-size: 8px;">SCENT PROFILE</span> ${inspiredText.toUpperCase()}` : "";
+        selectedInspiredEl.innerHTML = inspiredText ? `<span style="opacity: 0.6; font-size: 8px;">INSPIRED BY</span> ${inspiredText.toUpperCase()}` : "";
 
         inputBox.style.display = "none";
         displayBox.style.display = "flex";
@@ -478,7 +478,7 @@
       const match = fp.name ? fp.name.match(/Inspired\s+by\s+(.+)/i) : null;
       if (match || (fp.id && (fp.id.startsWith("inspired-by-") || fp.id.startsWith("profile-")))) {
         const fragranceName = match ? match[1] : fp.name;
-        inspiredText = `Scent profile ${formatBrandName(fragranceName)}`;
+        inspiredText = `Inspired by ${formatBrandName(fragranceName)}`;
       } else {
         inspiredText = fp.name;
       }
