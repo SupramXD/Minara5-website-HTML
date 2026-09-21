@@ -16,9 +16,9 @@
       });
     };
 
-    if (match || (id && id.startsWith("inspired-by-"))) {
+    if (match || (id && (id.startsWith("inspired-by-") || id.startsWith("profile-")))) {
       const fragranceName = match ? match[1] : clean;
-      return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block; margin-bottom: 2px;">${nameShort || clean}</span><span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase; display: block;">INSPIRED BY <i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11.5px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: inline-block;">${formatBrandName(fragranceName)}</i></span>`;
+      return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block; margin-bottom: 2px;">${nameShort || clean}</span><span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1.2px; text-transform: uppercase; display: block;">SCENT PROFILE <i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11.5px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: inline-block;">${formatBrandName(fragranceName)}</i></span>`;
     }
     return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11.5px; text-transform: uppercase; color: #111111; display: block;">${nameShort || clean}</span>`;
   };
@@ -38,9 +38,9 @@
       });
     };
 
-    if (match || (id && id.startsWith("inspired-by-"))) {
+    if (match || (id && (id.startsWith("inspired-by-") || id.startsWith("profile-")))) {
       const fragranceName = match ? match[1] : clean;
-      return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11px; display: block; text-transform: uppercase; color: #111111; margin-bottom: 2px;">${nameShort || clean}</span><span style="font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1px; display: block;">INSPIRED BY <i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: inline-block;">${formatBrandName(fragranceName)}</i></span>`;
+      return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11px; display: block; text-transform: uppercase; color: #111111; margin-bottom: 2px;">${nameShort || clean}</span><span style="font-size: 8px; font-weight: bold; color: #777777; letter-spacing: 1px; display: block;">SCENT PROFILE <i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 11px; text-transform: uppercase; color: #111111; letter-spacing: 0.5px; display: inline-block;">${formatBrandName(fragranceName)}</i></span>`;
     }
     return `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-weight: 700; font-size: 11px; display: block; text-transform: uppercase; color: #111111;">${nameShort || clean}</span>`;
   };
@@ -603,12 +603,12 @@
       const isMen = invFlair === 'men' || pName.includes('male') || pName.includes('homme');
       const isWomen = invFlair === 'women' || pName.includes('women') || pName.includes('femme') || pName.includes('elle');
       
-      if (gender === 'men' && !isMen && p.id !== 'inspired-by-creed-aventus') return;
+      if (gender === 'men' && !isMen && p.id !== 'profile-wild-bergamot') return;
       if (gender === 'women' && !isWomen) return;
       
       const card = document.createElement("a");
       card.className = "search-grid-card";
-      card.href = `template product.html?id=${p.id}`;
+      card.href = `product.html?id=${p.id}`;
       
       const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(p.image, p.image_thumb) : p.image;
       const formattedPrice = window.formatPrice ? window.formatPrice(p.price) : p.price;
@@ -645,7 +645,7 @@
       if (p.status !== 'Active') return;
       const card = document.createElement("a");
       card.className = "search-grid-card";
-      card.href = `template product.html?id=${p.id}`;
+      card.href = `product.html?id=${p.id}`;
       
       const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(p.image, p.image_thumb) : p.image;
       const formattedPrice = window.formatPrice ? window.formatPrice(p.price) : p.price;
@@ -863,14 +863,11 @@
   };
 
   const STOCKED_FRAGRANCE_KEYWORDS = {
-    "inspired-by-jpg-le-male": [
-      "jpg le male", "le male", "jean paul gaultier le male", 
-      "jean paul gaultier le male edt", "jpg le male edt", 
-      "gaultier le male", "le male gaultier", "jpg male", "jp le male"
+    "profile-a-warm-day": [
+      "a warm day", "warm day", "caribbean", "warm vanilla", "amber vanilla", "warm spicy amber"
     ],
-    "inspired-by-creed-aventus": [
-      "creed aventus", "aventus", "creed aventus edp", 
-      "creed aventus edt", "aventish", "aventus creed", "creed aventus cologne", "creed"
+    "profile-wild-bergamot": [
+      "wild bergamot", "bergamot", "green bergamot", "fresh green citrus", "aromatic fougere"
     ]
   };
 
@@ -922,7 +919,7 @@
         } else {
           const nameDist = getLevenshteinDistance(cleanQuery, normName);
           const shortDist = getLevenshteinDistance(cleanQuery, normShort);
-          const idDist = getLevenshteinDistance(cleanQuery, normId.replace("inspiredby", "").replace("inspired", ""));
+          const idDist = getLevenshteinDistance(cleanQuery, normId.replace("inspiredby", "").replace("inspired", "").replace("profile", ""));
           
           const maxAllowed = Math.max(2, Math.floor(cleanQuery.length / 2.5));
           if (nameDist <= maxAllowed || shortDist <= maxAllowed || idDist <= maxAllowed) {
@@ -1005,10 +1002,10 @@
     if (!resultsContainer) return;
     
     const formattedPrice = window.formatPrice ? window.formatPrice(product.price) : product.price;
-    const detailUrl = `template product.html?id=${product.id}`;
+    const detailUrl = `product.html?id=${product.id}`;
     const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(product.image, product.image_thumb) : product.image;
     
-    const popName = popFrag && popFrag.name ? `${popFrag.brand} ${popFrag.name}` : product.name;
+    const popName = product.name;
     
     resultsContainer.innerHTML = `
       <div class="search-section-title">Direct Match in Store</div>
@@ -1043,7 +1040,7 @@
       const form = notifyBox.querySelector("#stockNotifyForm");
       if (form) {
         form.onsubmit = (e) => {
-          window.submitSearchStockNotification(e, product.id, product.name, popName);
+          window.submitSearchStockNotification(e, product.id, product.name, product.name);
         };
       }
     }
@@ -1057,12 +1054,12 @@
     if (!closestProduct) return;
     
     const formattedPrice = window.formatPrice ? window.formatPrice(closestProduct.price) : closestProduct.price;
-    const detailUrl = `template product.html?id=${closestProduct.id}`;
+    const detailUrl = `product.html?id=${closestProduct.id}`;
     const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(closestProduct.image, closestProduct.image_thumb) : closestProduct.image;
     
-    const matchLabel = isFuzzy 
-      ? `DID YOU MEAN <strong>${popFrag.brand.toUpperCase()} ${popFrag.name.toUpperCase()}</strong>?` 
-      : `<strong>${popFrag.brand.toUpperCase()} ${popFrag.name.toUpperCase()}</strong> IS IN OUR DATABASE.`;
+    const matchLabel = isFuzzy
+      ? "DID YOU MEAN:"
+      : "THIS SCENT SOUNDS FAMILIAR:";
     
     resultsContainer.innerHTML = `
       <div class="search-section-title">RECOMMENDED MATCH</div>
@@ -1082,7 +1079,7 @@
       <div class="search-notify-box">
         <div class="search-notify-title">GET NOTIFIED</div>
         <div class="search-notify-text">
-          ENTER YOUR EMAIL TO BE NOTIFIED WHEN OUR VERSION OF <strong>${popFrag.brand.toUpperCase()} ${popFrag.name.toUpperCase()}</strong> IS AVAILABLE.
+          ENTER YOUR EMAIL AND WE WILL LET YOU KNOW WHEN THIS SCENT PROFILE IS AVAILABLE.
         </div>
         <form class="search-notify-form" id="unsupportedNotifyForm">
           <input type="email" class="search-notify-input" id="unsupportedNotifyEmail" placeholder="Enter your email address" required>
@@ -1097,7 +1094,7 @@
     const form = document.getElementById("unsupportedNotifyForm");
     if (form) {
       form.onsubmit = (e) => {
-        window.submitUnsupportedRequest(e, `${popFrag.brand} ${popFrag.name}`, closestProduct.id);
+        window.submitUnsupportedRequest(e, originalQuery, closestProduct.id);
       };
     }
   }
@@ -1106,11 +1103,11 @@
     const resultsContainer = document.getElementById("searchResults");
     if (!resultsContainer) return;
     
-    const bestSeller = siteProducts.find(p => p.id === 'inspired-by-creed-aventus') || siteProducts[0];
+    const bestSeller = siteProducts.find(p => p.id === 'profile-wild-bergamot') || siteProducts[0];
     if (!bestSeller) return;
     
     const formattedPrice = window.formatPrice ? window.formatPrice(bestSeller.price) : bestSeller.price;
-    const detailUrl = `template product.html?id=${bestSeller.id}`;
+    const detailUrl = `product.html?id=${bestSeller.id}`;
     const imgUrl = window.getThumbnailImageUrl ? window.getThumbnailImageUrl(bestSeller.image, bestSeller.image_thumb) : bestSeller.image;
     const escapedQuery = window.escapeHTML ? window.escapeHTML(originalQuery) : originalQuery;
 
@@ -1130,9 +1127,9 @@
       </div>
       
       <div class="search-notify-box">
-        <div class="search-notify-title">REQUEST FORMULATION</div>
+        <div class="search-notify-title">REQUEST THIS SCENT</div>
         <div class="search-notify-text">
-          ENTER YOUR EMAIL TO REQUEST A CLONE FORMULATION OF "<strong>${escapedQuery.toUpperCase()}</strong>".
+          ENTER YOUR EMAIL TO REQUEST THIS SCENT: "<strong>${escapedQuery.toUpperCase()}</strong>".
         </div>
         <form class="search-notify-form" id="unsupportedNotifyForm">
           <input type="email" class="search-notify-input" id="unsupportedNotifyEmail" placeholder="Enter your email address" required>

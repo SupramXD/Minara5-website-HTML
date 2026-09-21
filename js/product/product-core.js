@@ -78,8 +78,8 @@
     } catch (e) { }
     const accs = customText.accordions || {};
     if (document.getElementById("editWearingOccasion")) document.getElementById("editWearingOccasion").value = htmlToText(accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.");
-    if (document.getElementById("editHonestInspired")) document.getElementById("editHonestInspired").value = htmlToText(accs.honestComparisonInspired || "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.");
-    if (document.getElementById("editHonestNonInspired")) document.getElementById("editHonestNonInspired").value = htmlToText(accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.");
+    if (document.getElementById("editHonestInspired")) document.getElementById("editHonestInspired").value = htmlToText(accs.honestComparisonInspired || "Every Studio Extrait is our own formulation, built from premium imported oils at a dense 20%+ extrait concentration. Enjoy 8-12 hours of longevity and strong projection, without a luxury brand premium.");
+    if (document.getElementById("editHonestNonInspired")) document.getElementById("editHonestNonInspired").value = htmlToText(accs.honestComparisonNonInspired || "Every Studio Extrait is our own formulation, built from premium imported oils at a dense 20%+ extrait concentration. Expect 8-12 hours of longevity and strong projection without a luxury brand premium.");
     if (document.getElementById("editIngredients")) document.getElementById("editIngredients").value = htmlToText(accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.");
     if (document.getElementById("editShippingReturns")) document.getElementById("editShippingReturns").value = htmlToText(accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.");
   }
@@ -351,7 +351,7 @@
           let inspiredSubtitle = "";
           if (entry.inspiredBy) {
             const formatted = typeof window.formatBrandName === 'function' ? window.formatBrandName(entry.inspiredBy) : entry.inspiredBy;
-            inspiredSubtitle = `INSPIRED BY ${formatted.toUpperCase()}`;
+            inspiredSubtitle = `SCENT PROFILE ${formatted.toUpperCase()}`;
           } else if (prod.flair) {
             inspiredSubtitle = prod.flair.toUpperCase();
           }
@@ -649,7 +649,7 @@
 
       let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
       const match = rawName.match(/Inspired\s+by\s+(.+)/i);
-      let isInspired = match || (p.id && p.id.startsWith("inspired-by-"));
+      let isInspired = match || (p.id && (p.id.startsWith("inspired-by-") || p.id.startsWith("profile-")));
       let inspiredFragranceName = "";
       if (isInspired) {
         inspiredFragranceName = match ? match[1] : rawName;
@@ -668,7 +668,7 @@
       const badgeInspired = document.getElementById('badgeInspired');
       if (badgeInspired) {
         if (isInspired) {
-          badgeInspired.textContent = `Inspired by ${formatBrandName(inspiredFragranceName)}`;
+          badgeInspired.textContent = `Scent profile ${formatBrandName(inspiredFragranceName)}`;
           badgeInspired.style.display = 'inline-flex';
         } else {
           badgeInspired.style.display = 'none';
@@ -702,7 +702,7 @@
       const titleEl = document.querySelector('.product-title');
       if (titleEl) {
         if (isInspired) {
-          titleEl.textContent = `INSPIRED BY ${formatBrandName(inspiredFragranceName).toUpperCase()}`;
+          titleEl.textContent = `SCENT PROFILE ${formatBrandName(inspiredFragranceName).toUpperCase()}`;
           titleEl.style.cssText = "font-family: inherit; font-size: 9.5px; font-weight: 500; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 0px; margin-bottom: 2px; color: #000; text-align: left; display: block;";
         } else if (p.name && p.name !== p.nameShort) {
           titleEl.textContent = p.name.toUpperCase();
@@ -733,7 +733,7 @@
         if (retailPriceRow && p.retailPrice) {
           const retailPriceValEl = retailPriceRow.querySelector('.product-retail-price');
           if (retailPriceValEl) {
-            retailPriceValEl.textContent = `${p.isBundle ? 'Bundle Value' : 'Designer Equivalent'}: ${window.formatRetailLabel ? window.formatRetailLabel(p.retailPrice) : ('R' + formatRetailPrice(p.retailPrice))}`;
+            retailPriceValEl.textContent = `${p.isBundle ? 'Bundle Value' : 'Comparable Retail'}: ${window.formatRetailLabel ? window.formatRetailLabel(p.retailPrice) : ('R' + formatRetailPrice(p.retailPrice))}`;
           }
           retailPriceRow.style.display = 'flex';
 
@@ -741,7 +741,7 @@
             const rNum = window.getRetailNumber ? window.getRetailNumber(p.retailPrice) : (Number(p.retailPrice) || 0);
             const savingsPercent = rNum > 0 ? Math.round((1 - p.price / rNum) * 100) : 0;
             if (savingsPercent > 0) {
-              comparisonNote.textContent = `Save ${savingsPercent}% compared to designer retail`;
+              comparisonNote.textContent = `Save ${savingsPercent}% off comparable retail pricing`;
               comparisonNote.style.display = 'inline';
             } else {
               comparisonNote.style.display = 'none';
@@ -767,12 +767,12 @@
       const honestComparisonText = document.getElementById('honestComparisonText');
       if (honestComparisonText) {
         const match = p.name ? p.name.match(/Inspired\s+by\s+(.+)/i) : null;
-        if (match || (p.id && p.id.startsWith("inspired-by-"))) {
+        if (match || (p.id && (p.id.startsWith("inspired-by-") || p.id.startsWith("profile-")))) {
           const fragranceName = match ? match[1] : p.name;
-          const inspiredTemplate = accs.honestComparisonInspired || "Our expert formulation matches <strong>{brand}</strong>'s olfactory profile with a 99% similarity index. Enjoy the identical premium scent projection and longevity (8-12 hours) without paying the designer markup brand tax.";
-          honestComparisonText.innerHTML = formatParagraphs(inspiredTemplate.replace("{brand}", formatBrandName(fragranceName)));
+          const inspiredTemplate = accs.honestComparisonInspired || "Every Studio Extrait is our own formulation, built from premium imported oils at a dense 20%+ extrait concentration. Enjoy 8-12 hours of longevity and strong projection, without a luxury brand premium.";
+          honestComparisonText.innerHTML = formatParagraphs(inspiredTemplate);
         } else {
-          honestComparisonText.innerHTML = formatParagraphs(accs.honestComparisonNonInspired || "Our expert formulation matches the designer scent's profile at a 99% olfactory match. Experience identical quality and longevity (8-12 hours) without paying the designer brand premium.");
+          honestComparisonText.innerHTML = formatParagraphs(accs.honestComparisonNonInspired || "Every Studio Extrait is our own formulation, built from premium imported oils at a dense 20%+ extrait concentration. Expect 8-12 hours of longevity and strong projection without a luxury brand premium.");
         }
       }
 
@@ -906,7 +906,7 @@
 
           const returnLink = document.createElement("a");
           returnLink.id = "returnToBundleLink";
-          returnLink.href = `template product.html?id=${bundleParent}`;
+          returnLink.href = `product.html?id=${bundleParent}`;
           returnLink.textContent = "← RETURN TO BUNDLE SELECTION";
           returnLink.style.cssText = "display: block; text-align: center; margin-top: 15px; font-size: 10px; font-weight: bold; letter-spacing: 1px; color: #1106e8; text-decoration: underline; text-transform: uppercase;";
 
@@ -917,7 +917,7 @@
             const inspiredMatch = p.name ? p.name.match(/Inspired\s+by\s+(.+)/i) : null;
             if (inspiredMatch) {
               inspiredByText = inspiredMatch[1];
-            } else if (p.id.startsWith("inspired-by-")) {
+            } else if ((p.id.startsWith("inspired-by-") || p.id.startsWith("profile-"))) {
               inspiredByText = p.name;
             }
 
@@ -930,7 +930,7 @@
             };
             sessionStorage.setItem("bundle_selections_pending", JSON.stringify(pending));
 
-            window.location.href = `template product.html?id=${bundleParent}`;
+            window.location.href = `product.html?id=${bundleParent}`;
           };
         } else if (p.isBundle) {
           const oldBackLink = document.getElementById("returnToBundleLink");

@@ -68,7 +68,7 @@
               if (!item.inspiredBy) {
                 const m = fullP.name ? fullP.name.match(/Inspired\s+by\s+(.+)/i) : null;
                 if (m) item.inspiredBy = m[1];
-                else if (fullP.id && fullP.id.startsWith("inspired-by-")) item.inspiredBy = fullP.name;
+                else if (fullP.id && (fullP.id.startsWith("inspired-by-") || fullP.id.startsWith("profile-"))) item.inspiredBy = fullP.name;
               }
             }
             selectedScents[idx] = item;
@@ -161,7 +161,7 @@
         const m = prod.name ? prod.name.match(/Inspired\s+by\s+(.+)/i) : null;
         if (m) {
           inspiredByText = formatBrandName(m[1]);
-        } else if (prod.id && prod.id.startsWith("inspired-by-")) {
+        } else if (prod.id && (prod.id.startsWith("inspired-by-") || prod.id.startsWith("profile-"))) {
           inspiredByText = formatBrandName(prod.name);
         } else if (prod.flair) {
           inspiredByText = prod.flair;
@@ -169,7 +169,7 @@
 
         const subEl = document.createElement("span");
         subEl.style.cssText = "font-size: 8.5px; color: #777; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;";
-        subEl.textContent = inspiredByText ? `INSPIRED BY ${inspiredByText.toUpperCase()}` : (prod.flair || "");
+        subEl.textContent = inspiredByText ? `SCENT PROFILE ${inspiredByText.toUpperCase()}` : (prod.flair || "");
 
         textContainer.appendChild(nameEl);
         if (inspiredByText || prod.flair) textContainer.appendChild(subEl);
@@ -204,7 +204,7 @@
           } catch (err) { }
 
           selectedNameEl.textContent = (prod.nameShort || prod.name).toUpperCase();
-          selectedInspiredEl.innerHTML = inspiredByText ? `<span style="opacity: 0.6; font-size: 8px;">INSPIRED BY</span> ${inspiredByText.toUpperCase()}` : "";
+          selectedInspiredEl.innerHTML = inspiredByText ? `<span style="opacity: 0.6; font-size: 8px;">SCENT PROFILE</span> ${inspiredByText.toUpperCase()}` : "";
           selectedImgEl.src = thumb;
 
           inputBox.style.display = "none";
@@ -282,13 +282,13 @@
             const m = fullP.name ? fullP.name.match(/Inspired\s+by\s+(.+)/i) : null;
             if (m) {
               isp = m[1];
-            } else if (fullP.id && fullP.id.startsWith("inspired-by-")) {
+            } else if (fullP.id && (fullP.id.startsWith("inspired-by-") || fullP.id.startsWith("profile-"))) {
               isp = fullP.name;
             }
           }
         }
         if (isp) {
-          preInspiredText = `<span style="opacity: 0.6; font-size: 8px;">INSPIRED BY</span> ` + isp.toUpperCase();
+          preInspiredText = `<span style="opacity: 0.6; font-size: 8px;">SCENT PROFILE</span> ` + isp.toUpperCase();
         }
       }
 
@@ -339,13 +339,13 @@
 
         let inspiredText = "";
         const match = productSelected.name ? productSelected.name.match(/Inspired\s+by\s+(.+)/i) : null;
-        if (match || (productSelected.id && productSelected.id.startsWith("inspired-by-"))) {
+        if (match || (productSelected.id && (productSelected.id.startsWith("inspired-by-") || productSelected.id.startsWith("profile-")))) {
           const fragranceName = match ? match[1] : productSelected.name;
           inspiredText = formatBrandName(fragranceName);
         } else {
           inspiredText = productSelected.name;
         }
-        selectedInspiredEl.innerHTML = inspiredText ? `<span style="opacity: 0.6; font-size: 8px;">INSPIRED BY</span> ${inspiredText.toUpperCase()}` : "";
+        selectedInspiredEl.innerHTML = inspiredText ? `<span style="opacity: 0.6; font-size: 8px;">SCENT PROFILE</span> ${inspiredText.toUpperCase()}` : "";
 
         inputBox.style.display = "none";
         displayBox.style.display = "flex";
@@ -476,9 +476,9 @@
 
       let inspiredText = "";
       const match = fp.name ? fp.name.match(/Inspired\s+by\s+(.+)/i) : null;
-      if (match || (fp.id && fp.id.startsWith("inspired-by-"))) {
+      if (match || (fp.id && (fp.id.startsWith("inspired-by-") || fp.id.startsWith("profile-")))) {
         const fragranceName = match ? match[1] : fp.name;
-        inspiredText = `Inspired by ${formatBrandName(fragranceName)}`;
+        inspiredText = `Scent profile ${formatBrandName(fragranceName)}`;
       } else {
         inspiredText = fp.name;
       }
@@ -520,7 +520,7 @@
           <button class="drawer-item-add-btn" style="background: #000; color: #fff; border: none; padding: 8px 16px; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-weight: bold; border-radius: 2px; transition: background 0.2s; white-space: nowrap; flex-shrink: 0;">ADD</button>
         </div>
         <div class="drawer-item-expanded" style="max-height: 0; overflow: hidden; transition: max-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); padding-left: 62px;">
-          <a href="template product.html?id=${fp.id}&bundleView=true&bundleParent=${p.id || ''}&bundleSlot=${activeSlotIndex}" style="display: inline-block; font-size: 10px; color: #1106e8; font-weight: bold; letter-spacing: 1px; text-decoration: underline; text-transform: uppercase; padding: 6px 0 2px 0;">VIEW PRODUCT PAGE</a>
+          <a href="product.html?id=${fp.id}&bundleView=true&bundleParent=${p.id || ''}&bundleSlot=${activeSlotIndex}" style="display: inline-block; font-size: 10px; color: #1106e8; font-weight: bold; letter-spacing: 1px; text-decoration: underline; text-transform: uppercase; padding: 6px 0 2px 0;">VIEW PRODUCT PAGE</a>
         </div>
       `;
 

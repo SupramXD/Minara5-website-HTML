@@ -16,9 +16,11 @@ name: Sync Firestore products -> products.json
 # which is why this step lives here). Without it, run
 # `firebase deploy --only hosting --project minara5` manually after a sync.
 
+# NOTE (compliance copy): the 30-minute schedule was removed from this variant of the repo so
+# that the Firebase console / Firestore values can never silently overwrite the reviewed,
+# brand-free product data in products.json. Run it by hand from the Actions tab only after the
+# Firestore `products` documents have been updated to the same neutral names.
 on:
-  schedule:
-    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 permissions:

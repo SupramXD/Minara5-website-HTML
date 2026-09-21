@@ -102,7 +102,7 @@
               customisations: itemCustomisations,
               isBundle: !!p.isBundle,
               bundleSize: Number(p.bundleSize) || 0,
-              url: `template product.html?id=${p.id}`
+              url: `product.html?id=${p.id}`
             });
           } else {
             const existingIdx = products.findIndex(item => item.id === p.id);
@@ -113,7 +113,7 @@
                 customisations: itemCustomisations.length > 0 ? itemCustomisations : (products[existingIdx].customisations || []),
                 isBundle: !!p.isBundle,
                 bundleSize: Number(p.bundleSize) || 0,
-                url: `template product.html?id=${p.id}`
+                url: `product.html?id=${p.id}`
               };
             }
           }
@@ -213,7 +213,7 @@
                 stock: (c.stock !== undefined && c.stock !== null && c.stock !== '') ? Number(c.stock) : p.stock,
                 image: c.image || c.image_data || c.image_thumb || p.image,
                 image_thumb: c.image_thumb || c.image || c.image_data || p.image_thumb || p.image,
-                url: `template product.html?id=${p.id}&customisation=${idx}`,
+                url: `product.html?id=${p.id}&customisation=${idx}`,
                 isGiftItem: true,
                 giftIndex: idx,
                 giftLabel: lbl,
@@ -378,7 +378,7 @@
 
         let rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
         const inspiredMatch = rawName.match(/^inspired\s+by\s+(.+)/i);
-        const isInspired = inspiredMatch || p.id.startsWith("inspired-by-");
+        const isInspired = inspiredMatch || (p.id.startsWith("inspired-by-") || p.id.startsWith("profile-"));
         const retailVal = window.getRetailNumber ? window.getRetailNumber(p.retailPrice) : null;
         const retailRText = window.formatRetailLabel ? window.formatRetailLabel(p.retailPrice) : '';
 
@@ -411,7 +411,7 @@
 
           inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; color: #1106e8; letter-spacing: 0.8px; text-transform: uppercase; display: block; margin-bottom: 6px;">${p.giftLabel}</span>`;
           inspiredEl.style.display = 'block';
-        } else if (inspiredMatch || p.id.startsWith("inspired-by-")) {
+        } else if (inspiredMatch || (p.id.startsWith("inspired-by-") || p.id.startsWith("profile-"))) {
           const fragranceName = inspiredMatch ? inspiredMatch[1] : rawName;
 
           titleEl.textContent = p.nameShort || rawName;
@@ -424,7 +424,7 @@
           titleEl.style.letterSpacing = "0.04em";
           titleEl.style.marginBottom = "2px";
 
-          inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}${retailVal ? ` <span class="hp-retail-price">${retailRText}</span>` : ''}</i>`;
+          inspiredEl.innerHTML = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">SCENT PROFILE</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}${retailVal ? ` <span class="hp-retail-price">${retailRText}</span>` : ''}</i>`;
           inspiredEl.style.display = 'block';
         } else {
           titleEl.textContent = p.isBundle ? "PICK ANY 2" : rawName;
@@ -689,7 +689,7 @@
             isBundle: !!data.isBundle,
             bundleSize: Number(data.bundleSize) || 0,
             sortOrder: data.sortOrder !== undefined && data.sortOrder !== null ? Number(data.sortOrder) : null,
-            url: `template product.html?id=${data.id}`
+            url: `product.html?id=${data.id}`
           };
           firestoreProds.push(p);
 
@@ -755,7 +755,7 @@
 
               products = cleanedLocalProds.map(lp => ({
                 ...lp,
-                url: `template product.html?id=${lp.id}`
+                url: `product.html?id=${lp.id}`
               }));
               updated = true;
             }

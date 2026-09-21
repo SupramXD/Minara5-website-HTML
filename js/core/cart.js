@@ -365,9 +365,9 @@
                   });
                 };
                 
-                if (match || (scent.id && scent.id.startsWith("inspired-by-"))) {
+                if (match || (scent.id && (scent.id.startsWith("inspired-by-") || scent.id.startsWith("profile-")))) {
                   const fragranceName = match ? match[1] : clean;
-                  inspiredText = `INSPIRED BY ${formatBrandName(fragranceName)}`;
+                  inspiredText = `SCENT PROFILE ${formatBrandName(fragranceName)}`;
                 }
               }
               
@@ -445,9 +445,9 @@
                   });
                 };
                 
-                if (match || (scent.id && scent.id.startsWith("inspired-by-"))) {
+                if (match || (scent.id && (scent.id.startsWith("inspired-by-") || scent.id.startsWith("profile-")))) {
                   const fragranceName = match ? match[1] : clean;
-                  inspiredText = `INSPIRED BY ${formatBrandName(fragranceName)}`;
+                  inspiredText = `SCENT PROFILE ${formatBrandName(fragranceName)}`;
                 }
               }
               

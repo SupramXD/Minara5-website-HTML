@@ -5,12 +5,11 @@ User-agent: *
 Allow: /
 Disallow: /admin.html
 Disallow: /js/admin/
-Disallow: /template%20product.html
-Disallow: /template product.html
 Disallow: /functions/
-
-# Yoco, PayFast-style payment verifiers and search crawlers are welcome.
-User-agent: Yoco
-Allow: /
+Disallow: /tools/
+Disallow: /input/
+Disallow: /output/
+Disallow: /MEMORY.md
+Disallow: /AGENTS.md
 
 Sitemap: https://studioextrait.co.za/sitemap.xml

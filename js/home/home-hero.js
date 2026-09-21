@@ -86,7 +86,7 @@
     const initStyle = document.getElementById("minara-logo-init-style");
 
     if (isMobile) {
-      const targetMobileSrc = activeSettings.mobileImage || "images/hero/studio-extrait-clone-fragrances-2.avif";
+      const targetMobileSrc = activeSettings.mobileImage || "images/hero/studio-extrait-extrait-fragrances-2.avif";
       if (picR) {
         const source = picR.querySelector("source[media*='max-width']");
         if (source && source.getAttribute("srcset") !== targetMobileSrc) {
@@ -154,7 +154,7 @@
         imgL.style.setProperty("object-fit", "cover", "important");
         imgL.style.setProperty("display", "block", "important");
 
-        const targetLeftSrc = activeSettings.leftImage || "images/hero/studio-extrait-clone-fragrances.avif";
+        const targetLeftSrc = activeSettings.leftImage || "images/hero/studio-extrait-extrait-fragrances.avif";
         if (picL) {
           const source = picL.querySelector("source[media*='min-width']");
           if (source && source.getAttribute("srcset") !== targetLeftSrc) {
@@ -196,7 +196,7 @@
         imgL.style.setProperty("object-fit", "cover", "important");
         imgL.style.setProperty("display", "block", "important");
 
-        const targetLeftSrc = activeSettings.leftImage || "images/hero/studio-extrait-clone-fragrances.avif";
+        const targetLeftSrc = activeSettings.leftImage || "images/hero/studio-extrait-extrait-fragrances.avif";
         if (picL) {
           const source = picL.querySelector("source[media*='min-width']");
           if (source && source.getAttribute("srcset") !== targetLeftSrc) {
@@ -357,9 +357,9 @@ setTimeout(async () => {
     if (response.ok) {
       const data = await response.json();
       const liveSettings = {
-        leftImage: data.leftImage || "images/hero/studio-extrait-clone-fragrances.avif",
+        leftImage: data.leftImage || "images/hero/studio-extrait-extrait-fragrances.avif",
         rightImage: data.rightImage || "images/hero/right.png",
-        mobileImage: data.mobileImage || "images/hero/studio-extrait-clone-fragrances-2.avif",
+        mobileImage: data.mobileImage || "images/hero/studio-extrait-extrait-fragrances-2.avif",
         leftFlex: data.leftFlex !== undefined ? Number(data.leftFlex) : 1.3,
         leftScale: data.leftScale !== undefined ? Number(data.leftScale) : 1.0,
         leftX: data.leftX !== undefined ? Number(data.leftX) : 50,

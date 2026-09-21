@@ -97,7 +97,7 @@
               isBundle: !!p.isBundle,
               bundleSize: Number(p.bundleSize) || 0,
               sortOrder: p.sortOrder !== undefined && p.sortOrder !== null ? Number(p.sortOrder) : null,
-              url: `template product.html?id=${p.id}`
+              url: `product.html?id=${p.id}`
             });
           } else {
             // Keep current local storage stock/values if already there
@@ -120,7 +120,7 @@
                 isBundle: !!p.isBundle,
                 bundleSize: Number(p.bundleSize) || 0,
                 sortOrder: p.sortOrder !== undefined && p.sortOrder !== null ? Number(p.sortOrder) : null,
-                url: `template product.html?id=${p.id}`
+                url: `product.html?id=${p.id}`
               };
             }
           }
@@ -270,17 +270,17 @@
         const rawName = p.name ? p.name.replace(/<br>/gi, ' ').replace(/\s+/g, ' ').trim() : "";
         const tSrc = getThumbnailImageUrl(p.image, p.image_thumb);
         const inspiredMatch = rawName.match(/^inspired\s+by\s+(.+)/i);
-        const isInspired = inspiredMatch || p.id.startsWith("inspired-by-");
+        const isInspired = inspiredMatch || (p.id.startsWith("inspired-by-") || p.id.startsWith("profile-"));
 
         const retailVal = window.getRetailNumber ? window.getRetailNumber(p.retailPrice) : null;
         const retailLabelText = window.formatRetailLabel ? window.formatRetailLabel(p.retailPrice) : '';
         const retailInline = retailVal && !p.isBundle ? ` <span class="hp-retail-price">${retailLabelText}</span>` : '';
         let inspiredHtml = '';
         let titleText = rawName;
-        if (inspiredMatch || p.id.startsWith("inspired-by-")) {
+        if (inspiredMatch || (p.id.startsWith("inspired-by-") || p.id.startsWith("profile-"))) {
           const fragranceName = inspiredMatch ? inspiredMatch[1] : rawName;
           titleText = p.nameShort || rawName;
-          inspiredHtml = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">INSPIRED BY</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}${retailInline}</i>`;
+          inspiredHtml = `<span style="font-family:'Gotham Narrow Bold', sans-serif; font-size: 7px; font-weight: bold; color: #999999; letter-spacing: 1.2px; text-transform: uppercase; display: block; margin-bottom: 1px;">SCENT PROFILE</span><i style="font-family:'Gotham Narrow Bold', sans-serif; font-style: italic; font-weight: 500; font-size: 9.5px; text-transform: uppercase; color: #444444; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${formatBrandName(fragranceName)}${retailInline}</i>`;
         } else if (p.isBundle) { titleText = 'PICK ANY 2'; }
 
         let starsHtml = '';
@@ -532,7 +532,7 @@
             isBundle: !!data.isBundle,
             bundleSize: Number(data.bundleSize) || 0,
             sortOrder: data.sortOrder !== undefined && data.sortOrder !== null ? Number(data.sortOrder) : null,
-            url: `template product.html?id=${data.id}`
+            url: `product.html?id=${data.id}`
           };
           firestoreProds.push(p);
 
@@ -633,7 +633,7 @@
                   isBundle: !!p.isBundle,
                   bundleSize: Number(p.bundleSize) || 0,
                   sortOrder: p.sortOrder !== undefined && p.sortOrder !== null ? Number(p.sortOrder) : null,
-                  url: `template product.html?id=${p.id}`
+                  url: `product.html?id=${p.id}`
                 });
               });
               updated = true;

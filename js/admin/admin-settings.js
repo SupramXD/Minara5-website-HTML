@@ -417,9 +417,9 @@
   // ==========================================
   window.loadHeroSettings = async function() {
     let settings = {
-      leftImage: "images/hero/studio-extrait-clone-fragrances.avif",
+      leftImage: "images/hero/studio-extrait-extrait-fragrances.avif",
       rightImage: "images/hero/right.png",
-      mobileImage: "images/hero/studio-extrait-clone-fragrances-2.avif",
+      mobileImage: "images/hero/studio-extrait-extrait-fragrances-2.avif",
       hideRightImageDesktop: false,
       leftFlex: 1.3,
       leftScale: 1.0,
@@ -529,9 +529,9 @@
 
       const previewL = document.getElementById("previewImgL");
       if (previewL) {
-        const lSrc = s.leftImage || "images/hero/studio-extrait-clone-fragrances.avif";
+        const lSrc = s.leftImage || "images/hero/studio-extrait-extrait-fragrances.avif";
         previewL.src = lSrc + (lSrc.includes('?') ? '&' : '?') + 't=' + Date.now();
-        previewL.onerror = () => { previewL.src = "images/hero/studio-extrait-clone-fragrances.avif"; };
+        previewL.onerror = () => { previewL.src = "images/hero/studio-extrait-extrait-fragrances.avif"; };
       }
       const previewR = document.getElementById("previewImgR");
       if (previewR) {
@@ -541,9 +541,9 @@
       }
       const previewM = document.getElementById("previewImgMobile");
       if (previewM) {
-        const mSrc = s.mobileImage || "images/hero/studio-extrait-clone-fragrances-2.avif";
+        const mSrc = s.mobileImage || "images/hero/studio-extrait-extrait-fragrances-2.avif";
         previewM.src = mSrc + (mSrc.includes('?') ? '&' : '?') + 't=' + Date.now();
-        previewM.onerror = () => { previewM.src = "images/hero/studio-extrait-clone-fragrances-2.avif"; };
+        previewM.onerror = () => { previewM.src = "images/hero/studio-extrait-extrait-fragrances-2.avif"; };
       }
 
       window.updateHeroPreview();
@@ -732,9 +732,9 @@
           if (docSnap.exists()) {
             const data = docSnap.data();
             const liveSettings = {
-              leftImage: data.leftImage || "images/hero/studio-extrait-clone-fragrances.avif",
+              leftImage: data.leftImage || "images/hero/studio-extrait-extrait-fragrances.avif",
               rightImage: data.rightImage || "images/hero/right.png",
-              mobileImage: data.mobileImage || "images/hero/studio-extrait-clone-fragrances-2.avif",
+              mobileImage: data.mobileImage || "images/hero/studio-extrait-extrait-fragrances-2.avif",
               leftFlex: data.leftFlex !== undefined ? Number(data.leftFlex) : 1.3,
               leftScale: data.leftScale !== undefined ? Number(data.leftScale) : 1.0,
               leftX: data.leftX !== undefined ? Number(data.leftX) : 50,
@@ -826,9 +826,9 @@
     const mobileFile = mobileFileEl && mobileFileEl.files ? mobileFileEl.files[0] : null;
 
     // Predict target paths for Firestore and local settings reference
-    const predictedLeft = predictPath(leftFile, leftImageText, "images/hero/studio-extrait-clone-fragrances.avif");
+    const predictedLeft = predictPath(leftFile, leftImageText, "images/hero/studio-extrait-extrait-fragrances.avif");
     const predictedRight = predictPath(rightFile, rightImageText, "images/hero/right.png");
-    const predictedMobile = predictPath(mobileFile, mobileImageText, "images/hero/studio-extrait-clone-fragrances-2.avif");
+    const predictedMobile = predictPath(mobileFile, mobileImageText, "images/hero/studio-extrait-extrait-fragrances-2.avif");
 
     let leftBase64 = null;
     let rightBase64 = null;
@@ -1085,11 +1085,11 @@
     const defaultFeatures = [
       {
         title: "EXTRAIT DE PARFUM CONCENTRATION",
-        description: "Most designer originals dilute to a standard 15% Eau de Parfum. We formulate at a dense 20%+ Extrait concentration, anchoring the scent to your skin for powerful projection and longevity that outlasts the original."
+        description: "Most mass-market eau de parfums are blended at around 15% oil. We formulate at a dense 20%+ extrait concentration, anchoring every scent to your skin for powerful projection and all-day longevity."
       },
       {
-        title: "OLFACTORY ACCURACY",
-        description: "We go beyond 'inspired' scents by reverse-engineering the exact molecular blueprints of exclusive designer fragrances. Experience a high-fidelity, indistinguishable profile without the premium markup."
+        title: "HAND-BLENDED IN SOUTH AFRICA",
+        description: "Every fragrance is blended and bottled by hand in South Africa from premium imported French oils, then macerated in-house. You pay for the ingredients and the craft, not for a luxury logo."
       },
       {
         title: "FREE DELIVERY OVER R650",
@@ -1117,11 +1117,11 @@
           description: "Courier dispatch direct to your door anywhere in South Africa at no extra costs. "
         },
         {
-          title: "Trusted Clone Brand",
-          description: "Soon to be selling on Takealot and Amazon. Studio Extrait has 100% premium quality formulation matching original scents. Safe and secure checkout options using Yoco, Google and Apple Pay."
+          title: "Independently Formulated",
+          description: "Studio Extrait blends and bottles every extrait in South Africa from premium imported oils. Safe, secure checkout by card, instant EFT, Google Pay and Apple Pay, powered by Yoco."
         }
       ],
-      footer_description: "STUDIO EXTRAIT — South Africa's home of premium extrait de parfum. We craft niche-inspired clone fragrances at a dense 20%+ concentration that mirror the world's most iconic designer scents — for a fraction of the price. Every bottle is macerated to perfection for powerful projection and all-day longevity, delivering genuine affordable luxury straight to your door. Free nationwide delivery on orders over R650. Find your signature scent."
+      footer_description: "STUDIO EXTRAIT — South Africa's home of premium extrait de parfum. We craft original extraits at a dense 20%+ concentration, blended and bottled in South Africa from premium imported oils — for a fraction of the price. Every bottle is macerated to perfection for powerful projection and all-day longevity, delivering genuine affordable luxury straight to your door. Free nationwide delivery on orders over R650. Find your signature scent."
     };
 
     try {
@@ -1211,7 +1211,7 @@
         returnsHeading: "2. Returns & Exchanges Policy",
         returnsText: "STUDIO EXTRAIT is committed to ensuring your satisfaction with every Extrait de Parfum purchase. Recognizing the subjective and personal nature of fine fragrances, we offer our customers the option to exchange or refund their goods within 7 days from the date of delivery.\n\nExchanges Policy: For exchanges, the customer will be responsible for the two-way courier fee (R85 x 2 = R170 total).\n\nRefunds Policy: For refunds, the customer will be responsible for the one-way return courier fee (R85 x 1). If your refund is approved upon inspection, courier fees will be deducted from the final refund amount, and a net refund will be processed back to your original payment method. For refunds, we also reserve the right to apply a 15% administrative fee on the total order value.\n\nExchange & Refund Restrictions: In order to maintain fairness and prevent system abuse, STUDIO EXTRAIT reserves the right to impose limitations on the number of exchanges allowed per customer. Frequent and repetitive exchanges, viewed as an attempt to exploit the system for obtaining free samples, may be considered an abuse of our policy. Determination of such behavior remains at the sole discretion of STUDIO EXTRAIT management.\n\nDamaged Merchandise: We place meticulous care in packaging our extraits to ensure pristine condition upon delivery. Should you encounter a damaged or leaking bottle upon arrival, please notify our team within 7 days of receipt via email at jadon@studioextrait.co.za or WhatsApp with a description and photographic evidence. Upon verification, an exchange will be facilitated and a replacement item dispatched, subject to stock availability.",
         disclaimerHeading: "3. Product & Brand Disclaimer",
-        disclaimerText: "STUDIO EXTRAIT offers original Extraits de Parfum formulated independently and sold under its own brand label. While certain products are described as \"inspired by\" famous designer fragrances, this is done solely to provide an olfactory frame of reference for the scent profile.\n\nOur products are not associated with, endorsed by, sponsored by, or manufactured by the owners of any designer brands mentioned. Any reference to third-party trademarks or brand names is made strictly for descriptive purposes. All trademark rights remain the property of their respective owners.\n\nOur custom packaging and bottle designs are intentionally unique to STUDIO EXTRAIT and do not imitate or copy third-party designer logos or trade dress.",
+        disclaimerText: "STUDIO EXTRAIT offers original Extraits de Parfum formulated independently in South Africa and sold under its own brand label. Every fragrance is named after its own scent profile and is created from our own accord, not from any third-party formula.\\n\\nOur products are not associated with, endorsed by, sponsored by, or manufactured by any third-party brand owner. Any reference to a scent family, note or olfactory style is descriptive only. All trademark rights remain the property of their respective owners.\\n\\nOur packaging and bottle designs are unique to STUDIO EXTRAIT and do not imitate or copy any third-party logo or trade dress.",
         supportPrompt: "TO INITIATE A RETURN OR EXCHANGE, CONTACT OUR SUPPORT TEAM:",
         supportEmail: "jadon@studioextrait.co.za"
       };

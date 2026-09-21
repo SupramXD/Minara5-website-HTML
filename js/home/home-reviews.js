@@ -96,7 +96,7 @@
       if (inspiredEl) {
         if (rawInspired) {
           const fmt = (typeof window.formatBrandName === "function" ? window.formatBrandName(rawInspired) : rawInspired).toUpperCase();
-          inspiredEl.textContent = "INSPIRED BY " + fmt;
+          inspiredEl.textContent = "SCENT PROFILE " + fmt;
           inspiredEl.style.display = "";
         } else {
           inspiredEl.style.display = "none";
@@ -182,7 +182,7 @@
             productNameMap[p.id] = p.nameShort || p.name || p.id;
             const m = p.name ? p.name.match(/inspired\s+by\s+(.+)/i) : null;
             if (m) inspiredMap[p.id] = m[1];
-            else if (p.id.indexOf("inspired-by-") === 0) inspiredMap[p.id] = p.name;
+            else if ((p.id.indexOf("inspired-by-") === 0 || p.id.indexOf("profile-") === 0)) inspiredMap[p.id] = p.name;
           });
         }
       }
