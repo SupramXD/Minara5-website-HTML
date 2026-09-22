@@ -78,8 +78,8 @@
     } catch (e) { }
     const accs = customText.accordions || {};
     if (document.getElementById("editWearingOccasion")) document.getElementById("editWearingOccasion").value = htmlToText(accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.");
-    if (document.getElementById("editHonestInspired")) document.getElementById("editHonestInspired").value = htmlToText(accs.honestComparisonInspired || "Every Studio Extrait is our own formulation, built from premium imported oils at a dense 20%+ extrait concentration. Enjoy 8-12 hours of longevity and strong projection, without a luxury brand premium.");
-    if (document.getElementById("editHonestNonInspired")) document.getElementById("editHonestNonInspired").value = htmlToText(accs.honestComparisonNonInspired || "Every Studio Extrait is our own formulation, built from premium imported oils at a dense 20%+ extrait concentration. Expect 8-12 hours of longevity and strong projection without a luxury brand premium.");
+    if (document.getElementById("editHonestInspired")) document.getElementById("editHonestInspired").value = htmlToText(accs.honestComparisonInspired || "Blended in South Africa in small batches from premium imported oils at a dense 20%+ extrait concentration, then macerated for even, long wear. Expect 8-12 hours of longevity and strong projection, without the luxury brand premium.");
+    if (document.getElementById("editHonestNonInspired")) document.getElementById("editHonestNonInspired").value = htmlToText(accs.honestComparisonNonInspired || "Blended in South Africa in small batches from premium imported oils at a dense 20%+ extrait concentration, then macerated for even, long wear. Expect 8-12 hours of longevity and strong projection, without the luxury brand premium.");
     if (document.getElementById("editIngredients")) document.getElementById("editIngredients").value = htmlToText(accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.");
     if (document.getElementById("editShippingReturns")) document.getElementById("editShippingReturns").value = htmlToText(accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.");
   }
@@ -776,7 +776,7 @@
           if (!value) return false;
           return !blockedTokens.some((token) => value.includes(token));
         };
-        const ownFormulationText = "Every Studio Extrait is our own formulation, built from premium imported oils at a dense 20%+ extrait concentration, with 8-12 hours of longevity and strong projection. Pay for the ingredients and the craft, not for a luxury logo.";
+        const ownFormulationText = "Blended in South Africa in small batches from premium imported oils at a dense 20%+ extrait concentration, then macerated for even, long wear. Expect 8-12 hours of longevity and strong projection, without the luxury brand premium.";
         if (match || (p.id && (p.id.startsWith("inspired-by-") || p.id.startsWith("profile-")))) {
           const inspiredTemplate = usable(accs.honestComparisonInspired) ? accs.honestComparisonInspired : ownFormulationText;
           honestComparisonText.innerHTML = formatParagraphs(inspiredTemplate);
