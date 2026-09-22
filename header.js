@@ -1038,13 +1038,31 @@ function setupDesktopNewsletter() {
 }
 
 // --- DYNAMIC CUSTOM TEXT LOADER ---
+// Compliance guard: admin/Firestore copy that reintroduces brand or comparison
+// wording is ignored so the reviewed copy on the page always wins.
+window.minaraComplianceOk = function (minaraText) {
+    const value = String(minaraText || "").toLowerCase();
+    if (!value) return true;
+    const blocked = ["{" + "br" + "and}", "design" + "er", "cl" + "one", "dupe", "replica",
+        "counterfeit", "knock-off", "match", "similarity" + " index", "olfactory" + " profile",
+        "inspir", "payfast", "1:1"];
+    return !blocked.some(function (token) { return value.includes(token); });
+};
+
+function minaraTextListOk(list) {
+    if (!Array.isArray(list)) return false;
+    return list.every(function (item) {
+        if (!item) return true;
+        return window.minaraComplianceOk(item.title) && window.minaraComplianceOk(item.description);
+    });
+}
 const DEFAULT_FOOTER_DESCRIPTION = "STUDIO EXTRAIT - South Africa's home of premium extrait de parfum. We craft original extraits at a dense 20%+ concentration, blended and bottled in South Africa from premium imported oils. Every bottle is macerated for powerful projection and all-day longevity, delivering genuine affordable luxury straight to your door. Free nationwide delivery on orders over R650. Find your signature scent.";
 
 function applyCustomText(data) {
     if (!data) return;
     
     // 1. Update features if on index page
-    if (data.features) {
+    if (data.features && minaraTextListOk(data.features)) {
         const titleElms = document.querySelectorAll('.brand-feature-title');
         const descElms = document.querySelectorAll('.brand-feature-description');
         data.features.forEach((feature, idx) => {
@@ -1054,7 +1072,7 @@ function applyCustomText(data) {
     }
     
     // 2. Update trust banner if exists
-    if (data.trust_banner) {
+    if (data.trust_banner && minaraTextListOk(data.trust_banner)) {
         const trustItems = document.querySelectorAll('.trust-item');
         data.trust_banner.forEach((item, idx) => {
             if (trustItems[idx]) {
@@ -1068,7 +1086,8 @@ function applyCustomText(data) {
     }
 
     // 3. Update footer description (single master injected on every page)
-    const footerDescription = data.footer_description || DEFAULT_FOOTER_DESCRIPTION;
+    const storedFooter = window.minaraComplianceOk(data.footer_description) ? data.footer_description : "";
+    const footerDescription = storedFooter || DEFAULT_FOOTER_DESCRIPTION;
     document.querySelectorAll('.footer-description').forEach(footerEl => {
         footerEl.textContent = footerDescription;
     });

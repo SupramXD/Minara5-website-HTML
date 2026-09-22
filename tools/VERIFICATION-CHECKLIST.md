@@ -71,7 +71,30 @@ authoritative:
 3. Do not use the admin Products / Site Texts editors until those values have been updated, because
    saving there pushes the Firestore values back into the repo through `syncToGithub`.
 
-## 5. Before re-submitting the domain to Yoco
+## 6. Firestore/admin protection (added 22 Sep 2026)
+
+The admin panel (Site Texts / Returns policy editors) writes straight back into `custom_text_settings.json`
+through `syncToGithub`, and it did exactly that on 22 Sep 2026 at 10:09 - the stored Firestore text
+reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{brand}` comparison text,
+"inspired by" disclaimer). Two layers now stop that from reaching the page:
+
+1. **Client-side filter** - `window.minaraComplianceOk()` in `header.js` and `compliant()` in
+   `js/pages/returns-shipping.js` reject any stored text containing brand or comparison wording (the brand
+   placeholder, "designer", "clone", "dupe", "replica", "counterfeit", "knock-off", "match", "similarity
+   index", "olfactory profile", "inspir", "payfast"), so the reviewed static copy stays on screen no matter
+   what Firestore holds. The homepage features, footer description and all three returns-policy sections are
+   covered.
+2. **Repo safety net** - if an admin save rewrites `custom_text_settings.json` or `products.json` again,
+   restore the reviewed versions with:
+
+   ```
+   git checkout HEAD -- custom_text_settings.json products.json
+   ```
+
+   (or `git checkout <compliance-commit> -- <file>`), then push. The 30-minute Firestore sync workflow is
+   disabled in this variant, so only a manual admin save can do it.
+
+## 7. Before re-submitting the domain to Yoco
 
 1. Push this copy to the site repo (or copy the changed files into it) and confirm the live pages
    render: home page, catalogue, all four product pages, about, terms, privacy, returns, contact,

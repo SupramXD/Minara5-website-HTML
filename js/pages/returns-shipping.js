@@ -7,11 +7,19 @@
     returnsHeading: "2. Returns & Exchanges Policy",
     returnsText: "<p>STUDIO EXTRAIT is committed to ensuring your satisfaction with every Extrait de Parfum purchase. Recognizing the subjective and personal nature of fine fragrances, we offer our customers the option to exchange or refund their goods within 7 days from the date of delivery.</p>\n<p><strong>Exchanges Policy:</strong> For exchanges, the customer will be responsible for the two-way courier fee (R85 x 2 = R170 total).</p>\n<p><strong>Refunds Policy:</strong> For refunds, the customer will be responsible for the one-way return courier fee (R85 x 1). If your refund is approved upon inspection, courier fees will be deducted from the final refund amount, and a net refund will be processed back to your original payment method. For refunds, we also reserve the right to apply a 15% administrative fee on the total order value.</p>\n<p><strong>Exchange & Refund Restrictions:</strong> In order to maintain fairness and prevent system abuse, STUDIO EXTRAIT reserves the right to impose limitations on the number of exchanges allowed per customer. Frequent and repetitive exchanges, viewed as an attempt to exploit the system for obtaining free samples, may be considered an abuse of our policy. Determination of such behavior remains at the sole discretion of STUDIO EXTRAIT management.</p>\n<p><strong>Damaged Merchandise:</strong> We place meticulous care in packaging our extraits to ensure pristine condition upon delivery. Should you encounter a damaged or leaking bottle upon arrival, please notify our team within 7 days of receipt via email at <strong>jadon@studioextrait.co.za</strong> or WhatsApp with a description and photographic evidence. Upon verification, an exchange will be facilitated and a replacement item dispatched, subject to stock availability.</p>",
     disclaimerHeading: "3. Product & Brand Disclaimer",
-    disclaimerText: "<p>STUDIO EXTRAIT is an independent fragrance label. We are not affiliated with, endorsed by, sponsored by or connected to any other fragrance house, designer or brand owner, and none of our products are made or supplied by them.</p><p>All fragrance names, bottle designs, photography and website text shown here belong to STUDIO EXTRAIT. Third-party trademarks remain the property of their respective owners.</p>",
+    disclaimerText: "<p>STUDIO EXTRAIT is an independent fragrance label. We are not affiliated with, endorsed by, sponsored by or connected to any other fragrance house, brand owner or manufacturer, and none of our products are made or supplied by them.</p><p>All fragrance names, bottle designs, photography and website text shown here belong to STUDIO EXTRAIT. Third-party trademarks remain the property of their respective owners.</p>",
     supportPrompt: "TO INITIATE A RETURN OR EXCHANGE, CONTACT OUR SUPPORT TEAM:",
     supportEmail: "jadon@studioextrait.co.za"
   };
 
+  // Compliance guard: stored policy text that reintroduces brand or comparison
+  // wording falls back to the reviewed default on this page.
+  function compliant(storedValue, fallbackValue) {
+    if (typeof window.minaraComplianceOk === "function") {
+      return window.minaraComplianceOk(storedValue) ? (storedValue || fallbackValue) : fallbackValue;
+    }
+    return storedValue || fallbackValue;
+  }
   // Convert raw textarea text (with line breaks/paragraphs) to clean HTML paragraphs
   function textToParagraphs(text) {
     if (!text) return "";
@@ -58,25 +66,25 @@
     const p = data || getPolicyData();
 
     const shipHeadingEl = document.getElementById("policyShippingHeading");
-    if (shipHeadingEl) shipHeadingEl.textContent = p.shippingHeading || defaultPolicy.shippingHeading;
+    if (shipHeadingEl) shipHeadingEl.textContent = compliant(p.shippingHeading, defaultPolicy.shippingHeading);
 
     const shipTextEl = document.getElementById("policyShippingText");
-    if (shipTextEl) shipTextEl.innerHTML = textToParagraphs(p.shippingText || defaultPolicy.shippingText);
+    if (shipTextEl) shipTextEl.innerHTML = textToParagraphs(compliant(p.shippingText, defaultPolicy.shippingText));
 
     const retHeadingEl = document.getElementById("policyReturnsHeading");
-    if (retHeadingEl) retHeadingEl.textContent = p.returnsHeading || defaultPolicy.returnsHeading;
+    if (retHeadingEl) retHeadingEl.textContent = compliant(p.returnsHeading, defaultPolicy.returnsHeading);
 
     const retTextEl = document.getElementById("policyReturnsText");
-    if (retTextEl) retTextEl.innerHTML = textToParagraphs(p.returnsText || defaultPolicy.returnsText);
+    if (retTextEl) retTextEl.innerHTML = textToParagraphs(compliant(p.returnsText, defaultPolicy.returnsText));
 
     const discHeadingEl = document.getElementById("policyDisclaimerHeading");
-    if (discHeadingEl) discHeadingEl.textContent = p.disclaimerHeading || defaultPolicy.disclaimerHeading;
+    if (discHeadingEl) discHeadingEl.textContent = compliant(p.disclaimerHeading, defaultPolicy.disclaimerHeading);
 
     const discTextEl = document.getElementById("policyDisclaimerText");
-    if (discTextEl) discTextEl.innerHTML = textToParagraphs(p.disclaimerText || defaultPolicy.disclaimerText);
+    if (discTextEl) discTextEl.innerHTML = textToParagraphs(compliant(p.disclaimerText, defaultPolicy.disclaimerText));
 
     const supPromptEl = document.getElementById("policySupportPrompt");
-    if (supPromptEl) supPromptEl.textContent = p.supportPrompt || defaultPolicy.supportPrompt;
+    if (supPromptEl) supPromptEl.textContent = compliant(p.supportPrompt, defaultPolicy.supportPrompt);
 
     const supEmailEl = document.getElementById("policySupportEmail");
     if (supEmailEl) {
