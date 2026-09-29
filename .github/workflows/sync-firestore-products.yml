@@ -65,4 +65,31 @@ jobs:
             exit 0
           fi
           npm install -g firebase-tools
+
+          # Firebase Hosting only auto-created the default site for projects created before
+          # 15 Oct 2026; for newer projects the site is provisioned on demand and a first
+          # deploy can fail with "404 Site Not Found". Site `minara5` already exists, so this
+          # is a no-op today (Firebase's recommended `hosting:sites:create` guard).
+          SITE_ID=minara5
+          if firebase hosting:sites:list --project minara5 --token "$FIREBASE_TOKEN" --non-interactive \
+              | grep -E "(^|[^[:alnum:]._-])${SITE_ID}([^[:alnum:]._-]|\$)" > /dev/null; then
+            echo "Hosting site '${SITE_ID}' already exists in minara5 - nothing to create."
+          else
+            echo "Hosting site '${SITE_ID}' not found in minara5 - creating it before deploying..."
+            set +e
+            create_out=$(firebase hosting:sites:create "$SITE_ID" --project minara5 \
+              --token "$FIREBASE_TOKEN" --non-interactive 2>&1)
+            create_status=$?
+            set -e
+            printf '%s\n' "$create_out"
+            if [ "$create_status" -ne 0 ]; then
+              if printf '%s' "$create_out" | grep -qiE "already exists|ALREADY_EXISTS|409"; then
+                echo "Hosting site '${SITE_ID}' already exists - continuing."
+              else
+                echo "Could not create Hosting site '${SITE_ID}' (exit ${create_status})." >&2
+                exit "$create_status"
+              fi
+            fi
+          fi
+
           firebase deploy --only hosting --project minara5 --token "$FIREBASE_TOKEN" --non-interactive
