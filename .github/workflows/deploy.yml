@@ -22,19 +22,33 @@ jobs:
 
       # Firebase Hosting only auto-created the default site for projects created before
       # 15 Oct 2026 (after that date a new project's site is provisioned on demand, so a
-      # first `firebase deploy` can fail with "404 Site Not Found"). Project minara5 is an
-      # existing project whose default site `minara5` is already live
+      # first `firebase deploy` on a new project can fail with "404 Site Not Found"). Project
+      # minara5 is an existing project whose default site `minara5` is already live
       # (`firebase hosting:sites:list --project minara5`), so this step is a no-op today. It
-      # exists so the pipeline keeps working if the repo is ever pointed at a new project,
-      # and it keeps the site id the deploy below resolves implicit.
+      # exists so the pipeline keeps working if the repo is ever pointed at a new project.
+      # It never changes the failure surface: without a usable FIREBASE_TOKEN it warns and
+      # steps aside, leaving the token error to the deploy step (as before this change).
       - name: Ensure the Firebase Hosting site exists
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         run: |
+          if [ -z "$FIREBASE_TOKEN" ]; then
+            echo "FIREBASE_TOKEN is not set - skipping the Hosting site check."
+            exit 0
+          fi
+
           SITE_ID=minara5
           PROJECT_ID=minara5
-          if firebase hosting:sites:list --project "$PROJECT_ID" --token "$FIREBASE_TOKEN" --non-interactive \
-              | grep -E "(^|[^[:alnum:]._-])${SITE_ID}([^[:alnum:]._-]|\$)" > /dev/null; then
+
+          set +e
+          list_out=$(firebase hosting:sites:list --project "$PROJECT_ID" --token "$FIREBASE_TOKEN" --non-interactive 2>&1)
+          list_status=$?
+          set -e
+          printf '%s\n' "$list_out"
+
+          if [ "$list_status" -ne 0 ]; then
+            echo "::warning::Could not list Hosting sites (exit ${list_status}) - skipping the site check so the deploy step below reports the real error."
+          elif printf '%s\n' "$list_out" | grep -E "(^|[^[:alnum:]._-])${SITE_ID}([^[:alnum:]._-]|\$)" > /dev/null; then
             echo "Hosting site '${SITE_ID}' already exists in ${PROJECT_ID} - nothing to create."
           else
             echo "Hosting site '${SITE_ID}' not found in ${PROJECT_ID} - creating it before deploying..."

@@ -69,10 +69,20 @@ jobs:
           # Firebase Hosting only auto-created the default site for projects created before
           # 15 Oct 2026; for newer projects the site is provisioned on demand and a first
           # deploy can fail with "404 Site Not Found". Site `minara5` already exists, so this
-          # is a no-op today (Firebase's recommended `hosting:sites:create` guard).
+          # is a no-op today (Firebase's recommended `hosting:sites:create` guard). If the
+          # site cannot be listed (e.g. a stale token) it warns and steps aside so the deploy
+          # below still reports the same error it did before this guard existed.
           SITE_ID=minara5
-          if firebase hosting:sites:list --project minara5 --token "$FIREBASE_TOKEN" --non-interactive \
-              | grep -E "(^|[^[:alnum:]._-])${SITE_ID}([^[:alnum:]._-]|\$)" > /dev/null; then
+
+          set +e
+          list_out=$(firebase hosting:sites:list --project minara5 --token "$FIREBASE_TOKEN" --non-interactive 2>&1)
+          list_status=$?
+          set -e
+          printf '%s\n' "$list_out"
+
+          if [ "$list_status" -ne 0 ]; then
+            echo "::warning::Could not list Hosting sites (exit ${list_status}) - skipping the site check."
+          elif printf '%s\n' "$list_out" | grep -E "(^|[^[:alnum:]._-])${SITE_ID}([^[:alnum:]._-]|\$)" > /dev/null; then
             echo "Hosting site '${SITE_ID}' already exists in minara5 - nothing to create."
           else
             echo "Hosting site '${SITE_ID}' not found in minara5 - creating it before deploying..."
