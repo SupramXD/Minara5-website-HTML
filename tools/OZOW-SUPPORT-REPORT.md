@@ -189,7 +189,8 @@ Why that fits every observation above:
 So there are two defects, both on Ozow's side, plus one task only Ozow can complete:
 
 1. The Dashboard **Industry** field accepts no input, which silently blocks *every* save on Merchant
-   Details — so the settlement bank account can never be stored.
+   Details — so the settlement bank account can never be stored. Whether the control is broken or
+   simply `disabled`/locked (e.g. pending compliance) is unresolved; see the addendum below.
 2. Pay-by-Bank transaction creation dereferences the missing merchant/settlement data and returns a
    raw **500 NullReferenceException** instead of a clean "merchant details incomplete" error. That is
    why this surfaced as a dead customer payment page instead of an admin warning.
@@ -197,6 +198,44 @@ So there are two defects, both on Ozow's side, plus one task only Ozow can compl
 **How to confirm it:** once the bank account has been saved, re-run `node tools/ozow-probe.js
 --methods`. If the Pay-by-Bank row flips from 500 to a real session payload, the root cause is
 confirmed. If it still 500s, send the fresh trace IDs with this Evidence 6 note attached.
+
+### Addendum — is it the *field* that is broken, or the *record*? (and where else the bank account appears)
+
+Two of these we can settle ourselves; one we cannot.
+
+**The Dashboard is deep-linkable MVC, not a black box.** Ozow's own documentation routes merchants by
+URL — `dash.ozow.com/MerchantAdmin/Refund/ReferenceTopUpTypeSelection` (Float Management),
+`…/Refund/GetStaticTopUpReference`, `…/Refund/FloatBalanceTotals`, and
+`dash.ozow.com/MerchantAdmin/OneAPI/Clients` (One API Clients) — so every page in the left-hand menu has
+a stable `/MerchantAdmin/<Controller>/<Action>` address. Merchant Details is therefore reachable by more
+than the single link we used, and the menu itself enumerates the controllers.
+
+**Screens that touch the merchant's own bank details, and what each can actually prove:**
+
+| Screen | What it would show | Can it prove the null? |
+|---|---|---|
+| Merchant Details (the page that will not save) | the settlement bank account field | yes, directly — but it is the page that is stuck |
+| Sites → `STU-STU-022` | site code, enabled methods, per-site configuration | no — informational only |
+| Settlements / reports | settlement rows carry `bankReference`, the reference that lands on our statement | no — we have zero completed payments, so it will be empty, not evidence |
+| Float Management | **Ozow's** banking details, for us to pay Ozow | no — a different account; the two must not be confused |
+| Payouts → beneficiaries | recipients we would pay | no — recipient accounts, not our settlement account |
+
+The useful result here is the Float Management negative: the portal renders *bank details* correctly on
+that page, so the fault is specific to the Merchant Details form rather than to banking fields in
+general.
+
+**"Maybe just that one field is bugged" — the two candidate explanations.** Either
+
+* (a) the **Industry control is broken** — its option list never loads, or the widget is dead; or
+* (b) the control is deliberately **`disabled`/`read-only`** — for example locked pending a compliance
+  step, or not editable for the role we signed in as — which also presents to a user as "accepts no
+  input".
+
+Both are visible in a single look at the page (Appendix), and (b) would be fixed by Ozow changing a
+permission or completing a compliance step rather than by changing code. To separate a **field** fault
+from a **record/data** fault, the same form on staging (`stagingdash.ozow.com`) is a free comparison:
+the same front-end, different data. Whichever it is, we cannot resolve it from our side — but knowing
+which one it is tells Ozow exactly where to look.
 
 ## What we need from Ozow
 
@@ -214,7 +253,10 @@ confirmed. If it still 500s, send the fresh trace IDs with this Evidence 6 note 
    null is in the payer-session configuration.
 4. If that cannot be fixed today, enable `Card` (`3B1ED354-…`), `Capitec Pay` (`913999FA-…`) or
    `PayShap Request` (`EEC08676-…`) on the account and tell us which identifier works: we can send
-   `selectedBankId` on the payment request and take customers straight to a working method.
+   `selectedBankId` on the payment request and take customers straight to a working method. Your own
+   documentation is explicit that we cannot do this ourselves — *"Payment methods are enabled on your
+   Ozow account, not in your code. Pay by Bank is enabled by default. Anything else you opt into is
+   enabled by Ozow on your account"* — so with Pay by Bank crashing we are left with no usable method.
 5. Tell us whether `"Failed to create transaction, please retry to complete your payment."` is the
    same incomplete-merchant-details condition.
 6. For triage: `initiate` returns **200 with a complete session payload** — quoting the `requestId` we
@@ -238,4 +280,42 @@ confirmed. If it still 500s, send the fresh trace IDs with this Evidence 6 note 
   startup call is `POST /api/transaction/initiate` on the `/api/transaction` base, which is exactly
   what the customer's browser console reported: `API ERROR: { endpoint: "initiate", error: {…} }` and
   `AxiosError: Request failed with status code 500`.
+* Browser-side diagnostics for the Merchant Details block — DevTools → Console on the dashboard
+  (Evidence 6 addendum). They report the state of the control that refuses input, the POST target and
+  field names, and the route map of the whole left-hand menu:
+
+  ```js
+  // State of every control on the page: is Industry disabled/read-only, and what is in the bank field?
+  [...document.querySelectorAll('input, select, textarea')].forEach(e =>
+    console.log(e.tagName, e.name || e.id, 'type=' + e.type,
+                'disabled=' + e.disabled, 'readonly=' + e.readOnly, 'value=' + JSON.stringify(e.value)));
+
+  // Every dropdown and the options it managed to load (an empty Industry list is the smoking gun)
+  [...document.querySelectorAll('select')].forEach(s =>
+    console.log(s.name || s.id, [...s.options].map(o => [o.value, o.text])));
+
+  // Where the form posts, and every field it would send
+  [...document.forms].forEach(f =>
+    console.log(f.method, f.action, [...new FormData(f).entries()]));
+
+  // Full left-hand menu = every /MerchantAdmin/<Controller>/<Action> route we can be pointed at
+  console.table([...document.querySelectorAll('a[href]')]
+    .map(a => ({ text: a.textContent.trim().slice(0, 40), href: a.getAttribute('href') })));
+  ```
+
+* The save can also be replayed as a plain form POST with `fetch`, which bypasses the dead field
+  entirely (the `FormData` already carries the ASP.NET `__RequestVerificationToken`, and
+  `document.forms[0].action` is the real endpoint):
+
+  ```js
+  const f = document.forms[0], fd = new FormData(f);
+  fd.set('Industry', '<value from the select dump>');   // the blocker
+  fd.set('<bank field name>', '<account to settle into>');
+  const r = await fetch(f.action, { method: 'POST', body: fd, credentials: 'include' });
+  console.log(r.status, await r.text());
+  ```
+
+  If that POST stores the bank account, the widget was the only obstacle and the missing settlement
+  account is confirmed as the null behind the Pay-by-Bank 500. We will then re-run
+  `node tools/ozow-probe.js --methods` the same minute and report the result.
 
