@@ -167,26 +167,64 @@ Second run, same day (≈16:25–16:31 SAST) — the payload-shape matrix of Evi
 | PayShap Request selected (control — 200) | `ff5dc783-fdac-489e-a08b-aca5c7036dc6` | — |
 | Crypto selected (control — 200) | `1547b863-a868-4455-8905-00ba44bfcd08` | — |
 
+## Evidence 6 — the merchant record is incomplete, and the Dashboard cannot fix it
+
+New (5 October 2026, ≈16:40 SAST) — and probably the missing *mechanism*. The account was created by
+hand by Ozow (the self-service sign-up never completed), and in **Merchant Details** the **bank
+account is blank**. Selecting one does not save, because that form refuses to submit while the
+**Industry** field is empty — and the Industry field accepts no input, so the Save never completes and
+the bank account is never stored.
+
+Why that fits every observation above:
+
+* Ozow's own documentation: *"Payments from your customers are settled into your bank account."* The
+  settlement bank account is therefore an object a payer-session builder has every reason to read; a
+  null there yields exactly `Object reference not set to an instance of an object.`
+* It also explains the method matrix: for a method the account is *not* enabled for, Ozow's guard
+  fires first and answers cleanly ("not available for this merchant"), so the code never reaches the
+  session builder — only the enabled Pay-by-Bank path runs into the null.
+* It is consistent with the request being irrelevant (Evidence 2) and with their API validating our
+  requests correctly (the deliberately wrong hash is rejected by name).
+
+So there are two defects, both on Ozow's side, plus one task only Ozow can complete:
+
+1. The Dashboard **Industry** field accepts no input, which silently blocks *every* save on Merchant
+   Details — so the settlement bank account can never be stored.
+2. Pay-by-Bank transaction creation dereferences the missing merchant/settlement data and returns a
+   raw **500 NullReferenceException** instead of a clean "merchant details incomplete" error. That is
+   why this surfaced as a dead customer payment page instead of an admin warning.
+
+**How to confirm it:** once the bank account has been saved, re-run `node tools/ozow-probe.js
+--methods`. If the Pay-by-Bank row flips from 500 to a real session payload, the root cause is
+confirmed. If it still 500s, send the fresh trace IDs with this Evidence 6 note attached.
+
 ## What we need from Ozow
 
-1. Look up the trace IDs above and fix the null reference in **Pay-by-Bank transaction creation** for
-   site `STU-STU-022` (`STUDIOEXTRAITPTYLTD`).
-2. Confirm the site is **activated for live payments** and that Pay by Bank is configured correctly
+1. **Complete the merchant record from your side.** In Merchant Details the **bank account is blank**,
+   and we cannot save it ourselves because the **Industry** field on that form accepts no input
+   (Evidence 6). Please set the industry and the settlement bank account for `STUDIOEXTRAITPTYLTD`
+   (`STU-STU-022`) through your admin tooling, or fix the field so we can. This is now our leading
+   root-cause candidate, and it is the one thing that is neither a payload problem nor something we
+   can fix from the Dashboard.
+2. Look up the trace IDs above and fix the null reference in **Pay-by-Bank transaction creation** for
+   site `STU-STU-022` (`STUDIOEXTRAITPTYLTD`) — if the merchant details are incomplete, that should be
+   a clean "merchant details incomplete" response, never a 500.
+3. Confirm the site is **activated for live payments** and that Pay by Bank is configured correctly
    for it — `POST /postpaymentrequest` being accepted means the site and keys resolve, so whatever is
    null is in the payer-session configuration.
-3. If that cannot be fixed today, enable `Card` (`3B1ED354-…`), `Capitec Pay` (`913999FA-…`) or
+4. If that cannot be fixed today, enable `Card` (`3B1ED354-…`), `Capitec Pay` (`913999FA-…`) or
    `PayShap Request` (`EEC08676-…`) on the account and tell us which identifier works: we can send
    `selectedBankId` on the payment request and take customers straight to a working method.
-4. Confirm whether `"Failed to create transaction, please retry to complete your payment."` is a site
-   setting we can correct ourselves in `dash.ozow.com`.
-5. For triage: `initiate` returns **200 with a complete session payload** — quoting the `requestId` we
+5. Tell us whether `"Failed to create transaction, please retry to complete your payment."` is the
+   same incomplete-merchant-details condition.
+6. For triage: `initiate` returns **200 with a complete session payload** — quoting the `requestId` we
    created — when a payment request names a Bank API method the account is not enabled for
    (Card/Capitec Pay/PayShap/Crypto), and **only** the Pay-by-Bank bank ids (or no `selectedBankId`)
    produce the NRE. The payment request is therefore read fine; the null is inside Pay-by-Bank session
    creation for this merchant/site. Please tell us which configuration object that code path reads for
    `STU-STU-022` (enabled-bank list, merchant bank account / settlement details, site activation for
    bank payments) — that is what looks null.
-6. If you can create a **second site code under the same merchant**, we will re-run this whole matrix
+7. If you can create a **second site code under the same merchant**, we will re-run this whole matrix
    against it within minutes: that isolates a site-level configuration fault from a merchant-level one.
 
 ## Appendix — how this was collected
