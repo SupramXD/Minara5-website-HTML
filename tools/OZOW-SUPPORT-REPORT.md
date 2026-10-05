@@ -237,6 +237,30 @@ from a **record/data** fault, the same form on staging (`stagingdash.ozow.com`) 
 the same front-end, different data. Whichever it is, we cannot resolve it from our side — but knowing
 which one it is tells Ozow exactly where to look.
 
+## Evidence 7 — the customer's own screen (attached to the support e-mail)
+
+Screenshot attached to the e-mail we send (`ozow-500-system-error-2026-10-05-1659.png`, taken 5 Oct 2026
+16:59 SAST from the live checkout page): Ozow's own **"System error — Unfortunately, your payment
+couldn't be completed."** page, with DevTools visible in the same capture and showing
+
+    API ERROR: { endpoint: "initiate", error: {} }
+    Uncaught (in promise) { name: "AxiosError", message: "Request failed with status code 500",
+                            code: "ERR_BAD_RESPONSE" }
+
+so Ozow's hosted bundle itself attributes the dead page to the failed `initiate` call — nothing to
+interpret. The companion capture (`studioextrait-checkout-error-2026-10-05-1332.png`) is what our own
+storefront shows the customer: *"We could not start a secure Ozow payment session. Please check your
+details and try again."* Both live in `%USERPROFILE%\Pictures\Screenshots\ozow-attachments\`.
+
+Re-verified while drafting the e-mail — 5 Oct 2026 ≈17:10 SAST, still broken, still live:
+
+| probe | paymentRequestId | `initiate` |
+|---|---|---|
+| Pay by Bank (live, R10) | `1d2ad4aa-9f27-47f4-9268-0e1bdc43322f` | **500 NRE** — traceId `0HNP2HKCIQ2P6:00000001` |
+
+Payer URL for that attempt (Ozow staff can open it and watch it fail themselves):
+`https://pay.ozow.com/1d2ad4aa-9f27-47f4-9268-0e1bdc43322f/Secure`
+
 ## What we need from Ozow
 
 1. **Complete the merchant record from your side.** In Merchant Details the **bank account is blank**,
