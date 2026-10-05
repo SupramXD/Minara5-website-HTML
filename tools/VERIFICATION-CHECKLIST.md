@@ -109,7 +109,11 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
 6. **Two gateways are live on `checkout.html`:** tapping the card tile pays through Yoco, tapping
    the Instant EFT tile pays through Ozow. Both are created server-side (`createYocoCheckout` /
    `createOzowCheckout`) and both webhooks (`/yocoWebhook`, `/ozowWebhook`) must stay registered.
-   There is no separate "continue to payment" button - the tile tap starts the redirect.
+   There is no separate "continue to payment" button - the tile tap starts the redirect. The two tiles
+   are stacked vertically with a hairline rule between them, and every tile ends with a bold
+   "You'll be redirected to c.yoco.com / pay.ozow.com" cue (`.payment-tile-go`) so the hand-off is
+   never a surprise. The card tile carries the official Yoco, Visa, Mastercard, Google Pay and Apple
+   Pay marks (all self-hosted in `images/payments/`) - never redraw or re-crop them by hand.
 7. If Ozow's own page shows its red **"System error"** screen, that is Ozow's front end failing on
    Ozow's own API - not our integration (full evidence in MEMORY.md). Confirm it with
    `firebase functions:log --only ozowWebhook`: Ozow still posts a *signed* notification for that

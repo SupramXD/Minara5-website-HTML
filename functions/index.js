@@ -1512,7 +1512,13 @@ async function handleOzowWebhook(req, res) {
 
   const hash = verifyOzowNotificationHash(body, getOzowPrivateKey());
   if (!hash.verified) {
-    logger.error(`Ozow notification rejected: hash ${hash.reason}.`);
+    // Log the payload itself: Ozow's dashboard "test notification" arrives
+    // without a Hash, and the body is the only way to tell a hand-fired probe
+    // from a genuinely forged POST. Nothing is written to Firestore either way.
+    logger.error(`Ozow notification rejected: hash ${hash.reason}.`, {
+      body: body,
+      rawBody: rawBody.slice(0, 2000),
+    });
     res.status(200).send("OK");
     return;
   }

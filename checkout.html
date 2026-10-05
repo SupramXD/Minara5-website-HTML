@@ -20,7 +20,7 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
-  <link rel="modulepreload" href="header.js?v=20261005a">
+  <link rel="modulepreload" href="header.js?v=20261005b">
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4B_Kidu4QPFaNKMm8L9bKDR-F72ZpfiI&v=weekly&loading=async&callback=initGooglePlaces"
     async defer></script>
@@ -369,11 +369,20 @@
     /* Payment method tiles. Clicking a tile IS the checkout action: it remembers
        the gateway, then submits the form so the browser's own required-field
        validation runs before we call the gateway. There is no radio group and no
-       separate "continue to payment" button. */
+       separate "continue to payment" button. The two gateways stack vertically
+       behind a hairline rule - side by side they read as a compare-and-choose
+       grid - and every tile says out loud that the tap hands the browser over to
+       the gateway's own hosted page. */
     .payment-methods {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Hairline between the two stacked gateway tiles. */
+    .payment-divider {
+      height: 1px;
+      background: #d9d9d9;
+      margin: 12px 0;
     }
 
     .payment-tile {
@@ -430,6 +439,30 @@
       line-height: 1.4;
     }
 
+    /* The redirect cue every tile ends with: an arrow plus the gateway host the
+       browser is about to leave for. Upper case + bold so it reads as an action,
+       not as small print. */
+    .payment-tile-go {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      width: 100%;
+      margin-top: 2px;
+      padding-top: 9px;
+      border-top: 1px dashed #e0e0e0;
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #000000;
+      line-height: 1.3;
+    }
+
+    .payment-tile-go svg {
+      flex-shrink: 0;
+    }
+
     /* ONE shared payment-brand badge chip used everywhere on the site (assets in
        images/payments). Every chip is 20px tall and every wordmark logo renders
        at 11px; the Mastercard mark is a graphic with no wordmark, so it takes
@@ -455,15 +488,23 @@
       height: 13px;
     }
 
+    /* Exception to the 11px rule: the Apple Pay mark is a self-contained lockup
+       with its own black frame, so the chip chrome is dropped and the mark is
+       rendered at the full 20px chip height. At 11px its apple glyph and the
+       "Pay" wordmark collapse into an unreadable smudge inside the frame. */
+    .pay-badge.pay-badge-mark {
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .pay-badge.pay-badge-mark img {
+      height: 20px;
+    }
+
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
-    }
-
-    @media (max-width: 560px) {
-      .payment-methods {
-        grid-template-columns: 1fr;
-      }
     }
 
     .form-group-row {
@@ -2301,28 +2342,43 @@
             </div>
 
             <!-- Payment method: tapping a tile starts that gateway immediately --
-                 there is no selector + "continue to payment" button any more. -->
+                 there is no selector + "continue to payment" button any more. The
+                 two gateways stack vertically behind a hairline rule and every
+                 tile states the redirect out loud, so nobody is surprised by
+                 landing on Yoco's or Ozow's own page. -->
             <div style="margin-top: 30px;">
               <div class="section-title" style="margin-bottom: 10px;">How would you like to pay?</div>
+              <div style="font-size: 10.5px; color: #6b7280; margin-bottom: 10px;">Both methods take you off this site to pay. Tapping a tile redirects your browser to that provider's own secure payment page - Yoco for cards, Ozow for instant EFT.</div>
               <div class="payment-methods">
                 <button type="button" class="payment-tile selected" data-gateway="yoco" aria-pressed="true" onclick="window.selectGateway('yoco')">
                   <span class="payment-tile-badges">
                     <span class="pay-badge" title="Card payments by Yoco"><img src="images/payments/yoco.svg" alt="Yoco"></span>
                     <span class="pay-badge" title="Visa"><img src="images/payments/visa.svg" alt="Visa"></span>
                     <span class="pay-badge" title="Mastercard"><img class="badge-symbol" src="images/payments/mastercard.svg" alt="Mastercard"></span>
+                    <span class="pay-badge" title="Google Pay"><img src="images/payments/googlepay.svg" alt="Google Pay"></span>
+                    <span class="pay-badge pay-badge-mark" title="Apple Pay"><img src="images/payments/applepay.svg" alt="Apple Pay"></span>
                   </span>
                   <span class="payment-tile-title">Pay by card</span>
-                  <span class="payment-tile-sub">Visa and Mastercard, processed on Yoco's PCI-DSS compliant payment page.</span>
+                  <span class="payment-tile-sub">Visa, Mastercard, Google Pay and Apple Pay, processed on Yoco's PCI-DSS compliant payment page.</span>
+                  <span class="payment-tile-go">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path></svg>
+                    <span>You'll be redirected to c.yoco.com</span>
+                  </span>
                 </button>
+                <div class="payment-divider" aria-hidden="true"></div>
                 <button type="button" class="payment-tile" data-gateway="ozow" aria-pressed="false" onclick="window.selectGateway('ozow')">
                   <span class="payment-tile-badges">
                     <span class="pay-badge" title="Instant EFT by Ozow"><img src="images/payments/ozow.png" alt="Ozow Instant EFT"></span>
                   </span>
                   <span class="payment-tile-title">Instant EFT</span>
                   <span class="payment-tile-sub">Pay straight from your South African bank account - no card needed. Secured by Ozow.</span>
+                  <span class="payment-tile-go">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path></svg>
+                    <span>You'll be redirected to pay.ozow.com</span>
+                  </span>
                 </button>
               </div>
-              <div style="font-size: 10.5px; color: #6b7280; margin-top: 8px;">Tapping a method opens that gateway's secure payment page. Free Courier Guy express shipping is included.</div>
+              <div style="font-size: 10.5px; color: #6b7280; margin-top: 12px;">Both tiles open the gateway's page in this window - you come straight back here once the payment is done. Free Courier Guy express shipping is included.</div>
             </div>
 
             <!-- Payment progress (replaces the old continue button) -->
@@ -2381,12 +2437,14 @@
                 <div class="trust-card-content">
                   <div class="trust-card-title" style="font-weight: bold; font-size: 12px; color: #000000; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Secured by Yoco</div>
                   <div style="font-size: 11px; color: #555555; line-height: 1.45;">
-                    Card payments are encrypted with bank-grade 256-bit SSL and processed on Yoco's PCI-DSS compliant payment page.
+                    Card payments are encrypted with bank-grade 256-bit SSL and processed on Yoco's PCI-DSS compliant payment page (c.yoco.com) - tapping Pay by card redirects you there.
                   </div>
                   <div style="display: flex; gap: 6px; align-items: center; margin-top: 12px; flex-wrap: wrap;">
                     <span class="pay-badge" title="Card payments by Yoco"><img src="images/payments/yoco.svg" alt="Yoco"></span>
                     <span class="pay-badge" title="Visa"><img src="images/payments/visa.svg" alt="Visa"></span>
                     <span class="pay-badge" title="Mastercard"><img class="badge-symbol" src="images/payments/mastercard.svg" alt="Mastercard"></span>
+                    <span class="pay-badge" title="Google Pay"><img src="images/payments/googlepay.svg" alt="Google Pay"></span>
+                    <span class="pay-badge pay-badge-mark" title="Apple Pay"><img src="images/payments/applepay.svg" alt="Apple Pay"></span>
                   </div>
                 </div>
               </div>
@@ -2401,7 +2459,7 @@
                 <div class="trust-card-content">
                   <div class="trust-card-title" style="font-weight: bold; font-size: 12px; color: #000000; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Instant EFT by Ozow</div>
                   <div style="font-size: 11px; color: #555555; line-height: 1.45;">
-                    Pay straight from your South African bank account, no card needed. You authorise the payment on Ozow's PCI-DSS compliant, 256-bit encrypted page and your banking details are never shared with us.
+                    Pay straight from your South African bank account, no card needed. You authorise the payment on Ozow's PCI-DSS compliant, 256-bit encrypted page (pay.ozow.com) and your banking details are never shared with us.
                   </div>
                   <div style="display: flex; gap: 6px; align-items: center; margin-top: 12px; flex-wrap: wrap;">
                     <span class="pay-badge" title="Instant EFT by Ozow"><img src="images/payments/ozow.png" alt="Ozow Instant EFT"></span>
@@ -2818,7 +2876,7 @@
     window.addEventListener('beforeunload', window.saveCheckoutDraft);
   </script>
 
-  <script type="module" src="header.js?v=20261005a"></script>
+  <script type="module" src="header.js?v=20261005b"></script>
 
 </body>
 

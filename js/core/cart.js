@@ -575,18 +575,27 @@
           ${hasItems ? `<div style="display:flex; gap:6px; align-items:center; margin-top:12px; flex-wrap:wrap;">
             <!-- Official payment brand badges (self-hosted in images/payments).
                  Same 20px chip + 11px wordmark rule as checkout.html; the
-                 Mastercard mark is a graphic, so it takes 13px. -->
+                 Mastercard mark is a graphic, so it takes 13px, and the Apple Pay
+                 mark carries its own black frame so it replaces the chip chrome
+                 and renders at the full 20px chip height. Card marks first, then
+                 the instant-EFT mark. -->
+            <span title="Card payments by Yoco" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <img src="images/payments/yoco.svg" alt="Yoco" style="display:block; height:11px; width:auto;">
+            </span>
             <span title="Visa" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
               <img src="images/payments/visa.svg" alt="Visa" style="display:block; height:11px; width:auto;">
             </span>
             <span title="Mastercard" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
               <img src="images/payments/mastercard.svg" alt="Mastercard" style="display:block; height:13px; width:auto;">
             </span>
+            <span title="Google Pay" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <img src="images/payments/googlepay.svg" alt="Google Pay" style="display:block; height:11px; width:auto;">
+            </span>
+            <span title="Apple Pay" style="height:20px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <img src="images/payments/applepay.svg" alt="Apple Pay" style="display:block; height:20px; width:auto;">
+            </span>
             <span title="Instant EFT by Ozow" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
               <img src="images/payments/ozow.png" alt="Ozow Instant EFT" style="display:block; height:11px; width:auto;">
-            </span>
-            <span title="Card payments by Yoco" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
-              <img src="images/payments/yoco.svg" alt="Yoco" style="display:block; height:11px; width:auto;">
             </span>
             <span title="Payments secured by Yoco and Ozow" style="font-size: 8px; font-weight: bold; letter-spacing: 0.5px; opacity: 0.45; margin-left: auto; text-transform: uppercase; white-space: nowrap; font-family: Helvetica, Arial, sans-serif;">SECURED CHECKOUT</span>
           </div>` : ''}
