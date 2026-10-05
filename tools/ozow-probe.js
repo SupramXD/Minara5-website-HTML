@@ -1,5 +1,5 @@
 // Studio Extrait - Ozow payin probe
-// Usage: node tools/ozow-probe.js [--methods] [--lookup <reference|transactionId>]
+// Usage: node tools/ozow-probe.js [--methods] [--payloads] [--lookup <reference|transactionId>]
 //
 // WHY THIS EXISTS
 // ---------------
@@ -13,6 +13,11 @@
 //   2. POST https://pay.ozow.com/api/transaction/initiate - what Ozow's hosted page calls
 //      the moment it opens, to create the payer session. This is the call that fails when
 //      customers land on "Oops, this page cannot be found".
+//
+// `--methods` varies `selectedBankId` (which payment methods the account may use); `--payloads`
+// varies the request shape itself (minimal, full, no notifyUrl, deliberately broken hash as a
+// control) to show the failure does not depend on what the merchant sends. Both replay exactly
+// the payload `createOzowCheckout` sends in production.
 //
 // `--lookup` asks Ozow for its own record of a transaction (status, statusMessage, bank),
 // which is the fastest way to see whether money moved / why a payment did not complete.
@@ -68,15 +73,43 @@ function describe(response) {
   return `${response.status} ${text}`;
 }
 
-async function createPaymentRequest(selectedBankId) {
-  const reference = `OZOWPROBE-${Date.now().toString().slice(-8)}`.toUpperCase();
+// Ozow hashes a payment request's fields in the order its documentation lists them,
+// skipping anything we do not send, so this list is the single source of truth for both
+// the payload and its `hashCheck` (isTest is field 17, selectedBankId field 18).
+const HASH_FIELD_ORDER = [
+  'siteCode', 'countryCode', 'currencyCode', 'amount', 'transactionReference', 'bankReference',
+  'optional1', 'optional2', 'optional3', 'optional4', 'optional5', 'customer',
+  'cancelUrl', 'errorUrl', 'successUrl', 'notifyUrl', 'isTest', 'selectedBankId',
+  // Fields Ozow documents after selectedBankId (bankAccount* / branchCode / payeeDisplayName
+  // occupy 19-22 and are never sent here).
+  'expiryDateUtc', 'allowVariableAmount', 'variableAmountMin', 'variableAmountMax',
+  'customerIdentifier',
+  // customerCellphoneNumber is deliberately absent: Ozow's docs say "DO NOT include in the
+  // hash check string, just ignore instead".
+];
+
+function newReference() {
+  return `OZOWPROBE-${Date.now().toString().slice(-8)}`.toUpperCase();
+}
+
+function buildHashFromBody(body) {
+  const values = HASH_FIELD_ORDER
+      .filter((name) => body[name] !== undefined && body[name] !== null && String(body[name]) !== '')
+      .map((name) => body[name]);
+  return buildHash(values);
+}
+
+// The exact shape functions/index.js createOzowCheckout sends to Ozow, so a plain probe
+// run exercises the production payload and not an idealised one.
+function productionBody(amount, selectedBankId, isTest) {
+  const reference = newReference();
   const body = {
     siteCode: SITE_CODE,
     countryCode: 'ZA',
     currencyCode: 'ZAR',
-    amount: AMOUNT,
+    amount,
     transactionReference: reference,
-    bankReference: reference,
+    bankReference: reference.replace(/[^a-zA-Z0-9 -]/g, '').slice(0, 20),
     optional1: 'probe@studioextrait.co.za',
     optional2: '0821234567',
     customer: 'Probe Test',
@@ -84,19 +117,16 @@ async function createPaymentRequest(selectedBankId) {
     errorUrl: `${WEBSITE}/cancel.html`,
     successUrl: `${WEBSITE}/success.html`,
     notifyUrl: NOTIFY_URL,
-    isTest: false,
+    isTest: Boolean(isTest),
   };
-  // isTest is field 17 and selectedBankId field 18 of Ozow's concatenation order; only
-  // fields we actually send are hashed, so the list must track `body` exactly.
-  const values = [SITE_CODE, 'ZA', 'ZAR', AMOUNT, reference, reference,
-    body.optional1, body.optional2, body.customer, body.cancelUrl, body.errorUrl,
-    body.successUrl, body.notifyUrl, 'false'];
   if (selectedBankId) {
     body.selectedBankId = selectedBankId;
-    values.push(selectedBankId);
   }
-  body.hashCheck = buildHash(values);
+  body.hashCheck = buildHashFromBody(body);
+  return body;
+}
 
+async function createPaymentRequest(body) {
   const response = await call(`${API_BASE}/postpaymentrequest`, {
     method: 'POST',
     headers: {ApiKey: API_KEY, Accept: 'application/json', 'Content-Type': 'application/json'},
@@ -109,7 +139,75 @@ async function createPaymentRequest(selectedBankId) {
   } catch (e) {
     parsed = null;
   }
-  return {reference, paymentRequestId: parsed && parsed.paymentRequestId};
+  return {reference: body.transactionReference, paymentRequestId: parsed && parsed.paymentRequestId};
+}
+
+async function createThenInitiate(label, body) {
+  console.log(`\n${label}`);
+  const created = await createPaymentRequest(body);
+  if (!created.paymentRequestId) {
+    console.log('  -> no paymentRequestId, nothing to initiate');
+    return created;
+  }
+  await initiateSession(created.paymentRequestId);
+  return created;
+}
+
+async function initiateRaw(label, payload) {
+  console.log(`\n${label}`);
+  const response = await call(`${PAY_PAGE}/api/transaction/initiate`, {
+    method: 'POST',
+    headers: {Accept: 'application/json', 'Content-Type': 'application/json'},
+    body: JSON.stringify(payload),
+  });
+  console.log(`  initiate            ${describe(response)}`);
+}
+
+// `--payloads` proves the failure does not depend on what WE send: each row creates a
+// fresh payment request and calls the same `initiate` the hosted page calls, changing one
+// aspect of the payload at a time (and including a deliberately broken request as a control).
+async function payloadMatrix() {
+  console.log(`Site ${SITE_CODE}: payload-shape matrix - is it our payload or their session builder?`);
+
+  await createThenInitiate('1. Production shape - exactly what createOzowCheckout sends (R580.00)',
+      productionBody('580.00'));
+
+  const minimalReference = newReference();
+  const minimal = {
+    siteCode: SITE_CODE,
+    countryCode: 'ZA',
+    currencyCode: 'ZAR',
+    amount: AMOUNT,
+    transactionReference: minimalReference,
+    bankReference: minimalReference,
+    isTest: false,
+  };
+  minimal.hashCheck = buildHashFromBody(minimal);
+  await createThenInitiate('2. Minimal payload - no customer, no URLs, no notifyUrl', minimal);
+
+  const full = productionBody(AMOUNT);
+  full.optional3 = 'three';
+  full.optional4 = 'four';
+  full.optional5 = 'five';
+  full.expiryDateUtc = new Date(Date.now() + 86400000).toISOString().slice(0, 16).replace('T', ' ');
+  full.customerIdentifier = '9501015800086';
+  full.customerCellphoneNumber = '0821234567';
+  full.hashCheck = buildHashFromBody(full);
+  await createThenInitiate('3. Full payload - every documented optional field we may send', full);
+
+  const noNotify = productionBody(AMOUNT);
+  delete noNotify.notifyUrl;
+  noNotify.hashCheck = buildHashFromBody(noNotify);
+  await createThenInitiate('4. Production shape minus notifyUrl', noNotify);
+
+  const badHash = productionBody(AMOUNT);
+  badHash.hashCheck = '0'.repeat(128);
+  await createThenInitiate('5. CONTROL - production shape with a deliberately wrong hashCheck', badHash);
+
+  await initiateRaw('6. initiate with a paymentRequestId that was never created',
+      {requestId: crypto.randomUUID(), viewName: ''});
+  await initiateRaw('7. initiate with a malformed requestId', {requestId: 'not-a-guid', viewName: ''});
+  await initiateRaw('8. initiate with an empty body', {});
 }
 
 async function initiateSession(paymentRequestId) {
@@ -123,13 +221,8 @@ async function initiateSession(paymentRequestId) {
 }
 
 async function probe(label, selectedBankId) {
-  console.log(`\n${label}${selectedBankId ? ` [selectedBankId ${selectedBankId}]` : ''}`);
-  const created = await createPaymentRequest(selectedBankId);
-  if (!created.paymentRequestId) {
-    console.log('  -> no paymentRequestId, nothing to initiate');
-    return;
-  }
-  await initiateSession(created.paymentRequestId);
+  const suffix = selectedBankId ? ` [selectedBankId ${selectedBankId}]` : '';
+  return createThenInitiate(`${label}${suffix}`, productionBody(AMOUNT, selectedBankId, false));
 }
 
 async function lookup(target) {
@@ -150,6 +243,10 @@ async function lookup(target) {
     console.error('Set OZOW_API_KEY, OZOW_API_KEY_NORMAL and OZOW_SITE_CODE first, e.g.');
     console.error('  $env:OZOW_API_KEY=(firebase functions:secrets:access OZOW_API_KEY).Trim()');
     process.exit(1);
+  }
+  if (args[0] === '--payloads') {
+    await payloadMatrix();
+    return;
   }
   if (args[0] === '--methods') {
     for (const [label, id] of Object.entries(METHODS)) await probe(label, id);
