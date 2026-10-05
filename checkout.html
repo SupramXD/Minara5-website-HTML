@@ -7,12 +7,12 @@
   <meta name="google" content="notranslate">
   <title>Studio Extrait – Secure Checkout</title>
   <link rel="icon" type="image/svg+xml" href="Studio Extrait Icon Svg only logo.svg">
-  <meta name="description" content="Secure Studio Extrait checkout — pay for your extrait de parfum order by card or instant EFT on Yoco's encrypted payment page. Free express Courier Guy delivery included.">
+  <meta name="description" content="Secure Studio Extrait checkout — pay for your extrait de parfum order by card via Yoco or instant EFT via Ozow. Free express Courier Guy delivery included.">
   <link rel="canonical" href="https://studioextrait.co.za/checkout.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Studio Extrait">
   <meta property="og:title" content="Studio Extrait – Secure Checkout">
-  <meta property="og:description" content="Pay securely by card or instant EFT on Yoco's encrypted payment page. Free express courier delivery.">
+  <meta property="og:description" content="Pay securely by card via Yoco or instant EFT via Ozow. Free express courier delivery.">
   <meta property="og:url" content="https://studioextrait.co.za/checkout.html">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="preload" href="minara%205%20transparent%202.svg" as="image" type="image/svg+xml">
@@ -364,6 +364,91 @@
       flex: 1;
       height: 1px;
       background: #eaeaea;
+    }
+
+    /* Payment method selection (Yoco card / Ozow instant EFT) */
+    .payment-methods {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .payment-method-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      border: 1px solid #eaeaea;
+      background: #fafafa;
+      padding: 14px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .payment-method-option:hover {
+      border-color: #cfcfcf;
+    }
+
+    .payment-method-option.selected {
+      border-color: #000000;
+      background: #ffffff;
+      box-shadow: inset 0 0 0 1px #000000;
+    }
+
+    .payment-method-radio {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 1px solid #000000;
+      border-radius: 50%;
+      margin: 2px 0 0 0;
+      flex-shrink: 0;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .payment-method-radio:checked::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #000000;
+    }
+
+    .payment-method-body {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .payment-method-title {
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #000000;
+    }
+
+    .payment-method-tag {
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 9px;
+      font-weight: 900;
+      background: #000000;
+      color: #ffffff;
+      padding: 2px 6px;
+      margin-left: 6px;
+      letter-spacing: 0.5px;
+      text-transform: lowercase;
+    }
+
+    .payment-method-sub {
+      font-size: 11px;
+      color: #555555;
+      line-height: 1.45;
     }
 
     .form-group-row {
@@ -2209,13 +2294,34 @@
               <div style="font-size: 10.5px; color: #9ca3af; margin-top: 5px;">We'll use this to keep you updated about your order.</div>
             </div>
 
-            <div style="margin-top: 25px; font-size: 11.5px; color: #222222; display: flex; align-items: center; gap: 10px; background: #fafafa; padding: 12px 14px; border-radius: 0px; border: 1px solid #eaeaea; border-left: 2px solid #000000;">
+            <!-- Payment method selection -->
+            <div style="margin-top: 30px;">
+              <div class="section-title" style="margin-bottom: 14px;">Payment method</div>
+              <div class="payment-methods">
+                <label class="payment-method-option selected" for="pm_yoco">
+                  <input type="radio" name="paymentMethod" id="pm_yoco" value="yoco" class="payment-method-radio" checked>
+                  <span class="payment-method-body">
+                    <span class="payment-method-title">Card <span class="payment-method-tag">yoco</span></span>
+                    <span class="payment-method-sub">Visa and Mastercard, processed on Yoco's PCI-DSS compliant payment page.</span>
+                  </span>
+                </label>
+                <label class="payment-method-option" for="pm_ozow">
+                  <input type="radio" name="paymentMethod" id="pm_ozow" value="ozow" class="payment-method-radio">
+                  <span class="payment-method-body">
+                    <span class="payment-method-title">Instant EFT <span class="payment-method-tag">ozow</span></span>
+                    <span class="payment-method-sub">Pay straight from your South African bank account - no card needed.</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div style="margin-top: 20px; font-size: 11.5px; color: #222222; display: flex; align-items: center; gap: 10px; background: #fafafa; padding: 12px 14px; border-radius: 0px; border: 1px solid #eaeaea; border-left: 2px solid #000000;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="3" y="11" width="18" height="11" rx="1" ry="1"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-              <span>You will be securely redirected to Yoco to complete your 256-bit SSL encrypted payment.</span>
+              <span id="gatewayNotice">You will be securely redirected to Yoco to complete your 256-bit SSL encrypted payment.</span>
             </div>
 
             <button type="submit" class="submit-order-btn" id="payBtn" style="margin-top: 20px; background: #000000; color: #ffffff; font-weight: bold; letter-spacing: 1.8px; border-radius: 0px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 16px; border: 1px solid #000000;">
-              <span>Continue to Yoco Payment</span>
+              <span id="payBtnLabel">Continue to Yoco Payment</span>
               <span style="font-size: 9px; opacity: 0.7; letter-spacing: 1px; font-weight: normal; text-transform: uppercase;">Free Express Courier Guy Shipping Included</span>
             </button>
           </form>
@@ -2323,12 +2429,50 @@
             emailInput.value = window.auth.currentUser.email;
           }
         }
+        // Payment method toggle (card via Yoco / instant EFT via Ozow)
+        document.querySelectorAll('input[name="paymentMethod"]').forEach((radio) => {
+          radio.addEventListener('change', () => window.updatePaymentMethodUI(window.getSelectedPaymentMethod()));
+        });
+        window.updatePaymentMethodUI(window.getSelectedPaymentMethod());
       }, 200);
     }
 
-    // Handle Form Submission and redirect to the Yoco Checkout payment page
+    // The customer picks the gateway on the checkout form: Yoco for cards, Ozow
+    // for instant EFT. Both are created server-side and both hand the browser a
+    // hosted payment page, so the rest of the flow is identical.
+    window.getSelectedPaymentMethod = function () {
+      const checked = document.querySelector('input[name="paymentMethod"]:checked');
+      return checked && checked.value === 'ozow' ? 'ozow' : 'yoco';
+    };
+
+    // Keep the selected card highlighted and the copy under the form in sync.
+    window.updatePaymentMethodUI = function (gateway) {
+      const resolved = gateway === 'ozow' ? 'ozow' : 'yoco';
+
+      document.querySelectorAll('.payment-method-option').forEach((option) => {
+        const input = option.querySelector('input[name="paymentMethod"]');
+        option.classList.toggle('selected', !!input && input.value === resolved);
+      });
+
+      const notice = document.getElementById('gatewayNotice');
+      if (notice) {
+        notice.textContent = resolved === 'ozow' ?
+          'You will be securely redirected to Ozow to authorise an instant EFT payment from your bank account.' :
+          'You will be securely redirected to Yoco to complete your 256-bit SSL encrypted payment.';
+      }
+
+      const btnLabel = document.getElementById('payBtnLabel');
+      if (btnLabel) {
+        btnLabel.textContent = resolved === 'ozow' ? 'Continue to Ozow Payment' : 'Continue to Yoco Payment';
+      }
+    };
+
+    // Handle Form Submission and redirect to the selected gateway's payment page
     window.handleCheckoutSubmit = async function (event) {
       event.preventDefault();
+
+      const gateway = window.getSelectedPaymentMethod();
+      const gatewayLabel = gateway === 'ozow' ? 'Ozow' : 'Yoco';
 
       const payBtn = document.getElementById("payBtn");
       if (payBtn) {
@@ -2339,7 +2483,7 @@
             <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
             <path d="M12 2a10 10 0 0 1 10 10" stroke-opacity="1"></path>
           </svg>
-          Securing Yoco Payment...
+          Securing ${gatewayLabel} Payment...
         </span>
       `;
       }
@@ -2440,12 +2584,16 @@
 
         let resData = null;
 
+        // Both gateways are created by a Cloud Function that returns a hosted
+        // payment page URL, so only the function name differs.
+        const createFnName = gateway === 'ozow' ? "createOzowCheckout" : "createYocoCheckout";
+
         if (functions && httpsCallable) {
-          const createYocoFn = httpsCallable(functions, "createYocoCheckout");
-          const res = await createYocoFn(orderPayload);
+          const createPaymentFn = httpsCallable(functions, createFnName);
+          const res = await createPaymentFn(orderPayload);
           resData = res.data;
         } else {
-          const res = await fetch("https://us-central1-minara5.cloudfunctions.net/createYocoCheckout", {
+          const res = await fetch(`https://us-central1-minara5.cloudfunctions.net/${createFnName}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ data: orderPayload })
@@ -2455,10 +2603,10 @@
         }
 
         if (!resData || !resData.success || !resData.redirectUrl) {
-          throw new Error(resData ? (resData.message || "Yoco did not return a payment page.") : "Connection failed");
+          throw new Error(resData ? (resData.message || `${gatewayLabel} did not return a payment page.`) : "Connection failed");
         }
 
-        // Reserve & deduct stock when the customer proceeds to Yoco
+        // Reserve & deduct stock when the customer proceeds to the gateway
         if (typeof window.reserveAndDeductStock === "function") {
           window.reserveAndDeductStock(activeItems, resData.reference);
         }
@@ -2466,6 +2614,7 @@
         localStorage.setItem('minara_last_order', JSON.stringify({
           paymentId: resData.reference,
           checkoutId: resData.checkoutId || "",
+          paymentGateway: gateway,
           firstName,
           lastName,
           email,
@@ -2477,18 +2626,18 @@
           items: orderPayload.items
         }));
 
-        // Hand the customer over to Yoco's PCI-DSS compliant hosted payment page.
-        // The browser keeps studioextrait.co.za as the referrer, which is what
-        // Yoco matches against a verified domain.
+        // Hand the customer over to the gateway's hosted payment page (Yoco for
+        // cards, Ozow for instant EFT). The browser keeps studioextrait.co.za as
+        // the referrer, which is what Yoco matches against a verified domain.
         window.location.href = resData.redirectUrl;
         return;
 
       } catch (err) {
-        console.error("Yoco checkout initialisation failed:", err);
-        alert("We could not start a secure Yoco payment session. Please check your details and try again.");
+        console.error(`${gatewayLabel} checkout initialisation failed:`, err);
+        alert(`We could not start a secure ${gatewayLabel} payment session. Please check your details and try again.`);
         if (payBtn) {
           payBtn.disabled = false;
-          payBtn.innerHTML = '<span>Continue to Yoco Payment</span><span style="font-size: 9px; opacity: 0.7; letter-spacing: 1px; font-weight: normal; text-transform: uppercase;">Free Express Courier Guy Shipping Included</span>';
+          payBtn.innerHTML = `<span id="payBtnLabel">Continue to ${gatewayLabel} Payment</span><span style="font-size: 9px; opacity: 0.7; letter-spacing: 1px; font-weight: normal; text-transform: uppercase;">Free Express Courier Guy Shipping Included</span>`;
         }
       }
     };

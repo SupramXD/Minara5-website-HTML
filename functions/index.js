@@ -32,6 +32,19 @@ const yocoSecretKey = defineSecret("YOCO_TEST_SECRET_KEY");
 // Signing secret returned once by POST https://payments.yoco.com/api/webhooks.
 const yocoWebhookSecret = defineSecret("YOCO_WEBHOOK_SECRET");
 
+// Ozow Payments API credentials (instant EFT). A Payin site has three values,
+// all found in the Ozow Dashboard (dash.ozow.com) under Merchant Details and
+// the site itself. The secret names describe the role each value plays:
+//   * OZOW_API_KEY        - the site's PRIVATE key. Never transmitted: it is
+//     appended when signing the `hashCheck` of every payment request, and again
+//     when verifying the `Hash` of every transaction notification.
+//   * OZOW_API_KEY_NORMAL - the site's API key. Sent verbatim in the `ApiKey`
+//     header of every request to Ozow.
+//   * OZOW_SITE_CODE      - the site code (format AAA-AAA-AAA).
+const ozowPrivateKeySecret = defineSecret("OZOW_API_KEY");
+const ozowApiKeySecret = defineSecret("OZOW_API_KEY_NORMAL");
+const ozowSiteCodeSecret = defineSecret("OZOW_SITE_CODE");
+
 /**
  * Utility function to retrieve active Courier Guy Secret Key
  */
@@ -55,6 +68,10 @@ function getCourierGuySecretKey() {
 const YOCO_CHECKOUTS_URL = "https://payments.yoco.com/api/checkouts";
 const YOCO_PUBLIC_KEY_DEFAULT = "pk_test_2dff1e63rrv6qKe6af44";
 const WEBSITE_ORIGIN = "https://studioextrait.co.za";
+// Base URL of this functions deployment, used for the URLs Ozow calls back on
+// (the transaction notification / webhook). Overridable for other projects.
+const FUNCTIONS_BASE_URL = process.env.FUNCTIONS_BASE_URL ||
+  "https://us-central1-minara5.cloudfunctions.net";
 
 /**
  * Public (publishable) key of the Yoco integration. Safe to expose to the
@@ -97,6 +114,180 @@ function getYocoWebhookSecret() {
   }
   return String(secret).trim();
 }
+
+/**
+ * Utility functions for the Ozow Payments API (instant EFT) configuration.
+ * Docs: https://hub.ozow.com/api-reference/payments-api
+ *       https://hub.ozow.com/integration-methods/apis/deprecated-integrations/redirect-to-ozow
+ */
+const OZOW_PRODUCTION_URL = "https://api.ozow.com";
+
+/**
+ * Ozow private key. Signs our payment requests and verifies their
+ * transaction notifications. Never returned to a client.
+ */
+function getOzowPrivateKey() {
+  let key = "";
+  try {
+    key = ozowPrivateKeySecret.value();
+  } catch (e) {
+    // Ignore error if the secret is not initialised (e.g. emulator runs).
+  }
+  if (!key) {
+    key = process.env.OZOW_API_KEY || process.env.OZOW_PRIVATE_KEY || "";
+  }
+  return String(key).trim();
+}
+
+/**
+ * Ozow API key (public to the site). Sent in the `ApiKey` HTTP header.
+ */
+function getOzowApiKey() {
+  let key = "";
+  try {
+    key = ozowApiKeySecret.value();
+  } catch (e) {
+    // Ignore error if the secret is not initialised.
+  }
+  if (!key) {
+    key = process.env.OZOW_API_KEY_NORMAL || "";
+  }
+  return String(key).trim();
+}
+
+/**
+ * Ozow site code, the public identifier of the merchant site.
+ */
+function getOzowSiteCode() {
+  let code = "";
+  try {
+    code = ozowSiteCodeSecret.value();
+  } catch (e) {
+    // Ignore error if the secret is not initialised.
+  }
+  if (!code) {
+    code = process.env.OZOW_SITE_CODE || "";
+  }
+  return String(code).trim();
+}
+
+/**
+ * Base URL of the Ozow environment. Point `OZOW_API_BASE_URL` at
+ * `https://stagingapi.ozow.com` to run against staging credentials.
+ */
+function getOzowBaseUrl() {
+  const base = String(process.env.OZOW_API_BASE_URL || OZOW_PRODUCTION_URL)
+      .trim().replace(/\/+$/, "");
+  return base || OZOW_PRODUCTION_URL;
+}
+
+/**
+ * `IsTest` flag of the payin request. Ozow test transactions settle into the
+ * merchant bank account, so this stays false unless the whole integration is
+ * pointed at the staging environment (`OZOW_IS_TEST=true`).
+ */
+function getOzowIsTest() {
+  return String(process.env.OZOW_IS_TEST || "false").trim().toLowerCase() === "true";
+}
+
+/**
+ * SHA512 hex digest - the only hash Ozow uses.
+ * @param {string} value String to hash.
+ * @return {string} Lowercase hexadecimal digest.
+ */
+function sha512Hex(value) {
+  return crypto.createHash("sha512").update(String(value), "utf8").digest("hex");
+}
+
+/**
+ * Builds the SHA512 `hashCheck` of a payin request: the values in the exact
+ * order Ozow documents them, unused fields skipped entirely (never sent as
+ * empty strings), the private key appended, the whole string lowercased and
+ * hashed. The caller must already format the amount to two decimals.
+ * @param {Array<{name: string, value: (*|null)}>} fields Ordered request fields.
+ * @param {string} privateKey Ozow private key.
+ * @return {string} Lowercase SHA512 hex digest.
+ */
+function buildOzowRequestHash(fields, privateKey) {
+  const concatenated = fields
+      .filter((entry) => entry && entry.value !== undefined && entry.value !== null &&
+        String(entry.value) !== "")
+      .map((entry) => String(entry.value))
+      .join("");
+  return sha512Hex((concatenated + privateKey).toLowerCase());
+}
+
+/**
+ * Transaction notification fields, in Ozow's documented concatenation order.
+ */
+const OZOW_NOTIFICATION_HASH_FIELDS = [
+  "SiteCode",
+  "TransactionId",
+  "TransactionReference",
+  "Amount",
+  "Status",
+  "Optional1",
+  "Optional2",
+  "Optional3",
+  "Optional4",
+  "Optional5",
+  "CurrencyCode",
+  "IsTest",
+  "StatusMessage",
+];
+
+/**
+ * Verifies the `Hash` of a transaction notification by recomputing it with the
+ * private key. The notification is an unauthenticated POST to a public URL, so
+ * without this check anyone could claim any order is paid.
+ * @param {object} body Parsed notification body (string values).
+ * @param {string} privateKey Ozow private key.
+ * @return {{verified: boolean, reason: string}} Outcome of the check.
+ */
+function verifyOzowNotificationHash(body, privateKey) {
+  if (!privateKey) {
+    return {verified: false, reason: "not_configured"};
+  }
+  const provided = String((body && body.Hash) || "").trim().toLowerCase();
+  if (!provided) {
+    return {verified: false, reason: "missing_hash"};
+  }
+
+  const values = OZOW_NOTIFICATION_HASH_FIELDS
+      .map((field) => {
+        const raw = body[field];
+        if (raw === undefined || raw === null) {
+          return "";
+        }
+        // Ozow's reference implementation normalises the amount to two decimals
+        // before hashing ("100.00", never "100"), so match it exactly. A value
+        // that is not a number is hashed verbatim rather than as "NaN".
+        if (field === "Amount") {
+          const amount = Number(raw);
+          return Number.isFinite(amount) ? amount.toFixed(2) : String(raw);
+        }
+        return String(raw);
+      })
+      .filter((value) => value !== "");
+  const expected = sha512Hex((values.join("") + privateKey).toLowerCase());
+
+  // Constant-time compare: a plain === leaks the hash one character at a time.
+  const sent = Buffer.from(provided, "utf8");
+  const ours = Buffer.from(expected, "utf8");
+  const ok = sent.length === ours.length && crypto.timingSafeEqual(sent, ours);
+  return {verified: ok, reason: ok ? "ok" : "mismatch"};
+}
+
+/**
+ * Ozow `Status` values that mean the money has been received.
+ */
+const OZOW_PAID_STATUSES = ["complete"];
+
+/**
+ * Ozow `Status` values that mean the payment will never complete. Anything else
+ * (`Pending`, `Created`, `PendingInvestigation`, ...) stays pending.
+ */
+const OZOW_FAILED_STATUSES = ["cancelled", "abandoned", "error", "voided"];
 
 /**
  * Verifies the `webhook-signature` header of an incoming Yoco event.
@@ -1014,6 +1205,168 @@ exports.createYocoCheckout = onCall({secrets: [yocoSecretKey]}, async (request) 
 });
 
 /**
+ * Create an Ozow instant-EFT payment request and save a pending order in
+ * Firestore. The private key never leaves this server - it only ever signs the
+ * `hashCheck` field. Ozow answers HTTP 200 even when it rejects a request, so
+ * `errorMessage` / `url` decide success, never the status code.
+ * Docs: https://hub.ozow.com/api-reference/payments-api/post-post-payment-request
+ */
+exports.createOzowCheckout = onCall({
+  secrets: [ozowPrivateKeySecret, ozowApiKeySecret, ozowSiteCodeSecret],
+}, async (request) => {
+  const {customer, items, shipping, total, callbackUrl, cancelUrl} = request.data || {};
+  if (!customer || !customer.email || !items || !Array.isArray(items) || items.length === 0 || !total) {
+    throw new HttpsError("invalid-argument", "Missing required order details.");
+  }
+  if (!(Number(total) > 0)) {
+    throw new HttpsError("invalid-argument", "The order total must be greater than zero.");
+  }
+
+  const privateKey = getOzowPrivateKey();
+  const apiKey = getOzowApiKey();
+  const siteCode = getOzowSiteCode();
+  if (!privateKey || !apiKey || !siteCode) {
+    throw new HttpsError("failed-precondition",
+        "The Ozow private key, API key and site code must all be configured on the server.");
+  }
+
+  const reference = `EXTRAIT-${Math.floor(Math.random() * 900000 + 100000)}-${Date.now().toString().slice(-4)}`;
+  const email = String(customer.email).trim();
+  const firstName = (String(customer.firstName || "").trim() || "Customer");
+  const lastName = (String(customer.lastName || "").trim() || "Order");
+  const customerName = `${firstName} ${lastName}`.trim();
+  const phone = String(customer.phone || "").trim();
+  // Ozow allows only letters, numbers, spaces and dashes in a bank reference
+  // (max 20 characters): it is what the customer sees in their online banking.
+  const bankReference = reference.replace(/[^a-zA-Z0-9 -]/g, "").slice(0, 20);
+  // Exactly two decimals: Ozow hashes the formatted string, and a dropped
+  // trailing zero is the most common cause of a hashCheck failure.
+  const amount = Number(total).toFixed(2);
+  const isTest = getOzowIsTest();
+
+  const orderDoc = {
+    orderId: reference,
+    customerName: customerName,
+    email: email,
+    emailAlt: customer.emailAlt || "",
+    phone: phone,
+    phoneAlt: customer.phoneAlt || "",
+    address: shipping ? shipping.address || "" : "",
+    deliveryDate: shipping ? shipping.deliveryDate || "" : "",
+    instructions: shipping ? shipping.instructions || "" : "",
+    items: items,
+    total: Number(total),
+    currency: "ZAR",
+    paymentGateway: "ozow",
+    status: "pending_payment",
+    paid: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    stockDeducted: false,
+  };
+
+  // Save the pending order before the customer leaves the site.
+  await firestore.collection("orders").doc(reference).set(orderDoc);
+
+  // Ozow redirects the customer's browser back to these URLs once the payment
+  // page is done with them. The authoritative outcome still arrives on the
+  // notification URL below, so the customer's browser is never trusted.
+  const withRedirectParams = (baseUrl, fallback) => {
+    const target = baseUrl || fallback;
+    const separator = target.includes("?") ? "&" : "?";
+    return `${target}${separator}reference=${encodeURIComponent(reference)}&gateway=ozow`;
+  };
+
+  const successUrl = withRedirectParams(callbackUrl, `${WEBSITE_ORIGIN}/success.html`);
+  const cancelRedirectUrl = withRedirectParams(cancelUrl, `${WEBSITE_ORIGIN}/cancel.html`);
+  const notifyUrl = `${FUNCTIONS_BASE_URL}/ozowWebhook`;
+
+  // Only fields we actually send may be hashed, in Ozow's documented order.
+  // `customerCellphoneNumber` must never be part of the hash, which is why the
+  // phone number travels as `optional2` instead.
+  const hashCheck = buildOzowRequestHash([
+    {name: "siteCode", value: siteCode},
+    {name: "countryCode", value: "ZA"},
+    {name: "currencyCode", value: "ZAR"},
+    {name: "amount", value: amount},
+    {name: "transactionReference", value: reference},
+    {name: "bankReference", value: bankReference},
+    {name: "optional1", value: email},
+    {name: "optional2", value: phone},
+    {name: "customer", value: customerName},
+    {name: "cancelUrl", value: cancelRedirectUrl},
+    {name: "errorUrl", value: cancelRedirectUrl},
+    {name: "successUrl", value: successUrl},
+    {name: "notifyUrl", value: notifyUrl},
+    {name: "isTest", value: isTest ? "true" : "false"},
+  ], privateKey);
+
+  const ozowPayload = {
+    siteCode: siteCode,
+    countryCode: "ZA",
+    currencyCode: "ZAR",
+    amount: amount,
+    transactionReference: reference,
+    bankReference: bankReference,
+    optional1: email,
+    optional2: phone,
+    customer: customerName,
+    cancelUrl: cancelRedirectUrl,
+    errorUrl: cancelRedirectUrl,
+    successUrl: successUrl,
+    notifyUrl: notifyUrl,
+    isTest: isTest,
+    hashCheck: hashCheck,
+  };
+
+  let ozowResponse = null;
+  let ozowBody = null;
+  try {
+    ozowResponse = await fetch(`${getOzowBaseUrl()}/postpaymentrequest`, {
+      method: "POST",
+      headers: {
+        "ApiKey": apiKey,
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(ozowPayload),
+    });
+    ozowBody = await ozowResponse.json().catch(() => null);
+  } catch (err) {
+    logger.error("Ozow payment request failed:", err);
+    throw new HttpsError("unavailable",
+        "We could not reach the Ozow payment gateway. Please try again.");
+  }
+
+  if (!ozowResponse.ok || !ozowBody || !ozowBody.url || ozowBody.errorMessage) {
+    logger.error(`Ozow payment request rejected (HTTP ${ozowResponse.status}):`, ozowBody);
+    const reason = String((ozowBody && ozowBody.errorMessage) || `HTTP ${ozowResponse.status}`);
+    throw new HttpsError("failed-precondition",
+        `Ozow could not create the secure payment session: ${reason}`);
+  }
+
+  await firestore.collection("orders").doc(reference).set({
+    ozowPaymentRequestId: ozowBody.paymentRequestId || null,
+    ozowPaymentUrl: ozowBody.url,
+    ozowIsTest: isTest,
+    updatedAt: new Date().toISOString(),
+  }, {merge: true});
+
+  logger.info(`Ozow payment request ${ozowBody.paymentRequestId} created for order ${reference}`);
+
+  return {
+    success: true,
+    gateway: "ozow",
+    reference: reference,
+    paymentRequestId: ozowBody.paymentRequestId || null,
+    redirectUrl: ozowBody.url,
+    processUrl: ozowBody.url,
+    authorization_url: ozowBody.url,
+    isTest: isTest,
+  };
+});
+
+/**
  * Backwards compatibility aliases: cached storefront pages (and the old
  * PayFast/Paystack integration) still call these names, so they stay wired to
  * the Yoco Checkout session creator. Safe to delete once nothing calls them.
@@ -1138,6 +1491,125 @@ exports.paystackWebhook = onRequest({
   secrets: [yocoSecretKey, yocoWebhookSecret, githubTokenSecret],
 }, handleYocoWebhook);
 
+/**
+ * Handle Ozow transaction notifications (the payment webhook).
+ * Docs: https://hub.ozow.com/api-reference/payments-api/webhooks/transaction-notification
+ *
+ * The notification is an unauthenticated form-encoded POST to a public URL, so
+ * the `Hash` has to verify before anything is written: without that check anyone
+ * could POST a fake `Complete` status and be handed a free order. Ozow may send
+ * the same notification more than once, so the handler is idempotent and never
+ * downgrades an order that has already been paid.
+ */
+async function handleOzowWebhook(req, res) {
+  if (req.method !== "POST") {
+    res.status(405).send("Method Not Allowed");
+    return;
+  }
+
+  const rawBody = req.rawBody ? req.rawBody.toString("utf8") : "";
+  const body = rawBody ? Object.fromEntries(new URLSearchParams(rawBody)) : (req.body || {});
+
+  const hash = verifyOzowNotificationHash(body, getOzowPrivateKey());
+  if (!hash.verified) {
+    logger.error(`Ozow notification rejected: hash ${hash.reason}.`);
+    res.status(200).send("OK");
+    return;
+  }
+
+  const reference = String(body.TransactionReference || "").trim();
+  const status = String(body.Status || "").trim().toLowerCase();
+  const isPaid = OZOW_PAID_STATUSES.includes(status);
+  const isFailed = OZOW_FAILED_STATUSES.includes(status);
+  const needsReview = status === "pendinginvestigation";
+
+  logger.info(`Ozow notification for order ${reference || "(unmatched)"}:`, body);
+
+  if (!reference) {
+    res.status(200).send("OK");
+    return;
+  }
+
+  let ghToken = null;
+  try {
+    ghToken = githubTokenSecret.value();
+  } catch (e) {
+    ghToken = null;
+  }
+
+  const orderRef = firestore.collection("orders").doc(reference);
+  let orderSnap = await orderRef.get();
+
+  if (!orderSnap.exists) {
+    const q = await firestore.collection("orders").
+        where("orderId", "==", reference).
+        limit(1).
+        get();
+    if (!q.empty) {
+      orderSnap = q.docs[0];
+    }
+  }
+
+  const alreadyPaid = orderSnap.exists &&
+    (orderSnap.data().paid === true || orderSnap.data().status === "paid");
+
+  const updateData = {
+    ozowTransactionId: body.TransactionId || null,
+    ozowTransactionReference: reference,
+    ozowStatus: body.Status || null,
+    ozowStatusMessage: body.StatusMessage || null,
+    ozowSubStatus: body.SubStatus || null,
+    ozowBankName: body.BankName || null,
+    ozowAmount: body.Amount ? Number(body.Amount) : null,
+    ozowIsTestNotification: String(body.IsTest || "").toLowerCase() === "true",
+    ozowHashVerified: true,
+    updatedAt: new Date().toISOString(),
+  };
+
+  if (alreadyPaid) {
+    // A duplicate, or a later non-final repost, must never unpay an order.
+    if (!isPaid) {
+      logger.warn(`Ozow notification for the already paid order ${reference} reported ` +
+        `"${status}" - keeping it paid.`);
+    }
+  } else {
+    updateData.status = isPaid ? "paid" :
+      (isFailed ? "payment_failed" : (needsReview ? "payment_needs_review" : "pending_payment"));
+    updateData.paid = isPaid;
+    updateData.paidAt = isPaid ? new Date().toISOString() : null;
+  }
+
+  if (orderSnap.exists) {
+    const existingData = orderSnap.data();
+    if (isPaid && !existingData.stockDeducted) {
+      await deductStockForOrder(existingData, firestore, ghToken);
+      updateData.stockDeducted = true;
+    }
+    await orderSnap.ref.update(updateData);
+  } else {
+    // The pending order is written before the customer ever reaches Ozow, so a
+    // missing document means something else went wrong - record the payment
+    // anyway, but without line items there is no stock to deduct.
+    logger.warn(`Ozow notification for order ${reference} has no matching order document.`);
+    await orderRef.set({
+      orderId: reference,
+      email: body.Optional1 || "",
+      total: body.Amount ? Number(body.Amount) : 0,
+      currency: body.CurrencyCode || "ZAR",
+      paymentGateway: "ozow",
+      ...updateData,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  logger.info(`Order ${reference} updated via Ozow notification. Paid: ${isPaid}`);
+  res.status(200).send("OK");
+}
+
+exports.ozowWebhook = onRequest({
+  secrets: [ozowPrivateKeySecret, githubTokenSecret],
+}, handleOzowWebhook);
+
 async function deductStockForOrder(orderData, firestore, token) {
   try {
     if (!orderData || !orderData.items || !Array.isArray(orderData.items)) return;
@@ -1229,9 +1701,10 @@ async function deductStockForOrder(orderData, firestore, token) {
 }
 
 /**
- * Verify a Yoco payment server-side. Orders are only ever marked paid by the
- * Yoco webhook (payment notification), never by the browser callback, so this
- * function reports the trusted Firestore order state back to success.html.
+ * Verify a payment server-side. Orders are only ever marked paid by a gateway
+ * webhook (the Yoco payment notification or the Ozow transaction notification),
+ * never by the browser callback, so this function reports the trusted Firestore
+ * order state back to success.html.
  */
 exports.verifyYocoPayment = onCall({secrets: [githubTokenSecret]}, async (request) => {
   const data = request.data || {};
@@ -1325,6 +1798,15 @@ exports.verifyPayFastPayment = onCall({secrets: [githubTokenSecret]}, async (req
 });
 
 exports.verifyPaystackPayment = onCall({secrets: [githubTokenSecret]}, async (request) => {
+  return exports.verifyYocoPayment.run(request);
+});
+
+/**
+ * Ozow payments are confirmed from the same trusted Firestore order state as
+ * Yoco ones: the `paymentGateway` field on the order records which gateway
+ * created it, so the lookup itself is gateway agnostic.
+ */
+exports.verifyOzowPayment = onCall({secrets: [githubTokenSecret]}, async (request) => {
   return exports.verifyYocoPayment.run(request);
 });
 

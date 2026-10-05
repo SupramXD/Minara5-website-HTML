@@ -793,7 +793,9 @@
     function openMenu() { document.getElementById("menuPanel").classList.add("open"); }
     function closeMenu() { document.getElementById("menuPanel").classList.remove("open"); }
 
-    // Load and verify the Yoco transaction receipt
+    // Load and verify the transaction receipt for either gateway (Yoco card or
+    // Ozow instant EFT). The gateway only changes the wording: both are confirmed
+    // from the same trusted Firestore order document.
     document.addEventListener('DOMContentLoaded', async () => {
       const receiptContent = document.getElementById("receiptContent");
       if (!receiptContent) return;
@@ -811,6 +813,21 @@
 
       const activeRef = reference || (orderData ? orderData.paymentId : null);
 
+      // Gateway routing. The URL parameter is the fastest signal, but Ozow appends
+      // its own fields to the redirect URL, so it is matched leniently - and the
+      // verified order document (`paymentGateway`) overrides it once available.
+      const gatewayParam = String(urlParams.get('gateway') || '').toLowerCase();
+      let gateway = (gatewayParam.indexOf('ozow') === 0 ||
+        /(^|[?&])gateway=ozow/i.test(window.location.search) ||
+        (orderData && orderData.paymentGateway === 'ozow')) ? 'ozow' : 'yoco';
+      let gatewayLabel = gateway === 'ozow' ? 'Ozow' : 'Yoco';
+
+      const applyGateway = (resolved) => {
+        if (resolved !== 'ozow' && resolved !== 'yoco') return;
+        gateway = resolved;
+        gatewayLabel = gateway === 'ozow' ? 'Ozow' : 'Yoco';
+      };
+
       if (!activeRef) {
         receiptContent.innerHTML = `
         <div class="receipt-card" style="text-align: center; padding: 25px;">
@@ -823,7 +840,7 @@
 
       receiptContent.innerHTML = `
       <div class="receipt-card" style="text-align: center; padding: 30px;">
-        <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #09A5DB;">Verifying Yoco Payment...</div>
+        <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #09A5DB;">Verifying ${gatewayLabel} Payment...</div>
         <div style="font-size: 11px; color: #666;">Please wait while we confirm your payment status securely.</div>
       </div>
     `;
@@ -835,10 +852,10 @@
       const pollAttempts = 15;
       const pollDelayMs = 2000;
 
-      // The Yoco webhook (payment notification) is the only trusted source of
-      // payment confirmation, so poll the server for a short while until that
-      // event has landed in Firestore.
-      const checkYocoVerification = async () => {
+      // The gateway webhook (the Yoco payment notification or the Ozow transaction
+      // notification) is the only trusted source of payment confirmation, so poll
+      // the server for a short while until that event has landed in Firestore.
+      const checkPaymentVerification = async () => {
         try {
           let functions = null;
           let httpsCallable = null;
@@ -851,15 +868,16 @@
             console.warn("Functions module fallback:", err);
           }
 
-          const payload = { reference: activeRef, checkoutId: checkoutId };
+          const payload = { reference: activeRef, checkoutId: checkoutId, gateway: gateway };
+          const verifyFnName = gateway === 'ozow' ? "verifyOzowPayment" : "verifyYocoPayment";
 
           if (functions && httpsCallable) {
-            const verifyFn = httpsCallable(functions, "verifyYocoPayment");
+            const verifyFn = httpsCallable(functions, verifyFnName);
             const res = await verifyFn(payload);
             return res.data || null;
           }
 
-          const res = await fetch("https://us-central1-minara5.cloudfunctions.net/verifyYocoPayment", {
+          const res = await fetch(`https://us-central1-minara5.cloudfunctions.net/${verifyFnName}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ data: payload })
@@ -867,16 +885,19 @@
           const json = await res.json();
           return json.result || json;
         } catch (err) {
-          console.warn("Yoco verification check encountered network delay:", err);
+          console.warn(`${gatewayLabel} verification check encountered network delay:`, err);
           return null;
         }
       };
 
       for (let attempt = 0; attempt < pollAttempts && !isVerified; attempt++) {
-        const result = await checkYocoVerification();
+        const result = await checkPaymentVerification();
         if (result && result.verified) {
           isVerified = true;
           verifiedOrder = result.order;
+          if (verifiedOrder && verifiedOrder.paymentGateway) {
+            applyGateway(verifiedOrder.paymentGateway);
+          }
           break;
         }
         if (attempt < pollAttempts - 1) {
@@ -922,12 +943,12 @@
         receiptContent.innerHTML = `
         <div class="receipt-card">
           <div class="receipt-header">
-            <span>Verified Yoco Receipt</span>
+            <span>Verified ${gatewayLabel} Receipt</span>
             <span class="receipt-ref">${refToDisplay}</span>
           </div>
 
           <div style="background: #e0f2fe; color: #0369a1; padding: 10px 14px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; gap: 6px;">
-            <span>✓</span> <span>Payment Confirmed & Verified by Yoco</span>
+            <span>✓</span> <span>Payment Confirmed & Verified by ${gatewayLabel}</span>
           </div>
 
           <div class="receipt-section-title">Shipping Address</div>
@@ -963,7 +984,7 @@
           <div style="font-size: 18px; margin-bottom: 8px;">⚠️</div>
           <div style="font-weight: bold; font-size: 14px; color: #b91c1c; margin-bottom: 6px;">Payment Verification Pending</div>
           <div style="font-size: 12px; color: #4b5563; margin-bottom: 18px; line-height: 1.5;">
-            We have not received confirmation of the completed payment from Yoco for reference <strong>${activeRef}</strong>. This usually takes a few seconds - use the button below to check again.
+            We have not received confirmation of the completed payment from ${gatewayLabel} for reference <strong>${activeRef}</strong>. This usually takes a few seconds - use the button below to check again.
           </div>
           <button onclick="window.location.reload()" class="action-btn" style="padding: 10px 24px; font-size: 10px;">Check Status Again</button>
         </div>
