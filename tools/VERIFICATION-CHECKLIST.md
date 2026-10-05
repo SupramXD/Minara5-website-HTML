@@ -106,3 +106,14 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
    webhook (`/yocoWebhook`) registered and reachable.
 4. In the Yoco App, re-submit `https://studioextrait.co.za` under Checkout API -> Verified Domains.
 5. Record a test payment with the Yoco test card so the reviewer can see a working Yoco checkout.
+6. **Two gateways are live on `checkout.html`:** tapping the card tile pays through Yoco, tapping
+   the Instant EFT tile pays through Ozow. Both are created server-side (`createYocoCheckout` /
+   `createOzowCheckout`) and both webhooks (`/yocoWebhook`, `/ozowWebhook`) must stay registered.
+   There is no separate "continue to payment" button - the tile tap starts the redirect.
+7. If Ozow's own page shows its red **"System error"** screen, that is Ozow's front end failing on
+   Ozow's own API - not our integration (full evidence in MEMORY.md). Confirm it with
+   `firebase functions:log --only ozowWebhook`: Ozow still posts a *signed* notification for that
+   transaction, and its `Status` / `TransactionId` say exactly what happened. Quote those to Ozow
+   support if it repeats.
+8. A cancelled or failed payment must never cost the customer their details: `checkout.html` writes
+   them to `minara_checkout_draft` and restores them when they come back from `cancel.html`.

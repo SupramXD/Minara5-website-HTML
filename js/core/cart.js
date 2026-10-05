@@ -573,20 +573,21 @@
           </div>
           ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; cursor:pointer; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">CONTINUE TO CHECKOUT</button>` : ''}
           ${hasItems ? `<div style="display:flex; gap:6px; align-items:center; margin-top:12px; flex-wrap:wrap;">
-            <!-- Official payment brand badges (self-hosted vectors in images/payments) -->
-            <span title="Visa" style="height:24px; padding:0 5px; background:#fff; border:1px solid #e0e0e0; display:inline-flex; align-items:center; flex-shrink:0;">
+            <!-- Official payment brand badges (self-hosted in images/payments).
+                 Same 20px chip + 11px wordmark rule as checkout.html; the
+                 Mastercard mark is a graphic, so it takes 13px. -->
+            <span title="Visa" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
               <img src="images/payments/visa.svg" alt="Visa" style="display:block; height:11px; width:auto;">
             </span>
-            <span title="Mastercard" style="height:24px; padding:0 5px; background:#fff; border:1px solid #e0e0e0; display:inline-flex; align-items:center; flex-shrink:0;">
-              <img src="images/payments/mastercard.svg" alt="Mastercard" style="display:block; height:15px; width:auto;">
+            <span title="Mastercard" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <img src="images/payments/mastercard.svg" alt="Mastercard" style="display:block; height:13px; width:auto;">
             </span>
-            <span title="Instant EFT by Ozow" style="height:24px; padding:0 5px; background:#fff; border:1px solid #e0e0e0; display:inline-flex; align-items:center; flex-shrink:0;">
-              <img src="images/payments/ozow.png" alt="Ozow Instant EFT" style="display:block; height:12px; width:auto;">
+            <span title="Instant EFT by Ozow" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <img src="images/payments/ozow.png" alt="Ozow Instant EFT" style="display:block; height:11px; width:auto;">
             </span>
-            <span title="Card payments by Yoco" style="height:24px; padding:0 5px; background:#fff; border:1px solid #e0e0e0; display:inline-flex; align-items:center; flex-shrink:0;">
-              <img src="images/payments/yoco.svg" alt="Yoco" style="display:block; height:13px; width:auto;">
+            <span title="Card payments by Yoco" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <img src="images/payments/yoco.svg" alt="Yoco" style="display:block; height:11px; width:auto;">
             </span>
-            <!-- Yoco Secure badge -->
             <span title="Payments secured by Yoco and Ozow" style="font-size: 8px; font-weight: bold; letter-spacing: 0.5px; opacity: 0.45; margin-left: auto; text-transform: uppercase; white-space: nowrap; font-family: Helvetica, Arial, sans-serif;">SECURED CHECKOUT</span>
           </div>` : ''}
         </div>
