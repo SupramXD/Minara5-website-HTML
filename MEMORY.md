@@ -230,6 +230,11 @@
 ```
 <!-- FILE_INVENTORY_END -->
 
+## Side tool: Cline Gmail CLI (lives outside this repo)
+- On-demand Gmail access for Jadon is at `E:\desktop\ClineGmail` (NOT part of this repo, not git-tracked): `node gmail.js search|read|send|reply <label> ...`. Accounts: `studio` (supunolt@gmail.com) and `studioextrait` (jadon@studioextrait.co.za, its default send-as).
+- Before drafting or replying to ANY email as Jadon, read `E:\desktop\ClineGmail\voice\jadon-voice.md` (his tone, sign-off style, and the hard NO-em-dash rule).
+- Images to attach go in `E:\desktop\ClineGmail\attachments\`, named `YYYY-MM-DD-topic-desc.ext` (e.g. `2026-10-07-ozow-eft-system-error.png`).
+
 ## How to keep this fresh
 - Read this file at the start of every session; reuse it instead of re-opening everything.
 - Update the relevant section above when you change structure or logic.
