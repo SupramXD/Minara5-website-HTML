@@ -231,17 +231,19 @@
 <!-- FILE_INVENTORY_END -->
 
 ## Side tool: Cline Gmail CLI (lives outside this repo)
-- On-demand Gmail access for Jadon is at `E:\desktop\ClineGmail` (NOT part of this repo, not git-tracked): `node gmail.js search|read|send|reply <label> ...`. Accounts: `studio` (supunolt@gmail.com) and `studioextrait` (jadon@studioextrait.co.za, its default send-as).
+**Use only when Jadon asks for it in that message.** Do not search, read, or send mail on your own initiative, and never copy any of it into this repo.
+- On-demand Gmail access for Jadon is at `E:\desktop\ClineGmail` (a sibling of this repo; NOT in any git repo, has a defensive `.gitignore`): `node gmail.js search|read|send|reply <label> ...`. Accounts: `studio` (supunolt@gmail.com) and `studioextrait` (jadon@studioextrait.co.za, its default send-as).
 - Before drafting or replying to ANY email as Jadon, read `E:\desktop\ClineGmail\voice\jadon-voice.md` (his tone, sign-off style, and the hard NO-em-dash rule).
 - Images to attach go in `E:\desktop\ClineGmail\attachments\`, named `YYYY-MM-DD-topic-desc.ext` (e.g. `2026-10-07-ozow-eft-system-error.png`).
 
 ## Side tool: Cline WhatsApp CLI (lives outside this repo)
-- On-demand WhatsApp access for Jadon's business number is at `E:\desktop\ClineWhatsApp` (NOT part of this repo, not git-tracked): `python wa.py status|open|chats|find|read|send|reset|a11y`.
+**Use only when Jadon asks for it in that message.** Do not read chats, and never send a message, on your own initiative.
+- On-demand WhatsApp access for Jadon's business number is at `E:\desktop\ClineWhatsApp` (a sibling of this repo; NOT in any git repo, has a defensive `.gitignore`): `python wa.py status|open|chats|find|read|send|reset|a11y`.
 - It does NOT use the API and needs no new number - it drives the WhatsApp Business Desktop app (`WhatsApp.Root.exe`) through Windows UI Automation, with auto-launch if the app is closed.
 - Run `python wa.py a11y on` first: Chromium/WebView2 only exposes the text inside chat bubbles while the Windows screen-reader flag (`SPI_SETSCREENREADER`) is set. `a11y off` restores it. `chats` and `send` work without it; reading message text does not.
 - `send` reads the `Type a message to X` box after opening a chat and refuses to type if the wrong chat opened, so a failed click can never message the wrong person.
 - Before drafting ANY WhatsApp message as Jadon, read `E:\desktop\ClineWhatsApp\voice\jadon-whatsapp-voice.md` (looser than the email voice: no greeting, no sign-off mid-conversation, short, still NO em dashes).
-- Regenerate real examples with `python wa.py read "<contact>" --limit 40`; samples live in `E:\desktop\ClineWhatsApp\voice\samples\`.
+- Regenerate real examples with `python wa.py read "<contact>" --limit 40`; samples (private, local only - never commit or quote outside the session) live in `E:\desktop\ClineWhatsApp\voice\samples\`.
 
 ## How to keep this fresh
 - Read this file at the start of every session; reuse it instead of re-opening everything.
