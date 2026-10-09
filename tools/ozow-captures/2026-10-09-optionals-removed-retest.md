@@ -101,10 +101,16 @@ POST https://pay.ozow.com/api/transaction/initiate   {"requestId":"e15d81bb-dc5e
    `paymentRequestId` above; the null reference is thrown on Ozow's side, in the same code path as every
    earlier report.
 4. **Still unresolved on the account:** in Merchant Details the **bank account is blank** and the
-   **Industry** field accepts no input, so it cannot be saved. A settlement bank account that was never
-   stored is the obvious candidate for a null dereference in a session builder, and it would explain why
-   every method the account is *not* enabled for answers cleanly (their guard runs first) while
-   Pay by Bank — the only enabled method — dies here.
+   **Industry** field is locked, so it cannot be saved. The owner's own description (9 Oct 2026):
+   **Save submits the whole Merchant Details list**, the **Industry control is locked and cannot be
+   typed into or changed**, and the save is then **rejected with an error saying the Industry field
+   must be filled in** - so the form refuses to save while Industry is locked and refuses to save while
+   it is empty, and the settlement bank account is never stored. The account was **created manually by
+   Ozow KYC support** (the self-service signup never completed), which may be why the field arrived
+   locked and empty. A settlement bank account that was never stored is the obvious candidate for a
+   null dereference in a session builder, and it would explain why every method the account is *not*
+   enabled for answers cleanly (their guard runs first) while Pay by Bank — the only enabled method —
+   dies here.
 
 ## Reproduce
 

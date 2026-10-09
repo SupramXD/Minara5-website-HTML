@@ -366,6 +366,15 @@ e-mail), `optional2` (phone) and `customer` (name): dropping them changes nothin
 they are what Ozow's own record of the payment carries (the webhook fallback reads `Optional1` as the
 order e-mail).
 
+**The account-side blocker, in the owner's own words (9 Oct 2026):** in Merchant Details the bank
+account is not set and cannot be set — **Save submits the whole Merchant Details list**, the **Industry
+field is locked** (cannot be typed into or changed), and the save is **rejected with "the Industry
+field has to be filled in"**. So the form will not save while Industry is locked and will not save while
+it is empty, which means the settlement bank account is never stored. The account was **created
+manually by Ozow KYC support** (the self-service signup never finished), so the locked/empty field may
+be an artefact of that. This is the leading candidate for the null that `initiate` dereferences, and the
+one thing neither we nor a payload change can fix.
+
 ## One API — accepted as the way forward, but it needs credentials from Ozow
 
 Ozow also advised migrating to **One API** because the Payments API is deprecated. Agreed and planned; it
