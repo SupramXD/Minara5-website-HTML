@@ -1,0 +1,17 @@
+{
+  "siteCode": "STU-STU-022",
+  "countryCode": "ZA",
+  "currencyCode": "ZAR",
+  "amount": "580.00",
+  "transactionReference": "EXTRAIT-808780-7317",
+  "bankReference": "EXTRAIT-808780-7317",
+  "optional1": "probe@studioextrait.co.za",
+  "optional2": "0821234567",
+  "customer": "Probe Test",
+  "cancelUrl": "https://studioextrait.co.za/cancel.html?reference=EXTRAIT-808780-7317&gateway=ozow",
+  "errorUrl": "https://studioextrait.co.za/cancel.html?reference=EXTRAIT-808780-7317&gateway=ozow",
+  "successUrl": "https://studioextrait.co.za/success.html?reference=EXTRAIT-808780-7317&gateway=ozow",
+  "notifyUrl": "https://us-central1-minara5.cloudfunctions.net/ozowWebhook",
+  "isTest": false,
+  "hashCheck": "f72f4bbef3da7484553e287895384534a2bff4112b92782714ca12872180796b4d8a36f6e8037cab97644cbff64c6f2e9617380af12314cfe587896014db434a"
+}
