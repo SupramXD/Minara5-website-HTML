@@ -1,9 +1,9 @@
 Good day Nthabiseng,
 
-Thanks for coming back to me. Of course, here are the payloads.
+Thanks for coming back to me. Here are the payloads.
 
-There are two requests in the flow so I have included both. The one that fails is the
-second one, and that call is made by your own payment page, not by my server.
+Two requests are involved. Mine is accepted, the one that fails is made by your own
+payment page.
 
 1. What my server posts to https://api.ozow.com/postpaymentrequest
 
@@ -25,8 +25,7 @@ second one, and that call is made by your own payment page, not by my server.
   "hashCheck": "f72f4bbef3da7484553e287895384534a2bff4112b92782714ca12872180796b4d8a36f6e8037cab97644cbff64c6f2e9617380af12314cfe587896014db434a"
 }
 
-That one comes back HTTP 200 with a paymentRequestId and a pay.ozow.com link every
-time, so the request itself is accepted.
+It answers 200 with a paymentRequestId and a pay.ozow.com link every time.
 
 2. What your hosted page posts to https://pay.ozow.com/api/transaction/initiate the
 moment it opens
@@ -36,47 +35,28 @@ moment it opens
   "viewName": ""
 }
 
-That one answers HTTP 500, "InternalServerError - Object reference not set to an
-instance of an object", traceId 0HNP5N1O2PMLV:00000001. I ran the whole thing again
-today at about 13:25 SAST and Pay by Bank is still failing exactly the same way.
+That one answers 500, "Object reference not set to an instance of an object", traceId
+0HNP5N1O2PMLV:00000001. I ran it again today at about 13:25 SAST and Pay by Bank is
+still failing the same way.
 
-Two notes on the payload so it doesn't send you down the wrong path:
+Three notes on the payload:
 
-- The ApiKey header is left out of this mail on purpose, and my private key is only
-  ever used to sign the hashCheck, it is never sent to Ozow. Every other field, the
-  field order and the hashCheck are exactly what production sends.
-- optional1, optional2 and customer carry test values in place of a real customer's
-  details. I don't want to mail someone's personal information around.
-
-And the three things that tell me it isn't my payload:
-
+- The ApiKey header is left out on purpose, and my private key only signs the
+  hashCheck, it is never sent to you. Every other field, the order and the hashCheck
+  are exactly what production sends.
+- optional1, optional2 and customer hold test values, not a real customer's details.
 - The same request with only the six required fields, no customer, no URLs and no
   notifyUrl, fails identically (traceId 0HNP5S192JBA1:00000001).
-- Break the hashCheck on purpose and your API names it straight away, "The HashCheck
-  value has failed". So the 500 is not your side telling me my data is wrong.
-- Change only selectedBankId to Card and initiate answers 200 with a complete session
-  payload that quotes my own requestId back.
 
-The full capture is attached, every request and its response, plus the trace IDs from
-today:
-
-0HNP5N1O2PMLV:00000001  pay by bank, production payload
-0HNP5S192JBA1:00000001  pay by bank, minimal payload
-0HNP5R5BIA160:00000001  initiate for a requestId that was never created
-0HNP5QCMAAUBI:00000001  initiate with an empty body
-00-165fc170c4e8b9175a5ea5243dc34bda-0e6a3e2c69ef9680-00  initiate with a malformed requestId (400)
-
-You can watch it fail on your side too, this link was created today at 13:24 SAST:
+The full capture is attached, every request and its response. You can also watch it
+fail on your side, this link was made today at 13:24 SAST:
 https://pay.ozow.com/0fe55fe9-529c-40bf-96f0-ad6fea5ae7df/Secure
 
-One other thing, same as when I first reported it, in Merchant Details my bank account
-is still blank and the Industry field still won't accept any input so I can't save it.
-If your session builder is reading that record, it is still empty.
+Same as when I first reported it, in Merchant Details my bank account is still blank
+and the Industry field won't accept any input so I can't save it. If your session
+builder reads that record, it is still empty.
 
-I used R580.00 for this test, but R1.00 and R10.00 fail in exactly the same way.
-
-If you need the payload from a real order, or need me to run anything specific, just
-let me know and I will send it right away.
+If you need the payload from a real order just say so and I will send it right away.
 
 Thank You
 
