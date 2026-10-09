@@ -1,5 +1,5 @@
 // Studio Extrait - Ozow payin probe
-// Usage: node tools/ozow-probe.js [--methods] [--payloads] [--lookup <reference|transactionId>]
+// Usage: node tools/ozow-probe.js [--methods] [--payloads] [--no-optionals] [--lookup <reference|transactionId>]
 //
 // WHY THIS EXISTS
 // ---------------
@@ -92,11 +92,20 @@ function newReference() {
   return `OZOWPROBE-${Date.now().toString().slice(-8)}`.toUpperCase();
 }
 
-function buildHashFromBody(body) {
-  const values = HASH_FIELD_ORDER
+function hashInputValues(body) {
+  return HASH_FIELD_ORDER
       .filter((name) => body[name] !== undefined && body[name] !== null && String(body[name]) !== '')
-      .map((name) => body[name]);
-  return buildHash(values);
+      .map((name) => String(body[name]));
+}
+
+function buildHashFromBody(body) {
+  return buildHash(hashInputValues(body));
+}
+
+// The exact concatenation the hash is taken over, with the private key shown in place but
+// never printed - the order of these values is what a hashCheck rejection is usually about.
+function describeHashInput(body) {
+  return `${hashInputValues(body).join('')}<private key>`;
 }
 
 // The exact shape functions/index.js createOzowCheckout sends to Ozow, so a plain probe
@@ -210,6 +219,37 @@ async function payloadMatrix() {
   await initiateRaw('8. initiate with an empty body', {});
 }
 
+// Ozow Support asked (9 Oct 2026) for the production request with the optional fields removed
+// and the `hashCheck` recalculated, to see whether that clears the `initiate` 500. The second
+// row is the same request cut back to the six required fields, so one run shows both cuts.
+async function noOptionalsTest() {
+  console.log(`Site ${SITE_CODE}: optional fields dropped, hashCheck recalculated`);
+
+  const stripped = productionBody(AMOUNT);
+  delete stripped.optional1;
+  delete stripped.optional2;
+  delete stripped.customer;
+  stripped.hashCheck = buildHashFromBody(stripped);
+  console.log(`  hash input: ${describeHashInput(stripped)}`);
+  console.log(`  hashCheck:  ${stripped.hashCheck}`);
+  await createThenInitiate('1. Production shape minus optional1, optional2 and customer', stripped);
+
+  const reference = newReference();
+  const required = {
+    siteCode: SITE_CODE,
+    countryCode: 'ZA',
+    currencyCode: 'ZAR',
+    amount: AMOUNT,
+    transactionReference: reference,
+    bankReference: reference.replace(/[^a-zA-Z0-9 -]/g, '').slice(0, 20),
+    isTest: false,
+  };
+  required.hashCheck = buildHashFromBody(required);
+  console.log(`  hash input: ${describeHashInput(required)}`);
+  console.log(`  hashCheck:  ${required.hashCheck}`);
+  await createThenInitiate('2. Control - the six required fields only, nothing optional', required);
+}
+
 async function initiateSession(paymentRequestId) {
   const response = await call(`${PAY_PAGE}/api/transaction/initiate`, {
     method: 'POST',
@@ -246,6 +286,10 @@ async function lookup(target) {
   }
   if (args[0] === '--payloads') {
     await payloadMatrix();
+    return;
+  }
+  if (args[0] === '--no-optionals') {
+    await noOptionalsTest();
     return;
   }
   if (args[0] === '--methods') {

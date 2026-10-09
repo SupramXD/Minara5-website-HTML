@@ -343,3 +343,36 @@ Payer URL for that attempt (Ozow staff can open it and watch it fail themselves)
   account is confirmed as the null behind the Pay-by-Bank 500. We will then re-run
   `node tools/ozow-probe.js --methods` the same minute and report the result.
 
+## Evidence 8 — optional fields removed and the hash recalculated (Ozow's own next step)
+
+Ozow Support asked on 9 Oct 2026 15:41 SAST (*"Please remove the optional fields. Recalculate the hash
+fields and advise if this clears the error."* — message `1a120e5e6eaabf35`). The test ran the same
+afternoon, 9 Oct 2026 ≈16:04 SAST, with `node tools/ozow-probe.js --no-optionals` (flag added for it):
+
+| request | paymentRequestId | `/postpaymentrequest` | `initiate` |
+|---|---|---|---|
+| production shape minus `optional1`/`optional2`/`customer`, hash recalculated | `8fcc622c-6f7a-495e-a662-43c274510185` | `200 … "errorMessage":null` | **500 NRE** — traceId `0HNP5VP9QE40B:00000001` |
+| six required fields only, nothing optional | `e15d81bb-dc5e-406b-a707-77ce09e0b065` | `200 … "errorMessage":null` | **500 NRE** — traceId `0HNP61GVBPARM:00000001` |
+
+Both `200`s carried a `url`, which is Ozow accepting the recalculated `hashCheck` (a wrong hash is
+refused **by name** and returns no `url` — Evidence 2), so the hash is not the obstacle and the request
+cannot be cut back any further. Payer URLs for Ozow staff:
+`https://pay.ozow.com/8fcc622c-6f7a-495e-a662-43c274510185/Secure` and
+`https://pay.ozow.com/e15d81bb-dc5e-406b-a707-77ce09e0b065/Secure`. Request bodies, the exact hash input
+strings and both responses: `tools/ozow-captures/2026-10-09-optionals-removed-retest.md`.
+
+**No production change was made for this.** `createOzowCheckout` still sends `optional1` (customer
+e-mail), `optional2` (phone) and `customer` (name): dropping them changes nothing about the failure, and
+they are what Ozow's own record of the payment carries (the webhook fallback reads `Optional1` as the
+order e-mail).
+
+## One API — accepted as the way forward, but it needs credentials from Ozow
+
+Ozow also advised migrating to **One API** because the Payments API is deprecated. Agreed and planned; it
+cannot start without a **Client ID + Client Secret** (Dashboard → One API → Clients) and staging access
+at `stagingone.ozow.com`, which only Ozow can enable on an account created by hand (migration guide:
+`hub.ozow.com/integration-methods/apis/deprecated-integrations/migrating-to-one-api`). Note the legacy
+API is **not being switched off on a fixed date** and keeps processing live traffic, so migrating is not
+a workaround for the 500 — and since the merchant record is shared by both APIs, the missing settlement
+bank account is worth fixing either way.
+

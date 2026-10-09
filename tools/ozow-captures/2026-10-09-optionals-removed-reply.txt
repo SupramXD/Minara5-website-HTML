@@ -1,0 +1,58 @@
+Good day Nthabiseng,
+
+Thanks for the quick reply. I ran exactly that test this afternoon and it does not clear the error.
+
+I removed optional1, optional2 and customer from the request and recalculated the hashCheck over the
+fields that were left, so only the required fields, the four URLs and isTest remain. I then cut it back
+again to the six required fields on their own.
+
+Both requests were accepted, which is the important part:
+
+POST https://api.ozow.com/postpaymentrequest
+200 {"paymentRequestId":"8fcc622c-6f7a-495e-a662-43c274510185","url":"https://pay.ozow.com/8fcc622c-6f7a-495e-a662-43c274510185/Secure","errorMessage":null}
+
+and the same again for the six-field version (paymentRequestId e15d81bb-dc5e-406b-a707-77ce09e0b065).
+A 200 with a url and no errorMessage is your API confirming it accepted the recalculated hashCheck - the
+same endpoint refuses a deliberately wrong hashCheck by name ("The HashCheck value has failed", and no
+url). So the recalculated hash is fine.
+
+The moment your hosted page opens, it still calls POST https://pay.ozow.com/api/transaction/initiate
+and gets the same thing:
+
+500 InternalServerError - {"title":"Object reference not set to an instance of an object.","status":500}
+
+traceId 0HNP5VP9QE40B:00000001   (optional fields removed)
+traceId 0HNP61GVBPARM:00000001   (six required fields only)
+
+Run at 2026-10-09 16:04 SAST. You can watch both fail on your side:
+
+https://pay.ozow.com/8fcc622c-6f7a-495e-a662-43c274510185/Secure
+https://pay.ozow.com/e15d81bb-dc5e-406b-a707-77ce09e0b065/Secure
+
+So, to answer the question directly: no, removing the optional fields and recalculating the hash does
+not clear it. The requests are accepted and the session builder still throws a null reference. We have
+no payload left to change - the six-field request above is the smallest a request can be.
+
+The one thing that has not moved is the merchant record. In Merchant Details the bank account is still
+blank and the Industry field still accepts no input, so I still cannot save it. A null reference in the
+code path that builds a payer session, on an account whose settlement bank account was never stored,
+is the same picture as the first report - and it also explains why every method we are not enabled for
+answers cleanly while Pay by Bank, the only enabled one, dies here. Could your technical team please
+check the site record for STU-STU-022 / STUDIOEXTRAITPTYLTD and confirm the settlement bank account and
+the industry are set on your side? If they can set them, or tell me why the Industry field will not
+accept input, that is the shortest path to a live Pay by Bank.
+
+On One API: understood, and we are happy to migrate. I have read the migration guide (One API clients,
+/v1/token, POST /v1/payments, Svix-signed webhooks). We need one thing from you before we can start:
+access to One API clients on our account so we can create a Client ID and Client Secret (Dashboard ->
+One API -> Clients), plus staging credentials at stagingone.ozow.com so we can run the payin test cases
+before switching production. Our account was created by hand by Ozow, so the One API menu may not be on
+our profile yet - please enable it. One question there: does the Pay by Bank flow on One API also need
+the merchant settlement bank account to be complete? If it does, the record has to be fixed either way.
+
+Any test you want run on our side, just say so. The full capture of this run - both request bodies, the
+exact hash input string and both responses - is attached.
+
+Thank You
+
+-Jadon From Studio Extrait
