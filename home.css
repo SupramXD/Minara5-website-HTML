@@ -285,6 +285,9 @@
       align-items: center;
       gap: 4px;
       cursor: pointer;
+      /* The icon + count must shrink as ONE unit, never as loose children. */
+      flex-shrink: 0;
+      white-space: nowrap;
 
     }
 
@@ -301,6 +304,19 @@
 
     .cart-btn span {
       font-size: 12px;
+      /* Counts must never wrap: the badge is a text node inside a flex row, so a
+         squeezed header was breaking two-digit counts onto two lines ("1" / "0")
+         and pushing a second row under the icon. nowrap + flex-shrink: 0 keeps the
+         badge on one line at every width. */
+      white-space: nowrap;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    /* The drawer header ("BAG 00") is a flex row with the same failure mode, so it
+       gets the one-line guarantee too - without the line-height override above. */
+    .cart-header-row span {
+      white-space: nowrap;
     }
 
     #pageDimmer {

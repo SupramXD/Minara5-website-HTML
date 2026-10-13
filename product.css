@@ -309,6 +309,9 @@
             color: #000;
             cursor: pointer;
             margin-left: 15px;
+            /* Icon + count shrink as one unit so the badge cannot be squeezed. */
+            flex-shrink: 0;
+            white-space: nowrap;
         }
 
         .cart-header-btn img {
@@ -317,6 +320,11 @@
 
         .cart-header-btn span {
             font-size: 12px;
+            /* Two-digit counts must stay on one line (a flex-row text node used to
+               break "10" into "1" / "0" and grow a second row under the icon). */
+            white-space: nowrap;
+            flex-shrink: 0;
+            line-height: 1;
         }
 
         /* MOBILE CART ICON */

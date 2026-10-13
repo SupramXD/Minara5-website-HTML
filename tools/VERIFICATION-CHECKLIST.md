@@ -106,14 +106,17 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
    webhook (`/yocoWebhook`) registered and reachable.
 4. In the Yoco App, re-submit `https://studioextrait.co.za` under Checkout API -> Verified Domains.
 5. Record a test payment with the Yoco test card so the reviewer can see a working Yoco checkout.
-6. **Two gateways are live on `checkout.html`:** tapping the card tile pays through Yoco, tapping
-   the Instant EFT tile pays through Ozow. Both are created server-side (`createYocoCheckout` /
-   `createOzowCheckout`) and both webhooks (`/yocoWebhook`, `/ozowWebhook`) must stay registered.
-   There is no separate "continue to payment" button - the tile tap starts the redirect. The two tiles
-   are stacked vertically with a hairline rule between them, and every tile ends with a bold
-   "You'll be redirected to c.yoco.com / pay.ozow.com" cue (`.payment-tile-go`) so the hand-off is
-   never a surprise. The card tile carries the official Yoco, Visa, Mastercard, Google Pay and Apple
-   Pay marks (all self-hosted in `images/payments/`) - never redraw or re-crop them by hand.
+6. **Two gateways are live on `checkout.html`:** choosing "Pay by card" and continuing pays through
+   Yoco, choosing "Instant EFT" and continuing pays through Ozow. Both are created server-side
+   (`createYocoCheckout` / `createOzowCheckout`) and both webhooks (`/yocoWebhook`, `/ozowWebhook`)
+   must stay registered. The step is **select, then continue**: the two rows only choose (radio
+   semantics - nothing is charged, submitted or redirected by the tap itself) and the one lime
+   **"Continue to Yoco" / "Continue to Ozow"** button is the action, so the browser's own
+   required-field validation runs before any redirect. The accepted brand marks (official Yoco, Visa,
+   Mastercard, Google Pay, Apple Pay and Ozow, all self-hosted in `images/payments/`) sit in their own
+   strip ABOVE the rows - never redraw or re-crop them by hand, and keep the brand-blue
+   `yoco-blue.svg` on the white chips. The trust cards say where the money goes in one sentence each,
+   and the "Free Express Shipping" card is only rendered when the order really does ship free.
 7. If Ozow's own page shows its red **"System error"** screen, that is Ozow's front end failing on
    Ozow's own API - not our integration (full evidence in MEMORY.md). Confirm it with
    `firebase functions:log --only ozowWebhook`: Ozow still posts a *signed* notification for that

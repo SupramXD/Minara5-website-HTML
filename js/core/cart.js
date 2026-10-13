@@ -578,9 +578,11 @@
                  Mastercard mark is a graphic, so it takes 13px, and the Apple Pay
                  mark carries its own black frame so it replaces the chip chrome
                  and renders at the full 20px chip height. Card marks first, then
-                 the instant-EFT mark. -->
+                 the instant-EFT mark. The Yoco wordmark is the brand-blue copy
+                 (yoco-blue.svg, #00A9E0) because every chip here is a white chip -
+                 yoco.svg (#141414) is only for a dark background. -->
             <span title="Card payments by Yoco" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
-              <img src="images/payments/yoco.svg" alt="Yoco" style="display:block; height:11px; width:auto;">
+              <img src="images/payments/yoco-blue.svg" alt="Yoco" style="display:block; height:11px; width:auto;">
             </span>
             <span title="Visa" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
               <img src="images/payments/visa.svg" alt="Visa" style="display:block; height:11px; width:auto;">

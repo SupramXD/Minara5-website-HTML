@@ -20,7 +20,7 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
-  <link rel="modulepreload" href="header.js?v=20261005b">
+  <link rel="modulepreload" href="header.js?v=20261013">
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4B_Kidu4QPFaNKMm8L9bKDR-F72ZpfiI&v=weekly&loading=async&callback=initGooglePlaces"
     async defer></script>
@@ -366,48 +366,42 @@
       background: #eaeaea;
     }
 
-    /* Payment method tiles. Clicking a tile IS the checkout action: it remembers
-       the gateway, then submits the form so the browser's own required-field
-       validation runs before we call the gateway. There is no radio group and no
-       separate "continue to payment" button. The two gateways stack vertically
-       behind a hairline rule - side by side they read as a compare-and-choose
-       grid - and every tile says out loud that the tap hands the browser over to
-       the gateway's own hosted page. */
+    /* Payment method: an explicit two-step choice. The rows below are radio-style
+       SELECTORS only - a tap selects and does nothing else - and #payBtn is the
+       single action. That button submits the form, so the browser's own required
+       field validation runs first, and only then does the page hand the browser
+       over to the chosen gateway's hosted payment page. The old tap-to-pay tiles
+       read as static info boxes (brand marks + small print, no control chrome),
+       which is why the payment step looked un-clickable, and a stray tap could
+       fire a redirect. The brand marks now live in their own strip above
+       (.pay-brands), grouped per gateway, so the rows stay short. */
     .payment-methods {
       display: flex;
       flex-direction: column;
-    }
-
-    /* Hairline between the two stacked gateway tiles. */
-    .payment-divider {
-      height: 1px;
-      background: #d9d9d9;
-      margin: 12px 0;
+      gap: 10px;
     }
 
     .payment-tile {
       display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
       width: 100%;
-      border: 1px solid #eaeaea;
-      background: #fafafa;
-      padding: 14px;
+      border: 1px solid #dcdcdc;
+      background: #ffffff;
+      padding: 14px 16px;
       cursor: pointer;
       font-family: inherit;
       text-align: left;
-      transition: border-color 0.15s ease, background 0.15s ease;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
     .payment-tile:hover {
-      border-color: #bdbdbd;
-      background: #ffffff;
+      border-color: #8a8a8a;
     }
 
     .payment-tile.selected {
       border-color: #000000;
-      background: #ffffff;
       box-shadow: inset 0 0 0 1px #000000;
     }
 
@@ -416,12 +410,42 @@
       cursor: wait;
     }
 
-    .payment-tile-badges {
-      display: flex;
+    /* The radio dot is the one thing that says "this row is a choice". */
+    .payment-tile-radio {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      border: 1px solid #b5b5b5;
+      border-radius: 50%;
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      min-height: 20px;
+      justify-content: center;
+      transition: border-color 0.15s ease;
+    }
+
+    .payment-tile-radio::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #000000;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .payment-tile.selected .payment-tile-radio {
+      border-color: #000000;
+    }
+
+    .payment-tile.selected .payment-tile-radio::after {
+      opacity: 1;
+    }
+
+    .payment-tile-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
     }
 
     .payment-tile-title {
@@ -435,38 +459,64 @@
 
     .payment-tile-sub {
       font-size: 10.5px;
-      color: #555555;
+      color: #6b7280;
       line-height: 1.4;
     }
 
-    /* The redirect cue every tile ends with: an arrow plus the gateway host the
-       browser is about to leave for. Upper case + bold so it reads as an action,
-       not as small print. */
-    .payment-tile-go {
+    /* The one payment action on the form: same lime as the bag drawer's
+       "CONTINUE TO CHECKOUT" button, so the eye already knows what a primary
+       action looks like on this site. */
+    .pay-continue-btn {
       display: flex;
       align-items: center;
-      gap: 7px;
+      justify-content: center;
+      gap: 9px;
       width: 100%;
-      margin-top: 2px;
-      padding-top: 9px;
-      border-top: 1px dashed #e0e0e0;
-      font-family: 'Gotham Narrow Bold', sans-serif;
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
+      background: #ccff00;
       color: #000000;
-      line-height: 1.3;
+      border: 1px solid #000000;
+      padding: 15px 16px;
+      font-family: 'Gotham Narrow Bold', sans-serif;
+      font-size: 11.5px;
+      font-weight: bold;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
     }
 
-    .payment-tile-go svg {
+    /* Invert on hover: the lime is too light for a brighter tint (it reads as
+       disabled), so the button flips to ink + lime instead. */
+    .pay-continue-btn:hover {
+      background: #000000;
+      color: #ccff00;
+    }
+
+    .pay-continue-btn:disabled {
+      background: #f1f1f1;
+      border-color: #cfcfcf;
+      color: #8a8a8a;
+      cursor: wait;
+    }
+
+    .pay-continue-btn svg {
       flex-shrink: 0;
+    }
+
+    .pay-continue-note {
+      margin-top: 9px;
+      font-size: 10px;
+      color: #8a8a8a;
+      text-align: center;
+      line-height: 1.45;
     }
 
     /* ONE shared payment-brand badge chip used everywhere on the site (assets in
        images/payments). Every chip is 20px tall and every wordmark logo renders
        at 11px; the Mastercard mark is a graphic with no wordmark, so it takes
-       13px to carry the same optical weight as the wordmarks. */
+       13px to carry the same optical weight as the wordmarks. The Yoco wordmark
+       is the brand-blue copy (yoco-blue.svg, sampled #00A9E0 from the official
+       lockup) because every chip in the site is a white chip. */
     .pay-badge {
       height: 20px;
       padding: 0 6px;
@@ -500,6 +550,56 @@
 
     .pay-badge.pay-badge-mark img {
       height: 20px;
+    }
+
+    /* Accepted-brand strips. The payment block, the trust cards and the bag
+       drawer all use this: the marks sit in their own row so the payment
+       selector rows stay text-only, and each gateway's marks are grouped behind
+       a hairline - cards under Yoco, bank transfer under Ozow. */
+    .pay-brands {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .pay-brand-group {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pay-brand-divider {
+      width: 1px;
+      align-self: stretch;
+      min-height: 20px;
+      background: #e2e2e2;
+    }
+
+    .pay-brands-compact {
+      margin: 12px 0 0;
+      gap: 6px;
+    }
+
+    /* Instant EFT chip: the one type-drawn mark in the strips. No official Ozow
+       "Instant EFT" lockup exists at badge size, so the chip reuses the bank
+       glyph from the trust card and matches the logo chips exactly (20px chip,
+       6px side padding, 11px mark). */
+    .pay-badge-eft {
+      gap: 4px;
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 8.5px;
+      font-weight: bold;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: #111111;
+      white-space: nowrap;
+    }
+
+    .pay-badge-eft svg {
+      flex-shrink: 0;
     }
 
     @keyframes spin {
@@ -744,7 +844,9 @@
       color: #000;
     }
 
-    /* Trust block */
+    /* Trust block. One card per promise, one sentence each - the copy used to
+       carry a full paragraph per gateway, which is what made the column read as
+       clutter. */
     .checkout-trust {
       display: flex;
       flex-direction: column;
@@ -759,23 +861,39 @@
 
     .trust-card {
       display: flex;
-      align-items: flex-start;
-      gap: 12px;
+      flex-direction: column;
+      gap: 6px;
+      border: 1px solid #eaeaea;
+      border-radius: 0px;
+      background: #fafafa;
+      padding: 14px 16px;
     }
 
-    .trust-card-icon {
-      font-size: 14px;
-      opacity: 0.8;
+    .trust-card-head {
+      display: flex;
+      align-items: center;
+      gap: 9px;
     }
 
-    .trust-card-content {
-      color: #666;
+    .trust-card-head-icon {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      background: #000000;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .trust-card-line {
+      color: #555555;
+      line-height: 1.45;
     }
 
     .trust-card-title {
       font-weight: bold;
+      font-size: 11.5px;
       color: #000;
-      margin-bottom: 2px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -2091,6 +2209,59 @@
       renderCheckoutPage();
     });
 
+    // One pricing resolver for the whole page: the central cart resolver when it is
+    // loaded, otherwise an exact mirror of it. The summary, the conditional
+    // free-shipping card and the amount handed to the gateway all read this one
+    // object, so they can never disagree. (The old inline fallback tested the
+    // free-shipping threshold on the PRE-discount subtotal, so a cart that the
+    // drawer showed as shipping-free could still be charged R85 here.)
+    window.getCheckoutPricing = function (items) {
+      if (typeof window.calculateCartPricing === "function") {
+        return window.calculateCartPricing(items);
+      }
+
+      // Mirror of isCartBundleItem() in js/core/cart.js: scented/bottle-count/
+      // premium items are not "single standard bottles" and never earn the 2+ discount.
+      const isBundleItem = function (item) {
+        if (item.selectedScents && Array.isArray(item.selectedScents) && item.selectedScents.length > 0) return true;
+        if (item.bottleCount && item.bottleCount > 1) return true;
+        if (Number(item.priceExtra) > 0) return true;
+        if (String(item.bottleCustomisation || "").toUpperCase().includes("PREMIUM")) return true;
+        const hay = (String(item.name || "") + " " + String(item.nameShort || "") + " " + String(item.id || "")).toLowerCase();
+        return /bundle|set of|trio|duo|2 bottle|3 bottle|5 bottle|box set|collection|pack/.test(hay);
+      };
+
+      const priceOf = function (item) {
+        return ((Number(item.price) || 0) + (Number(item.priceExtra) || 0)) * (item.quantity || 1);
+      };
+
+      const totalBottles = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      const rawSubtotal = items.reduce((sum, item) => sum + priceOf(item), 0);
+
+      // 2+ Bottle Savings applies only when there is no bundle in the cart.
+      const hasBundleInCart = items.some(item => isBundleItem(item));
+      const singleBottleCount = (hasBundleInCart ? [] : items.filter(item => !isBundleItem(item)))
+        .reduce((sum, item) => sum + (item.quantity || 1), 0);
+      const bundleDiscount = singleBottleCount >= 2 ? (singleBottleCount - 1) * 241 : 0;
+
+      const subtotalAfterBundle = Math.max(0, rawSubtotal - bundleDiscount);
+      const newsletterDiscountAmount = localStorage.getItem("minara_discount_5") === "active"
+        ? Math.round(subtotalAfterBundle * 0.05)
+        : 0;
+      // Free shipping is decided on the subtotal AFTER the 2+ bottle discount (R650+).
+      const shippingFee = subtotalAfterBundle >= 650 ? 0 : 85;
+
+      return {
+        totalBottles,
+        rawSubtotal,
+        bundleDiscount,
+        subtotalAfterBundle,
+        newsletterDiscountAmount,
+        shippingFee,
+        finalTotal: subtotalAfterBundle - newsletterDiscountAmount + shippingFee
+      };
+    };
+
     function renderCheckoutPage() {
       const content = document.getElementById("checkoutContent");
       if (!content) return;
@@ -2120,15 +2291,9 @@
         return;
       }
 
-      // Calculate totals using central calculateCartPricing
-      const pricing = window.calculateCartPricing ? window.calculateCartPricing(activeItems) : {
-        totalBottles: activeItems.reduce((sum, item) => sum + item.quantity, 0),
-        rawSubtotal: activeItems.reduce((sum, item) => sum + (((Number(item.price) || 0) + (Number(item.priceExtra) || 0)) * item.quantity), 0),
-        bundleDiscount: 0,
-        newsletterDiscountAmount: 0,
-        shippingFee: activeItems.reduce((sum, item) => sum + (((Number(item.price) || 0) + (Number(item.priceExtra) || 0)) * item.quantity), 0) >= 650 ? 0 : 85,
-        finalTotal: activeItems.reduce((sum, item) => sum + (((Number(item.price) || 0) + (Number(item.priceExtra) || 0)) * item.quantity), 0)
-      };
+      // Calculate totals with the page's single pricing resolver, so the summary, the
+      // free-shipping card and the gateway amount all use the same numbers.
+      const pricing = window.getCheckoutPricing(activeItems);
 
       const subtotal = pricing.rawSubtotal;
       const bundleDiscount = pricing.bundleDiscount || 0;
@@ -2341,47 +2506,63 @@
               <div style="font-size: 10.5px; color: #9ca3af; margin-top: 5px;">We'll use this to keep you updated about your order.</div>
             </div>
 
-            <!-- Payment method: tapping a tile starts that gateway immediately --
-                 there is no selector + "continue to payment" button any more. The
-                 two gateways stack vertically behind a hairline rule and every
-                 tile states the redirect out loud, so nobody is surprised by
-                 landing on Yoco's or Ozow's own page. -->
+            <!-- Payment: choose a method, then one button pays. The rows are
+                 selectors only (radio-style) and #payBtn is the single action - it
+                 submits the form so the browser's own required-field validation
+                 runs, then hands the browser to the chosen gateway's hosted page.
+                 The accepted-brand marks sit in their own strip above, grouped per
+                 gateway, so the rows stay text-only. -->
             <div style="margin-top: 30px;">
-              <div class="section-title" style="margin-bottom: 10px;">How would you like to pay?</div>
-              <div style="font-size: 10.5px; color: #6b7280; margin-bottom: 10px;">Both methods take you off this site to pay. Tapping a tile redirects your browser to that provider's own secure payment page - Yoco for cards, Ozow for instant EFT.</div>
-              <div class="payment-methods">
-                <button type="button" class="payment-tile selected" data-gateway="yoco" aria-pressed="true" onclick="window.selectGateway('yoco')">
-                  <span class="payment-tile-badges">
-                    <span class="pay-badge" title="Card payments by Yoco"><img src="images/payments/yoco.svg" alt="Yoco"></span>
-                    <span class="pay-badge" title="Visa"><img src="images/payments/visa.svg" alt="Visa"></span>
-                    <span class="pay-badge" title="Mastercard"><img class="badge-symbol" src="images/payments/mastercard.svg" alt="Mastercard"></span>
-                    <span class="pay-badge" title="Google Pay"><img src="images/payments/googlepay.svg" alt="Google Pay"></span>
-                    <span class="pay-badge pay-badge-mark" title="Apple Pay"><img src="images/payments/applepay.svg" alt="Apple Pay"></span>
+              <div class="section-title" style="margin-bottom: 12px;">Payment method</div>
+
+              <!-- Accepted brands, split per gateway: cards under Yoco, bank
+                   transfer under Ozow. -->
+              <div class="pay-brands" aria-label="Accepted payment methods">
+                <span class="pay-brand-group">
+                  <span class="pay-badge" title="Card payments by Yoco"><img src="images/payments/yoco-blue.svg" alt="Yoco"></span>
+                  <span class="pay-badge" title="Visa"><img src="images/payments/visa.svg" alt="Visa"></span>
+                  <span class="pay-badge" title="Mastercard"><img class="badge-symbol" src="images/payments/mastercard.svg" alt="Mastercard"></span>
+                  <span class="pay-badge" title="Google Pay"><img src="images/payments/googlepay.svg" alt="Google Pay"></span>
+                  <span class="pay-badge pay-badge-mark" title="Apple Pay"><img src="images/payments/applepay.svg" alt="Apple Pay"></span>
+                </span>
+                <span class="pay-brand-divider" aria-hidden="true"></span>
+                <span class="pay-brand-group">
+                  <span class="pay-badge" title="Instant EFT by Ozow"><img src="images/payments/ozow.png" alt="Ozow Instant EFT"></span>
+                  <span class="pay-badge pay-badge-eft" title="Instant EFT bank transfer">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10h18"></path><path d="M5 6l7-3 7 3"></path><path d="M4 10v10"></path><path d="M9 10v10"></path><path d="M15 10v10"></path><path d="M20 10v10"></path><path d="M3 20h18"></path></svg>
+                    <span>Instant EFT</span>
                   </span>
-                  <span class="payment-tile-title">Pay by card</span>
-                  <span class="payment-tile-sub">Visa, Mastercard, Google Pay and Apple Pay, processed on Yoco's PCI-DSS compliant payment page.</span>
-                  <span class="payment-tile-go">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path></svg>
-                    <span>You'll be redirected to c.yoco.com</span>
+                </span>
+              </div>
+
+              <div class="payment-methods" role="radiogroup" aria-label="Payment method">
+                <button type="button" class="payment-tile selected" data-gateway="yoco" role="radio" aria-checked="true" onclick="window.selectGateway('yoco')">
+                  <span class="payment-tile-radio" aria-hidden="true"></span>
+                  <span class="payment-tile-text">
+                    <span class="payment-tile-title">Pay by card</span>
+                    <span class="payment-tile-sub">Yoco's secure page takes Visa, Mastercard, Google Pay and Apple Pay.</span>
                   </span>
                 </button>
-                <div class="payment-divider" aria-hidden="true"></div>
-                <button type="button" class="payment-tile" data-gateway="ozow" aria-pressed="false" onclick="window.selectGateway('ozow')">
-                  <span class="payment-tile-badges">
-                    <span class="pay-badge" title="Instant EFT by Ozow"><img src="images/payments/ozow.png" alt="Ozow Instant EFT"></span>
-                  </span>
-                  <span class="payment-tile-title">Instant EFT</span>
-                  <span class="payment-tile-sub">Pay straight from your South African bank account - no card needed. Secured by Ozow.</span>
-                  <span class="payment-tile-go">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path></svg>
-                    <span>You'll be redirected to pay.ozow.com</span>
+                <button type="button" class="payment-tile" data-gateway="ozow" role="radio" aria-checked="false" onclick="window.selectGateway('ozow')">
+                  <span class="payment-tile-radio" aria-hidden="true"></span>
+                  <span class="payment-tile-text">
+                    <span class="payment-tile-title">Instant EFT</span>
+                    <span class="payment-tile-sub">Pay from your bank account, no card needed &mdash; secured by Ozow.</span>
                   </span>
                 </button>
               </div>
-              <div style="font-size: 10.5px; color: #6b7280; margin-top: 12px;">Both tiles open the gateway's page in this window - you come straight back here once the payment is done. Free Courier Guy express shipping is included.</div>
+
+              <!-- The one payment action: lime, full width, lock + arrow - so it
+                   cannot be mistaken for decoration the way the old tiles were. -->
+              <button type="button" id="payBtn" class="pay-continue-btn" style="margin-top: 18px;" onclick="window.submitPayment()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="1" ry="1"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span id="payBtnLabel">Continue to Yoco</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path></svg>
+              </button>
+              <div id="payRedirectNote" class="pay-continue-note">You pay on Yoco's own secure page and come straight back here.</div>
             </div>
 
-            <!-- Payment progress (replaces the old continue button) -->
+            <!-- Payment progress: shown while the gateway session is created -->
             <div id="payStatus" role="status" style="display: none; margin-top: 20px; padding: 14px; background: #fafafa; border: 1px solid #eaeaea; border-left: 2px solid #000000; font-size: 11.5px; color: #111111; align-items: center; gap: 10px;"></div>
 
             <!-- Payment error surface: shows the gateway's real reason instead of a dead-end alert -->
@@ -2425,62 +2606,66 @@
             </div>
           </div>
 
-          <!-- Gateway trust blocks: one block per gateway, and each block carries
-               ONLY its own brand marks (the Ozow mark never sits inside the Yoco
-               block any more). -->
+          <!-- Gateway trust blocks: one card per promise, each carrying ONLY its
+               own brand marks and a single sentence of copy (the old cards ran a
+               full paragraph each, which is what made this column read as
+               clutter). The shipping card is rendered only when the order really
+               does ship free - see the conditional below. -->
           <div class="checkout-trust">
-            <div class="trust-card" style="border: 1px solid #eaeaea; background: #fafafa; padding: 16px; border-radius: 0px; margin-bottom: 12px;">
-              <div style="display: flex; align-items: flex-start; gap: 12px;">
-                <div style="width: 28px; height: 28px; border-radius: 0px; background: #000000; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="1" ry="1"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                </div>
-                <div class="trust-card-content">
-                  <div class="trust-card-title" style="font-weight: bold; font-size: 12px; color: #000000; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Secured by Yoco</div>
-                  <div style="font-size: 11px; color: #555555; line-height: 1.45;">
-                    Card payments are encrypted with bank-grade 256-bit SSL and processed on Yoco's PCI-DSS compliant payment page (c.yoco.com) - tapping Pay by card redirects you there.
-                  </div>
-                  <div style="display: flex; gap: 6px; align-items: center; margin-top: 12px; flex-wrap: wrap;">
-                    <span class="pay-badge" title="Card payments by Yoco"><img src="images/payments/yoco.svg" alt="Yoco"></span>
-                    <span class="pay-badge" title="Visa"><img src="images/payments/visa.svg" alt="Visa"></span>
-                    <span class="pay-badge" title="Mastercard"><img class="badge-symbol" src="images/payments/mastercard.svg" alt="Mastercard"></span>
-                    <span class="pay-badge" title="Google Pay"><img src="images/payments/googlepay.svg" alt="Google Pay"></span>
-                    <span class="pay-badge pay-badge-mark" title="Apple Pay"><img src="images/payments/applepay.svg" alt="Apple Pay"></span>
-                  </div>
-                </div>
+            <div class="trust-card">
+              <div class="trust-card-head">
+                <span class="trust-card-head-icon">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="1" ry="1"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </span>
+                <span class="trust-card-title">Secured by Yoco</span>
+              </div>
+              <div class="trust-card-line">Card details go straight to Yoco's PCI-DSS compliant page &mdash; we never see them.</div>
+              <div class="pay-brands pay-brands-compact">
+                <span class="pay-brand-group">
+                  <span class="pay-badge" title="Card payments by Yoco"><img src="images/payments/yoco-blue.svg" alt="Yoco"></span>
+                  <span class="pay-badge" title="Visa"><img src="images/payments/visa.svg" alt="Visa"></span>
+                  <span class="pay-badge" title="Mastercard"><img class="badge-symbol" src="images/payments/mastercard.svg" alt="Mastercard"></span>
+                  <span class="pay-badge" title="Google Pay"><img src="images/payments/googlepay.svg" alt="Google Pay"></span>
+                  <span class="pay-badge pay-badge-mark" title="Apple Pay"><img src="images/payments/applepay.svg" alt="Apple Pay"></span>
+                </span>
               </div>
             </div>
 
             <!-- Instant EFT trust block (Ozow) -->
-            <div class="trust-card" style="border: 1px solid #eaeaea; background: #fafafa; padding: 16px; border-radius: 0px; margin-bottom: 12px;">
-              <div style="display: flex; align-items: flex-start; gap: 12px;">
-                <div style="width: 28px; height: 28px; border-radius: 0px; background: #000000; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18"></path><path d="M5 6l7-3 7 3"></path><path d="M4 10v10"></path><path d="M9 10v10"></path><path d="M15 10v10"></path><path d="M20 10v10"></path><path d="M3 20h18"></path></svg>
-                </div>
-                <div class="trust-card-content">
-                  <div class="trust-card-title" style="font-weight: bold; font-size: 12px; color: #000000; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Instant EFT by Ozow</div>
-                  <div style="font-size: 11px; color: #555555; line-height: 1.45;">
-                    Pay straight from your South African bank account, no card needed. You authorise the payment on Ozow's PCI-DSS compliant, 256-bit encrypted page (pay.ozow.com) and your banking details are never shared with us.
-                  </div>
-                  <div style="display: flex; gap: 6px; align-items: center; margin-top: 12px; flex-wrap: wrap;">
-                    <span class="pay-badge" title="Instant EFT by Ozow"><img src="images/payments/ozow.png" alt="Ozow Instant EFT"></span>
-                  </div>
-                </div>
+            <div class="trust-card">
+              <div class="trust-card-head">
+                <span class="trust-card-head-icon">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10h18"></path><path d="M5 6l7-3 7 3"></path><path d="M4 10v10"></path><path d="M9 10v10"></path><path d="M15 10v10"></path><path d="M20 10v10"></path><path d="M3 20h18"></path></svg>
+                </span>
+                <span class="trust-card-title">Instant EFT by Ozow</span>
+              </div>
+              <div class="trust-card-line">You authorise it inside your own banking app &mdash; your banking details never reach us.</div>
+              <div class="pay-brands pay-brands-compact">
+                <span class="pay-brand-group">
+                  <span class="pay-badge" title="Instant EFT by Ozow"><img src="images/payments/ozow.png" alt="Ozow Instant EFT"></span>
+                  <span class="pay-badge pay-badge-eft" title="Instant EFT bank transfer">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10h18"></path><path d="M5 6l7-3 7 3"></path><path d="M4 10v10"></path><path d="M9 10v10"></path><path d="M15 10v10"></path><path d="M20 10v10"></path><path d="M3 20h18"></path></svg>
+                    <span>Instant EFT</span>
+                  </span>
+                </span>
               </div>
             </div>
             
-            <div class="trust-card" style="border: 1px solid #eaeaea; background: #fafafa; padding: 16px; border-radius: 0px;">
-              <div style="display: flex; align-items: flex-start; gap: 12px;">
-                <div style="width: 28px; height: 28px; border-radius: 0px; background: #000000; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-                </div>
-                <div class="trust-card-content">
-                  <div class="trust-card-title" style="font-weight: bold; font-size: 12px; color: #000000; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Free Express Shipping</div>
-                  <div style="font-size: 11px; color: #555555; line-height: 1.45;">
-                    Dispatched nationwide via The Courier Guy with door-to-door tracking.
-                  </div>
-                </div>
+            ${shippingFee === 0 ? `
+            <!-- Free-shipping card: rendered ONLY when this order really does ship
+                 free (R650+ after the 2-bottle discount). A "Free Express Shipping"
+                 card sitting next to a shipping charge in the summary above reads as
+                 a lie, so it is conditional rather than static. -->
+            <div class="trust-card">
+              <div class="trust-card-head">
+                <span class="trust-card-head-icon">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                </span>
+                <span class="trust-card-title">Free Express Shipping</span>
               </div>
+              <div class="trust-card-line">The Courier Guy door-to-door delivery with tracking.</div>
             </div>
+            ` : ''}
           </div>
         </div>
 
@@ -2508,22 +2693,30 @@
     }
 
     // --- Gateway choice -------------------------------------------------------
-    // The customer picks the gateway by tapping a payment tile on the form: Yoco
-    // for cards, Ozow for instant EFT. Both are created server-side and both hand
-    // the browser a hosted payment page, so the rest of the flow is identical.
-    // There is no radio group and no "continue to payment" button any more - the
-    // tile tap IS the checkout action.
+    // Choosing a gateway is a two-step, radio-style decision: tapping a tile only
+    // SELECTS it (a stray tap can no longer fire a redirect) and the single
+    // #payBtn button is the one action that pays. Yoco handles cards, Ozow handles
+    // instant EFT; both are created server-side and both hand the browser a hosted
+    // payment page, so the rest of the flow is identical.
     window.__extraitGateway = 'yoco';
 
     window.getSelectedPaymentMethod = function () {
       return window.__extraitGateway === 'ozow' ? 'ozow' : 'yoco';
     };
 
-    // Remember the choice, then submit the form so the browser's own required
-    // field validation runs before we talk to the gateway.
+    // Selecting is only selecting: remember the choice, repaint the rows and
+    // snapshot the draft. Nothing else happens here.
     window.selectGateway = function (gateway) {
       window.__extraitGateway = gateway === 'ozow' ? 'ozow' : 'yoco';
       window.updatePaymentMethodUI(window.__extraitGateway);
+      window.saveCheckoutDraft();
+    };
+
+    // The one payment action (#payBtn). It submits the form so the browser's own
+    // required-field validation runs BEFORE we talk to the gateway: requestSubmit()
+    // fires the form's onsubmit, and older browsers fall back to a manual validity
+    // check and finally to the browser's own invalid-field bubble.
+    window.submitPayment = function () {
       window.saveCheckoutDraft();
 
       const form = document.getElementById('checkoutDetailsForm');
@@ -2537,28 +2730,36 @@
       }
     };
 
-    // Keyboard users press Enter inside a field instead of tapping a tile. Because
-    // the tiles are plain buttons there is no submit button in the form, so re-run
-    // the tile flow with the gateway they last picked - that still runs the
-    // browser's own required-field validation.
+    // Keyboard users press Enter inside a field rather than reaching for #payBtn.
+    // Enter on a button is handled natively, so only field-level Enter is
+    // intercepted - and it runs the same submit, which means the browser's own
+    // required-field validation still runs before we touch the gateway.
     window.handleFormKeydown = function (event) {
       if (!event || event.key !== 'Enter' || event.shiftKey) return;
       const tag = event.target && event.target.tagName ? String(event.target.tagName).toUpperCase() : '';
       if (tag === 'BUTTON' || tag === 'TEXTAREA') return;
       event.preventDefault();
-      window.selectGateway(window.getSelectedPaymentMethod());
+      window.submitPayment();
     };
 
-    // Keep the tapped tile highlighted. The trust blocks under the order summary
-    // no longer swap copy: every gateway owns its own block now.
+    // Keep the chosen row highlighted with real radio semantics (aria-checked) and
+    // re-label the single pay button + its redirect note for that gateway, so the
+    // button always says exactly where the customer is about to be sent.
     window.updatePaymentMethodUI = function (gateway) {
       const resolved = gateway === 'ozow' ? 'ozow' : 'yoco';
+      const label = resolved === 'ozow' ? 'Ozow' : 'Yoco';
 
       document.querySelectorAll('.payment-tile').forEach((tile) => {
         const active = tile.getAttribute('data-gateway') === resolved;
         tile.classList.toggle('selected', active);
-        tile.setAttribute('aria-pressed', active ? 'true' : 'false');
+        tile.setAttribute('aria-checked', active ? 'true' : 'false');
       });
+
+      const payLabel = document.getElementById('payBtnLabel');
+      if (payLabel) payLabel.textContent = 'Continue to ' + label;
+
+      const note = document.getElementById('payRedirectNote');
+      if (note) note.textContent = 'You pay on ' + label + "'s own secure page and come straight back here.";
 
       const box = document.getElementById('paymentError');
       if (box) {
@@ -2583,10 +2784,15 @@
       status.innerHTML = '';
     };
 
+    // Lock the whole payment step (both rows and #payBtn) while the gateway session
+    // is being created, so nobody double-submits into two live sessions.
     window.setPaymentTilesDisabled = function (disabled) {
       document.querySelectorAll('.payment-tile').forEach((tile) => {
         tile.disabled = !!disabled;
       });
+
+      const payBtn = document.getElementById('payBtn');
+      if (payBtn) payBtn.disabled = !!disabled;
     };
 
     // Surface the gateway's real reason (the Cloud Function passes one through)
@@ -2619,7 +2825,8 @@
         errorBox.style.display = 'none';
         errorBox.innerHTML = '';
       }
-      // There is no pay button any more: lock the tiles and show the progress line.
+      // Lock the payment step (both method rows and #payBtn) and show the progress
+      // line while the gateway session is created server-side.
       window.setPaymentTilesDisabled(true);
       window.setPayStatus('Securing your ' + gatewayLabel + ' payment...');
 
@@ -2664,10 +2871,9 @@
       const instructions = document.getElementById("c_instructions").value.trim();
       const deliveryDate = document.getElementById("displayDeliveryDate") ? document.getElementById("displayDeliveryDate").textContent.trim() : "";
 
-      // Calculate dynamic pricing totals using central calculateCartPricing
-      const pricing = window.calculateCartPricing ? window.calculateCartPricing(activeItems) : {
-        finalTotal: activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-      };
+      // Same resolver the summary used, so the amount sent to the gateway is exactly
+      // the amount the customer just read on screen.
+      const pricing = window.getCheckoutPricing(activeItems);
       const finalTotal = pricing.finalTotal;
 
       // Compile delivery address
@@ -2876,7 +3082,7 @@
     window.addEventListener('beforeunload', window.saveCheckoutDraft);
   </script>
 
-  <script type="module" src="header.js?v=20261005b"></script>
+  <script type="module" src="header.js?v=20261013"></script>
 
 </body>
 
