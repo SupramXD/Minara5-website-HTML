@@ -1676,7 +1676,7 @@
       // The autofill writes fields programmatically (no input event), so if this was
       // the last thing the order was waiting for, the gateway session is warmed here
       // instead of only on the next keystroke.
-      if (typeof window.schedulePaymentWarm === 'function') window.schedulePaymentWarm(700);
+      if (typeof window.schedulePaymentWarm === 'function') window.schedulePaymentWarm(400);
     };
 
     // Opens the form only when something is actually missing, so a lookup that filled
@@ -2859,7 +2859,7 @@
         // gateway session early when a restored draft is already a complete order
         // (see warmPaymentSession - it does nothing until the form is really ready).
         window.attachPaymentWarmTriggers();
-        window.schedulePaymentWarm(600);
+        window.schedulePaymentWarm(300);
 
         if (typeof window.initGooglePlaces === "function") {
           window.initGooglePlaces();
@@ -2978,8 +2978,52 @@
     // nothing. Every input that decides the order (cart, pricing, address, contact
     // details) is part of the fingerprint, so the moment one of them changes the warm
     // session no longer matches and a fresh one is created for the new order.
-    window.__payWarm = null;
+    // Every warm session lives in a small map keyed by gateway + exact order payload
+    // (see gatewayWarmKey). Two entries at most - the chosen gateway and the other one -
+    // so whichever row the customer taps is already created.
+    window.__payWarm = Object.create(null);
     let payWarmTimer = null;
+    let payWarmOtherTimer = null;
+
+    // Warming BOTH gateways costs one extra hosted session per COMPLETE form (sessions
+    // only expire, they charge nothing), and it is what makes "tap Instant EFT, then tap
+    // Continue" instant as well: without it that customer - the one whose gateway page is
+    // the slowest - is the only one who still waits for a cold session. Set this to false
+    // to warm the chosen gateway only.
+    const PAY_WARM_BOTH_GATEWAYS = true;
+
+    // --- Opt-in timing readout (?paytimer=1) ---------------------------------
+    // The hand-off is the one step whose speed the customer feels, and the only real
+    // numbers come from a real device on a real network - so the page can be asked to
+    // print its own stops. With ?paytimer=1 it shows when each gateway session was asked
+    // for, when it came back, what the click itself had to wait for, and when the browser
+    // was handed the gateway URL. Off, and free, unless the query string asks for it.
+    const PAY_TIMER_ON = /(?:[?&])paytimer=1(?:&|$)/.test(window.location.search);
+    const payTimings = [];
+
+    function payTimerMark(name) {
+      if (!PAY_TIMER_ON) return;
+      payTimings.push({ name: name, at: performance.now() });
+      paintPayTimer();
+    }
+
+    function paintPayTimer() {
+      const anchor = document.getElementById('payRedirectNote');
+      if (!anchor || !anchor.parentNode) return;
+
+      let box = document.getElementById('payTimerBox');
+      if (!box) {
+        box = document.createElement('div');
+        box.id = 'payTimerBox';
+        box.style.cssText = 'margin-top: 8px; font-size: 10.5px; color: #6b7280; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; line-height: 1.6; white-space: pre-line; word-break: break-word;';
+        anchor.parentNode.insertBefore(box, anchor.nextSibling);
+      }
+
+      box.textContent = payTimings.map((mark, index) => {
+        const delta = index === 0 ? 0 : mark.at - payTimings[index - 1].at;
+        return mark.name + '  +' + (delta / 1000).toFixed(2) + 's  (' + (mark.at / 1000).toFixed(2) + 's)';
+      }).join('\n');
+    }
 
     const FUNCTIONS_BASE = 'https://us-central1-minara5.cloudfunctions.net';
 
@@ -3137,32 +3181,77 @@
       }
     }
 
-    // Creates (or returns) the session for exactly this order. Returns null when there
-    // is nothing worth warming yet.
-    window.warmPaymentSession = function () {
+    // Creates (or returns) ONE gateway's session for exactly this order. Returns null
+    // when there is nothing worth warming yet.
+    function warmGatewayNow(gateway) {
       if (!checkoutFormIsReady()) return null;
 
       const order = collectCheckoutOrder();
       if (!order) return null;
 
-      const gateway = window.getSelectedPaymentMethod();
-      const key = gatewayWarmKey(gateway, order.payload);
-      if (window.__payWarm && window.__payWarm.key === key) return window.__payWarm.promise;
+      const resolved = gateway === 'ozow' ? 'ozow' : 'yoco';
+      const key = gatewayWarmKey(resolved, order.payload);
+      const existing = window.__payWarm[key];
+      if (existing) return existing.promise;
 
-      const promise = createGatewaySession(gateway, order.payload).then((data) => {
+      const record = { key, gateway: resolved, createdAt: Date.now(), settledAt: 0, settled: false, promise: null };
+      record.promise = createGatewaySession(resolved, order.payload).then((data) => {
+        record.settled = true;
+        record.settledAt = Date.now();
         if (data && data.redirectUrl) warmGatewayDestination(data.redirectUrl);
+        payTimerMark('ready(' + resolved + ')');
         return data;
       });
 
-      window.__payWarm = { key, gateway, createdAt: Date.now(), promise };
+      window.__payWarm[key] = record;
+      payTimerMark('warm(' + resolved + ')');
+
+      // Any other session for this gateway was built from an order that no longer exists
+      // (the fingerprint changed), so it can never be reused: drop it instead of letting
+      // the map grow, and so a stale record can never be mistaken for the current one.
+      // The map therefore holds at most one session per gateway.
+      Object.keys(window.__payWarm).forEach((otherKey) => {
+        if (otherKey !== key && window.__payWarm[otherKey].gateway === resolved) {
+          delete window.__payWarm[otherKey];
+        }
+      });
 
       // A failed warm-up must never surface as an unhandled rejection, and must never
       // be reused as if it were a live session.
-      promise.catch(() => {
-        if (window.__payWarm && window.__payWarm.key === key) window.__payWarm = null;
+      record.promise.catch(() => {
+        if (window.__payWarm[key] === record) delete window.__payWarm[key];
       });
 
-      return promise;
+      return record.promise;
+    }
+
+    // A session the customer was already handed is never reused: it may have been opened
+    // (or cancelled) on the gateway's side, and reusing it is how a customer ends up
+    // looking at a dead payment page. A fresh one is created for the retry instead.
+    window.forgetWarmSessions = function () {
+      Object.keys(window.__payWarm).forEach((key) => { delete window.__payWarm[key]; });
+      if (payWarmOtherTimer) {
+        clearTimeout(payWarmOtherTimer);
+        payWarmOtherTimer = null;
+      }
+    };
+
+    // The chosen gateway first, then - a beat later - the other one, so whichever row the
+    // customer taps is already created (see PAY_WARM_BOTH_GATEWAYS).
+    window.warmPaymentSession = function () {
+      const primary = warmGatewayNow(window.getSelectedPaymentMethod());
+      if (!primary || !PAY_WARM_BOTH_GATEWAYS) return primary;
+
+      const other = window.getSelectedPaymentMethod() === 'yoco' ? 'ozow' : 'yoco';
+      if (payWarmOtherTimer) clearTimeout(payWarmOtherTimer);
+      payWarmOtherTimer = setTimeout(() => {
+        payWarmOtherTimer = null;
+        // Re-read the form and the cart: the second session is built from whatever the
+        // order looks like when it is actually created, never from a stale snapshot.
+        warmGatewayNow(other);
+      }, 400);
+
+      return primary;
     };
 
     window.schedulePaymentWarm = function (delay) {
@@ -3170,7 +3259,7 @@
       payWarmTimer = setTimeout(() => {
         payWarmTimer = null;
         window.warmPaymentSession();
-      }, typeof delay === 'number' ? delay : 700);
+      }, typeof delay === 'number' ? delay : 400);
     };
 
     // The moments that mean "this order is real": an edit to a form that is already
@@ -3180,7 +3269,7 @@
       const form = document.getElementById('checkoutDetailsForm');
       if (form && form.dataset.warmBound !== 'true') {
         form.dataset.warmBound = 'true';
-        const onEdit = () => window.schedulePaymentWarm(700);
+        const onEdit = () => window.schedulePaymentWarm(400);
         form.addEventListener('input', onEdit);
         form.addEventListener('change', onEdit);
       }
@@ -3197,10 +3286,17 @@
 
     // Progress + busy state for the in-flight redirect (the old "Continue to
     // payment" button used to own this).
-    window.setPayStatus = function (message) {
+    window.setPayStatus = function (message, options) {
       const status = document.getElementById('payStatus');
       if (!status) return;
-      status.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation: spin 1s linear infinite; flex-shrink: 0;"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle><path d="M12 2a10 10 0 0 1 10 10"></path></svg><span>' + message + '</span>';
+      // A settled warm session resolves in milliseconds, so a spinner that flashes on the
+      // way to the gateway reads as a glitch; a quiet line ("you are back") is not a
+      // spinner and must not pretend to be one.
+      const quiet = !!(options && options.quiet);
+      const spinner = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation: spin 1s linear infinite; flex-shrink: 0;"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle><path d="M12 2a10 10 0 0 1 10 10"></path></svg>';
+      status.innerHTML = (quiet ? '' : spinner) + '<span>' + message + '</span>';
+      status.style.borderLeftColor = quiet ? '#d1d5db' : '#000000';
+      status.style.color = quiet ? '#6b7280' : '#111111';
       status.style.display = 'flex';
     };
 
@@ -3220,6 +3316,53 @@
 
       const payBtn = document.getElementById('payBtn');
       if (payBtn) payBtn.disabled = !!disabled;
+    };
+
+    // --- Coming back from the gateway ----------------------------------------
+    // The browser keeps this page alive in the back/forward cache while the gateway
+    // owns the screen. Pressing back on a phone therefore does not reload the checkout -
+    // it RESTORES it exactly as it was left: both payment rows and #payBtn still
+    // disabled, and "Securing your Yoco payment..." still spinning over a page that
+    // cannot be touched. Everything that can bring this document back to the front has
+    // to unlock the payment step, or the customer is stuck on a dead checkout.
+    let payHandoffStarted = false;
+    let payStatusTimer = null;
+    let payHandoffWatchdog = null;
+    let payHiddenAt = 0;
+
+    // `note` is deliberately neutral: this also runs when the customer pressed back from
+    // success.html, and telling someone who has just paid to "try again" is how you sell
+    // the same bottle twice.
+    window.resetPaymentHandoff = function (note) {
+      if (payStatusTimer) {
+        clearTimeout(payStatusTimer);
+        payStatusTimer = null;
+      }
+      if (payHandoffWatchdog) {
+        clearTimeout(payHandoffWatchdog);
+        payHandoffWatchdog = null;
+      }
+
+      // Several of these hooks can fire for one return (a back/forward-cache restore also
+      // reports a visibility change), so the unlock is idempotent and only the FIRST call
+      // is allowed to touch the status line - otherwise the second one wipes the note the
+      // first one printed.
+      const returned = payHandoffStarted;
+      payHandoffStarted = false;
+      window.setPaymentTilesDisabled(false);
+      if (!returned) return false;
+
+      window.clearPayStatus();
+
+      // The session the customer was handed may already be open on the gateway's side, so
+      // it is never reused - and a fresh one is started right away, which keeps the next
+      // tap just as fast as the first one was meant to be.
+      window.forgetWarmSessions();
+      window.schedulePaymentWarm(300);
+      payTimerMark('back');
+
+      window.setPayStatus(note || 'Payment page closed. Your details are still here.', { quiet: true });
+      return true;
     };
 
     // Surface the gateway's real reason (the Cloud Function passes one through)
@@ -3265,24 +3408,29 @@
       const { activeItems, payload: orderPayload, finalTotal, firstName, lastName, email, phone, compiledAddress } = order;
 
       // Lock the payment step (both method rows and #payBtn) so nobody can double
-      // submit into two live sessions.
+      // submit into two live sessions, and remember that this page is about to be
+      // handed to the gateway - if it ever comes back, resetPaymentHandoff unlocks it.
       window.setPaymentTilesDisabled(true);
+      payHandoffStarted = true;
+      payTimerMark('click');
 
-      // The progress line is only raised if the gateway really makes the customer
-      // wait: with a warmed session this resolves in milliseconds, and a spinner that
-      // flashes on the way to the gateway reads as a glitch.
-      const statusTimer = setTimeout(() => {
-        window.setPayStatus('Securing your ' + gatewayLabel + ' payment...');
-      }, 400);
+      const warmKey = gatewayWarmKey(gateway, orderPayload);
+      const warm = window.__payWarm[warmKey];
+
+      // The progress line goes up on every click. It used to wait 400ms, on the theory that
+      // a warmed session leaves nothing to wait for - but the wait it was hiding was never
+      // only ours: the gateway's own page takes 0.2-0.9s just to answer (measured), and
+      // this page stays on screen for all of it, so the honest thing for a locked button
+      // to show is what it is doing.
+      window.setPayStatus('Securing your ' + gatewayLabel + ' payment...');
 
       try {
-        // A session created ahead of the click (see warmPaymentSession) is reused as
-        // long as it was built from exactly this order; otherwise it is created now,
-        // through the same helper.
-        const warm = window.__payWarm;
-        const resData = (warm && warm.key === gatewayWarmKey(gateway, orderPayload))
-          ? await warm.promise
-          : await createGatewaySession(gateway, orderPayload);
+        // A session created ahead of the click (see warmPaymentSession) is reused as long
+        // as it was built from exactly this order - the map is keyed by that fingerprint,
+        // so this lookup IS the comparison. Otherwise it is created now, through the same
+        // helper.
+        const resData = warm ? await warm.promise : await createGatewaySession(gateway, orderPayload);
+        payTimerMark('session-ok');
 
         if (!resData || !resData.success || !resData.redirectUrl) {
           throw new Error(resData ? (resData.message || `${gatewayLabel} did not return a payment page.`) : "Connection failed");
@@ -3309,15 +3457,37 @@
         // Hand the customer over to the gateway's hosted payment page (Yoco for
         // cards, Ozow for instant EFT). The browser keeps studioextrait.co.za as
         // the referrer, which is what Yoco matches against a verified domain.
-        clearTimeout(statusTimer);
+        if (payStatusTimer) {
+          clearTimeout(payStatusTimer);
+          payStatusTimer = null;
+        }
+        payTimerMark('redirect-set');
+
+        // If the navigation never happens (blocked, or dropped before it commits) this
+        // page is still on screen and still locked. Unlock it instead of leaving the
+        // customer with a spinner over dead buttons. The visibility check keeps this off
+        // the path of a navigation that is merely slow - that one hides this document.
+        payHandoffWatchdog = setTimeout(() => {
+          payHandoffWatchdog = null;
+          if (payHandoffStarted && document.visibilityState === 'visible') {
+            window.resetPaymentHandoff('Still connecting to the payment page. Tap Continue to try again.');
+          }
+        }, 8000);
+
         window.location.href = resData.redirectUrl;
         return;
 
       } catch (err) {
-        clearTimeout(statusTimer);
+        if (payStatusTimer) {
+          clearTimeout(payStatusTimer);
+          payStatusTimer = null;
+        }
+        payHandoffStarted = false;
         console.error(`${gatewayLabel} checkout initialisation failed:`, err);
-        // A session that failed is never reused on the retry.
-        window.__payWarm = null;
+        // A session that failed is never reused on the retry. The record that produced
+        // this error has already removed itself (see warmGatewayNow); this only clears a
+        // record that was never awaited.
+        delete window.__payWarm[warmKey];
         window.setPaymentTilesDisabled(false);
         window.clearPayStatus();
         window.showPaymentError(gatewayLabel, err);
@@ -3334,9 +3504,16 @@
       'c_instructions', 'c_province'
     ];
 
+    // Snapshotting is only safe once restoreCheckoutDraft() has had its turn: a form that
+    // has not been restored yet is an EMPTY form, and saving it would overwrite the draft
+    // the customer is coming back for.
+    let checkoutDraftRestored = false;
+
     window.saveCheckoutDraft = function () {
       try {
-        // Nothing to save until the checkout form is actually on the page.
+        // Nothing to save until the checkout form is actually on the page, and nothing
+        // worth saving until the saved draft has been put back into it.
+        if (!checkoutDraftRestored) return;
         if (!document.getElementById('c_fullname')) return;
 
         const draft = {
@@ -3369,6 +3546,10 @@
     };
 
     window.restoreCheckoutDraft = function () {
+      // From here on the form holds whatever was saved, so snapshotting is safe even when
+      // there was no draft to restore.
+      checkoutDraftRestored = true;
+
       let draft = null;
       try {
         draft = JSON.parse(localStorage.getItem(CHECKOUT_DRAFT_KEY));
@@ -3414,6 +3595,31 @@
     // happens and when the customer might never come back.
     window.addEventListener('pagehide', window.saveCheckoutDraft);
     window.addEventListener('beforeunload', window.saveCheckoutDraft);
+
+    // --- Hand-off bookkeeping (see resetPaymentHandoff) -----------------------
+    // A back/forward-cache restore does NOT re-run this script, so `pageshow` is the only
+    // moment the checkout gets to discover that the customer came back from the gateway -
+    // without it they sit in front of a locked, spinning checkout.
+    window.addEventListener('pageshow', (event) => {
+      if (event && event.persisted) window.resetPaymentHandoff();
+    });
+
+    window.addEventListener('popstate', () => {
+      if (payHandoffStarted) window.resetPaymentHandoff();
+    });
+
+    // The rest of the ways back (an in-app return, a redirect that never left). Requiring
+    // the document to have been hidden for a moment is what keeps a navigation that is
+    // merely slow from being mistaken for a failed one.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        payHiddenAt = Date.now();
+        return;
+      }
+      if (payHandoffStarted && payHiddenAt && (Date.now() - payHiddenAt) > 1200) {
+        window.resetPaymentHandoff();
+      }
+    });
   </script>
 
   <script type="module" src="header.js?v=20261013"></script>

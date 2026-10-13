@@ -140,7 +140,33 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
    the warm-up is the thing to remove, not the fingerprint check. `firebase-functions.js` is
    `modulepreload`ed and imported at page speed (never again inside the submit handler), and
    `us-central1-minara5.cloudfunctions.net`, `https://pay.ozow.com` and `https://c.yoco.com` are
-   preconnected.
+   preconnected. **Pass 4 (see 6c) moved that reuse into a per-gateway map and debounces the typed
+   `input`/`change` at 400ms.**
+6c. (2026-10-13 pass 4) **A phone back button from the gateway must land on a working checkout, and
+   the pre-warm must cover the gateway the customer actually taps.** The browser keeps checkout.html in
+   the back/forward cache while the gateway owns the screen, so `history.back()` RESTORES the DOM as it
+   was left - both rows and `#payBtn` still `disabled`, "Securing your ... payment..." still spinning -
+   and no script re-runs, so a `pageshow`/`popstate`/`visibilitychange` path is the only way back to a
+   usable page: `window.resetPaymentHandoff()` unlocks it, drops every warm session
+   (`forgetWarmSessions()` - a session the customer was already handed may be open on the gateway's
+   side, so it is never reused) and re-warms immediately. It prints a NEUTRAL note ("Payment page
+   closed. Your details are still here.") and must stay neutral: the same path also runs after a back
+   from `success.html`. It is idempotent and only the FIRST call may touch the status line (a BFCache
+   restore fires `visibilitychange` and `pageshow` for one return), and the 8s watchdog unlocks the same
+   way only while the document is still `visible`, because a merely-slow navigation hides it. Warm
+   sessions are a map (`window.__payWarm`, at most one record per gateway, keyed by
+   `gatewayWarmKey`), and `PAY_WARM_BOTH_GATEWAYS` warms the chosen gateway and then the other one 400ms
+   later, so "tap Instant EFT, then Continue" is instant too. `#payStatus` now goes up on EVERY click
+   (the old 400ms delay is gone: the gateway's own page takes 0.2-0.9s to answer while this page is
+   still on screen). Also keep `saveCheckoutDraft()`'s `checkoutDraftRestored` gate - a save before
+   `restoreCheckoutDraft()` has run snapshots an EMPTY form and destroys the very draft the customer is
+   coming back for. Measured on the live project in test mode (2026-10-13): `createYocoCheckout`
+   **3.6s cold / 1.2s warm**, `createOzowCheckout` **5.6s cold / 0.9-1.4s warm**, while a click with a
+   standing session hands the browser the URL in **~0.03s** (the same click waits the full 1.2s with the
+   warm-up switched off); `c.yoco.com` TTFB 0.83-0.89s (`no-store`), `pay.ozow.com` 0.19-0.57s.
+   `checkout.html?paytimer=1` prints those stops (warm/ready/click/session-ok/redirect-set/back) on the
+   customer's own device - that, not a laptop on fibre, is the only honest place to read them. Never
+   claim "8s -> 1s"; the claim is "the wait that was ours is gone".
 7. If Ozow's own page shows its red **"System error"** screen, that is Ozow's front end failing on
    Ozow's own API - not our integration (full evidence in MEMORY.md). Confirm it with
    `firebase functions:log --only ozowWebhook`: Ozow still posts a *signed* notification for that
