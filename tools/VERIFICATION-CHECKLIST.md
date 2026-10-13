@@ -117,10 +117,27 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
    strip ABOVE the rows - never redraw or re-crop them by hand, and keep the brand-blue
    `yoco-blue.svg` on the white chips. The trust cards say where the money goes in one sentence each,
    and the "Free Express Shipping" card is only rendered when the order really does ship free.
+   (Later pass, 2026-10-13: the gateway mark itself now sits inside the trust-card head -
+   "Secured by [Yoco]" / "Instant EFT by [Ozow]" via `.pay-badge-head` - while each card's strip keeps
+   only its accepted TYPES (Visa, Mastercard, Google Pay, Apple Pay · Instant EFT). A hairline runs
+   under the head badge (`.trust-card-head`) and, on phones, under the badge strip above the payment
+   rows (`.pay-brands-legend`), so the chips can never be read as a selectable payment method.)
 7. If Ozow's own page shows its red **"System error"** screen, that is Ozow's front end failing on
    Ozow's own API - not our integration (full evidence in MEMORY.md). Confirm it with
    `firebase functions:log --only ozowWebhook`: Ozow still posts a *signed* notification for that
    transaction, and its `Status` / `TransactionId` say exactly what happened. Quote those to Ozow
    support if it repeats.
 8. A cancelled or failed payment must never cost the customer their details: `checkout.html` writes
-   them to `minara_checkout_draft` and restores them when they come back from `cancel.html`.
+   them to `minara_checkout_draft` and restores them when they come back from `cancel.html`. The draft
+   also carries `c_address_search`, `manualAddressVisible` and `deliveryDatePicked`, so the lookup text
+   and an open manual address form come back exactly as they were left.
+9. (2026-10-13) Mobile checkout is **lookup-first**: the address step shows only "Find your address".
+   The nine-field form lives in `#manualAddressBlock` and is opened by the "Type it in manually" link,
+   by `window.revealAddressFormIfIncomplete()` (called from `submitPayment()` BEFORE
+   `form.requestSubmit()`, so required-field validation can never point at a hidden field), or by a
+   restored draft. While the form is hidden its inputs are not `required` (a hidden required input
+   makes the browser refuse to submit with no visible reason) and the resolved address is read back on
+   one `#addressAutofillNote` line. The delivery day is opt-in ("1–3 business days" by default, picker
+   `min` = tomorrow) and only a day the customer actually picked is stored as `deliveryDate`. Do not
+   put the address fields back on screen by default, and never re-add `required` to a field inside a
+   hidden block.
