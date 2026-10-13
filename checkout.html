@@ -20,7 +20,15 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
+  <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js">
   <link rel="modulepreload" href="header.js?v=20261013">
+  <!-- Redirect speed. The hosted payment session is created by a Cloud Function and
+       the customer then lands on the gateway's own host (Ozow pay.ozow.com, Yoco
+       c.yoco.com), so both connections are opened while they are still filling the
+       form in instead of after they press Continue. -->
+  <link rel="preconnect" href="https://us-central1-minara5.cloudfunctions.net" crossorigin>
+  <link rel="preconnect" href="https://pay.ozow.com">
+  <link rel="preconnect" href="https://c.yoco.com">
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4B_Kidu4QPFaNKMm8L9bKDR-F72ZpfiI&v=weekly&loading=async&callback=initGooglePlaces"
     async defer></script>
@@ -448,7 +456,12 @@
       min-width: 0;
     }
 
+    /* The row label is a flex line so a small mark (the bank glyph on the Instant EFT
+       row) can sit to the LEFT of the words instead of above or beside them. */
     .payment-tile-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
       font-family: 'Gotham Narrow Bold', sans-serif;
       font-size: 12px;
       font-weight: 900;
@@ -461,6 +474,18 @@
       font-size: 10.5px;
       color: #6b7280;
       line-height: 1.4;
+    }
+
+    /* What the row accepts, as the same chips the rest of the site uses. The card row
+       used to spell the four brands out as text ("Visa · Mastercard · Google Pay ·
+       Apple Pay"); at badge size they are recognised instead of read, and they wrap
+       rather than squash at 320px. */
+    .payment-tile-badges {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 3px;
     }
 
     /* The gateway mark rides on the right of its own row, at the exact point the
@@ -685,36 +710,38 @@
       padding-right: 36px;
     }
 
-    /* MANUAL ADDRESS TOGGLE. The lookup field is the front door, but a customer who
-       wants to type their own address has to be able to SEE that door - so the
-       escape hatch is a full-width row directly under the field (impossible to miss,
-       easy to hit with a thumb) instead of a small link tucked into the label row.
-       The chevron on the right is the "this opens something" cue and flips once the
-       form below is open. The whole row is the tap target. */
+    /* MANUAL ADDRESS FALLBACK. The lookup field is the front door and this row has to
+       read as the fallback door, not as a second option of equal weight: quiet grey
+       text ("or type address manually") centred under the input, no box chrome, no
+       uppercase, so the eye goes to the field and to Auto-fill first. It is still a
+       full width 44px tap target on phones (the whole row is the button) and still
+       carries a chevron as the "this opens something" cue. */
     .manual-address-toggle {
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: 6px;
       width: 100%;
-      margin-top: 8px;
-      padding: 11px 12px;
-      background: #fafafa;
-      border: 1px solid #dcdcdc;
+      margin-top: 2px;
+      padding: 10px 8px;
+      background: transparent;
+      border: 0;
       border-radius: 0px;
       font-family: inherit;
-      font-size: 10.5px;
-      font-weight: bold;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: #111111;
+      font-size: 11.5px;
+      font-weight: normal;
+      letter-spacing: 0.2px;
+      text-transform: none;
+      color: #6b7280;
       cursor: pointer;
-      text-align: left;
-      transition: border-color 0.15s ease, background 0.15s ease;
+      text-align: center;
+      transition: color 0.15s ease;
     }
 
-    .manual-address-toggle:hover {
-      border-color: #000000;
-      background: #ffffff;
+    .manual-address-toggle:hover,
+    .manual-address-toggle:focus-visible {
+      color: #111111;
+      text-decoration: underline;
     }
 
     .manual-address-toggle svg {
@@ -722,7 +749,7 @@
     }
 
     .manual-address-toggle .manual-address-toggle-chevron {
-      margin-left: auto;
+      opacity: 0.7;
       transition: transform 0.18s ease;
     }
 
@@ -1104,7 +1131,8 @@
       }
 
       /* 44px minimum: this row is the "I'll type it myself" door, so it has to be
-         as easy to hit with a thumb as the input above it. */
+         as easy to hit with a thumb as the input above it - even though it is styled
+         as the quiet fallback. */
       .manual-address-toggle {
         padding: 12px;
         min-height: 44px;
@@ -1113,6 +1141,12 @@
       .payment-tile {
         padding: 13px 12px;
         gap: 10px;
+      }
+
+      /* Tighter chip gap on phones: the four card marks (plus the gateway mark on the
+         right of the row) have to sit inside ~180px of text column without wrapping. */
+      .payment-tile-badges {
+        gap: 4px;
       }
 
       .pay-continue-btn {
@@ -1638,6 +1672,11 @@
       note.dataset.filled = 'true';
       // Never show it twice: the open form is the better answer.
       note.style.display = (block && block.style.display === 'block') ? 'none' : 'flex';
+
+      // The autofill writes fields programmatically (no input event), so if this was
+      // the last thing the order was waiting for, the gateway session is warmed here
+      // instead of only on the next keystroke.
+      if (typeof window.schedulePaymentWarm === 'function') window.schedulePaymentWarm(700);
     };
 
     // Opens the form only when something is actually missing, so a lookup that filled
@@ -2529,15 +2568,15 @@
                 <span id="addressAutofillText">Address found</span>
                 <a href="#" onclick="window.showManualAddress(event)" style="color: #0a7d5a; text-decoration: underline; font-weight: 500;">Edit</a>
               </div>
-              <!-- The escape hatch, deliberately the last thing in the step: a customer
-                   who cannot find their address has just read these rows, and a full
-                   width row with a chevron is both impossible to miss and impossible
-                   to miss-hit. It only REVEALS the form - it never focuses a field, so
-                   tapping it cannot throw a keyboard over the page. -->
+              <!-- The escape hatch, deliberately the last thing in the step and deliberately
+                   quiet: "or type address manually" in grey under the field, so the
+                   Auto-fill path above it stays the obvious one. The whole row is still
+                   the tap target (44px on phones) and it only REVEALS the form - it never
+                   focuses a field, so tapping it cannot throw a keyboard over the page. -->
               <button type="button" id="manualAddressToggle" class="manual-address-toggle" aria-expanded="false" aria-controls="manualAddressBlock" onclick="window.showManualAddress(event)">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
-                <span>Type address manually</span>
-                <svg class="manual-address-toggle-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+                <span>or type address manually</span>
+                <svg class="manual-address-toggle-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
               </button>
             </div>
 
@@ -2597,9 +2636,12 @@
                  this note only competed with it (and invited "do I have to pick
                  something?" doubt). A day or a time is now simply typed here. -->
             <div class="form-group">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <!-- "(Optional)" sits directly to the right of the label, on the same
+                   baseline - it belongs to the words, not to the right edge of the
+                   box. -->
+              <div style="display: flex; align-items: baseline; gap: 6px; margin-bottom: 6px;">
                 <label for="c_instructions" style="margin-bottom: 0;">Delivery instructions</label>
-                <span style="font-size: 11px; color: #6b7280; font-weight: normal;">(Optional)</span>
+                <span style="font-size: 10.5px; color: #6b7280; font-weight: normal;">(Optional)</span>
               </div>
               <input type="text" id="c_instructions" class="form-input" placeholder='e.g. "leave at the gate" or "deliver after 3pm"'>
             </div>
@@ -2654,8 +2696,9 @@
                  selectors only (radio-style) and #payBtn is the single action - it
                  submits the form so the browser's own required-field validation
                  runs, then hands the browser to the chosen gateway's hosted page.
-                 Each row carries the mark of the gateway that will process it, so
-                 the choice explains itself instead of needing a legend above. -->
+                 Each row carries the mark of the gateway that will process it on the
+                 right, the accepted cards as badges (not as text) under the card
+                 row's label, and the bank glyph to the left of "Instant EFT". -->
             <div style="margin-top: 30px;">
               <div class="section-title" style="margin-bottom: 12px;">Payment method</div>
 
@@ -2664,14 +2707,24 @@
                   <span class="payment-tile-radio" aria-hidden="true"></span>
                   <span class="payment-tile-text">
                     <span class="payment-tile-title">Pay by card</span>
-                    <span class="payment-tile-sub">Visa &middot; Mastercard &middot; Google&nbsp;Pay &middot; Apple&nbsp;Pay</span>
+                    <span class="payment-tile-badges">
+                      <span class="pay-badge" title="Visa"><img src="images/payments/visa.svg" alt="Visa"></span>
+                      <span class="pay-badge" title="Mastercard"><img class="badge-symbol" src="images/payments/mastercard.svg" alt="Mastercard"></span>
+                      <span class="pay-badge" title="Google Pay"><img src="images/payments/googlepay.svg" alt="Google Pay"></span>
+                      <span class="pay-badge pay-badge-mark" title="Apple Pay"><img src="images/payments/applepay.svg" alt="Apple Pay"></span>
+                    </span>
                   </span>
                   <span class="payment-tile-brands" title="Card payments by Yoco"><span class="pay-badge"><img src="images/payments/yoco-blue.svg" alt="Yoco"></span></span>
                 </button>
                 <button type="button" class="payment-tile" data-gateway="ozow" role="radio" aria-checked="false" onclick="window.selectGateway('ozow')">
                   <span class="payment-tile-radio" aria-hidden="true"></span>
                   <span class="payment-tile-text">
-                    <span class="payment-tile-title">Instant EFT</span>
+                    <span class="payment-tile-title">
+                      <span class="pay-badge pay-badge-eft" title="Instant EFT bank transfer" aria-hidden="true">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18"></path><path d="M5 6l7-3 7 3"></path><path d="M4 10v10"></path><path d="M9 10v10"></path><path d="M15 10v10"></path><path d="M20 10v10"></path><path d="M3 20h18"></path></svg>
+                      </span>
+                      Instant EFT
+                    </span>
                     <span class="payment-tile-sub">No card needed.</span>
                   </span>
                   <span class="payment-tile-brands" title="Instant EFT by Ozow"><span class="pay-badge"><img src="images/payments/ozow.png" alt="Ozow"></span></span>
@@ -2749,7 +2802,11 @@
               </div>
               <div class="trust-card-line">Cards run through Yoco, Instant EFT through Ozow &mdash; your card and banking details never reach us.</div>
               <div class="pay-brands pay-brands-compact">
+                <!-- Both processors are shown, and each one sits in front of the
+                     methods it handles: Yoco in front of the cards, Ozow in front of
+                     the Instant EFT chip. -->
                 <span class="pay-brand-group">
+                  <span class="pay-badge" title="Card payments by Yoco"><img src="images/payments/yoco-blue.svg" alt="Yoco"></span>
                   <span class="pay-badge" title="Visa"><img src="images/payments/visa.svg" alt="Visa"></span>
                   <span class="pay-badge" title="Mastercard"><img class="badge-symbol" src="images/payments/mastercard.svg" alt="Mastercard"></span>
                   <span class="pay-badge" title="Google Pay"><img src="images/payments/googlepay.svg" alt="Google Pay"></span>
@@ -2798,6 +2855,12 @@
         window.attachCheckoutDraftAutosave();
         window.updatePaymentMethodUI(window.getSelectedPaymentMethod());
 
+        // Hook the warm-up triggers onto the form the moment it exists, and start the
+        // gateway session early when a restored draft is already a complete order
+        // (see warmPaymentSession - it does nothing until the form is really ready).
+        window.attachPaymentWarmTriggers();
+        window.schedulePaymentWarm(600);
+
         if (typeof window.initGooglePlaces === "function") {
           window.initGooglePlaces();
         }
@@ -2824,10 +2887,15 @@
 
     // Selecting is only selecting: remember the choice, repaint the rows and
     // snapshot the draft. Nothing else happens here.
+    // Selecting is only selecting: remember the choice, repaint the rows and
+    // snapshot the draft. Nothing else happens here - except that standing on a
+    // complete form already starts creating that gateway's session (see
+    // warmPaymentSession) so the click does not have to wait for it.
     window.selectGateway = function (gateway) {
       window.__extraitGateway = gateway === 'ozow' ? 'ozow' : 'yoco';
       window.updatePaymentMethodUI(window.__extraitGateway);
       window.saveCheckoutDraft();
+      window.schedulePaymentWarm(0);
     };
 
     // The one payment action (#payBtn). It submits the form so the browser's own
@@ -2894,6 +2962,239 @@
       }
     };
 
+    // --- Redirect speed: warm the session BEFORE the click --------------------
+    // "Continue to Ozow" used to wait on three things in a row: the Cloud Function
+    // (a cold container is the slowest part), the gateway's own checkout API call
+    // made from that function, and only then the navigation to the gateway's host.
+    // The page now does the first two while the customer is still filling the form
+    // in, so the click normally has nothing left to wait for:
+    //   1. the Cloud Functions SDK module is imported at page speed instead of
+    //      inside the submit handler (that fetch used to sit on the click path),
+    //   2. a hosted session is created as soon as the form is complete and valid -
+    //      real intent, not a guess - and the click reuses it,
+    //   3. the gateway's host is preconnected, and its page prefetched, as soon as
+    //      the session URL is known.
+    // A session is only a hosted payment page that expires; creating one charges
+    // nothing. Every input that decides the order (cart, pricing, address, contact
+    // details) is part of the fingerprint, so the moment one of them changes the warm
+    // session no longer matches and a fresh one is created for the new order.
+    window.__payWarm = null;
+    let payWarmTimer = null;
+
+    const FUNCTIONS_BASE = 'https://us-central1-minara5.cloudfunctions.net';
+
+    let functionsSdkPromise = null;
+    function loadFunctionsSdk() {
+      if (!functionsSdkPromise) {
+        functionsSdkPromise = import('https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js')
+          .then((mod) => (mod && typeof mod.httpsCallable === 'function' && typeof mod.getFunctions === 'function') ? mod : null)
+          .catch((err) => {
+            console.warn('Firebase Functions JS import fallback:', err);
+            return null;
+          });
+      }
+      return functionsSdkPromise;
+    }
+
+    // Preload it now: by the time the customer reaches "Continue", the module is a
+    // cache hit rather than a network fetch.
+    loadFunctionsSdk();
+
+    // Everything the gateway needs, in the exact shape handleCheckoutSubmit sends -
+    // one builder for the warm-up and for the submit, so the two can never drift.
+    function collectCheckoutOrder() {
+      let cart = [];
+      try {
+        cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
+      } catch (e) {
+        console.error(e);
+      }
+
+      const activeItems = cart.filter(item => !item.removed);
+      if (activeItems.length === 0) return null;
+
+      const value = (id) => {
+        const el = document.getElementById(id);
+        return el ? String(el.value || '').trim() : '';
+      };
+
+      const fullName = value('c_fullname');
+      const email = value('c_email');
+      const phoneSuffix = value('c_phone');
+
+      const nameParts = fullName.split(/\s+/);
+      const firstName = nameParts[0] || 'Customer';
+      const lastName = nameParts.slice(1).join(' ') || 'Order';
+
+      const building = value('c_building');
+      const street = value('c_street');
+      const suburb = value('c_suburb');
+      const city = value('c_city');
+      const province = value('c_province');
+      const postalCode = value('c_postal') || '0000';
+      const instructions = value('c_instructions');
+      const phone = '+27' + phoneSuffix.replace(/^0+/, '');
+
+      // Same resolver the summary used, so the amount sent to the gateway is exactly
+      // the amount the customer just read on screen.
+      const pricing = window.getCheckoutPricing(activeItems);
+      const finalTotal = pricing.finalTotal;
+
+      let compiledAddress = '';
+      if (building) {
+        compiledAddress += `${building}, `;
+      }
+      compiledAddress += `${street}, ${suburb}, ${city}, ${province}, ${postalCode}`;
+
+      const payload = {
+        customer: {
+          firstName,
+          lastName,
+          email,
+          phone,
+        },
+        shipping: {
+          address: compiledAddress,
+          instructions,
+        },
+        items: activeItems.map(item => ({
+          id: item.id || item.productId || '',
+          name: item.nameShort || item.name,
+          quantity: item.quantity,
+          price: (Number(item.price) || 0) + (Number(item.priceExtra) || 0),
+          size: item.size || '100ml',
+          selectedScents: item.selectedScents || null,
+          bottleCustomisation: item.bottleCustomisation || null
+        })),
+        total: finalTotal,
+        callbackUrl: window.location.origin + '/success.html',
+        cancelUrl: window.location.origin + '/cancel.html'
+      };
+
+      return { activeItems, payload, finalTotal, firstName, lastName, email, phone, compiledAddress };
+    }
+
+    function gatewayWarmKey(gateway, payload) {
+      return gateway + '|' + JSON.stringify(payload);
+    }
+
+    // Only warm once the browser itself says the form is ready AND the address is
+    // really filled in: those inputs are not `required` while the lookup-first form
+    // is hidden, so checkValidity() alone cannot see them.
+    function checkoutFormIsReady() {
+      const form = document.getElementById('checkoutDetailsForm');
+      if (!form) return false;
+      if (typeof form.checkValidity === 'function' && !form.checkValidity()) return false;
+      return ['c_street', 'c_city', 'c_postal', 'c_province'].every((id) => {
+        const el = document.getElementById(id);
+        return !!el && String(el.value || '').trim() !== '';
+      });
+    }
+
+    // The one place that talks to a session creator, shared by the warm-up and the
+    // submit.
+    async function createGatewaySession(gateway, payload) {
+      const createFnName = gateway === 'ozow' ? 'createOzowCheckout' : 'createYocoCheckout';
+
+      const sdk = await loadFunctionsSdk();
+      if (sdk) {
+        const res = await sdk.httpsCallable(sdk.getFunctions(), createFnName)(payload);
+        return res.data;
+      }
+
+      const res = await fetch(`${FUNCTIONS_BASE}/${createFnName}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: payload })
+      });
+      const json = await res.json();
+      return json.result || json;
+    }
+
+    // The gateway's page is the next origin the browser touches, so as soon as its URL
+    // exists the connection - and the document itself - are warmed while the customer
+    // is still on our page.
+    const warmedGatewayHosts = {};
+    function warmGatewayDestination(url) {
+      try {
+        const target = new URL(url, window.location.href);
+
+        const prefetch = document.createElement('link');
+        prefetch.rel = 'prefetch';
+        prefetch.as = 'document';
+        prefetch.href = target.href;
+        document.head.appendChild(prefetch);
+
+        if (!warmedGatewayHosts[target.origin]) {
+          warmedGatewayHosts[target.origin] = true;
+          const preconnect = document.createElement('link');
+          preconnect.rel = 'preconnect';
+          preconnect.href = target.origin;
+          document.head.appendChild(preconnect);
+        }
+      } catch (e) {
+        // A malformed URL only means a lost hint; the redirect itself still works.
+      }
+    }
+
+    // Creates (or returns) the session for exactly this order. Returns null when there
+    // is nothing worth warming yet.
+    window.warmPaymentSession = function () {
+      if (!checkoutFormIsReady()) return null;
+
+      const order = collectCheckoutOrder();
+      if (!order) return null;
+
+      const gateway = window.getSelectedPaymentMethod();
+      const key = gatewayWarmKey(gateway, order.payload);
+      if (window.__payWarm && window.__payWarm.key === key) return window.__payWarm.promise;
+
+      const promise = createGatewaySession(gateway, order.payload).then((data) => {
+        if (data && data.redirectUrl) warmGatewayDestination(data.redirectUrl);
+        return data;
+      });
+
+      window.__payWarm = { key, gateway, createdAt: Date.now(), promise };
+
+      // A failed warm-up must never surface as an unhandled rejection, and must never
+      // be reused as if it were a live session.
+      promise.catch(() => {
+        if (window.__payWarm && window.__payWarm.key === key) window.__payWarm = null;
+      });
+
+      return promise;
+    };
+
+    window.schedulePaymentWarm = function (delay) {
+      if (payWarmTimer) clearTimeout(payWarmTimer);
+      payWarmTimer = setTimeout(() => {
+        payWarmTimer = null;
+        window.warmPaymentSession();
+      }, typeof delay === 'number' ? delay : 700);
+    };
+
+    // The moments that mean "this order is real": an edit to a form that is already
+    // complete (the last keystroke before they reach for the button), the arrival of
+    // the pointer over #payBtn, and choosing a payment method.
+    window.attachPaymentWarmTriggers = function () {
+      const form = document.getElementById('checkoutDetailsForm');
+      if (form && form.dataset.warmBound !== 'true') {
+        form.dataset.warmBound = 'true';
+        const onEdit = () => window.schedulePaymentWarm(700);
+        form.addEventListener('input', onEdit);
+        form.addEventListener('change', onEdit);
+      }
+
+      const payBtn = document.getElementById('payBtn');
+      if (payBtn && payBtn.dataset.warmBound !== 'true') {
+        payBtn.dataset.warmBound = 'true';
+        const onApproach = () => window.schedulePaymentWarm(0);
+        payBtn.addEventListener('pointerenter', onApproach);
+        payBtn.addEventListener('pointerdown', onApproach);
+        payBtn.addEventListener('focus', onApproach);
+      }
+    };
+
     // Progress + busy state for the in-flight redirect (the old "Continue to
     // payment" button used to own this).
     window.setPayStatus = function (message) {
@@ -2951,119 +3252,37 @@
         errorBox.style.display = 'none';
         errorBox.innerHTML = '';
       }
-      // Lock the payment step (both method rows and #payBtn) and show the progress
-      // line while the gateway session is created server-side.
-      window.setPaymentTilesDisabled(true);
-      window.setPayStatus('Securing your ' + gatewayLabel + ' payment...');
 
-      // Retrieve active cart items
-      let cart = [];
-      try {
-        cart = JSON.parse(localStorage.getItem('minara_cart')) || [];
-      } catch (e) {
-        console.error(e);
-      }
-      const activeItems = cart.filter(item => !item.removed);
-      if (activeItems.length === 0) {
-        window.setPaymentTilesDisabled(false);
-        window.clearPayStatus();
+      // Cart, form values, compiled address and pricing all come from the one builder
+      // the warm-up uses, so the amount warmed and the amount submitted are identical.
+      const order = collectCheckoutOrder();
+      if (!order) {
         alert("Your cart is empty.");
         window.location.href = "catalog.html";
         return;
       }
 
-      // Capture inputs
-      const fullName = document.getElementById("c_fullname").value.trim();
-      const email = document.getElementById("c_email").value.trim();
+      const { activeItems, payload: orderPayload, finalTotal, firstName, lastName, email, phone, compiledAddress } = order;
 
-      const phoneSuffix = document.getElementById("c_phone").value.trim();
-      const phone = '+27' + phoneSuffix.replace(/^0+/, '');
+      // Lock the payment step (both method rows and #payBtn) so nobody can double
+      // submit into two live sessions.
+      window.setPaymentTilesDisabled(true);
 
-      // Split name and surname
-      const nameParts = fullName.split(/\s+/);
-      const firstName = nameParts[0] || "Customer";
-      const lastName = nameParts.slice(1).join(" ") || "Order";
-
-      // Address values
-      const building = document.getElementById("c_building") ? document.getElementById("c_building").value.trim() : "";
-      const street = document.getElementById("c_street").value.trim();
-      const suburb = document.getElementById("c_suburb").value.trim();
-      const city = document.getElementById("c_city").value.trim();
-      const province = document.getElementById("c_province").value;
-      const postalCode = document.getElementById("c_postal") ? document.getElementById("c_postal").value.trim() : "0000";
-      const instructions = document.getElementById("c_instructions").value.trim();
-
-      // Same resolver the summary used, so the amount sent to the gateway is exactly
-      // the amount the customer just read on screen.
-      const pricing = window.getCheckoutPricing(activeItems);
-      const finalTotal = pricing.finalTotal;
-
-      // Compile delivery address
-      let compiledAddress = '';
-      if (building) {
-        compiledAddress += `${building}, `;
-      }
-      compiledAddress += `${street}, ${suburb}, ${city}, ${province}, ${postalCode}`;
-
-      const callbackUrl = window.location.origin + '/success.html';
-      const cancelUrl = window.location.origin + '/cancel.html';
-
-      const orderPayload = {
-        customer: {
-          firstName,
-          lastName,
-          email,
-          phone,
-        },
-        shipping: {
-          address: compiledAddress,
-          instructions,
-        },
-        items: activeItems.map(item => ({
-          id: item.id || item.productId || '',
-          name: item.nameShort || item.name,
-          quantity: item.quantity,
-          price: (Number(item.price) || 0) + (Number(item.priceExtra) || 0),
-          size: item.size || '100ml',
-          selectedScents: item.selectedScents || null,
-          bottleCustomisation: item.bottleCustomisation || null
-        })),
-        total: finalTotal,
-        callbackUrl: callbackUrl,
-        cancelUrl: cancelUrl
-      };
+      // The progress line is only raised if the gateway really makes the customer
+      // wait: with a warmed session this resolves in milliseconds, and a spinner that
+      // flashes on the way to the gateway reads as a glitch.
+      const statusTimer = setTimeout(() => {
+        window.setPayStatus('Securing your ' + gatewayLabel + ' payment...');
+      }, 400);
 
       try {
-        let functions = null;
-        let httpsCallable = null;
-
-        try {
-          const mod = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js");
-          functions = mod.getFunctions();
-          httpsCallable = mod.httpsCallable;
-        } catch (importErr) {
-          console.warn("Firebase Functions JS import fallback:", importErr);
-        }
-
-        let resData = null;
-
-        // Both gateways are created by a Cloud Function that returns a hosted
-        // payment page URL, so only the function name differs.
-        const createFnName = gateway === 'ozow' ? "createOzowCheckout" : "createYocoCheckout";
-
-        if (functions && httpsCallable) {
-          const createPaymentFn = httpsCallable(functions, createFnName);
-          const res = await createPaymentFn(orderPayload);
-          resData = res.data;
-        } else {
-          const res = await fetch(`https://us-central1-minara5.cloudfunctions.net/${createFnName}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data: orderPayload })
-          });
-          const json = await res.json();
-          resData = json.result || json;
-        }
+        // A session created ahead of the click (see warmPaymentSession) is reused as
+        // long as it was built from exactly this order; otherwise it is created now,
+        // through the same helper.
+        const warm = window.__payWarm;
+        const resData = (warm && warm.key === gatewayWarmKey(gateway, orderPayload))
+          ? await warm.promise
+          : await createGatewaySession(gateway, orderPayload);
 
         if (!resData || !resData.success || !resData.redirectUrl) {
           throw new Error(resData ? (resData.message || `${gatewayLabel} did not return a payment page.`) : "Connection failed");
@@ -3090,11 +3309,15 @@
         // Hand the customer over to the gateway's hosted payment page (Yoco for
         // cards, Ozow for instant EFT). The browser keeps studioextrait.co.za as
         // the referrer, which is what Yoco matches against a verified domain.
+        clearTimeout(statusTimer);
         window.location.href = resData.redirectUrl;
         return;
 
       } catch (err) {
+        clearTimeout(statusTimer);
         console.error(`${gatewayLabel} checkout initialisation failed:`, err);
+        // A session that failed is never reused on the retry.
+        window.__payWarm = null;
         window.setPaymentTilesDisabled(false);
         window.clearPayStatus();
         window.showPaymentError(gatewayLabel, err);

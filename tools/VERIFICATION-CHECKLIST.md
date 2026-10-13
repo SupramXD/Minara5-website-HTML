@@ -114,14 +114,33 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
    **"Continue to Yoco" / "Continue to Ozow"** button is the action, so the browser's own
    required-field validation runs before any redirect. Each row carries the mark of the gateway that
    will process it (`.payment-tile-brands`: the Yoco chip on "Pay by card", the Ozow chip on
-   "Instant EFT"); the accepted-marks strip (official Visa, Mastercard, Google Pay, Apple Pay, Ozow and
+   "Instant EFT") **and shows what it accepts as badges rather than as a sentence** - the "Pay by card"
+   row's `Visa · Mastercard · Google Pay · Apple Pay` text line became `.payment-tile-badges`, the same
+   20px `.pay-badge` chips used everywhere else, and the "Instant EFT" row carries the type-drawn bank
+   chip to the LEFT of its own label (2026-10-13 pass 3); the accepted-marks strip (official Visa,
+   Mastercard, Google Pay, Apple Pay, Yoco, Ozow and
    the type-drawn "Instant EFT" chip, all self-hosted in `images/payments/`) now lives inside the ONE
-   **"Secure payment"** trust card. Never redraw or re-crop those assets by hand, keep the brand-blue
+   **"Secure payment"** trust card, with each processor in front of the methods it handles (Yoco before
+   the cards, Ozow before the EFT chip). Never redraw or re-crop those assets by hand, keep the brand-blue
    `yoco-blue.svg` on the white chips, and do **not** re-add a floating legend strip above the rows
    (that was `.pay-brands-legend`) or gateway badges inside a trust-card head (that was
    `.pay-badge-head`) - both were removed on 2026-10-13 because they duplicated the row marks and made
    the summary column read as clutter. The "Free Express Shipping" card is only rendered when the order
    really does ship free.
+6b. (2026-10-13 pass 3) **The hosted session is created before the customer clicks Continue**, so the
+   hand-off to Yoco/Ozow does not have to wait for a cold Cloud Function plus the gateway's own API
+   call: `showAddressFilledNote()` (no input event from autofill), a typed `input`/`change`, choosing a
+   row, hovering/focusing `#payBtn` and the post-draft-restore all schedule `warmPaymentSession()`, which
+   only fires once `checkoutFormIsReady()` (native `checkValidity()` AND a value in `c_street`/`c_city`/
+   `c_postal`/`c_province`, because a hidden lookup-first form has no `required` address inputs). The
+   click reuses that session only when `gatewayWarmKey(gateway, payload)` still matches, so never assume
+   the warm-up is a caching layer that can be "improved" by loosening the key - a stale key means the
+   customer is charged the wrong amount. Because every warm-up leaves a pending/abandoned entry in the
+   Yoco/Ozow dashboard, keep the gate on a COMPLETE form; if the dashboard noise ever becomes a problem,
+   the warm-up is the thing to remove, not the fingerprint check. `firebase-functions.js` is
+   `modulepreload`ed and imported at page speed (never again inside the submit handler), and
+   `us-central1-minara5.cloudfunctions.net`, `https://pay.ozow.com` and `https://c.yoco.com` are
+   preconnected.
 7. If Ozow's own page shows its red **"System error"** screen, that is Ozow's front end failing on
    Ozow's own API - not our integration (full evidence in MEMORY.md). Confirm it with
    `firebase functions:log --only ozowWebhook`: Ozow still posts a *signed* notification for that
@@ -134,8 +153,9 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
    together with those fields in the 2026-10-13 declutter pass - do not re-add them on their own.)
 9. (2026-10-13) Checkout is **lookup-first at every width** - phone AND desktop: the address step shows
    only "Delivery address" / `#c_address_search`. The nine-field form lives in `#manualAddressBlock`
-   and is opened by the full-width `#manualAddressToggle` row under the field ("Type address manually",
-   pencil icon + chevron, `min-height:44px` on phones), by
+   and is opened by the full-width `#manualAddressToggle` row under the field ("or type address
+   manually", pencil icon + chevron, `min-height:44px` on phones, styled as the quiet grey fallback
+   since pass 3 - no border, no uppercase - so it never competes with the Auto-fill pill above it), by
    `window.revealAddressFormIfIncomplete()` (called from `submitPayment()` BEFORE
    `form.requestSubmit()`, so required-field validation can never point at a hidden field), or by a
    restored draft. Two rules that must not be broken: while the form is hidden its inputs are not
