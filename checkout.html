@@ -463,6 +463,16 @@
       line-height: 1.4;
     }
 
+    /* The gateway mark rides on the right of its own row, at the exact point the
+       customer chooses, so nobody has to look up at a legend to find out who is
+       processing the payment. */
+    .payment-tile-brands {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
     /* The one payment action on the form: same lime as the bag drawer's
        "CONTINUE TO CHECKOUT" button, so the eye already knows what a primary
        action looks like on this site. */
@@ -552,19 +562,6 @@
       height: 20px;
     }
 
-    /* Gateway badge inside a trust-card head - "Secured by [Yoco]" / "Instant EFT
-       by [Ozow]". The official mark IS the word now, and the type marks that used
-       to sit next to it stay in their own strip below, so a gateway reads as a
-       gateway instead of as one more accepted payment type. */
-    .pay-badge.pay-badge-head {
-      height: 19px;
-      padding: 0 5px;
-    }
-
-    .pay-badge.pay-badge-head img {
-      height: 10.5px;
-    }
-
     /* Accepted-brand strips. The payment block, the trust cards and the bag
        drawer all use this: the marks sit in their own row so the payment
        selector rows stay text-only, and each gateway's marks are grouped behind
@@ -594,14 +591,6 @@
     .pay-brands-compact {
       margin: 12px 0 0;
       gap: 6px;
-    }
-
-    /* The accepted-brands row that sits directly above the payment rows. On phones
-       it gets a hairline under the marks (see the max-width:900px block) so the
-       gateway + brand marks read as a legend for the rows below instead of as one
-       of the selectable rows. */
-    .pay-brands-legend {
-      margin-bottom: 18px;
     }
 
     /* Instant EFT chip: the one type-drawn mark in the strips. No official Ozow
@@ -694,6 +683,51 @@
       background-position: right 14px center;
       background-size: 12px;
       padding-right: 36px;
+    }
+
+    /* MANUAL ADDRESS TOGGLE. The lookup field is the front door, but a customer who
+       wants to type their own address has to be able to SEE that door - so the
+       escape hatch is a full-width row directly under the field (impossible to miss,
+       easy to hit with a thumb) instead of a small link tucked into the label row.
+       The chevron on the right is the "this opens something" cue and flips once the
+       form below is open. The whole row is the tap target. */
+    .manual-address-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      margin-top: 8px;
+      padding: 11px 12px;
+      background: #fafafa;
+      border: 1px solid #dcdcdc;
+      border-radius: 0px;
+      font-family: inherit;
+      font-size: 10.5px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #111111;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .manual-address-toggle:hover {
+      border-color: #000000;
+      background: #ffffff;
+    }
+
+    .manual-address-toggle svg {
+      flex-shrink: 0;
+    }
+
+    .manual-address-toggle .manual-address-toggle-chevron {
+      margin-left: auto;
+      transition: transform 0.18s ease;
+    }
+
+    .manual-address-toggle[aria-expanded="true"] .manual-address-toggle-chevron {
+      transform: rotate(180deg);
     }
 
     /* Checkout items */
@@ -894,10 +928,6 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      /* The rule sits directly under the gateway badge, so the badge belongs to the
-         promise headline and not to the accepted-type marks in the strip below it. */
-      padding-bottom: 8px;
-      border-bottom: 1px solid #ececec;
     }
 
     .trust-card-head-icon {
@@ -1047,8 +1077,7 @@
         margin-bottom: 8px;
       }
 
-      /* Trust cards: compact label row (gateway badge inline) + one line + the
-         accepted-type marks underneath the hairline. */
+      /* Trust cards: compact label row + one line + the accepted marks underneath. */
       .checkout-trust {
         gap: 10px;
         margin-top: 20px;
@@ -1062,7 +1091,6 @@
 
       .trust-card-head {
         gap: 7px;
-        padding-bottom: 6px;
       }
 
       .trust-card-head-icon {
@@ -1075,18 +1103,11 @@
         gap: 5px;
       }
 
-      /* The legend row above the payment rows gets a hairline UNDER the marks, so
-         the chips are visibly the legend and the radio rows below are visibly the
-         choices. */
-      .pay-brands-legend {
-        padding-bottom: 10px;
-        border-bottom: 1px solid #e2e2e2;
-        margin-bottom: 16px;
-        gap: 6px;
-      }
-
-      .request-delivery-row {
-        margin-bottom: 18px;
+      /* 44px minimum: this row is the "I'll type it myself" door, so it has to be
+         as easy to hit with a thumb as the input above it. */
+      .manual-address-toggle {
+        padding: 12px;
+        min-height: 44px;
       }
 
       .payment-tile {
@@ -1268,41 +1289,6 @@
       }
     }
 
-    /* COURIER ADDRESS TYPE SELECTOR */
-    .address-type-selector {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 24px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-    }
-
-    .address-type-tab {
-      padding: 8px 16px;
-      border: 1px solid #cfcfcf;
-      border-radius: 2px;
-      font-size: 10px;
-      font-weight: bold;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      cursor: pointer;
-      background: #fff;
-      color: #555;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-    }
-
-    .address-type-tab.active {
-      background: #000;
-      border-color: #000;
-      color: #fff;
-    }
-
-    .address-type-tab:hover:not(.active) {
-      border-color: #000;
-      color: #000;
-    }
-
     .form-group-row-3 {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
@@ -1315,69 +1301,6 @@
         grid-template-columns: 1fr !important;
         gap: 12px !important;
       }
-    }
-
-    /* REQUESTED DELIVERY DAY - optional and opt-in.
-       This row used to display today's date as if the customer had requested it,
-       and that string travelled into the order record as a real request (the
-       courier, not a preference, decides the actual day). It now starts on the
-       honest default - the normal schedule - and only carries a date once the
-       customer picks one, so it costs one compact line instead of a fake field. */
-    .request-delivery-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin: 4px 0 24px;
-    }
-
-    .request-delivery-row .request-delivery-label {
-      font-size: 10px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: #555;
-    }
-
-    .request-delivery-row .optional-tag {
-      font-weight: normal;
-      letter-spacing: 0.5px;
-      text-transform: none;
-      color: #9ca3af;
-    }
-
-    .delivery-date-text {
-      color: #6b7280;
-      font-size: 11.5px;
-      letter-spacing: 0.3px;
-    }
-
-    .delivery-date-text.is-picked {
-      color: #000;
-      font-weight: bold;
-    }
-
-    .edit-date-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      padding: 2px;
-      transition: opacity 0.2s;
-    }
-
-    .edit-date-btn:hover {
-      opacity: 0.7;
-    }
-
-    .date-picker-input {
-      padding: 6px 10px;
-      font-size: 12px;
-      border: 1px solid #cfcfcf;
-      border-radius: 2px;
-      font-family: Helvetica, Arial, sans-serif;
-      outline: none;
     }
 
     /* GOOGLE PLACES AUTOCOMPLETE STYLING */
@@ -1629,15 +1552,6 @@
   <!-- HIDDEN FORM REMOVED - SECURE PAYSTACK DIRECT API REDIRECT IN USE -->
 
   <script>
-    // Toggle alternative email visibility
-    window.toggleAlternativeEmail = function (event) {
-      event.preventDefault();
-      const group = document.getElementById("altEmailGroup");
-      const link = document.getElementById("addEmailLink");
-      if (group) group.style.display = "block";
-      if (link) link.style.display = "none";
-    };
-
     // --- Address entry: lookup first, manual on request -----------------------
     // The lookup field is the primary way in and the full nine-field form stays
     // hidden until it is needed (unlisted address, Google outage, or a unit number
@@ -1666,7 +1580,12 @@
       block.style.display = visible ? 'block' : 'none';
 
       const toggle = document.getElementById('manualAddressToggle');
-      if (toggle) toggle.style.display = visible ? 'none' : 'inline';
+      if (toggle) {
+        // The row is hidden once the form it opens is on screen; aria-expanded is
+        // kept in step for assistive tech in the moment before it disappears.
+        toggle.style.display = visible ? 'none' : '';
+        toggle.setAttribute('aria-expanded', visible ? 'true' : 'false');
+      }
 
       // The "address found" line is the only address feedback while the form is
       // hidden, so it steps aside exactly when the form itself appears.
@@ -1690,7 +1609,11 @@
         street.value = search.value.trim();
       }
 
-      window.setManualAddressVisible(true, true);
+      // focusFirst stays false on purpose: revealing the form must not throw the
+      // on-screen keyboard over the page or scroll a field into view under the
+      // customer's thumb. They tap the field they want to fill; only the submit
+      // guard (revealAddressFormIfIncomplete) moves focus for them.
+      window.setManualAddressVisible(true, false);
       if (typeof window.saveCheckoutDraft === 'function') window.saveCheckoutDraft();
     };
 
@@ -1740,46 +1663,6 @@
       const target = stillMissing[0] || missing[0];
       if (target && typeof target.focus === 'function') target.focus();
       return false;
-    };
-
-    // Toggle dynamic date picker visibility
-    window.toggleDatePicker = function () {
-      const picker = document.getElementById("c_delivery_date");
-      if (picker) {
-        picker.style.display = picker.style.display === "none" ? "inline-block" : "none";
-      }
-    };
-
-    // Update the delivery-day line when a date is picked. The row is opt-in, so the
-    // date only becomes part of the order once the customer actually chose one
-    // (`data-picked`); it used to travel along as "today" on every single order.
-    window.updateDeliveryDate = function (input) {
-      if (!input || !input.value) return;
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-      // Split to avoid timezone shift issues
-      const parts = input.value.split('-');
-      const selectedDate = new Date(parts[0], parts[1] - 1, parts[2]);
-      const formatted = `${days[selectedDate.getDay()]}, ${selectedDate.getDate()} ${months[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
-
-      const display = document.getElementById("displayDeliveryDate");
-      if (display) {
-        display.textContent = formatted;
-        display.dataset.picked = 'true';
-        display.classList.add('is-picked');
-      }
-
-      input.style.display = "none";
-      if (typeof window.saveCheckoutDraft === 'function') window.saveCheckoutDraft();
-    };
-
-    // Handle address type selector tab clicking
-    window.selectAddressType = function (tabElement) {
-      document.querySelectorAll('.address-type-tab').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      tabElement.classList.add('active');
     };
 
     // Basic menu helper scripts
@@ -2603,13 +2486,6 @@
       `;
       });
 
-      // The requested-day picker is opt-in, so its earliest selectable day is
-      // tomorrow (a courier pickup cannot happen retroactively) and it opens on the
-      // honest "normal schedule" label instead of a pre-filled fake request date.
-      const minDelivery = new Date();
-      minDelivery.setDate(minDelivery.getDate() + 1);
-      const minDeliveryDateIso = `${minDelivery.getFullYear()}-${String(minDelivery.getMonth() + 1).padStart(2, '0')}-${String(minDelivery.getDate()).padStart(2, '0')}`;
-
       // Render forms and summaries
       content.innerHTML = `
       <div class="checkout-container">
@@ -2625,14 +2501,12 @@
           
           <form id="checkoutDetailsForm" onsubmit="handleCheckoutSubmit(event)" onkeydown="handleFormKeydown(event)">
             
-            <!-- Address Search (Main Google Autocomplete) -->
+            <!-- Address Search (Main Google Autocomplete). This one field is the
+                 whole address step at every width - phone and desktop alike - and
+                 the nine-field form below only opens when it is asked for. -->
             <div class="form-group">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <label for="c_address_search" style="margin-bottom: 0;">Find your address</label>
-                <!-- The old "Choose from address book" link went nowhere (href="#"
-                     with preventDefault and no handler). This is the real escape
-                     hatch: one tap opens the full manual form. -->
-                <a href="#" id="manualAddressToggle" onclick="window.showManualAddress(event)" style="font-size: 11px; color: #000000; text-decoration: underline; font-weight: 500;">Type it in manually</a>
+                <label for="c_address_search" style="margin-bottom: 0;">Delivery address</label>
               </div>
               <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 6px;">
                 <span style="font-size: 8.5px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #0a7d5a; border: 1px solid #0a7d5a; padding: 2px 7px; border-radius: 20px;">Auto-fill</span>
@@ -2655,6 +2529,16 @@
                 <span id="addressAutofillText">Address found</span>
                 <a href="#" onclick="window.showManualAddress(event)" style="color: #0a7d5a; text-decoration: underline; font-weight: 500;">Edit</a>
               </div>
+              <!-- The escape hatch, deliberately the last thing in the step: a customer
+                   who cannot find their address has just read these rows, and a full
+                   width row with a chevron is both impossible to miss and impossible
+                   to miss-hit. It only REVEALS the form - it never focuses a field, so
+                   tapping it cannot throw a keyboard over the page. -->
+              <button type="button" id="manualAddressToggle" class="manual-address-toggle" aria-expanded="false" aria-controls="manualAddressBlock" onclick="window.showManualAddress(event)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+                <span>Type address manually</span>
+                <svg class="manual-address-toggle-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+              </button>
             </div>
 
             <!-- Manual address form. Hidden until it is actually needed, so the phone
@@ -2708,30 +2592,16 @@
             </div>
             <!-- /Manual address form -->
 
-            <!-- Delivery instructions -->
+            <!-- Delivery instructions. The requested-day picker that used to sit here
+                 is gone: the courier decides the real day, and a date field next to
+                 this note only competed with it (and invited "do I have to pick
+                 something?" doubt). A day or a time is now simply typed here. -->
             <div class="form-group">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                 <label for="c_instructions" style="margin-bottom: 0;">Delivery instructions</label>
                 <span style="font-size: 11px; color: #6b7280; font-weight: normal;">(Optional)</span>
               </div>
-              <input type="text" id="c_instructions" class="form-input" placeholder='e.g. "leave at gate"'>
-              <div style="font-size: 10.5px; color: #9ca3af; margin-top: 5px; font-style: italic;">This is an example — type your own note, or leave it blank.</div>
-            </div>
-
-            <!-- Requested delivery day: optional and opt-in. It used to display
-                 today's date as if the customer had asked for it (and that string was
-                 stored as a real request), while the courier decides the real day
-                 anyway. Leaving it alone keeps the normal 1-3 business day schedule. -->
-            <div class="request-delivery-row">
-              <span class="request-delivery-label" id="requestDeliveryLabel">Request a delivery day <span class="optional-tag">(optional)</span></span>
-              <span id="displayDeliveryDate" class="delivery-date-text">1&ndash;3 business days</span>
-              <button type="button" class="edit-date-btn" onclick="toggleDatePicker()" aria-label="Choose a delivery day" title="Choose a delivery day">
-                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                  <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path>
-                </svg>
-              </button>
-              <input type="date" id="c_delivery_date" class="date-picker-input" style="display: none;" min="${minDeliveryDateIso}" aria-label="Requested delivery day" onchange="updateDeliveryDate(this)">
+              <input type="text" id="c_instructions" class="form-input" placeholder='e.g. "leave at the gate" or "deliver after 3pm"'>
             </div>
 
             <!-- Section 2: Contact Details -->
@@ -2755,18 +2625,6 @@
               </div>
               <input type="email" id="c_email" class="form-input" placeholder="" required autocomplete="email">
               <div style="font-size: 10.5px; color: #9ca3af; margin-top: 5px;">Your order confirmation and delivery updates go here.</div>
-              
-              <div style="margin-top: 8px;">
-                <a href="#" id="addEmailLink" onclick="toggleAlternativeEmail(event)" style="font-size: 11px; color: #000000; text-decoration: underline; font-weight: 500;">+ Add another email</a>
-              </div>
-              
-              <div id="altEmailGroup" style="display: none; margin-top: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <label for="c_email_alt" style="margin-bottom: 0;">Alternative email address</label>
-                  <span style="font-size: 11px; color: #6b7280; font-weight: normal;">(Optional)</span>
-                </div>
-                <input type="email" id="c_email_alt" class="form-input" placeholder="" autocomplete="email">
-              </div>
             </div>
 
             <!-- Mobile number -->
@@ -2796,45 +2654,27 @@
                  selectors only (radio-style) and #payBtn is the single action - it
                  submits the form so the browser's own required-field validation
                  runs, then hands the browser to the chosen gateway's hosted page.
-                 The accepted-brand marks sit in their own strip above, grouped per
-                 gateway, so the rows stay text-only. -->
+                 Each row carries the mark of the gateway that will process it, so
+                 the choice explains itself instead of needing a legend above. -->
             <div style="margin-top: 30px;">
               <div class="section-title" style="margin-bottom: 12px;">Payment method</div>
-
-              <!-- Accepted brands, split per gateway: cards under Yoco, bank
-                   transfer under Ozow. -->
-              <div class="pay-brands pay-brands-legend" aria-label="Accepted payment methods">
-                <span class="pay-brand-group">
-                  <span class="pay-badge" title="Card payments by Yoco"><img src="images/payments/yoco-blue.svg" alt="Yoco"></span>
-                  <span class="pay-badge" title="Visa"><img src="images/payments/visa.svg" alt="Visa"></span>
-                  <span class="pay-badge" title="Mastercard"><img class="badge-symbol" src="images/payments/mastercard.svg" alt="Mastercard"></span>
-                  <span class="pay-badge" title="Google Pay"><img src="images/payments/googlepay.svg" alt="Google Pay"></span>
-                  <span class="pay-badge pay-badge-mark" title="Apple Pay"><img src="images/payments/applepay.svg" alt="Apple Pay"></span>
-                </span>
-                <span class="pay-brand-divider" aria-hidden="true"></span>
-                <span class="pay-brand-group">
-                  <span class="pay-badge" title="Instant EFT by Ozow"><img src="images/payments/ozow.png" alt="Ozow Instant EFT"></span>
-                  <span class="pay-badge pay-badge-eft" title="Instant EFT bank transfer">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10h18"></path><path d="M5 6l7-3 7 3"></path><path d="M4 10v10"></path><path d="M9 10v10"></path><path d="M15 10v10"></path><path d="M20 10v10"></path><path d="M3 20h18"></path></svg>
-                    <span>Instant EFT</span>
-                  </span>
-                </span>
-              </div>
 
               <div class="payment-methods" role="radiogroup" aria-label="Payment method">
                 <button type="button" class="payment-tile selected" data-gateway="yoco" role="radio" aria-checked="true" onclick="window.selectGateway('yoco')">
                   <span class="payment-tile-radio" aria-hidden="true"></span>
                   <span class="payment-tile-text">
                     <span class="payment-tile-title">Pay by card</span>
-                    <span class="payment-tile-sub">Yoco's secure page takes Visa, Mastercard, Google Pay and Apple Pay.</span>
+                    <span class="payment-tile-sub">Visa &middot; Mastercard &middot; Google&nbsp;Pay &middot; Apple&nbsp;Pay</span>
                   </span>
+                  <span class="payment-tile-brands" title="Card payments by Yoco"><span class="pay-badge"><img src="images/payments/yoco-blue.svg" alt="Yoco"></span></span>
                 </button>
                 <button type="button" class="payment-tile" data-gateway="ozow" role="radio" aria-checked="false" onclick="window.selectGateway('ozow')">
                   <span class="payment-tile-radio" aria-hidden="true"></span>
                   <span class="payment-tile-text">
                     <span class="payment-tile-title">Instant EFT</span>
-                    <span class="payment-tile-sub">Pay from your bank account, no card needed &mdash; secured by Ozow.</span>
+                    <span class="payment-tile-sub">No card needed.</span>
                   </span>
+                  <span class="payment-tile-brands" title="Instant EFT by Ozow"><span class="pay-badge"><img src="images/payments/ozow.png" alt="Ozow"></span></span>
                 </button>
               </div>
 
@@ -2845,7 +2685,7 @@
                 <span id="payBtnLabel">Continue to Yoco</span>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"></path><path d="M12 5l7 7-7 7"></path></svg>
               </button>
-              <div id="payRedirectNote" class="pay-continue-note">You pay on Yoco's own secure page and come straight back here.</div>
+              <div id="payRedirectNote" class="pay-continue-note">Secure payment page by Yoco.</div>
             </div>
 
             <!-- Payment progress: shown while the gateway session is created -->
@@ -2892,10 +2732,12 @@
             </div>
           </div>
 
-          <!-- Gateway trust blocks: one card per promise, each carrying ONLY its
-               own brand marks and a single sentence of copy (the old cards ran a
-               full paragraph each, which is what made this column read as
-               clutter). The shipping card is rendered only when the order really
+          <!-- Trust blocks: one card per promise, one sentence + the accepted marks
+               each. There used to be a card per gateway here ("Secured by [Yoco]" /
+               "Instant EFT by [Ozow]") on top of a legend strip above the payment
+               rows - three places saying the same thing. The gateway marks now ride
+               on the payment rows themselves, so one card carries the payment
+               promise. The shipping card is rendered only when the order really
                does ship free - see the conditional below. -->
           <div class="checkout-trust">
             <div class="trust-card">
@@ -2903,10 +2745,9 @@
                 <span class="trust-card-head-icon">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="1" ry="1"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                 </span>
-                <span class="trust-card-title">Secured by</span>
-                <span class="pay-badge pay-badge-head" title="Card payments by Yoco"><img src="images/payments/yoco-blue.svg" alt="Yoco"></span>
+                <span class="trust-card-title">Secure payment</span>
               </div>
-              <div class="trust-card-line">Card details go straight to Yoco's PCI-DSS compliant page &mdash; we never see them.</div>
+              <div class="trust-card-line">Cards run through Yoco, Instant EFT through Ozow &mdash; your card and banking details never reach us.</div>
               <div class="pay-brands pay-brands-compact">
                 <span class="pay-brand-group">
                   <span class="pay-badge" title="Visa"><img src="images/payments/visa.svg" alt="Visa"></span>
@@ -2914,21 +2755,9 @@
                   <span class="pay-badge" title="Google Pay"><img src="images/payments/googlepay.svg" alt="Google Pay"></span>
                   <span class="pay-badge pay-badge-mark" title="Apple Pay"><img src="images/payments/applepay.svg" alt="Apple Pay"></span>
                 </span>
-              </div>
-            </div>
-
-            <!-- Instant EFT trust block (Ozow) -->
-            <div class="trust-card">
-              <div class="trust-card-head">
-                <span class="trust-card-head-icon">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10h18"></path><path d="M5 6l7-3 7 3"></path><path d="M4 10v10"></path><path d="M9 10v10"></path><path d="M15 10v10"></path><path d="M20 10v10"></path><path d="M3 20h18"></path></svg>
-                </span>
-                <span class="trust-card-title">Instant EFT by</span>
-                <span class="pay-badge pay-badge-head" title="Instant EFT by Ozow"><img src="images/payments/ozow.png" alt="Ozow"></span>
-              </div>
-              <div class="trust-card-line">You authorise it inside your own banking app &mdash; your banking details never reach us.</div>
-              <div class="pay-brands pay-brands-compact">
+                <span class="pay-brand-divider" aria-hidden="true"></span>
                 <span class="pay-brand-group">
+                  <span class="pay-badge" title="Instant EFT by Ozow"><img src="images/payments/ozow.png" alt="Ozow Instant EFT"></span>
                   <span class="pay-badge pay-badge-eft" title="Instant EFT bank transfer">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10h18"></path><path d="M5 6l7-3 7 3"></path><path d="M4 10v10"></path><path d="M9 10v10"></path><path d="M15 10v10"></path><path d="M20 10v10"></path><path d="M3 20h18"></path></svg>
                     <span>Instant EFT</span>
@@ -3056,7 +2885,7 @@
       if (payLabel) payLabel.textContent = 'Continue to ' + label;
 
       const note = document.getElementById('payRedirectNote');
-      if (note) note.textContent = 'You pay on ' + label + "'s own secure page and come straight back here.";
+      if (note) note.textContent = 'Secure payment page by ' + label + '.';
 
       const box = document.getElementById('paymentError');
       if (box) {
@@ -3147,9 +2976,6 @@
       const fullName = document.getElementById("c_fullname").value.trim();
       const email = document.getElementById("c_email").value.trim();
 
-      const emailAltInput = document.getElementById("c_email_alt");
-      const emailAlt = emailAltInput ? emailAltInput.value.trim() : "";
-
       const phoneSuffix = document.getElementById("c_phone").value.trim();
       const phone = '+27' + phoneSuffix.replace(/^0+/, '');
 
@@ -3166,10 +2992,6 @@
       const province = document.getElementById("c_province").value;
       const postalCode = document.getElementById("c_postal") ? document.getElementById("c_postal").value.trim() : "0000";
       const instructions = document.getElementById("c_instructions").value.trim();
-      // Only a day the customer actually picked travels with the order: the opt-in
-      // default must never be stored as a request for "today".
-      const deliveryDisplay = document.getElementById("displayDeliveryDate");
-      const deliveryDate = (deliveryDisplay && deliveryDisplay.dataset.picked === 'true') ? deliveryDisplay.textContent.trim() : "";
 
       // Same resolver the summary used, so the amount sent to the gateway is exactly
       // the amount the customer just read on screen.
@@ -3191,12 +3013,10 @@
           firstName,
           lastName,
           email,
-          emailAlt,
           phone,
         },
         shipping: {
           address: compiledAddress,
-          deliveryDate,
           instructions,
         },
         items: activeItems.map(item => ({
@@ -3261,10 +3081,8 @@
           firstName,
           lastName,
           email,
-          emailAlt,
           phone,
           address: compiledAddress,
-          deliveryDate,
           total: finalTotal,
           items: orderPayload.items
         }));
@@ -3288,9 +3106,9 @@
     // typed is still filled in instead of being retyped from scratch.
     const CHECKOUT_DRAFT_KEY = 'minara_checkout_draft';
     const CHECKOUT_DRAFT_FIELDS = [
-      'c_fullname', 'c_email', 'c_email_alt', 'c_phone',
+      'c_fullname', 'c_email', 'c_phone',
       'c_address_search', 'c_building', 'c_street', 'c_suburb', 'c_city', 'c_postal',
-      'c_instructions', 'c_province', 'c_delivery_date'
+      'c_instructions', 'c_province'
     ];
 
     window.saveCheckoutDraft = function () {
@@ -3306,13 +3124,6 @@
           const el = document.getElementById(id);
           if (el) draft[id] = el.value;
         });
-
-        const altGroup = document.getElementById('altEmailGroup');
-        draft.altEmailVisible = !!altGroup && altGroup.style.display === 'block';
-
-        const displayDate = document.getElementById('displayDeliveryDate');
-        draft.displayDeliveryDate = displayDate ? displayDate.textContent.trim() : '';
-        draft.deliveryDatePicked = !!displayDate && displayDate.dataset.picked === 'true';
 
         // Remember whether the manual address form was open (lookup-first means it is
         // usually hidden), so returning from a cancelled payment does not collapse
@@ -3349,26 +3160,6 @@
         const value = draft[id];
         if (typeof value === 'string' && value) el.value = value;
       });
-
-      // The alternative-email row is hidden by default, so reopen it if it was used.
-      if (draft.altEmailVisible) {
-        const group = document.getElementById('altEmailGroup');
-        const link = document.getElementById('addEmailLink');
-        if (group) group.style.display = 'block';
-        if (link) link.style.display = 'none';
-      }
-
-      // The delivery day is displayed as text, so restore the label as well - and
-      // remember whether it was a real request, because only a picked day is sent.
-      const displayDate = document.getElementById('displayDeliveryDate');
-      if (displayDate && draft.displayDeliveryDate) displayDate.textContent = draft.displayDeliveryDate;
-      if (displayDate && draft.deliveryDatePicked === true) {
-        displayDate.dataset.picked = 'true';
-        displayDate.classList.add('is-picked');
-      }
-
-      const picker = document.getElementById('c_delivery_date');
-      if (picker) picker.style.display = 'none';
 
       // A drafted address (or a manual form that was open) comes back visible, so what
       // they already filled in is never hidden behind the one-field lookup view.

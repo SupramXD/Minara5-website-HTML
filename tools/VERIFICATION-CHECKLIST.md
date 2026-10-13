@@ -112,16 +112,16 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
    must stay registered. The step is **select, then continue**: the two rows only choose (radio
    semantics - nothing is charged, submitted or redirected by the tap itself) and the one lime
    **"Continue to Yoco" / "Continue to Ozow"** button is the action, so the browser's own
-   required-field validation runs before any redirect. The accepted brand marks (official Yoco, Visa,
-   Mastercard, Google Pay, Apple Pay and Ozow, all self-hosted in `images/payments/`) sit in their own
-   strip ABOVE the rows - never redraw or re-crop them by hand, and keep the brand-blue
-   `yoco-blue.svg` on the white chips. The trust cards say where the money goes in one sentence each,
-   and the "Free Express Shipping" card is only rendered when the order really does ship free.
-   (Later pass, 2026-10-13: the gateway mark itself now sits inside the trust-card head -
-   "Secured by [Yoco]" / "Instant EFT by [Ozow]" via `.pay-badge-head` - while each card's strip keeps
-   only its accepted TYPES (Visa, Mastercard, Google Pay, Apple Pay · Instant EFT). A hairline runs
-   under the head badge (`.trust-card-head`) and, on phones, under the badge strip above the payment
-   rows (`.pay-brands-legend`), so the chips can never be read as a selectable payment method.)
+   required-field validation runs before any redirect. Each row carries the mark of the gateway that
+   will process it (`.payment-tile-brands`: the Yoco chip on "Pay by card", the Ozow chip on
+   "Instant EFT"); the accepted-marks strip (official Visa, Mastercard, Google Pay, Apple Pay, Ozow and
+   the type-drawn "Instant EFT" chip, all self-hosted in `images/payments/`) now lives inside the ONE
+   **"Secure payment"** trust card. Never redraw or re-crop those assets by hand, keep the brand-blue
+   `yoco-blue.svg` on the white chips, and do **not** re-add a floating legend strip above the rows
+   (that was `.pay-brands-legend`) or gateway badges inside a trust-card head (that was
+   `.pay-badge-head`) - both were removed on 2026-10-13 because they duplicated the row marks and made
+   the summary column read as clutter. The "Free Express Shipping" card is only rendered when the order
+   really does ship free.
 7. If Ozow's own page shows its red **"System error"** screen, that is Ozow's front end failing on
    Ozow's own API - not our integration (full evidence in MEMORY.md). Confirm it with
    `firebase functions:log --only ozowWebhook`: Ozow still posts a *signed* notification for that
@@ -129,15 +129,21 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
    support if it repeats.
 8. A cancelled or failed payment must never cost the customer their details: `checkout.html` writes
    them to `minara_checkout_draft` and restores them when they come back from `cancel.html`. The draft
-   also carries `c_address_search`, `manualAddressVisible` and `deliveryDatePicked`, so the lookup text
-   and an open manual address form come back exactly as they were left.
-9. (2026-10-13) Mobile checkout is **lookup-first**: the address step shows only "Find your address".
-   The nine-field form lives in `#manualAddressBlock` and is opened by the "Type it in manually" link,
-   by `window.revealAddressFormIfIncomplete()` (called from `submitPayment()` BEFORE
+   also carries `c_address_search` and `manualAddressVisible`, so the lookup text and an open manual
+   address form come back exactly as they were left. (The alt-email and delivery-day keys were removed
+   together with those fields in the 2026-10-13 declutter pass - do not re-add them on their own.)
+9. (2026-10-13) Checkout is **lookup-first at every width** - phone AND desktop: the address step shows
+   only "Delivery address" / `#c_address_search`. The nine-field form lives in `#manualAddressBlock`
+   and is opened by the full-width `#manualAddressToggle` row under the field ("Type address manually",
+   pencil icon + chevron, `min-height:44px` on phones), by
+   `window.revealAddressFormIfIncomplete()` (called from `submitPayment()` BEFORE
    `form.requestSubmit()`, so required-field validation can never point at a hidden field), or by a
-   restored draft. While the form is hidden its inputs are not `required` (a hidden required input
-   makes the browser refuse to submit with no visible reason) and the resolved address is read back on
-   one `#addressAutofillNote` line. The delivery day is opt-in ("1–3 business days" by default, picker
-   `min` = tomorrow) and only a day the customer actually picked is stored as `deliveryDate`. Do not
-   put the address fields back on screen by default, and never re-add `required` to a field inside a
-   hidden block.
+   restored draft. Two rules that must not be broken: while the form is hidden its inputs are not
+   `required` (a hidden required input makes the browser refuse to submit with no visible reason, and
+   the resolved address is read back on one `#addressAutofillNote` line instead), and **the manual
+   toggle must never focus a field** - `showManualAddress()` calls
+   `setManualAddressVisible(true, false)`, so a tap reveals the form WITHOUT throwing the on-screen
+   keyboard over the page or scrolling a field under the customer's thumb; only the submit guard moves
+   focus. There is no requested-delivery-day picker any more (a day or time goes in "Delivery
+   instructions"); an empty `deliveryDate` on the order is expected and handled by
+   `functions/index.js`.
