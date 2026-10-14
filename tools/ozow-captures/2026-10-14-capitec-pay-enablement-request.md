@@ -3,6 +3,13 @@
 **Drafted:** 14 October 2026 (SAST) · **Account:** `STUDIOEXTRAITPTYLTD` · **Site:** `STU-STU-022`
 **Status:** drafted, **NOT sent** — nothing is sent from this repo, and no password is ever needed for it.
 
+> **14 October update, read this first.** Ozow Support replied on this thread on **12 October, 16:11**
+> (Nthabiseng Malesela): *"The bank account has now been set. Kindly re-test and advise if this clears
+> the errors."* So the merchant-record item in §3 is already actioned on their side, and the message
+> that is actually staged is the **short version** (a Gmail reply draft in that same thread, posted as
+> a `reply-draft` on message `1a13074221cf4b94`). Keep §3 as the fallback if the short ask comes back
+> as "not possible", because it carries the payload evidence with it.
+
 ## 1. The short answer: there is nothing to switch on yourself
 
 There is **no toggle for this in `dash.ozow.com`** — not a checkbox, not a menu. Ozow's own docs say it
