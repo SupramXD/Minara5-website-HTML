@@ -1,19 +1,24 @@
 # Enabling Capitec Pay on the Ozow account — how, and the message that asks for it
 
-**Drafted:** 14 October 2026 (SAST) · **Account:** `STUDIOEXTRAITPTYLTD` · **Site:** `STU-STU-022`
-**Status:** drafted, **NOT sent** — nothing is sent from this repo, and no password is ever needed for it.
+**Drafted & sent:** 14 October 2026, 10:38 SAST · **Sent as:** message `1a1398fde4a1f766` on thread
+`1a10b65ea8d12c1c` → `Ozow Support <support@ozow.com>` · **Account:** `STUDIOEXTRAITPTYLTD` · **Site:** `STU-STU-022`
+**Status:** **SENT 14 October 2026 — awaiting Ozow's answer.** No confirmation that Capitec Pay is enabled
+yet. Nothing is sent from the website repo; the mail route is `E:\desktop\ClineGmail` (`gmail.js` + its
+shared `lib.js`, account label `studio`), and no password ever lives in here.
 
 > **14 October update, read this first.** Ozow Support replied on this thread on **12 October, 16:11**
 > (Nthabiseng Malesela): *"The bank account has now been set. Kindly re-test and advise if this clears
-> the errors."* So the merchant-record item in §3 is already actioned on their side, and the message
-> that is actually staged is the **short version** (a Gmail reply draft in that same thread, posted as
-> a `reply-draft` on message `1a13074221cf4b94`). Keep §3 as the fallback if the short ask comes back
-> as "not possible", because it carries the payload evidence with it.
+> the errors."* Jadon answered that the same day at 16:33 (*"Yes, that error has now disappeared. Thank
+> you"*, message `1a13088793a76337`), so the merchant-record item in §3 is **closed** and the
+> `initiate` 500 is dealt with. What was still outstanding is Capitec Pay itself, so the **short ask**
+> went out on that same thread on **14 October 2026, 10:38 SAST** (message `1a1398fde4a1f766`, in reply
+> to `1a13074221cf4b94`). Keep §3 as the fallback if the short ask comes back as "not possible", because
+> it carries the payload evidence with it.
 
-**Exact text staged in that Gmail reply draft** (draft id `r8513271970729214655`, thread
-`1a10b65ea8d12c1c`, in reply to `1a13074221cf4b94`; verified as built MIME: addressed to
-`Ozow Support <support@ozow.com>`, `In-Reply-To`/`References` chained onto their 12 Oct mail,
-emoji `U+1F605` encoded once as `=F0=9F=98=85`, no em/en dash, no ellipsis):
+**Exact text sent** (message `1a1398fde4a1f766`, thread `1a10b65ea8d12c1c`, in reply to
+`1a13074221cf4b94`; verified on the delivered copy: addressed to `Ozow Support <support@ozow.com>`,
+`In-Reply-To`/`References` chained onto their 12 Oct mail, `Subject` carried over, emoji `U+1F605`
+present exactly once as `=F0=9F=98=85`, no em/en dash, no ellipsis, `text/plain; charset=utf-8`):
 
 ```
 Good day Nthabiseng,
@@ -29,9 +34,7 @@ Thank You
 -Jadon From Studio Extrait 😅
 ```
 
-Deliberately shorter than §3: it drops the bank-account thank-you (that item is already closed by
-their 12 Oct mail) and the "your page says the bank is not available for this merchant" line, and
-asks only for activation. It is **still not sent** — it waits on merchant approval.
+Drafted, keyed to their 12 Oct mail, short on purpose so it is easy to say yes to. It is **sent** (14 October 2026, 10:38 SAST) — what follows it is a wait, not a click: when Ozow confirms it is enabled, give the 10-minute "unavailable" cache a moment and check with `node tools/ozow-live-rail-check.js --rail capitec`.
 
 ## 1. The short answer: there is nothing to switch on yourself
 
