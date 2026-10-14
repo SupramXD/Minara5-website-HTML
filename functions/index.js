@@ -191,6 +191,26 @@ function getOzowIsTest() {
 }
 
 /**
+ * Ozow Bank API methods ("payment method identifiers") this storefront may name in
+ * `selectedBankId`, whitelisted on purpose: the identifier travels from the browser,
+ * so a value that is not on this list must never reach Ozow.
+ *
+ * Pay by Bank needs no identifier - it is enabled for every merchant by default and
+ * the customer picks their bank on Ozow's own page. Card, Capitec Pay, PayShap
+ * Request and BNPL are enabled by Ozow **on request only**, so an identifier the
+ * account is not enabled for comes back as "The selected bank is not available for
+ * this merchant...".
+ *
+ * Capitec Pay is NOT one of the Pay-by-Bank banks - which is exactly why it never
+ * appears in the bank list on the hosted page - it is its own Bank API method
+ * (approved in the Capitec app) and this is its published identifier.
+ */
+const OZOW_BANK_METHOD_IDS = {
+  "capitec-pay": "913999FA-3A32-4E3D-82F0-A1DF7E9E4F7B",
+};
+const OZOW_ALLOWED_SELECTED_BANK_IDS = Object.values(OZOW_BANK_METHOD_IDS);
+
+/**
  * SHA512 hex digest - the only hash Ozow uses.
  * @param {string} value String to hash.
  * @return {string} Lowercase hexadecimal digest.
@@ -1205,10 +1225,17 @@ exports.createYocoCheckout = onCall({secrets: [yocoSecretKey]}, async (request) 
 });
 
 /**
- * Create an Ozow instant-EFT payment request and save a pending order in
- * Firestore. The private key never leaves this server - it only ever signs the
- * `hashCheck` field. Ozow answers HTTP 200 even when it rejects a request, so
- * `errorMessage` / `url` decide success, never the status code.
+ * Create an Ozow payment request and save a pending order in Firestore.
+ *
+ * Pay by Bank (instant EFT) needs nothing but the site code; a Bank API method - today
+ * only Capitec Pay - additionally sends the whitelisted `selectedBankId` from
+ * `OZOW_BANK_METHOD_IDS`, which is hashed as field 18. Both rails are the same request,
+ * the same webhook and the same `paymentGateway: "ozow"` order, so nothing downstream
+ * has to know which one was used (the `ozowRail` field on the order says so anyway).
+ *
+ * The private key never leaves this server - it only ever signs the `hashCheck` field.
+ * Ozow answers HTTP 200 even when it rejects a request, so `errorMessage` / `url` decide
+ * success, never the status code.
  * Docs: https://hub.ozow.com/api-reference/payments-api/post-post-payment-request
  */
 exports.createOzowCheckout = onCall({
@@ -1244,6 +1271,24 @@ exports.createOzowCheckout = onCall({
   const amount = Number(total).toFixed(2);
   const isTest = getOzowIsTest();
 
+  // Which Bank API method to open, when the storefront asked for one (Capitec Pay is
+  // the only rail that needs it today - see OZOW_BANK_METHOD_IDS). An unknown value is
+  // rejected rather than ignored: a silently dropped identifier would create a plain
+  // Pay-by-Bank session and hand the customer Ozow's whole bank picker instead of the
+  // method they chose.
+  const requestedBankId = String((request.data && request.data.selectedBankId) || "").trim();
+  if (requestedBankId && !OZOW_ALLOWED_SELECTED_BANK_IDS.includes(requestedBankId)) {
+    throw new HttpsError("invalid-argument",
+        "That Ozow payment method is not supported.");
+  }
+  const selectedBankId = requestedBankId || null;
+  // Recorded on the order so the admin can tell a Capitec Pay sale from a Pay-by-Bank
+  // one - both settle through Ozow on the same webhook and both are `paymentGateway:
+  // "ozow"`, so the rail is the only thing that separates them in the dashboard.
+  const ozowRail = selectedBankId ?
+    (Object.keys(OZOW_BANK_METHOD_IDS).find((key) => OZOW_BANK_METHOD_IDS[key] === selectedBankId) || "bank-api") :
+    "pay-by-bank";
+
   const orderDoc = {
     orderId: reference,
     customerName: customerName,
@@ -1258,6 +1303,8 @@ exports.createOzowCheckout = onCall({
     total: Number(total),
     currency: "ZAR",
     paymentGateway: "ozow",
+    ozowRail: ozowRail,
+    ozowSelectedBankId: selectedBankId,
     status: "pending_payment",
     paid: false,
     createdAt: new Date().toISOString(),
@@ -1284,6 +1331,10 @@ exports.createOzowCheckout = onCall({
   // Only fields we actually send may be hashed, in Ozow's documented order.
   // `customerCellphoneNumber` must never be part of the hash, which is why the
   // phone number travels as `optional2` instead.
+  // `selectedBankId` is field 18 - immediately after `isTest` - for a rail that asks
+  // for one, and it is skipped entirely for Pay by Bank (the builder drops empty
+  // values). Hashing it anywhere else, or sending it without hashing it, fails with
+  // "The HashCheck value has failed"; tools/ozow-probe.js hashes this same list.
   const hashCheck = buildOzowRequestHash([
     {name: "siteCode", value: siteCode},
     {name: "countryCode", value: "ZA"},
@@ -1299,6 +1350,7 @@ exports.createOzowCheckout = onCall({
     {name: "successUrl", value: successUrl},
     {name: "notifyUrl", value: notifyUrl},
     {name: "isTest", value: isTest ? "true" : "false"},
+    {name: "selectedBankId", value: selectedBankId || ""},
   ], privateKey);
 
   const ozowPayload = {
@@ -1318,6 +1370,12 @@ exports.createOzowCheckout = onCall({
     isTest: isTest,
     hashCheck: hashCheck,
   };
+
+  // One field, only for a rail that needs it: a Pay-by-Bank request stays byte-for-byte
+  // what it was before Capitec Pay existed.
+  if (selectedBankId) {
+    ozowPayload.selectedBankId = selectedBankId;
+  }
 
   let ozowResponse = null;
   let ozowBody = null;
@@ -1357,6 +1415,8 @@ exports.createOzowCheckout = onCall({
   return {
     success: true,
     gateway: "ozow",
+    rail: ozowRail,
+    selectedBankId: selectedBankId,
     reference: reference,
     paymentRequestId: ozowBody.paymentRequestId || null,
     redirectUrl: ozowBody.url,

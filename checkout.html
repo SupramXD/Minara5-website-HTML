@@ -21,7 +21,7 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js">
-  <link rel="modulepreload" href="header.js?v=20261013">
+  <link rel="modulepreload" href="header.js?v=20261014">
   <!-- Redirect speed. The hosted payment session is created by a Cloud Function and
        the customer then lands on the gateway's own host (Ozow pay.ozow.com, Yoco
        c.yoco.com), so both connections are opened while they are still filling the
@@ -613,6 +613,16 @@
       background: #e2e2e2;
     }
 
+    /* One rail's marks held together while the strip wraps around them. Without it a
+       two-chip rail can put its symbol at the end of one line and its name at the start
+       of the next, which reads as two different payment methods. */
+    .pay-brand-rail {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
     .pay-brands-compact {
       margin: 12px 0 0;
       gap: 6px;
@@ -635,6 +645,35 @@
 
     .pay-badge-eft svg {
       flex-shrink: 0;
+    }
+
+    /* Capitec Pay chip: the second type-drawn mark in the strips, for the same reason as
+       the Instant EFT chip - no official "Capitec Pay" lockup exists at badge size. It
+       reuses the Instant EFT chip's typography exactly (20px chip, 6px side padding,
+       8.5px bold uppercase) and wears Capitec's own brand navy, sampled #004771 from the
+       official artwork in images/payments/capitec.svg, so the two chips read as one set
+       (Ozow grey and type-drawn, Capitec navy and type-drawn). */
+    .pay-badge-capitecpay {
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 8.5px;
+      font-weight: bold;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: #004771;
+      white-space: nowrap;
+    }
+
+    /* A rail Ozow has not enabled for this merchant account yet (Capitec Pay is enabled on
+       request only - see setCapitecPayAvailability). The row stays exactly where it is,
+       because it is a real method with a real price, but it is muted and its sub-line says
+       what to use instead. The mark is cleared automatically the moment Ozow starts
+       accepting the rail, so this state can never outlive the reason for it. */
+    .payment-tile[data-unavailable="true"] {
+      opacity: 0.55;
+    }
+
+    .payment-tile[data-unavailable="true"]:hover {
+      border-color: #dcdcdc;
     }
 
     @keyframes spin {
@@ -2697,8 +2736,8 @@
                  submits the form so the browser's own required-field validation
                  runs, then hands the browser to the chosen gateway's hosted page.
                  Each row carries the mark of the gateway that will process it on the
-                 right, the accepted cards as badges (not as text) under the card
-                 row's label, and the bank glyph to the left of "Instant EFT". -->
+                 right, the accepted marks as badges (not as text) under the card and
+                 Capitec Pay labels, and the bank glyph to the left of "Instant EFT". -->
             <div style="margin-top: 30px;">
               <div class="section-title" style="margin-bottom: 12px;">Payment method</div>
 
@@ -2728,6 +2767,26 @@
                     <span class="payment-tile-sub">No card needed.</span>
                   </span>
                   <span class="payment-tile-brands" title="Instant EFT by Ozow"><span class="pay-badge"><img src="images/payments/ozow.png" alt="Ozow"></span></span>
+                </button>
+                <!-- Capitec Pay: a third rail that is still Ozow - it is created by the same
+                     createOzowCheckout call with selectedBankId set to Ozow's Capitec Pay
+                     identifier (see GATEWAYS in the script below). It is an app-approval flow
+                     (Capitec app + Capitec ID), not password-based instant EFT, which is why it
+                     gets its own row instead of a bank inside the Instant EFT row - and why it
+                     never appears in Ozow's Pay-by-Bank bank list. The marks under the label are
+                     the official Capitec symbol plus the type-drawn Capitec Pay lockup; the mark
+                     on the right is Ozow, because Ozow is what processes it. -->
+                <button type="button" class="payment-tile" data-gateway="capitec" role="radio" aria-checked="false" onclick="window.selectGateway('capitec')">
+                  <span class="payment-tile-radio" aria-hidden="true"></span>
+                  <span class="payment-tile-text">
+                    <span class="payment-tile-title">Capitec Pay</span>
+                    <span class="payment-tile-badges">
+                      <span class="pay-badge" title="Capitec"><img src="images/payments/capitec.svg" alt="Capitec"></span>
+                      <span class="pay-badge pay-badge-capitecpay" title="Capitec Pay">Capitec Pay</span>
+                    </span>
+                    <span class="payment-tile-sub">Approve it in the Capitec app.</span>
+                  </span>
+                  <span class="payment-tile-brands" title="Capitec Pay by Ozow"><span class="pay-badge"><img src="images/payments/ozow.png" alt="Ozow"></span></span>
                 </button>
               </div>
 
@@ -2800,7 +2859,7 @@
                 </span>
                 <span class="trust-card-title">Secure payment</span>
               </div>
-              <div class="trust-card-line">Cards run through Yoco, Instant EFT through Ozow &mdash; your card and banking details never reach us.</div>
+              <div class="trust-card-line">Cards run through Yoco, Instant EFT and Capitec Pay through Ozow &mdash; your card and banking details never reach us.</div>
               <div class="pay-brands pay-brands-compact">
                 <!-- Both processors are shown, and each one sits in front of the
                      methods it handles: Yoco in front of the cards, Ozow in front of
@@ -2818,6 +2877,15 @@
                   <span class="pay-badge pay-badge-eft" title="Instant EFT bank transfer">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10h18"></path><path d="M5 6l7-3 7 3"></path><path d="M4 10v10"></path><path d="M9 10v10"></path><path d="M15 10v10"></path><path d="M20 10v10"></path><path d="M3 20h18"></path></svg>
                     <span>Instant EFT</span>
+                  </span>
+                  <!-- Capitec Pay is its own Ozow method (and its own row above), so its two
+                       marks sit together at the END of the bank group, inside one
+                       .pay-brand-rail so the strip's wrap can never put the Capitec symbol
+                       at the end of one line and "Capitec Pay" at the start of the next -
+                       which reads as two different payments. -->
+                  <span class="pay-brand-rail">
+                    <span class="pay-badge" title="Capitec Pay by Ozow"><img src="images/payments/capitec.svg" alt="Capitec Pay"></span>
+                    <span class="pay-badge pay-badge-capitecpay" title="Capitec Pay">Capitec Pay</span>
                   </span>
                 </span>
               </div>
@@ -2876,13 +2944,42 @@
     // --- Gateway choice -------------------------------------------------------
     // Choosing a gateway is a two-step, radio-style decision: tapping a tile only
     // SELECTS it (a stray tap can no longer fire a redirect) and the single
-    // #payBtn button is the one action that pays. Yoco handles cards, Ozow handles
-    // instant EFT; both are created server-side and both hand the browser a hosted
-    // payment page, so the rest of the flow is identical.
+    // #payBtn button is the one action that pays. Every rail is created server-side
+    // and every rail hands the browser a hosted payment page, so the rest of the
+    // flow is identical - the only per-rail differences live in GATEWAYS.
+    //
+    // There used to be a ternary per concern ('ozow' ? 'ozow' : 'yoco', ten times
+    // over: the selected value, the button label, the redirect note, the error copy,
+    // the session creator, the warm key, the draft). A third rail is the point at
+    // which that pattern stops being writable, so every one of those reads from this
+    // registry now.
+    //
+    // `selectedBankId` marks a rail that rides on ANOTHER gateway's API: Capitec Pay
+    // is not a Pay-by-Bank bank, it is Ozow's Bank API method, created by the very
+    // same createOzowCheckout call with Ozow's Capitec Pay identifier set (Ozow's own
+    // docs: "Pay by Bank is available by default; Capitec Pay ... enabled by Ozow on
+    // request"). The identifier is hardcoded here on purpose - it is the value Ozow
+    // publishes for the method, and the server whitelists it, so this constant can
+    // never be used to name an arbitrary bank.
+    const CAPITEC_PAY_BANK_ID = '913999FA-3A32-4E3D-82F0-A1DF7E9E4F7B';
+
+    const GATEWAYS = {
+      yoco: { label: 'Yoco', createFn: 'createYocoCheckout', selectedBankId: null },
+      ozow: { label: 'Ozow', createFn: 'createOzowCheckout', selectedBankId: null },
+      capitec: { label: 'Capitec Pay', createFn: 'createOzowCheckout', selectedBankId: CAPITEC_PAY_BANK_ID },
+    };
+
+    // The order the rows appear in, which is also the order the warm-up fills them in.
+    const GATEWAY_ORDER = ['yoco', 'ozow', 'capitec'];
+
+    function resolveGateway(gateway) {
+      return Object.prototype.hasOwnProperty.call(GATEWAYS, gateway) ? gateway : 'yoco';
+    }
+
     window.__extraitGateway = 'yoco';
 
     window.getSelectedPaymentMethod = function () {
-      return window.__extraitGateway === 'ozow' ? 'ozow' : 'yoco';
+      return resolveGateway(window.__extraitGateway);
     };
 
     // Selecting is only selecting: remember the choice, repaint the rows and
@@ -2892,7 +2989,7 @@
     // complete form already starts creating that gateway's session (see
     // warmPaymentSession) so the click does not have to wait for it.
     window.selectGateway = function (gateway) {
-      window.__extraitGateway = gateway === 'ozow' ? 'ozow' : 'yoco';
+      window.__extraitGateway = resolveGateway(gateway);
       window.updatePaymentMethodUI(window.__extraitGateway);
       window.saveCheckoutDraft();
       window.schedulePaymentWarm(0);
@@ -2940,8 +3037,8 @@
     // re-label the single pay button + its redirect note for that gateway, so the
     // button always says exactly where the customer is about to be sent.
     window.updatePaymentMethodUI = function (gateway) {
-      const resolved = gateway === 'ozow' ? 'ozow' : 'yoco';
-      const label = resolved === 'ozow' ? 'Ozow' : 'Yoco';
+      const resolved = resolveGateway(gateway);
+      const label = GATEWAYS[resolved].label;
 
       document.querySelectorAll('.payment-tile').forEach((tile) => {
         const active = tile.getAttribute('data-gateway') === resolved;
@@ -2962,6 +3059,49 @@
       }
     };
 
+    // --- Ozow rails that are switched on per merchant account -----------------
+    // Pay by Bank is on for every Ozow merchant by default; Card, Capitec Pay, PayShap
+    // Request and BNPL are enabled by Ozow ON REQUEST. Until Capitec Pay is switched on for
+    // this account Ozow answers every session request for its identifier with "The selected
+    // bank is not available for this merchant..." - true and useless to a customer. So a
+    // rejection that says exactly that marks the row as not available (its own sub-line says
+    // what to use instead, and a selection that cannot work steps back to the card row),
+    // while ANY successful session clears the mark again. That is deliberate: the row
+    // switches itself on the day Ozow enables the rail, with no code change here.
+    const CAPITEC_TILE_SUB = 'Approve it in the Capitec app.';
+    const CAPITEC_TILE_SUB_UNAVAILABLE = 'Not available from Ozow yet - pay by card or Instant EFT.';
+    const OZOW_METHOD_UNAVAILABLE = /not available for this merchant|not (?:yet )?enabled|not activated|invalid bank/i;
+
+    window.setCapitecPayAvailability = function (err) {
+      const tile = document.querySelector('.payment-tile[data-gateway="capitec"]');
+      if (!tile) return;
+
+      const message = String((err && (err.message || err.details || err.code)) || '');
+      const sub = tile.querySelector('.payment-tile-sub');
+
+      if (!OZOW_METHOD_UNAVAILABLE.test(message)) {
+        // Anything that is not that specific rejection - a cold-start, a network blip, a
+        // timeout - must leave the row exactly as it is: a rail that works must never be
+        // hidden by a transient failure.
+        if (tile.getAttribute('data-unavailable') !== 'true') return;
+        tile.removeAttribute('data-unavailable');
+        if (sub) sub.textContent = CAPITEC_TILE_SUB;
+        return;
+      }
+
+      tile.setAttribute('data-unavailable', 'true');
+      if (sub) sub.textContent = CAPITEC_TILE_SUB_UNAVAILABLE;
+
+      // Nobody should be left standing on a rail Ozow has just refused, but the choice is
+      // only taken back while it is still just a choice - once the submit is in flight the
+      // error box owns the explanation and the selection is left alone.
+      if (window.getSelectedPaymentMethod() === 'capitec' && !payHandoffStarted) {
+        window.__extraitGateway = 'yoco';
+        window.updatePaymentMethodUI('yoco');
+        window.saveCheckoutDraft();
+      }
+    };
+
     // --- Redirect speed: warm the session BEFORE the click --------------------
     // "Continue to Ozow" used to wait on three things in a row: the Cloud Function
     // (a cold container is the slowest part), the gateway's own checkout API call
@@ -2979,18 +3119,18 @@
     // details) is part of the fingerprint, so the moment one of them changes the warm
     // session no longer matches and a fresh one is created for the new order.
     // Every warm session lives in a small map keyed by gateway + exact order payload
-    // (see gatewayWarmKey). Two entries at most - the chosen gateway and the other one -
+    // (see gatewayWarmKey). One entry per rail at most - the chosen rail plus the others -
     // so whichever row the customer taps is already created.
     window.__payWarm = Object.create(null);
     let payWarmTimer = null;
     let payWarmOtherTimer = null;
 
-    // Warming BOTH gateways costs one extra hosted session per COMPLETE form (sessions
+    // Warming the other rails costs one extra hosted session per COMPLETE form (sessions
     // only expire, they charge nothing), and it is what makes "tap Instant EFT, then tap
     // Continue" instant as well: without it that customer - the one whose gateway page is
     // the slowest - is the only one who still waits for a cold session. Set this to false
-    // to warm the chosen gateway only.
-    const PAY_WARM_BOTH_GATEWAYS = true;
+    // to warm the chosen rail only.
+    const PAY_WARM_EVERY_GATEWAY = true;
 
     // --- Opt-in timing readout (?paytimer=1) ---------------------------------
     // The hand-off is the one step whose speed the customer feels, and the only real
@@ -3138,20 +3278,33 @@
     // The one place that talks to a session creator, shared by the warm-up and the
     // submit.
     async function createGatewaySession(gateway, payload) {
-      const createFnName = gateway === 'ozow' ? 'createOzowCheckout' : 'createYocoCheckout';
+      const def = GATEWAYS[resolveGateway(gateway)];
+
+      // A rail that rides on another gateway's API (Capitec Pay rides on Ozow's) puts its
+      // `selectedBankId` in the request; the Cloud Function whitelists it, so a tampered
+      // value can never widen which banks we accept.
+      const body = def.selectedBankId ?
+        Object.assign({}, payload, { selectedBankId: def.selectedBankId }) :
+        payload;
 
       const sdk = await loadFunctionsSdk();
       if (sdk) {
-        const res = await sdk.httpsCallable(sdk.getFunctions(), createFnName)(payload);
+        const res = await sdk.httpsCallable(sdk.getFunctions(), def.createFn)(body);
         return res.data;
       }
 
-      const res = await fetch(`${FUNCTIONS_BASE}/${createFnName}`, {
+      const res = await fetch(`${FUNCTIONS_BASE}/${def.createFn}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: payload })
+        body: JSON.stringify({ data: body })
       });
       const json = await res.json();
+      // A rejected callable answers with {error:{message}}: rethrowing it here is what keeps
+      // the gateway's OWN reason ("The selected bank is not available for this merchant...")
+      // in front of the customer instead of a generic one.
+      if (json && json.error) {
+        throw new Error(json.error.message || json.error.status || 'The payment service did not respond.');
+      }
       return json.result || json;
     }
 
@@ -3189,7 +3342,7 @@
       const order = collectCheckoutOrder();
       if (!order) return null;
 
-      const resolved = gateway === 'ozow' ? 'ozow' : 'yoco';
+      const resolved = resolveGateway(gateway);
       const key = gatewayWarmKey(resolved, order.payload);
       const existing = window.__payWarm[key];
       if (existing) return existing.promise;
@@ -3200,6 +3353,9 @@
         record.settledAt = Date.now();
         if (data && data.redirectUrl) warmGatewayDestination(data.redirectUrl);
         payTimerMark('ready(' + resolved + ')');
+        // A session really was created, so the rail is genuinely enabled: this is also what
+        // lets an Ozow rail that was marked unavailable switch itself back on.
+        if (resolved === 'capitec') window.setCapitecPayAvailability(null);
         return data;
       });
 
@@ -3218,8 +3374,11 @@
 
       // A failed warm-up must never surface as an unhandled rejection, and must never
       // be reused as if it were a live session.
-      record.promise.catch(() => {
+      record.promise.catch((err) => {
         if (window.__payWarm[key] === record) delete window.__payWarm[key];
+        // A warm-up is also the cheapest probe we have of whether Ozow has switched this
+        // rail on for the account yet (see setCapitecPayAvailability).
+        if (resolved === 'capitec') window.setCapitecPayAvailability(err);
       });
 
       return record.promise;
@@ -3236,22 +3395,35 @@
       }
     };
 
-    // The chosen gateway first, then - a beat later - the other one, so whichever row the
-    // customer taps is already created (see PAY_WARM_BOTH_GATEWAYS).
+    // The chosen rail first, then - a beat apart - the other rails, so whichever row the
+    // customer taps is already created (see PAY_WARM_EVERY_GATEWAY). This used to be a
+    // hardcoded pair ("primary + the other one"), which is exactly the shape a third rail
+    // breaks: it would have warmed a constant 'yoco' or 'ozow' and left Capitec Pay cold.
     window.warmPaymentSession = function () {
-      const primary = warmGatewayNow(window.getSelectedPaymentMethod());
-      if (!primary || !PAY_WARM_BOTH_GATEWAYS) return primary;
+      const primary = window.getSelectedPaymentMethod();
+      const primaryWarm = warmGatewayNow(primary);
+      if (!primaryWarm || !PAY_WARM_EVERY_GATEWAY) return primaryWarm;
 
-      const other = window.getSelectedPaymentMethod() === 'yoco' ? 'ozow' : 'yoco';
+      const others = GATEWAY_ORDER.filter((key) => key !== primary);
       if (payWarmOtherTimer) clearTimeout(payWarmOtherTimer);
-      payWarmOtherTimer = setTimeout(() => {
-        payWarmOtherTimer = null;
-        // Re-read the form and the cart: the second session is built from whatever the
-        // order looks like when it is actually created, never from a stale snapshot.
-        warmGatewayNow(other);
-      }, 400);
+      let next = 0;
 
-      return primary;
+      const warmNext = () => {
+        const gateway = others[next];
+        next += 1;
+        if (!gateway) {
+          payWarmOtherTimer = null;
+          return;
+        }
+        // Re-read the form and the cart on every step: each session is built from whatever
+        // the order looks like when it is actually created, never from a stale snapshot.
+        warmGatewayNow(gateway);
+        payWarmOtherTimer = setTimeout(warmNext, 400);
+      };
+
+      payWarmOtherTimer = setTimeout(warmNext, 400);
+
+      return primaryWarm;
     };
 
     window.schedulePaymentWarm = function (delay) {
@@ -3388,7 +3560,7 @@
       event.preventDefault();
 
       const gateway = window.getSelectedPaymentMethod();
-      const gatewayLabel = gateway === 'ozow' ? 'Ozow' : 'Yoco';
+      const gatewayLabel = GATEWAYS[gateway].label;
 
       const errorBox = document.getElementById('paymentError');
       if (errorBox) {
@@ -3444,7 +3616,11 @@
         localStorage.setItem('minara_last_order', JSON.stringify({
           paymentId: resData.reference,
           checkoutId: resData.checkoutId || "",
-          paymentGateway: gateway,
+          // The receipt page routes on this value, and Ozow processes the Capitec Pay rail -
+          // so the rail is recorded as its own field and the gateway stays Ozow. Two rails,
+          // one processor, one receipt.
+          paymentGateway: gateway === 'capitec' ? 'ozow' : gateway,
+          paymentRail: gateway,
           firstName,
           lastName,
           email,
@@ -3490,6 +3666,10 @@
         delete window.__payWarm[warmKey];
         window.setPaymentTilesDisabled(false);
         window.clearPayStatus();
+        // Capitec Pay only reaches this point when Ozow has not enabled the rail for the
+        // account (or the API refused it): the row marks itself as unavailable so nobody
+        // walks into the same wall twice (see setCapitecPayAvailability).
+        if (gateway === 'capitec') window.setCapitecPayAvailability(err);
         window.showPaymentError(gatewayLabel, err);
       }
     };
@@ -3573,7 +3753,9 @@
       });
       window.setManualAddressVisible(hasAddressValues || draft.manualAddressVisible === true, false);
 
-      if (draft.gateway === 'ozow' || draft.gateway === 'yoco') {
+      // Only a rail this page actually renders is restored: a draft written by a newer or
+      // older build can never switch the checkout to a gateway it has no row for.
+      if (Object.prototype.hasOwnProperty.call(GATEWAYS, draft.gateway)) {
         window.__extraitGateway = draft.gateway;
       }
 
@@ -3622,7 +3804,7 @@
     });
   </script>
 
-  <script type="module" src="header.js?v=20261013"></script>
+  <script type="module" src="header.js?v=20261014"></script>
 
 </body>
 

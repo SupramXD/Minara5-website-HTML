@@ -114,14 +114,21 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
    **"Continue to Yoco" / "Continue to Ozow"** button is the action, so the browser's own
    required-field validation runs before any redirect. Each row carries the mark of the gateway that
    will process it (`.payment-tile-brands`: the Yoco chip on "Pay by card", the Ozow chip on
-   "Instant EFT") **and shows what it accepts as badges rather than as a sentence** - the "Pay by card"
-   row's `Visa · Mastercard · Google Pay · Apple Pay` text line became `.payment-tile-badges`, the same
-   20px `.pay-badge` chips used everywhere else, and the "Instant EFT" row carries the type-drawn bank
-   chip to the LEFT of its own label (2026-10-13 pass 3); the accepted-marks strip (official Visa,
-   Mastercard, Google Pay, Apple Pay, Yoco, Ozow and
-   the type-drawn "Instant EFT" chip, all self-hosted in `images/payments/`) now lives inside the ONE
+   "Instant EFT" AND on "Capitec Pay" - Ozow processes that rail too) **and shows what it accepts as
+   badges rather than as a sentence** - the "Pay by card" row's
+   `Visa · Mastercard · Google Pay · Apple Pay` text line became `.payment-tile-badges`, the same
+   20px `.pay-badge` chips used everywhere else, the "Capitec Pay" row carries the official Capitec
+   symbol plus the type-drawn "Capitec Pay" chip there, and the "Instant EFT" row carries the
+   type-drawn bank chip to the LEFT of its own label (2026-10-13 pass 3); the accepted-marks strip
+   (official Visa, Mastercard, Google Pay, Apple Pay, Yoco, Ozow, Capitec and
+   the type-drawn "Instant EFT" and "Capitec Pay" chips, all self-hosted in `images/payments/`) now
+   lives inside the ONE
    **"Secure payment"** trust card, with each processor in front of the methods it handles (Yoco before
-   the cards, Ozow before the EFT chip). Never redraw or re-crop those assets by hand, keep the brand-blue
+   the cards, Ozow before the EFT chip and before the Capitec pair, which sit inside one
+   `.pay-brand-rail` so a phone-width wrap cannot split the symbol from the words). Never redraw or
+   re-crop those assets by hand (`capitec.svg` is the single deliberate exception: its `viewBox` was
+   cropped around the symbol because the full lockup's wordmark is a smudge at badge size - see MEMORY),
+   keep the brand-blue
    `yoco-blue.svg` on the white chips, and do **not** re-add a floating legend strip above the rows
    (that was `.pay-brands-legend`) or gateway badges inside a trust-card head (that was
    `.pay-badge-head`) - both were removed on 2026-10-13 because they duplicated the row marks and made
@@ -155,8 +162,9 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
    restore fires `visibilitychange` and `pageshow` for one return), and the 8s watchdog unlocks the same
    way only while the document is still `visible`, because a merely-slow navigation hides it. Warm
    sessions are a map (`window.__payWarm`, at most one record per gateway, keyed by
-   `gatewayWarmKey`), and `PAY_WARM_BOTH_GATEWAYS` warms the chosen gateway and then the other one 400ms
-   later, so "tap Instant EFT, then Continue" is instant too. `#payStatus` now goes up on EVERY click
+   `gatewayWarmKey`), and `PAY_WARM_EVERY_GATEWAY` warms the chosen rail and then every other rail in
+   `GATEWAY_ORDER` 400ms apart (it was `PAY_WARM_BOTH_GATEWAYS` until the third rail made "both" wrong),
+   so "tap Instant EFT, then Continue" is instant too. `#payStatus` now goes up on EVERY click
    (the old 400ms delay is gone: the gateway's own page takes 0.2-0.9s to answer while this page is
    still on screen). Also keep `saveCheckoutDraft()`'s `checkoutDraftRestored` gate - a save before
    `restoreCheckoutDraft()` has run snapshots an EMPTY form and destroys the very draft the customer is

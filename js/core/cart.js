@@ -599,6 +599,14 @@
             <span title="Instant EFT by Ozow" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
               <img src="images/payments/ozow.png" alt="Ozow Instant EFT" style="display:block; height:11px; width:auto;">
             </span>
+            <!-- Capitec Pay: Ozow's Bank API rail, so the chip is Ozow-adjacent on purpose -
+                 the official Capitec mark (images/payments/capitec.svg, cropped from the
+                 public-domain Commons artwork) plus the type-drawn Capitec Pay lockup, the
+                 same treatment as the Instant EFT chip in checkout.html. -->
+            <span title="Capitec Pay by Ozow" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <img src="images/payments/capitec.svg" alt="Capitec Pay" style="display:block; height:11px; width:auto;">
+            </span>
+            <span title="Capitec Pay" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; font-family:Helvetica, Arial, sans-serif; font-size:8.5px; font-weight:bold; letter-spacing:0.6px; text-transform:uppercase; color:#004771; white-space:nowrap;">Capitec Pay</span>
             <span title="Payments secured by Yoco and Ozow" style="font-size: 8px; font-weight: bold; letter-spacing: 0.5px; opacity: 0.45; margin-left: auto; text-transform: uppercase; white-space: nowrap; font-family: Helvetica, Arial, sans-serif;">SECURED CHECKOUT</span>
           </div>` : ''}
         </div>
