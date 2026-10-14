@@ -10,6 +10,29 @@
 > a `reply-draft` on message `1a13074221cf4b94`). Keep §3 as the fallback if the short ask comes back
 > as "not possible", because it carries the payload evidence with it.
 
+**Exact text staged in that Gmail reply draft** (draft id `r8513271970729214655`, thread
+`1a10b65ea8d12c1c`, in reply to `1a13074221cf4b94`; verified as built MIME: addressed to
+`Ozow Support <support@ozow.com>`, `In-Reply-To`/`References` chained onto their 12 Oct mail,
+emoji `U+1F605` encoded once as `=F0=9F=98=85`, no em/en dash, no ellipsis):
+
+```
+Good day Nthabiseng,
+
+Could you please activate Capitec Pay for my account? Site code STU-STU-022.
+
+I have it set up on my side, it just needs to be activated for my site's
+integration of it to work.
+
+Sorry to bother you with this.
+
+Thank You
+-Jadon From Studio Extrait 😅
+```
+
+Deliberately shorter than §3: it drops the bank-account thank-you (that item is already closed by
+their 12 Oct mail) and the "your page says the bank is not available for this merchant" line, and
+asks only for activation. It is **still not sent** — it waits on merchant approval.
+
 ## 1. The short answer: there is nothing to switch on yourself
 
 There is **no toggle for this in `dash.ozow.com`** — not a checkbox, not a menu. Ozow's own docs say it
