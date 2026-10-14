@@ -211,6 +211,55 @@ const OZOW_BANK_METHOD_IDS = {
 const OZOW_ALLOWED_SELECTED_BANK_IDS = Object.values(OZOW_BANK_METHOD_IDS);
 
 /**
+ * Ozow's hosted payer page, where a method that the account is not enabled for turns into the
+ * generic bank picker instead of an error we can see (see probeOzowBankMethod).
+ */
+const OZOW_PAYER_PAGE_URL = "https://pay.ozow.com";
+
+/**
+ * How long an answer about a Bank API rail may be reused, and the copy a customer gets when the
+ * rail cannot run. The state is per instance, so a cold start simply re-asks Ozow.
+ */
+const OZOW_BANK_METHOD_STATE_TTL_MS = {
+  available: 12 * 60 * 60 * 1000,
+  unavailable: 10 * 60 * 1000,
+};
+const OZOW_METHOD_UNAVAILABLE_RE =
+    /not available for this merchant|not (?:yet )?enabled|not activated|invalid bank/i;
+const OZOW_RAIL_NOT_ENABLED_MESSAGE =
+    "Ozow has not enabled this payment method on our account yet. Please pay by card or Instant EFT.";
+const ozowBankMethodStates = new Map();
+
+/**
+ * Last known usability of a Bank API rail for THIS merchant account, if it is still fresh.
+ * @param {?string} bankId Whitelisted method identifier.
+ * @return {string} "unknown" | "available" | "unavailable".
+ */
+function readOzowBankMethodState(bankId) {
+  if (!bankId) {
+    return "unavailable";
+  }
+  const entry = ozowBankMethodStates.get(bankId);
+  if (!entry) {
+    return "unknown";
+  }
+  if (Date.now() - entry.checkedAt > OZOW_BANK_METHOD_STATE_TTL_MS[entry.state]) {
+    ozowBankMethodStates.delete(bankId);
+    return "unknown";
+  }
+  return entry.state;
+}
+
+/**
+ * Remember a probe result so the next order on this instance costs no extra Ozow call.
+ * @param {string} bankId Whitelisted method identifier.
+ * @param {string} state "available" or "unavailable".
+ */
+function writeOzowBankMethodState(bankId, state) {
+  ozowBankMethodStates.set(bankId, {state: state, checkedAt: Date.now()});
+}
+
+/**
  * SHA512 hex digest - the only hash Ozow uses.
  * @param {string} value String to hash.
  * @return {string} Lowercase hexadecimal digest.
@@ -235,6 +284,110 @@ function buildOzowRequestHash(fields, privateKey) {
       .map((entry) => String(entry.value))
       .join("");
   return sha512Hex((concatenated + privateKey).toLowerCase());
+}
+
+/**
+ * Answers ONE question for a Bank API rail - today only Capitec Pay - that
+ * `postpaymentrequest` cannot: would Ozow really open this method for our site?
+ *
+ * A method the account is not enabled for is NOT rejected by the API. It comes back HTTP 200
+ * with a session URL like any other request, and the refusal only exists in the payer session,
+ * which Ozow's own hosted page starts (`POST https://pay.ozow.com/api/transaction/initiate`) and
+ * answers with:
+ *
+ *   {"errors":["The selected bank is not available for this merchant, you will need to select a
+ *              different bank and complete the normal payment process."],
+ *    "transactionId":"00000000-0000-0000-0000-000000000000"}
+ *
+ * That is a SILENT DOWNGRADE: the customer tapped "Capitec Pay" and lands on Ozow's generic bank
+ * picker. The response is cross-origin HTML for the storefront, so the only place it can be read
+ * is here, where `initiate` is one more fetch. The probe therefore runs on a throwaway R1 request
+ * of its own, and only when the answer is not already cached: the session we hand the customer is
+ * created afterwards and is never pre-initiated.
+ *
+ * @param {string} bankId Whitelisted Bank API method identifier.
+ * @param {{siteCode: string, privateKey: string, apiKey: string, isTest: boolean}} config
+ * @return {Promise<{available: boolean, reason: string, transient: boolean}>} Probe result.
+ */
+async function probeOzowBankMethod(bankId, config) {
+  const reference = `CAPCHK-${Date.now().toString().slice(-8)}`;
+  const amount = "1.00";
+  const payload = {
+    siteCode: config.siteCode,
+    countryCode: "ZA",
+    currencyCode: "ZAR",
+    amount: amount,
+    transactionReference: reference,
+    bankReference: reference,
+    isTest: config.isTest,
+    selectedBankId: bankId,
+  };
+  // Only the fields actually sent may be hashed, in Ozow's documented order - `selectedBankId`
+  // is field 18, immediately after `isTest` (see createOzowCheckout for the full request).
+  payload.hashCheck = buildOzowRequestHash([
+    {name: "siteCode", value: payload.siteCode},
+    {name: "countryCode", value: payload.countryCode},
+    {name: "currencyCode", value: payload.currencyCode},
+    {name: "amount", value: payload.amount},
+    {name: "transactionReference", value: payload.transactionReference},
+    {name: "bankReference", value: payload.bankReference},
+    {name: "isTest", value: config.isTest ? "true" : "false"},
+    {name: "selectedBankId", value: bankId},
+  ], config.privateKey);
+
+  let created = null;
+  try {
+    const response = await fetch(`${getOzowBaseUrl()}/postpaymentrequest`, {
+      method: "POST",
+      headers: {
+        "ApiKey": config.apiKey,
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    created = await response.json().catch(() => null);
+  } catch (err) {
+    logger.warn("Ozow bank-method probe could not reach the API:", err);
+    return {available: false, reason: "Ozow could not be reached", transient: true};
+  }
+  if (!created || !created.paymentRequestId || !created.url || created.errorMessage) {
+    return {
+      available: false,
+      reason: String((created && created.errorMessage) || "Ozow refused the payment request"),
+      transient: false,
+    };
+  }
+
+  let session = null;
+  try {
+    const response = await fetch(`${OZOW_PAYER_PAGE_URL}/api/transaction/initiate`, {
+      method: "POST",
+      headers: {"Accept": "application/json", "Content-Type": "application/json"},
+      body: JSON.stringify({requestId: created.paymentRequestId, viewName: ""}),
+    });
+    session = await response.json().catch(() => null);
+  } catch (err) {
+    logger.warn("Ozow bank-method probe could not start a payer session:", err);
+    return {available: false, reason: "Ozow could not be reached", transient: true};
+  }
+
+  const errors = Array.isArray(session && session.errors) ? session.errors : [];
+  const refused = errors.find((entry) => OZOW_METHOD_UNAVAILABLE_RE.test(String(entry))) || errors[0];
+  if (refused) {
+    return {available: false, reason: String(refused), transient: false};
+  }
+  // No error and no real transaction id means Ozow answered without opening anything - the same
+  // dead end for the customer as a refusal, so it must block the rail too.
+  const transactionId = String((session && session.transactionId) || "");
+  if (!transactionId || /^0{8}-0{4}-0{4}-0{4}-0{12}$/.test(transactionId)) {
+    return {
+      available: false,
+      reason: "Ozow did not open a payer session for it",
+      transient: false,
+    };
+  }
+  return {available: true, reason: "", transient: false};
 }
 
 /**
@@ -1288,6 +1441,41 @@ exports.createOzowCheckout = onCall({
   const ozowRail = selectedBankId ?
     (Object.keys(OZOW_BANK_METHOD_IDS).find((key) => OZOW_BANK_METHOD_IDS[key] === selectedBankId) || "bank-api") :
     "pay-by-bank";
+
+  // A Bank API rail can be dead even though every call above succeeded: Ozow answers 200 with a
+  // session URL for a method the account is not enabled for and only refuses it when its own
+  // hosted page starts the payer session, which would drop the customer on the generic bank
+  // picker. So ask Ozow before the order doc exists and before we hand out a session - and cache
+  // the answer, so this costs one extra call per state window, not one per order.
+  if (selectedBankId) {
+    const bankMethodState = readOzowBankMethodState(selectedBankId);
+    if (bankMethodState === "unavailable") {
+      throw new HttpsError("failed-precondition", OZOW_RAIL_NOT_ENABLED_MESSAGE);
+    }
+    if (bankMethodState === "unknown") {
+      const probe = await probeOzowBankMethod(selectedBankId, {
+        siteCode: siteCode,
+        privateKey: privateKey,
+        apiKey: apiKey,
+        isTest: isTest,
+      });
+      if (probe.transient) {
+        // A gateway we cannot reach is not a rail that is switched off: never cache it, and do
+        // not let the row mute itself over it.
+        throw new HttpsError("unavailable",
+            "We could not check that payment method with Ozow just now. Please try again, or pay by card or Instant EFT.");
+      }
+      writeOzowBankMethodState(selectedBankId, probe.available ? "available" : "unavailable");
+      if (!probe.available) {
+        logger.warn(`Ozow Bank API method ${selectedBankId} (${ozowRail}) is unusable for site ` +
+            `${siteCode}: ${probe.reason}`);
+        throw new HttpsError("failed-precondition",
+            `${OZOW_RAIL_NOT_ENABLED_MESSAGE} (${probe.reason})`);
+      }
+      logger.info(`Ozow Bank API method ${selectedBankId} (${ozowRail}) verified usable for ` +
+          `site ${siteCode}.`);
+    }
+  }
 
   const orderDoc = {
     orderId: reference,

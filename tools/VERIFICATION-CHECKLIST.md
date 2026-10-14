@@ -134,6 +134,20 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
    `.pay-badge-head`) - both were removed on 2026-10-13 because they duplicated the row marks and made
    the summary column read as clutter. The "Free Express Shipping" card is only rendered when the order
    really does ship free.
+   **Free shipping is shown as a saving (2026-10-14):** the R85 stays on the SHIPPING row - checkout
+   summary AND bag drawer - struck through in grey `#9ca3af` next to `FREE` in the site's money-blue
+   `#1106e8`, and that card now reads "The Courier Guy door-to-door delivery with tracking - the R85
+   fee is on us". Never reduce a free-shipping line back to a bare "FREE".
+   **The bag drawer's strip is a sized-down exception to the 20px badge rule**: the drawer is `85vw`
+   wide, so a 320px viewport leaves 231px of marks. There the card chips are 18px and the two Ozow
+   rails 17px (see MEMORY), which is what fits "Instant EFT" and "Capitec Pay" next to their processor
+   marks in three lines. Verify a strip change with the harness recipe - render the drawer's real
+   markup in a 231px box and read widths/`offsetTop` back with `--dump-dom` - not by eye.
+   **Capitec Pay is refused honestly until Ozow enables it**: `createOzowCheckout` probes the rail
+   server-side (`probeOzowBankMethod`) because Ozow answers `200` + a session URL for a method the
+   account is not enabled for and only refuses it inside the payer session, which the storefront
+   cannot read. Never remove that gate: without it a Capitec Pay tap lands on Ozow's generic bank
+   picker. Check the rail live with `node tools/ozow-live-rail-check.js` (no secrets needed).
 6b. (2026-10-13 pass 3) **The hosted session is created before the customer clicks Continue**, so the
    hand-off to Yoco/Ozow does not have to wait for a cold Cloud Function plus the gateway's own API
    call: `showAddressFilledNote()` (no input event from autofill), a typed `input`/`change`, choosing a

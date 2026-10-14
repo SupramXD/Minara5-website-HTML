@@ -550,7 +550,14 @@
     const paymentBoxHeight = hasItems ? "auto" : "50px"; 
     const paymentPadding = hasItems ? "20px 20px" : "8px 20px"; 
 
-    const shippingLabel = (pricing.shippingFee === 0 && hasItems) ? 'FREE' : `R${pricing.shippingFee}`;
+    // Free shipping keeps the R85 the customer would otherwise pay on the line, struck
+    // through next to the FREE (same treatment as the checkout summary): "FREE" alone is
+    // worth nothing to someone who never saw a delivery fee, and the struck price is what
+    // turns the threshold into a saving. Grey strike + the site's money-blue #1106e8 for
+    // FREE, exactly like every other saving we show.
+    const shippingLabel = (pricing.shippingFee === 0 && hasItems)
+      ? '<span style="text-decoration:line-through; color:#9ca3af; font-weight:normal; margin-right:6px;">R85</span><span style="color:#1106e8;">FREE</span>'
+      : `R${pricing.shippingFee}`;
     const priceDisplay = 'R' + getFormattedPrice(pricing.finalTotal);
 
     html += `
@@ -572,41 +579,61 @@
             <span>${hasItems ? priceDisplay : ''}</span>
           </div>
           ${hasItems ? `<button onclick="location.href='checkout.html'" style="width:100%; background:#ccff00; border:1px solid #000; padding:12px; font-family:'Gotham Narrow Bold', sans-serif; font-size:11px; cursor:pointer; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">CONTINUE TO CHECKOUT</button>` : ''}
-          ${hasItems ? `<div style="display:flex; gap:6px; align-items:center; margin-top:12px; flex-wrap:wrap;">
-            <!-- Official payment brand badges (self-hosted in images/payments).
-                 Same 20px chip + 11px wordmark rule as checkout.html; the
-                 Mastercard mark is a graphic, so it takes 13px, and the Apple Pay
-                 mark carries its own black frame so it replaces the chip chrome
-                 and renders at the full 20px chip height. Card marks first, then
-                 the instant-EFT mark. The Yoco wordmark is the brand-blue copy
-                 (yoco-blue.svg, #00A9E0) because every chip here is a white chip -
+          ${hasItems ? `<div style="display:flex; align-items:center; flex-wrap:wrap; column-gap:4px; row-gap:6px; margin-top:12px;">
+            <!-- Official payment brand badges (self-hosted in images/payments), sized for THIS
+                 container: the drawer is 85vw wide and the payment box pads 20px a side, so a
+                 320px viewport leaves 231px - measured, not guessed (a measurement harness, not
+                 the eye, is what settles a strip this crowded). The chips here are therefore one
+                 step down from checkout.html's 20px: 18px for the card marks and 17px for the two
+                 Ozow rails, which is what lets "Instant EFT" and "Capitec Pay" both appear,
+                 together with their processor marks, inside 231px. Order is checkout's order:
+                 cards by Yoco, then Instant EFT by Ozow, then Capitec Pay - Ozow's own Bank API
+                 rail, which is why Capitec never appears in the Pay-by-Bank bank list. Each
+                 symbol travels with its name inside one flex-shrink:0 group, so a wrap can never
+                 leave a logo on one line and its label on the next. The Yoco wordmark is the
+                 brand-blue copy (yoco-blue.svg, #00A9E0) because every chip here is a white chip -
                  yoco.svg (#141414) is only for a dark background. -->
-            <span title="Card payments by Yoco" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
-              <img src="images/payments/yoco-blue.svg" alt="Yoco" style="display:block; height:11px; width:auto;">
+            <span style="display:inline-flex; align-items:center; gap:4px; flex-shrink:0;">
+              <span title="Card payments by Yoco" style="height:18px; padding:0 5px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <img src="images/payments/yoco-blue.svg" alt="Yoco" style="display:block; height:10px; width:auto;">
+              </span>
+              <span title="Visa" style="height:18px; padding:0 5px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <img src="images/payments/visa.svg" alt="Visa" style="display:block; height:10px; width:auto;">
+              </span>
+              <span title="Mastercard" style="height:18px; padding:0 5px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <img src="images/payments/mastercard.svg" alt="Mastercard" style="display:block; height:12px; width:auto;">
+              </span>
+              <span title="Google Pay" style="height:18px; padding:0 5px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <img src="images/payments/googlepay.svg" alt="Google Pay" style="display:block; height:10px; width:auto;">
+              </span>
+              <span title="Apple Pay" style="height:18px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <img src="images/payments/applepay.svg" alt="Apple Pay" style="display:block; height:18px; width:auto;">
+              </span>
             </span>
-            <span title="Visa" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
-              <img src="images/payments/visa.svg" alt="Visa" style="display:block; height:11px; width:auto;">
+            <!-- Instant EFT: the Ozow mark plus the type-drawn "Instant EFT" chip (no official
+                 Ozow instant-EFT lockup exists at badge size), held in one group so the symbol
+                 and the words can never be split by a wrap. Same chip as the checkout strip, one
+                 size down for this narrower box. -->
+            <span style="display:inline-flex; align-items:center; gap:4px; flex-shrink:0;">
+              <span title="Instant EFT by Ozow" style="height:17px; padding:0 4px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <img src="images/payments/ozow.png" alt="Ozow Instant EFT" style="display:block; height:9px; width:auto;">
+              </span>
+              <span title="Instant EFT bank transfer" style="height:17px; padding:0 4px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; gap:3px; font-family:Helvetica, Arial, sans-serif; font-size:8px; font-weight:bold; letter-spacing:0.6px; text-transform:uppercase; color:#111111; white-space:nowrap;">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;"><path d="M3 10h18"></path><path d="M5 6l7-3 7 3"></path><path d="M4 10v10"></path><path d="M9 10v10"></path><path d="M15 10v10"></path><path d="M20 10v10"></path><path d="M3 20h18"></path></svg>
+                <span>Instant EFT</span>
+              </span>
             </span>
-            <span title="Mastercard" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
-              <img src="images/payments/mastercard.svg" alt="Mastercard" style="display:block; height:13px; width:auto;">
+            <!-- Capitec Pay: Ozow's Bank API rail (never a bank in the Pay-by-Bank list), so its
+                 chip is Ozow-adjacent on purpose - the official Capitec mark
+                 (images/payments/capitec.svg, cropped from the public-domain Commons artwork)
+                 plus the type-drawn "Capitec Pay" lockup in Capitec's own navy #004771, the same
+                 treatment as the Instant EFT chip, symbol and name in one unsplittable group. -->
+            <span style="display:inline-flex; align-items:center; gap:4px; flex-shrink:0;">
+              <span title="Capitec Pay by Ozow" style="height:17px; padding:0 4px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <img src="images/payments/capitec.svg" alt="Capitec Pay" style="display:block; height:9px; width:auto;">
+              </span>
+              <span title="Capitec Pay" style="height:17px; padding:0 4px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; font-family:Helvetica, Arial, sans-serif; font-size:8px; font-weight:bold; letter-spacing:0.6px; text-transform:uppercase; color:#004771; white-space:nowrap;">Capitec Pay</span>
             </span>
-            <span title="Google Pay" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
-              <img src="images/payments/googlepay.svg" alt="Google Pay" style="display:block; height:11px; width:auto;">
-            </span>
-            <span title="Apple Pay" style="height:20px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
-              <img src="images/payments/applepay.svg" alt="Apple Pay" style="display:block; height:20px; width:auto;">
-            </span>
-            <span title="Instant EFT by Ozow" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
-              <img src="images/payments/ozow.png" alt="Ozow Instant EFT" style="display:block; height:11px; width:auto;">
-            </span>
-            <!-- Capitec Pay: Ozow's Bank API rail, so the chip is Ozow-adjacent on purpose -
-                 the official Capitec mark (images/payments/capitec.svg, cropped from the
-                 public-domain Commons artwork) plus the type-drawn Capitec Pay lockup, the
-                 same treatment as the Instant EFT chip in checkout.html. -->
-            <span title="Capitec Pay by Ozow" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
-              <img src="images/payments/capitec.svg" alt="Capitec Pay" style="display:block; height:11px; width:auto;">
-            </span>
-            <span title="Capitec Pay" style="height:20px; padding:0 6px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; font-family:Helvetica, Arial, sans-serif; font-size:8.5px; font-weight:bold; letter-spacing:0.6px; text-transform:uppercase; color:#004771; white-space:nowrap;">Capitec Pay</span>
             <span title="Payments secured by Yoco and Ozow" style="font-size: 8px; font-weight: bold; letter-spacing: 0.5px; opacity: 0.45; margin-left: auto; text-transform: uppercase; white-space: nowrap; font-family: Helvetica, Arial, sans-serif;">SECURED CHECKOUT</span>
           </div>` : ''}
         </div>

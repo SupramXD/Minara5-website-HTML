@@ -21,7 +21,7 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js">
-  <link rel="modulepreload" href="header.js?v=20261014">
+  <link rel="modulepreload" href="header.js?v=20261015">
   <!-- Redirect speed. The hosted payment session is created by a Cloud Function and
        the customer then lands on the gateway's own host (Ozow pay.ozow.com, Yoco
        c.yoco.com), so both connections are opened while they are still filling the
@@ -2834,9 +2834,17 @@
                 <span>-R${discountAmount}</span>
               </div>
             ` : ''}
+            <!-- Free shipping is shown as a SAVING, not as a state: the R85 the customer
+                 would otherwise pay stays on the line, struck through, because "FREE" on
+                 its own is worth nothing to someone who never saw a delivery fee. The
+                 strike is grey (an old price is not news) and the FREE keeps the site's
+                 money-blue #1106e8 - the same colour as the 2+ bottle saving, so every
+                 number we save the customer reads the same way. -->
             <div class="pricing-row">
               <span>Shipping</span>
-              <span>${shippingFee > 0 ? `R${shippingFee}` : 'FREE'}</span>
+              <span>${shippingFee > 0
+                ? `R${shippingFee}`
+                : '<span style="text-decoration: line-through; color: #9ca3af; font-weight: normal; margin-right: 6px;">R85</span><span style="color: #1106e8; font-weight: bold;">FREE</span>'}</span>
             </div>
             <div class="pricing-row total-row">
               <span>Total Due</span>
@@ -2903,7 +2911,7 @@
                 </span>
                 <span class="trust-card-title">Free Express Shipping</span>
               </div>
-              <div class="trust-card-line">The Courier Guy door-to-door delivery with tracking.</div>
+              <div class="trust-card-line">The Courier Guy door-to-door delivery with tracking &mdash; the R85 fee is on us.</div>
             </div>
             ` : ''}
           </div>
@@ -3804,7 +3812,7 @@
     });
   </script>
 
-  <script type="module" src="header.js?v=20261014"></script>
+  <script type="module" src="header.js?v=20261015"></script>
 
 </body>
 
