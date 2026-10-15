@@ -31,6 +31,23 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // Checkout emails collection rules (started-but-unfinished checkout capture)
+    // checkout.html upserts ONE document per address, and the document ID IS the
+    // lowercased address - so a visitor can only ever write the row for the email they
+    // typed, never swap an existing row over to a different address. The storefront is
+    // never allowed to read it back: the admin panel ("Checkout Emails" tab) is the only
+    // reader, so saved addresses stay private even when someone knows the collection.
+    match /checkout_emails/{emailId} {
+      allow create, update: if
+        request.resource.data.email is string &&
+        request.resource.data.email.size() > 5 &&
+        request.resource.data.email.size() < 160 &&
+        request.resource.data.email.matches('^[^\\s@]+@[^\\s@]+\\.[A-Za-z]{2,}$') &&
+        request.resource.data.emailLower == emailId;
+      // Only authenticated Admins can read, query, list or delete captured emails
+      allow read, list, delete: if isAdmin();
+    }
+
     // Reviews collection rules
     match /reviews/{reviewId} {
       // Anyone can create a review

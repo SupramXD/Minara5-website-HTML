@@ -214,3 +214,25 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
    focus. There is no requested-delivery-day picker any more (a day or time goes in "Delivery
    instructions"); an empty `deliveryDate` on the order is expected and handled by
    `functions/index.js`.
+10. (2026-10-15) The checkout form opens on the **email field**, and every email typed there is SAVED
+    before the order is finished. The form's "Secure Checkout / STEP 1: DELIVERY & CONTACT" heading block
+    and its black rule are gone (do not re-add a page title inside the form - `.checkout-title` and
+    `.checkout-header-row` were deleted with it), and `#c_email` moved to the TOP of
+    `#checkoutDetailsForm` (the field order is `c_email`, `c_address_search`, then the manual address
+    block). The capture is `window.captureCheckoutEmail()`: it upserts `{email, emailLower, lastSeenAt}`
+    with `merge:true` into the `checkout_emails` collection - doc id = the lowercased address - 1.2s after
+    the customer types it, on blur/change, and on pagehide/beforeunload; `handleCheckoutSubmit` (which
+    only runs on a form that already passed the browser's own validation) then adds `paymentStarted` /
+    `paymentStartedAt` / `paymentGateway` to the SAME row. Three rules that must not be broken: a
+    half-typed address is never written (the regex gate is what keeps "name@" out of the customer list),
+    the per-browser `minara_checkout_email_captured` / `minara_checkout_email_payment_started` keys are
+    set ONLY after Firestore accepted the write (so an offline visit retries instead of losing the
+    address silently), and `firestore.rules` allows a public `create, update` ONLY when
+    `emailLower == <doc id>` (a visitor can never overwrite another customer's row), with `read, list,
+    delete` left to `isAdmin()`. The admin reads the collection in the **"Checkout Emails"** tab
+    (`admin.html` + `js/admin/admin-checkout-emails.js`, opened by `switchTab('checkout-emails-tab')`) as
+    "Email only" vs "Payment started" plus the chosen rail, with a Copy All Emails button. Rules are
+    deployed by hand - `firebase deploy --only firestore:rules --project minara5` - because the GitHub
+    Action only deploys hosting. `privacy.html` section 2 states that an unfinished checkout email is
+    kept for that purpose only; keep that sentence if the policy is ever rewritten.
+

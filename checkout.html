@@ -348,17 +348,9 @@
       }
     }
 
-    .checkout-title {
-      font-family: 'Gotham Narrow Bold', sans-serif;
-      font-size: 20px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      margin-bottom: 30px;
-      color: #1a1a1a;
-      border-bottom: 1px solid #000;
-      padding-bottom: 10px;
-    }
+    /* `.checkout-title` (the "Secure Checkout" heading and its black rule) was deleted on
+       2026-10-15 along with the heading block it styled - the form opens on the email
+       field now. `.empty-checkout-title`, the empty-bag heading, is a separate rule. */
 
     .section-title {
       font-family: 'Gotham Narrow Bold', sans-serif;
@@ -1053,11 +1045,6 @@
         order: 1;
       }
 
-      .checkout-title {
-        font-size: 16px;
-        margin-bottom: 20px;
-      }
-
       /* MOBILE DENSITY PASS. The phone layout opened on a full summary, three trust
          cards and nine address fields, which pushed the payment step far below the
          fold. The address form is lookup-first now (see the markup); everything
@@ -1068,11 +1055,6 @@
 
       .summary-column {
         padding: 26px 16px 30px;
-      }
-
-      .checkout-header-row {
-        margin-bottom: 22px !important;
-        padding-bottom: 12px !important;
       }
 
       .form-group {
@@ -2537,15 +2519,25 @@
         
         <!-- Form Section -->
         <div class="form-column">
-          <div class="checkout-header-row" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #000; padding-bottom: 15px; margin-bottom: 35px;">
-            <div>
-              <div class="checkout-title" style="margin-bottom: 4px; padding-bottom: 0; border-bottom: none; font-size: 20px;">Secure Checkout</div>
-              <div style="font-size: 9.5px; font-weight: 800; letter-spacing: 2px; color: #000000; text-transform: uppercase;">STEP 1: DELIVERY & CONTACT</div>
-            </div>
-          </div>
-          
+          <!-- The "Secure Checkout / STEP 1: DELIVERY & CONTACT" heading block and its black
+               rule were removed on 2026-10-15. The form now opens straight on the email
+               field, which is the first thing the customer types at checkout. -->
+
           <form id="checkoutDetailsForm" onsubmit="handleCheckoutSubmit(event)" onkeydown="handleFormKeydown(event)">
-            
+
+            <!-- Email address. Moved to the TOP of the form on 2026-10-15 (it used to sit
+                 under the address, inside "Contact details"): it is the one field whose
+                 value is worth keeping before anything else is filled in, so an email is
+                 on file even when the customer walks away - see captureCheckoutEmail() in
+                 the script at the bottom of this page. -->
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label for="c_email" style="margin-bottom: 0;">Email address</label>
+              </div>
+              <input type="email" id="c_email" class="form-input" placeholder="" required autocomplete="email">
+              <div style="font-size: 10.5px; color: #9ca3af; margin-top: 5px;">Your order confirmation and delivery updates go here.</div>
+            </div>
+
             <!-- Address Search (Main Google Autocomplete). This one field is the
                  whole address step at every width - phone and desktop alike - and
                  the nine-field form below only opens when it is asked for. -->
@@ -2664,15 +2656,6 @@
             <div class="form-group">
               <label for="c_fullname">Name and surname</label>
               <input type="text" id="c_fullname" class="form-input" placeholder="" required autocomplete="name">
-            </div>
-
-            <!-- Email address -->
-            <div class="form-group">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <label for="c_email" style="margin-bottom: 0;">Email address</label>
-              </div>
-              <input type="email" id="c_email" class="form-input" placeholder="" required autocomplete="email">
-              <div style="font-size: 10.5px; color: #9ca3af; margin-top: 5px;">Your order confirmation and delivery updates go here.</div>
             </div>
 
             <!-- Mobile number -->
@@ -2864,6 +2847,7 @@
         window.setManualAddressVisible(false, false);
         window.restoreCheckoutDraft();
         window.attachCheckoutDraftAutosave();
+        window.attachCheckoutEmailCapture();
         window.updatePaymentMethodUI(window.getSelectedPaymentMethod());
 
         // Hook the warm-up triggers onto the form the moment it exists, and start the
@@ -3522,6 +3506,12 @@
 
       const { activeItems, payload: orderPayload, finalTotal, firstName, lastName, email, phone, compiledAddress } = order;
 
+      // The address is already on file from typing it (captureCheckoutEmail), so this
+      // only marks the row as one that got as far as a paid hand-off. It is fired
+      // before the gateway lock because it is a plain Firestore upsert that never
+      // touches the payment flow.
+      window.markCheckoutEmailPaymentStarted(gateway);
+
       // Lock the payment step (both method rows and #payBtn) so nobody can double
       // submit into two live sessions, and remember that this page is about to be
       // handed to the gateway - if it ever comes back, resetPaymentHandoff unlocks it.
@@ -3715,11 +3705,137 @@
       });
     };
 
+    // --- Abandoned-checkout email capture -------------------------------------
+    // The email field is the FIRST field in the form, and it is the one value worth
+    // keeping if the customer walks away: an email that reached us is a customer we
+    // can still help finish the order. Every captured address lands in the
+    // `checkout_emails` collection - doc id = the lowercased address, so one customer
+    // is one row - and shows up in admin.html's "Checkout Emails" tab.
+    //
+    // Two things are recorded, never anything else: that the address was typed at
+    // checkout (lastSeenAt), and whether that visitor actually reached the payment
+    // step (paymentStarted, set from handleCheckoutSubmit once the form has passed the
+    // browser's own validation). No address is ever read back by this page - the
+    // collection is admin-read-only - so nothing here depends on Firestore answering.
+    const CHECKOUT_EMAILS_COLLECTION = 'checkout_emails';
+    const CHECKOUT_EMAIL_CAPTURED_KEY = 'minara_checkout_email_captured';
+    const CHECKOUT_EMAIL_STARTED_KEY = 'minara_checkout_email_payment_started';
+    // Deliberately simple: anything that is obviously not an address is never written,
+    // so a half-typed "name@" can never be saved as a customer.
+    const CHECKOUT_EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
+
+    function readCheckoutEmailField() {
+      const el = document.getElementById('c_email');
+      if (!el) return '';
+      const value = String(el.value || '').trim();
+      return CHECKOUT_EMAIL_PATTERN.test(value) ? value : '';
+    }
+
+    function recallStoredEmail(key) {
+      try {
+        return localStorage.getItem(key) || '';
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function rememberStoredEmail(key, value) {
+      try {
+        localStorage.setItem(key, value);
+      } catch (e) {
+        // Private mode / storage disabled: the write still happened, we just cannot
+        // remember that it did, so the next blur may save the same address again.
+      }
+    }
+
+    async function writeCheckoutEmail(email, extra) {
+      try {
+        if (window.dbPromise) await window.dbPromise;
+        if (!window.db || !window.dbDoc || !window.dbSetDoc) return false;
+
+        const emailKey = email.toLowerCase();
+        const payload = Object.assign({
+          email: email,
+          emailLower: emailKey,
+          lastSeenAt: new Date().toISOString()
+        }, extra || {});
+
+        // merge:true, because this is the same row every time: a returning customer
+        // updates their address instead of wiping what a previous visit recorded.
+        await window.dbSetDoc(window.dbDoc(window.db, CHECKOUT_EMAILS_COLLECTION, emailKey), payload, { merge: true });
+        return true;
+      } catch (e) {
+        // A capture is never worth breaking a checkout over.
+        console.warn('Could not save the checkout email:', e);
+        return false;
+      }
+    }
+
+    // Fired by typing (debounced), by leaving the field and on the way out of the page.
+    window.captureCheckoutEmail = function () {
+      const email = readCheckoutEmailField();
+      if (!email) return;
+
+      const emailKey = email.toLowerCase();
+      if (recallStoredEmail(CHECKOUT_EMAIL_CAPTURED_KEY) === emailKey) return;
+
+      // Only remembered once Firestore really has it: an offline visit retries on the
+      // next blur instead of pretending the address was saved.
+      writeCheckoutEmail(email, null).then((saved) => {
+        if (saved) rememberStoredEmail(CHECKOUT_EMAIL_CAPTURED_KEY, emailKey);
+      });
+    };
+
+    // Called from handleCheckoutSubmit, which only ever runs on a form that passed the
+    // browser's own required/format validation - a real "this customer is paying".
+    window.markCheckoutEmailPaymentStarted = function (gateway) {
+      const email = readCheckoutEmailField();
+      if (!email) return;
+
+      const emailKey = email.toLowerCase();
+      if (recallStoredEmail(CHECKOUT_EMAIL_STARTED_KEY) === emailKey) return;
+
+      writeCheckoutEmail(email, {
+        paymentStarted: true,
+        paymentStartedAt: new Date().toISOString(),
+        paymentGateway: gateway || window.getSelectedPaymentMethod()
+      }).then((saved) => {
+        if (saved) {
+          rememberStoredEmail(CHECKOUT_EMAIL_STARTED_KEY, emailKey);
+          rememberStoredEmail(CHECKOUT_EMAIL_CAPTURED_KEY, emailKey);
+        }
+      });
+    };
+
+    window.attachCheckoutEmailCapture = function () {
+      const el = document.getElementById('c_email');
+      if (!el || el.dataset.emailCaptureBound === 'true') return;
+      el.dataset.emailCaptureBound = 'true';
+
+      let captureTimer = null;
+      const scheduleCapture = () => {
+        if (captureTimer) clearTimeout(captureTimer);
+        // Long enough that a typed address is finished before it is written, short
+        // enough that the address is on file before the customer moves on.
+        captureTimer = setTimeout(window.captureCheckoutEmail, 1200);
+      };
+
+      el.addEventListener('input', scheduleCapture);
+      el.addEventListener('change', window.captureCheckoutEmail);
+      el.addEventListener('blur', window.captureCheckoutEmail);
+    };
+
     // The address autocomplete fills inputs programmatically (no input event), so
     // also snapshot on the way out - which is exactly when the gateway redirect
     // happens and when the customer might never come back.
     window.addEventListener('pagehide', window.saveCheckoutDraft);
     window.addEventListener('beforeunload', window.saveCheckoutDraft);
+
+    // The same two moments are the last chance to keep a typed-but-never-blurred email,
+    // which is the whole point of the capture: the customer who closes the tab here is
+    // the customer the address is being kept for.
+    window.addEventListener('pagehide', window.captureCheckoutEmail);
+    window.addEventListener('beforeunload', window.captureCheckoutEmail);
 
     // --- Hand-off bookkeeping (see resetPaymentHandoff) -----------------------
     // A back/forward-cache restore does NOT re-run this script, so `pageshow` is the only

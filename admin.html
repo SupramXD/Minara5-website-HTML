@@ -109,6 +109,7 @@
               <button class="tab-btn" onclick="switchTab('hero-tab')">Hero & Logo Customizer</button>
               <button class="tab-btn" onclick="switchTab('catalog-tab')">Catalog & Inventory</button>
               <button class="tab-btn" onclick="switchTab('users-tab')">Users & Newsletter</button>
+              <button class="tab-btn" onclick="switchTab('checkout-emails-tab')">✉️ Checkout Emails</button>
               <button class="tab-btn" onclick="switchTab('notifications-tab')">Notifications & Requests</button>
               <button class="tab-btn" onclick="switchTab('image-optimizer-tab')">Image Optimizer</button>
               <button class="tab-btn" onclick="switchTab('reviews-tab')">Reviews Manager</button>
@@ -1450,6 +1451,48 @@
               </div>
             </div>
 
+            <!-- TAB: CHECKOUT EMAILS (addresses captured before the order was finished) -->
+            <div id="checkout-emails-tab" class="tab-content">
+              <div class="console-panel full-width-panel">
+                <div class="panel-header">
+                  <h2 class="panel-title">Checkout Emails</h2>
+                  <span class="stat-label" style="font-size: 10px;" id="checkoutEmailsCount">Live Firebase Feed</span>
+                </div>
+
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
+                  Every email address typed at checkout, saved the moment it is entered - so a customer who never
+                  finished the order can still be reached. One row per address (the document ID is the address
+                  itself), newest first. <strong>Email only</strong> means the address was typed and the order was
+                  not started; <strong>Payment started</strong> means that visitor pressed Pay and was handed to
+                  Yoco or Ozow.
+                </p>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+                  <button class="btn-action accent-btn" onclick="fetchCheckoutEmails()">Refresh List</button>
+                  <button class="btn-action" onclick="copyCheckoutEmails()">Copy All Emails</button>
+                </div>
+
+                <div class="admin-table-container">
+                  <table class="admin-table" id="checkoutEmailsTable">
+                    <thead>
+                      <tr>
+                        <th>Email Address</th>
+                        <th>Last Seen At Checkout</th>
+                        <th>Checkout Status</th>
+                        <th>Payment Rail</th>
+                        <th>Firebase Firestore ID</th>
+                      </tr>
+                    </thead>
+                    <tbody id="checkoutEmailsTableBody">
+                      <tr>
+                        <td colspan="5" style="text-align: center; opacity: 0.5; padding: 30px;">Click Refresh to load list...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
             <!-- TAB: NOTIFICATIONS & REQUESTS -->
             <div id="notifications-tab" class="tab-content">
               <!-- Column 1: Unsupported Fragrance Requests -->
@@ -2231,6 +2274,7 @@
   <script src="js/admin/admin-utils.js?v=20260915"></script>
   <script src="js/admin/admin-core.js?v=20260826_1630"></script>
   <script src="js/admin/admin-users.js?v=20260826_1630"></script>
+  <script src="js/admin/admin-checkout-emails.js?v=20261015"></script>
   <script src="js/admin/admin-notifications.js?v=20260826_1630"></script>
   <script src="js/admin/admin-orders.js?v=20260826_1630"></script>
   <script src="js/admin/admin-products.js?v=20260915b"></script>

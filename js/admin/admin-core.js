@@ -69,6 +69,9 @@
         window.fetchSubscribers();
       }
     }
+    if (tabId === 'checkout-emails-tab' && typeof window.fetchCheckoutEmails === 'function') {
+      window.fetchCheckoutEmails();
+    }
   };
 
   // Safe fallback logout if auth module is loading asynchronously
