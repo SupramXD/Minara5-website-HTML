@@ -119,19 +119,18 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
    `Visa · Mastercard · Google Pay · Apple Pay` text line became `.payment-tile-badges`, the same
    20px `.pay-badge` chips used everywhere else, the "Capitec Pay" row carries the official Capitec
    symbol plus the type-drawn "Capitec Pay" chip there, and the "Instant EFT" row carries the
-   type-drawn bank chip to the LEFT of its own label (2026-10-13 pass 3); the accepted-marks strip
-   (official Visa, Mastercard, Google Pay, Apple Pay, Yoco, Ozow, Capitec and
-   the type-drawn "Instant EFT" and "Capitec Pay" chips, all self-hosted in `images/payments/`) now
-   lives inside the ONE
-   **"Secure payment"** trust card, with each processor in front of the methods it handles (Yoco before
-   the cards, Ozow before the EFT chip and before the Capitec pair, which sit inside one
-   `.pay-brand-rail` so a phone-width wrap cannot split the symbol from the words). Never redraw or
+   type-drawn bank chip to the LEFT of its own label (2026-10-13 pass 3). The accepted-marks strip
+   that used to sit inside the ONE **"Secure payment"** trust card was **removed on 2026-10-15**
+   together with its `.pay-brands*` CSS - that card is now the lock icon + title + one short sentence
+   ("Payments go through Yoco and Ozow - your card and banking details never reach us."), because the
+   marks already ride on the very rows the customer is choosing between. Never redraw or
    re-crop those assets by hand (`capitec.svg` is the single deliberate exception: its `viewBox` was
    cropped around the symbol because the full lockup's wordmark is a smudge at badge size - see MEMORY),
    keep the brand-blue
    `yoco-blue.svg` on the white chips, and do **not** re-add a floating legend strip above the rows
-   (that was `.pay-brands-legend`) or gateway badges inside a trust-card head (that was
-   `.pay-badge-head`) - both were removed on 2026-10-13 because they duplicated the row marks and made
+   (that was `.pay-brands-legend`), gateway badges inside a trust-card head (that was
+   `.pay-badge-head`) or a marks strip inside a trust card (that was `.pay-brands`, deleted with the
+   strip on 2026-10-15) - each was removed because it duplicated the row marks and made
    the summary column read as clutter. The "Free Express Shipping" card is only rendered when the order
    really does ship free.
    **Free shipping is shown as a saving (2026-10-14):** the R85 stays on the SHIPPING row - checkout

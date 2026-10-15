@@ -305,13 +305,19 @@
       pointer-events: auto;
     }
 
-    /* CHECKOUT LAYOUT */
+    /* CHECKOUT LAYOUT. Capped and centred, the way a Shopify checkout behaves: past
+       ~1160px the two columns stop stretching to the window edge, so the form column
+       never turns into a 900px-wide ruler of an input and the pair keeps white space
+       on BOTH sides instead. Phones never feel the cap - the viewport is narrower. */
     .checkout-container {
       margin-top: 45px;
+      margin-left: auto;
+      margin-right: auto;
       min-height: calc(100vh - 45px);
       display: grid;
       grid-template-columns: 1.1fr 0.9fr;
       width: 100%;
+      max-width: 1160px;
       background: #fff;
     }
 
@@ -381,8 +387,8 @@
        over to the chosen gateway's hosted payment page. The old tap-to-pay tiles
        read as static info boxes (brand marks + small print, no control chrome),
        which is why the payment step looked un-clickable, and a stray tap could
-       fire a redirect. The brand marks now live in their own strip above
-       (.pay-brands), grouped per gateway, so the rows stay short. */
+       fire a redirect. Each row now carries its own marks (`.payment-tile-badges`
+       under the label, `.payment-tile-brands` on its right), so the rows stay short. */
     .payment-methods {
       display: flex;
       flex-direction: column;
@@ -587,46 +593,12 @@
       height: 20px;
     }
 
-    /* Accepted-brand strips. The payment block, the trust cards and the bag
-       drawer all use this: the marks sit in their own row so the payment
-       selector rows stay text-only, and each gateway's marks are grouped behind
-       a hairline - cards under Yoco, bank transfer under Ozow. */
-    .pay-brands {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .pay-brand-group {
-      display: inline-flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .pay-brand-divider {
-      width: 1px;
-      align-self: stretch;
-      min-height: 20px;
-      background: #e2e2e2;
-    }
-
-    /* One rail's marks held together while the strip wraps around them. Without it a
-       two-chip rail can put its symbol at the end of one line and its name at the start
-       of the next, which reads as two different payment methods. */
-    .pay-brand-rail {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .pay-brands-compact {
-      margin: 12px 0 0;
-      gap: 6px;
-    }
+    /* DELETED 2026-10-15: the accepted-brand strip (.pay-brands / .pay-brand-group /
+       .pay-brand-divider / .pay-brand-rail / .pay-brands-compact) went with its last
+       caller, the marks strip inside the "Secure payment" trust card. The marks now
+       appear only where the choice is actually made - `.payment-tile-badges` under a
+       row's label and `.payment-tile-brands` on its right - plus the bag drawer's own
+       inline strip, so no strip rules belong here. Do not re-add a marks strip. */
 
     /* Instant EFT chip: the one type-drawn mark in the strips. No official Ozow
        "Instant EFT" lockup exists at badge size, so the chip reuses the bank
@@ -1143,7 +1115,7 @@
         margin-bottom: 8px;
       }
 
-      /* Trust cards: compact label row + one line + the accepted marks underneath. */
+      /* Trust cards: compact label row + one line, nothing else. */
       .checkout-trust {
         gap: 10px;
         margin-top: 20px;
@@ -1162,11 +1134,6 @@
       .trust-card-head-icon {
         width: 18px;
         height: 18px;
-      }
-
-      .pay-brands-compact {
-        margin-top: 7px;
-        gap: 5px;
       }
 
       /* 44px minimum: this row is the "I'll type it myself" door, so it has to be
@@ -2810,7 +2777,6 @@
 
         <!-- Summary Section -->
         <div class="summary-column">
-          <div class="checkout-title" style="border-bottom: 1px solid #000; padding-bottom: 10px; margin-bottom: 30px;">Order Summary</div>
           
           <!-- Summary items list -->
           <div class="summary-items-list">
@@ -2824,7 +2790,7 @@
             </div>
             ${bundleDiscount > 0 ? `
               <div class="pricing-row discount-row" style="color: #000000; font-weight: bold;">
-                <span>2+ Bottle Discount</span>
+                <span>Discount</span>
                 <span>-R${bundleDiscount}</span>
               </div>
             ` : ''}
@@ -2852,13 +2818,11 @@
             </div>
           </div>
 
-          <!-- Trust blocks: one card per promise, one sentence + the accepted marks
-               each. There used to be a card per gateway here ("Secured by [Yoco]" /
-               "Instant EFT by [Ozow]") on top of a legend strip above the payment
-               rows - three places saying the same thing. The gateway marks now ride
-               on the payment rows themselves, so one card carries the payment
-               promise. The shipping card is rendered only when the order really
-               does ship free - see the conditional below. -->
+          <!-- Trust blocks: one card per promise, ONE short sentence each and NO marks at
+               all - the accepted-marks strip moved out on 2026-10-15, because the marks
+               already ride on the payment rows and repeating all eight of them here was
+               the clutter. The shipping card is rendered only when the order really does
+               ship free - see the conditional below. -->
           <div class="checkout-trust">
             <div class="trust-card">
               <div class="trust-card-head">
@@ -2867,36 +2831,7 @@
                 </span>
                 <span class="trust-card-title">Secure payment</span>
               </div>
-              <div class="trust-card-line">Cards run through Yoco, Instant EFT and Capitec Pay through Ozow &mdash; your card and banking details never reach us.</div>
-              <div class="pay-brands pay-brands-compact">
-                <!-- Both processors are shown, and each one sits in front of the
-                     methods it handles: Yoco in front of the cards, Ozow in front of
-                     the Instant EFT chip. -->
-                <span class="pay-brand-group">
-                  <span class="pay-badge" title="Card payments by Yoco"><img src="images/payments/yoco-blue.svg" alt="Yoco"></span>
-                  <span class="pay-badge" title="Visa"><img src="images/payments/visa.svg" alt="Visa"></span>
-                  <span class="pay-badge" title="Mastercard"><img class="badge-symbol" src="images/payments/mastercard.svg" alt="Mastercard"></span>
-                  <span class="pay-badge" title="Google Pay"><img src="images/payments/googlepay.svg" alt="Google Pay"></span>
-                  <span class="pay-badge pay-badge-mark" title="Apple Pay"><img src="images/payments/applepay.svg" alt="Apple Pay"></span>
-                </span>
-                <span class="pay-brand-divider" aria-hidden="true"></span>
-                <span class="pay-brand-group">
-                  <span class="pay-badge" title="Instant EFT by Ozow"><img src="images/payments/ozow.png" alt="Ozow Instant EFT"></span>
-                  <span class="pay-badge pay-badge-eft" title="Instant EFT bank transfer">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10h18"></path><path d="M5 6l7-3 7 3"></path><path d="M4 10v10"></path><path d="M9 10v10"></path><path d="M15 10v10"></path><path d="M20 10v10"></path><path d="M3 20h18"></path></svg>
-                    <span>Instant EFT</span>
-                  </span>
-                  <!-- Capitec Pay is its own Ozow method (and its own row above), so its two
-                       marks sit together at the END of the bank group, inside one
-                       .pay-brand-rail so the strip's wrap can never put the Capitec symbol
-                       at the end of one line and "Capitec Pay" at the start of the next -
-                       which reads as two different payments. -->
-                  <span class="pay-brand-rail">
-                    <span class="pay-badge" title="Capitec Pay by Ozow"><img src="images/payments/capitec.svg" alt="Capitec Pay"></span>
-                    <span class="pay-badge pay-badge-capitecpay" title="Capitec Pay">Capitec Pay</span>
-                  </span>
-                </span>
-              </div>
+              <div class="trust-card-line">Payments go through Yoco and Ozow &mdash; your card and banking details never reach us.</div>
             </div>
             
             ${shippingFee === 0 ? `
