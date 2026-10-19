@@ -80,6 +80,19 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // Finance console (private cost prices, expenses, bank ledger) - admin only
+    match /finance_settings/{settingId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /finance_expenses/{expenseId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /finance_bank_transactions/{transactionId} {
+      allow read, write: if isAdmin();
+    }
+
     // Settings collection rules
     match /settings/{settingId} {
       // Only admins can read/write settings

@@ -392,14 +392,15 @@ async function loadCatalog() {
                           isBundle: !!data.isBundle,
                           bundleSize: Number(data.bundleSize) || 0,
                           sortOrder: data.sortOrder !== undefined && data.sortOrder !== null ? Number(data.sortOrder) : null,
-                          scentProfile: data.scentProfile || null
+                          scentProfile: data.scentProfile || null,
+                          costing: data.costing || null
                       };
                       firestoreProds.push(p);
                       
                       const existingIdx = products.findIndex(item => item.id === p.id);
                       if (existingIdx > -1) {
                           const current = products[existingIdx];
-                          if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.image_thumb !== p.image_thumb || current.description !== p.description || current.flair !== p.flair || current.invisibleFlair !== p.invisibleFlair || current.standardBottleImg !== p.standardBottleImg || current.masculinePremiumBottleImg !== p.masculinePremiumBottleImg || current.femininePremiumBottleImg !== p.femininePremiumBottleImg || JSON.stringify(current.customisations) !== JSON.stringify(p.customisations) || JSON.stringify(current.sizes) !== JSON.stringify(p.sizes) || current.isBundle !== p.isBundle || current.bundleSize !== p.bundleSize || current.sortOrder !== p.sortOrder || JSON.stringify(current.scentProfile) !== JSON.stringify(p.scentProfile)) {
+                          if (current.nameShort !== p.nameShort || current.name !== p.name || current.price !== p.price || current.retailPrice !== p.retailPrice || current.stock !== p.stock || current.status !== p.status || current.image !== p.image || current.image_thumb !== p.image_thumb || current.description !== p.description || current.flair !== p.flair || current.invisibleFlair !== p.invisibleFlair || current.standardBottleImg !== p.standardBottleImg || current.masculinePremiumBottleImg !== p.masculinePremiumBottleImg || current.femininePremiumBottleImg !== p.femininePremiumBottleImg || JSON.stringify(current.customisations) !== JSON.stringify(p.customisations) || JSON.stringify(current.sizes) !== JSON.stringify(p.sizes) || current.isBundle !== p.isBundle || current.bundleSize !== p.bundleSize || current.sortOrder !== p.sortOrder || JSON.stringify(current.scentProfile) !== JSON.stringify(p.scentProfile) || JSON.stringify(current.costing) !== JSON.stringify(p.costing)) {
                               products[existingIdx] = p;
                               updated = true;
                           }
@@ -417,7 +418,7 @@ async function loadCatalog() {
                           const idx = localProds.findIndex(lp => lp.id === fp.id);
                           if (idx > -1) {
                               const cur = localProds[idx];
-                              if (cur.nameShort !== fp.nameShort || cur.name !== fp.name || cur.price !== fp.price || cur.retailPrice !== fp.retailPrice || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.image_thumb !== fp.image_thumb || cur.description !== fp.description || cur.flair !== fp.flair || cur.invisibleFlair !== fp.invisibleFlair || cur.standardBottleImg !== fp.standardBottleImg || cur.masculinePremiumBottleImg !== fp.masculinePremiumBottleImg || cur.femininePremiumBottleImg !== fp.femininePremiumBottleImg || JSON.stringify(cur.customisations) !== JSON.stringify(fp.customisations) || JSON.stringify(cur.sizes) !== JSON.stringify(fp.sizes) || cur.isBundle !== fp.isBundle || cur.bundleSize !== fp.bundleSize || cur.sortOrder !== fp.sortOrder || JSON.stringify(cur.scentProfile) !== JSON.stringify(fp.scentProfile)) {
+                              if (cur.nameShort !== fp.nameShort || cur.name !== fp.name || cur.price !== fp.price || cur.retailPrice !== fp.retailPrice || cur.stock !== fp.stock || cur.status !== fp.status || cur.image !== fp.image || cur.image_thumb !== fp.image_thumb || cur.description !== fp.description || cur.flair !== fp.flair || cur.invisibleFlair !== fp.invisibleFlair || cur.standardBottleImg !== fp.standardBottleImg || cur.masculinePremiumBottleImg !== fp.masculinePremiumBottleImg || cur.femininePremiumBottleImg !== fp.femininePremiumBottleImg || JSON.stringify(cur.customisations) !== JSON.stringify(fp.customisations) || JSON.stringify(cur.sizes) !== JSON.stringify(fp.sizes) || cur.isBundle !== fp.isBundle || cur.bundleSize !== fp.bundleSize || cur.sortOrder !== fp.sortOrder || JSON.stringify(cur.scentProfile) !== JSON.stringify(fp.scentProfile) || JSON.stringify(cur.costing) !== JSON.stringify(fp.costing)) {
                                   localProds[idx] = { ...fp, syncStatus: "synced" };
                                   localUpdated = true;
                               }
@@ -1049,6 +1050,23 @@ window.PERFUME_NOTE_LIBRARY = [
       const product = window.minaraProducts.find(p => p.id === productId);
       if (!product) return;
 
+      // The catalog can render from products.json before the Firestore read lands.
+      // Cost prices are Firestore-only, so fetch the live doc once before opening
+      // the modal - a save from a repo-only row would otherwise erase them.
+      if (!Object.prototype.hasOwnProperty.call(product, "costing") &&
+          window.db && window.dbDoc && window.dbGetDoc) {
+        window.dbGetDoc(window.dbDoc(window.db, "products", productId))
+          .then(function (snap) {
+            product.costing = (snap && snap.exists && snap.exists()) ? (snap.data().costing || null) : null;
+            window.openEditModal(productId);
+          })
+          .catch(function () {
+            product.costing = null;
+            window.openEditModal(productId);
+          });
+        return;
+      }
+
       const logBox = document.getElementById("adminSaveLogBox");
       if (logBox) {
         logBox.innerHTML = "";
@@ -1162,6 +1180,32 @@ window.PERFUME_NOTE_LIBRARY = [
         window.renderEditCustomisationBlocks();
       }
 
+      // Private product costing (oil price, packaging overrides). Stored on the
+      // Firestore product document only - never synced into products.json.
+      if (typeof window.minaraPopulateOilSelects === "function") {
+        window.minaraPopulateOilSelects();
+      }
+      const editCosting = product.costing || {};
+      const editOilSelect = document.getElementById("editProdOilSelect");
+      if (editOilSelect) {
+        editOilSelect.value = editCosting.oilId || "";
+      }
+      const setVal = (id, value) => {
+        const field = document.getElementById(id);
+        if (field) field.value = (value === undefined || value === null) ? "" : value;
+      };
+      setVal("editProdOilCost", editCosting.oilCostPer100g);
+      setVal("editProdOilMl", editCosting.oilMlPer50ml !== undefined && editCosting.oilMlPer50ml !== null ? editCosting.oilMlPer50ml : 10);
+      setVal("editProdOilName", editCosting.oilName);
+      setVal("editProdBottleCost", editCosting.bottleCost);
+      setVal("editProdBoxCost", editCosting.boxCost);
+      setVal("editProdExtraCost", editCosting.extraCostPerUnit);
+      const editPackaging = document.getElementById("editProdPackaging");
+      if (editPackaging) editPackaging.value = editCosting.packaging || "auto";
+      if (typeof window.minaraUpdateCostPreview === "function") {
+        window.minaraUpdateCostPreview("edit");
+      }
+
       const modal = document.getElementById("editProductModal");
       modal.style.display = "flex";
       setTimeout(() => modal.classList.add("active"), 10);
@@ -1202,6 +1246,10 @@ window.PERFUME_NOTE_LIBRARY = [
       const sizes = [];
       if (document.getElementById("editProdSize50") && document.getElementById("editProdSize50").checked) sizes.push("50ml");
       if (document.getElementById("editProdSize100") && document.getElementById("editProdSize100").checked) sizes.push("100ml");
+
+      const editCosting = (typeof window.minaraReadCostingForm === "function")
+        ? window.minaraReadCostingForm("edit")
+        : null;
 
       // Extract Scent Profile
       const topNotes = document.getElementById("editProdTopNotes") ? document.getElementById("editProdTopNotes").value.trim() : "";
@@ -1317,7 +1365,8 @@ window.PERFUME_NOTE_LIBRARY = [
           isBundle: isBundle,
           bundleSize: bundleSize,
           sortOrder: sortOrder,
-          scentProfile: scentProfile
+          scentProfile: scentProfile,
+          costing: editCosting
       };
 
       if (window.minaraProducts) {
@@ -1379,6 +1428,7 @@ window.PERFUME_NOTE_LIBRARY = [
                       bundleSize: bundleSize,
                       sortOrder: sortOrder,
                       scentProfile: scentProfile,
+                      costing: editCosting,
                       timestamp: new Date().toISOString()
                   });
               await Promise.race([
@@ -1564,6 +1614,10 @@ window.PERFUME_NOTE_LIBRARY = [
       if (document.getElementById("prodSize50") && document.getElementById("prodSize50").checked) sizes.push("50ml");
       if (document.getElementById("prodSize100") && document.getElementById("prodSize100").checked) sizes.push("100ml");
 
+      const newCosting = (typeof window.minaraReadCostingForm === "function")
+        ? window.minaraReadCostingForm("")
+        : null;
+
       const idStr = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       const newProduct = {
           id: idStr,
@@ -1588,7 +1642,8 @@ window.PERFUME_NOTE_LIBRARY = [
           isBundle: isBundle,
           bundleSize: bundleSize,
           sortOrder: sortOrder,
-          scentProfile: scentProfile
+          scentProfile: scentProfile,
+          costing: newCosting
       };
 
       try {
@@ -1637,6 +1692,7 @@ window.PERFUME_NOTE_LIBRARY = [
                       bundleSize: bundleSize,
                       sortOrder: sortOrder,
                       scentProfile: scentProfile,
+                      costing: newCosting,
                       timestamp: new Date().toISOString()
                   })),
                   timeoutPromise
@@ -1698,6 +1754,7 @@ window.PERFUME_NOTE_LIBRARY = [
 
       const form = document.getElementById("productForm");
       if (form) form.reset();
+      if (typeof window.minaraUpdateCostPreview === "function") window.minaraUpdateCostPreview("");
       if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.innerHTML = originalText;

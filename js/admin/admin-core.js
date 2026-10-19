@@ -72,6 +72,9 @@
     if (tabId === 'checkout-emails-tab' && typeof window.fetchCheckoutEmails === 'function') {
       window.fetchCheckoutEmails();
     }
+    if (tabId === 'finance-tab' && typeof window.loadFinance === 'function') {
+      window.loadFinance(true);
+    }
   };
 
   // Safe fallback logout if auth module is loading asynchronously

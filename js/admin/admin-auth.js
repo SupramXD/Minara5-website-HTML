@@ -66,6 +66,7 @@ onAuthStateChanged(auth, async (user) => {
         // Initial Data Loads
         if (typeof window.fetchSubscribers === "function") window.fetchSubscribers();
         if (typeof window.loadCatalog === "function") window.loadCatalog();
+        if (typeof window.minaraLoadCostingSettings === "function") window.minaraLoadCostingSettings(true);
         if (typeof window.fetchUsers === "function") window.fetchUsers();
         if (typeof window.loadHeroSettings === "function") window.loadHeroSettings();
         if (typeof window.loadCustomTextSettings === "function") window.loadCustomTextSettings();

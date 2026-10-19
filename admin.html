@@ -108,6 +108,7 @@
               <button class="tab-btn" onclick="switchTab('sessions-tab')">📊 General Statistics</button>
               <button class="tab-btn" onclick="switchTab('hero-tab')">Hero & Logo Customizer</button>
               <button class="tab-btn" onclick="switchTab('catalog-tab')">Catalog & Inventory</button>
+              <button class="tab-btn" onclick="switchTab('finance-tab')">💵 Finance</button>
               <button class="tab-btn" onclick="switchTab('users-tab')">Users & Newsletter</button>
               <button class="tab-btn" onclick="switchTab('checkout-emails-tab')">✉️ Checkout Emails</button>
               <button class="tab-btn" onclick="switchTab('notifications-tab')">Notifications & Requests</button>
@@ -1187,7 +1188,7 @@
                     
                     <div class="form-group">
                       <label for="prodPrice">Price (R)</label>
-                      <input type="number" id="prodPrice" class="form-input" placeholder="749" min="1" required>
+                      <input type="number" id="prodPrice" class="form-input" placeholder="749" min="1" required oninput="minaraUpdateCostPreview('')">
                     </div>
 
                     <div class="form-group">
@@ -1284,13 +1285,13 @@
                     </div>
 
                     <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-                      <input type="checkbox" id="prodIsBundle" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);" onchange="toggleBundleSizeInput('add')">
+                      <input type="checkbox" id="prodIsBundle" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);" onchange="toggleBundleSizeInput('add'); minaraUpdateCostPreview('')">
                       <label for="prodIsBundle" style="margin-bottom: 0; cursor: pointer; font-size: 13px;">This is a Scent Bundle</label>
                     </div>
 
                     <div class="form-group" id="prodBundleSizeGroup" style="display: none;">
                       <label for="prodBundleSize">Number of Fragrance Choices for Customer (1-4)</label>
-                      <select id="prodBundleSize" class="form-input" style="background:#1a1a24; color: #fff;">
+                      <select id="prodBundleSize" class="form-input" style="background:#1a1a24; color: #fff;" onchange="minaraUpdateCostPreview('')">
                         <option value="1">1 Choice</option>
                         <option value="2">2 Choices</option>
                         <option value="3">3 Choices</option>
@@ -1302,10 +1303,10 @@
                       <label>Available Sizes</label>
                       <div style="display: flex; gap: 20px; align-items: center; margin-top: 8px;">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                          <input type="checkbox" id="prodSize50" value="50ml" checked style="width: 16px; height: 16px; accent-color: #ccff00;"> 50ml
+                          <input type="checkbox" id="prodSize50" value="50ml" checked style="width: 16px; height: 16px; accent-color: #ccff00;" onchange="minaraUpdateCostPreview('')"> 50ml
                         </label>
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                          <input type="checkbox" id="prodSize100" value="100ml" checked style="width: 16px; height: 16px; accent-color: #ccff00;"> 100ml
+                          <input type="checkbox" id="prodSize100" value="100ml" checked style="width: 16px; height: 16px; accent-color: #ccff00;" onchange="minaraUpdateCostPreview('')"> 100ml
                         </label>
                       </div>
                     </div>
@@ -1326,6 +1327,64 @@
                       <div class="form-group">
                         <label for="addProdBaseNotes">Base Notes</label>
                         <input type="text" id="addProdBaseNotes" class="form-input" placeholder="e.g. Oakmoss, Fir Balsam, Amber" style="background:#1a1a24; color: #fff;">
+                      </div>
+                    </div>
+
+                    <div style="border-top: 1px solid var(--border-color); margin: 20px 0; padding-top: 15px;">
+                      <div style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px;">Costing &amp; Margin (Private)</div>
+
+                      <div class="form-group">
+                        <label for="prodOilSelect">Perfume Oil Used</label>
+                        <select id="prodOilSelect" class="form-input" style="background:#1a1a24; color:#fff;" onchange="minaraOnOilSelect('')"></select>
+                        <div style="font-size:10px; color:var(--text-muted); margin-top:5px;">Costs come from Finance → Costs &amp; Settings. Add new oils there once, then reuse them here.</div>
+                      </div>
+
+                      <div class="finance-form-row">
+                        <div class="form-group">
+                          <label for="prodOilCost">Oil cost per 100g (R)</label>
+                          <input type="number" id="prodOilCost" class="form-input" step="0.01" min="0" placeholder="e.g. 179" oninput="minaraUpdateCostPreview('')">
+                        </div>
+                        <div class="form-group">
+                          <label for="prodOilMl">Oil per 50ml bottle (ml)</label>
+                          <input type="number" id="prodOilMl" class="form-input" step="0.1" min="0" value="10" oninput="minaraUpdateCostPreview('')">
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label for="prodOilName">Oil name (custom only)</label>
+                        <input type="text" id="prodOilName" class="form-input" placeholder="e.g. New oil not in the library" style="background:#1a1a24; color:#fff;">
+                      </div>
+
+                      <div class="form-group">
+                        <label for="prodPackaging">Packaging type</label>
+                        <select id="prodPackaging" class="form-input" style="background:#1a1a24; color:#fff;" onchange="minaraUpdateCostPreview('')">
+                          <option value="auto">Auto — 50ml single / 100ml gift / duo bundle</option>
+                          <option value="single50">50ml single box</option>
+                          <option value="gift100">100ml bottle + gift box</option>
+                          <option value="duo">Duo gift box</option>
+                          <option value="none">No packaging</option>
+                          <option value="custom">Custom packaging</option>
+                        </select>
+                      </div>
+
+                      <div class="finance-form-row">
+                        <div class="form-group">
+                          <label for="prodBottleCost">Bottle cost override (R)</label>
+                          <input type="number" id="prodBottleCost" class="form-input" step="0.01" min="0" placeholder="Use global default" oninput="minaraUpdateCostPreview('')">
+                        </div>
+                        <div class="form-group">
+                          <label for="prodBoxCost">Box / gift packaging override (R)</label>
+                          <input type="number" id="prodBoxCost" class="form-input" step="0.01" min="0" placeholder="Use global default" oninput="minaraUpdateCostPreview('')">
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label for="prodExtraCost">Extra cost per unit sold (R)</label>
+                        <input type="number" id="prodExtraCost" class="form-input" step="0.01" min="0" placeholder="e.g. special ribbon or insert" oninput="minaraUpdateCostPreview('')">
+                      </div>
+
+                      <div id="prodCostPreview" class="cost-preview-box">
+                        <div class="finance-muted">Set a selling price and oil cost to see the live margin.</div>
                       </div>
                     </div>
 
@@ -1359,6 +1418,272 @@
                           <td colspan="8" style="text-align: center; opacity: 0.5;">Loading products...</td>
                         </tr>
                       </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 4: FINANCE (expenses, revenue, profit, gateway holds, Nedbank) -->
+            <div id="finance-tab" class="tab-content">
+              <div class="finance-subtabs">
+                <button class="finance-subtab-btn active" id="financeSubTabBtn_dashboard" onclick="switchFinanceSubTab('dashboard')">📊 Dashboard &amp; P&amp;L</button>
+                <button class="finance-subtab-btn" id="financeSubTabBtn_sales" onclick="switchFinanceSubTab('sales')">Sales &amp; Margins</button>
+                <button class="finance-subtab-btn" id="financeSubTabBtn_expenses" onclick="switchFinanceSubTab('expenses')">🧾 Expenses</button>
+                <button class="finance-subtab-btn" id="financeSubTabBtn_bank" onclick="switchFinanceSubTab('bank')">🏦 Nedbank &amp; Payouts</button>
+                <button class="finance-subtab-btn" id="financeSubTabBtn_costs" onclick="switchFinanceSubTab('costs')">⚙️ Costs &amp; Settings</button>
+                <div class="finance-subtab-tools">
+                  <select id="financePeriod" class="form-input" onchange="setFinancePeriod(this.value)">
+                    <option value="this_month">This month</option>
+                    <option value="last_month">Last month</option>
+                    <option value="this_quarter">This quarter</option>
+                    <option value="this_year">This year</option>
+                    <option value="all_time">All time</option>
+                  </select>
+                  <button type="button" class="btn-action" onclick="refreshFinance()">↻ Refresh</button>
+                </div>
+              </div>
+
+              <div id="financeSubTab_dashboard" class="finance-subtab-content active">
+                <div id="financeKpiGrid" class="finance-kpi-grid">
+                  <div class="finance-loading">Loading finance data…</div>
+                </div>
+                <div id="financeAlerts"></div>
+                <div class="console-panel">
+                  <div class="panel-header">
+                    <h2 class="panel-title">Monthly Profit &amp; Loss</h2>
+                    <span class="stat-label" style="font-size:10px;">Last 12 months · revenue − COGS − gateway fees − expenses</span>
+                  </div>
+                  <div class="admin-table-container">
+                    <table class="admin-table finance-table">
+                      <thead>
+                        <tr><th>Month</th><th>Orders</th><th>Revenue</th><th>COGS</th><th>Gateway fees</th><th>Expenses</th><th>Net profit</th><th>Margin</th></tr>
+                      </thead>
+                      <tbody id="financeMonthlyTableBody">
+                        <tr><td colspan="8" class="finance-empty">Loading…</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="finance-grid-2">
+                  <div class="console-panel">
+                    <div class="panel-header"><h2 class="panel-title">Gateway Payouts</h2><span class="stat-label" style="font-size:10px;">Released vs still in hold</span></div>
+                    <div class="admin-table-container">
+                      <table class="admin-table finance-table">
+                        <thead><tr><th>Gateway</th><th>Paid orders</th><th>Collected</th><th>Fees</th><th>Released</th><th>In hold</th></tr></thead>
+                        <tbody id="financeGatewayTableBody"><tr><td colspan="6" class="finance-empty">Loading…</td></tr></tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="console-panel">
+                    <div class="panel-header"><h2 class="panel-title">Most Profitable Products</h2><span class="stat-label" style="font-size:10px;">Selected period</span></div>
+                    <div class="admin-table-container">
+                      <table class="admin-table finance-table">
+                        <thead><tr><th>Product</th><th>Units</th><th>Profit</th><th>Margin</th></tr></thead>
+                        <tbody id="financeTopProductsBody"><tr><td colspan="4" class="finance-empty">Loading…</td></tr></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                <div class="console-panel finance-note">
+                  <div class="panel-header"><h2 class="panel-title">Connecting Nedbank</h2></div>
+                  <p><strong>Now:</strong> download a CSV statement from Nedbank Online Banking (Money Edge / Business Online) and import it under <em>Nedbank &amp; Payouts</em>. This is the fastest, zero-credential option and works with every Nedbank business account.</p>
+                  <p><strong>Later:</strong> Nedbank does not offer a public self-service transaction API. A live feed needs a Nedbank-approved aggregator / Open Banking provider (e.g. Stitch, Ozow, or a Money Edge integration arranged through your banker) with business credentials. The CSV ledger here is already shaped for that feed — only the server-side connector would need to be added.</p>
+                  <p class="finance-muted">Only the master admin can read these collections (Firestore rules are admin-only). Cost prices are never written to the public <code>products.json</code>.</p>
+                </div>
+              </div>
+
+              <div id="financeSubTab_sales" class="finance-subtab-content">
+                <div class="console-panel">
+                  <div class="panel-header"><h2 class="panel-title">Order Profitability</h2><span class="stat-label" style="font-size:10px;">Paid orders in the selected period</span></div>
+                  <div class="admin-table-container">
+                    <table class="admin-table finance-table">
+                      <thead><tr><th>Date</th><th>Order</th><th>Customer</th><th>Gateway</th><th>Revenue</th><th>COGS</th><th>Fees</th><th>Profit</th><th>Margin</th><th>Payout</th></tr></thead>
+                      <tbody id="financeOrdersTableBody"><tr><td colspan="10" class="finance-empty">Loading…</td></tr></tbody>
+                    </table>
+                  </div>
+                  <p class="finance-muted" style="margin-top:12px;">Revenue is the full amount collected from the gateway (it includes any shipping charged). COGS uses the private product costing, and order-level discounts/shipping are allocated across items proportionally.</p>
+                </div>
+                <div class="console-panel">
+                  <div class="panel-header"><h2 class="panel-title">Product Margins</h2><span class="stat-label" style="font-size:10px;">Revenue allocated proportionally from each order</span></div>
+                  <div class="admin-table-container">
+                    <table class="admin-table finance-table">
+                      <thead><tr><th>Product</th><th>Units sold</th><th>Revenue</th><th>Unit cost</th><th>Total COGS</th><th>Gross profit</th><th>Margin</th><th>Cost source</th></tr></thead>
+                      <tbody id="financeProductMarginsBody"><tr><td colspan="8" class="finance-empty">Loading…</td></tr></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div id="financeSubTab_expenses" class="finance-subtab-content">
+                <div class="finance-grid-2">
+                  <div class="console-panel">
+                    <div class="panel-header"><h2 class="panel-title">Add Expense</h2></div>
+                    <form id="financeExpenseForm" onsubmit="addFinanceExpense(event)">
+                      <div class="finance-form-row">
+                        <div class="form-group"><label for="finExpenseDate">Date</label><input type="date" id="finExpenseDate" class="form-input" required></div>
+                        <div class="form-group"><label for="finExpenseCategory">Category</label><select id="finExpenseCategory" class="form-input"></select></div>
+                      </div>
+                      <div class="form-group"><label for="finExpenseDesc">Description</label><input type="text" id="finExpenseDesc" class="form-input" placeholder="e.g. 500g Creed Aventus oil" required></div>
+                      <div class="finance-form-row">
+                        <div class="form-group"><label for="finExpenseAmount">Amount (R)</label><input type="number" id="finExpenseAmount" class="form-input" min="0" step="0.01" required></div>
+                        <div class="form-group"><label for="finExpenseVat">VAT included (R)</label><input type="number" id="finExpenseVat" class="form-input" min="0" step="0.01" placeholder="0.00"></div>
+                      </div>
+                      <div class="finance-form-row">
+                        <div class="form-group"><label for="finExpenseMethod">Paid via</label><select id="finExpenseMethod" class="form-input"><option>Nedbank card</option><option>Nedbank EFT</option><option>Cash</option><option>Other</option></select></div>
+                        <div class="form-group"><label for="finExpenseRef">Reference</label><input type="text" id="finExpenseRef" class="form-input" placeholder="Optional"></div>
+                      </div>
+                      <div class="form-group"><label for="finExpenseNotes">Notes</label><input type="text" id="finExpenseNotes" class="form-input" placeholder="Optional"></div>
+                      <button type="submit" class="btn-action accent-btn" style="width:100%;padding:12px;">Record Expense</button>
+                    </form>
+                  </div>
+                  <div class="console-panel">
+                    <div class="panel-header"><h2 class="panel-title">Spend by Category</h2><button type="button" class="btn-action" onclick="exportFinanceExpenses()">↓ Export CSV</button></div>
+                    <div class="admin-table-container">
+                      <table class="admin-table finance-table">
+                        <thead><tr><th>Category</th><th>Entries</th><th>Total</th><th>Share</th></tr></thead>
+                        <tbody id="financeExpenseCategoryBody"><tr><td colspan="4" class="finance-empty">No expenses yet.</td></tr></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                <div class="console-panel">
+                  <div class="panel-header"><h2 class="panel-title">Expense Ledger</h2><span class="stat-label" style="font-size:10px;">Selected period</span></div>
+                  <div class="admin-table-container">
+                    <table class="admin-table finance-table">
+                      <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Paid via</th><th>VAT</th><th>Amount</th><th></th></tr></thead>
+                      <tbody id="financeExpensesTableBody"><tr><td colspan="7" class="finance-empty">No expenses yet.</td></tr></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div id="financeSubTab_bank" class="finance-subtab-content">
+                <div class="finance-grid-2">
+                  <div class="console-panel">
+                    <div class="panel-header"><h2 class="panel-title">Import Nedbank Statement</h2></div>
+                    <p class="finance-muted" style="margin-bottom:12px;">Download a CSV statement from Nedbank Online Banking (Money Edge / Business Online). The importer finds date, description, amount (or separate debit/credit columns) and balance automatically. Duplicate rows are skipped.</p>
+                    <div class="form-group">
+                      <label for="finBankCsv">Nedbank CSV file</label>
+                      <input type="file" id="finBankCsv" class="form-input" accept=".csv,text/csv" onchange="importNedbankCsv(event)">
+                    </div>
+                    <div id="financeBankImportStatus" class="finance-import-status"></div>
+                    <div style="border-top:1px solid var(--border-color);margin:18px 0;padding-top:16px;">
+                      <div class="finance-section-title">Or add a transaction manually</div>
+                      <form id="financeBankForm" onsubmit="addBankTransaction(event)">
+                        <div class="finance-form-row">
+                          <div class="form-group"><label for="finBankDate">Date</label><input type="date" id="finBankDate" class="form-input" required></div>
+                          <div class="form-group"><label for="finBankAmount">Amount (R)</label><input type="number" id="finBankAmount" class="form-input" step="0.01" placeholder="+ credit / − debit" required></div>
+                        </div>
+                        <div class="form-group"><label for="finBankDesc">Description</label><input type="text" id="finBankDesc" class="form-input" placeholder="e.g. OZOW SETTLEMENT" required></div>
+                        <div class="finance-form-row">
+                          <div class="form-group"><label for="finBankBalance">Balance after (R)</label><input type="number" id="finBankBalance" class="form-input" step="0.01" placeholder="Optional"></div>
+                          <div class="form-group"><label for="finBankRef">Reference</label><input type="text" id="finBankRef" class="form-input" placeholder="Optional"></div>
+                        </div>
+                        <button type="submit" class="btn-action accent-btn" style="width:100%;padding:12px;">Add Transaction</button>
+                      </form>
+                    </div>
+                  </div>
+                  <div class="console-panel">
+                    <div class="panel-header"><h2 class="panel-title">Bank Position</h2><span class="stat-label" style="font-size:10px;">Nedbank business account</span></div>
+                    <div class="admin-table-container">
+                      <table class="admin-table finance-table">
+                        <tbody id="financeBankSummaryBody"><tr><td class="finance-empty">Loading…</td></tr></tbody>
+                      </table>
+                    </div>
+                    <p class="finance-muted" style="margin-top:12px;">Payout matches are suggestions: a bank credit is matched to an expected gateway release when the amount is within R1 and the date is within 5 days.</p>
+                  </div>
+                </div>
+                <div class="console-panel">
+                  <div class="panel-header"><h2 class="panel-title">Bank Ledger</h2><button type="button" class="btn-action" onclick="exportFinanceBank()">↓ Export CSV</button></div>
+                  <div class="admin-table-container">
+                    <table class="admin-table finance-table">
+                      <thead><tr><th>Date</th><th>Description</th><th>Reference</th><th>Source</th><th>Payout match</th><th>Amount</th><th>Balance</th></tr></thead>
+                      <tbody id="financeBankTableBody"><tr><td colspan="7" class="finance-empty">No bank transactions yet — import a CSV above.</td></tr></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div id="financeSubTab_costs" class="finance-subtab-content">
+                <form id="financeSettingsForm" onsubmit="saveFinanceSettings(event)">
+                  <div class="finance-grid-2">
+                    <div class="console-panel">
+                      <div class="panel-header"><h2 class="panel-title">Bank &amp; VAT</h2></div>
+                      <div class="finance-form-row">
+                        <div class="form-group"><label for="finBankName">Bank</label><input type="text" id="finBankName" class="form-input"></div>
+                        <div class="form-group"><label for="finBankAccountName">Account name</label><input type="text" id="finBankAccountName" class="form-input"></div>
+                      </div>
+                      <div class="finance-form-row">
+                        <div class="form-group"><label for="finBankAccMasked">Account number (masked)</label><input type="text" id="finBankAccMasked" class="form-input" placeholder="e.g. ****1234"></div>
+                        <div class="form-group"><label for="finBankOpeningDate">Opening balance date</label><input type="date" id="finBankOpeningDate" class="form-input"></div>
+                      </div>
+                      <div class="form-group"><label for="finBankOpening">Opening balance (R)</label><input type="number" id="finBankOpening" class="form-input" step="0.01"></div>
+                      <div class="finance-form-row">
+                        <div class="form-group"><label for="finVatRate">VAT rate (%)</label><input type="number" id="finVatRate" class="form-input" step="0.01" min="0" max="100"></div>
+                        <div class="form-group" style="display:flex;align-items:center;gap:10px;padding-top:22px;">
+                          <input type="checkbox" id="finVatRegistered" style="width:18px;height:18px;accent-color:var(--accent);">
+                          <label for="finVatRegistered" style="margin:0;text-transform:none;letter-spacing:0;">VAT registered</label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="console-panel">
+                      <div class="panel-header"><h2 class="panel-title">Gateway Fees &amp; Payout Timing</h2></div>
+                      <div class="finance-form-row">
+                        <div class="form-group"><label for="finOzowFee">Ozow fee (%)</label><input type="number" id="finOzowFee" class="form-input" step="0.01" min="0"></div>
+                        <div class="form-group"><label for="finOzowDelay">Ozow payout delay (days)</label><input type="number" id="finOzowDelay" class="form-input" step="1" min="0"></div>
+                      </div>
+                      <div class="finance-form-row">
+                        <div class="form-group"><label for="finYocoFee">Yoco fee (%)</label><input type="number" id="finYocoFee" class="form-input" step="0.01" min="0"></div>
+                        <div class="form-group"><label for="finYocoDelay">Yoco payout delay (days)</label><input type="number" id="finYocoDelay" class="form-input" step="1" min="0"></div>
+                      </div>
+                      <p class="finance-muted">Fees are estimates used for profit. Adjust them to the exact rate on your gateway statement.</p>
+                    </div>
+                  </div>
+                  <div class="console-panel">
+                    <div class="panel-header"><h2 class="panel-title">Consumables &amp; Packaging Costs</h2><span class="stat-label" style="font-size:10px;">Change any number — every product recalculates</span></div>
+                    <div class="finance-form-row finance-form-row-3">
+                      <div class="form-group"><label for="finEthanolPrice">Ethanol base (R per 5L)</label><input type="number" id="finEthanolPrice" class="form-input" step="0.01" min="0"></div>
+                      <div class="form-group"><label for="finEthanolVolume">Ethanol volume (ml)</label><input type="number" id="finEthanolVolume" class="form-input" step="1" min="1"></div>
+                      <div class="form-group"><label for="finDefaultOil">Default oil (R/100g)</label><input type="number" id="finDefaultOil" class="form-input" step="0.01" min="0"></div>
+                    </div>
+                    <div class="finance-form-row finance-form-row-3">
+                      <div class="form-group"><label for="finBottle50">50ml bottle (R)</label><input type="number" id="finBottle50" class="form-input" step="0.01" min="0"></div>
+                      <div class="form-group"><label for="finBottle100">100ml bottle + gift box (R)</label><input type="number" id="finBottle100" class="form-input" step="0.01" min="0"></div>
+                      <div class="form-group"><label for="finBoxSingle">Single box (R)</label><input type="number" id="finBoxSingle" class="form-input" step="0.01" min="0"></div>
+                    </div>
+                    <div class="finance-form-row finance-form-row-3">
+                      <div class="form-group"><label for="finDuoBox">Duo gift box (R)</label><input type="number" id="finDuoBox" class="form-input" step="0.01" min="0"></div>
+                      <div class="form-group"><label for="finDuoPaper">Duo gift paper (R)</label><input type="number" id="finDuoPaper" class="form-input" step="0.01" min="0"></div>
+                      <div class="form-group"><label for="finBubbleSingle">Bubble wrap — single (R)</label><input type="number" id="finBubbleSingle" class="form-input" step="0.01" min="0"></div>
+                    </div>
+                    <div class="finance-form-row finance-form-row-3">
+                      <div class="form-group"><label for="finBubbleDuo">Bubble wrap — duo (R)</label><input type="number" id="finBubbleDuo" class="form-input" step="0.01" min="0"></div>
+                      <div class="form-group"><label for="finLabelBottle">Bottle label (R)</label><input type="number" id="finLabelBottle" class="form-input" step="0.01" min="0"></div>
+                      <div class="form-group"><label for="finLabelBox">Box label (R)</label><input type="number" id="finLabelBox" class="form-input" step="0.01" min="0"></div>
+                    </div>
+                    <p class="finance-muted">The R18 50ml bottle is a placeholder estimate (you have not supplied that price yet). The R95 100ml figure is your presentation box + bottle. Update these here once you have the real invoices — no code change needed. Oil costs are treated as rand per 100&nbsp;ml (1g ≈ 1ml); adjust “oil per 50ml bottle” on a product if you change the concentration.</p>
+                  </div>
+                  <div class="console-panel">
+                    <div class="panel-header"><h2 class="panel-title">Perfume Oil Library</h2><button type="button" class="btn-action" onclick="addOilLibraryRow()">+ Add Oil</button></div>
+                    <p class="finance-muted" style="margin-bottom:12px;">Product forms ask which oil is used; the cost per 100g is pulled from this list. Add every new oil here once you know its price.</p>
+                    <div class="admin-table-container">
+                      <table class="admin-table finance-table">
+                        <thead><tr><th>Oil name</th><th>Cost per 100g (R)</th><th></th></tr></thead>
+                        <tbody id="financeOilLibraryRows"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="console-panel" style="display:flex;justify-content:flex-end;gap:10px;">
+                    <button type="submit" class="btn-action accent-btn" style="padding:12px 24px;">Save Finance Settings</button>
+                  </div>
+                </form>
+                <div class="console-panel">
+                  <div class="panel-header"><h2 class="panel-title">Product Cost Audit</h2><span class="stat-label" style="font-size:10px;">Bottle-level cost and margin per product</span></div>
+                  <div class="admin-table-container">
+                    <table class="admin-table finance-table">
+                      <thead><tr><th>Product</th><th>Oil</th><th>Size</th><th>Selling price</th><th>Unit cost</th><th>Profit</th><th>Margin</th><th>Cost breakdown</th><th></th></tr></thead>
+                      <tbody id="financeProductCostTableBody"><tr><td colspan="9" class="finance-empty">Loading…</td></tr></tbody>
                     </table>
                   </div>
                 </div>
@@ -1981,7 +2306,7 @@
                   
                   <div class="form-group">
                     <label for="editProdPrice">Price (R)</label>
-                    <input type="number" id="editProdPrice" class="form-input" min="1" required>
+                    <input type="number" id="editProdPrice" class="form-input" min="1" required oninput="minaraUpdateCostPreview('edit')">
                   </div>
 
                   <div class="form-group">
@@ -2092,13 +2417,13 @@
                   </div>
 
                   <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-                    <input type="checkbox" id="editProdIsBundle" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);" onchange="toggleBundleSizeInput('edit')">
+                    <input type="checkbox" id="editProdIsBundle" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);" onchange="toggleBundleSizeInput('edit'); minaraUpdateCostPreview('edit')">
                     <label for="editProdIsBundle" style="margin-bottom: 0; cursor: pointer; font-size: 13px;">This is a Scent Bundle</label>
                   </div>
 
                   <div class="form-group" id="editProdBundleSizeGroup" style="display: none;">
                     <label for="editProdBundleSize">Number of Fragrance Choices for Customer (1-4)</label>
-                    <select id="editProdBundleSize" class="form-input" style="background:#1a1a24; color: #fff;">
+                    <select id="editProdBundleSize" class="form-input" style="background:#1a1a24; color: #fff;" onchange="minaraUpdateCostPreview('edit')">
                       <option value="1">1 Choice</option>
                       <option value="2">2 Choices</option>
                       <option value="3">3 Choices</option>
@@ -2110,11 +2435,69 @@
                     <label>Available Sizes</label>
                     <div style="display: flex; gap: 20px; align-items: center; margin-top: 8px;">
                       <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox" id="editProdSize50" value="50ml" style="width: 16px; height: 16px; accent-color: #ccff00;"> 50ml
+                        <input type="checkbox" id="editProdSize50" value="50ml" style="width: 16px; height: 16px; accent-color: #ccff00;" onchange="minaraUpdateCostPreview('edit')"> 50ml
                       </label>
                       <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox" id="editProdSize100" value="100ml" style="width: 16px; height: 16px; accent-color: #ccff00;"> 100ml
+                        <input type="checkbox" id="editProdSize100" value="100ml" style="width: 16px; height: 16px; accent-color: #ccff00;" onchange="minaraUpdateCostPreview('edit')"> 100ml
                       </label>
+                    </div>
+                  </div>
+
+                  <div style="border-top: 1px solid var(--border-color); margin: 20px 0; padding-top: 15px;">
+                    <div style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px;">Costing &amp; Margin (Private)</div>
+
+                    <div class="form-group">
+                      <label for="editProdOilSelect">Perfume Oil Used</label>
+                      <select id="editProdOilSelect" class="form-input" style="background:#1a1a24; color:#fff;" onchange="minaraOnOilSelect('edit')"></select>
+                      <div style="font-size:10px; color:var(--text-muted); margin-top:5px;">Pulled from Finance → Costs &amp; Settings. Override below for this product only.</div>
+                    </div>
+
+                    <div class="finance-form-row">
+                      <div class="form-group">
+                        <label for="editProdOilCost">Oil cost per 100g (R)</label>
+                        <input type="number" id="editProdOilCost" class="form-input" step="0.01" min="0" placeholder="e.g. 179" oninput="minaraUpdateCostPreview('edit')">
+                      </div>
+                      <div class="form-group">
+                        <label for="editProdOilMl">Oil per 50ml bottle (ml)</label>
+                        <input type="number" id="editProdOilMl" class="form-input" step="0.1" min="0" value="10" oninput="minaraUpdateCostPreview('edit')">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="editProdOilName">Oil name (custom only)</label>
+                      <input type="text" id="editProdOilName" class="form-input" placeholder="e.g. New oil not in the library" style="background:#1a1a24; color:#fff;">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="editProdPackaging">Packaging type</label>
+                      <select id="editProdPackaging" class="form-input" style="background:#1a1a24; color:#fff;" onchange="minaraUpdateCostPreview('edit')">
+                        <option value="auto">Auto — 50ml single / 100ml gift / duo bundle</option>
+                        <option value="single50">50ml single box</option>
+                        <option value="gift100">100ml bottle + gift box</option>
+                        <option value="duo">Duo gift box</option>
+                        <option value="none">No packaging</option>
+                        <option value="custom">Custom packaging</option>
+                      </select>
+                    </div>
+
+                    <div class="finance-form-row">
+                      <div class="form-group">
+                        <label for="editProdBottleCost">Bottle cost override (R)</label>
+                        <input type="number" id="editProdBottleCost" class="form-input" step="0.01" min="0" placeholder="Use global default" oninput="minaraUpdateCostPreview('edit')">
+                      </div>
+                      <div class="form-group">
+                        <label for="editProdBoxCost">Box / gift packaging override (R)</label>
+                        <input type="number" id="editProdBoxCost" class="form-input" step="0.01" min="0" placeholder="Use global default" oninput="minaraUpdateCostPreview('edit')">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="editProdExtraCost">Extra cost per unit sold (R)</label>
+                      <input type="number" id="editProdExtraCost" class="form-input" step="0.01" min="0" placeholder="e.g. special ribbon or insert" oninput="minaraUpdateCostPreview('edit')">
+                    </div>
+
+                    <div id="editProdCostPreview" class="cost-preview-box">
+                      <div class="finance-muted">Set a selling price and oil cost to see the live margin.</div>
                     </div>
                   </div>
                 </div>
@@ -2277,11 +2660,13 @@
   <script src="js/admin/admin-checkout-emails.js?v=20261019"></script>
   <script src="js/admin/admin-notifications.js?v=20260826_1630"></script>
   <script src="js/admin/admin-orders.js?v=20260826_1630"></script>
+  <script src="js/admin/admin-costing.js?v=20261019"></script>
   <script src="js/admin/admin-products.js?v=20260915b"></script>
   <script src="js/admin/admin-analytics.js?v=20260826_1630"></script>
   <script src="js/admin/admin-settings.js?v=20260914"></script>
   <script src="js/admin/admin-reviews.js?v=20260914"></script>
   <script src="js/admin/admin-featured-reviews.js?v=20260914"></script>
+  <script src="js/admin/admin-finance.js?v=20261019"></script>
 
   <!-- Admin Auth & Security Gateway Bootstrapper -->
   <script type="module" src="js/admin/admin-auth.js?v=20260826_1630"></script>
