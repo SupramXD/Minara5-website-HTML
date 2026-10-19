@@ -7,12 +7,12 @@
   <meta name="google" content="notranslate">
   <title>Studio Extrait – Secure Checkout</title>
   <link rel="icon" type="image/svg+xml" href="Studio Extrait Icon Svg only logo.svg">
-  <meta name="description" content="Secure Studio Extrait checkout — pay for your extrait de parfum order by card via Yoco or instant EFT via Ozow. Free express Courier Guy delivery included.">
+  <meta name="description" content="Secure Studio Extrait checkout — pay for your extrait de parfum order by card via Yoco or EFT via Ozow. Free express Courier Guy delivery included.">
   <link rel="canonical" href="https://studioextrait.co.za/checkout.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Studio Extrait">
   <meta property="og:title" content="Studio Extrait – Secure Checkout">
-  <meta property="og:description" content="Pay securely by card via Yoco or instant EFT via Ozow. Free express courier delivery.">
+  <meta property="og:description" content="Pay securely by card via Yoco or EFT via Ozow. Free express courier delivery.">
   <meta property="og:url" content="https://studioextrait.co.za/checkout.html">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="preload" href="minara%205%20transparent%202.svg" as="image" type="image/svg+xml">
@@ -21,7 +21,7 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js">
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js">
-  <link rel="modulepreload" href="header.js?v=20261015">
+  <link rel="modulepreload" href="header.js?v=20261019">
   <!-- Redirect speed. The hosted payment session is created by a Cloud Function and
        the customer then lands on the gateway's own host (Ozow pay.ozow.com, Yoco
        c.yoco.com), so both connections are opened while they are still filling the
@@ -454,7 +454,7 @@
       min-width: 0;
     }
 
-    /* The row label is a flex line so a small mark (the bank glyph on the Instant EFT
+    /* The row label is a flex line so a small mark (the bank glyph on the EFT
        row) can sit to the LEFT of the words instead of above or beside them. */
     .payment-tile-title {
       display: flex;
@@ -592,8 +592,8 @@
        row's label and `.payment-tile-brands` on its right - plus the bag drawer's own
        inline strip, so no strip rules belong here. Do not re-add a marks strip. */
 
-    /* Instant EFT chip: the one type-drawn mark in the strips. No official Ozow
-       "Instant EFT" lockup exists at badge size, so the chip reuses the bank
+    /* EFT chip: the one type-drawn mark in the strips. No official Ozow
+       "EFT" lockup exists at badge size, so the chip reuses the bank
        glyph from the trust card and matches the logo chips exactly (20px chip,
        6px side padding, 11px mark). */
     .pay-badge-eft {
@@ -612,8 +612,8 @@
     }
 
     /* Capitec Pay chip: the second type-drawn mark in the strips, for the same reason as
-       the Instant EFT chip - no official "Capitec Pay" lockup exists at badge size. It
-       reuses the Instant EFT chip's typography exactly (20px chip, 6px side padding,
+       the EFT chip - no official "Capitec Pay" lockup exists at badge size. It
+       reuses the EFT chip's typography exactly (20px chip, 6px side padding,
        8.5px bold uppercase) and wears Capitec's own brand navy, sampled #004771 from the
        official artwork in images/payments/capitec.svg, so the two chips read as one set
        (Ozow grey and type-drawn, Capitec navy and type-drawn). */
@@ -2676,9 +2676,9 @@
                   </svg>
                   <span style="font-size: 10px; color: #6b7280;">▾</span>
                 </div>
-                <input type="tel" id="c_phone" class="form-input" placeholder="+27" style="flex: 1;" required autocomplete="tel-national">
+                <input type="tel" id="c_phone" class="form-input" placeholder="+27 82 123 4567" inputmode="tel" style="flex: 1;" required autocomplete="tel">
               </div>
-              <div style="font-size: 10.5px; color: #9ca3af; margin-top: 5px;">The driver will use this to contact you.</div>
+              <div style="font-size: 10.5px; color: #9ca3af; margin-top: 5px;">The driver will use this to contact you - start with +27 or 0, both work.</div>
             </div>
 
             <!-- Payment: choose a method, then one button pays. The rows are
@@ -2687,7 +2687,7 @@
                  runs, then hands the browser to the chosen gateway's hosted page.
                  Each row carries the mark of the gateway that will process it on the
                  right, the accepted marks as badges (not as text) under the card and
-                 Capitec Pay labels, and the bank glyph to the left of "Instant EFT". -->
+                 Capitec Pay labels, and the bank glyph to the left of "EFT". -->
             <div style="margin-top: 30px;">
               <div class="section-title" style="margin-bottom: 12px;">Payment method</div>
 
@@ -2709,20 +2709,20 @@
                   <span class="payment-tile-radio" aria-hidden="true"></span>
                   <span class="payment-tile-text">
                     <span class="payment-tile-title">
-                      <span class="pay-badge pay-badge-eft" title="Instant EFT bank transfer" aria-hidden="true">
+                      <span class="pay-badge pay-badge-eft" title="EFT bank transfer" aria-hidden="true">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18"></path><path d="M5 6l7-3 7 3"></path><path d="M4 10v10"></path><path d="M9 10v10"></path><path d="M15 10v10"></path><path d="M20 10v10"></path><path d="M3 20h18"></path></svg>
                       </span>
-                      Instant EFT
+                      EFT
                     </span>
                     <span class="payment-tile-sub">No card needed.</span>
                   </span>
-                  <span class="payment-tile-brands" title="Instant EFT by Ozow"><span class="pay-badge"><img src="images/payments/ozow.png" alt="Ozow"></span></span>
+                  <span class="payment-tile-brands" title="EFT by Ozow"><span class="pay-badge"><img src="images/payments/ozow.png" alt="Ozow"></span></span>
                 </button>
                 <!-- Capitec Pay: a third rail that is still Ozow - it is created by the same
                      createOzowCheckout call with selectedBankId set to Ozow's Capitec Pay
                      identifier (see GATEWAYS in the script below). It is an app-approval flow
-                     (Capitec app + Capitec ID), not password-based instant EFT, which is why it
-                     gets its own row instead of a bank inside the Instant EFT row - and why it
+                     (Capitec app + Capitec ID), not password-based EFT, which is why it
+                     gets its own row instead of a bank inside the EFT row - and why it
                      never appears in Ozow's Pay-by-Bank bank list. The marks under the label are
                      the official Capitec symbol plus the type-drawn Capitec Pay lockup; the mark
                      on the right is Ozow, because Ozow is what processes it. -->
@@ -2996,7 +2996,7 @@
     // while ANY successful session clears the mark again. That is deliberate: the row
     // switches itself on the day Ozow enables the rail, with no code change here.
     const CAPITEC_TILE_SUB = 'Approve it in the Capitec app.';
-    const CAPITEC_TILE_SUB_UNAVAILABLE = 'Not available from Ozow yet - pay by card or Instant EFT.';
+    const CAPITEC_TILE_SUB_UNAVAILABLE = 'Not available from Ozow yet - pay by card or EFT.';
     const OZOW_METHOD_UNAVAILABLE = /not available for this merchant|not (?:yet )?enabled|not activated|invalid bank/i;
 
     window.setCapitecPayAvailability = function (err) {
@@ -3053,7 +3053,7 @@
     let payWarmOtherTimer = null;
 
     // Warming the other rails costs one extra hosted session per COMPLETE form (sessions
-    // only expire, they charge nothing), and it is what makes "tap Instant EFT, then tap
+    // only expire, they charge nothing), and it is what makes "tap EFT, then tap
     // Continue" instant as well: without it that customer - the one whose gateway page is
     // the slowest - is the only one who still waits for a cold session. Set this to false
     // to warm the chosen rail only.
@@ -3111,6 +3111,24 @@
     // cache hit rather than a network fetch.
     loadFunctionsSdk();
 
+    // One phone format for the gateways. A customer may type "+27 68 917 6485",
+    // "0027 68 917 6485", "+27 (0)68 917 6485", "068 917 6485" or just
+    // "68 917 6485" - every one of them becomes "+27689176485". The +27 in the
+    // field only says which country the number belongs to: it is never required,
+    // a leading 0 is never an error, and the "(0)" people still write after the
+    // country code is dropped with it (the old code just glued '+27' onto
+    // whatever was typed, so a number entered as +27... came out as +27+27...).
+    function normaliseSaPhone(raw) {
+      let digits = String(raw || '').replace(/\D/g, '');
+      if (digits.startsWith('0027')) {
+        digits = digits.slice(4);
+      } else if (digits.startsWith('27')) {
+        digits = digits.slice(2);
+      }
+      digits = digits.replace(/^0+/, '');
+      return digits ? '+27' + digits : '';
+    }
+
     // Everything the gateway needs, in the exact shape handleCheckoutSubmit sends -
     // one builder for the warm-up and for the submit, so the two can never drift.
     function collectCheckoutOrder() {
@@ -3144,7 +3162,7 @@
       const province = value('c_province');
       const postalCode = value('c_postal') || '0000';
       const instructions = value('c_instructions');
-      const phone = '+27' + phoneSuffix.replace(/^0+/, '');
+      const phone = normaliseSaPhone(phoneSuffix);
 
       // Same resolver the summary used, so the amount sent to the gateway is exactly
       // the amount the customer just read on screen.
@@ -3564,7 +3582,7 @@
         }));
 
         // Hand the customer over to the gateway's hosted payment page (Yoco for
-        // cards, Ozow for instant EFT). The browser keeps studioextrait.co.za as
+        // cards, Ozow for EFT). The browser keeps studioextrait.co.za as
         // the referrer, which is what Yoco matches against a verified domain.
         if (payStatusTimer) {
           clearTimeout(payStatusTimer);
@@ -3863,7 +3881,7 @@
     });
   </script>
 
-  <script type="module" src="header.js?v=20261015"></script>
+  <script type="module" src="header.js?v=20261019"></script>
 
 </body>
 

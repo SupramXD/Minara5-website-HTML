@@ -107,18 +107,18 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
 4. In the Yoco App, re-submit `https://studioextrait.co.za` under Checkout API -> Verified Domains.
 5. Record a test payment with the Yoco test card so the reviewer can see a working Yoco checkout.
 6. **Two gateways are live on `checkout.html`:** choosing "Pay by card" and continuing pays through
-   Yoco, choosing "Instant EFT" and continuing pays through Ozow. Both are created server-side
+   Yoco, choosing "EFT" and continuing pays through Ozow. Both are created server-side
    (`createYocoCheckout` / `createOzowCheckout`) and both webhooks (`/yocoWebhook`, `/ozowWebhook`)
    must stay registered. The step is **select, then continue**: the two rows only choose (radio
    semantics - nothing is charged, submitted or redirected by the tap itself) and the one lime
    **"Continue to Yoco" / "Continue to Ozow"** button is the action, so the browser's own
    required-field validation runs before any redirect. Each row carries the mark of the gateway that
    will process it (`.payment-tile-brands`: the Yoco chip on "Pay by card", the Ozow chip on
-   "Instant EFT" AND on "Capitec Pay" - Ozow processes that rail too) **and shows what it accepts as
+   "EFT" AND on "Capitec Pay" - Ozow processes that rail too) **and shows what it accepts as
    badges rather than as a sentence** - the "Pay by card" row's
    `Visa · Mastercard · Google Pay · Apple Pay` text line became `.payment-tile-badges`, the same
    20px `.pay-badge` chips used everywhere else, the "Capitec Pay" row carries the official Capitec
-   symbol plus the type-drawn "Capitec Pay" chip there, and the "Instant EFT" row carries the
+   symbol plus the type-drawn "Capitec Pay" chip there, and the "EFT" row carries the
    type-drawn bank chip to the LEFT of its own label (2026-10-13 pass 3). The accepted-marks strip
    that used to sit inside the ONE **"Secure payment"** trust card was **removed on 2026-10-15**
    together with its `.pay-brands*` CSS - that card is now the lock icon + title + one short sentence
@@ -139,7 +139,7 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
    fee is on us". Never reduce a free-shipping line back to a bare "FREE".
    **The bag drawer's strip is a sized-down exception to the 20px badge rule**: the drawer is `85vw`
    wide, so a 320px viewport leaves 231px of marks. There the card chips are 18px and the two Ozow
-   rails 17px (see MEMORY), which is what fits "Instant EFT" and "Capitec Pay" next to their processor
+   rails 17px (see MEMORY), which is what fits "EFT" and "Capitec Pay" next to their processor
    marks in three lines. Verify a strip change with the harness recipe - render the drawer's real
    markup in a 231px box and read widths/`offsetTop` back with `--dump-dom` - not by eye.
    **Capitec Pay is refused honestly until Ozow enables it**: `createOzowCheckout` probes the rail
@@ -177,7 +177,7 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
    sessions are a map (`window.__payWarm`, at most one record per gateway, keyed by
    `gatewayWarmKey`), and `PAY_WARM_EVERY_GATEWAY` warms the chosen rail and then every other rail in
    `GATEWAY_ORDER` 400ms apart (it was `PAY_WARM_BOTH_GATEWAYS` until the third rail made "both" wrong),
-   so "tap Instant EFT, then Continue" is instant too. `#payStatus` now goes up on EVERY click
+   so "tap EFT, then Continue" is instant too. `#payStatus` now goes up on EVERY click
    (the old 400ms delay is gone: the gateway's own page takes 0.2-0.9s to answer while this page is
    still on screen). Also keep `saveCheckoutDraft()`'s `checkoutDraftRestored` gate - a save before
    `restoreCheckoutDraft()` has run snapshots an EMPTY form and destroys the very draft the customer is

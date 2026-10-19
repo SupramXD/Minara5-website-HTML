@@ -12,7 +12,7 @@
 
   function railLabel(gateway) {
     if (gateway === 'yoco') return 'Card (Yoco)';
-    if (gateway === 'ozow') return 'Instant EFT (Ozow)';
+    if (gateway === 'ozow') return 'EFT (Ozow)';
     if (gateway === 'capitec') return 'Capitec Pay (Ozow)';
     return '';
   }

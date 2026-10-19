@@ -585,9 +585,9 @@
                  320px viewport leaves 231px - measured, not guessed (a measurement harness, not
                  the eye, is what settles a strip this crowded). The chips here are therefore one
                  step down from checkout.html's 20px: 18px for the card marks and 17px for the two
-                 Ozow rails, which is what lets "Instant EFT" and "Capitec Pay" both appear,
+                 Ozow rails, which is what lets "EFT" and "Capitec Pay" both appear,
                  together with their processor marks, inside 231px. Order is checkout's order:
-                 cards by Yoco, then Instant EFT by Ozow, then Capitec Pay - Ozow's own Bank API
+                 cards by Yoco, then EFT by Ozow, then Capitec Pay - Ozow's own Bank API
                  rail, which is why Capitec never appears in the Pay-by-Bank bank list. Each
                  symbol travels with its name inside one flex-shrink:0 group, so a wrap can never
                  leave a logo on one line and its label on the next. The Yoco wordmark is the
@@ -610,24 +610,24 @@
                 <img src="images/payments/applepay.svg" alt="Apple Pay" style="display:block; height:18px; width:auto;">
               </span>
             </span>
-            <!-- Instant EFT: the Ozow mark plus the type-drawn "Instant EFT" chip (no official
-                 Ozow instant-EFT lockup exists at badge size), held in one group so the symbol
+            <!-- EFT: the Ozow mark plus the type-drawn "EFT" chip (no official
+                 Ozow EFT lockup exists at badge size), held in one group so the symbol
                  and the words can never be split by a wrap. Same chip as the checkout strip, one
                  size down for this narrower box. -->
             <span style="display:inline-flex; align-items:center; gap:4px; flex-shrink:0;">
-              <span title="Instant EFT by Ozow" style="height:17px; padding:0 4px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
-                <img src="images/payments/ozow.png" alt="Ozow Instant EFT" style="display:block; height:9px; width:auto;">
+              <span title="EFT by Ozow" style="height:17px; padding:0 4px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <img src="images/payments/ozow.png" alt="Ozow EFT" style="display:block; height:9px; width:auto;">
               </span>
-              <span title="Instant EFT bank transfer" style="height:17px; padding:0 4px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; gap:3px; font-family:Helvetica, Arial, sans-serif; font-size:8px; font-weight:bold; letter-spacing:0.6px; text-transform:uppercase; color:#111111; white-space:nowrap;">
+              <span title="EFT bank transfer" style="height:17px; padding:0 4px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; gap:3px; font-family:Helvetica, Arial, sans-serif; font-size:8px; font-weight:bold; letter-spacing:0.6px; text-transform:uppercase; color:#111111; white-space:nowrap;">
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;"><path d="M3 10h18"></path><path d="M5 6l7-3 7 3"></path><path d="M4 10v10"></path><path d="M9 10v10"></path><path d="M15 10v10"></path><path d="M20 10v10"></path><path d="M3 20h18"></path></svg>
-                <span>Instant EFT</span>
+                <span>EFT</span>
               </span>
             </span>
             <!-- Capitec Pay: Ozow's Bank API rail (never a bank in the Pay-by-Bank list), so its
                  chip is Ozow-adjacent on purpose - the official Capitec mark
                  (images/payments/capitec.svg, cropped from the public-domain Commons artwork)
                  plus the type-drawn "Capitec Pay" lockup in Capitec's own navy #004771, the same
-                 treatment as the Instant EFT chip, symbol and name in one unsplittable group. -->
+                 treatment as the EFT chip, symbol and name in one unsplittable group. -->
             <span style="display:inline-flex; align-items:center; gap:4px; flex-shrink:0;">
               <span title="Capitec Pay by Ozow" style="height:17px; padding:0 4px; background:#fff; border:1px solid #e6e6e6; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">
                 <img src="images/payments/capitec.svg" alt="Capitec Pay" style="display:block; height:9px; width:auto;">

@@ -227,7 +227,7 @@ const OZOW_BANK_METHOD_STATE_TTL_MS = {
 const OZOW_METHOD_UNAVAILABLE_RE =
     /not available for this merchant|not (?:yet )?enabled|not activated|invalid bank/i;
 const OZOW_RAIL_NOT_ENABLED_MESSAGE =
-    "Ozow has not enabled this payment method on our account yet. Please pay by card or Instant EFT.";
+    "Ozow has not enabled this payment method on our account yet. Please pay by card or EFT.";
 const ozowBankMethodStates = new Map();
 
 /**
@@ -1463,7 +1463,7 @@ exports.createOzowCheckout = onCall({
         // A gateway we cannot reach is not a rail that is switched off: never cache it, and do
         // not let the row mute itself over it.
         throw new HttpsError("unavailable",
-            "We could not check that payment method with Ozow just now. Please try again, or pay by card or Instant EFT.");
+            "We could not check that payment method with Ozow just now. Please try again, or pay by card or EFT.");
       }
       writeOzowBankMethodState(selectedBankId, probe.available ? "available" : "unavailable");
       if (!probe.available) {
