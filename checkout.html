@@ -2641,7 +2641,7 @@
                 <label for="c_instructions" style="margin-bottom: 0;">Delivery instructions</label>
                 <span style="font-size: 10.5px; color: #6b7280; font-weight: normal;">(Optional)</span>
               </div>
-              <input type="text" id="c_instructions" class="form-input" placeholder='e.g. "leave at the gate" or "deliver after 3pm"'>
+              <input type="text" id="c_instructions" class="form-input" placeholder='e.g. "leave at the gate"'>
             </div>
 
             <!-- Section 2: Contact Details -->
@@ -2676,7 +2676,13 @@
                   </svg>
                   <span style="font-size: 10px; color: #6b7280;">▾</span>
                 </div>
-                <input type="tel" id="c_phone" class="form-input" placeholder="+27 82 123 4567" inputmode="tel" style="flex: 1;" required autocomplete="tel">
+                <!-- The placeholder is the country code and nothing else: a sample
+                     number in a translucent grey read as a number already in the box,
+                     so it is gone. The "+27" says which format is expected, and the
+                     field spaces the digits for the customer as they type (see
+                     formatSaPhoneInput below) - a leading 0 is equally fine and gets
+                     its own 3-3-4 spacing. -->
+                <input type="tel" id="c_phone" class="form-input" placeholder="+27" inputmode="tel" style="flex: 1;" required autocomplete="tel">
               </div>
               <div style="font-size: 10.5px; color: #9ca3af; margin-top: 5px;">The driver will use this to contact you - start with +27 or 0, both work.</div>
             </div>
@@ -3128,6 +3134,101 @@
       digits = digits.replace(/^0+/, '');
       return digits ? '+27' + digits : '';
     }
+
+    // Live spacing for the mobile field (2026-10-20). The hint under the field
+    // promises "+27 or 0, both work", so whichever shape is typed gets its own
+    // spacing as it is typed: "0821234567" reads back "082 123 4567" and
+    // "+27821234567" reads back "+27 82 123 4567". Only the digits are trusted -
+    // spaces, dashes and brackets are rebuilt from them - so the field can never hold
+    // the ragged spacing a gateway would have to strip anyway, and the caret is put
+    // back behind the same digit it was behind, so editing mid-number does not jump
+    // it to the end. A "+" that is not +27 is left exactly as typed: a foreign
+    // number is not ours to rewrite.
+    function formatSaPhoneInput(raw) {
+      const text = String(raw || '');
+      const typed = text.replace(/[^\d+]/g, '');
+      const hasPlus = typed.startsWith('+');
+      let digits = typed.replace(/\D/g, '');
+      if (!digits) return hasPlus ? '+' : '';
+
+      const group = (lengths) => {
+        const parts = [];
+        let at = 0;
+        for (const size of lengths) {
+          if (at >= digits.length) break;
+          parts.push(digits.slice(at, at + size));
+          at += size;
+        }
+        return parts.join(' ');
+      };
+
+      // 0027 and +27 are the same number: both print as +27 with the national part
+      // in 2-3-4. "27..." typed without a plus only counts as a country code once it
+      // is long enough to be one (a local number always starts with 0).
+      if (digits.startsWith('0027')) {
+        digits = digits.slice(4, 13);
+        return ('+27 ' + group([2, 3, 4])).trimEnd();
+      }
+      if (hasPlus && digits.startsWith('27')) {
+        digits = digits.slice(2, 11);
+        return ('+27 ' + group([2, 3, 4])).trimEnd();
+      }
+      if (hasPlus) return typed;
+      if (digits.startsWith('27') && digits.length > 9) {
+        digits = digits.slice(2, 11);
+        return '+27 ' + group([2, 3, 4]);
+      }
+      if (digits.startsWith('0')) {
+        digits = digits.slice(0, 10);
+        return group([3, 3, 4]);
+      }
+
+      // No country code and no leading 0 yet - space it like the national number,
+      // which is the same 2-3-4 shape "+27" produces, so the shape never changes.
+      digits = digits.slice(0, 9);
+      return group([2, 3, 4]);
+    }
+
+    function placeCaretAfterDigits(el, formatted, digitTarget) {
+      let pos = 0;
+      if (digitTarget > 0) {
+        let seen = 0;
+        pos = formatted.length;
+        for (let i = 0; i < formatted.length; i += 1) {
+          if (/\d/.test(formatted.charAt(i))) seen += 1;
+          if (seen === digitTarget) {
+            pos = i + 1;
+            break;
+          }
+        }
+      }
+      try {
+        el.setSelectionRange(pos, pos);
+      } catch (e) {
+        /* the field is not focusable yet - the next keystroke will settle it */
+      }
+    }
+
+    (function wireSaPhoneSpacing() {
+      const el = document.getElementById('c_phone');
+      if (!el) return;
+
+      const apply = () => {
+        const raw = el.value;
+        const caret = el.selectionStart == null ? raw.length : el.selectionStart;
+        const digitsBefore = (raw.slice(0, caret).match(/\d/g) || []).length;
+        const formatted = formatSaPhoneInput(raw);
+        if (formatted === raw) return;
+        el.value = formatted;
+        placeCaretAfterDigits(el, formatted, digitsBefore);
+      };
+
+      el.addEventListener('input', apply);
+      // Autofill, some mobile keyboards and the draft restore all write the value
+      // without firing `input`, so the same spacing is re-applied when they leave it.
+      el.addEventListener('change', apply);
+      el.addEventListener('blur', apply);
+    })();
 
     // Everything the gateway needs, in the exact shape handleCheckoutSubmit sends -
     // one builder for the warm-up and for the submit, so the two can never drift.
