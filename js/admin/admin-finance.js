@@ -14,6 +14,7 @@
     loading: false,
     loadPromise: null,
     period: 'this_month',
+    entryType: 'expense',
     productById: {},
     productByName: {}
   };
@@ -22,6 +23,39 @@
     'Oils & fragrance', 'Ethanol', 'Bottles', 'Boxes & packaging', 'Labels',
     'Bubble wrap & gift wrap', 'Courier & shipping', 'Marketing & ads',
     'Website & software', 'Bank charges & fees', 'Equipment', 'Other'
+  ];
+
+  // Known start-up / historical costs. The exact purchase dates were never
+  // recorded, so "Load start-up costs" writes them dated today and flags them
+  // with dateEstimated:true. Edit or delete any row afterwards.
+  var STARTER_EXPENSES = [
+    { description: 'Label paper (PNA)', amount: 106, category: 'Labels', notes: 'Printed at PNA' },
+    { description: 'Bostik glue stick (PNA)', amount: 29, category: 'Boxes & packaging', notes: 'For gift boxes' },
+    { description: 'Live Life Fragrances — fragrance oils', amount: 80, category: 'Oils & fragrance', notes: 'First Live Life Fragrances order' },
+    { description: 'Live Life Fragrances — 1L ethanol base', amount: 615, category: 'Ethanol', notes: 'First Live Life Fragrances order' },
+    { description: 'Value Co — 3 × 1L jars', amount: 190, category: 'Bottles', notes: 'Bulk oil storage' },
+    { description: 'Perfume oils (test bottles)', amount: 593.18, category: 'Oils & fragrance', notes: 'Includes test bottles' },
+    { description: 'The Courier Guy', amount: 200, category: 'Courier & shipping', notes: '' },
+    { description: 'Domain registration', amount: 100, category: 'Website & software', notes: '' },
+    { description: 'DeepSeek API', amount: 300, category: 'Website & software', notes: '' },
+    { description: '25 × 50ml syringes', amount: 164, category: 'Equipment', notes: 'For filling bottles' },
+    { description: 'Water-soluble dyes (magenta, yellow, blue)', amount: 105, category: 'Equipment', notes: '' }
+  ];
+
+  // Used to guess a category from a plain-English name, so the form only needs
+  // a name + an amount. Order matters: the first match wins.
+  var CATEGORY_HINTS = [
+    ['Ethanol', ['ethanol', 'alcohol', 'base']],
+    ['Oils & fragrance', ['oil', 'fragrance', 'perfume', 'scent', 'accord']],
+    ['Labels', ['label', 'sticker']],
+    ['Bottles', ['bottle', 'atomiser', 'atomizer', 'sprayer', 'jar', 'vial']],
+    ['Bubble wrap & gift wrap', ['bubble', 'wrap']],
+    ['Boxes & packaging', ['box', 'packaging', 'glue', 'bostik', 'ribbon', 'insert']],
+    ['Courier & shipping', ['courier', 'shipping', 'postnet', 'delivery', 'waybill', 'postage']],
+    ['Website & software', ['domain', 'hosting', 'api', 'software', 'deepseek', 'openai', 'firebase', 'subscription', 'website', 'plugin']],
+    ['Marketing & ads', ['ads', 'advert', 'marketing', 'instagram', 'facebook', 'tiktok', 'influencer']],
+    ['Bank charges & fees', ['bank', 'charge', 'service fee']],
+    ['Equipment', ['syringe', 'dye', 'scale', 'beaker', 'funnel', 'pipette', 'equipment', 'tool']]
   ];
 
   function num(v, fallback) {
@@ -272,6 +306,35 @@
     return list.reduce(function (s, x) { return s + num(fn ? fn(x) : x, 0); }, 0);
   }
 
+  function entryType(e) {
+    return String((e && e.type) || 'expense').toLowerCase() === 'income' ? 'income' : 'expense';
+  }
+  /** Every money-OUT row in the period. */
+  function expenseEntries(range) {
+    return periodExpenses(range).filter(function (e) { return entryType(e) === 'expense'; });
+  }
+  /** Every money-IN row in the period (manual income, not store orders). */
+  function incomeEntries(range) {
+    return periodExpenses(range).filter(function (e) { return entryType(e) === 'income'; });
+  }
+  function guessCategory(text) {
+    var t = String(text || '').toLowerCase();
+    if (!t) return 'Other';
+    for (var i = 0; i < CATEGORY_HINTS.length; i++) {
+      var words = CATEGORY_HINTS[i][1];
+      for (var j = 0; j < words.length; j++) {
+        if (t.indexOf(words[j]) !== -1) return CATEGORY_HINTS[i][0];
+      }
+    }
+    return 'Other';
+  }
+  function orderLabel(o) {
+    return (o && (o.orderId || o.reference || o.id)) || '—';
+  }
+  function orderCustomer(o) {
+    return (o && (o.customerName || [o.firstName, o.lastName].filter(Boolean).join(' ') || o.email)) || '—';
+  }
+
   window.minaraFinancePeriodRange = getPeriodRange;
   window.minaraFinanceInPeriod = inPeriod;
   window.minaraFinanceFmtR = fmtR;
@@ -450,6 +513,7 @@
     renderGateway();
     renderTopProducts(range);
     renderOrders(range);
+    renderUnpaidOrders(range);
     renderProductMargins(range);
     renderExpenses(range);
     renderBank(range);
@@ -465,9 +529,18 @@
     var cogs = sum(comps, function (c) { return c.cogs; });
     var fees = sum(comps, function (c) { return c.fee; });
     var gross = revenue - cogs - fees;
-    var expenseList = periodExpenses(range);
+
+    var expenseList = expenseEntries(range);
+    var incomeList = incomeEntries(range);
     var expenses = sum(expenseList, function (e) { return e.amount; });
-    var net = gross - expenses;
+    var otherIncome = sum(incomeList, function (e) { return e.amount; });
+    var net = gross + otherIncome - expenses;
+
+    var unpaid = (FIN.orders || []).filter(function (o) {
+      return !isPaidOrder(o) && inPeriod(orderDate(o), range);
+    });
+    var unpaidValue = sum(unpaid, function (o) { return num(o.total, 0); });
+
     var allComps = FIN.orders.filter(isPaidOrder).map(computeOrder);
     var held = 0;
     var released = 0;
@@ -476,15 +549,23 @@
       if (p.held) held += p.amount; else released += p.amount;
     });
     var bankBalance = getBankBalance();
-    var grossMargin = revenue > 0 ? (gross / revenue) * 100 : 0;
     var netMargin = revenue > 0 ? (net / revenue) * 100 : 0;
 
+    var categoryTotals = {};
+    expenseList.forEach(function (e) {
+      var c = e.category || 'Other';
+      categoryTotals[c] = num(categoryTotals[c], 0) + num(e.amount, 0);
+    });
+    var topCategory = Object.keys(categoryTotals).sort(function (a, b) {
+      return categoryTotals[b] - categoryTotals[a];
+    })[0];
+
     el.innerHTML = [
-      '<div class="finance-kpi kpi-accent"><div class="kpi-label">Revenue collected</div><div class="kpi-value">' + fmtR(revenue) + '</div><div class="kpi-hint">' + comps.length + ' paid order' + (comps.length === 1 ? '' : 's') + ' · ' + esc(range.label) + '</div></div>',
-      '<div class="finance-kpi"><div class="kpi-label">Cost of goods</div><div class="kpi-value">' + fmtR(cogs) + '</div><div class="kpi-hint">' + (revenue > 0 ? fmtPct(cogs / revenue * 100) : '0.0%') + ' of revenue · oil, ethanol, packaging</div></div>',
-      '<div class="finance-kpi ' + (gross >= 0 ? 'kpi-good' : 'kpi-bad') + '"><div class="kpi-label">Gross profit</div><div class="kpi-value">' + fmtR(gross) + '</div><div class="kpi-hint">After ' + fmtR(fees) + ' gateway fees · ' + fmtPct(grossMargin) + ' margin</div></div>',
-      '<div class="finance-kpi"><div class="kpi-label">Expenses</div><div class="kpi-value">' + fmtR(expenses) + '</div><div class="kpi-hint">' + expenseList.length + ' logged expense' + (expenseList.length === 1 ? '' : 's') + '</div></div>',
-      '<div class="finance-kpi ' + (net >= 0 ? 'kpi-good' : 'kpi-bad') + '"><div class="kpi-label">Net profit</div><div class="kpi-value">' + fmtR(net) + '</div><div class="kpi-hint">Gross profit minus expenses · ' + fmtPct(netMargin) + '</div></div>',
+      '<div class="finance-kpi kpi-accent"><div class="kpi-label">Revenue collected</div><div class="kpi-value">' + fmtR(revenue) + '</div><div class="kpi-hint">' + comps.length + ' paid order' + (comps.length === 1 ? '' : 's') + ' · ' + esc(range.label) + ' · COGS ' + fmtR(cogs) + '</div></div>',
+      '<div class="finance-kpi ' + (expenses > 0 ? 'kpi-bad' : '') + '"><div class="kpi-label">Total spent</div><div class="kpi-value">' + fmtR(expenses) + '</div><div class="kpi-hint">' + expenseList.length + ' expense' + (expenseList.length === 1 ? '' : 's') + (topCategory ? ' · biggest: ' + esc(topCategory) + ' ' + fmtR(categoryTotals[topCategory]) : '') + '</div></div>',
+      '<div class="finance-kpi ' + (otherIncome > 0 ? 'kpi-good' : '') + '"><div class="kpi-label">Other income</div><div class="kpi-value">' + fmtR(otherIncome) + '</div><div class="kpi-hint">' + incomeList.length + ' manual income entr' + (incomeList.length === 1 ? 'y' : 'ies') + ' · not store orders</div></div>',
+      '<div class="finance-kpi ' + (net >= 0 ? 'kpi-good' : 'kpi-bad') + '"><div class="kpi-label">Net profit</div><div class="kpi-value">' + fmtR(net) + '</div><div class="kpi-hint">Gross ' + fmtR(gross) + ' after ' + fmtR(fees) + ' fees + income − expenses · ' + fmtPct(netMargin) + '</div></div>',
+      '<div class="finance-kpi"><div class="kpi-label">Unpaid orders</div><div class="kpi-value">' + fmtR(unpaidValue) + '</div><div class="kpi-hint">' + unpaid.length + ' order' + (unpaid.length === 1 ? '' : 's') + ' excluded from revenue · delete under Sales</div></div>',
       '<div class="finance-kpi"><div class="kpi-label">Cash position</div><div class="kpi-value">' + fmtR(bankBalance) + '</div><div class="kpi-hint">' + fmtR(held) + ' still in gateway hold · ' + fmtR(released) + ' released</div></div>'
     ].join('');
   }
@@ -509,7 +590,7 @@
       alerts.push('<div class="finance-alert">No bank transactions imported yet. Import a Nedbank CSV under <strong>Nedbank &amp; Payouts</strong> to reconcile payouts and see the real cash balance.</div>');
     }
     if (!FIN.expenses.length) {
-      alerts.push('<div class="finance-alert">No expenses recorded yet. Add oils, ethanol, packaging and courier costs under <strong>Expenses</strong> so net profit is accurate.</div>');
+      alerts.push('<div class="finance-alert">No expenses recorded yet. Press <strong>Load start-up costs</strong> on the Expenses tab to add the known costs, then add new ones as they happen.</div>');
     }
     var held = 0;
     FIN.orders.filter(isPaidOrder).map(computeOrder).forEach(function (c) {
@@ -528,7 +609,7 @@
     var months = [];
     for (var i = 11; i >= 0; i--) {
       var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      months.push({ key: monthKey(d), label: monthLabel(monthKey(d)), orders: 0, revenue: 0, cogs: 0, fees: 0, expenses: 0 });
+      months.push({ key: monthKey(d), label: monthLabel(monthKey(d)), orders: 0, revenue: 0, cogs: 0, fees: 0, expenses: 0, income: 0 });
     }
     var index = {};
     months.forEach(function (m) { index[m.key] = m; });
@@ -543,13 +624,15 @@
     });
     FIN.expenses.forEach(function (e) {
       var key = monthKey(e.date || e.createdAt);
-      if (index[key]) index[key].expenses += num(e.amount, 0);
+      if (!index[key]) return;
+      if (entryType(e) === 'income') index[key].income += num(e.amount, 0);
+      else index[key].expenses += num(e.amount, 0);
     });
     body.innerHTML = months.map(function (m) {
-      var net = m.revenue - m.cogs - m.fees - m.expenses;
+      var net = m.revenue - m.cogs - m.fees - m.expenses + m.income;
       var margin = m.revenue > 0 ? (net / m.revenue) * 100 : 0;
       return '<tr><td>' + esc(m.label) + '</td><td>' + m.orders + '</td><td>' + fmtR(m.revenue) + '</td><td>' + fmtR(m.cogs) +
-        '</td><td>' + fmtR(m.fees) + '</td><td>' + fmtR(m.expenses) + '</td><td style="color:' +
+        '</td><td>' + fmtR(m.fees) + '</td><td>' + fmtR(m.expenses) + '</td><td>' + fmtR(m.income) + '</td><td style="color:' +
         (net >= 0 ? 'var(--success)' : 'var(--danger)') + ';font-weight:700;">' + fmtR(net) +
         '</td><td>' + fmtPct(margin) + '</td></tr>';
     }).join('');
@@ -594,7 +677,7 @@
     if (!body) return;
     var comps = paidComps(range);
     if (!comps.length) {
-      body.innerHTML = '<tr><td colspan="10" class="finance-empty">No paid orders in this period.</td></tr>';
+      body.innerHTML = '<tr><td colspan="11" class="finance-empty">No paid orders in this period.</td></tr>';
       return;
     }
     body.innerHTML = comps.slice(0, 200).map(function (c) {
@@ -608,7 +691,31 @@
         (c.profit >= 0 ? 'var(--success)' : 'var(--danger)') + ';font-weight:700;">' + fmtR(c.profit) +
         '</td><td>' + fmtPct(c.margin) + '</td><td><span class="finance-pill ' + (p.held ? 'held' : 'released') + '">' +
         (p.held ? 'In hold' : 'Released') + '</span><div style="font-size:9px;color:var(--text-muted);margin-top:3px;">' +
-        (p.held ? 'from ' + fmtDate(p.releaseDate) : fmtDate(p.releaseDate)) + '</div></td></tr>';
+        (p.held ? 'from ' + fmtDate(p.releaseDate) : fmtDate(p.releaseDate)) + '</div></td><td><button type="button" class="finance-del-btn" title="Delete this paid order" onclick="deleteFinanceOrder(\'' +
+        esc(o.id) + '\')">×</button></td></tr>';
+    }).join('');
+  }
+
+  function renderUnpaidOrders(range) {
+    var body = document.getElementById('financeUnpaidOrdersBody');
+    if (!body) return;
+    var list = (FIN.orders || []).filter(function (o) {
+      return !isPaidOrder(o) && inPeriod(orderDate(o), range);
+    }).sort(function (a, b) {
+      var da = orderDate(a); var db = orderDate(b);
+      return (db ? db.getTime() : 0) - (da ? da.getTime() : 0);
+    });
+    if (!list.length) {
+      body.innerHTML = '<tr><td colspan="6" class="finance-empty">No unpaid orders in this period.</td></tr>';
+      return;
+    }
+    body.innerHTML = list.slice(0, 200).map(function (o) {
+      var ref = orderLabel(o);
+      return '<tr><td>' + fmtDate(orderDate(o)) + '</td><td title="' + esc(ref) + '">' +
+        esc(String(ref).length > 18 ? String(ref).slice(0, 18) + '…' : ref) + '</td><td>' +
+        esc(orderCustomer(o)) + '</td><td>' + fmtR(num(o.total, 0)) + '</td><td><span class="finance-pill held">' +
+        esc(o.status || o.paymentStatus || 'unpaid') + '</span></td><td><button type="button" class="finance-del-btn" title="Delete this unpaid order" onclick="deleteFinanceOrder(\'' +
+        esc(o.id) + '\')">×</button></td></tr>';
     }).join('');
   }
 
@@ -633,14 +740,20 @@
 
   function populateExpenseCategories() {
     var sel = document.getElementById('finExpenseCategory');
-    if (!sel || sel.options.length) return;
-    sel.innerHTML = EXPENSE_CATEGORIES.map(function (c) {
+    if (!sel || sel.getAttribute('data-ready') === '1') return;
+    sel.innerHTML = '<option value="">Auto — pick from the name</option>' + EXPENSE_CATEGORIES.map(function (c) {
       return '<option value="' + esc(c) + '">' + esc(c) + '</option>';
     }).join('');
+    sel.setAttribute('data-ready', '1');
   }
 
   function financeToday() {
     return toIsoDate(new Date());
+  }
+
+  function fieldValue(id) {
+    var f = document.getElementById(id);
+    return f && f.value !== undefined && f.value !== null ? String(f.value) : '';
   }
 
   function renderExpenses(range) {
@@ -651,18 +764,23 @@
     var body = document.getElementById('financeExpensesTableBody');
     if (body) {
       body.innerHTML = list.length ? list.map(function (e) {
-        return '<tr><td>' + fmtDate(e.date || e.createdAt) + '</td><td>' + esc(e.category || 'Other') +
-          '</td><td>' + esc(e.description || '') + '</td><td>' + esc(e.paymentMethod || '—') + '</td><td>' +
-          (num(e.vatAmount, 0) > 0 ? fmtR(e.vatAmount) : '—') + '</td><td style="font-weight:700;">' + fmtR(e.amount) +
-          '</td><td><button class="btn-action danger-btn" style="padding:4px 8px;" onclick="deleteFinanceExpense(\'' +
+        var isIncome = entryType(e) === 'income';
+        return '<tr><td>' + fmtDate(e.date || e.createdAt) + '</td><td><span class="finance-pill ' +
+          (isIncome ? 'released' : 'held') + '">' + (isIncome ? 'Income' : 'Expense') + '</span></td><td>' +
+          esc(e.description || e.category || '') +
+          (e.dateEstimated ? ' <span class="finance-pill estimate" title="Exact date not recorded">date est.</span>' : '') +
+          '</td><td style="font-weight:700;color:' + (isIncome ? 'var(--success)' : '#ff9b94') + ';">' +
+          (isIncome ? '+' : '−') + fmtR(num(e.amount, 0)) +
+          '</td><td><button type="button" class="finance-del-btn" title="Delete this row" onclick="deleteFinanceExpense(\'' +
           esc(e.id) + '\')">×</button></td></tr>';
-      }).join('') : '<tr><td colspan="7" class="finance-empty">No expenses in this period.</td></tr>';
+      }).join('') : '<tr><td colspan="5" class="finance-empty">No money in or out in this period.</td></tr>';
     }
 
     var catBody = document.getElementById('financeExpenseCategoryBody');
     if (catBody) {
+      var spend = list.filter(function (e) { return entryType(e) === 'expense'; });
       var map = {};
-      list.forEach(function (e) {
+      spend.forEach(function (e) {
         var c = e.category || 'Other';
         if (!map[c]) map[c] = { count: 0, total: 0 };
         map[c].count += 1;
@@ -697,11 +815,22 @@
 
   window.exportFinanceExpenses = function () {
     var list = periodExpenses(getPeriodRange(FIN.period));
-    var rows = [['Date', 'Category', 'Description', 'Paid via', 'VAT', 'Amount', 'Reference', 'Notes']];
+    var rows = [['Date', 'Type', 'Category', 'Name', 'Amount', 'Date estimated', 'Notes']];
     list.forEach(function (e) {
-      rows.push([e.date || e.createdAt, e.category, e.description, e.paymentMethod, e.vatAmount, e.amount, e.reference, e.notes]);
+      rows.push([e.date || e.createdAt, entryType(e), e.category, e.description, e.amount,
+        e.dateEstimated ? 'yes' : '', e.notes]);
     });
-    downloadCsv('studio-extrait-expenses-' + financeToday() + '.csv', rows);
+    downloadCsv('studio-extrait-money-in-out-' + financeToday() + '.csv', rows);
+  };
+
+  window.setFinanceEntryType = function (type) {
+    FIN.entryType = type === 'income' ? 'income' : 'expense';
+    var exp = document.getElementById('finEntryTypeExpense');
+    var inc = document.getElementById('finEntryTypeIncome');
+    if (exp) exp.classList.toggle('active', FIN.entryType === 'expense');
+    if (inc) inc.classList.toggle('active', FIN.entryType === 'income');
+    var desc = document.getElementById('finExpenseDesc');
+    if (desc) desc.placeholder = FIN.entryType === 'income' ? 'e.g. Cash sale' : 'e.g. Courier Guy';
   };
 
   window.addFinanceExpense = function (event) {
@@ -710,27 +839,25 @@
       alert('Firestore is not ready yet. Refresh the admin page and try again.');
       return;
     }
-    var date = document.getElementById('finExpenseDate').value;
-    var category = document.getElementById('finExpenseCategory').value;
-    var description = document.getElementById('finExpenseDesc').value.trim();
-    var amount = num(document.getElementById('finExpenseAmount').value, 0);
-    var vatAmount = num(document.getElementById('finExpenseVat').value, 0);
-    var paymentMethod = document.getElementById('finExpenseMethod').value;
-    var reference = document.getElementById('finExpenseRef').value.trim();
-    var notes = document.getElementById('finExpenseNotes').value.trim();
-    if (!date || !description || amount <= 0) {
-      alert('Enter a date, a description and an amount greater than zero.');
+    var type = FIN.entryType === 'income' ? 'income' : 'expense';
+    var date = fieldValue('finExpenseDate') || financeToday();
+    var description = fieldValue('finExpenseDesc').trim();
+    var amount = Math.abs(num(fieldValue('finExpenseAmount'), 0));
+    var category = fieldValue('finExpenseCategory') || guessCategory(description);
+    if (!description || amount <= 0) {
+      alert('Enter a name and an amount greater than zero.');
       return;
     }
     var doc = {
       date: date,
+      type: type,
       category: category,
       description: description,
       amount: amount,
-      vatAmount: vatAmount,
-      paymentMethod: paymentMethod,
-      reference: reference,
-      notes: notes,
+      vatAmount: 0,
+      paymentMethod: '',
+      reference: '',
+      notes: '',
       createdAt: new Date().toISOString(),
       createdBy: (window.auth && window.auth.currentUser && window.auth.currentUser.email) || ''
     };
@@ -742,24 +869,26 @@
       .then(function (ref) {
         doc.id = ref.id;
         FIN.expenses.push(doc);
-        ['finExpenseDesc', 'finExpenseAmount', 'finExpenseVat', 'finExpenseRef', 'finExpenseNotes'].forEach(function (id) {
+        ['finExpenseDesc', 'finExpenseAmount'].forEach(function (id) {
           var f = document.getElementById(id); if (f) f.value = '';
         });
         renderAll();
       })
       .catch(function (err) {
         console.error(err);
-        alert('Could not save the expense: ' + (err.message || err) +
+        alert('Could not save the entry: ' + (err.message || err) +
           '\n\nIf this says "Missing or insufficient permissions", deploy the updated firestore.rules.');
       })
       .then(function () {
         if (btn) { btn.disabled = false; btn.innerHTML = oldText; }
+        var desc = document.getElementById('finExpenseDesc');
+        if (desc) desc.focus();
       });
   };
 
   window.deleteFinanceExpense = function (id) {
     if (!id) return;
-    if (!confirm('Delete this expense? This cannot be undone.')) return;
+    if (!confirm('Delete this row? This cannot be undone.')) return;
     if (!(window.db && window.dbDeleteDoc && window.dbDoc)) return;
     window.dbDeleteDoc(window.dbDoc(window.db, 'finance_expenses', id))
       .then(function () {
@@ -769,6 +898,99 @@
       .catch(function (err) {
         alert('Could not delete the expense: ' + (err.message || err));
       });
+  };
+
+  // Deletes an order from Firestore. Unpaid orders only need a confirm; a paid
+  // order is counted as revenue, so it needs the word DELETE typed out.
+  window.deleteFinanceOrder = function (id) {
+    if (!id) return;
+    var order = (FIN.orders || []).filter(function (o) { return String(o.id) === String(id); })[0];
+    if (!order) return;
+    if (!(window.db && window.dbDeleteDoc && window.dbDoc)) {
+      alert('Firestore is not ready yet. Refresh the admin page and try again.');
+      return;
+    }
+    var label = orderLabel(order);
+    var amount = num(order.total, 0);
+    if (isPaidOrder(order)) {
+      var typed = window.prompt('This order counts as revenue (' + fmtR(amount) + ').\n' +
+        'Deleting it removes the order and its revenue.\n\nType DELETE to confirm.');
+      if (typed === null) return;
+      if (String(typed).trim().toUpperCase() !== 'DELETE') {
+        alert('Cancelled — nothing was deleted.');
+        return;
+      }
+    } else if (!window.confirm('Delete unpaid order ' + label + ' (' + fmtR(amount) + ')?\n\n' +
+      'This permanently removes it from Firestore.')) {
+      return;
+    }
+    window.dbDeleteDoc(window.dbDoc(window.db, 'orders', String(id))).then(function () {
+      FIN.orders = FIN.orders.filter(function (o) { return String(o.id) !== String(id); });
+      if (Array.isArray(window.adminOrders)) {
+        window.adminOrders = window.adminOrders.filter(function (o) { return String(o.id) !== String(id); });
+      }
+      renderAll();
+      if (typeof window.loadAdminOrders === 'function') {
+        try { window.loadAdminOrders(); } catch (e) { /* orders tab not mounted */ }
+      }
+      if (typeof window.showCopyToast === 'function') window.showCopyToast('Order ' + label + ' deleted');
+    }).catch(function (err) {
+      alert('Could not delete the order: ' + (err.message || err));
+    });
+  };
+
+  // One-click load of the known start-up costs (see STARTER_EXPENSES above).
+  window.seedStarterExpenses = function () {
+    if (!(window.db && window.dbAddDoc && window.dbCollection)) {
+      alert('Firestore is not ready yet. Refresh the admin page and try again.');
+      return;
+    }
+    var existing = {};
+    (FIN.expenses || []).forEach(function (e) {
+      existing[String(e.description || '').trim().toLowerCase()] = true;
+    });
+    var fresh = STARTER_EXPENSES.filter(function (s) {
+      return !existing[String(s.description).trim().toLowerCase()];
+    });
+    if (!fresh.length) {
+      alert('All the known start-up costs are already in the ledger.');
+      return;
+    }
+    var total = sum(fresh, function (s) { return s.amount; });
+    if (!window.confirm('Add ' + fresh.length + ' start-up cost' + (fresh.length === 1 ? '' : 's') +
+      ' totalling ' + fmtR(total) + '?\n\nThe exact purchase dates were never recorded, so they are dated today ' +
+      'and tagged "date est.". You can delete or re-date any row afterwards.')) {
+      return;
+    }
+    var date = financeToday();
+    var createdBy = (window.auth && window.auth.currentUser && window.auth.currentUser.email) || '';
+    Promise.all(fresh.map(function (s) {
+      var doc = {
+        date: date,
+        dateEstimated: true,
+        type: 'expense',
+        category: s.category,
+        description: s.description,
+        amount: num(s.amount, 0),
+        vatAmount: 0,
+        paymentMethod: '',
+        reference: '',
+        notes: s.notes || 'Historical cost — exact date not recorded',
+        source: 'starter-v1',
+        createdAt: new Date().toISOString(),
+        createdBy: createdBy
+      };
+      return window.dbAddDoc(window.dbCollection(window.db, 'finance_expenses'), doc).then(function (ref) {
+        doc.id = ref.id;
+        FIN.expenses.push(doc);
+      });
+    })).then(function () {
+      renderAll();
+      alert(fresh.length + ' start-up cost' + (fresh.length === 1 ? '' : 's') + ' added (' + fmtR(total) + ').');
+    }).catch(function (err) {
+      renderAll();
+      alert('Could not save every start-up cost: ' + (err.message || err));
+    });
   };
 
 

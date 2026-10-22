@@ -7,6 +7,35 @@
 
   var STORAGE_KEY = 'minara_finance_settings_v1';
 
+  // ═══════════════════════════════════════════════════════════════════════
+  //  EDITABLE PRICING RULES  —  this is the ONLY block to edit when prices
+  //  or the markup you want change. Nothing else in the code hard-codes a
+  //  selling price.
+  //
+  //  Suggested price = unit cost ÷ (1 − targetMargin), rounded UP to roundTo.
+  //  Example: cost R46.28 at 0.70 → R154.27 → rounded up to R155.
+  //
+  //  targetMargin keys match the packaging type used by the costing engine:
+  //    single50 = 50ml bottle in its own box
+  //    gift100  = 100ml bottle + R95 presentation box
+  //    duo      = duo gift box (2 × 50ml bottles)
+  //    custom   = anything with a manual box/packaging override
+  //    none     = no packaging at all
+  // ═══════════════════════════════════════════════════════════════════════
+  var PRICING_RULES = {
+    targetMargin: {
+      single50: 0.70,   // 70% of the selling price stays as gross profit
+      gift100: 0.62,    // 100ml gift costs much more to package
+      duo: 0.60,        // duo box + two bottles
+      custom: 0.65,
+      none: 0.70
+    },
+    roundTo: 5,         // round suggested prices UP to the next R5 (0 = no rounding)
+    goodMargin: 30,     // preview is green at or above this % margin
+    warnMargin: 15      // preview is amber at or above this %, red below it
+  };
+  window.minaraPricingRules = PRICING_RULES;
+
   var DEFAULTS = {
     costing: {
       ethanolPricePer5L: 354,          // 5 litre UV ethanol base
@@ -129,6 +158,37 @@
     return m ? Number(m[1]) : 50;
   }
   window.minaraParseVolumeMl = parseVolume;
+
+  /**
+   * Suggested selling price for a unit cost, using PRICING_RULES above.
+   * Returns 0 when there is no cost yet (so the field is never auto-filled blind).
+   */
+  window.minaraSuggestedPrice = function (unitCost, packagingType) {
+    var cost = num(unitCost, 0);
+    if (cost <= 0) return 0;
+    var margins = PRICING_RULES.targetMargin;
+    var type = margins[packagingType] === undefined ? 'custom' : packagingType;
+    var margin = Math.min(num(margins[type], 0.65), 0.95);
+    var raw = cost / (1 - margin);
+    var step = num(PRICING_RULES.roundTo, 0);
+    if (step > 0) return Math.ceil(raw / step) * step;
+    return Math.round(raw * 100) / 100;
+  };
+
+  /** Suggested price for one size of a product (uses the real costing engine). */
+  window.minaraSuggestedPriceFor = function (product, size) {
+    var cost = window.minaraComputeLineCost(product, size);
+    return window.minaraSuggestedPrice(cost.total, cost.packagingType);
+  };
+
+  /** Copies a suggested price into the base selling-price field, then refreshes the preview. */
+  window.minaraApplySuggestedPrice = function (prefix, price) {
+    var input = el(prefix, 'Price');
+    var p = num(price, 0);
+    if (!input || p <= 0) return;
+    input.value = p.toFixed(2);
+    window.minaraUpdateCostPreview(prefix);
+  };
 
   function resolvePackaging(costing, volume, bundle) {
     var c = costing || {};
@@ -341,6 +401,19 @@
       costing: window.minaraReadCostingForm(prefix)
     };
 
+    // Auto-price: when the selling price is still blank and an oil cost has been
+    // entered, fill in the price calculated from PRICING_RULES. The price field
+    // stays fully editable, and clearing the oil cost stops the auto-fill.
+    var oilCostRaw = el(prefix, 'OilCost') ? String(el(prefix, 'OilCost').value || '').trim() : '';
+    if (priceInput && oilCostRaw !== '' && !String(priceInput.value || '').trim()) {
+      var seedCost = window.minaraComputeLineCost(pseudo, isBundle ? '50ml' : sizes[0]);
+      var seedPrice = window.minaraSuggestedPrice(seedCost.total, seedCost.packagingType);
+      if (seedPrice > 0) {
+        priceInput.value = seedPrice.toFixed(2);
+        pseudo.price = seedPrice;
+      }
+    }
+
     var lines = [];
     if (isBundle) {
       lines.push({ label: 'Duo bundle · ' + bundleSize + ' × ' + sizes[0], size: sizes[0], price: pseudo.price });
@@ -352,13 +425,15 @@
 
     var html = '';
     var anyEstimate = false;
-    lines.forEach(function (line) {
+    lines.forEach(function (line, index) {
       var cost = window.minaraComputeLineCost(pseudo, line.size);
       var profit = line.price - cost.total;
       var margin = line.price > 0 ? (profit / line.price) * 100 : 0;
-      var colour = margin >= 30 ? 'var(--success)' : (margin >= 15 ? '#ff9f0a' : 'var(--danger)');
+      var colour = margin >= PRICING_RULES.goodMargin ? 'var(--success)'
+        : (margin >= PRICING_RULES.warnMargin ? '#ff9f0a' : 'var(--danger)');
       if (cost.estimatedOil || cost.estimatedBottle) anyEstimate = true;
       var b = cost.breakdown;
+      var suggested = window.minaraSuggestedPrice(cost.total, cost.packagingType);
       html += '<div class="cost-preview-line">' +
         '<div><strong>' + line.label + '</strong> · cost <strong>' + window.minaraFormatRand(cost.total) + '</strong>' +
         (cost.estimatedOil ? ' <span class="cost-est-tag">oil est.</span>' : '') +
@@ -373,11 +448,17 @@
         ' + wrap ' + window.minaraFormatRand(b.bubble) +
         ' + labels ' + window.minaraFormatRand(b.labels) +
         (b.extra ? ' + extra ' + window.minaraFormatRand(b.extra) : '') + '</div>' +
+        '<div class="cost-preview-suggest">Suggested price <strong>' + window.minaraFormatRand(suggested) + '</strong>' +
+        (index === 0 && suggested > 0 && Math.abs(line.price - suggested) >= 0.5
+          ? ' <button type="button" class="btn-action accent-btn cost-apply-btn" onclick="minaraApplySuggestedPrice(\'' +
+            prefix + '\', ' + suggested + ')">Use this price</button>'
+          : '') + '</div>' +
         '</div>';
     });
     html += '<div class="cost-preview-note">Oil ' + window.minaraFormatRand(pseudo.costing.oilCostPer100g || 0) +
       '/100g · ' + (pseudo.costing.oilMlPer50ml || 10) + 'ml oil per 50ml · ethanol ' +
       window.minaraFormatRand(window.minaraGetFinanceSettings().costing.ethanolPricePer5L) + ' per 5L.' +
+      ' Suggested prices come from the EDITABLE PRICING RULES block in admin-costing.js.' +
       (anyEstimate ? ' <strong>Estimates are marked — set real prices in Finance → Costs &amp; Settings.</strong>' : '') +
       '</div>';
     box.innerHTML = html;
