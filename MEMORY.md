@@ -321,6 +321,12 @@
 - **Not disclosed anywhere public:** the denaturant, and exact percentages. The batch **COA** already requested in the email is what settles assay/density/appearance; a **SDS** (safety data sheet - the standard document listing hazardous components, percentages, first aid and handling) is the other route. Worth noting to Jadon: 1020 is **light yellow while 901/955 are clear**, which matters if a clear bottle shows the juice.
 - Trial advice given: buy **1L at R90** first, mix a 20% extrait test, stand 24-48h and check for haze before committing to the 5L. Cost maths at 20% load: 5L base makes 6.25L juice = 125 x 50ml bottles, so base cost is about **R3.13/bottle (R3.60 incl VAT)**.
 
+## SA Candle Supply - Fragrasol 1020 local option (drafted 2026-10-22)
+- **sacandlesupply.co.za/product/perfume-base-fragrasol/** - title *Perfume Base - Fragrasol*, SKU `perbfrag`, **R 120,00 inc. VAT**, a single listing with **no size options and no volume stated anywhere**, filed under *Room & Linen Mist Bases*. Description is Enterprise Ethanol's Fragrasol 1020 blurb, and the how-to is mist guidance (start at 1%, max 5% fragrance). Product page says **In stock**; the site search shows it as **Sold out** - confirm before driving out.
+- **They publish the real documentation on that page**: `COA - Fragrasol 1020.pdf`, `SDS - Fragrasol 1020.pdf` and `INGREDIENTS - Fragrasol 1020.pdf`. These are the documents that would confirm exact percentages - worth pulling if Jadon wants certainty.
+- Location beats Enterprise Ethanol for him: **Unit 39, Northlands Deco Park, Northriding, Randburg 2196** (his suburb). Shop Mon-Thu 09:00-15:00, Fri 09:00-13:00, Sat 10:00-14:00, office shut Saturday; phone +27 76 543 9944. Note online-order collections are from the **Kya Sand** warehouse, not the shop.
+- **Price-match ask drafted** (not sent, body at `%TEMP%\sacandle-body.txt`): 5 litres at Enterprise Solvents' R391/5L (about R78/L before VAT), to `info@sacandlesupply.co.za`, mentioning he would rather collect locally than pay a Pretoria courier. Uses **R391** not R390 so the quoted figure matches what they can see on the store. Reasoning: their R120 inc VAT vs R89.93/L inc VAT at Enterprise 5L - a 25% gap, and matching plus local collection saves roughly R300 on a 5L.
+
 ## How to keep this fresh
 - Read this file at the start of every session; reuse it instead of re-opening everything.
 - Update the relevant section above when you change structure or logic.
