@@ -17,7 +17,7 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   
-  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="admin.css?v=20261027">
 </head>
 
 <body>
@@ -108,7 +108,7 @@
               <button class="tab-btn" onclick="switchTab('sessions-tab')">📊 General Statistics</button>
               <button class="tab-btn" onclick="switchTab('hero-tab')">Hero & Logo Customizer</button>
               <button class="tab-btn" onclick="switchTab('catalog-tab')">Catalog & Inventory</button>
-              <button class="tab-btn" onclick="switchTab('finance-tab')">💵 Finance</button>
+              <button class="tab-btn" onclick="switchTab('finance-tab')">Finance</button>
               <button class="tab-btn" onclick="switchTab('users-tab')">Users & Newsletter</button>
               <button class="tab-btn" onclick="switchTab('checkout-emails-tab')">✉️ Checkout Emails</button>
               <button class="tab-btn" onclick="switchTab('notifications-tab')">Notifications & Requests</button>
@@ -1427,11 +1427,11 @@
             <!-- TAB 4: FINANCE (expenses, revenue, profit, gateway holds, Nedbank) -->
             <div id="finance-tab" class="tab-content">
               <div class="finance-subtabs">
-                <button class="finance-subtab-btn active" id="financeSubTabBtn_dashboard" onclick="switchFinanceSubTab('dashboard')">📊 Dashboard &amp; P&amp;L</button>
+                <button class="finance-subtab-btn active" id="financeSubTabBtn_dashboard" onclick="switchFinanceSubTab('dashboard')">Dashboard</button>
                 <button class="finance-subtab-btn" id="financeSubTabBtn_sales" onclick="switchFinanceSubTab('sales')">Sales &amp; Margins</button>
-                <button class="finance-subtab-btn" id="financeSubTabBtn_expenses" onclick="switchFinanceSubTab('expenses')">🧾 Expenses</button>
-                <button class="finance-subtab-btn" id="financeSubTabBtn_bank" onclick="switchFinanceSubTab('bank')">🏦 Nedbank &amp; Payouts</button>
-                <button class="finance-subtab-btn" id="financeSubTabBtn_costs" onclick="switchFinanceSubTab('costs')">⚙️ Costs &amp; Settings</button>
+                <button class="finance-subtab-btn" id="financeSubTabBtn_expenses" onclick="switchFinanceSubTab('expenses')">Expenses</button>
+                <button class="finance-subtab-btn" id="financeSubTabBtn_bank" onclick="switchFinanceSubTab('bank')">Bank &amp; Payouts</button>
+                <button class="finance-subtab-btn" id="financeSubTabBtn_costs" onclick="switchFinanceSubTab('costs')">Costs &amp; Settings</button>
                 <div class="finance-subtab-tools">
                   <select id="financePeriod" class="form-input" onchange="setFinancePeriod(this.value)">
                     <option value="this_month">This month</option>
@@ -1449,6 +1449,23 @@
                   <div class="finance-loading">Loading finance data…</div>
                 </div>
                 <div id="financeAlerts"></div>
+                <div class="finance-chart-grid">
+                  <div class="console-panel finance-chart-panel">
+                    <div class="panel-header">
+                      <h2 class="panel-title">Money In vs Money Out</h2>
+                      <span class="stat-label" style="font-size:10px;">Last 6 months · rand</span>
+                    </div>
+                    <div id="financeTrendChart" class="finance-chart"></div>
+                    <div id="financeTrendLegend" class="finance-legend"></div>
+                  </div>
+                  <div class="console-panel finance-chart-panel">
+                    <div class="panel-header">
+                      <h2 class="panel-title">Net Result by Month</h2>
+                      <span class="stat-label" style="font-size:10px;">Green = profit · red = loss</span>
+                    </div>
+                    <div id="financeNetChart" class="finance-chart"></div>
+                  </div>
+                </div>
                 <div class="console-panel">
                   <div class="panel-header">
                     <h2 class="panel-title">Monthly Profit &amp; Loss</h2>
@@ -1528,7 +1545,7 @@
               <div id="financeSubTab_expenses" class="finance-subtab-content">
                 <div class="finance-grid-2">
                   <div class="console-panel">
-                    <div class="panel-header"><h2 class="panel-title">Add Money In / Out</h2><button type="button" class="btn-action" onclick="seedStarterExpenses()" title="Load the known start-up costs">Load start-up costs</button></div>
+                    <div class="panel-header"><h2 class="panel-title">Add Money In / Out</h2><button type="button" class="btn-action" onclick="seedStarterExpenses()" title="Re-add any known cost that is missing">Load known costs</button></div>
                     <form id="financeExpenseForm" onsubmit="addFinanceExpense(event)">
                       <div class="fin-entry-toggle">
                         <button type="button" id="finEntryTypeExpense" data-type="expense" class="fin-entry-btn active" onclick="setFinanceEntryType('expense')">− Expense</button>
@@ -1546,7 +1563,8 @@
                   </div>
                   <div class="console-panel">
                     <div class="panel-header"><h2 class="panel-title">Spend by Category</h2><button type="button" class="btn-action" onclick="exportFinanceExpenses()">↓ Export CSV</button></div>
-                    <div class="admin-table-container">
+                    <div id="financeCategoryChart" class="finance-chart-bars"></div>
+                    <div class="admin-table-container" style="margin-top:16px;">
                       <table class="admin-table finance-table">
                         <thead><tr><th>Category</th><th>Entries</th><th>Total</th><th>Share</th></tr></thead>
                         <tbody id="financeExpenseCategoryBody"><tr><td colspan="4" class="finance-empty">No expenses yet.</td></tr></tbody>
@@ -1555,7 +1573,8 @@
                   </div>
                 </div>
                 <div class="console-panel">
-                  <div class="panel-header"><h2 class="panel-title">Expense Ledger</h2><span class="stat-label" style="font-size:10px;">Selected period</span></div>
+                  <div class="panel-header"><h2 class="panel-title">Expense Ledger</h2><span class="stat-label" style="font-size:10px;">− money out · + money in</span></div>
+                  <div id="financeExpensePeriodNote" class="finance-period-note"></div>
                   <div class="admin-table-container">
                     <table class="admin-table finance-table">
                       <thead><tr><th>Date</th><th>Type</th><th>Name</th><th>Amount</th><th></th></tr></thead>
@@ -1575,7 +1594,7 @@
                       <input type="file" id="finBankCsv" class="form-input" accept=".csv,text/csv" onchange="importNedbankCsv(event)">
                     </div>
                     <div id="financeBankImportStatus" class="finance-import-status"></div>
-                    <div style="border-top:1px solid var(--border-color);margin:18px 0;padding-top:16px;">
+                    <div class="fin-divider">
                       <div class="finance-section-title">Or add a transaction manually</div>
                       <form id="financeBankForm" onsubmit="addBankTransaction(event)">
                         <div class="finance-form-row">
@@ -2667,13 +2686,13 @@
   <script src="js/admin/admin-checkout-emails.js?v=20261019"></script>
   <script src="js/admin/admin-notifications.js?v=20260826_1630"></script>
   <script src="js/admin/admin-orders.js?v=20260826_1630"></script>
-  <script src="js/admin/admin-costing.js?v=20261022"></script>
+  <script src="js/admin/admin-costing.js?v=20261027"></script>
   <script src="js/admin/admin-products.js?v=20260915b"></script>
   <script src="js/admin/admin-analytics.js?v=20260826_1630"></script>
   <script src="js/admin/admin-settings.js?v=20260914"></script>
   <script src="js/admin/admin-reviews.js?v=20260914"></script>
   <script src="js/admin/admin-featured-reviews.js?v=20260914"></script>
-  <script src="js/admin/admin-finance.js?v=20261022"></script>
+  <script src="js/admin/admin-finance.js?v=20261027"></script>
 
   <!-- Admin Auth & Security Gateway Bootstrapper -->
   <script type="module" src="js/admin/admin-auth.js?v=20260826_1630"></script>

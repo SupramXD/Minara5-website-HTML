@@ -71,3 +71,8 @@ node_modules/
 # Agent-specific files
 .agents/
 skills-lock.json
+
+# Local finance dev tooling output (tokens / ledger dumps must never be committed)
+tools/.fb-token
+tools/firestore-*.json
+
