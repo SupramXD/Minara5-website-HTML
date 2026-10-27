@@ -17,7 +17,7 @@
   <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/11.0.1/firebase-functions.js">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   
-  <link rel="stylesheet" href="admin.css?v=20261027">
+  <link rel="stylesheet" href="admin.css?v=20261027c">
 </head>
 
 <body>
@@ -439,142 +439,85 @@
               <div class="console-panel full-width-panel" style="margin-bottom: 30px;">
                 
                 <!-- TOP HEADER & CONTROLS -->
-                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 18px; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+                <div class="panel-header ord-head">
                   <div>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                      <h2 class="panel-title" style="font-size: 22px; font-weight: 800; letter-spacing: 0.5px; color: #ffffff; text-transform: uppercase;">Customer Orders & Atelier Dispatch</h2>
-                      <span id="ordersLiveBadge" style="font-size: 10px; background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25); padding: 3px 10px; border-radius: 20px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 5px;"><span style="width: 5px; height: 5px; background: #10b981; border-radius: 50%; box-shadow: 0 0 6px #10b981;"></span> Live Stream</span>
+                    <div class="ord-head-top">
+                      <h2 class="panel-title ord-title">Customer Orders</h2>
+                      <span id="ordersLiveBadge" class="ord-live"><span class="ord-live-dot"></span> Live</span>
                     </div>
-                    <p style="font-size: 12px; color: rgba(255, 255, 255, 0.5); margin-top: 5px;">Manage customer orders, inspect bottle configurations, check off packed items, and generate Courier Guy dispatch waybills.</p>
+                    <p class="ord-sub">Newest first. Click any row to open the full order in place — no scrolling, no waiting.</p>
                   </div>
 
-                  <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                    <!-- VIEW TOGGLE: CARDS VS TABLE -->
-                    <div class="period-filter-group" id="ordersViewSwitcher" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 3px;">
-                      <button id="viewBtn_cards" class="period-btn active" onclick="setOrdersViewMode('cards')" title="Interactive spacious cards with product icons and quick action buttons">Card Atelier</button>
-                      <button id="viewBtn_table" class="period-btn" onclick="setOrdersViewMode('table')" title="Compact tabular spreadsheet view">Spreadsheet</button>
+                  <div class="ord-head-actions">
+                    <!-- VIEW TOGGLE: ROWS VS SPREADSHEET -->
+                    <div id="ordersViewSwitcher" class="ord-switcher">
+                      <button id="viewBtn_cards" class="ord-view-btn active" onclick="setOrdersViewMode('cards')" title="Horizontal rows with product chips">Rows</button>
+                      <button id="viewBtn_table" class="ord-view-btn" onclick="setOrdersViewMode('table')" title="Compact spreadsheet view">Spreadsheet</button>
                     </div>
 
-                    <button onclick="loadAdminOrders()" class="order-quick-action-btn accent" style="padding: 9px 18px; font-size: 11px;">Refresh Orders</button>
+                    <button onclick="loadAdminOrders()" class="ord-btn ord-btn-primary">Refresh</button>
                   </div>
                 </div>
 
                 <!-- SEARCH & FILTER TOOLBAR -->
-                <div style="display: flex; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+                <div class="ord-toolbar">
                   <!-- Live Search Bar -->
-                  <div style="position: relative; flex: 1; min-width: 300px; max-width: 520px;">
-                    <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; opacity: 0.4;">🔍</span>
-                    <input 
-                      type="text" 
-                      id="orderSearchInput" 
-                      oninput="handleOrderSearch(this.value)" 
-                      placeholder="Search order #, customer name, phone, email, address, waybill, scent..." 
-                      style="width: 100%; padding: 11px 38px 11px 38px; background: #0c0c12; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 12px; outline: none; transition: all 0.2s;"
-                      onfocus="this.style.borderColor='rgba(255, 255, 255, 0.35)'; this.style.boxShadow='0 0 12px rgba(255, 255, 255, 0.06)';"
-                      onblur="this.style.borderColor='rgba(255, 255, 255, 0.1)'; this.style.boxShadow='none';"
+                  <div class="ord-search">
+                    <span class="ord-search-icon">⌕</span>
+                    <input
+                      type="text"
+                      id="orderSearchInput"
+                      oninput="handleOrderSearch(this.value)"
+                      placeholder="Search order #, customer name, phone, email, address, waybill, scent…"
                     />
-                    <button 
-                      id="orderSearchClearBtn" 
-                      onclick="clearOrderSearch()" 
-                      style="display: none; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: rgba(255, 255, 255, 0.5); cursor: pointer; font-size: 11px;">✕</button>
+                    <button id="orderSearchClearBtn" class="ord-search-clear" onclick="clearOrderSearch()">✕</button>
                   </div>
 
                   <!-- Status Filter Chips -->
-                  <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                  <div class="ord-chips">
                     <button class="order-filter-chip active" id="filterChip_all" onclick="filterOrders('all')">
-                      All Orders (<span id="countOrders_all">0</span>)
+                      All <span id="countOrders_all">0</span>
                     </button>
                     <button class="order-filter-chip" id="filterChip_paid" onclick="filterOrders('paid')">
-                      <span style="color: #34d399;">●</span> Paid / To Pack (<span id="countOrders_paid">0</span>)
+                      Paid / to pack <span id="countOrders_paid">0</span>
                     </button>
                     <button class="order-filter-chip" id="filterChip_pending" onclick="filterOrders('pending_payment')">
-                      <span style="color: #fbbf24;">●</span> Pending Payment (<span id="countOrders_pending">0</span>)
+                      Pending payment <span id="countOrders_pending">0</span>
                     </button>
                     <button class="order-filter-chip" id="filterChip_shipped" onclick="filterOrders('shipped')">
-                      <span style="color: #38bdf8;">●</span> In Transit (<span id="countOrders_shipped">0</span>)
+                      In transit <span id="countOrders_shipped">0</span>
                     </button>
                     <button class="order-filter-chip" id="filterChip_delivered" onclick="filterOrders('delivered')">
-                      <span style="color: #c084fc;">●</span> Delivered (<span id="countOrders_delivered">0</span>)
+                      Delivered <span id="countOrders_delivered">0</span>
                     </button>
                   </div>
                 </div>
 
-                <!-- 1. INTERACTIVE ORDER CARDS GRID CONTAINER -->
-                <div id="ordersCardsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px;">
-                  <div style="grid-column: 1 / -1; text-align: center; opacity: 0.5; padding: 60px;">
-                    <span style="font-size: 32px; display: block; margin-bottom: 10px;">📦</span>
-                    Loading orders from database...
-                  </div>
+                <!-- 1. ORDER ROWS (horizontal, one line per order) -->
+                <div id="ordersCardsContainer" class="ord-list">
+                  <div class="ord-empty">Loading orders…</div>
                 </div>
 
                 <!-- 2. COMPACT DATA TABLE WRAPPER (TOGGLEABLE) -->
-                <div id="ordersTableWrapper" style="display: none; overflow-x: auto; margin-top: 10px;">
-                  <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <div id="ordersTableWrapper" class="ord-table-wrap" style="display: none;">
+                  <table class="ord-table">
                     <thead>
-                      <tr style="text-align: left; border-bottom: 1px solid var(--border-color); color: var(--text-muted); text-transform: uppercase; font-size: 10px; letter-spacing: 1px;">
-                        <th style="padding: 12px;">Order Ref & Date</th>
-                        <th style="padding: 12px;">Customer Details</th>
-                        <th style="padding: 12px;">Delivery Address</th>
-                        <th style="padding: 12px;">Purchased Items</th>
-                        <th style="padding: 12px;">Total (ZAR)</th>
-                        <th style="padding: 12px;">Status</th>
-                        <th style="padding: 12px;">Actions</th>
+                      <tr>
+                        <th>Order ref &amp; date</th>
+                        <th>Customer</th>
+                        <th>Delivery address</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody id="ordersTableBody">
                       <tr>
-                        <td colspan="7" style="text-align: center; opacity: 0.5; padding: 40px;">
-                          Loading customer orders...
-                        </td>
+                        <td colspan="7" class="ord-empty">Loading customer orders…</td>
                       </tr>
                     </tbody>
                   </table>
-                </div>
-
-                <!-- 3. ORDER DEEP-DIVE & PRINTABLE PACKING SLIP MODAL -->
-                <div id="orderDetailModal" class="edit-modal">
-                  <div class="edit-modal-content" style="max-width: 780px; max-height: 90vh; overflow-y: auto;">
-                    <div class="edit-modal-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
-                      <div style="display: flex; align-items: center; gap: 10px;">
-                        <h3 class="edit-modal-title" style="color: var(--accent); font-family: 'Outfit', sans-serif;" id="modalOrderRefTitle">Order Details</h3>
-                        <span id="modalOrderStatusBadge" class="status-badge shipped">PAID</span>
-                      </div>
-                      <div style="display: flex; gap: 10px; align-items: center;">
-                        <button onclick="printOrderPackingSlip()" class="action-btn-small" style="background: rgba(255,255,255,0.08); color: #fff; border: 1px solid var(--border-color); padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">🖨️ Print Packing Slip</button>
-                        <span class="edit-modal-close" onclick="closeOrderDetailModal()">✕ CLOSE</span>
-                      </div>
-                    </div>
-
-                    <div id="orderDetailModalBody" style="padding: 20px 0;">
-                      <!-- Dynamic order deep dive & checklist injected here -->
-                    </div>
-
-                    <div class="edit-modal-footer" style="border-top: 1px solid var(--border-color); padding-top: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                      <div id="modalOrderQuickActions" style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <!-- Dynamic status update buttons injected here -->
-                      </div>
-                      <button type="button" class="action-btn-small" style="background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 4px; cursor: pointer;" onclick="closeOrderDetailModal()">Close</button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 4. COURIER GUY DISPATCH HELPER MODAL -->
-                <div id="courierDispatchModal" class="edit-modal">
-                  <div class="edit-modal-content" style="max-width: 650px;">
-                    <div class="edit-modal-header">
-                      <h3 class="edit-modal-title" style="color: #09A5DB;">🚚 Courier Guy Dispatch Helper</h3>
-                      <span class="edit-modal-close" onclick="window.closeCourierDispatchModal()">✕ CLOSE</span>
-                    </div>
-                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">
-                      Customer details ready! Click any copy button below to paste directly into Courier Guy's shipment creation portal:
-                    </p>
-                    <div id="courierDispatchFields" style="display: flex; flex-direction: column; gap: 10px;">
-                      <!-- Dynamic dispatch fields injected here -->
-                    </div>
-                    <div class="edit-modal-footer">
-                      <button type="button" class="action-btn-small" style="background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 4px; cursor: pointer;" onclick="window.closeCourierDispatchModal()">Done</button>
-                    </div>
-                  </div>
                 </div>
 
               </div>
@@ -2679,13 +2622,82 @@
           </div>
   </div>
 
+  <!-- ============================================================
+       ORDER OVERLAYS — deliberately OUTSIDE #orders-tab.
+       The tab animates with a retained `transform` and the panel uses
+       `backdrop-filter`; both make `position: fixed` resolve against the
+       panel instead of the viewport, which is why the order popup used to
+       open far above the click and force a long scroll. At body level it
+       is always pinned to the screen.
+       ============================================================ -->
+
+  <!-- ORDER DEEP-DIVE & PRINTABLE PACKING SLIP -->
+  <div id="orderDetailModal" class="edit-modal ord-modal">
+    <div class="edit-modal-content ord-modal-content">
+      <div class="edit-modal-header ord-modal-head">
+        <div class="ord-modal-title-wrap">
+          <h3 class="edit-modal-title ord-modal-title" id="modalOrderRefTitle">Order details</h3>
+          <span id="modalOrderStatusBadge" class="ord-pill paid">PAID</span>
+        </div>
+        <div class="ord-modal-head-actions">
+          <button type="button" onclick="printOrderPackingSlip()" class="ord-btn">Print packing slip</button>
+          <button type="button" onclick="askDeleteOrderFromModal()" class="ord-btn ord-btn-danger">Delete order</button>
+          <button type="button" class="ord-modal-close" onclick="closeOrderDetailModal()" aria-label="Close">✕</button>
+        </div>
+      </div>
+
+      <div id="orderDetailModalBody" class="ord-modal-body">
+        <!-- Dynamic order deep dive & checklist injected here -->
+      </div>
+
+      <div class="edit-modal-footer ord-modal-foot">
+        <div id="modalOrderQuickActions" class="ord-actions">
+          <!-- Dynamic status update buttons injected here -->
+        </div>
+        <button type="button" class="ord-btn" onclick="closeOrderDetailModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRMATION (Yes / No) -->
+  <div id="orderDeleteDialog" class="edit-modal">
+    <div class="edit-modal-content ord-confirm">
+      <h3 class="ord-confirm-title">Delete this order?</h3>
+      <p class="ord-confirm-text" id="orderDeleteDialogText">This removes the order for good.</p>
+      <p class="ord-confirm-warn">The order is deleted from Firestore, so paid revenue for it also disappears from the finance tab. This cannot be undone.</p>
+      <div class="ord-confirm-actions">
+        <button type="button" class="ord-btn" onclick="closeOrderDeleteDialog()">No, keep it</button>
+        <button type="button" class="ord-btn ord-btn-danger" id="orderDeleteConfirmBtn" onclick="confirmDeleteOrder()">Yes, delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COURIER GUY DISPATCH HELPER -->
+  <div id="courierDispatchModal" class="edit-modal">
+    <div class="edit-modal-content" style="max-width: 650px;">
+      <div class="edit-modal-header">
+        <h3 class="edit-modal-title" style="color: #09A5DB;">🚚 Courier Guy Dispatch Helper</h3>
+        <span class="edit-modal-close" onclick="window.closeCourierDispatchModal()">✕ CLOSE</span>
+      </div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">
+        Customer details ready! Click any copy button below to paste directly into Courier Guy's shipment creation portal:
+      </p>
+      <div id="courierDispatchFields" style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- Dynamic dispatch fields injected here -->
+      </div>
+      <div class="edit-modal-footer">
+        <button type="button" class="action-btn-small" style="background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 4px; cursor: pointer;" onclick="window.closeCourierDispatchModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modular Admin Feature Scripts -->
   <script src="js/admin/admin-utils.js?v=20260915"></script>
   <script src="js/admin/admin-core.js?v=20260826_1630"></script>
   <script src="js/admin/admin-users.js?v=20260826_1630"></script>
   <script src="js/admin/admin-checkout-emails.js?v=20261019"></script>
   <script src="js/admin/admin-notifications.js?v=20260826_1630"></script>
-  <script src="js/admin/admin-orders.js?v=20260826_1630"></script>
+  <script src="js/admin/admin-orders.js?v=20261027c"></script>
   <script src="js/admin/admin-costing.js?v=20261027"></script>
   <script src="js/admin/admin-products.js?v=20260915b"></script>
   <script src="js/admin/admin-analytics.js?v=20260826_1630"></script>

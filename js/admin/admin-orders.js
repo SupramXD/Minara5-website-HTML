@@ -33,6 +33,28 @@ function formatRetailPrice(val) {
 }
 window.formatRetailPrice = formatRetailPrice;
 
+// Order markup is built with innerHTML, so customer-supplied text (names,
+// emails, scents) must be escaped before it is interpolated.
+function ordEsc(value) {
+  return String(value === undefined || value === null ? '' : value).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+window.ordEsc = ordEsc;
+
+// Same idea, but for a value that ends up inside a single-quoted JS string in
+// an inline onclick (copyOrderField('...')): quotes must survive as escapes.
+function ordJsAttr(value) {
+  return String(value === undefined || value === null ? '' : value)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\r?\n/g, ' ');
+}
+window.ordJsAttr = ordJsAttr;
+
 // Preload products.json for instant perfume thumbnail matching
 async function loadProductsCatalogForOrders() {
   try {
@@ -173,7 +195,7 @@ function getProductImageForItem(item) {
       if (btnTable) btnTable.classList.toggle("active", mode === "table");
 
       if (mode === "cards") {
-        if (cardsContainer) cardsContainer.style.display = "grid";
+        if (cardsContainer) cardsContainer.style.display = "flex";
         if (tableWrapper) tableWrapper.style.display = "none";
       } else {
         if (cardsContainer) cardsContainer.style.display = "none";
@@ -214,10 +236,10 @@ function getProductImageForItem(item) {
       const tableBody = document.getElementById("ordersTableBody");
 
       if (cardsContainer) {
-        cardsContainer.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; opacity: 0.5; padding: 60px;"><span style="font-size: 32px; display: block; margin-bottom: 10px;">📦</span>Fetching encrypted orders from Cloud Firestore...</div>`;
+        cardsContainer.innerHTML = `<div class="ord-empty">Fetching orders from Firestore…</div>`;
       }
       if (tableBody) {
-        tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; opacity: 0.5; padding: 40px;">Fetching encrypted orders...</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="7" class="ord-empty">Fetching orders…</td></tr>`;
       }
 
       try {
@@ -250,7 +272,7 @@ function getProductImageForItem(item) {
       } catch (err) {
         console.error("Failed to load orders from Firestore:", err);
         if (cardsContainer) {
-          cardsContainer.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--danger); padding: 40px;">Error loading orders: ${err.message}</div>`;
+          cardsContainer.innerHTML = `<div class="ord-empty" style="color: var(--ord-red); border-color: rgba(179,38,30,0.35);">Could not load orders: ${ordEsc(err.message)}</div>`;
         }
       }
     };
@@ -314,18 +336,16 @@ function getProductImageForItem(item) {
       renderOrdersTable(filtered);
     }
 
-    // Render 1: Interactive Order Cards Grid (Haute Parfumerie Atelier Aesthetic)
+    // Render 1: horizontal order rows (light desk theme).
+    // One line per order: reference + date, customer, the products chipped
+    // sideways, then status / total / actions. The old stacked dark cards are
+    // gone; nothing here should reintroduce a card per order.
     function renderOrderCards(orders) {
       const container = document.getElementById("ordersCardsContainer");
       if (!container) return;
 
       if (orders.length === 0) {
-        container.innerHTML = `
-          <div style="grid-column: 1 / -1; text-align: center; opacity: 0.4; padding: 70px 20px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; background: rgba(255,255,255,0.01);">
-            <span style="font-size: 32px; display: block; margin-bottom: 12px; opacity: 0.6;">📦</span>
-            <div style="font-size: 13px; font-weight: 700; color: #fff; letter-spacing: 0.5px; text-transform: uppercase;">No Matching Orders</div>
-            <div style="font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px;">No customer orders found matching your selected search query or status filter.</div>
-          </div>`;
+        container.innerHTML = `<div class="ord-empty">No orders match this search or filter.</div>`;
         return;
       }
 
@@ -339,184 +359,95 @@ function getProductImageForItem(item) {
         const email = order.email || "No email provided";
         const phone = order.phone || "";
         const cleanPhone = phone.replace(/[^0-9+]/g, '');
-        const whatsappUrl = cleanPhone ? `https://wa.me/${cleanPhone.replace('+', '')}` : '#';
-        const address = order.address || "Standard Delivery (Address not specified)";
+        const whatsappUrl = cleanPhone ? `https://wa.me/${cleanPhone.replace('+', '')}` : '';
         const total = order.total || 0;
 
-        // Status Determination
         const isPaid = order.paid || order.status === "paid" || order.status === "Pending Shipment";
         let statusKey = "pending";
-        let statusLabel = "Awaiting Payment";
+        let statusLabel = "Awaiting payment";
+        if (order.status === "Delivered") { statusKey = "delivered"; statusLabel = "Delivered"; }
+        else if (order.status === "Shipped") { statusKey = "shipped"; statusLabel = "Shipped"; }
+        else if (order.status === "Cancelled") { statusKey = "cancelled"; statusLabel = "Cancelled"; }
+        else if (isPaid) { statusKey = "paid"; statusLabel = "Paid · to pack"; }
 
-        if (order.status === "Delivered") {
-          statusKey = "delivered";
-          statusLabel = "Delivered";
-        } else if (order.status === "Shipped") {
-          statusKey = "shipped";
-          statusLabel = "In Transit / Shipped";
-        } else if (isPaid) {
-          statusKey = "paid";
-          statusLabel = "Paid (Ready to Pack)";
-        } else if (order.status === "Cancelled") {
-          statusKey = "cancelled";
-          statusLabel = "Cancelled";
+        // Products sit side by side as chips instead of stacking as blocks.
+        const items = Array.isArray(order.items) ? order.items : [];
+        const shown = items.slice(0, 4);
+        let itemsHtml = shown.map((item, idx) => {
+          const thumbUrl = getProductImageForItem(item);
+          const packed = isItemPacked(order.id, idx);
+          const label = `${item.name || item.nameShort || 'Perfume'} · ${item.size || '100ml'}`;
+          const scents = (item.selectedScents || [])
+            .map(s => (s && typeof s === 'object') ? (s.nameShort || s.name) : s)
+            .filter(Boolean);
+          const title = label + (scents.length ? ' — ' + scents.join(', ') : '');
+          return `<span class="ord-item${packed ? ' ord-item-packed' : ''}" title="${ordEsc(title)}">
+              <img src="${ordEsc(thumbUrl)}" alt="" onerror="this.src='Studio Extrait Icon Svg only logo.svg'" />
+              <span class="ord-item-text">${ordEsc(label)}</span>
+              <span class="ord-item-qty">×${Number(item.quantity) || 1}</span>
+            </span>`;
+        }).join('');
+        if (items.length > shown.length) {
+          itemsHtml += `<span class="ord-item-more">+${items.length - shown.length} more</span>`;
         }
+        if (!itemsHtml) itemsHtml = `<span class="ord-item-more">No line items</span>`;
 
-        // Build Items Gallery & Checklist
-        let itemsHtml = '';
-        if (order.items && Array.isArray(order.items) && order.items.length > 0) {
-          order.items.forEach((item, idx) => {
-            const thumbUrl = getProductImageForItem(item);
-            const packed = isItemPacked(order.id, idx);
-            let scentsHtml = '';
-            if (item.selectedScents && item.selectedScents.length > 0) {
-              const names = item.selectedScents.map(s => typeof s === 'object' && s ? (s.nameShort || s.name) : s);
-              scentsHtml = `<div style="color: rgba(255, 255, 255, 0.7); font-size: 10px; margin-top: 3px; font-family: monospace;">✨ Fragrances: <strong>${names.join(', ')}</strong></div>`;
-            }
-            const customisationTag = item.selectedBottleCustomisation 
-              ? `<span style="font-size: 9px; font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #ffffff; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase; margin-left: 6px;">🏷️ ${item.selectedBottleCustomisation}</span>` 
-              : '';
+        const row = document.createElement("div");
+        row.className = "ord-row";
+        row.tabIndex = 0;
+        row.setAttribute("role", "button");
+        row.setAttribute("aria-label", `Open order ${orderRef}`);
+        row.onclick = () => window.openOrderDetailModal(order.id);
+        row.onkeydown = (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.openOrderDetailModal(order.id); }
+        };
 
-            itemsHtml += `
-              <div class="order-item-card">
-                <img src="${thumbUrl}" alt="Perfume" class="order-item-thumbnail" onerror="this.src='Studio Extrait Icon Svg only logo.svg'" />
-                <div style="flex: 1; min-width: 0;">
-                  <div style="font-weight: 700; color: #ffffff; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center;">
-                    <span style="overflow: hidden; text-overflow: ellipsis;">${item.name || item.nameShort || 'Perfume'}</span>
-                    ${customisationTag}
-                  </div>
-                  <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5); display: flex; gap: 10px; margin-top: 3px; font-family: monospace;">
-                    <span>Size: <strong style="color: #ffffff;">${item.size || '100ml'}</strong></span>
-                    <span>Qty: <strong style="color: #ffffff;">x${item.quantity}</strong></span>
-                    <span>R${(Number(item.price) || 0) * (Number(item.quantity) || 1)}</span>
-                  </div>
-                  ${scentsHtml}
-                </div>
-                <div class="order-pack-checkbox ${packed ? 'packed' : 'unpacked'}" onclick="toggleItemPacked('${order.id}', ${idx}, event)" title="Toggle packed status for this item">
-                  <span>${packed ? '✓ Packed' : '○ To Pack'}</span>
-                </div>
-              </div>`;
-          });
-        } else {
-          itemsHtml = `<p style="opacity: 0.4; font-size: 11px; padding: 6px;">No line items found.</p>`;
-        }
-
-        // Waybill info
-        const waybillHtml = order.waybill 
-          ? `<div style="display: flex; align-items: center; justify-content: space-between; background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 6px; padding: 8px 12px; font-size: 11px; margin-top: 6px;">
-               <div style="display: flex; align-items: center; gap: 6px;">
-                 <span style="color: #38bdf8; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">🚚 Courier Guy Waybill:</span>
-                 <span style="font-family: monospace; color: #ffffff; font-weight: 700;">${order.waybill}</span>
-               </div>
-               <button onclick="copyOrderField('${order.waybill}', 'Waybill', event)" class="copy-btn">Copy</button>
-             </div>`
-          : '';
-
-        const card = document.createElement("div");
-        card.className = "order-card";
-        card.onclick = () => openOrderDetailModal(order.id);
-
-        card.innerHTML = `
-          <div class="order-card-accent-line"></div>
-
-          <!-- Card Top Bar: Reference & Status Pill -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
-            <div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-family: monospace; font-weight: 900; color: #ffffff; font-size: 14px; letter-spacing: 0.5px;">#${orderRef}</span>
-                <button onclick="copyOrderField('${orderRef}', 'Order Reference', event)" class="copy-btn">Copy</button>
-              </div>
-              <div style="font-size: 10.5px; color: rgba(255, 255, 255, 0.45); margin-top: 4px; font-family: monospace;">
-                ${dateStr} ${relTime ? `• ${relTime}` : ''}
-              </div>
+        row.innerHTML = `
+          <div class="ord-cell">
+            <div class="ord-ref">#${ordEsc(orderRef)}
+              <button type="button" class="ord-copy" title="Copy order reference"
+                onclick="copyOrderField('${ordEsc(orderRef)}', 'Order Reference', event)">⧉</button>
             </div>
-            <div class="order-status-pill ${statusKey}">
-              <span class="status-dot"></span>
-              ${statusLabel}
-            </div>
+            <div class="ord-date">${ordEsc(dateStr)}${relTime ? ' · ' + ordEsc(relTime) : ''}</div>
           </div>
 
-          <!-- Customer Contact & Delivery Info -->
-          <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-weight: 700; color: #ffffff; font-size: 12.5px;">${name}</span>
-              <button onclick="copyOrderField('${name.replace(/'/g, "\\'")}', 'Customer Name', event)" class="copy-btn">Copy Name</button>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="color: rgba(255, 255, 255, 0.6); font-size: 11px; font-family: monospace;">${email}</span>
-              <button onclick="copyOrderField('${email}', 'Email', event)" class="copy-btn">Copy Email</button>
-            </div>
-
-            ${phone ? `
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <a href="${whatsappUrl}" target="_blank" onclick="event.stopPropagation()" style="color: #34d399; text-decoration: none; font-weight: 700; font-size: 11px; display: inline-flex; align-items: center; gap: 5px; font-family: monospace;">
-                  <span>💬 WhatsApp (${phone})</span>
-                </a>
-                <button onclick="copyOrderField('${phone}', 'Phone', event)" class="copy-btn">Copy Phone</button>
-              </div>
-            ` : ''}
-
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 8px; margin-top: 2px;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
-                <span class="order-section-title" style="margin-bottom: 0;">📍 Delivery Destination</span>
-                <button onclick="copyOrderField(\`${address.replace(/`/g, '\\`')}\`, 'Delivery Address', event)" class="copy-btn">Copy Address</button>
-              </div>
-              <div style="color: rgba(255, 255, 255, 0.8); line-height: 1.45; font-size: 11px; white-space: pre-wrap;">${address}</div>
-              ${order.deliveryDate ? `<div style="color: #38bdf8; font-size: 10.5px; margin-top: 4px; font-family: monospace;">📅 Requested Delivery: <strong>${order.deliveryDate}</strong></div>` : ''}
-              ${order.instructions ? `<div style="color: #fbbf24; font-size: 10.5px; margin-top: 3px; font-family: monospace;">📝 Notes: <strong>${order.instructions}</strong></div>` : ''}
-              ${waybillHtml}
-            </div>
+          <div class="ord-cell">
+            <div class="ord-cust-name">${ordEsc(name)}</div>
+            <div class="ord-cust-meta">${ordEsc(email)}</div>
+            ${phone ? `<div class="ord-cust-meta"><a class="ord-cust-phone" href="${ordEsc(whatsappUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${ordEsc(phone)}</a></div>` : ''}
           </div>
 
-          <!-- Line Items Gallery -->
-          <div>
-            <div class="order-section-title">
-              Fragrance Packages (${order.items?.length || 0})
-            </div>
-            ${itemsHtml}
-          </div>
+          <div class="ord-cell ord-items-row">${itemsHtml}</div>
 
-          <!-- Bottom Action Dock & Order Total -->
-          <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 14px; margin-top: 2px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-            <div>
-              <span style="font-size: 9.5px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); display: block;">Total Paid (ZAR)</span>
-              <span style="font-size: 20px; font-family: 'Outfit', sans-serif; font-weight: 900; color: #ffffff;">R${formatRetailPrice(total)}</span>
+          <div class="ord-right">
+            <span class="ord-pill ${statusKey}">${statusLabel}</span>
+            <span class="ord-total">R${formatRetailPrice(total)}</span>
+            <div class="ord-actions" onclick="event.stopPropagation()">
+              ${isPaid && order.status !== 'Shipped' && order.status !== 'Delivered' ? `<button type="button" class="ord-btn" onclick="dispatchCourierGuyOrder('${order.id}')">Dispatch</button>` : ''}
+              <button type="button" class="ord-btn ord-btn-primary" onclick="openOrderDetailModal('${order.id}')">Open</button>
+              <button type="button" class="ord-btn ord-btn-danger" title="Delete this order"
+                aria-label="Delete order ${ordEsc(orderRef)}" onclick="askDeleteOrder('${order.id}', event)">Delete</button>
             </div>
+          </div>`;
 
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;" onclick="event.stopPropagation()">
-              ${!isPaid ? `<button onclick="quickUpdateOrderStatus('${order.id}', 'paid', event)" class="order-quick-action-btn accent">Mark Paid ✓</button>` : ''}
-              ${isPaid && order.status !== 'Shipped' && order.status !== 'Delivered' ? `
-                <button onclick="dispatchCourierGuyOrder('${order.id}')" class="order-quick-action-btn dispatch">🚚 Dispatch</button>
-              ` : ''}
-              ${order.status === 'Shipped' ? `
-                <button onclick="quickUpdateOrderStatus('${order.id}', 'Delivered', event)" class="order-quick-action-btn" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.3);">✓ Mark Delivered</button>
-              ` : ''}
-              <button onclick="openOrderDetailModal('${order.id}')" class="order-quick-action-btn">Inspect</button>
-            </div>
-          </div>
-        `;
-
-        container.appendChild(card);
+        container.appendChild(row);
       });
     }
 
-    // Render 2: Compact Data Table (Spreadsheet Mode)
+    // Render 2: compact spreadsheet mode (light desk theme)
     function renderOrdersTable(orders) {
       const tableBody = document.getElementById("ordersTableBody");
       if (!tableBody) return;
 
       if (orders.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; opacity: 0.4; padding: 50px;">No orders found for this filter.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="7" class="ord-empty">No orders found for this filter.</td></tr>`;
         return;
       }
 
       tableBody.innerHTML = "";
       orders.forEach(order => {
         const tr = document.createElement("tr");
-        tr.style.borderBottom = "1px solid rgba(255, 255, 255, 0.06)";
-        tr.style.cursor = "pointer";
-        tr.onclick = () => openOrderDetailModal(order.id);
+        tr.onclick = () => window.openOrderDetailModal(order.id);
 
         const orderRef = order.orderId || order.id;
         const dateStr = formatSessionDateTime(order.createdAt || order.timestamp);
@@ -524,117 +455,61 @@ function getProductImageForItem(item) {
         const email = order.email || "No email";
         const phone = order.phone || "";
         const cleanPhone = phone.replace(/[^0-9+]/g, '');
-        const whatsappUrl = cleanPhone ? `https://wa.me/${cleanPhone.replace('+', '')}` : '#';
+        const whatsappUrl = cleanPhone ? `https://wa.me/${cleanPhone.replace('+', '')}` : '';
 
-        // Ref & Date
-        const tdRef = document.createElement("td");
-        tdRef.style.padding = "14px 12px";
-        tdRef.innerHTML = `
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="font-family: monospace; font-weight: bold; color: #ffffff; font-size: 12px;">#${orderRef}</span>
-            <button onclick="copyOrderField('${orderRef}', 'Order Reference', event)" class="copy-btn">📋</button>
-          </div>
-          <div style="font-size: 10px; color: rgba(255,255,255,0.45); margin-top: 3px; font-family: monospace;">${dateStr}</div>
-        `;
-        tr.appendChild(tdRef);
+        const isPaid = order.paid || order.status === "paid" || order.status === "Pending Shipment";
+        let statusKey = "pending";
+        let statusText = "Awaiting payment";
+        if (order.status === "Delivered") { statusKey = "delivered"; statusText = "Delivered"; }
+        else if (order.status === "Shipped") { statusKey = "shipped"; statusText = "Shipped"; }
+        else if (order.status === "Cancelled") { statusKey = "cancelled"; statusText = "Cancelled"; }
+        else if (isPaid) { statusKey = "paid"; statusText = "Paid"; }
 
-        // Customer Details
-        const tdCustomer = document.createElement("td");
-        tdCustomer.style.padding = "14px 12px";
-        tdCustomer.innerHTML = `
-          <div style="font-weight: bold; color: #ffffff; display: flex; align-items: center; gap: 6px;">
-            ${name} <button onclick="copyOrderField('${name.replace(/'/g, "\\'")}', 'Customer Name', event)" class="copy-btn">📋</button>
-          </div>
-          <div style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; font-family: monospace;">${email}</div>
-          ${phone ? `
-            <div style="margin-top: 4px; display: flex; align-items: center; gap: 6px;">
-              <a href="${whatsappUrl}" target="_blank" onclick="event.stopPropagation()" style="color: #34d399; text-decoration: none; font-weight: bold; font-size: 10.5px; font-family: monospace;">
-                💬 ${phone}
-              </a>
-              <button onclick="copyOrderField('${phone}', 'Phone', event)" class="copy-btn">📋</button>
-            </div>
-          ` : ''}
-        `;
-        tr.appendChild(tdCustomer);
-
-        // Address
-        const tdAddress = document.createElement("td");
-        tdAddress.style.padding = "14px 12px";
-        tdAddress.style.fontSize = "11px";
-        tdAddress.style.maxWidth = "220px";
-        tdAddress.innerHTML = `
-          <div style="white-space: pre-wrap; line-height: 1.4; color: rgba(255,255,255,0.8);">${order.address || 'Standard Delivery'}</div>
-          <button onclick="copyOrderField(\`${(order.address || '').replace(/`/g, '\\`')}\`, 'Address', event)" class="copy-btn" style="margin-top: 4px;">Copy Address</button>
-        `;
-        tr.appendChild(tdAddress);
-
-        // Purchased Items
-        const tdItems = document.createElement("td");
-        tdItems.style.padding = "14px 12px";
-        tdItems.style.fontSize = "11px";
         let itemsHtml = '';
-        if (order.items && Array.isArray(order.items)) {
+        if (Array.isArray(order.items)) {
           order.items.forEach(item => {
             const thumbUrl = getProductImageForItem(item);
-            const customTag = (item.selectedBottleCustomisation || item.bottleCustomisation || item.customisation) 
-              ? `<span style="font-size: 8.5px; background: rgba(255,255,255,0.1); color: #fff; padding: 1px 4px; border-radius: 3px; margin-left: 4px;">🏷️ ${item.selectedBottleCustomisation || item.bottleCustomisation || item.customisation}</span>`
+            const customTag = (item.selectedBottleCustomisation || item.bottleCustomisation || item.customisation)
+              ? `<span class="ord-muted" style="font-size:9.5px;">· ${ordEsc(item.selectedBottleCustomisation || item.bottleCustomisation || item.customisation)}</span>`
               : '';
-            itemsHtml += `
-              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                <img src="${thumbUrl}" style="width: 26px; height: 26px; border-radius: 4px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); background: #000;" onerror="this.src='Studio Extrait Icon Svg only logo.svg'" />
-                <span><strong style="color:#fff;">${item.name || item.nameShort}</strong> (${item.size || '100ml'}) ${customTag} x${item.quantity}</span>
+            itemsHtml += `<div class="ord-mini-item">
+                <img src="${ordEsc(thumbUrl)}" alt="" onerror="this.src='Studio Extrait Icon Svg only logo.svg'" />
+                <span><strong>${ordEsc(item.name || item.nameShort || 'Perfume')}</strong> (${ordEsc(item.size || '100ml')}) ${customTag} ×${Number(item.quantity) || 1}</span>
               </div>`;
           });
         }
-        tdItems.innerHTML = itemsHtml || '<span style="opacity: 0.4;">Details unavailable</span>';
-        tr.appendChild(tdItems);
 
-        // Total
-        const tdTotal = document.createElement("td");
-        tdTotal.style.padding = "14px 12px";
-        tdTotal.style.fontWeight = "bold";
-        tdTotal.style.fontSize = "13px";
-        tdTotal.style.color = "#ffffff";
-        tdTotal.textContent = `R${formatRetailPrice(order.total || 0)}`;
-        tr.appendChild(tdTotal);
-
-        // Status Badge
-        const tdStatus = document.createElement("td");
-        tdStatus.style.padding = "14px 12px";
-        const isPaid = order.paid || order.status === "paid" || order.status === "Pending Shipment";
-        let statusKey = "pending";
-        let statusText = "Awaiting Payment";
-        if (order.status === "Delivered") {
-          statusKey = "delivered";
-          statusText = "Delivered";
-        } else if (order.status === "Shipped") {
-          statusKey = "shipped";
-          statusText = "In Transit";
-        } else if (isPaid) {
-          statusKey = "paid";
-          statusText = "Paid";
-        }
-        tdStatus.innerHTML = `<div class="order-status-pill ${statusKey}"><span class="status-dot"></span>${statusText}</div>`;
-        tr.appendChild(tdStatus);
-
-        // Action Buttons
-        const tdActions = document.createElement("td");
-        tdActions.style.padding = "14px 12px";
-        tdActions.onclick = (e) => e.stopPropagation();
-
-        tdActions.innerHTML = `
-          <div style="display: flex; gap: 6px; align-items: center;">
-            <button onclick="openOrderDetailModal('${order.id}')" class="order-quick-action-btn" style="font-size: 10px; padding: 5px 10px;">Inspect</button>
-            ${isPaid && order.status !== 'Shipped' && order.status !== 'Delivered' ? `<button onclick="dispatchCourierGuyOrder('${order.id}')" class="order-quick-action-btn dispatch" style="font-size: 10px; padding: 5px 10px;">Dispatch</button>` : ''}
-          </div>
-        `;
-        tr.appendChild(tdActions);
+        tr.innerHTML = `
+          <td>
+            <div class="ord-mono">#${ordEsc(orderRef)}</div>
+            <div class="ord-muted" style="font-size:10.5px;margin-top:3px;">${ordEsc(dateStr)}</div>
+          </td>
+          <td>
+            <div style="font-weight:700;">${ordEsc(name)}</div>
+            <div class="ord-muted" style="font-size:11px;">${ordEsc(email)}</div>
+            ${phone ? `<div style="margin-top:3px;"><a class="ord-cust-phone" style="font-size:11px;" href="${ordEsc(whatsappUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${ordEsc(phone)}</a></div>` : ''}
+          </td>
+          <td style="max-width:220px;">
+            <div class="ord-muted" style="white-space:pre-wrap;line-height:1.4;font-size:11px;">${ordEsc(order.address || 'Standard delivery')}</div>
+          </td>
+          <td>
+            <div class="ord-cell-items">${itemsHtml || '<span class="ord-muted">No items</span>'}</div>
+          </td>
+          <td class="ord-cell-total">R${formatRetailPrice(order.total || 0)}</td>
+          <td><span class="ord-pill ${statusKey}">${statusText}</span></td>
+          <td onclick="event.stopPropagation()">
+            <div class="ord-actions">
+              <button type="button" class="ord-btn" onclick="openOrderDetailModal('${order.id}')">Open</button>
+              ${isPaid && order.status !== 'Shipped' && order.status !== 'Delivered' ? `<button type="button" class="ord-btn" onclick="dispatchCourierGuyOrder('${order.id}')">Dispatch</button>` : ''}
+              <button type="button" class="ord-btn ord-btn-danger" title="Delete this order" onclick="askDeleteOrder('${order.id}', event)">Delete</button>
+            </div>
+          </td>`;
 
         tableBody.appendChild(tr);
       });
     }
 
-    // Quick Update Order Status
+// Quick Update Order Status
     window.quickUpdateOrderStatus = async function(orderId, newStatus, event) {
       if (event) event.stopPropagation();
       await window.updateOrderStatus(orderId, newStatus);
@@ -669,23 +544,36 @@ function getProductImageForItem(item) {
       const badgeEl = document.getElementById("modalOrderStatusBadge");
 
       const orderRef = order.orderId || order.id;
-      if (titleEl) titleEl.textContent = `Order Details #${orderRef}`;
+      if (titleEl) titleEl.textContent = `Order #${orderRef}`;
 
       const isPaid = order.paid || order.status === "paid" || order.status === "Pending Shipment";
       let statusKey = isPaid ? 'paid' : 'pending';
-      let statusLabel = isPaid ? 'PAID' : 'PENDING';
-      if (order.status === "Shipped") { statusKey = 'shipped'; statusLabel = 'IN TRANSIT'; }
-      if (order.status === "Delivered") { statusKey = 'delivered'; statusLabel = 'DELIVERED'; }
-      if (order.status === "Cancelled") { statusKey = 'cancelled'; statusLabel = 'CANCELLED'; }
+      let statusLabel = isPaid ? 'Paid' : 'Pending';
+      if (order.status === "Shipped") { statusKey = 'shipped'; statusLabel = 'Shipped'; }
+      if (order.status === "Delivered") { statusKey = 'delivered'; statusLabel = 'Delivered'; }
+      if (order.status === "Cancelled") { statusKey = 'cancelled'; statusLabel = 'Cancelled'; }
 
       if (badgeEl) {
         badgeEl.textContent = statusLabel;
-        badgeEl.className = `order-status-pill ${statusKey}`;
+        badgeEl.className = `ord-pill ${statusKey}`;
       }
 
+      // Paint the body BEFORE showing the overlay so the click feels instant.
       renderOrderDetailModalContent(order);
 
-      if (modal) modal.classList.add("active");
+      if (modal) {
+        // #orders-tab keeps a `transform` (tabFadeIn ... forwards) and its panel
+        // a backdrop-filter; either one makes `position: fixed` resolve against
+        // the panel instead of the viewport - which is exactly why the popup
+        // used to open far above the click and force a long scroll. At <body>
+        // level it is always pinned to the screen.
+        if (modal.parentElement !== document.body) document.body.appendChild(modal);
+        modal.classList.add("active");
+        modal.scrollTop = 0;
+      }
+      const bodyEl = document.getElementById("orderDetailModalBody");
+      if (bodyEl) bodyEl.scrollTop = 0;
+      document.body.classList.add("ord-modal-open");
     };
 
     function renderOrderDetailModalContent(order) {
@@ -698,112 +586,96 @@ function getProductImageForItem(item) {
       const name = order.customerName || `${order.firstName || ''} ${order.lastName || ''}`.trim() || "Customer";
       const email = order.email || "No email";
       const phone = order.phone || "";
-      const address = order.address || "Standard Delivery";
+      const address = order.address || "Standard delivery";
       const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+      // Address is passed through an inline handler, so quotes and backticks
+      // would break the markup - flatten them to spaces.
+      const addressJs = String(address).replace(/[`"'\\]/g, ' ').replace(/\s+/g, ' ').trim();
 
-      // Line items with packaging checklist
       let itemsListHtml = '';
-      if (order.items && Array.isArray(order.items)) {
+      if (Array.isArray(order.items)) {
         order.items.forEach((item, idx) => {
           const thumbUrl = getProductImageForItem(item);
           const packed = isItemPacked(order.id, idx);
-          let scentsHtml = '';
-          if (item.selectedScents && item.selectedScents.length > 0) {
-            const names = item.selectedScents.map(s => typeof s === 'object' && s ? (s.nameShort || s.name) : s);
-            scentsHtml = `<div style="color: rgba(255, 255, 255, 0.7); font-size: 11px; margin-top: 3px; font-family: monospace;">✨ Selected Scent Choices: <strong>${names.join(', ')}</strong></div>`;
-          }
-
+          const scents = (item.selectedScents || [])
+            .map(s => (s && typeof s === 'object') ? (s.nameShort || s.name) : s)
+            .filter(Boolean);
           itemsListHtml += `
-            <div style="display: flex; gap: 16px; align-items: center; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 14px; margin-bottom: 8px;">
-              <img src="${thumbUrl}" alt="Thumbnail" style="width: 56px; height: 56px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(255, 255, 255, 0.1); background: #000;" onerror="this.src='Studio Extrait Icon Svg only logo.svg'" />
-              <div style="flex: 1;">
-                <div style="font-size: 13.5px; font-weight: 700; color: #ffffff;">${item.name || item.nameShort || 'Perfume'}</div>
-                <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-top: 3px; font-family: monospace;">
-                  Size: <strong style="color: #fff;">${item.size || '100ml'}</strong> • 
-                  Qty: <strong style="color: #ffffff;">x${item.quantity}</strong> • 
-                  Unit Price: R${item.price} • 
-                  Subtotal: <strong style="color: #ffffff;">R${(Number(item.price) || 0) * (Number(item.quantity) || 1)}</strong>
+            <div class="ord-line-item">
+              <img src="${ordEsc(thumbUrl)}" alt="" onerror="this.src='Studio Extrait Icon Svg only logo.svg'" />
+              <div style="flex: 1; min-width: 0;">
+                <div class="ord-line-name">${ordEsc(item.name || item.nameShort || 'Perfume')}</div>
+                <div class="ord-line-meta">
+                  ${ordEsc(item.size || '100ml')} · qty ${Number(item.quantity) || 1} · R${formatRetailPrice(item.price || 0)} each · line R${formatRetailPrice((Number(item.price) || 0) * (Number(item.quantity) || 1))}
                 </div>
-                ${item.selectedBottleCustomisation ? `<div style="font-size: 10.5px; color: #38bdf8; margin-top: 3px;">🏷️ Bottle Style: ${item.selectedBottleCustomisation}</div>` : ''}
-                ${scentsHtml}
+                ${item.selectedBottleCustomisation ? `<div class="ord-line-custom">Bottle: ${ordEsc(item.selectedBottleCustomisation)}</div>` : ''}
+                ${scents.length ? `<div class="ord-line-scents">Scents: ${ordEsc(scents.join(', '))}</div>` : ''}
               </div>
-              <div class="order-pack-checkbox ${packed ? 'packed' : 'unpacked'}" onclick="toggleItemPacked('${order.id}', ${idx})" style="padding: 8px 14px; font-size: 11px;">
-                <span>${packed ? '✓ PACKED' : '○ TO PACK'}</span>
-              </div>
+              <button type="button" class="ord-pack-btn${packed ? ' packed' : ''}" onclick="toggleItemPacked('${order.id}', ${idx}, event)">
+                ${packed ? '✓ Packed' : 'Mark packed'}
+              </button>
             </div>`;
         });
       }
+      if (!itemsListHtml) itemsListHtml = `<div class="ord-empty" style="padding: 24px;">No line items on this order.</div>`;
 
       body.innerHTML = `
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-          <!-- Customer Profile -->
-          <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 16px;">
-            <div class="order-section-title">Customer Profile</div>
-            <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 4px;">👤 ${name}</div>
-            <div style="font-size: 11.5px; color: rgba(255, 255, 255, 0.6); margin-bottom: 4px; font-family: monospace;">✉️ ${email}</div>
-            <div style="font-size: 11.5px; color: rgba(255, 255, 255, 0.6); margin-bottom: 12px; font-family: monospace;">📱 ${phone || 'No phone'}</div>
-            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-              <button onclick="copyOrderField('${name.replace(/'/g, "\\'")}', 'Customer Name')" class="copy-btn">Copy Name</button>
-              <button onclick="copyOrderField('${email}', 'Email')" class="copy-btn">Copy Email</button>
-              <button onclick="copyOrderField('${phone}', 'Phone')" class="copy-btn">Copy Phone</button>
+        <div class="ord-modal-grid">
+          <div class="ord-panel">
+            <div class="ord-panel-title">Customer</div>
+            <div class="ord-detail-name">${ordEsc(name)}</div>
+            <div class="ord-detail-line">${ordEsc(email)}</div>
+            <div class="ord-detail-line">${ordEsc(phone || 'No phone')}</div>
+            <div class="ord-panel-actions">
+              <button type="button" class="ord-btn" onclick="copyOrderField('${ordJsAttr(name)}', 'Customer name', event)">Copy name</button>
+              <button type="button" class="ord-btn" onclick="copyOrderField('${ordJsAttr(email)}', 'Email', event)">Copy email</button>
+              ${phone ? `<button type="button" class="ord-btn" onclick="copyOrderField('${ordJsAttr(phone)}', 'Phone', event)">Copy phone</button>` : ''}
             </div>
           </div>
 
-          <!-- Delivery Destination -->
-          <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 16px;">
-            <div class="order-section-title">Delivery Destination</div>
-            <div style="font-size: 12px; color: #ffffff; line-height: 1.45; margin-bottom: 8px; white-space: pre-wrap;">${address}</div>
-            ${order.instructions ? `<div style="font-size: 11px; color: #fbbf24; margin-bottom: 8px;">📝 Notes: ${order.instructions}</div>` : ''}
-            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-              <button onclick="copyOrderField(\`${address.replace(/`/g, '\\`')}\`, 'Address')" class="copy-btn">Copy Address</button>
-              <a href="${mapsUrl}" target="_blank" class="copy-btn" style="text-decoration: none; color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);">Google Maps</a>
+          <div class="ord-panel">
+            <div class="ord-panel-title">Delivery</div>
+            <div class="ord-detail-addr">${ordEsc(address)}</div>
+            ${order.deliveryDate ? `<div class="ord-detail-line">Requested day: ${ordEsc(order.deliveryDate)}</div>` : ''}
+            ${order.instructions ? `<div class="ord-detail-note">Notes: ${ordEsc(order.instructions)}</div>` : ''}
+            <div class="ord-panel-actions">
+              <button type="button" class="ord-btn" onclick="copyOrderField(\`${addressJs}\`, 'Address', event)">Copy address</button>
+              <a class="ord-btn" href="${ordEsc(mapsUrl)}" target="_blank" rel="noopener">Google Maps</a>
             </div>
           </div>
         </div>
 
-        <!-- Waybill & Shipping Management -->
-        <div style="background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.2); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
-            <span style="font-size: 11px; text-transform: uppercase; color: #38bdf8; font-weight: 800; letter-spacing: 0.5px;">🚚 Courier Guy Waybill & Dispatch</span>
-            <button onclick="dispatchCourierGuyOrder('${order.id}')" class="order-quick-action-btn dispatch" style="font-size: 10.5px; padding: 6px 12px;">Open Courier Guy Dispatch Helper</button>
+        <div class="ord-panel ord-panel-waybill">
+          <div class="ord-panel-title">Courier Guy waybill</div>
+          <div class="ord-waybill-row">
+            <input type="text" id="modalWaybillInput" class="ord-waybill-input" value="${ordEsc(order.waybill || '')}" placeholder="Waybill number…" />
+            <button type="button" class="ord-btn ord-btn-primary" onclick="saveModalWaybill('${order.id}')">Save waybill</button>
+            <button type="button" class="ord-btn" onclick="dispatchCourierGuyOrder('${order.id}')">Dispatch helper</button>
           </div>
-          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-            <input type="text" id="modalWaybillInput" value="${order.waybill || ''}" placeholder="Enter Courier Guy Waybill Number..." style="flex: 1; padding: 9px 12px; background: #08080c; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; color: #ffffff; font-size: 11.5px; font-family: monospace;" />
-            <button onclick="saveModalWaybill('${order.id}')" class="order-quick-action-btn accent" style="padding: 9px 16px; font-size: 11px;">Save Waybill</button>
-          </div>
+          ${order.waybill ? `<div class="ord-detail-line" style="margin-top: 8px;">Saved: ${ordEsc(order.waybill)}</div>` : ''}
         </div>
 
-        <!-- Line Items Gallery -->
-        <div style="margin-bottom: 20px;">
-          <div class="order-section-title">
-            Purchased Fragrance Packages (${order.items?.length || 0} Items)
-          </div>
-          ${itemsListHtml}
-        </div>
+        <div class="ord-panel-title">Items (${Array.isArray(order.items) ? order.items.length : 0})</div>
+        ${itemsListHtml}
 
-        <!-- Total Breakdown -->
-        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 18px; display: flex; justify-content: space-between; align-items: center;">
+        <div class="ord-total-bar">
           <div>
-            <div style="font-size: 10px; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); font-weight: 800; letter-spacing: 1px;">Grand Total (ZAR)</div>
-            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-top: 2px;">Placed on: ${dateStr}</div>
+            <div class="ord-total-label">Order total</div>
+            <div class="ord-total-sub">#${ordEsc(orderRef)} · placed ${ordEsc(dateStr)}${order.paymentGateway ? ' · via ' + ordEsc(order.paymentGateway) : ''}</div>
           </div>
-          <div style="font-size: 24px; font-family: 'Outfit', sans-serif; font-weight: 900; color: #ffffff;">
-            R${formatRetailPrice(order.total || 0)}
-          </div>
-        </div>
-      `;
+          <div class="ord-total-value">R${formatRetailPrice(order.total || 0)}</div>
+        </div>`;
 
-      // Modal bottom quick status buttons
       if (actionsDock) {
         actionsDock.innerHTML = `
-          <button onclick="updateOrderStatus('${order.id}', 'paid')" class="order-quick-action-btn accent">Mark Paid ✓</button>
-          <button onclick="updateOrderStatus('${order.id}', 'Shipped')" class="order-quick-action-btn dispatch">Mark Shipped 🚚</button>
-          <button onclick="updateOrderStatus('${order.id}', 'Delivered')" class="order-quick-action-btn" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">Mark Delivered ✓</button>
-          <button onclick="updateOrderStatus('${order.id}', 'pending_payment')" class="order-quick-action-btn">Pending Payment</button>
-          <button onclick="updateOrderStatus('${order.id}', 'Cancelled')" class="order-quick-action-btn" style="color: #fb7185; border-color: rgba(244, 63, 94, 0.3);">Cancel Order ✕</button>
-        `;
+          <button type="button" class="ord-btn" onclick="updateOrderStatus('${order.id}', 'paid')">Mark paid</button>
+          <button type="button" class="ord-btn" onclick="updateOrderStatus('${order.id}', 'Shipped')">Mark shipped</button>
+          <button type="button" class="ord-btn" onclick="updateOrderStatus('${order.id}', 'Delivered')">Mark delivered</button>
+          <button type="button" class="ord-btn" onclick="updateOrderStatus('${order.id}', 'pending_payment')">Pending payment</button>
+          <button type="button" class="ord-btn ord-btn-danger" onclick="updateOrderStatus('${order.id}', 'Cancelled')">Cancel order</button>`;
       }
     }
+
 
     window.saveModalWaybill = async function(orderId) {
       const input = document.getElementById("modalWaybillInput");
@@ -832,7 +704,95 @@ function getProductImageForItem(item) {
       const modal = document.getElementById("orderDetailModal");
       if (modal) modal.classList.remove("active");
       selectedOrderForModal = null;
+      const dialog = document.getElementById("orderDeleteDialog");
+      if (!dialog || !dialog.classList.contains("active")) document.body.classList.remove("ord-modal-open");
     };
+
+    // ------------------------------------------------------------------
+    // DELETE AN ORDER — one button, one yes/no confirmation.
+    // ------------------------------------------------------------------
+    var pendingDeleteOrderId = null;
+
+    window.askDeleteOrder = function(orderId, event) {
+      if (event) event.stopPropagation();
+      const order = adminOrders.find(o => o.id === orderId || o.orderId === orderId);
+      if (!order) return;
+      pendingDeleteOrderId = order.id;
+
+      const ref = order.orderId || order.id;
+      const name = order.customerName || `${order.firstName || ''} ${order.lastName || ''}`.trim();
+      const textEl = document.getElementById("orderDeleteDialogText");
+      if (textEl) {
+        textEl.textContent = `Order #${ref}` + (name ? ` for ${name}` : '') +
+          ` — R${formatRetailPrice(order.total || 0)}.`;
+      }
+
+      const dialog = document.getElementById("orderDeleteDialog");
+      if (!dialog) return;
+      if (dialog.parentElement !== document.body) document.body.appendChild(dialog);
+      dialog.classList.add("active");
+      document.body.classList.add("ord-modal-open");
+
+      const confirmBtn = document.getElementById("orderDeleteConfirmBtn");
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = "Yes, delete";
+        confirmBtn.focus();
+      }
+    };
+
+    // The 🗑 inside the order overlay deletes the order currently on screen.
+    window.askDeleteOrderFromModal = function() {
+      if (selectedOrderForModal) window.askDeleteOrder(selectedOrderForModal.id);
+    };
+
+    window.closeOrderDeleteDialog = function() {
+      pendingDeleteOrderId = null;
+      const dialog = document.getElementById("orderDeleteDialog");
+      if (dialog) dialog.classList.remove("active");
+      const modal = document.getElementById("orderDetailModal");
+      if (!modal || !modal.classList.contains("active")) document.body.classList.remove("ord-modal-open");
+    };
+
+    window.confirmDeleteOrder = async function() {
+      const id = pendingDeleteOrderId;
+      if (!id) return;
+
+      const confirmBtn = document.getElementById("orderDeleteConfirmBtn");
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = "Deleting…";
+      }
+
+      try {
+        if (!(window.db && window.dbDoc && window.dbDeleteDoc)) {
+          throw new Error("Firestore is not ready — refresh the admin page and try again.");
+        }
+        await window.dbDeleteDoc(window.dbDoc(window.db, "orders", id));
+        adminOrders = adminOrders.filter(o => o.id !== id);
+        window.adminOrders = adminOrders;
+        window.closeOrderDeleteDialog();
+        window.closeOrderDetailModal();
+        renderOrdersView();
+        showCopyToast("Order deleted");
+      } catch (err) {
+        console.error("Failed to delete order:", err);
+        alert("Could not delete the order: " + err.message);
+        if (confirmBtn) {
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = "Yes, delete";
+        }
+      }
+    };
+
+    // Escape closes the confirmation first, then the order overlay.
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      const dialog = document.getElementById("orderDeleteDialog");
+      if (dialog && dialog.classList.contains("active")) { window.closeOrderDeleteDialog(); return; }
+      const modal = document.getElementById("orderDetailModal");
+      if (modal && modal.classList.contains("active")) window.closeOrderDetailModal();
+    });
 
     // Printable Packing Slip Generator
     window.printOrderPackingSlip = function() {

@@ -36,7 +36,11 @@
   var STARTER_EXPENSES = [
     { seedKey: 'pna-label-paper', date: '2026-10-02', description: 'Label paper (PNA)', amount: 106, category: 'Labels', notes: 'Printed at PNA' },
     { seedKey: 'pna-bostik-glue', date: '2026-10-02', description: 'Bostik glue stick (PNA)', amount: 29, category: 'Boxes & packaging', notes: 'For gift boxes' },
-    { seedKey: 'livelife-fragrance-oils', date: '2026-10-03', description: 'Live Life Fragrances — fragrance oils', amount: 80, category: 'Oils & fragrance', notes: 'First Live Life Fragrances order' },
+    // The first Live Life Fragrances order was R615 all in: R535 of fragrance
+    // oils plus ONE 1L ethanol at R80. The oils line carries the balance and
+    // the ethanol is booked on its own line, so the R615 is never double counted
+    // and a litre is never priced at R615 again.
+    { seedKey: 'livelife-fragrance-oils', date: '2026-10-03', description: 'Live Life Fragrances — fragrance oils', amount: 535, category: 'Oils & fragrance', notes: 'First Live Life order: R615 total minus the R80 1L ethanol booked separately' },
     // Ethanol is R80 a litre at Live Life Fragrances - never book a 1L line at
     // more than R80 unless the row really is several litres.
     { seedKey: 'livelife-ethanol-1l', date: '2026-10-03', description: 'Live Life Fragrances — 1L ethanol base', amount: 80, category: 'Ethanol', notes: 'First Live Life Fragrances order (1L at R80/L)' },
@@ -48,9 +52,9 @@
     { seedKey: 'syringes-25', date: '2026-10-14', description: '25 × 50ml syringes', amount: 164, category: 'Equipment', notes: 'For filling bottles' },
     { seedKey: 'dyes-water-soluble', date: '2026-10-15', description: 'Water-soluble dyes (magenta, yellow, blue)', amount: 105, category: 'Equipment', notes: '' },
     { seedKey: 'courierguy-delivery-2', date: '2026-10-22', description: 'The Courier Guy — second delivery', amount: 200, category: 'Courier & shipping', notes: 'Second courier payment' },
-    { seedKey: 'syringes-second-order', date: '2026-10-23', description: 'Syringes (second order)', amount: 300, category: 'Equipment', notes: 'Second syringe order' },
     { seedKey: 'perfumeoils-new-test-oils', date: '2026-10-24', description: 'Perfume Oils — new test oils', amount: 750, category: 'Oils & fragrance', notes: 'New test oils from Perfume Oils' },
-    { seedKey: 'livelife-ethanol-topup', date: '2026-10-26', description: 'Live Life Fragrances — 1L ethanol base (top-up)', amount: 80, category: 'Ethanol', notes: 'One more litre of ethanol base' }
+    { seedKey: 'livelife-ethanol-topup', date: '2026-10-26', description: 'Live Life Fragrances — 1L ethanol base (top-up)', amount: 80, category: 'Ethanol', notes: 'Second litre of ethanol base' },
+    { seedKey: 'livelife-ethanol-1l-3', date: '2026-10-26', description: 'Live Life Fragrances — 1L ethanol base (third bottle)', amount: 80, category: 'Ethanol', notes: 'Third and last of the three 1L bottles' }
   ];
 
   // Used to guess a category from a plain-English name, so the form only needs

@@ -57,7 +57,7 @@ eval(code);
 const EXPENSES = [
   ['2026-10-02', 'Labels', 'Label paper (PNA)', 106],
   ['2026-10-02', 'Boxes & packaging', 'Bostik glue stick (PNA)', 29],
-  ['2026-10-03', 'Oils & fragrance', 'Live Life Fragrances — fragrance oils', 80],
+  ['2026-10-03', 'Oils & fragrance', 'Live Life Fragrances — fragrance oils', 535],
   ['2026-10-03', 'Ethanol', 'Live Life Fragrances — 1L ethanol base', 80],
   ['2026-10-05', 'Bottles', 'Value Co — 3 × 1L jars', 190],
   ['2026-10-07', 'Oils & fragrance', 'Perfume oils (test bottles)', 593.18],
@@ -67,9 +67,9 @@ const EXPENSES = [
   ['2026-10-14', 'Equipment', '25 × 50ml syringes', 164],
   ['2026-10-15', 'Equipment', 'Water-soluble dyes (magenta, yellow, blue)', 105],
   ['2026-10-22', 'Courier & shipping', 'The Courier Guy — second delivery', 200],
-  ['2026-10-23', 'Equipment', 'Syringes (second order)', 300],
   ['2026-10-24', 'Oils & fragrance', 'Perfume Oils — new test oils', 750],
-  ['2026-10-26', 'Ethanol', 'Live Life Fragrances — 1L ethanol base (top-up)', 80]
+  ['2026-10-26', 'Ethanol', 'Live Life Fragrances — 1L ethanol base (top-up)', 80],
+  ['2026-10-26', 'Ethanol', 'Live Life Fragrances — 1L ethanol base (third bottle)', 80]
 ].map(([date, category, description, amount], i) => ({
   id: 'seed' + i, date, category, description, amount, type: 'expense', dateEstimated: true
 }));
@@ -88,7 +88,7 @@ FIN.loaded = true;
 
 window.minaraFinanceRender();
 
-const TOTAL = 3277.18;
+const TOTAL = 3512.18;
 const kpi = el('financeKpiGrid').innerHTML;
 const ledger = el('financeExpensesTableBody').innerHTML;
 const trend = el('financeTrendChart').innerHTML;
@@ -108,7 +108,7 @@ check('ledger shows a minus sign', /−R/.test(ledger), 'contains −R');
 check('ledger has red class', ledger.indexOf('fin-out') !== -1);
 check('ledger has a 7th-Oct row', ledger.indexOf('Perfume oils (test bottles)') !== -1);
 check('ledger has the new R750 oils', ledger.indexOf('new test oils') !== -1);
-check('KPI shows net money out total', /3[\s,.]?277/.test(kpi), 'expected total 3277.18');
+check('KPI shows net money out total', /3[\s,.]?512/.test(kpi), 'expected total 3512.18');
 check('KPI money out is negative', kpi.indexOf('−R') !== -1);
 check('KPI mentions all time', kpi.indexOf('All time') !== -1);
 check('trend chart is an SVG', trend.indexOf('<svg') !== -1);
