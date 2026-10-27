@@ -37,7 +37,9 @@
     { seedKey: 'pna-label-paper', date: '2026-10-02', description: 'Label paper (PNA)', amount: 106, category: 'Labels', notes: 'Printed at PNA' },
     { seedKey: 'pna-bostik-glue', date: '2026-10-02', description: 'Bostik glue stick (PNA)', amount: 29, category: 'Boxes & packaging', notes: 'For gift boxes' },
     { seedKey: 'livelife-fragrance-oils', date: '2026-10-03', description: 'Live Life Fragrances — fragrance oils', amount: 80, category: 'Oils & fragrance', notes: 'First Live Life Fragrances order' },
-    { seedKey: 'livelife-ethanol-1l', date: '2026-10-03', description: 'Live Life Fragrances — 1L ethanol base', amount: 615, category: 'Ethanol', notes: 'First Live Life Fragrances order' },
+    // Ethanol is R80 a litre at Live Life Fragrances - never book a 1L line at
+    // more than R80 unless the row really is several litres.
+    { seedKey: 'livelife-ethanol-1l', date: '2026-10-03', description: 'Live Life Fragrances — 1L ethanol base', amount: 80, category: 'Ethanol', notes: 'First Live Life Fragrances order (1L at R80/L)' },
     { seedKey: 'valueco-jars', date: '2026-10-05', description: 'Value Co — 3 × 1L jars', amount: 190, category: 'Bottles', notes: 'Bulk oil storage' },
     { seedKey: 'perfumeoils-test-bottles', date: '2026-10-07', description: 'Perfume oils (test bottles)', amount: 593.18, category: 'Oils & fragrance', notes: 'Includes test bottles' },
     { seedKey: 'courierguy-delivery-1', date: '2026-10-09', description: 'The Courier Guy', amount: 200, category: 'Courier & shipping', notes: '' },
