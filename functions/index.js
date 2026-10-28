@@ -1,7 +1,7 @@
 /* eslint-disable max-len, camelcase, require-jsdoc, valid-jsdoc */
 const {setGlobalOptions} = require("firebase-functions");
 const {onCall, HttpsError, onRequest} = require("firebase-functions/v2/https");
-const {onDocumentCreated, onDocumentDeleted} = require("firebase-functions/v2/firestore");
+const {onDocumentCreated, onDocumentDeleted, onDocumentUpdated} = require("firebase-functions/v2/firestore");
 const {defineSecret} = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
@@ -1953,6 +1953,438 @@ async function deductStockForOrder(orderData, firestore, token) {
     logger.error("Error deducting stock for order:", err);
   }
 }
+
+// ==========================================
+// ORDER CONFIRMATION EMAIL (Yoco + Ozow)
+// ==========================================
+// The customer's confirmation email is sent the moment an order becomes `paid`
+// - never from the browser, and never before a gateway webhook has confirmed the
+// money. Both rails write `paid: true` on the same `orders/<EXTRAIT-…>` document,
+// so one Firestore trigger covers Yoco, Ozow and a manual admin mark-as-paid.
+//
+// Delivery is provider-agnostic: the owner pastes an API key into
+// Admin -> Site Texts -> "Order confirmation emails", stored in the admin-only
+// Firestore document `settings/mail` (never in the public repo):
+//   {enabled, provider: "brevo"|"resend", apiKey, fromName, fromEmail, replyTo}
+// Nothing is hard-coded and no redeploy is needed after the key is saved.
+const MASTER_ADMIN_EMAIL = "sub2meboyi@gmail.com";
+const MAIL_SUPPORT_EMAIL = "jadon@studioextrait.co.za";
+const MAIL_WHATSAPP = "+27 68 917 6485";
+const MAIL_SITE_URL = "https://studioextrait.co.za";
+
+/**
+ * Read the admin-managed mail configuration. Returns null when the panel has not
+ * been configured yet (or sending is switched off), which skips the email
+ * instead of failing the order.
+ */
+async function getMailSettings() {
+  try {
+    const snap = await firestore.collection("settings").doc("mail").get();
+    if (!snap.exists) return null;
+    const data = snap.data() || {};
+    const apiKey = String(data.apiKey || "").trim();
+    const fromEmail = String(data.fromEmail || "").trim();
+    if (data.enabled === false || !apiKey || !fromEmail) return null;
+    return {
+      provider: String(data.provider || "").toLowerCase() === "resend" ? "resend" : "brevo",
+      apiKey: apiKey,
+      fromEmail: fromEmail,
+      fromName: String(data.fromName || "Studio Extrait").trim(),
+      replyTo: String(data.replyTo || "").trim(),
+    };
+  } catch (err) {
+    logger.warn("Could not read settings/mail - order confirmation email skipped:", err);
+    return null;
+  }
+}
+
+/** R1234 -> R1,234 (the storefront's price format). */
+function formatZar(value) {
+  const n = Math.round(Number(value) || 0);
+  return "R" + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function escapeMailHtml(value) {
+  return String(value === undefined || value === null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+}
+
+function describeOrderItems(order) {
+  const items = Array.isArray(order.items) ? order.items : [];
+  return items.map((item) => {
+    const quantity = Number(item && item.quantity) || 1;
+    const price = Number(item && item.price) || 0;
+    const scents = Array.isArray(item && item.selectedScents) ?
+      item.selectedScents.map((s) => (s && typeof s === "object") ? (s.nameShort || s.name) : s).filter(Boolean) : [];
+    return {
+      name: String((item && (item.name || item.nameShort)) || "Studio Extrait extrait"),
+      size: String((item && item.size) || "50ml"),
+      quantity: quantity,
+      price: price,
+      lineTotal: price * quantity,
+      bottle: String((item && (item.bottleCustomisation || item.selectedBottleCustomisation)) || ""),
+      scents: scents,
+    };
+  });
+}
+
+function describePaymentMethod(order) {
+  const gateway = String(order.paymentGateway || "").toLowerCase();
+  if (gateway === "yoco") return "Card / Apple Pay / Google Pay (Yoco)";
+  if (gateway === "ozow") return "Instant EFT (Ozow)";
+  return gateway ? gateway.toUpperCase() : "Paid online";
+}
+
+/**
+ * Build the confirmation email. Kept plain (tables + inline styles) so it
+ * renders the same in Gmail, Outlook and Apple Mail.
+ */
+function renderOrderConfirmation(order, orderId) {
+  const reference = order.orderId || orderId || "";
+  const customerName = String(order.customerName || "").trim() || "there";
+  const firstName = customerName.split(/\s+/)[0];
+  const total = Number(order.total) || 0;
+  const items = describeOrderItems(order);
+  const address = String(order.address || "").trim();
+  const isTest = String(order.yocoPaymentMode || "").toLowerCase() === "test" ||
+    order.ozowIsTestNotification === true;
+  const subject = `${isTest ? "[TEST] " : ""}Order ${reference} confirmed - Studio Extrait`;
+
+  const itemRows = items.map((item) => {
+    const metaBits = [item.size, `Qty ${item.quantity}`];
+    if (item.bottle) metaBits.push(item.bottle);
+    if (item.scents.length) metaBits.push("Scents: " + item.scents.join(", "));
+    return `
+        <tr>
+          <td style="padding:12px 0;border-bottom:1px solid #ececec;font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#111111;">
+            <strong style="font-size:13px;letter-spacing:0.3px;">${escapeMailHtml(item.name)}</strong><br>
+            <span style="font-size:11px;color:#777777;">${escapeMailHtml(metaBits.join(" · "))}</span>
+          </td>
+          <td style="padding:12px 0;border-bottom:1px solid #ececec;text-align:right;font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#111111;white-space:nowrap;">
+            ${formatZar(item.lineTotal)}
+          </td>
+        </tr>`;
+  }).join("");
+
+  const html = `<!DOCTYPE html>
+<html><body style="margin:0;padding:0;background:#f4f3ef;">
+  <div style="max-width:600px;margin:0 auto;padding:28px 18px 40px;">
+    <div style="background:#ffffff;border:1px solid #e6e4de;padding:34px 30px 26px;">
+      <div style="text-align:center;font-family:Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:7px;font-weight:bold;color:#111111;">STUDIO EXTRAIT</div>
+      <div style="text-align:center;font-family:Helvetica,Arial,sans-serif;font-size:9px;letter-spacing:3px;color:#8a8a8a;margin-top:8px;">ORDER CONFIRMED</div>
+      <div style="height:1px;background:#ececec;margin:24px 0;"></div>
+      <p style="font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#111111;margin:0 0 12px;">Hi ${escapeMailHtml(firstName)},</p>
+      <p style="font-family:Helvetica,Arial,sans-serif;font-size:13px;line-height:1.65;color:#333333;margin:0 0 20px;">
+        Thank you for your order. Your payment of <strong>${formatZar(total)}</strong> has been confirmed and your
+        extraits are now being prepared and macerated for dispatch.
+      </p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-bottom:22px;">
+        <tr>
+          <td style="font-family:Helvetica,Arial,sans-serif;font-size:10px;letter-spacing:1.5px;color:#8a8a8a;padding-bottom:6px;">ORDER NUMBER</td>
+          <td style="font-family:Helvetica,Arial,sans-serif;font-size:10px;letter-spacing:1.5px;color:#8a8a8a;padding-bottom:6px;text-align:right;">PAID WITH</td>
+        </tr>
+        <tr>
+          <td style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#111111;font-weight:bold;">${escapeMailHtml(reference)}</td>
+          <td style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#111111;text-align:right;">${escapeMailHtml(describePaymentMethod(order))}</td>
+        </tr>
+      </table>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+        ${itemRows || `<tr><td style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#333333;padding:12px 0;">Your Studio Extrait order</td></tr>`}
+        <tr>
+          <td style="padding:14px 0 0;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:1.5px;color:#8a8a8a;">TOTAL PAID</td>
+          <td style="padding:14px 0 0;text-align:right;font-family:Helvetica,Arial,sans-serif;font-size:15px;font-weight:bold;color:#111111;">${formatZar(total)}</td>
+        </tr>
+      </table>
+      <div style="height:1px;background:#ececec;margin:24px 0;"></div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+        <tr>
+          <td width="50%" valign="top" style="font-family:Helvetica,Arial,sans-serif;font-size:11px;line-height:1.7;color:#333333;padding-right:10px;">
+            <span style="display:block;font-size:10px;letter-spacing:1.5px;color:#8a8a8a;margin-bottom:6px;">DELIVERING TO</span>
+            ${escapeMailHtml(address || "Your saved delivery address")}
+          </td>
+          <td width="50%" valign="top" style="font-family:Helvetica,Arial,sans-serif;font-size:11px;line-height:1.7;color:#333333;">
+            <span style="display:block;font-size:10px;letter-spacing:1.5px;color:#8a8a8a;margin-bottom:6px;">WHAT HAPPENS NEXT</span>
+            Packed and dispatched within 24-48 hours.<br>
+            The Courier Guy delivers in 1-3 business days.<br>
+            You will get an SMS and email with your waybill.
+          </td>
+        </tr>
+      </table>
+      ${order.deliveryDate ? `<p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#333333;margin:16px 0 0;">Requested delivery day: <strong>${escapeMailHtml(order.deliveryDate)}</strong></p>` : ""}
+      ${order.instructions ? `<p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#333333;margin:8px 0 0;">Delivery notes: ${escapeMailHtml(order.instructions)}</p>` : ""}
+      <div style="height:1px;background:#ececec;margin:24px 0;"></div>
+      <p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.7;color:#333333;margin:0 0 14px;">
+        Questions about your order? Reply to this email or WhatsApp us on ${escapeMailHtml(MAIL_WHATSAPP)} -
+        we answer every message ourselves.
+      </p>
+      <p style="text-align:center;margin:18px 0 0;">
+        <a href="${MAIL_SITE_URL}/track-order.html" style="display:inline-block;background:#111111;color:#ffffff;font-family:Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:2px;text-decoration:none;padding:13px 26px;">TRACK MY ORDER</a>
+      </p>
+    </div>
+    <p style="font-family:Helvetica,Arial,sans-serif;font-size:10px;line-height:1.7;color:#8a8a8a;text-align:center;margin:20px 0 0;">
+      STUDIO EXTRAIT - premium extrait de parfum, blended and bottled in South Africa.<br>
+      Independent label. Not affiliated with any other fragrance house.<br>
+      ${escapeMailHtml(MAIL_SUPPORT_EMAIL)}
+    </p>
+  </div>
+</body></html>`;
+  const text = [
+    "STUDIO EXTRAIT - ORDER CONFIRMED",
+    "",
+    `Hi ${firstName},`,
+    "",
+    `Thank you for your order. Your payment of ${formatZar(total)} has been confirmed.`,
+    "",
+    `Order number: ${reference}`,
+    `Paid with: ${describePaymentMethod(order)}`,
+    "",
+    ...items.map((item) => `${item.quantity} x ${item.name} (${item.size}) - ${formatZar(item.lineTotal)}`),
+    "",
+    `Total paid: ${formatZar(total)}`,
+    address ? `Delivering to: ${address}` : "",
+    order.deliveryDate ? `Requested delivery day: ${order.deliveryDate}` : "",
+    order.instructions ? `Delivery notes: ${order.instructions}` : "",
+    "",
+    "Packed and dispatched within 24-48 hours. The Courier Guy delivers in 1-3 business days,",
+    "and you will get an SMS and email with your waybill number.",
+    "",
+    `Questions? Reply to this email or WhatsApp ${MAIL_WHATSAPP}.`,
+    `Track your order: ${MAIL_SITE_URL}/track-order.html`,
+    "",
+    "STUDIO EXTRAIT - premium extrait de parfum, blended and bottled in South Africa.",
+    "Independent label. Not affiliated with any other fragrance house.",
+    MAIL_SUPPORT_EMAIL,
+  ].filter((line) => line !== "").join("\n");
+
+  return {subject: subject, html: html, text: text};
+}
+
+/**
+ * Send one transactional email through whichever provider the admin configured.
+ * Both providers are plain HTTPS JSON APIs, so no extra dependency (and no SMTP
+ * password) has to live inside the function.
+ */
+async function sendTransactionalEmail(mail, payload) {
+  const to = String(payload.to || "").trim();
+  if (mail.provider === "resend") {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${mail.apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: mail.fromName ? `${mail.fromName} <${mail.fromEmail}>` : mail.fromEmail,
+        to: [to],
+        reply_to: mail.replyTo || undefined,
+        subject: payload.subject,
+        html: payload.html,
+        text: payload.text,
+      }),
+    });
+    const body = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(`Resend rejected the email (HTTP ${response.status}): ` +
+        `${(body && (body.message || JSON.stringify(body))) || "no response body"}`);
+    }
+    return {providerMessageId: (body && body.id) || null};
+  }
+
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "api-key": mail.apiKey,
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    },
+    body: JSON.stringify({
+      sender: {email: mail.fromEmail, name: mail.fromName || "Studio Extrait"},
+      to: [{email: to, name: payload.toName || to}],
+      replyTo: mail.replyTo ? {email: mail.replyTo} : undefined,
+      subject: payload.subject,
+      htmlContent: payload.html,
+      textContent: payload.text,
+    }),
+  });
+  const body = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(`Brevo rejected the email (HTTP ${response.status}): ` +
+      `${(body && (body.message || JSON.stringify(body))) || "no response body"}`);
+  }
+  return {providerMessageId: (body && body.messageId) || null};
+}
+
+/**
+ * Firestore trigger: every paid order gets exactly one confirmation email.
+ * Both webhooks write `paid: true`, so this single trigger covers Yoco, Ozow and
+ * a manual mark-as-paid in the admin panel.
+ *
+ * Idempotency: the handler claims the send first (`confirmationEmailAttempts` +
+ * `confirmationEmailLastAttemptAt`) and then records `confirmationEmailSentAt`.
+ * Because the writes made here re-trigger the function, the 10-minute back-off
+ * and the attempt cap are what stop a retry loop (a gateway webhook can arrive
+ * more than once and Firestore triggers are at-least-once).
+ */
+exports.onOrderPaidSendConfirmation = onDocumentUpdated("orders/{orderId}", async (event) => {
+  const after = event.data && event.data.after ? event.data.after.data() : null;
+  if (!after || after.paid !== true) return;
+  if (after.confirmationEmailSentAt) return;
+
+  const attempts = Number(after.confirmationEmailAttempts) || 0;
+  if (attempts >= 3) return;
+  const lastAttemptMs = after.confirmationEmailLastAttemptAt ?
+    Date.parse(after.confirmationEmailLastAttemptAt) : 0;
+  if (lastAttemptMs && (Date.now() - lastAttemptMs) < 10 * 60 * 1000) return;
+
+  const orderRef = event.data.after.ref;
+  const orderId = event.params.orderId;
+  const to = String(after.email || after.emailAlt || "").trim();
+  if (!to || !/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(to)) {
+    logger.warn(`Order ${orderId} is paid but has no usable customer email - no confirmation sent.`);
+    return;
+  }
+
+  const mail = await getMailSettings();
+  if (!mail) {
+    // Not configured yet: leave the order untouched so the email is still sent
+    // once the owner saves the mail settings and the order is next written.
+    logger.warn(`Order ${orderId} is paid but settings/mail is not configured - confirmation not sent.`);
+    return;
+  }
+
+  await orderRef.update({
+    confirmationEmailStatus: "sending",
+    confirmationEmailAttempts: attempts + 1,
+    confirmationEmailLastAttemptAt: new Date().toISOString(),
+  });
+
+  try {
+    const rendered = renderOrderConfirmation(after, orderId);
+    const result = await sendTransactionalEmail(mail, {
+      to: to,
+      toName: after.customerName || to,
+      subject: rendered.subject,
+      html: rendered.html,
+      text: rendered.text,
+    });
+    await orderRef.update({
+      confirmationEmailSentAt: new Date().toISOString(),
+      confirmationEmailStatus: "sent",
+      confirmationEmailProvider: mail.provider,
+      confirmationEmailId: result.providerMessageId,
+    });
+    logger.info(`Order confirmation sent for ${orderId} to ${to} via ${mail.provider}.`);
+  } catch (err) {
+    logger.error(`Order confirmation email failed for ${orderId}:`, err);
+    await orderRef.update({
+      confirmationEmailStatus: "failed",
+      confirmationEmailError: String((err && err.message) || err).slice(0, 500),
+    });
+  }
+});
+
+/**
+ * Admin-only guard for the mail callables (mirrors firestore.rules isAdmin()).
+ */
+async function assertMasterAdmin(request) {
+  const auth = request.auth;
+  if (!auth) throw new HttpsError("unauthenticated", "Sign in to the admin console first.");
+  const email = String((auth.token && auth.token.email) || "").toLowerCase();
+  if (email !== MASTER_ADMIN_EMAIL) {
+    throw new HttpsError("permission-denied", "Only the master admin account can send order emails.");
+  }
+  const userSnap = await firestore.collection("users").doc(auth.uid).get();
+  if (!userSnap.exists || (userSnap.data() || {}).role !== "Admin") {
+    throw new HttpsError("permission-denied", "Admin role required.");
+  }
+}
+
+/**
+ * Admin: send a sample confirmation to verify the provider key works.
+ */
+exports.sendTestOrderEmail = onCall(async (request) => {
+  await assertMasterAdmin(request);
+  const mail = await getMailSettings();
+  if (!mail) {
+    throw new HttpsError("failed-precondition",
+        "Save a provider, API key and sender email in Site Texts first.");
+  }
+  const to = String((request.data && request.data.to) || "").trim() || mail.fromEmail;
+  if (!/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(to)) {
+    throw new HttpsError("invalid-argument", "Enter a valid email address to send the test to.");
+  }
+  const sampleOrder = {
+    orderId: "EXTRAIT-TEST-0001",
+    customerName: "Studio Extrait Tester",
+    email: to,
+    total: 495,
+    paymentGateway: "yoco",
+    address: "1 Test Street, Northriding, Johannesburg, Gauteng, 2169",
+    items: [{name: "Caribbean", size: "50ml", quantity: 1, price: 495}],
+  };
+  const rendered = renderOrderConfirmation(sampleOrder, sampleOrder.orderId);
+  const result = await sendTransactionalEmail(mail, {
+    to: to,
+    toName: sampleOrder.customerName,
+    subject: "[TEST] " + rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+  });
+  return {success: true, provider: mail.provider, to: to, messageId: result.providerMessageId};
+});
+
+/**
+ * Admin: (re)send the confirmation for one order - covers an order that was paid
+ * while the mail settings were still empty, or a customer who lost the email.
+ */
+exports.resendOrderConfirmation = onCall(async (request) => {
+  await assertMasterAdmin(request);
+  const orderId = String((request.data && request.data.orderId) || "").trim();
+  if (!orderId) throw new HttpsError("invalid-argument", "An orderId is required.");
+
+  const orderRef = firestore.collection("orders").doc(orderId);
+  let snap = await orderRef.get();
+  if (!snap.exists) {
+    const q = await firestore.collection("orders").where("orderId", "==", orderId).limit(1).get();
+    if (!q.empty) snap = q.docs[0];
+  }
+  if (!snap.exists) throw new HttpsError("not-found", "That order does not exist.");
+
+  const order = snap.data() || {};
+  if (order.paid !== true && order.status !== "paid") {
+    throw new HttpsError("failed-precondition", "Only a paid order can be confirmed by email.");
+  }
+  const to = String(order.email || order.emailAlt || "").trim();
+  if (!to) throw new HttpsError("failed-precondition", "That order has no customer email address.");
+
+  const mail = await getMailSettings();
+  if (!mail) {
+    throw new HttpsError("failed-precondition",
+        "Save a provider, API key and sender email in Site Texts first.");
+  }
+
+  const rendered = renderOrderConfirmation(order, orderId);
+  const result = await sendTransactionalEmail(mail, {
+    to: to,
+    toName: order.customerName || to,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+  });
+  await snap.ref.update({
+    confirmationEmailSentAt: new Date().toISOString(),
+    confirmationEmailStatus: "sent",
+    confirmationEmailProvider: mail.provider,
+    confirmationEmailId: result.providerMessageId,
+    confirmationEmailAttempts: (Number(order.confirmationEmailAttempts) || 0) + 1,
+  });
+  logger.info(`Order confirmation re-sent for ${orderId} to ${to} via ${mail.provider}.`);
+  return {success: true, provider: mail.provider, to: to, messageId: result.providerMessageId};
+});
 
 /**
  * Verify a payment server-side. Orders are only ever marked paid by a gateway

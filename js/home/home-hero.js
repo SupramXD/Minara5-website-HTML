@@ -74,13 +74,17 @@
     // Dynamic logo dimensions connection
     const logo = document.getElementById("logo");
     if (logo) {
-      if (!isMobile) {
-        logo.style.width = (activeSettings.logoHomeDesktopWidth !== undefined ? activeSettings.logoHomeDesktopWidth + "px" : "1200px");
-        logo.style.maxWidth = "none";
-      } else {
-        logo.style.width = "auto";
-        logo.style.maxWidth = (activeSettings.logoHomeMobileWidth !== undefined ? activeSettings.logoHomeMobileWidth + "vw" : "88vw");
-      }
+      const nextWidth = !isMobile
+        ? (activeSettings.logoHomeDesktopWidth !== undefined ? activeSettings.logoHomeDesktopWidth + "px" : "1200px")
+        : "auto";
+      const nextMaxWidth = isMobile
+        ? (activeSettings.logoHomeMobileWidth !== undefined ? activeSettings.logoHomeMobileWidth + "vw" : "88vw")
+        : "none";
+      // Only touch the DOM when the value really changes: this runs twice on a
+      // cold load (cached pass, then the live hero_settings.json pass), and the
+      // second, identical write repainted the logo - the "flick" on first load.
+      if (logo.style.width !== nextWidth) logo.style.width = nextWidth;
+      if (logo.style.maxWidth !== nextMaxWidth) logo.style.maxWidth = nextMaxWidth;
     }
 
     const initStyle = document.getElementById("minara-logo-init-style");
@@ -127,7 +131,9 @@
       imgR.style.objectPosition = `${activeSettings.mobileX || 50}% ${activeSettings.mobileY || 50}%`;
       imgR.style.transformOrigin = `${activeSettings.mobileX || 50}% ${activeSettings.mobileY || 50}%`;
     } else {
-      hero.style.height = activeSettings.desktopHeight || "calc(115vh - 45px)";
+      if (hero.style.height !== (activeSettings.desktopHeight || "calc(115vh - 45px)")) {
+        hero.style.height = activeSettings.desktopHeight || "calc(115vh - 45px)";
+      }
       if (picL) {
         picL.style.setProperty("display", "block", "important");
       }

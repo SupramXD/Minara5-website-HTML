@@ -2141,6 +2141,53 @@
 
                 </div>
 
+                <!-- PANEL 2C: ORDER CONFIRMATION EMAILS -->
+                <div class="console-panel full-width-panel" style="margin-bottom: 30px;">
+                  <div class="panel-header">
+                    <h2 class="panel-title">Order Confirmation Emails (Customers)</h2>
+                    <span class="stat-label" style="font-size: 10px;">Sent after payment</span>
+                  </div>
+                  <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
+                    Every paid order (Yoco card or Ozow EFT) automatically emails the customer a branded confirmation with their
+                    order number, items, total paid and delivery details. Paste a Brevo or Resend API key below and save it -
+                    this is stored in the admin-only Firestore document <code>settings/mail</code>, never in the public repo.
+                  </p>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                      <label>Provider</label>
+                      <select id="mailProvider" class="form-input">
+                        <option value="brevo">Brevo (easiest - verify a single sender email)</option>
+                        <option value="resend">Resend (domain must be verified in DNS)</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label>API key</label>
+                      <input type="password" id="mailApiKey" class="form-input" placeholder="xkeysib-... or re_..." autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                      <label>From name</label>
+                      <input type="text" id="mailFromName" class="form-input" placeholder="Studio Extrait">
+                    </div>
+                    <div class="form-group">
+                      <label>From email (must be verified with the provider)</label>
+                      <input type="email" id="mailFromEmail" class="form-input" placeholder="jadon@studioextrait.co.za">
+                    </div>
+                    <div class="form-group">
+                      <label>Reply-to (optional)</label>
+                      <input type="email" id="mailReplyTo" class="form-input" placeholder="jadon@studioextrait.co.za">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px; padding-top: 22px;">
+                      <input type="checkbox" id="mailEnabled" checked style="width: auto;">
+                      <label for="mailEnabled" style="margin: 0;">Sending enabled</label>
+                    </div>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 18px;">
+                    <button type="button" id="saveMailBtn" onclick="handleSaveMailSettings(event)" class="btn-action accent-btn" style="width: 100%; padding: 12px; font-weight: bold; font-family: inherit;">Save Email Settings</button>
+                    <button type="button" id="testMailBtn" onclick="handleSendTestEmail(event)" class="btn-action" style="width: 100%; padding: 12px; font-weight: bold; font-family: inherit;">Send Test Email</button>
+                  </div>
+                  <p id="mailSettingsStatus" style="font-size: 12px; color: var(--text-muted); margin-top: 14px; line-height: 1.6;"></p>
+                </div>
+
                 <!-- PANEL 3: PRODUCT PAGE ACCORDIONS -->
                 <div class="console-panel full-width-panel" style="margin-bottom: 30px;">
                   <div class="panel-header">
@@ -2157,7 +2204,7 @@
                       <textarea id="accordionWearing" class="form-input" rows="2" required style="resize: vertical; font-family: inherit;"></textarea>
                     </div>
                     <div class="form-group">
-                      <label>Honest Comparison (Inspired scents - describe our own blend only, never another house)</label>
+                      <label>Honest Comparison (Inspired scents - use {inspired}, {product} and {similarity} so each product page names its own designer scent and percentage)</label>
                       <textarea id="accordionHonestInspired" class="form-input" rows="3" required style="resize: vertical; font-family: inherit;"></textarea>
                     </div>
                     <div class="form-group">
@@ -2693,21 +2740,21 @@
 
   <!-- Modular Admin Feature Scripts -->
   <script src="js/admin/admin-utils.js?v=20260915"></script>
-  <script src="js/admin/admin-core.js?v=20260826_1630"></script>
+  <script src="js/admin/admin-core.js?v=20261028"></script>
   <script src="js/admin/admin-users.js?v=20260826_1630"></script>
   <script src="js/admin/admin-checkout-emails.js?v=20261019"></script>
   <script src="js/admin/admin-notifications.js?v=20260826_1630"></script>
-  <script src="js/admin/admin-orders.js?v=20261027c"></script>
+  <script src="js/admin/admin-orders.js?v=20261028c"></script>
   <script src="js/admin/admin-costing.js?v=20261027"></script>
   <script src="js/admin/admin-products.js?v=20260915b"></script>
   <script src="js/admin/admin-analytics.js?v=20260826_1630"></script>
-  <script src="js/admin/admin-settings.js?v=20260914"></script>
+  <script src="js/admin/admin-settings.js?v=20261028"></script>
   <script src="js/admin/admin-reviews.js?v=20260914"></script>
   <script src="js/admin/admin-featured-reviews.js?v=20260914"></script>
   <script src="js/admin/admin-finance.js?v=20261027b"></script>
 
   <!-- Admin Auth & Security Gateway Bootstrapper -->
-  <script type="module" src="js/admin/admin-auth.js?v=20260826_1630"></script>
+  <script type="module" src="js/admin/admin-auth.js?v=20261028"></script>
   <script type="module" src="header.js?v=20261028"></script>
 </body>
 </html>

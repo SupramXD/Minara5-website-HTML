@@ -1062,7 +1062,7 @@ const DEFAULT_FOOTER_DESCRIPTION = "STUDIO EXTRAIT — South Africa's home of pr
 // Copy revision. Site Texts written before this revision still carry the old
 // compliance wording, so they are ignored until the owner re-publishes the
 // block from the admin (which stamps the revision - see admin-settings.js).
-const CUSTOM_TEXT_REVISION = 20261028;
+const CUSTOM_TEXT_REVISION = 20261029;
 function customTextRevisionOk(data) {
     return Number(data && data.custom_text_version) >= CUSTOM_TEXT_REVISION;
 }

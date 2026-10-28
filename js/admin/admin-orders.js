@@ -576,6 +576,28 @@ function getProductImageForItem(item) {
       document.body.classList.add("ord-modal-open");
     };
 
+    /**
+     * Re-send the branded order confirmation for one order. Used for orders that
+     * were paid while the mail settings were still empty, or when a customer asks
+     * for the email again. The Cloud Function re-checks the order is paid and is
+     * restricted to the master admin account.
+     */
+    window.resendOrderConfirmationEmail = async function(orderId, event) {
+      if (event) event.stopPropagation();
+      if (typeof window.resendOrderConfirmationCallable !== "function") {
+        alert("The email service is still loading. Try again in a moment.");
+        return;
+      }
+      try {
+        const res = await window.resendOrderConfirmationCallable({ orderId: orderId });
+        const info = (res && res.data) || {};
+        alert(`Confirmation email sent to ${info.to || "the customer"} via ${info.provider || "the provider"}.`);
+      } catch (err) {
+        console.error("Order confirmation resend failed:", err);
+        alert("Could not send the confirmation email: " + (err.message || err));
+      }
+    };
+
     function renderOrderDetailModalContent(order) {
       const body = document.getElementById("orderDetailModalBody");
       const actionsDock = document.getElementById("modalOrderQuickActions");
@@ -629,6 +651,7 @@ function getProductImageForItem(item) {
             <div class="ord-panel-actions">
               <button type="button" class="ord-btn" onclick="copyOrderField('${ordJsAttr(name)}', 'Customer name', event)">Copy name</button>
               <button type="button" class="ord-btn" onclick="copyOrderField('${ordJsAttr(email)}', 'Email', event)">Copy email</button>
+              <button type="button" class="ord-btn" onclick="resendOrderConfirmationEmail('${order.id}', event)">Email receipt</button>
               ${phone ? `<button type="button" class="ord-btn" onclick="copyOrderField('${ordJsAttr(phone)}', 'Phone', event)">Copy phone</button>` : ''}
             </div>
           </div>

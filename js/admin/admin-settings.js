@@ -1084,7 +1084,7 @@
   // Bump this when the reviewed storefront copy changes: anything stored in
   // Firestore/localStorage from an older revision is replaced by the defaults in
   // loadCustomTextSettings(), so stale Site Texts can never beat the repo copy.
-  const CUSTOM_TEXT_REVISION = 20261028;
+  const CUSTOM_TEXT_REVISION = 20261029;
 
   window.loadCustomTextSettings = async function() {
     const defaultFeatures = [
@@ -1093,7 +1093,7 @@
         description: "Most designer originals dilute to a standard 15% Eau de Parfum. We formulate at a dense 25%+ Extrait concentration, anchoring the scent to your skin for powerful projection and longevity that genuinely outlasts the original."
       },
       {
-        title: "95% DESIGNER ACCURACY",
+        title: "97% DESIGNER ACCURACY",
         description: "We go beyond 'inspired' scents by reverse-engineering the exact molecular blueprints of exclusive designer fragrances. Pay for the ingredients, not the logo."
       },
       {
@@ -1496,6 +1496,93 @@
     const f = document.getElementById("footerDescription");
     data.footer_description = f ? f.value.trim() : "";
     await window.persistCustomTextData(data, document.getElementById("saveFooterBtn"));
+  };
+
+  // ==========================================
+  // ORDER CONFIRMATION EMAIL SETTINGS (settings/mail)
+  // ==========================================
+  // The provider key lives in Firestore only (admin-read/write) so it never
+  // reaches the public repo. The Cloud Functions read the same document at send
+  // time, which means no redeploy is needed after saving here.
+  window.loadMailSettings = async function() {
+    const statusEl = document.getElementById("mailSettingsStatus");
+    if (!window.db || !window.dbDoc || !window.dbGetDoc) return;
+    try {
+      const snap = await window.dbGetDoc(window.dbDoc(window.db, "settings", "mail"));
+      const data = snap && snap.exists() ? (snap.data() || {}) : {};
+      const providerEl = document.getElementById("mailProvider");
+      if (providerEl) providerEl.value = data.provider === "resend" ? "resend" : "brevo";
+      if (document.getElementById("mailApiKey")) document.getElementById("mailApiKey").value = data.apiKey || "";
+      if (document.getElementById("mailFromName")) document.getElementById("mailFromName").value = data.fromName || "Studio Extrait";
+      if (document.getElementById("mailFromEmail")) document.getElementById("mailFromEmail").value = data.fromEmail || "jadon@studioextrait.co.za";
+      if (document.getElementById("mailReplyTo")) document.getElementById("mailReplyTo").value = data.replyTo || "";
+      if (document.getElementById("mailEnabled")) document.getElementById("mailEnabled").checked = data.enabled !== false;
+      if (statusEl) {
+        const ready = !!(data.apiKey && data.fromEmail && data.enabled !== false);
+        statusEl.textContent = ready
+          ? `Ready - paid orders are emailed through ${data.provider === "resend" ? "Resend" : "Brevo"} from ${data.fromEmail}.`
+          : "Not configured yet - paid orders will not receive a confirmation email until an API key and sender are saved.";
+      }
+    } catch (err) {
+      console.error("Could not load the mail settings:", err);
+      if (statusEl) statusEl.textContent = "Could not read the email settings from Firestore.";
+    }
+  };
+
+  window.handleSaveMailSettings = async function(e) {
+    if (e) e.preventDefault();
+    const btn = document.getElementById("saveMailBtn");
+    const statusEl = document.getElementById("mailSettingsStatus");
+    const payload = {
+      provider: document.getElementById("mailProvider") ? document.getElementById("mailProvider").value : "brevo",
+      apiKey: document.getElementById("mailApiKey") ? document.getElementById("mailApiKey").value.trim() : "",
+      fromName: document.getElementById("mailFromName") ? document.getElementById("mailFromName").value.trim() : "Studio Extrait",
+      fromEmail: document.getElementById("mailFromEmail") ? document.getElementById("mailFromEmail").value.trim() : "",
+      replyTo: document.getElementById("mailReplyTo") ? document.getElementById("mailReplyTo").value.trim() : "",
+      enabled: document.getElementById("mailEnabled") ? document.getElementById("mailEnabled").checked : true,
+      updatedAt: new Date().toISOString()
+    };
+    if (!payload.apiKey || !payload.fromEmail) {
+      alert("Enter both the API key and the from email address.");
+      return;
+    }
+    const original = btn ? btn.innerHTML : "";
+    if (btn) { btn.disabled = true; btn.innerHTML = "SAVING..."; }
+    try {
+      await window.dbSetDoc(window.dbDoc(window.db, "settings", "mail"), payload, { merge: true });
+      if (statusEl) statusEl.textContent = "Saved. Press \"Send Test Email\" to confirm the key works.";
+    } catch (err) {
+      console.error("Mail settings save failed:", err);
+      alert("Could not save the email settings: " + (err.message || err));
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = original; }
+    }
+  };
+
+  window.handleSendTestEmail = async function(e) {
+    if (e) e.preventDefault();
+    if (typeof window.sendTestOrderEmailCallable !== "function") {
+      alert("The email service is still loading. Try again in a moment.");
+      return;
+    }
+    const statusEl = document.getElementById("mailSettingsStatus");
+    const fromEl = document.getElementById("mailFromEmail");
+    const fallback = (fromEl && fromEl.value.trim()) || "jadon@studioextrait.co.za";
+    const to = window.prompt("Send the test confirmation email to:", fallback);
+    if (!to) return;
+    const btn = document.getElementById("testMailBtn");
+    const original = btn ? btn.innerHTML : "";
+    if (btn) { btn.disabled = true; btn.innerHTML = "SENDING..."; }
+    try {
+      const res = await window.sendTestOrderEmailCallable({ to: to.trim() });
+      const info = (res && res.data) || {};
+      if (statusEl) statusEl.textContent = `Test email sent to ${info.to || to} via ${info.provider || "the provider"}. Check the inbox (and the spam folder).`;
+    } catch (err) {
+      console.error("Test email failed:", err);
+      alert("Test email failed: " + (err.message || err));
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = original; }
+    }
   };
 
   window.handleSaveAccordions = async function(e) {

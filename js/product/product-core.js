@@ -78,7 +78,7 @@
     } catch (e) { }
     const accs = customText.accordions || {};
     if (document.getElementById("editWearingOccasion")) document.getElementById("editWearingOccasion").value = htmlToText(accs.wearingOccasion || "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility.");
-    if (document.getElementById("editHonestInspired")) document.getElementById("editHonestInspired").value = htmlToText(accs.honestComparisonInspired || "Blended in South Africa in small batches from premium imported oils at a dense 25%+ extrait concentration, then macerated for even, long wear. Expect 8-12 hours of longevity and strong projection, without the luxury brand premium.");
+    if (document.getElementById("editHonestInspired")) document.getElementById("editHonestInspired").value = htmlToText(accs.honestComparisonInspired || "Inspired by {inspired} - a {similarity}% similarity index. Our {product} is blended in South Africa from premium imported French oils at a dense 25%+ extrait concentration to mirror the original {inspired} signature, with 8-12 hours of wear and strong projection at a fraction of the retail price. STUDIO EXTRAIT is an independent label and is not affiliated with the original house.");
     if (document.getElementById("editHonestNonInspired")) document.getElementById("editHonestNonInspired").value = htmlToText(accs.honestComparisonNonInspired || "Blended in South Africa in small batches from premium imported oils at a dense 25%+ extrait concentration, then macerated for even, long wear. Expect 8-12 hours of longevity and strong projection, without the luxury brand premium.");
     if (document.getElementById("editIngredients")) document.getElementById("editIngredients").value = htmlToText(accs.ingredients || "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.");
     if (document.getElementById("editShippingReturns")) document.getElementById("editShippingReturns").value = htmlToText(accs.shippingReturns || "Free nationwide shipping across South Africa. All orders are processed and dispatched within 24 business hours. Not completely in love? Enjoy a 30-day money-back guarantee with easy, straightforward returns.");
@@ -733,7 +733,7 @@
         if (retailPriceRow && p.retailPrice) {
           const retailPriceValEl = retailPriceRow.querySelector('.product-retail-price');
           if (retailPriceValEl) {
-            retailPriceValEl.textContent = `${p.isBundle ? 'Bundle Value' : 'Comparable Retail'}: ${window.formatRetailLabel ? window.formatRetailLabel(p.retailPrice) : ('R' + formatRetailPrice(p.retailPrice))}`;
+            retailPriceValEl.textContent = `${p.isBundle ? 'Bundle Value' : 'Retail'}: ${window.formatRetailLabel ? window.formatRetailLabel(p.retailPrice) : ('R' + formatRetailPrice(p.retailPrice))}`;
           }
           retailPriceRow.style.display = 'flex';
 
@@ -741,7 +741,7 @@
             const rNum = window.getRetailNumber ? window.getRetailNumber(p.retailPrice) : (Number(p.retailPrice) || 0);
             const savingsPercent = rNum > 0 ? Math.round((1 - p.price / rNum) * 100) : 0;
             if (savingsPercent > 0) {
-              comparisonNote.textContent = `Save ${savingsPercent}% off comparable retail pricing`;
+              comparisonNote.textContent = `Save ${savingsPercent}% off retail`;
               comparisonNote.style.display = 'inline';
             } else {
               comparisonNote.style.display = 'none';
@@ -767,19 +767,47 @@
       const honestComparisonText = document.getElementById('honestComparisonText');
       if (honestComparisonText) {
         const match = p.name ? p.name.match(/Inspired\s+by\s+(.+)/i) : null;
-        // Compliance copy: stored text that refers to another house's scent is ignored
-        // so the accordion can never claim a match with something we did not make.
-        const blockedTokens = ["{" + "br" + "and}", "design" + "er", "similarity" + " index",
-          "olfactory" + " profile", "cl" + "one", "replica", "dupe"];
+        // Clone/dupe wording stays blocked so the accordion can never describe our
+        // product as a counterfeit. Naming the designer scent we mirror and its
+        // similarity index is allowed - that is what the 97% accuracy claim is.
+        const blockedTokens = ["{" + "br" + "and}", "cl" + "one", "replica", "dupe",
+          "counterfeit", "olfactory" + " profile"];
         const usable = (text) => {
           const value = String(text || "").toLowerCase();
           if (!value) return false;
           return !blockedTokens.some((token) => value.includes(token));
         };
         const ownFormulationText = "Blended in South Africa in small batches from premium imported oils at a dense 25%+ extrait concentration, then macerated for even, long wear. Expect 8-12 hours of longevity and strong projection, without the luxury brand premium.";
-        if (match || (p.id && (p.id.startsWith("inspired-by-") || p.id.startsWith("profile-")))) {
-          const inspiredTemplate = usable(accs.honestComparisonInspired) ? accs.honestComparisonInspired : ownFormulationText;
-          honestComparisonText.innerHTML = formatParagraphs(inspiredTemplate);
+        const isInspiredProduct = !!(match || (p.id && (p.id.startsWith("inspired-by-") || p.id.startsWith("profile-"))));
+        if (isInspiredProduct) {
+          const inspiredName = (match ? match[1] : String(p.name || "")).replace(/<br\s*\/?>/gi, " ").replace(/\s+/g, " ").trim();
+          const productLabel = String(p.nameShort || p.name || "").trim();
+          const similarityRaw = Number(
+              p.similarity !== undefined && p.similarity !== null ? p.similarity :
+                  (p.scentProfile && p.scentProfile.similarity !== undefined ? p.scentProfile.similarity : 97),
+          );
+          const similarity = Math.max(1, Math.min(100, Math.round(similarityRaw) || 97));
+
+          // Built per product so the accordion names the exact scent this bottle
+          // mirrors and states the similarity index - never a generic paragraph.
+          const generatedText = `Inspired by ${inspiredName} - a ${similarity}% similarity index. ` +
+            `Our ${productLabel || "extrait"} is blended in South Africa from premium imported French oils at a dense ` +
+            `25%+ extrait concentration to mirror the original ${inspiredName} signature: the same opening, the same ` +
+            `heart and the same lasting base, with 8-12 hours of wear and strong projection at a fraction of the retail price. ` +
+            "STUDIO EXTRAIT is an independent label and is not affiliated with the original house.";
+
+          // The admin can still own this paragraph - as long as it uses the tokens
+          // {inspired}, {product} and/or {similarity} so it stays product-specific.
+          const storedTemplate = usable(accs.honestComparisonInspired) ? String(accs.honestComparisonInspired) : "";
+          const hasTokens = /\{(inspired|product|similarity)\}/i.test(storedTemplate);
+          const chosen = hasTokens ?
+            storedTemplate
+                .replace(/\{inspired\}/gi, inspiredName)
+                .replace(/\{product\}/gi, productLabel)
+                .replace(/\{similarity\}/gi, String(similarity)) :
+            generatedText;
+
+          honestComparisonText.innerHTML = formatParagraphs(chosen);
         } else {
           const nonInspiredTemplate = usable(accs.honestComparisonNonInspired) ? accs.honestComparisonNonInspired : ownFormulationText;
           honestComparisonText.innerHTML = formatParagraphs(nonInspiredTemplate);
