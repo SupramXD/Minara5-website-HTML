@@ -359,11 +359,13 @@
         inputEl.readOnly = true;
         inputEl.style.cursor = "pointer";
         inputEl.style.pointerEvents = "none";
-        inputBox.style.cursor = "pointer";
       }
+      // The WHOLE box is the hit target on every screen size (it used to be the
+      // input element only, so a click on the 12px padding did nothing).
+      inputBox.style.cursor = "pointer";
 
       const openSelectorAction = (e) => {
-        e.stopPropagation();
+        if (e) e.stopPropagation();
         if (window.innerWidth <= 900) {
           window.openScentDrawer(i, p, activeCatalogFragrances, reviewsMap, formatBrandName);
         } else {
@@ -372,15 +374,24 @@
           });
           renderDropdownList(dropdownEl, inputEl.value, i, inputEl, displayBox, inputBox, selectedImgEl, selectedNameEl, selectedInspiredEl);
           dropdownEl.style.display = "block";
+          // Put the caret in the field so the customer can type immediately.
+          try { inputEl.focus({ preventScroll: true }); } catch (focusErr) { inputEl.focus(); }
         }
       };
 
       inputEl.onclick = openSelectorAction;
-      inputBox.onclick = (e) => {
-        if (window.innerWidth <= 900) {
+      inputBox.onclick = openSelectorAction;
+      // Clicking an already-selected slot anywhere (not just the small SWITCH link)
+      // re-opens the selector too.
+      displayBox.onclick = openSelectorAction;
+      slot.addEventListener("click", (e) => {
+        // Anywhere in the slot that is not the dropdown itself opens the picker.
+        if (e.target.closest(".bundle-dropdown")) return;
+        if (e.target.closest(".bundle-choice-slot") !== slot) return;
+        if (inputBox.style.display === "none" && displayBox.style.display !== "none") {
           openSelectorAction(e);
         }
-      };
+      });
 
       inputEl.oninput = () => {
         if (window.innerWidth > 900) {

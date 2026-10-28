@@ -111,24 +111,60 @@
 }
 
 /* =============== BUNDLE IMAGE SLIDER OVERRIDES =============== */
+/* DESKTOP: the whole image at full width, natural height - never cropped. */
 .slider.bundle-slider {
     width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
-    aspect-ratio: 10 / 3 !important;
+    aspect-ratio: auto !important;
     margin: 0 auto 14px auto !important;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .slider.bundle-slider .slider-track {
-    height: 100% !important;
+    height: auto !important;
 }
 
 .slider.bundle-slider .slider-track img {
     width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
+    height: auto !important;
+    object-fit: contain !important;
     object-position: center !important;
+    display: block;
+}
+
+/* MOBILE: a slim header strip at the top. The full image is shown (contain,
+   never cropped) but scaled right down to a thin band. */
+@media (max-width: 900px) {
+    .slider.bundle-slider {
+        height: 118px !important;
+        aspect-ratio: auto !important;
+        overflow: hidden;
+        background: #faf9f6;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        margin: 0 0 12px 0 !important;
+    }
+
+    .slider.bundle-slider .slider-track {
+        height: 100% !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .slider.bundle-slider .slider-track img {
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        max-height: 118px !important;
+        object-fit: contain !important;
+        object-position: center !important;
+    }
 }
 
 /* =============== BUNDLE PICKER SLOTS & DROPDOWN =============== */

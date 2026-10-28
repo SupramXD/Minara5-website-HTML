@@ -1519,9 +1519,13 @@
       if (document.getElementById("mailEnabled")) document.getElementById("mailEnabled").checked = data.enabled !== false;
       if (statusEl) {
         const ready = !!(data.apiKey && data.fromEmail && data.enabled !== false);
-        statusEl.textContent = ready
-          ? `Ready - paid orders are emailed through ${data.provider === "resend" ? "Resend" : "Brevo"} from ${data.fromEmail}.`
-          : "Not configured yet - paid orders will not receive a confirmation email until an API key and sender are saved.";
+        if (data.enabled === false) {
+          statusEl.textContent = "Sending is switched OFF - paid orders will not be emailed until you re-tick \"Sending enabled\" and save.";
+        } else if (ready) {
+          statusEl.textContent = `Using ${data.provider === "resend" ? "Resend" : "Brevo"} from ${data.fromEmail} (override).`;
+        } else {
+          statusEl.textContent = "Using the built-in Studio Extrait Gmail sender - confirmations go out from jadon@studioextrait.co.za automatically.";
+        }
       }
     } catch (err) {
       console.error("Could not load the mail settings:", err);
@@ -1542,8 +1546,8 @@
       enabled: document.getElementById("mailEnabled") ? document.getElementById("mailEnabled").checked : true,
       updatedAt: new Date().toISOString()
     };
-    if (!payload.apiKey || !payload.fromEmail) {
-      alert("Enter both the API key and the from email address.");
+    if (payload.apiKey && !payload.fromEmail) {
+      alert("Add the from email address for that provider, or clear the API key to keep using the built-in Gmail sender.");
       return;
     }
     const original = btn ? btn.innerHTML : "";

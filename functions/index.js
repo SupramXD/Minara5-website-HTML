@@ -45,6 +45,18 @@ const ozowPrivateKeySecret = defineSecret("OZOW_API_KEY");
 const ozowApiKeySecret = defineSecret("OZOW_API_KEY_NORMAL");
 const ozowSiteCodeSecret = defineSecret("OZOW_SITE_CODE");
 
+// Order-confirmation email sender. The project already owns a Gmail account
+// (studioextrait@gmail.com) that is authorised for gmail.send and has
+// jadon@studioextrait.co.za as a verified, default "Send mail as" alias, so
+// customers receive the confirmation from the real store address with no
+// third-party email provider involved. The three values are stored in Firebase
+// Secret Manager (GMAIL_CLIENT_ID / GMAIL_CLIENT_SECRET / GMAIL_REFRESH_TOKEN).
+const gmailClientIdSecret = defineSecret("GMAIL_CLIENT_ID");
+const gmailClientSecretSecret = defineSecret("GMAIL_CLIENT_SECRET");
+const gmailRefreshTokenSecret = defineSecret("GMAIL_REFRESH_TOKEN");
+const GMAIL_FROM_EMAIL = "jadon@studioextrait.co.za";
+const GMAIL_FROM_NAME = "Studio Extrait";
+
 /**
  * Utility function to retrieve active Courier Guy Secret Key
  */
@@ -2006,29 +2018,114 @@ const MAIL_WHATSAPP = "+27 68 917 6485";
 const MAIL_SITE_URL = "https://studioextrait.co.za";
 
 /**
- * Read the admin-managed mail configuration. Returns null when the panel has not
- * been configured yet (or sending is switched off), which skips the email
- * instead of failing the order.
+ * Read the admin-managed mail configuration. Falls back to the project's own
+ * Gmail sender (Secret Manager) so confirmations work with no extra account.
+ * Returns null only when nothing usable is configured at all.
  */
 async function getMailSettings() {
   try {
     const snap = await firestore.collection("settings").doc("mail").get();
-    if (!snap.exists) return null;
-    const data = snap.data() || {};
-    const apiKey = String(data.apiKey || "").trim();
-    const fromEmail = String(data.fromEmail || "").trim();
-    if (data.enabled === false || !apiKey || !fromEmail) return null;
-    return {
-      provider: String(data.provider || "").toLowerCase() === "resend" ? "resend" : "brevo",
-      apiKey: apiKey,
-      fromEmail: fromEmail,
-      fromName: String(data.fromName || "Studio Extrait").trim(),
-      replyTo: String(data.replyTo || "").trim(),
-    };
+    if (snap.exists) {
+      const data = snap.data() || {};
+      const apiKey = String(data.apiKey || "").trim();
+      const fromEmail = String(data.fromEmail || "").trim();
+      // An explicit "off" switch in the admin panel wins - no email at all.
+      if (data.enabled === false) return null;
+      if (apiKey && fromEmail) {
+        return {
+          provider: String(data.provider || "").toLowerCase() === "resend" ? "resend" : "brevo",
+          apiKey: apiKey,
+          fromEmail: fromEmail,
+          fromName: String(data.fromName || "Studio Extrait").trim(),
+          replyTo: String(data.replyTo || "").trim(),
+        };
+      }
+    }
   } catch (err) {
-    logger.warn("Could not read settings/mail - order confirmation email skipped:", err);
-    return null;
+    logger.warn("Could not read settings/mail - trying the built-in Gmail sender:", err);
   }
+
+  const clientId = readSecretQuietly(gmailClientIdSecret);
+  const clientSecret = readSecretQuietly(gmailClientSecretSecret);
+  const refreshToken = readSecretQuietly(gmailRefreshTokenSecret);
+  if (clientId && clientSecret && refreshToken) {
+    return {
+      provider: "gmail",
+      clientId: clientId,
+      clientSecret: clientSecret,
+      refreshToken: refreshToken,
+      fromEmail: GMAIL_FROM_EMAIL,
+      fromName: GMAIL_FROM_NAME,
+      replyTo: GMAIL_FROM_EMAIL,
+    };
+  }
+  return null;
+}
+
+/** Secret values throw when the secret is absent; this keeps that silent. */
+function readSecretQuietly(secret) {
+  try {
+    return String(secret.value() || "").trim();
+  } catch (e) {
+    return "";
+  }
+}
+
+/** Mint a fresh Gmail access token from the stored refresh token. */
+async function getGmailAccessToken(mail) {
+  const body = new URLSearchParams({
+    client_id: mail.clientId,
+    client_secret: mail.clientSecret,
+    refresh_token: mail.refreshToken,
+    grant_type: "refresh_token",
+  }).toString();
+  const response = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+    body: body,
+  });
+  const json = await response.json().catch(() => null);
+  if (!response.ok || !json || !json.access_token) {
+    const reason = (json && (json.error_description || json.error)) || `HTTP ${response.status}`;
+    throw new Error(`Gmail authorisation expired (${reason}). Re-authorise the studioextrait@gmail.com ` +
+      "account and update the GMAIL_REFRESH_TOKEN secret.");
+  }
+  return json.access_token;
+}
+
+/** RFC 2822 message, base64url encoded for gmail.users.messages.send. */
+function buildGmailRawMessage(payload) {
+  const boundary = "studioextrait_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+  const encodeWord = (value) => `=?UTF-8?B?${Buffer.from(String(value), "utf8").toString("base64")}?=`;
+  const toHeader = payload.toName ? `${encodeWord(payload.toName)} <${payload.to}>` : payload.to;
+  const headers = [
+    `From: ${encodeWord(payload.fromName)} <${payload.fromEmail}>`,
+    `To: ${toHeader}`,
+    payload.replyTo ? `Reply-To: ${payload.replyTo}` : "",
+    `Subject: ${encodeWord(payload.subject)}`,
+    "MIME-Version: 1.0",
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+  ].filter(Boolean).join("\r\n");
+
+  const chunk = (text) => Buffer.from(String(text), "utf8").toString("base64").replace(/(.{76})/g, "$1\r\n");
+  const body = [
+    "",
+    `--${boundary}`,
+    "Content-Type: text/plain; charset=\"UTF-8\"",
+    "Content-Transfer-Encoding: base64",
+    "",
+    chunk(payload.text),
+    `--${boundary}`,
+    "Content-Type: text/html; charset=\"UTF-8\"",
+    "Content-Transfer-Encoding: base64",
+    "",
+    chunk(payload.html),
+    `--${boundary}--`,
+    "",
+  ].join("\r\n");
+
+  return Buffer.from(headers + "\r\n" + body, "utf8").toString("base64")
+      .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 /** R1234 -> R1,234 (the storefront's price format). */
@@ -2203,6 +2300,36 @@ function renderOrderConfirmation(order, orderId) {
  */
 async function sendTransactionalEmail(mail, payload) {
   const to = String(payload.to || "").trim();
+
+  if (mail.provider === "gmail") {
+    const accessToken = await getGmailAccessToken(mail);
+    const raw = buildGmailRawMessage({
+      fromName: mail.fromName,
+      fromEmail: mail.fromEmail,
+      to: to,
+      toName: payload.toName,
+      replyTo: mail.replyTo,
+      subject: payload.subject,
+      html: payload.html,
+      text: payload.text,
+    });
+    const response = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({raw: raw}),
+    });
+    const body = await response.json().catch(() => null);
+    if (!response.ok) {
+      const detail = (body && body.error && (body.error.message || body.error.status)) ||
+        JSON.stringify(body) || "no response body";
+      throw new Error(`Gmail rejected the email (HTTP ${response.status}): ${detail}`);
+    }
+    return {providerMessageId: (body && body.id) || null};
+  }
+
   if (mail.provider === "resend") {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -2262,7 +2389,10 @@ async function sendTransactionalEmail(mail, payload) {
  * and the attempt cap are what stop a retry loop (a gateway webhook can arrive
  * more than once and Firestore triggers are at-least-once).
  */
-exports.onOrderPaidSendConfirmation = onDocumentUpdated("orders/{orderId}", async (event) => {
+exports.onOrderPaidSendConfirmation = onDocumentUpdated({
+  document: "orders/{orderId}",
+  secrets: [gmailClientIdSecret, gmailClientSecretSecret, gmailRefreshTokenSecret],
+}, async (event) => {
   const after = event.data && event.data.after ? event.data.after.data() : null;
   if (!after || after.paid !== true) return;
   if (after.confirmationEmailSentAt) return;
@@ -2339,7 +2469,9 @@ async function assertMasterAdmin(request) {
 /**
  * Admin: send a sample confirmation to verify the provider key works.
  */
-exports.sendTestOrderEmail = onCall(async (request) => {
+exports.sendTestOrderEmail = onCall({
+  secrets: [gmailClientIdSecret, gmailClientSecretSecret, gmailRefreshTokenSecret],
+}, async (request) => {
   await assertMasterAdmin(request);
   const mail = await getMailSettings();
   if (!mail) {
@@ -2374,7 +2506,9 @@ exports.sendTestOrderEmail = onCall(async (request) => {
  * Admin: (re)send the confirmation for one order - covers an order that was paid
  * while the mail settings were still empty, or a customer who lost the email.
  */
-exports.resendOrderConfirmation = onCall(async (request) => {
+exports.resendOrderConfirmation = onCall({
+  secrets: [gmailClientIdSecret, gmailClientSecretSecret, gmailRefreshTokenSecret],
+}, async (request) => {
   await assertMasterAdmin(request);
   const orderId = String((request.data && request.data.orderId) || "").trim();
   if (!orderId) throw new HttpsError("invalid-argument", "An orderId is required.");

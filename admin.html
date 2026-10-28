@@ -2148,9 +2148,10 @@
                     <span class="stat-label" style="font-size: 10px;">Sent after payment</span>
                   </div>
                   <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
-                    Every paid order (Yoco card or Ozow EFT) automatically emails the customer a branded confirmation with their
-                    order number, items, total paid and delivery details. Paste a Brevo or Resend API key below and save it -
-                    this is stored in the admin-only Firestore document <code>settings/mail</code>, never in the public repo.
+                    <strong>Already working:</strong> every paid order (Yoco card or Ozow EFT) is emailed to the customer automatically
+                    through your Studio Extrait Gmail account, from <code>jadon@studioextrait.co.za</code> - no API key needed.
+                    The fields below are an <em>optional override</em>: only fill them in if you ever want to switch to Brevo or Resend.
+                    Untick "Sending enabled" and save to turn the emails off completely.
                   </p>
                   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div class="form-group">
