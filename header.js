@@ -1038,14 +1038,15 @@ function setupDesktopNewsletter() {
 }
 
 // --- DYNAMIC CUSTOM TEXT LOADER ---
-// Compliance guard: admin/Firestore copy that reintroduces brand or comparison
-// wording is ignored so the reviewed copy on the page always wins.
+// Compliance guard: admin/Firestore copy that reintroduces clone/dupe/replica
+// wording is ignored so the reviewed copy on the page always wins. "Inspired by"
+// and "designer" are allowed - the storefront sells designer-inspired extraits.
 window.minaraComplianceOk = function (minaraText) {
     const value = String(minaraText || "").toLowerCase();
     if (!value) return true;
-    const blocked = ["{" + "br" + "and}", "design" + "er", "cl" + "one", "dupe", "replica",
+    const blocked = ["{" + "br" + "and}", "cl" + "one", "dupe", "replica",
         "counterfeit", "knock-off", "match", "similarity" + " index", "olfactory" + " profile",
-        "inspir", "payfast", "1:1"];
+        "payfast", "1:1"];
     return !blocked.some(function (token) { return value.includes(token); });
 };
 
@@ -1056,13 +1057,21 @@ function minaraTextListOk(list) {
         return window.minaraComplianceOk(item.title) && window.minaraComplianceOk(item.description);
     });
 }
-const DEFAULT_FOOTER_DESCRIPTION = "STUDIO EXTRAIT - South Africa's home of premium extrait de parfum. We craft original extraits at a dense 20%+ concentration, blended and bottled in South Africa from premium imported oils. Every bottle is macerated for powerful projection and all-day longevity, delivering genuine affordable luxury straight to your door. Free nationwide delivery on orders over R650. Find your signature scent.";
+const DEFAULT_FOOTER_DESCRIPTION = "STUDIO EXTRAIT — South Africa's home of premium extrait de parfum. We craft niche-inspired fragrances at a dense 25%+ concentration that mirror the world's most iconic designer scents — for a fraction of the price. Every bottle is macerated to perfection for powerful projection and all-day longevity, delivering genuine affordable luxury straight to your door. Free nationwide delivery on orders over R650. Find your signature scent.\n\nStandard designers dilute to 10–15%. We formulate at a dense 25%+ Extrait concentration for maximum projection and longevity that easily outlasts the original.";
+
+// Copy revision. Site Texts written before this revision still carry the old
+// compliance wording, so they are ignored until the owner re-publishes the
+// block from the admin (which stamps the revision - see admin-settings.js).
+const CUSTOM_TEXT_REVISION = 20261028;
+function customTextRevisionOk(data) {
+    return Number(data && data.custom_text_version) >= CUSTOM_TEXT_REVISION;
+}
 
 function applyCustomText(data) {
     if (!data) return;
     
     // 1. Update features if on index page
-    if (data.features && minaraTextListOk(data.features)) {
+    if (data.features && customTextRevisionOk(data) && minaraTextListOk(data.features)) {
         const titleElms = document.querySelectorAll('.brand-feature-title');
         const descElms = document.querySelectorAll('.brand-feature-description');
         data.features.forEach((feature, idx) => {
@@ -1086,10 +1095,12 @@ function applyCustomText(data) {
     }
 
     // 3. Update footer description (single master injected on every page)
-    const storedFooter = window.minaraComplianceOk(data.footer_description) ? data.footer_description : "";
+    const storedFooter = (customTextRevisionOk(data) && window.minaraComplianceOk(data.footer_description)) ? data.footer_description : "";
     const footerDescription = storedFooter || DEFAULT_FOOTER_DESCRIPTION;
     document.querySelectorAll('.footer-description').forEach(footerEl => {
         footerEl.textContent = footerDescription;
+        // The footer copy is two paragraphs; keep the line break visible.
+        if (footerDescription.indexOf("\n") !== -1) footerEl.style.whiteSpace = "pre-line";
     });
 }
 

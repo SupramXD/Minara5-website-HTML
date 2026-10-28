@@ -2,15 +2,15 @@
   "features": [
     {
       "title": "EXTRAIT DE PARFUM CONCENTRATION",
-      "description": "Most mass-market eau de parfums are blended at 10-15% oil. We formulate at a dense 20%+ extrait concentration for maximum projection and all-day longevity."
+      "description": "Most designer originals dilute to a standard 15% Eau de Parfum. We formulate at a dense 25%+ Extrait concentration, anchoring the scent to your skin for powerful projection and longevity that genuinely outlasts the original."
     },
     {
-      "title": "VEGAN + CRUELTY FREE",
-      "description": "We pledge that all our fragrances are 100% vegan and cruelty-free, ensuring no animals are harmed and no animal byproducts are used in our creations. "
+      "title": "95% DESIGNER ACCURACY",
+      "description": "We go beyond 'inspired' scents by reverse-engineering the exact molecular blueprints of exclusive designer fragrances. Pay for the ingredients, not the logo."
     },
     {
       "title": "FREE DELIVERY OVER R650",
-      "description": "Fast 1-3 day delivery straight to your door. Free on orders over R650 (flat R85 fee applies to smaller orders)"
+      "description": "Fast 1-3 business days delivery straight to your door. Free on orders over R650 (flat R85 fee applies to smaller orders)."
     },
     {
       "title": "SIDE EFFECT:COMPLIMENTS",
@@ -18,7 +18,7 @@
     },
     {
       "title": "IMPORTED FRENCH OILS",
-      "description": "We use premium imported French oils. No shortcuts—just potent, high-yield ingredients formulated for maximum impact."
+      "description": "Proudly blended in South Africa using premium imported French oils. No shortcuts—just potent, high-yield ingredients formulated for maximum impact."
     },
     {
       "title": "PROPERLY MACERATED",
@@ -36,10 +36,10 @@
     }
   ],
   "accordions": {
-    "honestComparisonNonInspired": "Blended in South Africa in small batches from premium imported oils at a dense 20%+ extrait concentration, then macerated for even, long wear. Expect 8-12 hours of longevity and strong projection, without the luxury brand premium.",
+    "honestComparisonNonInspired": "Blended in South Africa in small batches from premium imported oils at a dense 25%+ extrait concentration, then macerated for even, long wear. Expect 8-12 hours of longevity and strong projection, without the luxury brand premium.",
     "ingredients": "Alcohol Denat., Fragrance/Parfum, Water/Aqua/Eau, Limonene, Linalool, Coumarin, Citral, Benzyl Benzoate, Geraniol, Benzyl Salicylate.",
     "shippingReturns": "Enjoy free nationwide shipping on all orders over R650, with a flat rate of R85 for orders under R650. All orders are processed and dispatched within 24 hours. Delivery typically takes 1–3 days nationwide, or up to 5 days for regional areas.\n\nWe provide a 7-day hassle-free return policy. If you're not satisfied with your purchase, contact us within 7 days for an exchange or refund.",
-    "honestComparisonInspired": "Blended in South Africa in small batches from premium imported oils at a dense 20%+ extrait concentration, then macerated for even, long wear. Expect 8-12 hours of longevity and strong projection, without the luxury brand premium.",
+    "honestComparisonInspired": "Blended in South Africa in small batches from premium imported oils at a dense 25%+ extrait concentration, then macerated for even, long wear. Expect 8-12 hours of longevity and strong projection, without the luxury brand premium.",
     "wearingOccasion": "Crafted with high oil concentration for excellent 8-12 hour longevity and powerful projection. Ideal for daily signatures, special nights out, or seasonal versatility."
   },
   "returns_shipping": {
@@ -52,7 +52,8 @@
     "supportEmail": "jadon@studioextrait.co.za",
     "supportPrompt": "TO INITIATE A RETURN OR EXCHANGE, CONTACT OUR SUPPORT TEAM:"
   },
-  "footer_description": "STUDIO EXTRAIT — South Africa's home of premium extrait de parfum. We craft original extraits de parfum at a dense 20%+ concentration, blended and bottled in South Africa. Every bottle is macerated to perfection for powerful projection and all-day longevity, delivering genuine affordable luxury straight to your door. Free nationwide delivery on orders over R650. Find your signature scent.",
+  "footer_description": "STUDIO EXTRAIT — South Africa's home of premium extrait de parfum. We craft niche-inspired fragrances at a dense 25%+ concentration that mirror the world's most iconic designer scents — for a fraction of the price. Every bottle is macerated to perfection for powerful projection and all-day longevity, delivering genuine affordable luxury straight to your door. Free nationwide delivery on orders over R650. Find your signature scent.\n\nStandard designers dilute to 10–15%. We formulate at a dense 25%+ Extrait concentration for maximum projection and longevity that easily outlasts the original.",
+  "custom_text_version": 20261028,
   "featured_reviews": [
     {
       "productId": "profile-wild-bergamot",

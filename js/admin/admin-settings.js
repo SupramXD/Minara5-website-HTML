@@ -1081,33 +1081,40 @@
   // ==========================================
   // CUSTOM TEXT & ACCORDION SETTINGS
   // ==========================================
+  // Bump this when the reviewed storefront copy changes: anything stored in
+  // Firestore/localStorage from an older revision is replaced by the defaults in
+  // loadCustomTextSettings(), so stale Site Texts can never beat the repo copy.
+  const CUSTOM_TEXT_REVISION = 20261028;
+
   window.loadCustomTextSettings = async function() {
     const defaultFeatures = [
       {
         title: "EXTRAIT DE PARFUM CONCENTRATION",
-        description: "Most mass-market eau de parfums are blended at around 15% oil. We formulate at a dense 20%+ extrait concentration, anchoring every scent to your skin for powerful projection and all-day longevity."
+        description: "Most designer originals dilute to a standard 15% Eau de Parfum. We formulate at a dense 25%+ Extrait concentration, anchoring the scent to your skin for powerful projection and longevity that genuinely outlasts the original."
       },
       {
-        title: "HAND-BLENDED IN SOUTH AFRICA",
-        description: "Every fragrance is blended and bottled by hand in South Africa from premium imported French oils, then macerated in-house. You pay for the ingredients and the craft, not for a luxury logo."
+        title: "95% DESIGNER ACCURACY",
+        description: "We go beyond 'inspired' scents by reverse-engineering the exact molecular blueprints of exclusive designer fragrances. Pay for the ingredients, not the logo."
       },
       {
         title: "FREE DELIVERY OVER R650",
-        description: "Enjoy free delivery on all orders over R650 nationwide (flat R85 fee applies to smaller orders). Delivered, in 1-3 days, straight to your doorstep."
+        description: "Fast 1-3 business days delivery straight to your door. Free on orders over R650 (flat R85 fee applies to smaller orders)."
       },
       {
         title: "SIDE EFFECT:COMPLIMENTS",
-        description: "Fair warning: our dense formulations leave a powerful, undeniable scent trail. We take absolutely no responsibility for the sheer volume of compliments, double-takes, and 'what are you wearing?' questions you are about to receive."
+        description: "We take no responsibility for the endless \"what are you wearing?\" questions you are about to receive."
       },
       {
         title: "IMPORTED FRENCH OILS",
-        description: "Proudly blended in South Africa using premium, meticulously sourced French oils. We bring world-class raw ingredients and expert craftsmanship to every single bottle."
+        description: "Proudly blended in South Africa using premium imported French oils. No shortcuts—just potent, high-yield ingredients formulated for maximum impact."
       },
       {
         title: "PROPERLY MACERATED",
-        description: "We don't rush production. Every batch undergoes a strict maceration process, allowing the raw oils and alcohol to perfectly bind and mature. This eliminates harsh alcohol openings and guarantees a smooth, refined profile."
+        description: "Every batch undergoes strict maceration to perfectly mature the oils. This eliminates harsh openings, leaving a flawlessly smooth profile."
       }
     ];
+
+    const defaultFooterDescription = "STUDIO EXTRAIT — South Africa's home of premium extrait de parfum. We craft niche-inspired fragrances at a dense 25%+ concentration that mirror the world's most iconic designer scents — for a fraction of the price. Every bottle is macerated to perfection for powerful projection and all-day longevity, delivering genuine affordable luxury straight to your door. Free nationwide delivery on orders over R650. Find your signature scent.\n\nStandard designers dilute to 10–15%. We formulate at a dense 25%+ Extrait concentration for maximum projection and longevity that easily outlasts the original.";
 
     let textData = {
       features: JSON.parse(JSON.stringify(defaultFeatures)),
@@ -1121,7 +1128,8 @@
           description: "Studio Extrait blends and bottles every extrait in South Africa from premium imported oils. Safe, secure checkout by card, instant EFT, Google Pay and Apple Pay, powered by Yoco."
         }
       ],
-      footer_description: "STUDIO EXTRAIT — South Africa's home of premium extrait de parfum. We craft original extraits at a dense 20%+ concentration, blended and bottled in South Africa from premium imported oils — for a fraction of the price. Every bottle is macerated to perfection for powerful projection and all-day longevity, delivering genuine affordable luxury straight to your door. Free nationwide delivery on orders over R650. Find your signature scent."
+      footer_description: defaultFooterDescription,
+      custom_text_version: CUSTOM_TEXT_REVISION
     };
 
     try {
@@ -1129,6 +1137,12 @@
       if (cached) {
         textData = { ...textData, ...JSON.parse(cached) };
         let correctedCached = false;
+        if (Number(textData.custom_text_version || 0) < CUSTOM_TEXT_REVISION) {
+          textData.features = JSON.parse(JSON.stringify(defaultFeatures));
+          textData.footer_description = defaultFooterDescription;
+          textData.custom_text_version = CUSTOM_TEXT_REVISION;
+          correctedCached = true;
+        }
         if (textData.features) {
           const firstTitle = textData.features[0] ? textData.features[0].title : "";
           if (firstTitle === "Handcrafted with French Oils" || firstTitle === "Long Lasting" || (firstTitle && !firstTitle.includes("EXTRAIT DE PARFUM"))) {
@@ -1236,6 +1250,12 @@
           if (docSnap.exists()) {
             const liveData = docSnap.data();
             let corrected = false;
+            if (Number(liveData.custom_text_version || 0) < CUSTOM_TEXT_REVISION) {
+              liveData.features = JSON.parse(JSON.stringify(defaultFeatures));
+              liveData.footer_description = defaultFooterDescription;
+              liveData.custom_text_version = CUSTOM_TEXT_REVISION;
+              corrected = true;
+            }
             if (liveData.features) {
               const firstTitle = liveData.features[0] ? liveData.features[0].title : "";
               if (firstTitle === "Handcrafted with French Oils" || firstTitle === "Long Lasting" || (firstTitle && !firstTitle.includes("EXTRAIT DE PARFUM"))) {
@@ -1417,6 +1437,8 @@
     const originalText = saveBtn ? saveBtn.innerHTML : "";
     if (saveBtn) { saveBtn.disabled = true; saveBtn.innerHTML = "PUBLISHING..."; }
     try {
+      // Stamp the reviewed-copy revision so the storefront accepts this save.
+      payload.custom_text_version = CUSTOM_TEXT_REVISION;
       localStorage.setItem("minara_custom_text", JSON.stringify(payload));
       let dbSaved = false;
       if (window.db && window.dbDoc && window.dbSetDoc) {

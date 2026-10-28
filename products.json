@@ -2,7 +2,7 @@
   {
     "id": "profile-a-warm-day",
     "nameShort": "Caribbean",
-    "name": "Inspired by A Warm Day",
+    "name": "Inspired by Le Male",
     "price": 495,
     "retailPrice": null,
     "stock": 5,
@@ -108,7 +108,7 @@
   {
     "id": "profile-wild-bergamot",
     "nameShort": "Wild Bergamot",
-    "name": "Inspired by A Bright Green Day",
+    "name": "Inspired by Sauvage",
     "price": 495,
     "retailPrice": null,
     "stock": 6,
@@ -117,7 +117,7 @@
       "images/products/profile-wild-bergamot.webp"
     ],
     "image_thumb": "images/products/profile-wild-bergamot_thumb.webp",
-    "description": "Calabrian bergamot and lavender over pink pepper, cedar and patchouli. Dense 20%+ extrait.",
+    "description": "Calabrian bergamot and lavender over pink pepper, cedar and patchouli. Dense 25%+ extrait.",
     "status": "Active",
     "flair": "Masculine",
     "flairText": "Fresh",
@@ -167,7 +167,7 @@
   {
     "id": "profile-the-bouquet",
     "nameShort": "The Bouquet",
-    "name": "Inspired by A Rose Garden Evening",
+    "name": "Inspired by Delina",
     "price": 495,
     "retailPrice": null,
     "stock": 10,
@@ -176,7 +176,7 @@
       "images/products/profile-the-bouquet.webp"
     ],
     "image_thumb": "images/products/profile-the-bouquet_thumb.webp",
-    "description": "Lychee, Turkish rose and blackcurrant over a soft cedar base. Dense 20%+ extrait.",
+    "description": "Lychee, Turkish rose and blackcurrant over a soft cedar base. Dense 25%+ extrait.",
     "status": "Active",
     "flair": "Feminine",
     "flairText": "Flowery",

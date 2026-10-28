@@ -6,11 +6,9 @@ Domains** review (and for any other payment gateway or card-network review).
 
 ## 1. Copy: no third-party brand references, no "clone" positioning
 
-* Product ids, names and descriptions are brand-free: `profile-a-warm-day` (A Warm Day /
-  Caribbean), `profile-wild-bergamot` (A Bright Green Day / Wild Bergamot), `profile-the-bouquet`
-  (A Rose Garden Evening / The Bouquet) and the `any-2-50ml-fragrances` bundle.
-* The card / product / cart / review line still reads **"INSPIRED BY …"** exactly as before, but what follows it is our own brand-free descriptor taken from the product's `name` field ("Inspired by A Warm Day" → shows "INSPIRED BY A WARM DAY"). The product title is unchanged: it stays the fragrance's own theme/short name (`Caribbean`, `Wild Bergamot`, `The Bouquet`), so nothing was moved onto the title.
-* The product page **"Honest Comparison" accordion can never claim a match with another house**, and it does not claim that we author every scent signature either. `product-core.js` ignores any stored value containing a brand placeholder, "designer", "similarity index" or "olfactory profile", and falls back to: *"Blended in South Africa in small batches from premium imported oils at a dense 20%+ extrait concentration, then macerated for even, long wear. Expect 8-12 hours of longevity and strong projection, without the luxury brand premium."* The admin labels in `product.html` / `admin.html` were retargeted accordingly.
+* Product ids keep the `profile-` prefix (`profile-a-warm-day`, `profile-wild-bergamot`, `profile-the-bouquet`) but the `name` field is the designer scent: `Inspired by Le Male` (Caribbean), `Inspired by Sauvage` (Wild Bergamot), `Inspired by Delina` (The Bouquet), plus the `any-2-50ml-fragrances` bundle.
+* The card / product / cart / review line still reads **"INSPIRED BY …"** exactly as before, but what follows it is now the designer scent from the product's `name` field ("Inspired by Le Male" → shows "INSPIRED BY LE MALE") - restored 2026-10-28. The product title is unchanged: it stays the fragrance's own theme/short name (`Caribbean`, `Wild Bergamot`, `The Bouquet`), so nothing was moved onto the title.
+* The product page **"Honest Comparison" accordion can never claim a match with another house**, and it does not claim that we author every scent signature either. `product-core.js` ignores any stored value containing a brand placeholder, "designer", "similarity index" or "olfactory profile", and falls back to: *"Blended in South Africa in small batches from premium imported oils at a dense 25%+ extrait concentration, then macerated for even, long wear. Expect 8-12 hours of longevity and strong projection, without the luxury brand premium."* The admin labels in `product.html` / `admin.html` were retargeted accordingly.
 * The **Product & Brand Disclaimer** on the Returns & Shipping page (and the same default in `custom_text_settings.json`, `js/pages/returns-shipping.js` and `js/admin/admin-settings.js`) no longer mentions "inspired" fragrances or scent-reference framing at all - it states that Studio Extrait is an independent label, that we are not affiliated with any other house, and that our names/designs/photography are ours.
 * **One return-fee story everywhere (corrected 22 Sep 2026):** returns and exchanges quote the **standard courier rate of R120 per leg** - exchange R120 x 2 = R240, refund R120 deducted - because the R85 is only the owner's discounted delivery rate. `about.html`, `terms.html`, the returns page and all three data sources (`custom_text_settings.json`, `js/pages/returns-shipping.js`, `js/admin/admin-settings.js`) state the same figures, and the returns page adds a one-line note distinguishing the R120 return rate from the R85 delivery rate.
 * The privacy policy ends at section 7 ("Your Rights & Contact"): the former "Contact & Complaints" block and the Information Regulator contact details were **removed on purpose** - do not reintroduce them.
@@ -80,11 +78,12 @@ reverted the compliance copy in that file (old "Trusted Clone Brand" banner, `{b
 "inspired by" disclaimer). Two layers now stop that from reaching the page:
 
 1. **Client-side filter** - `window.minaraComplianceOk()` in `header.js` and `compliant()` in
-   `js/pages/returns-shipping.js` reject any stored text containing brand or comparison wording (the brand
-   placeholder, "designer", "clone", "dupe", "replica", "counterfeit", "knock-off", "match", "similarity
-   index", "olfactory profile", "inspir", "payfast"), so the reviewed static copy stays on screen no matter
+   `js/pages/returns-shipping.js` reject any stored text containing clone/dupe or comparison wording (the brand
+   placeholder, "clone", "dupe", "replica", "counterfeit", "knock-off", "match", "similarity
+   index", "olfactory profile", "payfast", "1:1"), so the reviewed static copy stays on screen no matter
    what Firestore holds. The homepage features, footer description and all three returns-policy sections are
-   covered.
+   covered. **Since 28 Oct 2026 "inspired" and "designer" are allowed again** - the storefront markets
+   designer-inspired extraits - so the homepage feature boxes and footer copy can be published from the admin.
 2. **Repo safety net** - if an admin save rewrites `custom_text_settings.json` or `products.json` again,
    restore the reviewed versions with:
 
