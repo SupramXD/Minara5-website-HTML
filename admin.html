@@ -2147,22 +2147,38 @@
                     <h2 class="panel-title">Order Confirmation Emails (Customers)</h2>
                     <span class="stat-label" style="font-size: 10px;">Sent after payment</span>
                   </div>
-                  <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
+                  <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.6;">
                     <strong>Already working:</strong> every paid order (Yoco card or Ozow EFT) is emailed to the customer automatically
-                    through your Studio Extrait Gmail account, from <code>jadon@studioextrait.co.za</code> - no API key needed.
-                    The fields below are an <em>optional override</em>: only fill them in if you ever want to switch to Brevo or Resend.
-                    Untick "Sending enabled" and save to turn the emails off completely.
+                    by the Cloud Function in this Firebase project, from <code>jadon@studioextrait.co.za</code> - no API key and no
+                    third-party service needed.
+                  </p>
+                  <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
+                    <strong>Make it permanent:</strong> it currently sends with a Google OAuth token that Google expires about every
+                    7 days. Paste a <em>Gmail app password</em> below (choose "Gmail app password" as the provider) and it will keep
+                    working forever. Get one at
+                    <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener" style="color: var(--accent);">myaccount.google.com/apppasswords</a>
+                    (needs 2-Step Verification on <code>studioextrait@gmail.com</code>) - it is stored only in the admin-only Firestore
+                    document <code>settings/mail</code>. Untick "Sending enabled" and save to turn emails off completely.
                   </p>
                   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div class="form-group">
                       <label>Provider</label>
                       <select id="mailProvider" class="form-input">
-                        <option value="brevo">Brevo (easiest - verify a single sender email)</option>
-                        <option value="resend">Resend (domain must be verified in DNS)</option>
+                        <option value="gmail-smtp">Gmail app password (permanent - recommended)</option>
+                        <option value="brevo">Brevo API key</option>
+                        <option value="resend">Resend API key</option>
                       </select>
                     </div>
                     <div class="form-group">
-                      <label>API key</label>
+                      <label>Gmail address (for the app password)</label>
+                      <input type="email" id="mailSmtpUser" class="form-input" placeholder="studioextrait@gmail.com">
+                    </div>
+                    <div class="form-group">
+                      <label>Gmail app password (16 characters, spaces are fine)</label>
+                      <input type="password" id="mailSmtpPass" class="form-input" placeholder="xxxx xxxx xxxx xxxx" autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                      <label>API key (Brevo / Resend only - leave empty for the Gmail app password option)</label>
                       <input type="password" id="mailApiKey" class="form-input" placeholder="xkeysib-... or re_..." autocomplete="new-password">
                     </div>
                     <div class="form-group">

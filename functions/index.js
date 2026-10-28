@@ -6,6 +6,7 @@ const {defineSecret} = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
 const crypto = require("crypto");
+const nodemailer = require("nodemailer");
 
 // Initialize Firebase Admin
 const fs = require("fs");
@@ -1288,6 +1289,27 @@ exports.onReviewDeleted = onDocumentDeleted({
  * Create a Yoco Checkout session and save a pending order in Firestore.
  * The secret key never leaves this server, as required by Yoco.
  */
+/**
+ * Simple 4-digit order number (shown to customers as "#4821").
+ * Plain digits are safe as a Firestore document id, a Yoco client reference and
+ * an Ozow transaction reference, and there is nothing else in them to explain.
+ * Uniqueness is checked against the orders collection (with a bounded fallback
+ * scan) so a number is never reused.
+ */
+async function generateOrderReference() {
+  for (let attempt = 0; attempt < 15; attempt++) {
+    const candidate = String(Math.floor(1000 + Math.random() * 9000));
+    const snap = await firestore.collection("orders").doc(candidate).get();
+    if (!snap.exists) return candidate;
+  }
+  for (let n = 1000; n < 1200; n++) {
+    const candidate = String(n);
+    const snap = await firestore.collection("orders").doc(candidate).get();
+    if (!snap.exists) return candidate;
+  }
+  throw new HttpsError("internal", "Could not allocate an order number. Please try again.");
+}
+
 exports.createYocoCheckout = onCall({secrets: [yocoSecretKey]}, async (request) => {
   const {customer, items, shipping, total, callbackUrl, cancelUrl} = request.data || {};
   if (!customer || !customer.email || !items || !Array.isArray(items) || items.length === 0 || !total) {
@@ -1302,7 +1324,7 @@ exports.createYocoCheckout = onCall({secrets: [yocoSecretKey]}, async (request) 
     throw new HttpsError("failed-precondition", "The Yoco secret key is not configured on the server.");
   }
 
-  const reference = `EXTRAIT-${Math.floor(Math.random() * 900000 + 100000)}-${Date.now().toString().slice(-4)}`;
+  const reference = await generateOrderReference();
   const email = String(customer.email).trim();
   const firstName = (String(customer.firstName || "").trim() || "Customer");
   const lastName = (String(customer.lastName || "").trim() || "Order");
@@ -1378,7 +1400,10 @@ exports.createYocoCheckout = onCall({secrets: [yocoSecretKey]}, async (request) 
       headers: {
         "Authorization": `Bearer ${secretKey}`,
         "Content-Type": "application/json",
-        "Idempotency-Key": reference,
+        // The human-facing order number is only 4 digits, so the gateway's
+        // de-duplication key gets a timestamp suffix: a recycled order number can
+        // never make Yoco hand back an old checkout session.
+        "Idempotency-Key": `${reference}-${Date.now()}`,
       },
       body: JSON.stringify(yocoPayload),
     });
@@ -1448,7 +1473,7 @@ exports.createOzowCheckout = onCall({
         "The Ozow private key, API key and site code must all be configured on the server.");
   }
 
-  const reference = `EXTRAIT-${Math.floor(Math.random() * 900000 + 100000)}-${Date.now().toString().slice(-4)}`;
+  const reference = await generateOrderReference();
   const email = String(customer.email).trim();
   const firstName = (String(customer.firstName || "").trim() || "Customer");
   const lastName = (String(customer.lastName || "").trim() || "Order");
@@ -2029,11 +2054,27 @@ async function getMailSettings() {
       const data = snap.data() || {};
       const apiKey = String(data.apiKey || "").trim();
       const fromEmail = String(data.fromEmail || "").trim();
+      const provider = String(data.provider || "").toLowerCase();
+      const smtpUser = String(data.smtpUser || "").trim();
+      const smtpPass = String(data.smtpPass || "").trim();
       // An explicit "off" switch in the admin panel wins - no email at all.
       if (data.enabled === false) return null;
+      // Gmail SMTP with an app password: permanent (app passwords never expire),
+      // and the password is entered by the owner in the admin panel, so it is
+      // never handled anywhere else.
+      if (provider === "gmail-smtp" && smtpUser && smtpPass && fromEmail) {
+        return {
+          provider: "gmail-smtp",
+          smtpUser: smtpUser,
+          smtpPass: smtpPass,
+          fromEmail: fromEmail,
+          fromName: String(data.fromName || "Studio Extrait").trim(),
+          replyTo: String(data.replyTo || "").trim(),
+        };
+      }
       if (apiKey && fromEmail) {
         return {
-          provider: String(data.provider || "").toLowerCase() === "resend" ? "resend" : "brevo",
+          provider: provider === "resend" ? "resend" : "brevo",
           apiKey: apiKey,
           fromEmail: fromEmail,
           fromName: String(data.fromName || "Studio Extrait").trim(),
@@ -2182,7 +2223,7 @@ function renderOrderConfirmation(order, orderId) {
   const address = String(order.address || "").trim();
   const isTest = String(order.yocoPaymentMode || "").toLowerCase() === "test" ||
     order.ozowIsTestNotification === true;
-  const subject = `${isTest ? "[TEST] " : ""}Order ${reference} confirmed - Studio Extrait`;
+  const subject = `${isTest ? "[TEST] " : ""}Order #${reference} confirmed - Studio Extrait`;
 
   const itemRows = items.map((item) => {
     const metaBits = [item.size, `Qty ${item.quantity}`];
@@ -2218,7 +2259,7 @@ function renderOrderConfirmation(order, orderId) {
           <td style="font-family:Helvetica,Arial,sans-serif;font-size:10px;letter-spacing:1.5px;color:#8a8a8a;padding-bottom:6px;text-align:right;">PAID WITH</td>
         </tr>
         <tr>
-          <td style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#111111;font-weight:bold;">${escapeMailHtml(reference)}</td>
+          <td style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#111111;font-weight:bold;">#${escapeMailHtml(reference)}</td>
           <td style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#111111;text-align:right;">${escapeMailHtml(describePaymentMethod(order))}</td>
         </tr>
       </table>
@@ -2269,7 +2310,7 @@ function renderOrderConfirmation(order, orderId) {
     "",
     `Thank you for your order. Your payment of ${formatZar(total)} has been confirmed.`,
     "",
-    `Order number: ${reference}`,
+    `Order number: #${reference}`,
     `Paid with: ${describePaymentMethod(order)}`,
     "",
     ...items.map((item) => `${item.quantity} x ${item.name} (${item.size}) - ${formatZar(item.lineTotal)}`),
@@ -2300,6 +2341,26 @@ function renderOrderConfirmation(order, orderId) {
  */
 async function sendTransactionalEmail(mail, payload) {
   const to = String(payload.to || "").trim();
+
+  if (mail.provider === "gmail-smtp") {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {user: mail.smtpUser, pass: mail.smtpPass},
+    });
+    try {
+      const info = await transporter.sendMail({
+        from: `${mail.fromName} <${mail.fromEmail}>`,
+        to: payload.toName ? `${payload.toName} <${to}>` : to,
+        replyTo: mail.replyTo || mail.fromEmail,
+        subject: payload.subject,
+        text: payload.text,
+        html: payload.html,
+      });
+      return {providerMessageId: info.messageId || null};
+    } finally {
+      transporter.close();
+    }
+  }
 
   if (mail.provider === "gmail") {
     const accessToken = await getGmailAccessToken(mail);
@@ -2483,7 +2544,7 @@ exports.sendTestOrderEmail = onCall({
     throw new HttpsError("invalid-argument", "Enter a valid email address to send the test to.");
   }
   const sampleOrder = {
-    orderId: "EXTRAIT-TEST-0001",
+    orderId: "0000",
     customerName: "Studio Extrait Tester",
     email: to,
     total: 495,
@@ -2670,7 +2731,8 @@ exports.trackCourierGuyOrder = onCall({
   secrets: [courierGuySecret],
 }, async (request) => {
   const apiKey = getCourierGuySecretKey();
-  const rawInput = (request.data && request.data.trackingNumber) ? String(request.data.trackingNumber).trim() : "";
+  const rawInput = (request.data && request.data.trackingNumber) ?
+    String(request.data.trackingNumber).trim().replace(/^#\s*/, "") : "";
 
   if (!rawInput) {
     throw new HttpsError("invalid-argument", "Tracking or waybill number is required.");
