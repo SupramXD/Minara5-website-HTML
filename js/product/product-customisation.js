@@ -209,7 +209,8 @@
     };
 
     const updateCustomisationButtonState = (selectedOpt) => {
-      const addToBagBtn = document.getElementById("addToBagButton") || document.querySelector(".add-to-bag-btn");
+      const addToBagBtn = document.getElementById("addToBagBtn") || document.getElementById("addToBagButton") ||
+        document.querySelector(".add-to-bag-btn") || document.querySelector(".add-to-cart");
       if (!addToBagBtn) return;
 
       const isOptOOS = (selectedOpt && selectedOpt.stock !== undefined && selectedOpt.stock !== null && Number(selectedOpt.stock) <= 0) || (Number(p.stock) <= 0);
@@ -218,10 +219,28 @@
       const notifySuccess = document.getElementById("outOfStockNotifySuccess");
 
       if (isOptOOS) {
-        addToBagBtn.innerHTML = "OUT OF STOCK";
-        addToBagBtn.disabled = true;
-        addToBagBtn.style.opacity = "0.5";
-        addToBagBtn.style.cursor = "not-allowed";
+        // NOTIFY ME replaces the old disabled "OUT OF STOCK" button: the customer
+        // enters their email and the request is stored per product for the admin.
+        const bell = window.minaraBellIcon ? window.minaraBellIcon(12) : "";
+        if (typeof addToBagBtn._cartHandler !== "function") addToBagBtn._cartHandler = addToBagBtn.onclick;
+        addToBagBtn.innerHTML = `${bell}<span>NOTIFY ME</span>`;
+        addToBagBtn.disabled = false;
+        addToBagBtn.style.opacity = "";
+        addToBagBtn.style.cursor = "pointer";
+        addToBagBtn.style.display = "inline-flex";
+        addToBagBtn.style.alignItems = "center";
+        addToBagBtn.style.justifyContent = "center";
+        addToBagBtn.style.gap = "7px";
+        addToBagBtn.onclick = (evt) => {
+          if (evt) { evt.preventDefault(); evt.stopPropagation(); }
+          const container = document.getElementById("outOfStockNotifyContainer");
+          if (container) {
+            container.style.display = "block";
+            container.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+          const emailInput = document.getElementById("outOfStockNotifyEmail");
+          if (emailInput) setTimeout(() => emailInput.focus(), 320);
+        };
 
         if (notifyContainer) {
           notifyContainer.style.display = "block";
@@ -233,6 +252,10 @@
         addToBagBtn.disabled = false;
         addToBagBtn.style.opacity = "";
         addToBagBtn.style.cursor = "pointer";
+        addToBagBtn.style.display = "";
+        addToBagBtn.style.justifyContent = "";
+        addToBagBtn.style.gap = "";
+        if (typeof addToBagBtn._cartHandler === "function") addToBagBtn.onclick = addToBagBtn._cartHandler;
 
         if (notifyContainer) {
           notifyContainer.style.display = "none";

@@ -577,10 +577,17 @@
             btn.setAttribute('onclick', `addToCart('${p.id}')`);
           }
         } else {
-          btn.innerHTML = `<span>OUT OF STOCK</span>`;
-          btn.disabled = true;
-          btn.style.opacity = "0.5";
-          btn.style.cursor = "not-allowed";
+          const notifyName = String(p.nameShort || p.name || "").replace(/'/g, "\\'");
+          const bell = window.minaraBellIcon ? window.minaraBellIcon(12) : "";
+          btn.innerHTML = `${bell}<span>NOTIFY ME</span>`;
+          btn.style.display = "inline-flex";
+          btn.style.alignItems = "center";
+          btn.style.justifyContent = "center";
+          btn.style.gap = "6px";
+          btn.disabled = false;
+          btn.style.opacity = "";
+          btn.style.cursor = "pointer";
+          btn.setAttribute('onclick', `event.preventDefault();event.stopPropagation();window.openStockNotify('${p.id}', '${notifyName}')`);
         }
 
         const stockStatusEl = item.querySelector('.catalog-stock-status');

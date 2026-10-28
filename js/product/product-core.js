@@ -1048,10 +1048,17 @@
         addToBagBtn.style.display = "";
 
         if (p.stock <= 0) {
-          addToBagBtn.innerHTML = "OUT OF STOCK";
-          addToBagBtn.disabled = true;
-          addToBagBtn.style.opacity = "0.5";
-          addToBagBtn.style.cursor = "not-allowed";
+          // Out of stock: the button becomes the "NOTIFY ME" entry point (bell icon),
+          // and clicking it drops the customer straight into the email field below.
+          const bell = window.minaraBellIcon ? window.minaraBellIcon(12) : "";
+          addToBagBtn.innerHTML = `${bell}<span>NOTIFY ME</span>`;
+          addToBagBtn.disabled = false;
+          addToBagBtn.style.opacity = "";
+          addToBagBtn.style.cursor = "pointer";
+          addToBagBtn.style.display = "inline-flex";
+          addToBagBtn.style.alignItems = "center";
+          addToBagBtn.style.justifyContent = "center";
+          addToBagBtn.style.gap = "7px";
 
           const notifyContainer = document.getElementById("outOfStockNotifyContainer");
           const notifyForm = document.getElementById("outOfStockNotifyForm");
@@ -1061,6 +1068,13 @@
             notifyContainer.style.display = "block";
             if (notifyForm) notifyForm.style.display = "flex";
             if (notifySuccess) notifySuccess.style.display = "none";
+
+            addToBagBtn.onclick = (evt) => {
+              if (evt) { evt.preventDefault(); evt.stopPropagation(); }
+              notifyContainer.scrollIntoView({ behavior: "smooth", block: "center" });
+              const emailInput = document.getElementById("outOfStockNotifyEmail");
+              if (emailInput) setTimeout(() => emailInput.focus(), 320);
+            };
 
             notifyForm.onsubmit = async (e) => {
               e.preventDefault();
@@ -1078,9 +1092,11 @@
                 if (window.dbAddDoc && window.dbCollection && window.db) {
                   await window.dbAddDoc(window.dbCollection(window.db, "stock_notifications"), {
                     email: email,
+                    emailLower: email.toLowerCase(),
                     productId: p.id,
-                    productName: p.name,
+                    productName: p.nameShort || p.name,
                     size: window.selectedProductSize || selectedSize || "50ml",
+                    source: "product-page",
                     timestamp: new Date().toISOString()
                   });
                 }
@@ -1091,7 +1107,7 @@
                 alert("Failed to submit request: " + err.message);
                 if (submitBtn) {
                   submitBtn.disabled = false;
-                  submitBtn.textContent = "SUBMIT";
+                  submitBtn.innerHTML = `${window.minaraBellIcon ? window.minaraBellIcon(11) : ""} <span>NOTIFY ME</span>`;
                 }
               }
             };

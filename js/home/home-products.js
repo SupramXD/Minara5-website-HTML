@@ -323,7 +323,9 @@
             btnHtml = `<button class="add-to-cart" onclick="addToCart('${p.id}')"><svg class="cart-icon" style="width: 12px; height: 12px;" viewBox="0 0 30 30" fill="none"><rect x="7" y="12" width="16" height="11" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 12 V7 H20 V12" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>ADD TO BAG</span></button>`;
           }
         } else {
-          btnHtml = `<button class="add-to-cart" disabled style="opacity: 0.5; cursor: not-allowed;"><span>OUT OF STOCK</span></button>`;
+          const notifyName = (window.escapeHTML ? window.escapeHTML(titleText) : String(titleText || "")).replace(/'/g, "&#039;");
+          const bell = window.minaraBellIcon ? window.minaraBellIcon(12) : "";
+          btnHtml = `<button class="add-to-cart notify-me-btn" onclick="event.preventDefault();event.stopPropagation();window.openStockNotify('${p.id}','${notifyName}')" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;">${bell}<span>NOTIFY ME</span></button>`;
         }
 
         return `

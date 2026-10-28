@@ -781,6 +781,44 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         scentProfile: scentProfile !== undefined ? scentProfile : null,
       };
 
+      // One authoritative Firestore payload for the product being edited. Every
+      // save writes this document in full, so an edit always REPLACES the stored
+      // settings (name, price, customisations, stock ...) instead of creating a
+      // second product. `merge: true` keeps Firestore-only fields such as
+      // `costing` that the public products.json never carries.
+      const productDocPayload = {
+        nameShort: nameShort || "",
+        name,
+        price: Number(price),
+        retailPrice: retailPrice !== null && retailPrice !== undefined ?
+          retailPrice : null,
+        stock: Number(stock),
+        image: mainImagePath,
+        galleryImages: galleryImages || (mainImagePath ? mainImagePath.split(",").map((s) => s.trim()) : []),
+        image_thumb: thumbImagePath || "",
+        description: description || "",
+        status: status || "Active",
+        flair: flair || "",
+        flairText: flairText || "",
+        flairColor: flairColor || "",
+        invisibleFlair: invisibleFlair || "",
+        standardBottleImg: standardBottleImg || "",
+        masculinePremiumBottleImg: masculinePremiumBottleImg || "",
+        femininePremiumBottleImg: femininePremiumBottleImg || "",
+        customisations: processedCustomisations,
+        sizes: sizes || ["50ml", "100ml"],
+        isBundle: isBundle !== undefined ? !!isBundle : false,
+        bundleSize: bundleSize !== undefined ? Number(bundleSize) : 0,
+        scentProfile: scentProfile !== undefined ? scentProfile : null,
+      };
+
+      // Ids that really exist in Firestore. Any products.json row that is not in
+      // this set is a repo-only row and must NOT be created as a side effect of
+      // editing another product (that is exactly how a half-empty duplicate
+      // "Caribbean" appeared).
+      const existingProductsSnap = await firestore.collection("products").get();
+      const existingProductIds = new Set(existingProductsSnap.docs.map((d) => d.id));
+
       if (updatedProduct.status === "Active" &&
           updatedProduct.sortOrder !== null) {
         const otherActive = productsList
@@ -813,36 +851,14 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         for (const p of productsList) {
           const docRef = firestore.collection("products").doc(p.id);
           if (p.id === id) {
-            batch.set(docRef, {
-              nameShort: nameShort || "",
-              name,
-              price: Number(price),
-              retailPrice: retailPrice !== null && retailPrice !== undefined ?
-                retailPrice : null,
-              stock: Number(stock),
-              image: mainImagePath,
-              galleryImages: galleryImages || (mainImagePath ? mainImagePath.split(",").map((s) => s.trim()) : []),
-              image_thumb: thumbImagePath || "",
-              description: description || "",
-              status: status || "Active",
-              flair: flair || "",
-              flairText: flairText || "",
-              flairColor: flairColor || "",
-              invisibleFlair: invisibleFlair || "",
-              standardBottleImg: standardBottleImg || "",
-              masculinePremiumBottleImg: masculinePremiumBottleImg || "",
-              femininePremiumBottleImg: femininePremiumBottleImg || "",
-              customisations: processedCustomisations,
-              sizes: sizes || ["50ml", "100ml"],
-              isBundle: isBundle !== undefined ? !!isBundle : false,
-              bundleSize: bundleSize !== undefined ? Number(bundleSize) : 0,
+            batch.set(docRef, Object.assign({}, productDocPayload, {
               sortOrder: p.sortOrder,
-              scentProfile: scentProfile !== undefined ? scentProfile : null,
               timestamp: new Date().toISOString(),
-            });
-          } else {
-            // set+merge (instead of update) so a product that only exists in
-            // products.json (not in Firestore) can never abort the whole save.
+            }), {merge: true});
+          } else if (existingProductIds.has(p.id)) {
+            // Re-number only products that already exist. `set` + `merge` (instead
+            // of update) still guarantees a missing doc can never abort the save,
+            // while the guard above stops a new doc being created here.
             batch.set(docRef, {sortOrder: p.sortOrder}, {merge: true});
           }
         }
@@ -854,6 +870,16 @@ exports.syncToGithub = onCall({secrets: [githubTokenSecret]}, async (request) =>
         } else {
           productsList.push(updatedProduct);
         }
+
+        // Inactive product / no sort slot: persist the edit to Firestore anyway,
+        // so the stored settings are REPLACED by this save (never left stale and
+        // never duplicated).
+        await firestore.collection("products").doc(id).set(
+            Object.assign({}, productDocPayload, {
+              sortOrder: updatedProduct.sortOrder,
+              timestamp: new Date().toISOString(),
+            }),
+            {merge: true});
       }
 
       const updatedJsonStr = JSON.stringify(productsList, null, 2);
@@ -1902,6 +1928,13 @@ async function deductStockForOrder(orderData, firestore, token) {
 
       const pId = prodSnap.id;
       const pData = prodSnap.data();
+      // A document without a numeric stock field is not a stock-tracked product
+      // (e.g. a settings-only doc). Treating a missing value as 0 used to write a
+      // bogus 0/negative count, so such items are skipped instead.
+      if (pData.stock === undefined || pData.stock === null || pData.stock === "") {
+        logger.warn(`Product ${pId} has no stock value - skipping stock deduction for this item.`);
+        continue;
+      }
       const currentStock = Number(pData.stock) || 0;
       const newStock = Math.max(0, currentStock - qty);
       const updateObj = {stock: newStock, updatedAt: new Date().toISOString()};

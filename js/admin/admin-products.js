@@ -351,6 +351,10 @@ async function loadCatalog() {
                   
                   querySnapshot.forEach((doc) => {
                       const data = doc.data();
+                      // A document without a `name` is a settings-only stub (a legacy
+                      // sortOrder write), never a product - skip it so it can never
+                      // appear as a blank row or be "edited" into a duplicate.
+                      if (!data || !data.name) return;
                       const p = {
                           id: doc.id,
                           nameShort: data.nameShort || "",

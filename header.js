@@ -1037,6 +1037,166 @@ function setupDesktopNewsletter() {
     }
 }
 
+// ==========================================
+// OUT-OF-STOCK "NOTIFY ME" CAPTURE
+// ==========================================
+// One modal for every entry point (home/catalog cards and the product page).
+// A request is written to the `stock_notifications` collection with the product
+// id + name, so the admin "Notifications & Requests" tab lists exactly which
+// item each customer is waiting for. Firestore rules allow anonymous create and
+// admin-only read, which is all this needs.
+(function() {
+    const MODAL_ID = "minaraStockNotifyModal";
+
+    window.minaraBellIcon = function (size, color) {
+        const s = size || 13;
+        const c = color || "currentColor";
+        return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>`;
+    };
+
+    function injectStyles() {
+        if (document.getElementById("minara-stock-notify-style")) return;
+        const style = document.createElement("style");
+        style.id = "minara-stock-notify-style";
+        style.textContent = `
+            #${MODAL_ID} { position: fixed; inset: 0; z-index: 4000; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(0,0,0,0.55); backdrop-filter: blur(2px); }
+            #${MODAL_ID}.active { display: flex; }
+            #${MODAL_ID} .sn-panel { width: 100%; max-width: 380px; background: #fff; border: 1px solid #111; padding: 26px 24px 22px; box-sizing: border-box; font-family: 'Gotham Narrow Book', Helvetica, Arial, sans-serif; animation: snFade .18s ease; }
+            @keyframes snFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+            #${MODAL_ID} .sn-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+            #${MODAL_ID} .sn-eyebrow { font-family: 'Gotham Narrow Bold', sans-serif; font-size: 8px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #999; display: flex; align-items: center; gap: 6px; }
+            #${MODAL_ID} .sn-close { background: none; border: none; font-size: 16px; line-height: 1; color: #111; cursor: pointer; padding: 0 0 0 10px; font-family: inherit; }
+            #${MODAL_ID} .sn-product { font-family: 'Gotham Narrow Bold', sans-serif; font-size: 16px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; color: #111; margin: 14px 0 8px; }
+            #${MODAL_ID} .sn-copy { font-size: 11px; line-height: 1.65; color: #555; margin: 0 0 18px; letter-spacing: 0.2px; }
+            #${MODAL_ID} .sn-form { display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #111; padding-bottom: 6px; }
+            #${MODAL_ID} .sn-input { flex: 1; border: none; outline: none; background: transparent; font-family: inherit; font-size: 12px; letter-spacing: 0.5px; color: #111; padding: 4px 0; min-width: 0; }
+            #${MODAL_ID} .sn-submit { display: inline-flex; align-items: center; gap: 6px; background: #111; color: #fff; border: 1px solid #111; font-family: 'Gotham Narrow Bold', sans-serif; font-size: 9px; font-weight: bold; letter-spacing: 1.6px; text-transform: uppercase; padding: 11px 14px; cursor: pointer; white-space: nowrap; transition: background .18s ease, color .18s ease; }
+            #${MODAL_ID} .sn-submit:hover { background: #fff; color: #111; }
+            #${MODAL_ID} .sn-submit[disabled] { opacity: 0.5; cursor: default; }
+            #${MODAL_ID} .sn-fine { font-size: 9px; letter-spacing: 0.4px; color: #9a9a9a; margin: 12px 0 0; line-height: 1.5; }
+            #${MODAL_ID} .sn-error { display: none; font-size: 10px; font-weight: bold; letter-spacing: 0.4px; color: #c0392b; margin-top: 10px; }
+            #${MODAL_ID} .sn-success { display: none; text-align: center; padding: 18px 0 6px; }
+            #${MODAL_ID} .sn-success .sn-check { width: 34px; height: 34px; margin: 0 auto 12px; border: 1px solid #111; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+            #${MODAL_ID} .sn-success-title { font-family: 'Gotham Narrow Bold', sans-serif; font-size: 12px; font-weight: bold; letter-spacing: 1.4px; text-transform: uppercase; color: #111; }
+            #${MODAL_ID} .sn-success-copy { font-size: 10.5px; color: #666; margin-top: 8px; line-height: 1.6; }
+            @media (max-width: 900px) {
+                #${MODAL_ID} .sn-submit { padding: 10px 11px; font-size: 8.5px; letter-spacing: 1.2px; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function buildModal() {
+        injectStyles();
+        let modal = document.getElementById(MODAL_ID);
+        if (modal) return modal;
+
+        modal = document.createElement("div");
+        modal.id = MODAL_ID;
+        modal.setAttribute("role", "dialog");
+        modal.setAttribute("aria-modal", "true");
+        modal.innerHTML = `
+            <div class="sn-panel" role="document">
+                <div class="sn-top">
+                    <div class="sn-eyebrow">${window.minaraBellIcon(11)} OUT OF STOCK</div>
+                    <button type="button" class="sn-close" aria-label="Close">&#10005;</button>
+                </div>
+                <div class="sn-product" id="snProductName">THIS FRAGRANCE</div>
+                <p class="sn-copy">Leave your email and we will let you know the moment this bottle is back in stock.</p>
+                <form class="sn-form" id="snForm" novalidate>
+                    <input type="email" class="sn-input" id="snEmail" placeholder="ENTER YOUR EMAIL" autocomplete="email" required>
+                    <button type="submit" class="sn-submit" id="snSubmit">${window.minaraBellIcon(11, "#fff")} <span>NOTIFY ME</span></button>
+                </form>
+                <div class="sn-error" id="snError"></div>
+                <p class="sn-fine">We only use this address to tell you about this item. No newsletters unless you ask.</p>
+                <div class="sn-success" id="snSuccess">
+                    <div class="sn-check">&#10003;</div>
+                    <div class="sn-success-title">YOU'RE ON THE LIST</div>
+                    <div class="sn-success-copy" id="snSuccessCopy">We'll email you as soon as it's back.</div>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+
+        const close = () => {
+            modal.classList.remove("active");
+            document.body.style.overflow = modal.dataset.prevOverflow || "";
+        };
+        modal.querySelector(".sn-close").addEventListener("click", close);
+        modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && modal.classList.contains("active")) close();
+        });
+        modal._close = close;
+        return modal;
+    }
+
+    window.openStockNotify = function (productId, productName) {
+        const modal = buildModal();
+        const form = modal.querySelector("#snForm");
+        const input = modal.querySelector("#snEmail");
+        const submit = modal.querySelector("#snSubmit");
+        const errorEl = modal.querySelector("#snError");
+        const successEl = modal.querySelector("#snSuccess");
+        const productEl = modal.querySelector("#snProductName");
+        const successCopy = modal.querySelector("#snSuccessCopy");
+
+        const label = String(productName || "").trim() || "THIS FRAGRANCE";
+        productEl.textContent = label;
+        errorEl.style.display = "none";
+        successEl.style.display = "none";
+        form.style.display = "";
+        input.value = "";
+        submit.disabled = false;
+        submit.innerHTML = `${window.minaraBellIcon(11, "#fff")} <span>NOTIFY ME</span>`;
+        modal.dataset.prevOverflow = document.body.style.overflow || "";
+        document.body.style.overflow = "hidden";
+        modal.classList.add("active");
+        setTimeout(() => input.focus(), 60);
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const email = String(input.value || "").trim();
+            if (!/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(email)) {
+                errorEl.textContent = "Please enter a valid email address.";
+                errorEl.style.display = "block";
+                input.focus();
+                return;
+            }
+            errorEl.style.display = "none";
+            submit.disabled = true;
+            submit.innerHTML = "SAVING...";
+
+            try {
+                if (window.dbPromise) { try { await window.dbPromise; } catch (dbErr) {} }
+                if (!window.db || !window.dbAddDoc || !window.dbCollection) {
+                    throw new Error("Firestore is not ready yet");
+                }
+                await window.dbAddDoc(window.dbCollection(window.db, "stock_notifications"), {
+                    email: email,
+                    emailLower: email.toLowerCase(),
+                    productId: String(productId || ""),
+                    productName: label,
+                    size: window.selectedProductSize || window.selectedSize || "",
+                    source: "notify-me",
+                    timestamp: new Date().toISOString()
+                });
+                successCopy.textContent = `We'll email ${email} as soon as ${label} is back.`;
+                form.style.display = "none";
+                successEl.style.display = "block";
+                setTimeout(() => { if (modal._close) modal._close(); }, 2600);
+            } catch (err) {
+                console.error("Notify-me request failed:", err);
+                submit.disabled = false;
+                submit.innerHTML = `${window.minaraBellIcon(11, "#fff")} <span>NOTIFY ME</span>`;
+                errorEl.textContent = "We couldn't save that just now. Please try again in a moment.";
+                errorEl.style.display = "block";
+            }
+        };
+    };
+
+
+})();
+
 // --- DYNAMIC CUSTOM TEXT LOADER ---
 // Compliance guard: admin/Firestore copy that reintroduces clone/dupe/replica
 // wording is ignored so the reviewed copy on the page always wins. "Inspired by"
