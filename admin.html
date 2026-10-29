@@ -2149,33 +2149,23 @@
                   </div>
                   <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.6;">
                     <strong>Already working:</strong> every paid order (Yoco card or Ozow EFT) is emailed to the customer automatically
-                    by the Cloud Function in this Firebase project, from <code>jadon@studioextrait.co.za</code> - no API key and no
-                    third-party service needed.
+                    by the Cloud Function in this Firebase project, from <code>jadon@studioextrait.co.za</code>.
                   </p>
                   <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
-                    <strong>Make it permanent:</strong> it currently sends with a Google OAuth token that Google expires about every
-                    7 days. Paste a <em>Gmail app password</em> below (choose "Gmail app password" as the provider) and it will keep
-                    working forever. Get one at
-                    <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener" style="color: var(--accent);">myaccount.google.com/apppasswords</a>
-                    (needs 2-Step Verification on <code>studioextrait@gmail.com</code>) - it is stored only in the admin-only Firestore
-                    document <code>settings/mail</code>. Untick "Sending enabled" and save to turn emails off completely.
+                    <strong>Nothing sensitive is stored on this page.</strong> The permanent sender uses a Gmail <em>app password</em>
+                    that lives only in Firebase <strong>Secret Manager</strong> (<code>GMAIL_APP_PASSWORD</code>) - it is never written
+                    to the database, the website code or the browser, and no admin session can read it. To change or remove it, update
+                    that secret in the Firebase console (Secret Manager) and redeploy the functions. The fields below only exist if you
+                    ever move to Brevo or Resend.
                   </p>
                   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div class="form-group">
                       <label>Provider</label>
                       <select id="mailProvider" class="form-input">
-                        <option value="gmail-smtp">Gmail app password (permanent - recommended)</option>
+                        <option value="gmail-smtp">Gmail app password (in Firebase Secret Manager - recommended)</option>
                         <option value="brevo">Brevo API key</option>
                         <option value="resend">Resend API key</option>
                       </select>
-                    </div>
-                    <div class="form-group">
-                      <label>Gmail address (for the app password)</label>
-                      <input type="email" id="mailSmtpUser" class="form-input" placeholder="studioextrait@gmail.com">
-                    </div>
-                    <div class="form-group">
-                      <label>Gmail app password (16 characters, spaces are fine)</label>
-                      <input type="password" id="mailSmtpPass" class="form-input" placeholder="xxxx xxxx xxxx xxxx" autocomplete="new-password">
                     </div>
                     <div class="form-group">
                       <label>API key (Brevo / Resend only - leave empty for the Gmail app password option)</label>

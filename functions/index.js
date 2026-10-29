@@ -55,6 +55,10 @@ const ozowSiteCodeSecret = defineSecret("OZOW_SITE_CODE");
 const gmailClientIdSecret = defineSecret("GMAIL_CLIENT_ID");
 const gmailClientSecretSecret = defineSecret("GMAIL_CLIENT_SECRET");
 const gmailRefreshTokenSecret = defineSecret("GMAIL_REFRESH_TOKEN");
+// Permanent sender: a 16-character Gmail APP PASSWORD for studioextrait@gmail.com.
+// Kept only in Secret Manager (never in Firestore, the repo or the browser).
+const gmailAppPasswordSecret = defineSecret("GMAIL_APP_PASSWORD");
+const GMAIL_SMTP_USER = "studioextrait@gmail.com";
 const GMAIL_FROM_EMAIL = "jadon@studioextrait.co.za";
 const GMAIL_FROM_NAME = "Studio Extrait";
 
@@ -2055,25 +2059,12 @@ async function getMailSettings() {
       const apiKey = String(data.apiKey || "").trim();
       const fromEmail = String(data.fromEmail || "").trim();
       const provider = String(data.provider || "").toLowerCase();
-      const smtpUser = String(data.smtpUser || "").trim();
-      // Gmail shows app passwords in 4 groups of 4 - strip the spaces.
-      const smtpPass = String(data.smtpPass || "").replace(/\s+/g, "");
       // An explicit "off" switch in the admin panel wins - no email at all.
       if (data.enabled === false) return null;
-      // Gmail SMTP with an app password: permanent (app passwords never expire),
-      // and the password is entered by the owner in the admin panel, so it is
-      // never handled anywhere else.
-      if (provider === "gmail-smtp" && smtpUser && smtpPass && fromEmail) {
-        return {
-          provider: "gmail-smtp",
-          smtpUser: smtpUser,
-          smtpPass: smtpPass,
-          fromEmail: fromEmail,
-          fromName: String(data.fromName || "Studio Extrait").trim(),
-          replyTo: String(data.replyTo || "").trim(),
-        };
-      }
-      if (apiKey && fromEmail) {
+      // This panel only ever stores a Brevo/Resend API key. The Gmail app
+      // password is NEVER stored here - it lives in Firebase Secret Manager
+      // (GMAIL_APP_PASSWORD), which no browser or admin session can read.
+      if (provider !== "gmail-smtp" && apiKey && fromEmail) {
         return {
           provider: provider === "resend" ? "resend" : "brevo",
           apiKey: apiKey,
@@ -2090,6 +2081,22 @@ async function getMailSettings() {
   const clientId = readSecretQuietly(gmailClientIdSecret);
   const clientSecret = readSecretQuietly(gmailClientSecretSecret);
   const refreshToken = readSecretQuietly(gmailRefreshTokenSecret);
+
+  // Permanent Gmail SMTP sender (app password in Secret Manager). The value is
+  // read live so rotating it never needs a redeploy; "unset" means not filled in.
+  const appPassword = (await readSecretLatest("GMAIL_APP_PASSWORD")) ||
+    readSecretQuietly(gmailAppPasswordSecret);
+  if (appPassword && appPassword !== "unset") {
+    return {
+      provider: "gmail-smtp",
+      smtpUser: GMAIL_SMTP_USER,
+      smtpPass: appPassword.replace(/\s+/g, ""),
+      fromEmail: GMAIL_FROM_EMAIL,
+      fromName: GMAIL_FROM_NAME,
+      replyTo: GMAIL_FROM_EMAIL,
+    };
+  }
+
   if (clientId && clientSecret && refreshToken) {
     return {
       provider: "gmail",
@@ -2108,6 +2115,36 @@ async function getMailSettings() {
 function readSecretQuietly(secret) {
   try {
     return String(secret.value() || "").trim();
+  } catch (e) {
+    return "";
+  }
+}
+
+// Reads the LATEST version of a Secret Manager secret at runtime (via the
+// function's own service identity), so rotating the Gmail app password takes
+// effect within a minute - no redeploy needed. Cached for 60s per instance.
+let secretCache = {name: "", value: "", at: 0};
+async function readSecretLatest(name) {
+  const now = Date.now();
+  if (secretCache.name === name && (now - secretCache.at) < 60000) return secretCache.value;
+  try {
+    const tokenRes = await fetch(
+        "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token",
+        {headers: {"Metadata-Flavor": "Google"}},
+    );
+    if (!tokenRes.ok) return "";
+    const tokenJson = await tokenRes.json();
+    const project = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || "minara5";
+    const res = await fetch(
+        `https://secretmanager.googleapis.com/v1/projects/${project}/secrets/${name}/versions/latest:access`,
+        {headers: {Authorization: `Bearer ${tokenJson.access_token}`}},
+    );
+    if (!res.ok) return "";
+    const json = await res.json();
+    const raw = (json.payload && json.payload.data) || "";
+    const value = Buffer.from(raw, "base64").toString("utf8").trim();
+    secretCache = {name: name, value: value, at: now};
+    return value;
   } catch (e) {
     return "";
   }
@@ -2453,7 +2490,7 @@ async function sendTransactionalEmail(mail, payload) {
  */
 exports.onOrderPaidSendConfirmation = onDocumentUpdated({
   document: "orders/{orderId}",
-  secrets: [gmailClientIdSecret, gmailClientSecretSecret, gmailRefreshTokenSecret],
+  secrets: [gmailClientIdSecret, gmailClientSecretSecret, gmailRefreshTokenSecret, gmailAppPasswordSecret],
 }, async (event) => {
   const after = event.data && event.data.after ? event.data.after.data() : null;
   if (!after || after.paid !== true) return;
@@ -2532,7 +2569,7 @@ async function assertMasterAdmin(request) {
  * Admin: send a sample confirmation to verify the provider key works.
  */
 exports.sendTestOrderEmail = onCall({
-  secrets: [gmailClientIdSecret, gmailClientSecretSecret, gmailRefreshTokenSecret],
+  secrets: [gmailClientIdSecret, gmailClientSecretSecret, gmailRefreshTokenSecret, gmailAppPasswordSecret],
 }, async (request) => {
   await assertMasterAdmin(request);
   const mail = await getMailSettings();
@@ -2569,7 +2606,7 @@ exports.sendTestOrderEmail = onCall({
  * while the mail settings were still empty, or a customer who lost the email.
  */
 exports.resendOrderConfirmation = onCall({
-  secrets: [gmailClientIdSecret, gmailClientSecretSecret, gmailRefreshTokenSecret],
+  secrets: [gmailClientIdSecret, gmailClientSecretSecret, gmailRefreshTokenSecret, gmailAppPasswordSecret],
 }, async (request) => {
   await assertMasterAdmin(request);
   const orderId = String((request.data && request.data.orderId) || "").trim();

@@ -1514,24 +1514,21 @@
       if (providerEl) {
         providerEl.value = data.provider === "resend" ? "resend" : (data.provider === "brevo" ? "brevo" : "gmail-smtp");
       }
-      if (document.getElementById("mailSmtpUser")) document.getElementById("mailSmtpUser").value = data.smtpUser || "studioextrait@gmail.com";
-      if (document.getElementById("mailSmtpPass")) document.getElementById("mailSmtpPass").value = data.smtpPass || "";
+      if (document.getElementById("mailSmtpUser")) document.getElementById("mailSmtpUser").value = "";
+      if (document.getElementById("mailSmtpPass")) document.getElementById("mailSmtpPass").value = "";
       if (document.getElementById("mailApiKey")) document.getElementById("mailApiKey").value = data.apiKey || "";
       if (document.getElementById("mailFromName")) document.getElementById("mailFromName").value = data.fromName || "Studio Extrait";
       if (document.getElementById("mailFromEmail")) document.getElementById("mailFromEmail").value = data.fromEmail || "jadon@studioextrait.co.za";
       if (document.getElementById("mailReplyTo")) document.getElementById("mailReplyTo").value = data.replyTo || "";
       if (document.getElementById("mailEnabled")) document.getElementById("mailEnabled").checked = data.enabled !== false;
       if (statusEl) {
-        const usingSmtp = data.provider === "gmail-smtp" && data.smtpUser && data.smtpPass;
         const usingApi = data.provider !== "gmail-smtp" && data.apiKey && data.fromEmail;
         if (data.enabled === false) {
           statusEl.textContent = "Sending is switched OFF - paid orders will not be emailed until you re-tick \"Sending enabled\" and save.";
-        } else if (usingSmtp) {
-          statusEl.textContent = `Permanent: sending through Gmail SMTP as ${data.smtpUser}, from ${data.fromEmail}. This does not expire.`;
         } else if (usingApi) {
           statusEl.textContent = `Using ${data.provider === "resend" ? "Resend" : "Brevo"} from ${data.fromEmail} (override).`;
         } else {
-          statusEl.textContent = "Sending through the built-in Gmail OAuth sender (working now, but Google expires that token about every 7 days). Paste a Gmail app password below to make it permanent.";
+          statusEl.textContent = "Sending with the Gmail app password stored in Firebase Secret Manager, from jadon@studioextrait.co.za. Nothing sensitive is kept on this page.";
         }
       }
     } catch (err) {
@@ -1546,8 +1543,6 @@
     const statusEl = document.getElementById("mailSettingsStatus");
     const payload = {
       provider: document.getElementById("mailProvider") ? document.getElementById("mailProvider").value : "gmail-smtp",
-      smtpUser: document.getElementById("mailSmtpUser") ? document.getElementById("mailSmtpUser").value.trim() : "",
-      smtpPass: document.getElementById("mailSmtpPass") ? document.getElementById("mailSmtpPass").value.trim() : "",
       apiKey: document.getElementById("mailApiKey") ? document.getElementById("mailApiKey").value.trim() : "",
       fromName: document.getElementById("mailFromName") ? document.getElementById("mailFromName").value.trim() : "Studio Extrait",
       fromEmail: document.getElementById("mailFromEmail") ? document.getElementById("mailFromEmail").value.trim() : "",
@@ -1555,13 +1550,9 @@
       enabled: document.getElementById("mailEnabled") ? document.getElementById("mailEnabled").checked : true,
       updatedAt: new Date().toISOString()
     };
-    if (payload.provider === "gmail-smtp" && payload.enabled) {
-      if (!payload.smtpUser || !payload.smtpPass || !payload.fromEmail) {
-        alert("For the Gmail app password option, fill in the Gmail address, the 16-character app password and the from email.");
-        return;
-      }
-    } else if (payload.enabled && payload.apiKey && !payload.fromEmail) {
-      alert("Add the from email address for that provider, or clear the API key to keep using the built-in Gmail sender.");
+    // The Gmail app password is never entered or stored here (Secret Manager only).
+    if (payload.provider !== "gmail-smtp" && payload.enabled && (!payload.apiKey || !payload.fromEmail)) {
+      alert("For Brevo/Resend, fill in both the API key and the from email address.");
       return;
     }
     const original = btn ? btn.innerHTML : "";
