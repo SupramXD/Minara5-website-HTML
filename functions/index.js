@@ -2056,7 +2056,8 @@ async function getMailSettings() {
       const fromEmail = String(data.fromEmail || "").trim();
       const provider = String(data.provider || "").toLowerCase();
       const smtpUser = String(data.smtpUser || "").trim();
-      const smtpPass = String(data.smtpPass || "").trim();
+      // Gmail shows app passwords in 4 groups of 4 - strip the spaces.
+      const smtpPass = String(data.smtpPass || "").replace(/\s+/g, "");
       // An explicit "off" switch in the admin panel wins - no email at all.
       if (data.enabled === false) return null;
       // Gmail SMTP with an app password: permanent (app passwords never expire),
