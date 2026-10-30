@@ -2052,6 +2052,9 @@ const MAIL_SITE_URL = "https://studioextrait.co.za";
  * Returns null only when nothing usable is configured at all.
  */
 async function getMailSettings() {
+  // From address chosen in the admin panel (used by every sender). Any verified
+  // Gmail "Send mail as" alias works here, e.g. orders@studioextrait.co.za.
+  let storedFromEmail = "";
   try {
     const snap = await firestore.collection("settings").doc("mail").get();
     if (snap.exists) {
@@ -2059,6 +2062,7 @@ async function getMailSettings() {
       const apiKey = String(data.apiKey || "").trim();
       const fromEmail = String(data.fromEmail || "").trim();
       const provider = String(data.provider || "").toLowerCase();
+      if (/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(fromEmail)) storedFromEmail = fromEmail;
       // An explicit "off" switch in the admin panel wins - no email at all.
       if (data.enabled === false) return null;
       // This panel only ever stores a Brevo/Resend API key. The Gmail app
@@ -2091,9 +2095,9 @@ async function getMailSettings() {
       provider: "gmail-smtp",
       smtpUser: GMAIL_SMTP_USER,
       smtpPass: appPassword.replace(/\s+/g, ""),
-      fromEmail: GMAIL_FROM_EMAIL,
+      fromEmail: storedFromEmail || GMAIL_FROM_EMAIL,
       fromName: GMAIL_FROM_NAME,
-      replyTo: GMAIL_FROM_EMAIL,
+      replyTo: storedFromEmail || GMAIL_FROM_EMAIL,
     };
   }
 
@@ -2103,9 +2107,9 @@ async function getMailSettings() {
       clientId: clientId,
       clientSecret: clientSecret,
       refreshToken: refreshToken,
-      fromEmail: GMAIL_FROM_EMAIL,
+      fromEmail: storedFromEmail || GMAIL_FROM_EMAIL,
       fromName: GMAIL_FROM_NAME,
-      replyTo: GMAIL_FROM_EMAIL,
+      replyTo: storedFromEmail || GMAIL_FROM_EMAIL,
     };
   }
   return null;
@@ -2207,10 +2211,11 @@ function buildGmailRawMessage(payload) {
       .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-/** R1234 -> R1,234 (the storefront's price format). */
-function formatZar(value) {
-  const n = Math.round(Number(value) || 0);
-  return "R" + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+/** R495 -> R495.00 (receipt amounts keep the cents). */
+function formatZarExact(value) {
+  const n = Number(value) || 0;
+  const [whole, cents] = n.toFixed(2).split(".");
+  return "R" + whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "." + cents;
 }
 
 function escapeMailHtml(value) {
@@ -2263,108 +2268,165 @@ function renderOrderConfirmation(order, orderId) {
     order.ozowIsTestNotification === true;
   const subject = `${isTest ? "[TEST] " : ""}Order #${reference} confirmed - Studio Extrait`;
 
-  const itemRows = items.map((item) => {
+  const monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
+  const dateSource = order.paidAt || order.createdAt || new Date().toISOString();
+  const parsedDate = new Date(dateSource);
+  const dateLabel = isNaN(parsedDate.getTime()) ? "" :
+    `${parsedDate.getUTCDate()} ${monthNames[parsedDate.getUTCMonth()]} ${parsedDate.getUTCFullYear()}`;
+
+  const gateway = String(order.paymentGateway || "").toLowerCase();
+  const paymentLabel = gateway === "yoco" ? "Card · Yoco" :
+    (gateway === "ozow" ? "Instant EFT · Ozow" : describePaymentMethod(order));
+
+  // Micro typography shared by the whole receipt (designer-invoice style).
+  const sans = "font-family:Helvetica,Arial,sans-serif;";
+  const mono = "font-family:'Courier New',Courier,monospace;";
+  const serif = "font-family:Georgia,'Times New Roman',serif;";
+  const micro = `${sans}font-size:7px;letter-spacing:2.4px;text-transform:uppercase;color:#9b9b9b;`;
+  const value = `${sans}font-size:11px;letter-spacing:0.4px;color:#111111;`;
+
+  const itemRows = items.map((item, index) => {
     const metaBits = [item.size, `Qty ${item.quantity}`];
     if (item.bottle) metaBits.push(item.bottle);
-    if (item.scents.length) metaBits.push("Scents: " + item.scents.join(", "));
+    if (item.scents.length) metaBits.push(item.scents.join(" / "));
+    const borderTop = index === 0 ? "" : "border-top:1px solid #efefef;";
     return `
         <tr>
-          <td style="padding:12px 0;border-bottom:1px solid #ececec;font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#111111;">
-            <strong style="font-size:13px;letter-spacing:0.3px;">${escapeMailHtml(item.name)}</strong><br>
-            <span style="font-size:11px;color:#777777;">${escapeMailHtml(metaBits.join(" · "))}</span>
+          <td style="${borderTop}padding:15px 0 13px;vertical-align:top;">
+            <div style="${sans}font-size:10.5px;font-weight:bold;letter-spacing:1.4px;text-transform:uppercase;color:#111111;">${escapeMailHtml(item.name)}</div>
+            <div style="${sans}font-size:8.5px;letter-spacing:0.9px;text-transform:uppercase;color:#8f8f8f;margin-top:5px;line-height:1.6;">${escapeMailHtml(metaBits.join(" · "))}</div>
           </td>
-          <td style="padding:12px 0;border-bottom:1px solid #ececec;text-align:right;font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#111111;white-space:nowrap;">
-            ${formatZar(item.lineTotal)}
+          <td style="${borderTop}padding:15px 0 13px;text-align:right;vertical-align:top;${mono}font-size:11px;color:#111111;white-space:nowrap;">
+            ${formatZarExact(item.lineTotal)}
           </td>
         </tr>`;
   }).join("");
 
   const html = `<!DOCTYPE html>
-<html><body style="margin:0;padding:0;background:#f4f3ef;">
-  <div style="max-width:600px;margin:0 auto;padding:28px 18px 40px;">
-    <div style="background:#ffffff;border:1px solid #e6e4de;padding:34px 30px 26px;">
-      <div style="text-align:center;font-family:Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:7px;font-weight:bold;color:#111111;">STUDIO EXTRAIT</div>
-      <div style="text-align:center;font-family:Helvetica,Arial,sans-serif;font-size:9px;letter-spacing:3px;color:#8a8a8a;margin-top:8px;">ORDER CONFIRMED</div>
-      <div style="height:1px;background:#ececec;margin:24px 0;"></div>
-      <p style="font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#111111;margin:0 0 12px;">Hi ${escapeMailHtml(firstName)},</p>
-      <p style="font-family:Helvetica,Arial,sans-serif;font-size:13px;line-height:1.65;color:#333333;margin:0 0 20px;">
-        Thank you for your order. Your payment of <strong>${formatZar(total)}</strong> has been confirmed and your
-        extraits are now being prepared and macerated for dispatch.
-      </p>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-bottom:22px;">
+<html><body style="margin:0;padding:0;background:#f1f0ec;">
+  <div style="max-width:580px;margin:0 auto;padding:40px 16px 34px;">
+    <div style="background:#ffffff;padding:46px 40px 38px;">
+
+      <div style="text-align:center;${serif}font-size:12px;letter-spacing:9px;text-indent:9px;color:#111111;">STUDIO EXTRAIT</div>
+      <div style="text-align:center;${sans}font-size:6.5px;letter-spacing:3.4px;color:#9b9b9b;margin-top:11px;text-transform:uppercase;">Extrait de Parfum &nbsp;·&nbsp; South Africa</div>
+
+      <div style="height:1px;background:#111111;margin:30px 0 0;"></div>
+      <div style="text-align:center;${micro}color:#111111;margin-top:20px;">Order Confirmation</div>
+      <div style="height:1px;background:#111111;margin:16px 0 0;"></div>
+
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:22px 0 24px;">
         <tr>
-          <td style="font-family:Helvetica,Arial,sans-serif;font-size:10px;letter-spacing:1.5px;color:#8a8a8a;padding-bottom:6px;">ORDER NUMBER</td>
-          <td style="font-family:Helvetica,Arial,sans-serif;font-size:10px;letter-spacing:1.5px;color:#8a8a8a;padding-bottom:6px;text-align:right;">PAID WITH</td>
+          <td width="34%" style="${micro}">Order</td>
+          <td width="33%" style="${micro}">Date</td>
+          <td width="33%" style="${micro}text-align:right;">Payment</td>
         </tr>
         <tr>
-          <td style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#111111;font-weight:bold;">#${escapeMailHtml(reference)}</td>
-          <td style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#111111;text-align:right;">${escapeMailHtml(describePaymentMethod(order))}</td>
+          <td style="padding-top:7px;${mono}font-size:12px;letter-spacing:0.6px;color:#111111;">#${escapeMailHtml(reference)}</td>
+          <td style="padding-top:7px;${value}">${escapeMailHtml(dateLabel)}</td>
+          <td style="padding-top:7px;${value}text-align:right;">${escapeMailHtml(paymentLabel)}</td>
         </tr>
       </table>
+
+      <p style="${serif}font-size:16px;font-style:italic;color:#111111;margin:26px 0 12px;">Thank you, ${escapeMailHtml(firstName)}.</p>
+      <p style="${sans}font-size:11.5px;line-height:1.95;color:#555555;margin:0 0 30px;">
+        Your payment of <span style="${mono}font-size:11.5px;color:#111111;">${formatZarExact(total)}</span> has been received in full.
+        Each bottle is blended, filled and macerated by hand before it leaves the studio.
+      </p>
+      <div style="${micro}color:#111111;">Your Order</div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:10px;border-top:1px solid #111111;">
+        ${itemRows || `<tr><td style="${sans}font-size:11px;color:#555555;padding:15px 0;">Your Studio Extrait order</td></tr>`}
+        <tr>
+          <td style="border-top:1px solid #111111;padding:16px 0 0;${micro}color:#111111;">Total Paid</td>
+          <td style="border-top:1px solid #111111;padding:16px 0 0;text-align:right;${serif}font-size:17px;letter-spacing:0.6px;color:#111111;">${formatZarExact(total)}</td>
+        </tr>
+      </table>
+
+      <div style="height:1px;background:#ececec;margin:30px 0 24px;"></div>
+
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
-        ${itemRows || `<tr><td style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#333333;padding:12px 0;">Your Studio Extrait order</td></tr>`}
         <tr>
-          <td style="padding:14px 0 0;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:1.5px;color:#8a8a8a;">TOTAL PAID</td>
-          <td style="padding:14px 0 0;text-align:right;font-family:Helvetica,Arial,sans-serif;font-size:15px;font-weight:bold;color:#111111;">${formatZar(total)}</td>
-        </tr>
-      </table>
-      <div style="height:1px;background:#ececec;margin:24px 0;"></div>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
-        <tr>
-          <td width="50%" valign="top" style="font-family:Helvetica,Arial,sans-serif;font-size:11px;line-height:1.7;color:#333333;padding-right:10px;">
-            <span style="display:block;font-size:10px;letter-spacing:1.5px;color:#8a8a8a;margin-bottom:6px;">DELIVERING TO</span>
-            ${escapeMailHtml(address || "Your saved delivery address")}
+          <td width="50%" valign="top" style="padding-right:14px;">
+            <div style="${micro}">Delivering To</div>
+            <div style="${sans}font-size:10.5px;line-height:1.9;color:#444444;margin-top:8px;">${escapeMailHtml(address || "Your saved delivery address")}</div>
+            ${order.deliveryDate ? `<div style="${sans}font-size:9px;letter-spacing:0.6px;text-transform:uppercase;color:#8f8f8f;margin-top:8px;">Requested ${escapeMailHtml(order.deliveryDate)}</div>` : ""}
+            ${order.instructions ? `<div style="${sans}font-size:9px;line-height:1.7;color:#8f8f8f;margin-top:6px;">Note: ${escapeMailHtml(order.instructions)}</div>` : ""}
           </td>
-          <td width="50%" valign="top" style="font-family:Helvetica,Arial,sans-serif;font-size:11px;line-height:1.7;color:#333333;">
-            <span style="display:block;font-size:10px;letter-spacing:1.5px;color:#8a8a8a;margin-bottom:6px;">WHAT HAPPENS NEXT</span>
-            Packed and dispatched within 24-48 hours.<br>
-            The Courier Guy delivers in 1-3 business days.<br>
-            You will get an SMS and email with your waybill.
+          <td width="50%" valign="top" style="padding-left:14px;">
+            <div style="${micro}">Next</div>
+            <div style="${sans}font-size:10.5px;line-height:1.9;color:#444444;margin-top:8px;">
+              Packed within 24–48 hours.<br>
+              Courier Guy delivery in 1–3 business days.<br>
+              You will receive an SMS and email with your waybill.
+            </div>
           </td>
         </tr>
       </table>
-      ${order.deliveryDate ? `<p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#333333;margin:16px 0 0;">Requested delivery day: <strong>${escapeMailHtml(order.deliveryDate)}</strong></p>` : ""}
-      ${order.instructions ? `<p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#333333;margin:8px 0 0;">Delivery notes: ${escapeMailHtml(order.instructions)}</p>` : ""}
-      <div style="height:1px;background:#ececec;margin:24px 0;"></div>
-      <p style="font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.7;color:#333333;margin:0 0 14px;">
-        Questions about your order? Reply to this email or WhatsApp us on ${escapeMailHtml(MAIL_WHATSAPP)} -
-        we answer every message ourselves.
+
+      <div style="height:1px;background:#ececec;margin:28px 0 22px;"></div>
+
+      <p style="${sans}font-size:10.5px;line-height:1.9;color:#555555;margin:0 0 24px;">
+        Questions about your order? Simply reply to this email, or WhatsApp us on ${escapeMailHtml(MAIL_WHATSAPP)}.
+        We answer every message ourselves.
       </p>
-      <p style="text-align:center;margin:18px 0 0;">
-        <a href="${MAIL_SITE_URL}/track-order.html" style="display:inline-block;background:#111111;color:#ffffff;font-family:Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:2px;text-decoration:none;padding:13px 26px;">TRACK MY ORDER</a>
-      </p>
+
+      <div style="text-align:center;margin:0 0 30px;">
+        <a href="${MAIL_SITE_URL}/track-order.html" style="display:inline-block;border:1px solid #111111;color:#111111;${sans}font-size:8px;font-weight:bold;letter-spacing:2.6px;text-transform:uppercase;text-decoration:none;padding:13px 26px;">Track Your Order</a>
+      </div>
+
+      <div style="text-align:center;${serif}font-style:italic;font-size:12.5px;color:#111111;">Studio Extrait</div>
+      <div style="text-align:center;${sans}font-size:6.5px;letter-spacing:2.6px;text-transform:uppercase;color:#a2a2a2;margin-top:8px;">Blended &amp; bottled in South Africa</div>
+
     </div>
-    <p style="font-family:Helvetica,Arial,sans-serif;font-size:10px;line-height:1.7;color:#8a8a8a;text-align:center;margin:20px 0 0;">
-      STUDIO EXTRAIT - premium extrait de parfum, blended and bottled in South Africa.<br>
+
+    <div style="text-align:center;margin:22px 0 0;${sans}font-size:8px;line-height:2;letter-spacing:1.2px;color:#9b9b9b;">
+      STUDIO EXTRAIT &nbsp;·&nbsp; ${escapeMailHtml(MAIL_SUPPORT_EMAIL)}<br>
       Independent label. Not affiliated with any other fragrance house.<br>
-      ${escapeMailHtml(MAIL_SUPPORT_EMAIL)}
-    </p>
+      ${escapeMailHtml(MAIL_SITE_URL.replace(/^https?:\/\//, ""))}
+    </div>
+
   </div>
 </body></html>`;
+
   const text = [
-    "STUDIO EXTRAIT - ORDER CONFIRMED",
+    "STUDIO EXTRAIT",
+    "EXTRAIT DE PARFUM · SOUTH AFRICA",
     "",
-    `Hi ${firstName},`,
+    "ORDER CONFIRMATION",
+    "----------------------------------------",
+    `ORDER     #${reference}`,
+    `DATE      ${dateLabel}`,
+    `PAYMENT   ${paymentLabel}`,
+    "----------------------------------------",
     "",
-    `Thank you for your order. Your payment of ${formatZar(total)} has been confirmed.`,
+    `Thank you, ${firstName}.`,
     "",
-    `Order number: #${reference}`,
-    `Paid with: ${describePaymentMethod(order)}`,
+    `Your payment of ${formatZarExact(total)} has been received in full.`,
+    "Each bottle is blended, filled and macerated by hand before it leaves the studio.",
     "",
-    ...items.map((item) => `${item.quantity} x ${item.name} (${item.size}) - ${formatZar(item.lineTotal)}`),
+    "YOUR ORDER",
+    ...items.map((item) => {
+      const bits = [item.size, `Qty ${item.quantity}`];
+      if (item.bottle) bits.push(item.bottle);
+      if (item.scents.length) bits.push(item.scents.join(" / "));
+      return `${item.name} (${bits.join(" · ")})  ${formatZarExact(item.lineTotal)}`;
+    }),
+    "----------------------------------------",
+    `TOTAL PAID  ${formatZarExact(total)}`,
     "",
-    `Total paid: ${formatZar(total)}`,
-    address ? `Delivering to: ${address}` : "",
+    address ? `DELIVERING TO\n${address}` : "",
     order.deliveryDate ? `Requested delivery day: ${order.deliveryDate}` : "",
     order.instructions ? `Delivery notes: ${order.instructions}` : "",
     "",
-    "Packed and dispatched within 24-48 hours. The Courier Guy delivers in 1-3 business days,",
-    "and you will get an SMS and email with your waybill number.",
+    "NEXT",
+    "Packed within 24-48 hours.",
+    "Courier Guy delivery in 1-3 business days.",
+    "You will receive an SMS and email with your waybill.",
     "",
     `Questions? Reply to this email or WhatsApp ${MAIL_WHATSAPP}.`,
     `Track your order: ${MAIL_SITE_URL}/track-order.html`,
     "",
-    "STUDIO EXTRAIT - premium extrait de parfum, blended and bottled in South Africa.",
+    "Studio Extrait - blended and bottled in South Africa.",
     "Independent label. Not affiliated with any other fragrance house.",
     MAIL_SUPPORT_EMAIL,
   ].filter((line) => line !== "").join("\n");
