@@ -2282,6 +2282,12 @@ function renderOrderConfirmation(order, orderId) {
   const paymentLabel = gateway === "yoco" ? "Card · Yoco" :
     (gateway === "ozow" ? "Instant EFT · Ozow" : describePaymentMethod(order));
 
+  // Whatever the customer paid above the line items is the courier fee, so the
+  // receipt can show it as its own "Shipping" line (hidden when it was free).
+  const itemsTotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
+  const shippingAmount = Math.round(Math.max(0, total - itemsTotal) * 100) / 100;
+  const whatsappHref = "https://wa.me/" + MAIL_WHATSAPP.replace(/[^\d]/g, "");
+
   // Micro typography shared by the whole receipt (designer-invoice style).
   const sans = "font-family:Helvetica,Arial,sans-serif;";
   const mono = "font-family:'Courier New',Courier,monospace;";
@@ -2311,19 +2317,11 @@ function renderOrderConfirmation(order, orderId) {
   <div style="max-width:560px;margin:0 auto;padding:32px 14px 28px;">
     <div class="r-card" style="background:#ffffff;padding:32px 28px 30px;">
 
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
-        <tr>
-          <td style="vertical-align:middle;padding:0 9px 0 0;">
-            <img src="${MAIL_SITE_URL}/images/email/studio-extrait-mark.png" width="24" height="30" alt="Studio Extrait" style="display:block;border:0;outline:none;text-decoration:none;width:24px;height:30px;">
-          </td>
-          <td style="vertical-align:middle;">
-            <img src="${MAIL_SITE_URL}/images/email/studio-extrait-wordmark.png" width="168" height="50" alt="STUDIO EXTRAIT" style="display:block;border:0;outline:none;text-decoration:none;width:168px;height:50px;">
-          </td>
-        </tr>
-      </table>
+      <div style="text-align:center;${serif}font-size:12px;letter-spacing:9px;text-indent:9px;color:#111111;">STUDIO EXTRAIT</div>
+      <div style="text-align:center;${sans}font-size:6.5px;letter-spacing:3.4px;color:#9b9b9b;margin-top:11px;text-transform:uppercase;">Extrait de Parfum &nbsp;·&nbsp; South Africa</div>
 
       <div style="height:1px;background:#111111;margin:24px 0 0;"></div>
-      <div style="${micro}color:#111111;margin-top:12px;">Order Confirmation</div>
+      <div style="text-align:center;${micro}color:#111111;margin-top:12px;">Order Confirmation</div>
       <div style="height:1px;background:#111111;margin:10px 0 0;"></div>
 
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:22px 0 24px;">
@@ -2346,6 +2344,10 @@ function renderOrderConfirmation(order, orderId) {
       <div style="${micro}color:#111111;">Your Order</div>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:10px;border-top:1px solid #111111;">
         ${itemRows || `<tr><td style="${sans}font-size:11px;color:#555555;padding:15px 0;">Your Studio Extrait order</td></tr>`}
+        ${shippingAmount > 0 ? `<tr>
+          <td style="border-top:1px solid #efefef;padding:13px 0 11px;${sans}font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:#8f8f8f;">Shipping</td>
+          <td style="border-top:1px solid #efefef;padding:13px 0 11px;text-align:right;${mono}font-size:10.5px;color:#111111;white-space:nowrap;">${formatZarExact(shippingAmount)}</td>
+        </tr>` : ""}
         <tr>
           <td style="border-top:1px solid #111111;padding:16px 0 0;${micro}color:#111111;">Total Paid</td>
           <td style="border-top:1px solid #111111;padding:16px 0 0;text-align:right;${serif}font-size:17px;letter-spacing:0.6px;color:#111111;">${formatZarExact(total)}</td>
@@ -2376,7 +2378,7 @@ function renderOrderConfirmation(order, orderId) {
       <div style="height:1px;background:#ececec;margin:28px 0 22px;"></div>
 
       <p class="r-body" style="${sans}font-size:10.5px;line-height:1.8;color:#555555;margin:0 0 22px;">
-        Questions? Just reply here, or WhatsApp ${escapeMailHtml(MAIL_WHATSAPP)}. We answer ourselves.
+        Questions? WhatsApp us on <a href="${whatsappHref}" style="color:#111111;text-decoration:underline;">${escapeMailHtml(MAIL_WHATSAPP)}</a> and we'll sort it out right away.
       </p>
 
       <div style="text-align:center;margin:0 0 30px;">
@@ -2420,6 +2422,7 @@ function renderOrderConfirmation(order, orderId) {
       return `${item.name} (${bits.join(" · ")})  ${formatZarExact(item.lineTotal)}`;
     }),
     "----------------------------------------",
+    ...(shippingAmount > 0 ? [`Shipping   ${formatZarExact(shippingAmount)}`] : []),
     `TOTAL PAID  ${formatZarExact(total)}`,
     "",
     address ? `DELIVERING TO\n${address}` : "",
@@ -2431,7 +2434,7 @@ function renderOrderConfirmation(order, orderId) {
     "Courier Guy, 1-3 business days.",
     "Waybill sent by SMS and email.",
     "",
-    `Questions? Just reply here, or WhatsApp ${MAIL_WHATSAPP}. We answer ourselves.`,
+    `Questions? WhatsApp ${MAIL_WHATSAPP} (${whatsappHref}) and we'll sort it out right away.`,
     `Track your order: ${MAIL_SITE_URL}/track-order.html`,
     "",
     "Studio Extrait - blended and bottled in South Africa.",
