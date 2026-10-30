@@ -2317,12 +2317,10 @@ function renderOrderConfirmation(order, orderId) {
   <div style="max-width:560px;margin:0 auto;padding:32px 14px 28px;">
     <div class="r-card" style="background:#ffffff;padding:32px 28px 30px;">
 
-      <div style="text-align:center;${serif}font-size:12px;letter-spacing:9px;text-indent:9px;color:#111111;">STUDIO EXTRAIT</div>
-      <div style="text-align:center;${sans}font-size:6.5px;letter-spacing:3.4px;color:#9b9b9b;margin-top:11px;text-transform:uppercase;">Extrait de Parfum &nbsp;·&nbsp; South Africa</div>
+      <div style="text-align:center;${sans}font-size:17px;font-weight:bold;letter-spacing:4.5px;text-indent:4.5px;text-transform:uppercase;color:#111111;white-space:nowrap;">Studio Extrait</div>
 
-      <div style="height:1px;background:#111111;margin:24px 0 0;"></div>
+      <div style="height:1px;background:#111111;margin:22px 0 0;"></div>
       <div style="text-align:center;${micro}color:#111111;margin-top:12px;">Order Confirmation</div>
-      <div style="height:1px;background:#111111;margin:10px 0 0;"></div>
 
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:22px 0 24px;">
         <tr>
@@ -2337,7 +2335,7 @@ function renderOrderConfirmation(order, orderId) {
         </tr>
       </table>
 
-      <p class="r-title" style="${serif}font-size:15px;font-style:italic;color:#111111;margin:20px 0 7px;">Thank you, ${escapeMailHtml(firstName)}.</p>
+      <p class="r-title" style="${sans}font-size:13px;font-weight:bold;letter-spacing:0.2px;color:#111111;margin:22px 0 8px;">Thank you, ${escapeMailHtml(firstName)}.</p>
       <p class="r-body" style="${sans}font-size:11px;line-height:1.85;color:#555555;margin:0 0 24px;">
         Payment of <span style="${mono}font-size:11px;color:#111111;">${formatZarExact(total)}</span> received. Your bottle is being finished by hand in the studio.
       </p>
@@ -2385,8 +2383,6 @@ function renderOrderConfirmation(order, orderId) {
         <a href="${MAIL_SITE_URL}/track-order.html" style="display:inline-block;border:1px solid #111111;color:#111111;${sans}font-size:8px;font-weight:bold;letter-spacing:2.6px;text-transform:uppercase;text-decoration:none;padding:13px 26px;">Track Your Order</a>
       </div>
 
-      <div style="text-align:center;${serif}font-style:italic;font-size:12.5px;color:#111111;">Studio Extrait</div>
-      <div style="text-align:center;${sans}font-size:6.5px;letter-spacing:2.6px;text-transform:uppercase;color:#a2a2a2;margin-top:8px;">Blended &amp; bottled in South Africa</div>
 
     </div>
 
