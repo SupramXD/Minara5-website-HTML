@@ -2307,16 +2307,24 @@ function renderOrderConfirmation(order, orderId) {
   }).join("");
 
   const html = `<!DOCTYPE html>
-<html><body style="margin:0;padding:0;background:#f1f0ec;">
-  <div style="max-width:580px;margin:0 auto;padding:40px 16px 34px;">
-    <div style="background:#ffffff;padding:46px 40px 38px;">
+<html><head><style>@media screen and (max-width:480px){.r-card{padding:26px 20px 24px !important;}.r-body{font-size:10.5px !important;line-height:1.8 !important;}.r-title{font-size:14px !important;}}</style></head><body style="margin:0;padding:0;background:#f1f0ec;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 14px 28px;">
+    <div class="r-card" style="background:#ffffff;padding:32px 28px 30px;">
 
-      <div style="text-align:center;${serif}font-size:12px;letter-spacing:9px;text-indent:9px;color:#111111;">STUDIO EXTRAIT</div>
-      <div style="text-align:center;${sans}font-size:6.5px;letter-spacing:3.4px;color:#9b9b9b;margin-top:11px;text-transform:uppercase;">Extrait de Parfum &nbsp;·&nbsp; South Africa</div>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+        <tr>
+          <td style="vertical-align:middle;padding:0 9px 0 0;">
+            <img src="${MAIL_SITE_URL}/images/email/studio-extrait-mark.png" width="24" height="30" alt="Studio Extrait" style="display:block;border:0;outline:none;text-decoration:none;width:24px;height:30px;">
+          </td>
+          <td style="vertical-align:middle;">
+            <img src="${MAIL_SITE_URL}/images/email/studio-extrait-wordmark.png" width="168" height="50" alt="STUDIO EXTRAIT" style="display:block;border:0;outline:none;text-decoration:none;width:168px;height:50px;">
+          </td>
+        </tr>
+      </table>
 
-      <div style="height:1px;background:#111111;margin:30px 0 0;"></div>
-      <div style="text-align:center;${micro}color:#111111;margin-top:20px;">Order Confirmation</div>
-      <div style="height:1px;background:#111111;margin:16px 0 0;"></div>
+      <div style="height:1px;background:#111111;margin:24px 0 0;"></div>
+      <div style="${micro}color:#111111;margin-top:12px;">Order Confirmation</div>
+      <div style="height:1px;background:#111111;margin:10px 0 0;"></div>
 
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:22px 0 24px;">
         <tr>
@@ -2331,10 +2339,9 @@ function renderOrderConfirmation(order, orderId) {
         </tr>
       </table>
 
-      <p style="${serif}font-size:16px;font-style:italic;color:#111111;margin:26px 0 12px;">Thank you, ${escapeMailHtml(firstName)}.</p>
-      <p style="${sans}font-size:11.5px;line-height:1.95;color:#555555;margin:0 0 30px;">
-        Your payment of <span style="${mono}font-size:11.5px;color:#111111;">${formatZarExact(total)}</span> has been received in full.
-        Each bottle is blended, filled and macerated by hand before it leaves the studio.
+      <p class="r-title" style="${serif}font-size:15px;font-style:italic;color:#111111;margin:20px 0 7px;">Thank you, ${escapeMailHtml(firstName)}.</p>
+      <p class="r-body" style="${sans}font-size:11px;line-height:1.85;color:#555555;margin:0 0 24px;">
+        Payment of <span style="${mono}font-size:11px;color:#111111;">${formatZarExact(total)}</span> received. Your bottle is being finished by hand in the studio.
       </p>
       <div style="${micro}color:#111111;">Your Order</div>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:10px;border-top:1px solid #111111;">
@@ -2359,8 +2366,8 @@ function renderOrderConfirmation(order, orderId) {
             <div style="${micro}">Next</div>
             <div style="${sans}font-size:10.5px;line-height:1.9;color:#444444;margin-top:8px;">
               Packed within 24–48 hours.<br>
-              Courier Guy delivery in 1–3 business days.<br>
-              You will receive an SMS and email with your waybill.
+              Courier Guy, 1–3 business days.<br>
+              Waybill sent by SMS and email.
             </div>
           </td>
         </tr>
@@ -2368,9 +2375,8 @@ function renderOrderConfirmation(order, orderId) {
 
       <div style="height:1px;background:#ececec;margin:28px 0 22px;"></div>
 
-      <p style="${sans}font-size:10.5px;line-height:1.9;color:#555555;margin:0 0 24px;">
-        Questions about your order? Simply reply to this email, or WhatsApp us on ${escapeMailHtml(MAIL_WHATSAPP)}.
-        We answer every message ourselves.
+      <p class="r-body" style="${sans}font-size:10.5px;line-height:1.8;color:#555555;margin:0 0 22px;">
+        Questions? Just reply here, or WhatsApp ${escapeMailHtml(MAIL_WHATSAPP)}. We answer ourselves.
       </p>
 
       <div style="text-align:center;margin:0 0 30px;">
@@ -2404,8 +2410,7 @@ function renderOrderConfirmation(order, orderId) {
     "",
     `Thank you, ${firstName}.`,
     "",
-    `Your payment of ${formatZarExact(total)} has been received in full.`,
-    "Each bottle is blended, filled and macerated by hand before it leaves the studio.",
+    `Payment of ${formatZarExact(total)} received. Your bottle is being finished by hand in the studio.`,
     "",
     "YOUR ORDER",
     ...items.map((item) => {
@@ -2423,10 +2428,10 @@ function renderOrderConfirmation(order, orderId) {
     "",
     "NEXT",
     "Packed within 24-48 hours.",
-    "Courier Guy delivery in 1-3 business days.",
-    "You will receive an SMS and email with your waybill.",
+    "Courier Guy, 1-3 business days.",
+    "Waybill sent by SMS and email.",
     "",
-    `Questions? Reply to this email or WhatsApp ${MAIL_WHATSAPP}.`,
+    `Questions? Just reply here, or WhatsApp ${MAIL_WHATSAPP}. We answer ourselves.`,
     `Track your order: ${MAIL_SITE_URL}/track-order.html`,
     "",
     "Studio Extrait - blended and bottled in South Africa.",
