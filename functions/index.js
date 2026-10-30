@@ -2055,6 +2055,7 @@ async function getMailSettings() {
   // From address chosen in the admin panel (used by every sender). Any verified
   // Gmail "Send mail as" alias works here, e.g. orders@studioextrait.co.za.
   let storedFromEmail = "";
+  let storedReplyTo = "";
   try {
     const snap = await firestore.collection("settings").doc("mail").get();
     if (snap.exists) {
@@ -2063,6 +2064,8 @@ async function getMailSettings() {
       const fromEmail = String(data.fromEmail || "").trim();
       const provider = String(data.provider || "").toLowerCase();
       if (/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(fromEmail)) storedFromEmail = fromEmail;
+      const replyToField = String(data.replyTo || "").trim();
+      if (/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(replyToField)) storedReplyTo = replyToField;
       // An explicit "off" switch in the admin panel wins - no email at all.
       if (data.enabled === false) return null;
       // This panel only ever stores a Brevo/Resend API key. The Gmail app
@@ -2097,7 +2100,7 @@ async function getMailSettings() {
       smtpPass: appPassword.replace(/\s+/g, ""),
       fromEmail: storedFromEmail || GMAIL_FROM_EMAIL,
       fromName: GMAIL_FROM_NAME,
-      replyTo: storedFromEmail || GMAIL_FROM_EMAIL,
+      replyTo: storedReplyTo || storedFromEmail || GMAIL_FROM_EMAIL,
     };
   }
 
@@ -2109,7 +2112,7 @@ async function getMailSettings() {
       refreshToken: refreshToken,
       fromEmail: storedFromEmail || GMAIL_FROM_EMAIL,
       fromName: GMAIL_FROM_NAME,
-      replyTo: storedFromEmail || GMAIL_FROM_EMAIL,
+      replyTo: storedReplyTo || storedFromEmail || GMAIL_FROM_EMAIL,
     };
   }
   return null;
