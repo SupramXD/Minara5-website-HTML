@@ -2207,41 +2207,15 @@
                     channel, so your phone buzzes even when this panel is closed. Nothing is sent for an unpaid checkout.
                   </p>
                   <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
-                    <strong>Where it is stored:</strong> the webhook URL / bot token lives only in the admin-only Firestore
-                    document <code>settings/notifications</code> - never in the website code, and no customer page can read it.
-                    Press <strong>Save</strong> and the very next paid order alerts: <strong>no redeploy needed</strong>.
+                    <strong>Where the webhook lives:</strong> <strong>Firebase Secret Manager</strong>, as
+                    <code>DISCORD_ORDERS_WEBHOOK</code> - never on this page, never in Firestore, never in the website code,
+                    so no admin session or database read can expose it. Nothing sensitive is typed here any more; the
+                    controls below are preferences only, and the defaults work even before they are saved.
                   </p>
 
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                      <label>Delivery mode</label>
-                      <select id="alertMode" class="form-input" onchange="window.onAlertModeChange && window.onAlertModeChange()">
-                        <option value="webhook">Channel webhook (recommended - one URL, no bot)</option>
-                        <option value="bot">Discord bot (bot token + channel id)</option>
-                      </select>
-                    </div>
-                    <div class="form-group" style="display: flex; align-items: center; gap: 10px; padding-top: 22px;">
-                      <input type="checkbox" id="alertEnabled" checked style="width: auto;">
-                      <label for="alertEnabled" style="margin: 0;">Alerts enabled</label>
-                    </div>
-                  </div>
-
-                  <div id="alertWebhookFields" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 6px;">
-                    <div class="form-group">
-                      <label>Discord webhook URL (Channel &rarr; Edit Channel &rarr; Integrations &rarr; Webhooks)</label>
-                      <input type="password" id="alertWebhookUrl" class="form-input" placeholder="https://discord.com/api/webhooks/1234567890/AbCdEf..." autocomplete="new-password">
-                    </div>
-                  </div>
-
-                  <div id="alertBotFields" style="display: none; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 6px;">
-                    <div class="form-group">
-                      <label>Bot token (Bot tab &rarr; Reset Token &rarr; Copy)</label>
-                      <input type="password" id="alertBotToken" class="form-input" placeholder="MTQxMjM0NTY3ODkw.GaBcDe..." autocomplete="new-password">
-                    </div>
-                    <div class="form-group">
-                      <label>Channel ID (right-click the channel &rarr; Copy Channel ID)</label>
-                      <input type="text" id="alertChannelId" class="form-input" placeholder="1234567890123456789">
-                    </div>
+                  <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="alertEnabled" checked style="width: auto;">
+                    <label for="alertEnabled" style="margin: 0;">Alerts enabled</label>
                   </div>
                   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 6px;">
                     <div class="form-group">
@@ -2249,7 +2223,7 @@
                       <input type="text" id="alertMention" class="form-input" placeholder="Leave empty for a silent post">
                     </div>
                     <div class="form-group">
-                      <label>Webhook display name (webhook mode only)</label>
+                      <label>Webhook display name</label>
                       <input type="text" id="alertUsername" class="form-input" placeholder="Studio Extrait Orders">
                     </div>
                     <div class="form-group" style="display: flex; align-items: center; gap: 10px; padding-top: 22px;">
@@ -2265,14 +2239,13 @@
                   <p id="alertSettingsStatus" style="font-size: 12px; color: var(--text-muted); margin-top: 14px; line-height: 1.6;"></p>
 
                   <details style="margin-top: 18px;">
-                    <summary style="cursor: pointer; font-size: 12px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">How to get a Discord webhook (60 seconds)</summary>
+                    <summary style="cursor: pointer; font-size: 12px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">How this works (and how to change the webhook)</summary>
                     <ol style="font-size: 12px; color: var(--text-muted); line-height: 1.8; margin: 12px 0 0 18px;">
-                      <li>Open Discord and create (or pick) a <strong>private server</strong> only you are in - order details get posted there.</li>
-                      <li>Right-click the channel that should receive orders (e.g. <code>#orders</code>) &rarr; <strong>Edit Channel</strong>.</li>
-                      <li>Open <strong>Integrations</strong> &rarr; <strong>Webhooks</strong> &rarr; <strong>New Webhook</strong> &rarr; <strong>Copy Webhook URL</strong>.</li>
-                      <li>Paste the URL above, press <strong>Save Alert Settings</strong>, then <strong>Send Test Alert</strong> - a card appears in that channel within seconds.</li>
+                      <li>An order is paid (Yoco card, Ozow EFT, Capitec Pay or a manual mark-as-paid) &rarr; the Cloud Function reads <code>DISCORD_ORDERS_WEBHOOK</code> from Secret Manager and posts one card. Unpaid checkouts are never posted, and a failed post never affects the customer's receipt.</li>
+                      <li>Test-mode payments are posted too and marked <strong>[TEST]</strong> - un-tick the box above if you only want live money.</li>
                       <li>On your phone: Discord app &rarr; that server &rarr; bell icon &rarr; <strong>All Messages</strong>. Discord silences unfamiliar servers by default; this is the step that makes it actually ring.</li>
-                      <li>No bot invite and no Developer Portal app is needed for webhook mode. Use <strong>bot mode</strong> only if you want a bot identity (Developer Portal &rarr; New Application &rarr; Bot &rarr; Reset Token, then invite it with the <code>bot</code> scope and <code>Send Messages</code> permission).</li>
+                      <li>To <strong>replace</strong> the webhook: Discord &rarr; hover the channel &rarr; <strong>Edit Channel</strong> &rarr; <strong>Integrations</strong> &rarr; <strong>Webhooks</strong> &rarr; <strong>Copy Webhook URL</strong>, then run <code>firebase functions:secrets:set DISCORD_ORDERS_WEBHOOK</code> and paste it. It takes effect within a minute - no redeploy, and nothing sensitive is ever typed on this page.</li>
+                      <li>A successful post writes <code>ownerAlertSentAt</code> and <code>ownerAlertStatus: "sent"</code> on the order; a failure writes <code>ownerAlertError</code> and retries up to 3 times (10-minute back-off).</li>
                     </ol>
                   </details>
                 </div>

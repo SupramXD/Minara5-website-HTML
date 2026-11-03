@@ -2725,14 +2725,17 @@ exports.resendOrderConfirmation = onCall({
 // OWNER ORDER ALERTS (Discord) - added 2026-11-03
 // =====================================================================
 // The phone in the owner's pocket is alerted the moment an order is paid.
-// Delivery is a Discord CHANNEL WEBHOOK (default) or a Discord BOT token plus a
-// channel id, configured in Admin -> Site Texts -> "Phone Order Alerts" and
-// stored in the admin-only Firestore document `settings/notifications`:
-//   {enabled, includeTestOrders,
-//    discord: {enabled, mode: "webhook"|"bot", webhookUrl, botToken, channelId,
-//              mention, username}}
-// Nothing is hard-coded in the repo and saving the webhook needs no redeploy -
-// exactly the ladder the confirmation email already uses (settings/mail).
+// Delivery is a Discord CHANNEL WEBHOOK stored ONLY in Firebase Secret Manager
+// as `DISCORD_ORDERS_WEBHOOK`:
+//   firebase functions:secrets:set DISCORD_ORDERS_WEBHOOK
+// It is never written to Firestore, never in the repo and never shown in the
+// admin panel, so no admin session, customer page or database read can expose
+// it. Only the non-sensitive preferences (on/off, test-mode alerts, optional
+// ping, display name) live in the admin-only `settings/notifications` document.
+//
+// The webhook is read from Secret Manager on EVERY alert: the latest version is
+// fetched directly (so rotating it takes effect within a minute, no redeploy)
+// and the value bound at deploy time is the fallback.
 //
 // Fires on `paid === true`, which is only ever written by the Yoco webhook, the
 // Ozow webhook or a manual mark-as-paid in the admin panel, so one handler
@@ -2741,7 +2744,7 @@ exports.resendOrderConfirmation = onCall({
 // function: the 3-attempt cap and the 10-minute back-off stop the loop.
 const ALERT_SETTINGS_DOC = "notifications";
 const ALERT_ADMIN_URL = MAIL_SITE_URL + "/admin.html";
-const ALERT_DISCORD_API = "https://discord.com/api/v10";
+const discordOrdersWebhookSecret = defineSecret("DISCORD_ORDERS_WEBHOOK");
 
 /** A Discord channel webhook URL (discord.com/discordapp.com, any API version). */
 function isValidDiscordWebhook(url) {
@@ -2759,50 +2762,41 @@ function whatsappDigits(phone) {
 }
 
 /**
- * Read the admin-managed owner-alert configuration. Returns null when nothing
- * usable is configured (or alerts are switched off), so the trigger leaves the
- * order untouched and a later save can still alert.
+ * Read the owner-alert configuration. The WEBHOOK always comes from Secret
+ * Manager; Firestore only supplies preferences. Returns null when there is no
+ * usable webhook or alerts are switched off, so the trigger leaves the order
+ * untouched and a later fix can still alert.
  */
 async function getAlertSettings(options) {
   const includeDisabled = !!(options && options.includeDisabled === true);
+
+  const webhookUrl = String((await readSecretLatest("DISCORD_ORDERS_WEBHOOK")) ||
+    readSecretQuietly(discordOrdersWebhookSecret) || "").trim();
+  if (!isValidDiscordWebhook(webhookUrl)) {
+    logger.warn("DISCORD_ORDERS_WEBHOOK is missing or is not a Discord webhook URL - " +
+      "no owner alert can be sent.");
+    return null;
+  }
+
+  // Preferences only. A missing document is FINE - the defaults below apply, so
+  // the secret on its own is already a complete configuration.
   let data = {};
   try {
     const snap = await firestore.collection("settings").doc(ALERT_SETTINGS_DOC).get();
-    if (!snap.exists) return null;
-    data = snap.data() || {};
+    if (snap.exists) data = snap.data() || {};
   } catch (err) {
-    logger.warn("Could not read settings/notifications:", err);
-    return null;
+    logger.warn("Could not read settings/notifications - using the defaults:", err);
   }
 
   if (!includeDisabled && data.enabled === false) return null;
 
-  const raw = data.discord || {};
-  const discordEnabled = raw.enabled !== false;
-  if (!includeDisabled && !discordEnabled) return null;
-
-  const mode = String(raw.mode || "webhook").toLowerCase() === "bot" ? "bot" : "webhook";
-  const webhookUrl = String(raw.webhookUrl || "").trim();
-  const botToken = String(raw.botToken || "").trim();
-  const channelId = String(raw.channelId || "").trim();
-  const usable = mode === "bot" ?
-    (botToken.length > 20 && /^\d{5,25}$/.test(channelId)) :
-    isValidDiscordWebhook(webhookUrl);
-  if (!usable) return null;
-
   return {
-    // Test-mode payments (today's Yoco/Ozow keys) are alerted too and marked
-    // [TEST]; un-tick the box to mute them.
+    // Test-mode payments (today's Yoco/Ozow test keys) are alerted too and
+    // marked [TEST]; un-tick the box in the admin to mute them.
     includeTestOrders: data.includeTestOrders !== false,
-    discord: {
-      enabled: discordEnabled,
-      mode: mode,
-      webhookUrl: webhookUrl,
-      botToken: botToken,
-      channelId: channelId,
-      mention: String(raw.mention || "").trim(),
-      username: String(raw.username || "").trim() || "Studio Extrait Orders",
-    },
+    webhookUrl: webhookUrl,
+    mention: String(data.mention || "").trim(),
+    username: String(data.username || "").trim() || "Studio Extrait Orders",
   };
 }
 
@@ -2872,38 +2866,34 @@ function buildDiscordOrderAlert(order, orderId, settings, flags) {
   };
 
   // An optional mention (user or role id) is the only thing allowed to ping.
-  const mention = String((settings && settings.discord && settings.discord.mention) || "").trim();
+  const mention = String((settings && settings.mention) || "").trim();
   if (mention) {
     body.content = mention;
     body.allowed_mentions = {parse: ["users", "roles"]};
   }
-  if (settings && settings.discord && settings.discord.mode === "webhook" && settings.discord.username) {
-    body.username = settings.discord.username;
-  }
+  const username = String((settings && settings.username) || "").trim();
+  if (username) body.username = username;
   return body;
 }
 
 /**
- * POST one message to Discord. Webhook mode needs only the URL; bot mode needs
- * the bot token (Authorization: Bot …) and a channel id. A hard 10s timeout so a
+ * POST one message to the Discord channel webhook from Secret Manager.
+ * `?wait=true` makes Discord return the created message (200) instead of an
+ * empty 204, so a rejection carries a body we can log. A hard 10s timeout so a
  * silent Discord cannot hold the function open.
  */
 async function sendOwnerDiscordAlert(settings, body) {
-  const discord = settings.discord;
-  let url;
-  const headers = {"Content-Type": "application/json"};
-  if (discord.mode === "bot") {
-    url = `${ALERT_DISCORD_API}/channels/${discord.channelId}/messages`;
-    headers.Authorization = `Bot ${discord.botToken}`;
-  } else {
-    url = discord.webhookUrl + (discord.webhookUrl.includes("?") ? "&" : "?") + "wait=true";
+  const webhookUrl = String((settings && settings.webhookUrl) || "").trim();
+  if (!isValidDiscordWebhook(webhookUrl)) {
+    throw new Error("No usable Discord webhook - set the DISCORD_ORDERS_WEBHOOK secret.");
   }
+  const url = webhookUrl + (webhookUrl.includes("?") ? "&" : "?") + "wait=true";
 
   let response;
   try {
     response = await fetch(url, {
       method: "POST",
-      headers: headers,
+      headers: {"Content-Type": "application/json"},
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(10000),
     });
@@ -2915,7 +2905,7 @@ async function sendOwnerDiscordAlert(settings, body) {
     const text = await response.text().catch(() => "");
     throw new Error(`Discord rejected the alert (HTTP ${response.status}): ${text.slice(0, 300)}`);
   }
-  return {channel: discord.mode, status: response.status};
+  return {channel: "webhook", status: response.status};
 }
 
 /**
@@ -2976,19 +2966,21 @@ async function handleOwnerOrderAlert(event) {
 
 exports.onOrderPaidAlertOwner = onDocumentUpdated({
   document: "orders/{orderId}",
+  secrets: [discordOrdersWebhookSecret],
 }, handleOwnerOrderAlert);
 
 // Fallback for a paid order that is CREATED already paid (a gateway webhook that
 // arrives before the checkout callable finished writing the pending document).
 exports.onOrderPaidAlertOwnerCreated = onDocumentCreated({
   document: "orders/{orderId}",
+  secrets: [discordOrdersWebhookSecret],
 }, handleOwnerOrderAlert);
 
 /**
- * Admin: send a sample alert so the owner can confirm the webhook/token works.
- * Works even while alerts are switched off, as long as a channel is configured.
+ * Admin: send a sample alert so the owner can confirm the Secret Manager webhook
+ * works. Runs even while alerts are switched off.
  */
-exports.sendTestOrderAlert = onCall(async (request) => {
+exports.sendTestOrderAlert = onCall({secrets: [discordOrdersWebhookSecret]}, async (request) => {
   await assertMasterAdmin(request);
   const settings = await getAlertSettings({includeDisabled: true});
   if (!settings) {

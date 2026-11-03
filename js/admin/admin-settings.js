@@ -1597,70 +1597,39 @@
   // ==========================================
   // PHONE ORDER ALERTS (settings/notifications)
   // ==========================================
-  // A Discord channel webhook (or bot token + channel id) is pasted here and
-  // stored in the admin-only Firestore document `settings/notifications`. The
-  // Cloud Functions read that same document when an order is paid, so saving a
-  // new webhook needs no redeploy - exactly like the mail settings above.
-  const DISCORD_WEBHOOK_PATTERN = /^https:\/\/(?:[\w-]+\.)?discord(?:app)?\.com\/api\/(?:v\d+\/)?webhooks\/\d{5,}\/[\w-]{20,}/i;
-
-  window.onAlertModeChange = function() {
-    const modeEl = document.getElementById("alertMode");
-    const webhookFields = document.getElementById("alertWebhookFields");
-    const botFields = document.getElementById("alertBotFields");
-    const isBot = modeEl && modeEl.value === "bot";
-    // A hidden container must not keep its own `display: grid` inline style.
-    if (webhookFields) webhookFields.style.display = isBot ? "none" : "grid";
-    if (botFields) botFields.style.display = isBot ? "grid" : "none";
-  };
-
+  // The Discord webhook itself is NOT here: it lives only in Firebase Secret
+  // Manager as DISCORD_ORDERS_WEBHOOK, so no admin session, Firestore document
+  // or page source can expose it. Only non-sensitive preferences are stored in
+  // the admin-only `settings/notifications` document - and the Cloud Function
+  // works without it too (the defaults are alert-on + include test orders).
   window.loadAlertSettings = async function() {
     const statusEl = document.getElementById("alertSettingsStatus");
     if (!window.db || !window.dbDoc || !window.dbGetDoc) return;
     try {
       const snap = await window.dbGetDoc(window.dbDoc(window.db, "settings", "notifications"));
       const data = snap && snap.exists() ? (snap.data() || {}) : {};
-      const discord = data.discord || {};
-      if (document.getElementById("alertMode")) {
-        document.getElementById("alertMode").value = discord.mode === "bot" ? "bot" : "webhook";
-      }
       if (document.getElementById("alertEnabled")) {
         document.getElementById("alertEnabled").checked = data.enabled !== false;
       }
       if (document.getElementById("alertIncludeTest")) {
         document.getElementById("alertIncludeTest").checked = data.includeTestOrders !== false;
       }
-      if (document.getElementById("alertWebhookUrl")) {
-        document.getElementById("alertWebhookUrl").value = discord.webhookUrl || "";
-      }
-      if (document.getElementById("alertBotToken")) {
-        document.getElementById("alertBotToken").value = discord.botToken || "";
-      }
-      if (document.getElementById("alertChannelId")) {
-        document.getElementById("alertChannelId").value = discord.channelId || "";
-      }
       if (document.getElementById("alertMention")) {
-        document.getElementById("alertMention").value = discord.mention || "";
+        document.getElementById("alertMention").value = data.mention || "";
       }
       if (document.getElementById("alertUsername")) {
-        document.getElementById("alertUsername").value = discord.username || "Studio Extrait Orders";
+        document.getElementById("alertUsername").value = data.username || "Studio Extrait Orders";
       }
-      window.onAlertModeChange();
-
       if (statusEl) {
-        const hasWebhook = DISCORD_WEBHOOK_PATTERN.test(String(discord.webhookUrl || "").trim());
-        const hasBot = String(discord.botToken || "").length > 20 && /^\d{5,25}$/.test(String(discord.channelId || ""));
-        const mode = discord.mode === "bot" ? "bot mode" : "webhook mode";
         if (data.enabled === false) {
-          statusEl.textContent = "Alerts are switched OFF - paid orders will not ping your phone until you re-tick \"Alerts enabled\" and save.";
-        } else if (hasWebhook || hasBot) {
-          statusEl.textContent = `Alerts are ON (${mode}). Every paid order is posted to Discord - press "Send Test Alert" to check it lands.`;
+          statusEl.textContent = "Alerts are switched OFF - paid orders will not ping Discord until you re-tick \"Alerts enabled\" and save.";
         } else {
-          statusEl.textContent = "No Discord destination yet - paste a channel webhook URL above and press Save Alert Settings.";
+          statusEl.textContent = "Alerts are ON. The Discord webhook is read from Firebase Secret Manager (DISCORD_ORDERS_WEBHOOK) - press \"Send Test Alert\" to check it posts.";
         }
       }
     } catch (err) {
       console.error("Could not load the alert settings:", err);
-      if (statusEl) statusEl.textContent = "Could not read the phone alert settings from Firestore.";
+      if (statusEl) statusEl.textContent = "Could not read the phone alert preferences from Firestore.";
     }
   };
 
@@ -1668,42 +1637,24 @@
     if (e) e.preventDefault();
     const btn = document.getElementById("saveAlertBtn");
     const statusEl = document.getElementById("alertSettingsStatus");
-    const mode = document.getElementById("alertMode") ? document.getElementById("alertMode").value : "webhook";
+    // Preferences only. The Discord webhook itself never passes through this
+    // page: it lives in Firebase Secret Manager (DISCORD_ORDERS_WEBHOOK).
     const payload = {
       enabled: document.getElementById("alertEnabled") ? document.getElementById("alertEnabled").checked : true,
       includeTestOrders: document.getElementById("alertIncludeTest") ? document.getElementById("alertIncludeTest").checked : true,
-      discord: {
-        enabled: true,
-        mode: mode === "bot" ? "bot" : "webhook",
-        webhookUrl: document.getElementById("alertWebhookUrl") ? document.getElementById("alertWebhookUrl").value.trim() : "",
-        botToken: document.getElementById("alertBotToken") ? document.getElementById("alertBotToken").value.trim() : "",
-        channelId: document.getElementById("alertChannelId") ? document.getElementById("alertChannelId").value.trim() : "",
-        mention: document.getElementById("alertMention") ? document.getElementById("alertMention").value.trim() : "",
-        username: (document.getElementById("alertUsername") ? document.getElementById("alertUsername").value.trim() : "") || "Studio Extrait Orders"
-      },
+      mention: document.getElementById("alertMention") ? document.getElementById("alertMention").value.trim() : "",
+      username: (document.getElementById("alertUsername") ? document.getElementById("alertUsername").value.trim() : "") || "Studio Extrait Orders",
       updatedAt: new Date().toISOString()
     };
-
-    if (payload.enabled) {
-      if (payload.discord.mode === "webhook" && !DISCORD_WEBHOOK_PATTERN.test(payload.discord.webhookUrl)) {
-        alert("That is not a Discord webhook URL. It looks like https://discord.com/api/webhooks/<id>/<token> - copy it from Channel > Edit Channel > Integrations > Webhooks.");
-        return;
-      }
-      if (payload.discord.mode === "bot" &&
-        (payload.discord.botToken.length < 20 || !/^\d{5,25}$/.test(payload.discord.channelId))) {
-        alert("Bot mode needs both the bot token and a numeric channel id (right-click the channel > Copy Channel ID).");
-        return;
-      }
-    }
 
     const original = btn ? btn.innerHTML : "";
     if (btn) { btn.disabled = true; btn.innerHTML = "SAVING..."; }
     try {
       await window.dbSetDoc(window.dbDoc(window.db, "settings", "notifications"), payload, { merge: true });
-      if (statusEl) statusEl.textContent = "Saved. Press \"Send Test Alert\" to confirm the channel receives it.";
+      if (statusEl) statusEl.textContent = "Saved. Press \"Send Test Alert\" to confirm the Secret Manager webhook posts to Discord.";
     } catch (err) {
       console.error("Alert settings save failed:", err);
-      alert("Could not save the phone alert settings: " + (err.message || err));
+      alert("Could not save the phone alert preferences: " + (err.message || err));
     } finally {
       if (btn) { btn.disabled = false; btn.innerHTML = original; }
     }
