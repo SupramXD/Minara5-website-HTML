@@ -1,8 +1,46 @@
 [
   {
+    "id": "any-2-50ml-fragrances",
+    "nameShort": "The Discovery Duet",
+    "name": "The Discovery Duet",
+    "price": 749,
+    "retailPrice": null,
+    "stock": 7,
+    "image": "images/products/any-2-50ml-fragrances.webp",
+    "galleryImages": [
+      "images/products/any-2-50ml-fragrances.webp"
+    ],
+    "image_thumb": "images/products/any-2-50ml-fragrances_thumb.webp",
+    "description": "2 fragrance bundle",
+    "status": "Active",
+    "flair": "",
+    "flairText": "bundle",
+    "flairColor": "#c600a3",
+    "invisibleFlair": "",
+    "standardBottleImg": "",
+    "masculinePremiumBottleImg": "",
+    "femininePremiumBottleImg": "",
+    "customisations": [],
+    "sizes": [
+      "50ml"
+    ],
+    "isBundle": true,
+    "bundleSize": 2,
+    "sortOrder": 1,
+    "scentProfile": {
+      "keyNotes": [],
+      "topNotes": "",
+      "topNotesDesc": "The first notes you smell",
+      "middleNotes": "",
+      "middleNotesDesc": "The heart of the perfume",
+      "baseNotes": "",
+      "baseNotesDesc": "The notes that linger all day"
+    }
+  },
+  {
     "id": "profile-a-warm-day",
     "nameShort": "Caribbean",
-    "name": "Inspired by Le Male",
+    "name": "Inspired by JPG's Le Male",
     "price": 495,
     "retailPrice": null,
     "stock": 3,
@@ -45,20 +83,20 @@
           "icon": "Perfume Note Icons/Lavender.webp"
         },
         {
-          "name": "Vanilla",
-          "icon": "Perfume Note Icons/Vanilla.webp"
+          "icon": "Perfume Note Icons/Vanilla.webp",
+          "name": "Vanilla"
         },
         {
-          "name": "Bergamot",
-          "icon": "Perfume Note Icons/Bergamot.webp"
+          "icon": "Perfume Note Icons/Bergamot.webp",
+          "name": "Bergamot"
         },
         {
-          "name": "Ceylon Cinnamon",
-          "icon": "Perfume Note Icons/Ceylon_Cinnamon.webp"
+          "icon": "Perfume Note Icons/Ceylon_Cinnamon.webp",
+          "name": "Ceylon Cinnamon"
         },
         {
-          "name": "Amber",
-          "icon": "Perfume Note Icons/Amber.webp"
+          "icon": "Perfume Note Icons/Amber.webp",
+          "name": "Amber"
         }
       ],
       "topNotes": "Lavender, Vanilla",
@@ -66,44 +104,6 @@
       "middleNotes": "Cinnamon, Bergamot",
       "middleNotesDesc": "The heart of the perfume",
       "baseNotes": "Vanilla, Amber",
-      "baseNotesDesc": "The notes that linger all day"
-    }
-  },
-  {
-    "id": "any-2-50ml-fragrances",
-    "nameShort": "The Discovery Duet",
-    "name": "The Discovery Duet",
-    "price": 749,
-    "retailPrice": null,
-    "stock": 7,
-    "image": "images/products/any-2-50ml-fragrances.webp",
-    "galleryImages": [
-      "images/products/any-2-50ml-fragrances.webp"
-    ],
-    "image_thumb": "images/products/any-2-50ml-fragrances_thumb.webp",
-    "description": "2 fragrance bundle",
-    "status": "Active",
-    "flair": "",
-    "flairText": "bundle",
-    "flairColor": "#c600a3",
-    "invisibleFlair": "",
-    "standardBottleImg": "",
-    "masculinePremiumBottleImg": "",
-    "femininePremiumBottleImg": "",
-    "customisations": [],
-    "sizes": [
-      "50ml"
-    ],
-    "isBundle": true,
-    "bundleSize": 2,
-    "sortOrder": 3,
-    "scentProfile": {
-      "keyNotes": [],
-      "topNotes": "",
-      "topNotesDesc": "The first notes you smell",
-      "middleNotes": "",
-      "middleNotesDesc": "The heart of the perfume",
-      "baseNotes": "",
       "baseNotesDesc": "The notes that linger all day"
     }
   },
@@ -134,7 +134,7 @@
     ],
     "isBundle": false,
     "bundleSize": 0,
-    "sortOrder": 4,
+    "sortOrder": 3,
     "scentProfile": {
       "keyNotes": [
         {
@@ -193,7 +193,7 @@
     ],
     "isBundle": false,
     "bundleSize": 0,
-    "sortOrder": 5,
+    "sortOrder": 4,
     "scentProfile": {
       "keyNotes": [
         {
