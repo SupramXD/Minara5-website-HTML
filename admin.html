@@ -2195,6 +2195,89 @@
                   <p id="mailSettingsStatus" style="font-size: 12px; color: var(--text-muted); margin-top: 14px; line-height: 1.6;"></p>
                 </div>
 
+                <!-- PANEL 2D: PHONE ORDER ALERTS (DISCORD) -->
+                <div class="console-panel full-width-panel" style="margin-bottom: 30px;">
+                  <div class="panel-header">
+                    <h2 class="panel-title">Phone Order Alerts (Discord)</h2>
+                    <span class="stat-label" style="font-size: 10px;">Ping on every paid order</span>
+                  </div>
+                  <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.6;">
+                    <strong>What this does:</strong> the moment an order is paid (Yoco card, Ozow EFT, Capitec Pay - or a
+                    manual mark-as-paid in the Orders tab) the Cloud Function posts an order card to a private Discord
+                    channel, so your phone buzzes even when this panel is closed. Nothing is sent for an unpaid checkout.
+                  </p>
+                  <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
+                    <strong>Where it is stored:</strong> the webhook URL / bot token lives only in the admin-only Firestore
+                    document <code>settings/notifications</code> - never in the website code, and no customer page can read it.
+                    Press <strong>Save</strong> and the very next paid order alerts: <strong>no redeploy needed</strong>.
+                  </p>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                      <label>Delivery mode</label>
+                      <select id="alertMode" class="form-input" onchange="window.onAlertModeChange && window.onAlertModeChange()">
+                        <option value="webhook">Channel webhook (recommended - one URL, no bot)</option>
+                        <option value="bot">Discord bot (bot token + channel id)</option>
+                      </select>
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px; padding-top: 22px;">
+                      <input type="checkbox" id="alertEnabled" checked style="width: auto;">
+                      <label for="alertEnabled" style="margin: 0;">Alerts enabled</label>
+                    </div>
+                  </div>
+
+                  <div id="alertWebhookFields" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 6px;">
+                    <div class="form-group">
+                      <label>Discord webhook URL (Channel &rarr; Edit Channel &rarr; Integrations &rarr; Webhooks)</label>
+                      <input type="password" id="alertWebhookUrl" class="form-input" placeholder="https://discord.com/api/webhooks/1234567890/AbCdEf..." autocomplete="new-password">
+                    </div>
+                  </div>
+
+                  <div id="alertBotFields" style="display: none; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 6px;">
+                    <div class="form-group">
+                      <label>Bot token (Bot tab &rarr; Reset Token &rarr; Copy)</label>
+                      <input type="password" id="alertBotToken" class="form-input" placeholder="MTQxMjM0NTY3ODkw.GaBcDe..." autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                      <label>Channel ID (right-click the channel &rarr; Copy Channel ID)</label>
+                      <input type="text" id="alertChannelId" class="form-input" placeholder="1234567890123456789">
+                    </div>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 6px;">
+                    <div class="form-group">
+                      <label>Also ping a user/role (optional - paste <code>&lt;@123456789&gt;</code> or <code>&lt;@&amp;123456789&gt;</code>)</label>
+                      <input type="text" id="alertMention" class="form-input" placeholder="Leave empty for a silent post">
+                    </div>
+                    <div class="form-group">
+                      <label>Webhook display name (webhook mode only)</label>
+                      <input type="text" id="alertUsername" class="form-input" placeholder="Studio Extrait Orders">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px; padding-top: 22px;">
+                      <input type="checkbox" id="alertIncludeTest" checked style="width: auto;">
+                      <label for="alertIncludeTest" style="margin: 0;">Also alert for test-mode payments (marked <strong>[TEST]</strong>)</label>
+                    </div>
+                  </div>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 18px;">
+                    <button type="button" id="saveAlertBtn" onclick="handleSaveAlertSettings(event)" class="btn-action accent-btn" style="width: 100%; padding: 12px; font-weight: bold; font-family: inherit;">Save Alert Settings</button>
+                    <button type="button" id="testAlertBtn" onclick="handleSendTestAlert(event)" class="btn-action" style="width: 100%; padding: 12px; font-weight: bold; font-family: inherit;">Send Test Alert</button>
+                  </div>
+                  <p id="alertSettingsStatus" style="font-size: 12px; color: var(--text-muted); margin-top: 14px; line-height: 1.6;"></p>
+
+                  <details style="margin-top: 18px;">
+                    <summary style="cursor: pointer; font-size: 12px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">How to get a Discord webhook (60 seconds)</summary>
+                    <ol style="font-size: 12px; color: var(--text-muted); line-height: 1.8; margin: 12px 0 0 18px;">
+                      <li>Open Discord and create (or pick) a <strong>private server</strong> only you are in - order details get posted there.</li>
+                      <li>Right-click the channel that should receive orders (e.g. <code>#orders</code>) &rarr; <strong>Edit Channel</strong>.</li>
+                      <li>Open <strong>Integrations</strong> &rarr; <strong>Webhooks</strong> &rarr; <strong>New Webhook</strong> &rarr; <strong>Copy Webhook URL</strong>.</li>
+                      <li>Paste the URL above, press <strong>Save Alert Settings</strong>, then <strong>Send Test Alert</strong> - a card appears in that channel within seconds.</li>
+                      <li>On your phone: Discord app &rarr; that server &rarr; bell icon &rarr; <strong>All Messages</strong>. Discord silences unfamiliar servers by default; this is the step that makes it actually ring.</li>
+                      <li>No bot invite and no Developer Portal app is needed for webhook mode. Use <strong>bot mode</strong> only if you want a bot identity (Developer Portal &rarr; New Application &rarr; Bot &rarr; Reset Token, then invite it with the <code>bot</code> scope and <code>Send Messages</code> permission).</li>
+                    </ol>
+                  </details>
+                </div>
+
+
                 <!-- PANEL 3: PRODUCT PAGE ACCORDIONS -->
                 <div class="console-panel full-width-panel" style="margin-bottom: 30px;">
                   <div class="panel-header">
@@ -2747,7 +2830,7 @@
 
   <!-- Modular Admin Feature Scripts -->
   <script src="js/admin/admin-utils.js?v=20260915"></script>
-  <script src="js/admin/admin-core.js?v=20261028"></script>
+  <script src="js/admin/admin-core.js?v=20261103"></script>
   <script src="js/admin/admin-users.js?v=20260826_1630"></script>
   <script src="js/admin/admin-checkout-emails.js?v=20261019"></script>
   <script src="js/admin/admin-notifications.js?v=20260826_1630"></script>
@@ -2755,13 +2838,13 @@
   <script src="js/admin/admin-costing.js?v=20261027"></script>
   <script src="js/admin/admin-products.js?v=20261029b"></script>
   <script src="js/admin/admin-analytics.js?v=20260826_1630"></script>
-  <script src="js/admin/admin-settings.js?v=20261028"></script>
+  <script src="js/admin/admin-settings.js?v=20261103"></script>
   <script src="js/admin/admin-reviews.js?v=20260914"></script>
   <script src="js/admin/admin-featured-reviews.js?v=20260914"></script>
   <script src="js/admin/admin-finance.js?v=20261027b"></script>
 
   <!-- Admin Auth & Security Gateway Bootstrapper -->
-  <script type="module" src="js/admin/admin-auth.js?v=20261028"></script>
+  <script type="module" src="js/admin/admin-auth.js?v=20261103"></script>
   <script type="module" src="header.js?v=20261029"></script>
 </body>
 </html>

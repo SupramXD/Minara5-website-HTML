@@ -32,6 +32,7 @@ window.auth = auth;
 window.functions = functions;
 window.syncToGithubCallable = httpsCallable(functions, "syncToGithub");
 window.sendTestOrderEmailCallable = httpsCallable(functions, "sendTestOrderEmail");
+window.sendTestOrderAlertCallable = httpsCallable(functions, "sendTestOrderAlert");
 window.resendOrderConfirmationCallable = httpsCallable(functions, "resendOrderConfirmation");
 window.dbDoc = doc;
 window.dbGetDoc = getDoc;

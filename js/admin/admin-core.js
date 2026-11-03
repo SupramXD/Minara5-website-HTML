@@ -64,6 +64,9 @@
     if (tabId === 'features-tab' && typeof window.loadMailSettings === 'function') {
       window.loadMailSettings();
     }
+    if (tabId === 'features-tab' && typeof window.loadAlertSettings === 'function') {
+      window.loadAlertSettings();
+    }
     if (tabId === 'users-tab') {
       if (typeof window.fetchUsers === 'function') {
         window.fetchUsers();

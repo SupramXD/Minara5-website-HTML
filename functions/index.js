@@ -2721,6 +2721,298 @@ exports.resendOrderConfirmation = onCall({
   return {success: true, provider: mail.provider, to: to, messageId: result.providerMessageId};
 });
 
+// =====================================================================
+// OWNER ORDER ALERTS (Discord) - added 2026-11-03
+// =====================================================================
+// The phone in the owner's pocket is alerted the moment an order is paid.
+// Delivery is a Discord CHANNEL WEBHOOK (default) or a Discord BOT token plus a
+// channel id, configured in Admin -> Site Texts -> "Phone Order Alerts" and
+// stored in the admin-only Firestore document `settings/notifications`:
+//   {enabled, includeTestOrders,
+//    discord: {enabled, mode: "webhook"|"bot", webhookUrl, botToken, channelId,
+//              mention, username}}
+// Nothing is hard-coded in the repo and saving the webhook needs no redeploy -
+// exactly the ladder the confirmation email already uses (settings/mail).
+//
+// Fires on `paid === true`, which is only ever written by the Yoco webhook, the
+// Ozow webhook or a manual mark-as-paid in the admin panel, so one handler
+// covers every rail. The send is CLAIMED first (`ownerAlertAttempts` +
+// `ownerAlertLastAttemptAt`) because the writes made here re-trigger this same
+// function: the 3-attempt cap and the 10-minute back-off stop the loop.
+const ALERT_SETTINGS_DOC = "notifications";
+const ALERT_ADMIN_URL = MAIL_SITE_URL + "/admin.html";
+const ALERT_DISCORD_API = "https://discord.com/api/v10";
+
+/** A Discord channel webhook URL (discord.com/discordapp.com, any API version). */
+function isValidDiscordWebhook(url) {
+  return /^https:\/\/(?:[\w-]+\.)?discord(?:app)?\.com\/api\/(?:v\d+\/)?webhooks\/\d{5,}\/[\w-]{20,}/i
+      .test(String(url || "").trim());
+}
+
+/** SA mobile number -> wa.me digits (082 123 4567 -> 27821234567). */
+function whatsappDigits(phone) {
+  let digits = String(phone || "").replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.startsWith("0")) digits = "27" + digits.slice(1);
+  else if (digits.length === 9) digits = "27" + digits;
+  return /^27\d{9}$/.test(digits) ? digits : "";
+}
+
+/**
+ * Read the admin-managed owner-alert configuration. Returns null when nothing
+ * usable is configured (or alerts are switched off), so the trigger leaves the
+ * order untouched and a later save can still alert.
+ */
+async function getAlertSettings(options) {
+  const includeDisabled = !!(options && options.includeDisabled === true);
+  let data = {};
+  try {
+    const snap = await firestore.collection("settings").doc(ALERT_SETTINGS_DOC).get();
+    if (!snap.exists) return null;
+    data = snap.data() || {};
+  } catch (err) {
+    logger.warn("Could not read settings/notifications:", err);
+    return null;
+  }
+
+  if (!includeDisabled && data.enabled === false) return null;
+
+  const raw = data.discord || {};
+  const discordEnabled = raw.enabled !== false;
+  if (!includeDisabled && !discordEnabled) return null;
+
+  const mode = String(raw.mode || "webhook").toLowerCase() === "bot" ? "bot" : "webhook";
+  const webhookUrl = String(raw.webhookUrl || "").trim();
+  const botToken = String(raw.botToken || "").trim();
+  const channelId = String(raw.channelId || "").trim();
+  const usable = mode === "bot" ?
+    (botToken.length > 20 && /^\d{5,25}$/.test(channelId)) :
+    isValidDiscordWebhook(webhookUrl);
+  if (!usable) return null;
+
+  return {
+    // Test-mode payments (today's Yoco/Ozow keys) are alerted too and marked
+    // [TEST]; un-tick the box to mute them.
+    includeTestOrders: data.includeTestOrders !== false,
+    discord: {
+      enabled: discordEnabled,
+      mode: mode,
+      webhookUrl: webhookUrl,
+      botToken: botToken,
+      channelId: channelId,
+      mention: String(raw.mention || "").trim(),
+      username: String(raw.username || "").trim() || "Studio Extrait Orders",
+    },
+  };
+}
+
+/**
+ * Build the Discord message for one order: an embed card (what was bought, who
+ * bought it, where it goes) plus link buttons. Kept separate from the sender so
+ * the admin "Send test alert" callable previews exactly what a real alert looks
+ * like.
+ */
+function buildDiscordOrderAlert(order, orderId, settings, flags) {
+  const reference = String(order.orderId || orderId || "");
+  const shortRef = reference.replace(/^EXTRAIT-/, "");
+  const isTest = !!(flags && flags.isTest);
+  const items = describeOrderItems(order);
+  const totalLabel = formatZarExact(order.total).replace(/\.00$/, "");
+
+  const gateway = String(order.paymentGateway || "").toLowerCase();
+  const rail = String(order.ozowRail || "").toLowerCase();
+  const paymentLabel = gateway === "yoco" ? "Card / Apple Pay / Google Pay (Yoco)" :
+    (gateway === "ozow" ?
+      (rail === "bank-api" ? "Capitec Pay (Ozow)" : "Instant EFT (Ozow)") :
+      describePaymentMethod(order));
+
+  const itemLines = items.map((item) => {
+    let line = `• ${item.name} · ${item.size} ×${item.quantity}`;
+    if (item.bottle) line += `\n    ↳ ${item.bottle}`;
+    if (item.scents && item.scents.length) line += `\n    ↳ ${item.scents.join(", ")}`;
+    return line;
+  });
+  const description = (itemLines.length ? itemLines.join("\n") : "• (no line items recorded)")
+      .slice(0, 2500);
+
+  const customer = [
+    String(order.customerName || "").trim(),
+    String(order.phone || order.phoneAlt || "").trim(),
+    String(order.email || order.emailAlt || "").trim(),
+  ].filter(Boolean).join("\n") || "—";
+
+  const fields = [
+    {name: "Paid with", value: paymentLabel, inline: true},
+    {name: "Customer", value: customer.slice(0, 1024), inline: true},
+  ];
+  const address = String(order.address || "").trim();
+  if (address) fields.push({name: "Deliver to", value: address.slice(0, 1024), inline: false});
+  const requestedDay = String(order.deliveryDate || "").trim();
+  if (requestedDay) fields.push({name: "Requested day", value: requestedDay.slice(0, 1024), inline: true});
+  const notes = String(order.instructions || "").trim();
+  if (notes) fields.push({name: "Notes", value: notes.slice(0, 1024), inline: false});
+
+  const buttons = [{type: 2, style: 5, label: "Open admin panel", url: ALERT_ADMIN_URL}];
+  const whatsapp = whatsappDigits(order.phone || order.phoneAlt);
+  if (whatsapp) {
+    buttons.push({type: 2, style: 5, label: "WhatsApp customer", url: `https://wa.me/${whatsapp}`});
+  }
+
+  const body = {
+    embeds: [{
+      title: `${isTest ? "[TEST] " : ""}${totalLabel} paid · Order #${shortRef}`,
+      description: description,
+      color: 0x1106e8, // the site's money-blue
+      fields: fields,
+      footer: {text: `Studio Extrait · ${reference}`},
+      timestamp: new Date().toISOString(),
+    }],
+    components: [{type: 1, components: buttons}],
+    allowed_mentions: {parse: []},
+  };
+
+  // An optional mention (user or role id) is the only thing allowed to ping.
+  const mention = String((settings && settings.discord && settings.discord.mention) || "").trim();
+  if (mention) {
+    body.content = mention;
+    body.allowed_mentions = {parse: ["users", "roles"]};
+  }
+  if (settings && settings.discord && settings.discord.mode === "webhook" && settings.discord.username) {
+    body.username = settings.discord.username;
+  }
+  return body;
+}
+
+/**
+ * POST one message to Discord. Webhook mode needs only the URL; bot mode needs
+ * the bot token (Authorization: Bot …) and a channel id. A hard 10s timeout so a
+ * silent Discord cannot hold the function open.
+ */
+async function sendOwnerDiscordAlert(settings, body) {
+  const discord = settings.discord;
+  let url;
+  const headers = {"Content-Type": "application/json"};
+  if (discord.mode === "bot") {
+    url = `${ALERT_DISCORD_API}/channels/${discord.channelId}/messages`;
+    headers.Authorization = `Bot ${discord.botToken}`;
+  } else {
+    url = discord.webhookUrl + (discord.webhookUrl.includes("?") ? "&" : "?") + "wait=true";
+  }
+
+  let response;
+  try {
+    response = await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(10000),
+    });
+  } catch (err) {
+    throw new Error(`Could not reach Discord: ${String((err && err.message) || err).slice(0, 300)}`);
+  }
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`Discord rejected the alert (HTTP ${response.status}): ${text.slice(0, 300)}`);
+  }
+  return {channel: discord.mode, status: response.status};
+}
+
+/**
+ * One handler for both triggers: an order normally becomes paid by an UPDATE,
+ * but a gateway webhook that lands before the order document exists CREATES it
+ * already paid. Both shapes are handled here so no paid order is ever silent.
+ */
+async function handleOwnerOrderAlert(event) {
+  const change = event && event.data;
+  if (!change) return;
+  const snap = change.after || change; // onDocumentCreated hands a snapshot directly
+  if (!snap || typeof snap.data !== "function") return;
+
+  const order = snap.data() || {};
+  if (order.paid !== true) return;
+  if (order.ownerAlertSentAt) return;
+
+  const settings = await getAlertSettings();
+  if (!settings) return; // off / not configured yet - leave the order untouched
+
+  const isTest = String(order.yocoPaymentMode || "").toLowerCase() === "test" ||
+    order.ozowIsTestNotification === true;
+  if (isTest && !settings.includeTestOrders) return;
+
+  const attempts = Number(order.ownerAlertAttempts) || 0;
+  if (attempts >= 3) return;
+  const lastAttemptMs = order.ownerAlertLastAttemptAt ?
+    Date.parse(order.ownerAlertLastAttemptAt) : 0;
+  if (lastAttemptMs && (Date.now() - lastAttemptMs) < 10 * 60 * 1000) return;
+
+  const orderId = (event.params && event.params.orderId) || order.orderId || "";
+  const orderRef = snap.ref;
+
+  await orderRef.update({
+    ownerAlertStatus: "sending",
+    ownerAlertAttempts: attempts + 1,
+    ownerAlertLastAttemptAt: new Date().toISOString(),
+  });
+
+  try {
+    const body = buildDiscordOrderAlert(order, orderId, settings, {isTest: isTest});
+    const result = await sendOwnerDiscordAlert(settings, body);
+    await orderRef.update({
+      ownerAlertSentAt: new Date().toISOString(),
+      ownerAlertStatus: "sent",
+      ownerAlertChannel: `discord:${result.channel}`,
+      ownerAlertError: admin.firestore.FieldValue.delete(),
+    });
+    logger.info(`Owner alert sent to Discord for order ${orderId}.`);
+  } catch (err) {
+    logger.error(`Owner alert failed for order ${orderId}:`, err);
+    await orderRef.update({
+      ownerAlertStatus: "failed",
+      ownerAlertError: String((err && err.message) || err).slice(0, 500),
+    });
+  }
+}
+
+exports.onOrderPaidAlertOwner = onDocumentUpdated({
+  document: "orders/{orderId}",
+}, handleOwnerOrderAlert);
+
+// Fallback for a paid order that is CREATED already paid (a gateway webhook that
+// arrives before the checkout callable finished writing the pending document).
+exports.onOrderPaidAlertOwnerCreated = onDocumentCreated({
+  document: "orders/{orderId}",
+}, handleOwnerOrderAlert);
+
+/**
+ * Admin: send a sample alert so the owner can confirm the webhook/token works.
+ * Works even while alerts are switched off, as long as a channel is configured.
+ */
+exports.sendTestOrderAlert = onCall(async (request) => {
+  await assertMasterAdmin(request);
+  const settings = await getAlertSettings({includeDisabled: true});
+  if (!settings) {
+    throw new HttpsError("failed-precondition",
+        "Paste a Discord webhook URL (or a bot token + channel id) in Site Texts and press Save first.");
+  }
+  const sample = {
+    orderId: "4821",
+    customerName: "Studio Extrait Tester",
+    phone: "082 000 0000",
+    email: "tester@studioextrait.co.za",
+    total: 495,
+    paymentGateway: "yoco",
+    address: "1 Test Street, Northriding, Johannesburg, Gauteng, 2169",
+    deliveryDate: "",
+    instructions: "",
+    items: [{name: "Caribbean", size: "50ml", quantity: 1, price: 495}],
+    yocoPaymentMode: "test",
+  };
+  const body = buildDiscordOrderAlert(sample, sample.orderId, settings, {isTest: true});
+  const result = await sendOwnerDiscordAlert(settings, body);
+  return {success: true, channel: result.channel, status: result.status};
+});
+
 /**
  * Verify a payment server-side. Orders are only ever marked paid by a gateway
  * webhook (the Yoco payment notification or the Ozow transaction notification),
