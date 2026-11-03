@@ -1620,11 +1620,29 @@
       if (document.getElementById("alertUsername")) {
         document.getElementById("alertUsername").value = data.username || "Studio Extrait Orders";
       }
+      if (document.getElementById("alertOrdersChannelId")) {
+        document.getElementById("alertOrdersChannelId").value = data.ordersChannelId || "";
+      }
+      if (document.getElementById("alertCompletedChannelId")) {
+        document.getElementById("alertCompletedChannelId").value = data.completedChannelId || "";
+      }
+      if (document.getElementById("alertCancelledChannelId")) {
+        document.getElementById("alertCancelledChannelId").value = data.cancelledChannelId || "";
+      }
+      if (document.getElementById("alertOwnerDiscordId")) {
+        document.getElementById("alertOwnerDiscordId").value = data.ownerDiscordId || "";
+      }
       if (statusEl) {
         if (data.enabled === false) {
           statusEl.textContent = "Alerts are switched OFF - paid orders will not ping Discord until you re-tick \"Alerts enabled\" and save.";
         } else {
-          statusEl.textContent = "Alerts are ON. The Discord webhook is read from Firebase Secret Manager (DISCORD_ORDERS_WEBHOOK) - press \"Send Test Alert\" to check it posts.";
+          const idsSet = [data.ordersChannelId, data.completedChannelId, data.cancelledChannelId]
+              .filter((value) => String(value || "").trim()).length;
+          statusEl.textContent = "Alerts are ON. The Discord webhook is read from Firebase Secret Manager " +
+            "(DISCORD_ORDERS_WEBHOOK) - press \"Send Test Alert\" to check it posts. " +
+            (idsSet === 3 ?
+              "All three channel IDs are saved: once the bot secrets exist the alert carries working Complete/Cancel buttons." :
+              `Complete/Cancel buttons need all three channel IDs (${idsSet}/3 saved) plus the bot secrets.`);
         }
       }
     } catch (err) {
@@ -1637,15 +1655,28 @@
     if (e) e.preventDefault();
     const btn = document.getElementById("saveAlertBtn");
     const statusEl = document.getElementById("alertSettingsStatus");
-    // Preferences only. The Discord webhook itself never passes through this
-    // page: it lives in Firebase Secret Manager (DISCORD_ORDERS_WEBHOOK).
+    // Preferences only. The Discord webhook and bot token never pass through this
+    // page: they live in Firebase Secret Manager (DISCORD_ORDERS_WEBHOOK,
+    // DISCORD_BOT_TOKEN, DISCORD_PUBLIC_KEY). Channel ids are not secrets.
     const payload = {
       enabled: document.getElementById("alertEnabled") ? document.getElementById("alertEnabled").checked : true,
       includeTestOrders: document.getElementById("alertIncludeTest") ? document.getElementById("alertIncludeTest").checked : true,
       mention: document.getElementById("alertMention") ? document.getElementById("alertMention").value.trim() : "",
       username: (document.getElementById("alertUsername") ? document.getElementById("alertUsername").value.trim() : "") || "Studio Extrait Orders",
+      ordersChannelId: document.getElementById("alertOrdersChannelId") ? document.getElementById("alertOrdersChannelId").value.trim() : "",
+      completedChannelId: document.getElementById("alertCompletedChannelId") ? document.getElementById("alertCompletedChannelId").value.trim() : "",
+      cancelledChannelId: document.getElementById("alertCancelledChannelId") ? document.getElementById("alertCancelledChannelId").value.trim() : "",
+      ownerDiscordId: document.getElementById("alertOwnerDiscordId") ? document.getElementById("alertOwnerDiscordId").value.trim() : "",
       updatedAt: new Date().toISOString()
     };
+
+    // Channel ids are snowflakes; a typo would silently disable the buttons.
+    const badId = [payload.ordersChannelId, payload.completedChannelId, payload.cancelledChannelId, payload.ownerDiscordId]
+        .filter((value) => value && !/^\d{5,25}$/.test(value));
+    if (badId.length) {
+      alert("A channel or user ID should be all digits (right-click the channel > Copy Channel ID).");
+      return;
+    }
 
     const original = btn ? btn.innerHTML : "";
     if (btn) { btn.disabled = true; btn.innerHTML = "SAVING..."; }

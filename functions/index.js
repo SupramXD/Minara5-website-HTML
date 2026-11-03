@@ -1297,21 +1297,115 @@ exports.onReviewDeleted = onDocumentDeleted({
  * Simple 4-digit order number (shown to customers as "#4821").
  * Plain digits are safe as a Firestore document id, a Yoco client reference and
  * an Ozow transaction reference, and there is nothing else in them to explain.
- * Uniqueness is checked against the orders collection (with a bounded fallback
- * scan) so a number is never reused.
+ *
+ * Uniqueness is never assumed - the number is checked against every previous
+ * order before it is handed out, and the save itself is an atomic `create()` so
+ * two simultaneous checkouts can never share (or overwrite) a number.
+ */
+const ORDER_NUMBER_RANDOM_TRIES = 25;
+
+/** Is this exact number already the id of an order? (The doc id IS the number.) */
+async function orderNumberInUse(candidate) {
+  const snap = await firestore.collection("orders").doc(String(candidate)).get();
+  return snap.exists;
+}
+
+/** gRPC code 6 = ALREADY_EXISTS, from document.create() on a taken id. */
+function isAlreadyExistsError(err) {
+  if (!err) return false;
+  return err.code === 6 || err.code === "already-exists" ||
+    /already exists/i.test(String(err.message || ""));
+}
+
+/**
+ * Allocate an order number that has never been used on a previous order.
+ *
+ * 1. Up to 25 random 4-digit candidates (1000-9999), each checked against the
+ *    orders collection - a taken number is never returned.
+ * 2. If every try is taken the 4-digit space is (nearly) full, so stop guessing:
+ *    list the order ids once (metadata only, no document reads) and walk
+ *    1000-9999 to find the free one.
+ * 3. Once ALL 9000 four-digit numbers are in use the number grows by one digit,
+ *    exactly as asked - one digit appended to the end (4821 -> 48210, 48211...).
+ * 4. If even the id listing fails, checked 5-digit numbers are used directly and
+ *    a timestamp number is the last resort; `createOrderWithUniqueNumber()` still
+ *    refuses any duplicate.
  */
 async function generateOrderReference() {
-  for (let attempt = 0; attempt < 15; attempt++) {
-    const candidate = String(Math.floor(1000 + Math.random() * 9000));
-    const snap = await firestore.collection("orders").doc(candidate).get();
-    if (!snap.exists) return candidate;
+  for (let attempt = 0; attempt < ORDER_NUMBER_RANDOM_TRIES; attempt++) {
+    const candidate = String(crypto.randomInt(1000, 10000));
+    if (!(await orderNumberInUse(candidate))) return candidate;
   }
-  for (let n = 1000; n < 1200; n++) {
-    const candidate = String(n);
-    const snap = await firestore.collection("orders").doc(candidate).get();
-    if (!snap.exists) return candidate;
+
+  let used = null;
+  try {
+    // Metadata only: no document reads are billed for listing ids.
+    const refs = await firestore.collection("orders").listDocuments();
+    used = new Set(refs.map((ref) => ref.id));
+  } catch (err) {
+    logger.warn("Could not list the order ids - using checked 5-digit numbers instead:", err);
   }
-  throw new HttpsError("internal", "Could not allocate an order number. Please try again.");
+
+  if (used) {
+    const start = crypto.randomInt(1000, 10000);
+    for (let i = 0; i < 9000; i++) {
+      const candidate = String(1000 + ((start - 1000 + i) % 9000));
+      if (!used.has(candidate)) {
+        logger.info(`Order number ${candidate} allocated from the 4-digit sweep.`);
+        return candidate;
+      }
+    }
+    // Every 4-digit number is taken: append a digit to make a 5-digit number.
+    for (let base = 1000; base <= 9999; base++) {
+      for (let digit = 0; digit <= 9; digit++) {
+        const candidate = `${base}${digit}`;
+        if (!used.has(candidate)) {
+          logger.warn(`All 9000 four-digit order numbers are in use - allocated ${candidate} (5 digits).`);
+          return candidate;
+        }
+      }
+    }
+  } else {
+    for (let base = 1000; base <= 9999; base++) {
+      for (let digit = 0; digit <= 9; digit++) {
+        const candidate = `${base}${digit}`;
+        if (!(await orderNumberInUse(candidate))) return candidate;
+      }
+    }
+  }
+
+  // Last resort: a timestamp with a random suffix, still verified.
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const candidate = String(Date.now()) + String(crypto.randomInt(10, 100));
+    if (!(await orderNumberInUse(candidate))) return candidate;
+  }
+  throw new HttpsError("internal", "Could not allocate a free order number. Please try again.");
+}
+
+/**
+ * Save a brand-new order under a unique number.
+ * `create()` (not `set()`) is what makes the "no overlap" rule airtight: if two
+ * checkouts pick the same number at the same moment, the second write fails with
+ * ALREADY_EXISTS instead of silently overwriting the first customer's order, and
+ * a fresh number is allocated and retried.
+ */
+async function createOrderWithUniqueNumber(orderDoc, preferredReference) {
+  let reference = preferredReference || await generateOrderReference();
+  for (let attempt = 0; attempt < 6; attempt++) {
+    try {
+      await firestore.collection("orders").doc(reference).create({
+        ...orderDoc,
+        orderId: reference,
+        orderNumber: reference,
+      });
+      return reference;
+    } catch (err) {
+      if (!isAlreadyExistsError(err)) throw err;
+      logger.warn(`Order number ${reference} was taken between allocation and save - retrying.`);
+      reference = await generateOrderReference();
+    }
+  }
+  throw new HttpsError("internal", "Could not allocate a free order number. Please try again.");
 }
 
 exports.createYocoCheckout = onCall({secrets: [yocoSecretKey]}, async (request) => {
@@ -1328,14 +1422,12 @@ exports.createYocoCheckout = onCall({secrets: [yocoSecretKey]}, async (request) 
     throw new HttpsError("failed-precondition", "The Yoco secret key is not configured on the server.");
   }
 
-  const reference = await generateOrderReference();
   const email = String(customer.email).trim();
   const firstName = (String(customer.firstName || "").trim() || "Customer");
   const lastName = (String(customer.lastName || "").trim() || "Order");
   const customerName = `${firstName} ${lastName}`.trim();
 
   const orderDoc = {
-    orderId: reference,
     customerName: customerName,
     email: email,
     emailAlt: customer.emailAlt || "",
@@ -1355,8 +1447,9 @@ exports.createYocoCheckout = onCall({secrets: [yocoSecretKey]}, async (request) 
     stockDeducted: false,
   };
 
-  // Save the pending order before the customer leaves the site.
-  await firestore.collection("orders").doc(reference).set(orderDoc);
+  // Save the pending order before the customer leaves the site. The number is
+  // allocated and verified here, atomically - no previous order can be replaced.
+  const reference = await createOrderWithUniqueNumber(orderDoc);
 
   const withReference = (baseUrl, fallback) => {
     const target = baseUrl || fallback;
@@ -1477,7 +1570,7 @@ exports.createOzowCheckout = onCall({
         "The Ozow private key, API key and site code must all be configured on the server.");
   }
 
-  const reference = await generateOrderReference();
+  let reference = await generateOrderReference();
   const email = String(customer.email).trim();
   const firstName = (String(customer.firstName || "").trim() || "Customer");
   const lastName = (String(customer.lastName || "").trim() || "Order");
@@ -1485,7 +1578,9 @@ exports.createOzowCheckout = onCall({
   const phone = String(customer.phone || "").trim();
   // Ozow allows only letters, numbers, spaces and dashes in a bank reference
   // (max 20 characters): it is what the customer sees in their online banking.
-  const bankReference = reference.replace(/[^a-zA-Z0-9 -]/g, "").slice(0, 20);
+  // Rebuilt from the FINAL number once the order is saved (the number can change
+  // if another checkout took it first - see createOrderWithUniqueNumber).
+  let bankReference = reference.replace(/[^a-zA-Z0-9 -]/g, "").slice(0, 20);
   // Exactly two decimals: Ozow hashes the formatted string, and a dropped
   // trailing zero is the most common cause of a hashCheck failure.
   const amount = Number(total).toFixed(2);
@@ -1545,7 +1640,6 @@ exports.createOzowCheckout = onCall({
   }
 
   const orderDoc = {
-    orderId: reference,
     customerName: customerName,
     email: email,
     emailAlt: customer.emailAlt || "",
@@ -1567,8 +1661,12 @@ exports.createOzowCheckout = onCall({
     stockDeducted: false,
   };
 
-  // Save the pending order before the customer leaves the site.
-  await firestore.collection("orders").doc(reference).set(orderDoc);
+  // Save the pending order before the customer leaves the site. The number is
+  // allocated and verified here, atomically - no previous order can be replaced.
+  reference = await createOrderWithUniqueNumber(orderDoc, reference);
+  // The customer sees this line in their own banking app, so it is rebuilt from
+  // the final number.
+  bankReference = reference.replace(/[^a-zA-Z0-9 -]/g, "").slice(0, 20);
 
   // Ozow redirects the customer's browser back to these URLs once the payment
   // page is done with them. The authoritative outcome still arrives on the
@@ -2128,12 +2226,14 @@ function readSecretQuietly(secret) {
 }
 
 // Reads the LATEST version of a Secret Manager secret at runtime (via the
-// function's own service identity), so rotating the Gmail app password takes
-// effect within a minute - no redeploy needed. Cached for 60s per instance.
-let secretCache = {name: "", value: "", at: 0};
+// function's own service identity), so rotating a secret takes effect within a
+// minute - no redeploy needed. Cached for 60s per instance, PER SECRET NAME (a
+// single slot would thrash now that the Discord alerts read several secrets).
+const secretCache = new Map();
 async function readSecretLatest(name) {
   const now = Date.now();
-  if (secretCache.name === name && (now - secretCache.at) < 60000) return secretCache.value;
+  const cached = secretCache.get(name);
+  if (cached && (now - cached.at) < 60000) return cached.value;
   try {
     const tokenRes = await fetch(
         "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token",
@@ -2150,7 +2250,7 @@ async function readSecretLatest(name) {
     const json = await res.json();
     const raw = (json.payload && json.payload.data) || "";
     const value = Buffer.from(raw, "base64").toString("utf8").trim();
-    secretCache = {name: name, value: value, at: now};
+    secretCache.set(name, {value: value, at: now});
     return value;
   } catch (e) {
     return "";
@@ -2744,7 +2844,13 @@ exports.resendOrderConfirmation = onCall({
 // function: the 3-attempt cap and the 10-minute back-off stop the loop.
 const ALERT_SETTINGS_DOC = "notifications";
 const ALERT_ADMIN_URL = MAIL_SITE_URL + "/admin.html";
+const DISCORD_API_BASE = "https://discord.com/api/v10";
 const discordOrdersWebhookSecret = defineSecret("DISCORD_ORDERS_WEBHOOK");
+// Interactive buttons (Complete / Cancel) only work when an APPLICATION authors
+// the message, so the optional bot is what turns the alert into a set of working
+// buttons. Both values live in Secret Manager only.
+const discordBotTokenSecret = defineSecret("DISCORD_BOT_TOKEN");
+const discordPublicKeySecret = defineSecret("DISCORD_PUBLIC_KEY");
 
 /** A Discord channel webhook URL (discord.com/discordapp.com, any API version). */
 function isValidDiscordWebhook(url) {
@@ -2762,24 +2868,18 @@ function whatsappDigits(phone) {
 }
 
 /**
- * Read the owner-alert configuration. The WEBHOOK always comes from Secret
- * Manager; Firestore only supplies preferences. Returns null when there is no
- * usable webhook or alerts are switched off, so the trigger leaves the order
- * untouched and a later fix can still alert.
+ * Read the owner-alert configuration: secrets from Secret Manager, preferences
+ * from the admin-only `settings/notifications` document. Never returns null -
+ * each caller decides whether the result is usable.
+ *
+ * Two transports:
+ *  - BOT (`DISCORD_BOT_TOKEN` + the #orders channel id): an app-authored message
+ *    is the only kind whose buttons Discord delivers back to us, so this is
+ *    preferred the moment it is configured.
+ *  - WEBHOOK (`DISCORD_ORDERS_WEBHOOK`): always works, but a plain channel
+ *    webhook cannot receive clicks, so its alerts carry link buttons only.
  */
-async function getAlertSettings(options) {
-  const includeDisabled = !!(options && options.includeDisabled === true);
-
-  const webhookUrl = String((await readSecretLatest("DISCORD_ORDERS_WEBHOOK")) ||
-    readSecretQuietly(discordOrdersWebhookSecret) || "").trim();
-  if (!isValidDiscordWebhook(webhookUrl)) {
-    logger.warn("DISCORD_ORDERS_WEBHOOK is missing or is not a Discord webhook URL - " +
-      "no owner alert can be sent.");
-    return null;
-  }
-
-  // Preferences only. A missing document is FINE - the defaults below apply, so
-  // the secret on its own is already a complete configuration.
+async function readAlertConfig() {
   let data = {};
   try {
     const snap = await firestore.collection("settings").doc(ALERT_SETTINGS_DOC).get();
@@ -2788,16 +2888,52 @@ async function getAlertSettings(options) {
     logger.warn("Could not read settings/notifications - using the defaults:", err);
   }
 
-  if (!includeDisabled && data.enabled === false) return null;
+  /** Live secret value first (rotation needs no redeploy), bound value second. */
+  const secret = async (name, bound) => {
+    const live = String((await readSecretLatest(name)) || "").trim();
+    const value = live || (bound ? readSecretQuietly(bound) : "");
+    return value === "unset" ? "" : value;
+  };
+
+  const webhookUrl = await secret("DISCORD_ORDERS_WEBHOOK", discordOrdersWebhookSecret);
+  const botToken = await secret("DISCORD_BOT_TOKEN", discordBotTokenSecret);
+  const publicKey = await secret("DISCORD_PUBLIC_KEY", discordPublicKeySecret);
+  const ordersChannelId = String(data.ordersChannelId || "").trim();
 
   return {
+    enabled: data.enabled !== false,
     // Test-mode payments (today's Yoco/Ozow test keys) are alerted too and
     // marked [TEST]; un-tick the box in the admin to mute them.
     includeTestOrders: data.includeTestOrders !== false,
-    webhookUrl: webhookUrl,
     mention: String(data.mention || "").trim(),
     username: String(data.username || "").trim() || "Studio Extrait Orders",
+    webhookUrl: isValidDiscordWebhook(webhookUrl) ? webhookUrl : "",
+    botToken: botToken,
+    publicKey: publicKey,
+    ordersChannelId: ordersChannelId,
+    completedChannelId: String(data.completedChannelId || "").trim(),
+    cancelledChannelId: String(data.cancelledChannelId || "").trim(),
+    ownerDiscordId: String(data.ownerDiscordId || "").trim(),
+    // Buttons need an application-authored message.
+    botReady: botToken.length > 20 && /^\d{5,25}$/.test(ordersChannelId),
   };
+}
+
+/**
+ * The same configuration, but null when nothing can deliver an alert (or alerts
+ * are switched off), so the trigger leaves the order untouched and a later fix -
+ * a new secret, a new channel id - can still alert it.
+ */
+async function getAlertSettings(options) {
+  const includeDisabled = !!(options && options.includeDisabled === true);
+  const cfg = await readAlertConfig();
+  if (!includeDisabled && cfg.enabled === false) return null;
+  if (!cfg.webhookUrl && !cfg.botReady) {
+    logger.warn("No Discord destination is configured - set DISCORD_ORDERS_WEBHOOK " +
+      "(or DISCORD_BOT_TOKEN + the orders channel id). No owner alert sent.");
+    return null;
+  }
+  return cfg;
 }
 
 /**
@@ -2851,6 +2987,16 @@ function buildDiscordOrderAlert(order, orderId, settings, flags) {
   if (whatsapp) {
     buttons.push({type: 2, style: 5, label: "WhatsApp customer", url: `https://wa.me/${whatsapp}`});
   }
+  // Complete / Cancel are INTERACTIVE buttons (custom_id) answered by
+  // `discordInteractions`. They are only added when the bot authors the message:
+  // Discord sends no interaction for a plain channel webhook's buttons, so there
+  // they would just look clickable and fail.
+  if (flags && flags.interactive) {
+    buttons.unshift(
+        {type: 2, style: 3, label: "Complete order", custom_id: `order:complete:${reference}`},
+        {type: 2, style: 4, label: "Cancel order", custom_id: `order:cancel:${reference}`},
+    );
+  }
 
   const body = {
     embeds: [{
@@ -2865,6 +3011,24 @@ function buildDiscordOrderAlert(order, orderId, settings, flags) {
     allowed_mentions: {parse: []},
   };
 
+  // Already handled (Complete or Cancel was pressed): stamp the decision on the
+  // card and drop the buttons, so the same order cannot be actioned twice.
+  const resolved = flags && flags.resolved;
+  if (resolved) {
+    const completed = resolved.action === "complete";
+    const whenSeconds = Math.floor(Date.parse(resolved.at || "") / 1000);
+    body.embeds[0].color = completed ? 0x10b981 : 0xf43f5e;
+    body.embeds[0].title = `${completed ? "✅ Completed" : "🚫 Cancelled"} · Order #${shortRef}` +
+      (isTest ? " [TEST]" : "");
+    body.embeds[0].fields = (body.embeds[0].fields || []).concat([{
+      name: "Status",
+      value: `${completed ? "Completed" : "Cancelled"} by <@${resolved.by}>` +
+        (isNaN(whenSeconds) ? "" : ` · <t:${whenSeconds}:f>`),
+      inline: false,
+    }]);
+    body.components = [];
+  }
+
   // An optional mention (user or role id) is the only thing allowed to ping.
   const mention = String((settings && settings.mention) || "").trim();
   if (mention) {
@@ -2876,25 +3040,74 @@ function buildDiscordOrderAlert(order, orderId, settings, flags) {
   return body;
 }
 
+/** POST a message into a channel as the bot. Only app-authored messages can carry
+ *  buttons Discord will route back to `discordInteractions`. */
+async function postDiscordBotMessage(botToken, channelId, body) {
+  const payload = {...body};
+  delete payload.username; // bot messages have no webhook-style username override
+  let response;
+  try {
+    response = await fetch(`${DISCORD_API_BASE}/channels/${channelId}/messages`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bot ${botToken}`,
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(10000),
+    });
+  } catch (err) {
+    throw new Error(`Could not reach Discord: ${String((err && err.message) || err).slice(0, 300)}`);
+  }
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`Discord rejected the message (HTTP ${response.status}): ${text.slice(0, 300)}`);
+  }
+  return {channel: "bot", status: response.status};
+}
+
 /**
- * POST one message to the Discord channel webhook from Secret Manager.
- * `?wait=true` makes Discord return the created message (200) instead of an
+ * A plain channel webhook cannot receive clicks, so any custom_id button on its
+ * message is a dead button - drop those before sending the fallback.
+ */
+function withoutInteractiveButtons(body) {
+  if (!Array.isArray(body.components)) return body;
+  const rows = body.components
+      .map((row) => ({...row, components: (row.components || []).filter((item) => !item.custom_id)}))
+      .filter((row) => row.components.length > 0);
+  const clone = {...body};
+  if (rows.length) clone.components = rows;
+  else delete clone.components;
+  return clone;
+}
+
+/**
+ * Deliver one message to Discord. The bot wins whenever it is configured (it is
+ * the only transport that can carry working buttons); otherwise the Secret
+ * Manager webhook is used, exactly as before.
+ * `?wait=true` makes a webhook return the created message (200) instead of an
  * empty 204, so a rejection carries a body we can log. A hard 10s timeout so a
  * silent Discord cannot hold the function open.
  */
 async function sendOwnerDiscordAlert(settings, body) {
+  if (settings.botReady) {
+    return postDiscordBotMessage(settings.botToken, settings.ordersChannelId, body);
+  }
+
   const webhookUrl = String((settings && settings.webhookUrl) || "").trim();
   if (!isValidDiscordWebhook(webhookUrl)) {
-    throw new Error("No usable Discord webhook - set the DISCORD_ORDERS_WEBHOOK secret.");
+    throw new Error("No usable Discord destination - set DISCORD_ORDERS_WEBHOOK " +
+      "(or DISCORD_BOT_TOKEN + the orders channel id).");
   }
   const url = webhookUrl + (webhookUrl.includes("?") ? "&" : "?") + "wait=true";
+  const payload = withoutInteractiveButtons(body);
 
   let response;
   try {
     response = await fetch(url, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
       signal: AbortSignal.timeout(10000),
     });
   } catch (err) {
@@ -2946,7 +3159,10 @@ async function handleOwnerOrderAlert(event) {
   });
 
   try {
-    const body = buildDiscordOrderAlert(order, orderId, settings, {isTest: isTest});
+    const body = buildDiscordOrderAlert(order, orderId, settings, {
+      isTest: isTest,
+      interactive: settings.botReady,
+    });
     const result = await sendOwnerDiscordAlert(settings, body);
     await orderRef.update({
       ownerAlertSentAt: new Date().toISOString(),
@@ -2966,26 +3182,30 @@ async function handleOwnerOrderAlert(event) {
 
 exports.onOrderPaidAlertOwner = onDocumentUpdated({
   document: "orders/{orderId}",
-  secrets: [discordOrdersWebhookSecret],
+  secrets: [discordOrdersWebhookSecret, discordBotTokenSecret, discordPublicKeySecret],
 }, handleOwnerOrderAlert);
 
 // Fallback for a paid order that is CREATED already paid (a gateway webhook that
 // arrives before the checkout callable finished writing the pending document).
 exports.onOrderPaidAlertOwnerCreated = onDocumentCreated({
   document: "orders/{orderId}",
-  secrets: [discordOrdersWebhookSecret],
+  secrets: [discordOrdersWebhookSecret, discordBotTokenSecret, discordPublicKeySecret],
 }, handleOwnerOrderAlert);
 
 /**
- * Admin: send a sample alert so the owner can confirm the Secret Manager webhook
- * works. Runs even while alerts are switched off.
+ * Admin: send a sample alert so the owner can confirm the Discord destination
+ * works. Runs even while alerts are switched off, and reports which transport
+ * was used (bot = the card carries working Complete/Cancel buttons).
  */
-exports.sendTestOrderAlert = onCall({secrets: [discordOrdersWebhookSecret]}, async (request) => {
+exports.sendTestOrderAlert = onCall({
+  secrets: [discordOrdersWebhookSecret, discordBotTokenSecret, discordPublicKeySecret],
+}, async (request) => {
   await assertMasterAdmin(request);
   const settings = await getAlertSettings({includeDisabled: true});
   if (!settings) {
     throw new HttpsError("failed-precondition",
-        "Paste a Discord webhook URL (or a bot token + channel id) in Site Texts and press Save first.");
+        "No Discord destination is configured - set the DISCORD_ORDERS_WEBHOOK secret " +
+        "(or DISCORD_BOT_TOKEN plus the #orders channel id) first.");
   }
   const sample = {
     orderId: "4821",
@@ -3000,9 +3220,260 @@ exports.sendTestOrderAlert = onCall({secrets: [discordOrdersWebhookSecret]}, asy
     items: [{name: "Caribbean", size: "50ml", quantity: 1, price: 495}],
     yocoPaymentMode: "test",
   };
-  const body = buildDiscordOrderAlert(sample, sample.orderId, settings, {isTest: true});
+  const body = buildDiscordOrderAlert(sample, sample.orderId, settings, {
+    isTest: true,
+    interactive: settings.botReady,
+  });
   const result = await sendOwnerDiscordAlert(settings, body);
-  return {success: true, channel: result.channel, status: result.status};
+  return {
+    success: true,
+    channel: result.channel,
+    status: result.status,
+    botReady: settings.botReady,
+  };
+});
+
+// =====================================================================
+// DISCORD INTERACTIONS - the Complete / Cancel buttons on an order alert
+// =====================================================================
+// A plain channel webhook can never receive button clicks: only a message
+// authored by an APPLICATION does. So when DISCORD_BOT_TOKEN is configured the
+// alert is posted by the bot (see sendOwnerDiscordAlert) and Discord posts every
+// click to this HTTPS endpoint, signed with the app's key.
+//
+// Security:
+//  - every request is verified against DISCORD_PUBLIC_KEY (Ed25519 over
+//    `<timestamp><raw body>`); an unsigned or tampered request is 401.
+//  - if `ownerDiscordId` is set in Site Texts, only that user may press the
+//    buttons - anyone else gets a private "not allowed" reply.
+//  - the action is idempotent: an order already completed/cancelled refuses a
+//    second click instead of double-posting to the other channel.
+const DISCORD_EPHEMERAL = 64;
+// Ed25519 public keys travel as raw 32 bytes; Node wants DER/SPKI, so this is the
+// fixed AlgorithmIdentifier prefix (RFC 8410) glued in front of them.
+const ED25519_SPKI_PREFIX = Buffer.from("302a300506032b6570032100", "hex");
+
+function discordVerifyKey(publicKeyHex) {
+  const raw = Buffer.from(String(publicKeyHex || ""), "hex");
+  if (raw.length !== 32) return null;
+  try {
+    return crypto.createPublicKey({
+      key: Buffer.concat([ED25519_SPKI_PREFIX, raw]),
+      format: "der",
+      type: "spki",
+    });
+  } catch (err) {
+    return null;
+  }
+}
+
+/** Discord signs `<X-Signature-Timestamp>` + the raw request body. */
+function discordSignatureValid(publicKeyHex, signature, timestamp, rawBody) {
+  const key = discordVerifyKey(publicKeyHex);
+  if (!key || !signature || !timestamp) return false;
+  try {
+    const sig = Buffer.from(String(signature), "hex");
+    if (sig.length !== 64) return false;
+    return crypto.verify(
+        null,
+        Buffer.concat([Buffer.from(String(timestamp), "utf8"), rawBody]),
+        key,
+        sig,
+    );
+  } catch (err) {
+    return false;
+  }
+}
+
+/** A private reply only the clicker sees. */
+function discordEphemeral(text) {
+  return {type: 4, data: {content: text, flags: DISCORD_EPHEMERAL}};
+}
+
+/**
+ * The card that lands in #completed-orders / #cancelled-orders: a permanent
+ * record of what was decided, by whom and when.
+ */
+function buildOrderDecisionMessage(order, orderId, action, userId, at) {
+  const shortRef = String(orderId).replace(/^EXTRAIT-/, "");
+  const completed = action === "complete";
+  const items = describeOrderItems(order);
+  const lines = items.map((item) => {
+    let line = `• ${item.name} · ${item.size} ×${item.quantity}`;
+    if (item.bottle) line += `\n    ↳ ${item.bottle}`;
+    if (item.scents && item.scents.length) line += `\n    ↳ ${item.scents.join(", ")}`;
+    return line;
+  });
+  const customer = [
+    String(order.customerName || "").trim(),
+    String(order.phone || order.phoneAlt || "").trim(),
+    String(order.email || order.emailAlt || "").trim(),
+  ].filter(Boolean).join("\n") || "—";
+  const fields = [
+    {name: "Customer", value: customer.slice(0, 1024), inline: true},
+    {
+      name: completed ? "Total collected" : "Paid (refund due)",
+      value: formatZarExact(order.total).replace(/\.00$/, ""),
+      inline: true,
+    },
+  ];
+  const address = String(order.address || "").trim();
+  if (completed && address) fields.push({name: "Delivered to", value: address.slice(0, 1024), inline: false});
+  const notes = String(order.instructions || "").trim();
+  if (notes) fields.push({name: "Notes", value: notes.slice(0, 1024), inline: false});
+
+  return {
+    embeds: [{
+      title: `${completed ? "✅ Completed" : "🚫 Cancelled"} · Order #${shortRef}`,
+      description: (lines.join("\n") || "• (no line items recorded)").slice(0, 2500),
+      color: completed ? 0x10b981 : 0xf43f5e,
+      fields: fields,
+      footer: {text: `Marked ${completed ? "complete" : "cancelled"} on Discord · Studio Extrait`},
+      timestamp: at,
+    }],
+    allowed_mentions: {parse: []},
+  };
+}
+
+/**
+ * Apply a Complete / Cancel click to the order, then move a copy of the card into
+ * #completed-orders or #cancelled-orders.
+ *
+ * Status mapping (kept inside the admin's existing pipeline so nothing in the
+ * dashboard or the finance tab changes): complete -> "Delivered" +
+ * `fulfilment: "completed"`, cancel -> "Cancelled" + `fulfilment: "cancelled"`.
+ * `paid` is never touched - the money did arrive, so revenue reporting is
+ * unaffected; stock is not put back automatically (do that in the admin).
+ */
+async function applyOrderDecision(orderId, action, userId, cfg) {
+  const wanted = String(orderId);
+  let snap = await firestore.collection("orders").doc(wanted).get();
+  if (!snap.exists) {
+    const q = await firestore.collection("orders").where("orderId", "==", wanted).limit(1).get();
+    if (!q.empty) snap = q.docs[0];
+  }
+  if (!snap || !snap.exists) throw new Error(`order #${wanted} no longer exists`);
+
+  const order = snap.data() || {};
+  const completed = action === "complete";
+  const state = completed ? "completed" : "cancelled";
+  if (order.fulfilment === state) throw new Error(`order #${wanted} is already ${state}`);
+
+  const now = new Date().toISOString();
+  const update = {
+    fulfilment: state,
+    status: completed ? "Delivered" : "Cancelled",
+    updatedAt: now,
+  };
+  update[`${state}At`] = now;
+  update[`${state}By`] = `discord:${userId}`;
+  await snap.ref.update(update);
+
+  // The copy that becomes the permanent record in the archive channel.
+  const targetChannelId = completed ? cfg.completedChannelId : cfg.cancelledChannelId;
+  let moved = false;
+  if (cfg.botToken && /^\d{5,25}$/.test(String(targetChannelId || ""))) {
+    await postDiscordBotMessage(cfg.botToken, targetChannelId,
+        buildOrderDecisionMessage({...order, ...update}, wanted, action, userId, now));
+    moved = true;
+  } else {
+    logger.warn(`Order ${wanted} marked ${state}, but no ` +
+      `${completed ? "completed" : "cancelled"} channel id is configured - nothing moved.`);
+  }
+
+  logger.info(`Order ${wanted} marked ${state} from Discord by ${userId || "unknown"}.`);
+  return {
+    moved: moved,
+    state: state,
+    // The updated card, used to replace the original alert in place.
+    body: buildDiscordOrderAlert({...order, ...update}, wanted, cfg, {
+      interactive: false,
+      resolved: {action: action, by: userId, at: now},
+    }),
+  };
+}
+
+/** Discord's HTTP interactions endpoint (set as "Interactions Endpoint URL"). */
+exports.discordInteractions = onRequest({
+  secrets: [discordBotTokenSecret, discordPublicKeySecret],
+  invoker: "public", // Discord must be able to reach it; the signature is the gate
+}, async (req, res) => {
+  if (req.method !== "POST") {
+    res.status(405).send("Method Not Allowed");
+    return;
+  }
+
+  const cfg = await readAlertConfig();
+  if (!cfg.publicKey) {
+    logger.error("DISCORD_PUBLIC_KEY is not set - Discord interactions cannot be verified.");
+    res.status(500).json({error: "DISCORD_PUBLIC_KEY is not configured."});
+    return;
+  }
+
+  // The signature covers the RAW body, so parse nothing before verifying.
+  const rawBody = Buffer.isBuffer(req.rawBody) ?
+    req.rawBody : Buffer.from(JSON.stringify(req.body || {}), "utf8");
+  const signed = discordSignatureValid(
+      cfg.publicKey,
+      req.get("X-Signature-Ed25519"),
+      req.get("X-Signature-Timestamp"),
+      rawBody,
+  );
+  if (!signed) {
+    logger.warn("Rejected a Discord interaction with an invalid signature.");
+    res.status(401).json({error: "invalid request signature"});
+    return;
+  }
+
+  const payload = req.body || {};
+
+  // 1 = PING, the check Discord runs when the endpoint URL is saved.
+  if (payload.type === 1) {
+    res.status(200).json({type: 1});
+    return;
+  }
+
+  // 3 = MESSAGE_COMPONENT (a button click). Nothing else is expected here.
+  if (payload.type !== 3) {
+    res.status(200).json(discordEphemeral("That interaction is not supported."));
+    return;
+  }
+
+  try {
+    const data = payload.data || {};
+    const match = /^order:(complete|cancel):(.+)$/.exec(String(data.custom_id || ""));
+    if (!match) {
+      res.status(200).json(discordEphemeral("That button is no longer wired up."));
+      return;
+    }
+
+    const action = match[1];
+    const orderId = match[2];
+    const userId = String(
+        (payload.member && payload.member.user && payload.member.user.id) ||
+        (payload.user && payload.user.id) || "",
+    );
+
+    // Only the owner may action an order when their id is configured.
+    if (cfg.ownerDiscordId && userId !== cfg.ownerDiscordId) {
+      res.status(200).json(discordEphemeral("Only the store owner can update this order."));
+      return;
+    }
+
+    const result = await applyOrderDecision(orderId, action, userId, cfg);
+    res.status(200).json({
+      type: 7, // UPDATE_MESSAGE: replace the alert in place
+      data: {
+        embeds: result.body.embeds,
+        components: [],
+        allowed_mentions: {parse: []},
+      },
+    });
+  } catch (err) {
+    logger.error("Discord interaction failed:", err);
+    res.status(200).json(discordEphemeral(
+        `Could not update the order: ${String((err && err.message) || err).slice(0, 150)}`));
+  }
 });
 
 /**
