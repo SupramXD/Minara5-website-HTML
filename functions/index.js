@@ -2839,18 +2839,14 @@ exports.resendOrderConfirmation = onCall({
 //
 // Fires on `paid === true`, which is only ever written by the Yoco webhook, the
 // Ozow webhook or a manual mark-as-paid in the admin panel, so one handler
-// covers every rail. The send is CLAIMED first (`ownerAlertAttempts` +
-// `ownerAlertLastAttemptAt`) because the writes made here re-trigger this same
-// function: the 3-attempt cap and the 10-minute back-off stop the loop.
+// covers every rail. The send is CLAIMED first, inside a transaction, because
+// the writes made here (and by the confirmation-email trigger) re-fire this same
+// function: only the invocation that wins the claim posts, so one paid order is
+// always exactly one Discord message.
 const ALERT_SETTINGS_DOC = "notifications";
 const ALERT_ADMIN_URL = MAIL_SITE_URL + "/admin.html";
-const DISCORD_API_BASE = "https://discord.com/api/v10";
+const ALERT_CLAIM_TTL_MS = 5 * 60 * 1000;
 const discordOrdersWebhookSecret = defineSecret("DISCORD_ORDERS_WEBHOOK");
-// Interactive buttons (Complete / Cancel) only work when an APPLICATION authors
-// the message, so the optional bot is what turns the alert into a set of working
-// buttons. Both values live in Secret Manager only.
-const discordBotTokenSecret = defineSecret("DISCORD_BOT_TOKEN");
-const discordPublicKeySecret = defineSecret("DISCORD_PUBLIC_KEY");
 
 /** A Discord channel webhook URL (discord.com/discordapp.com, any API version). */
 function isValidDiscordWebhook(url) {
@@ -2868,16 +2864,9 @@ function whatsappDigits(phone) {
 }
 
 /**
- * Read the owner-alert configuration: secrets from Secret Manager, preferences
- * from the admin-only `settings/notifications` document. Never returns null -
- * each caller decides whether the result is usable.
- *
- * Two transports:
- *  - BOT (`DISCORD_BOT_TOKEN` + the #orders channel id): an app-authored message
- *    is the only kind whose buttons Discord delivers back to us, so this is
- *    preferred the moment it is configured.
- *  - WEBHOOK (`DISCORD_ORDERS_WEBHOOK`): always works, but a plain channel
- *    webhook cannot receive clicks, so its alerts carry link buttons only.
+ * Read the owner-alert configuration: the webhook comes from Secret Manager,
+ * the preferences from the admin-only `settings/notifications` document.
+ * Never returns null - each caller decides whether the result is usable.
  */
 async function readAlertConfig() {
   let data = {};
@@ -2888,17 +2877,10 @@ async function readAlertConfig() {
     logger.warn("Could not read settings/notifications - using the defaults:", err);
   }
 
-  /** Live secret value first (rotation needs no redeploy), bound value second. */
-  const secret = async (name, bound) => {
-    const live = String((await readSecretLatest(name)) || "").trim();
-    const value = live || (bound ? readSecretQuietly(bound) : "");
-    return value === "unset" ? "" : value;
-  };
-
-  const webhookUrl = await secret("DISCORD_ORDERS_WEBHOOK", discordOrdersWebhookSecret);
-  const botToken = await secret("DISCORD_BOT_TOKEN", discordBotTokenSecret);
-  const publicKey = await secret("DISCORD_PUBLIC_KEY", discordPublicKeySecret);
-  const ordersChannelId = String(data.ordersChannelId || "").trim();
+  // Live secret value first (rotation needs no redeploy), bound value second.
+  const live = String((await readSecretLatest("DISCORD_ORDERS_WEBHOOK")) || "").trim();
+  let webhookUrl = live || readSecretQuietly(discordOrdersWebhookSecret);
+  if (webhookUrl === "unset") webhookUrl = "";
 
   return {
     enabled: data.enabled !== false,
@@ -2907,30 +2889,22 @@ async function readAlertConfig() {
     includeTestOrders: data.includeTestOrders !== false,
     mention: String(data.mention || "").trim(),
     username: String(data.username || "").trim() || "Studio Extrait Orders",
-    webhookUrl: isValidDiscordWebhook(webhookUrl) ? webhookUrl : "",
-    botToken: botToken,
-    publicKey: publicKey,
-    ordersChannelId: ordersChannelId,
-    completedChannelId: String(data.completedChannelId || "").trim(),
-    cancelledChannelId: String(data.cancelledChannelId || "").trim(),
-    ownerDiscordId: String(data.ownerDiscordId || "").trim(),
-    // Buttons need an application-authored message.
-    botReady: botToken.length > 20 && /^\d{5,25}$/.test(ordersChannelId),
+    webhookUrl: isValidDiscordWebhook(webhookUrl) ? String(webhookUrl).trim() : "",
   };
 }
 
 /**
- * The same configuration, but null when nothing can deliver an alert (or alerts
- * are switched off), so the trigger leaves the order untouched and a later fix -
- * a new secret, a new channel id - can still alert it.
+ * The same configuration, but null when alerts cannot be delivered (or are
+ * switched off), so the trigger leaves the order untouched and a later fix can
+ * still alert it.
  */
 async function getAlertSettings(options) {
   const includeDisabled = !!(options && options.includeDisabled === true);
   const cfg = await readAlertConfig();
   if (!includeDisabled && cfg.enabled === false) return null;
-  if (!cfg.webhookUrl && !cfg.botReady) {
-    logger.warn("No Discord destination is configured - set DISCORD_ORDERS_WEBHOOK " +
-      "(or DISCORD_BOT_TOKEN + the orders channel id). No owner alert sent.");
+  if (!cfg.webhookUrl) {
+    logger.warn("DISCORD_ORDERS_WEBHOOK is missing or is not a Discord webhook URL - " +
+      "no owner alert can be sent.");
     return null;
   }
   return cfg;
@@ -2987,16 +2961,6 @@ function buildDiscordOrderAlert(order, orderId, settings, flags) {
   if (whatsapp) {
     buttons.push({type: 2, style: 5, label: "WhatsApp customer", url: `https://wa.me/${whatsapp}`});
   }
-  // Complete / Cancel are INTERACTIVE buttons (custom_id) answered by
-  // `discordInteractions`. They are only added when the bot authors the message:
-  // Discord sends no interaction for a plain channel webhook's buttons, so there
-  // they would just look clickable and fail.
-  if (flags && flags.interactive) {
-    buttons.unshift(
-        {type: 2, style: 3, label: "Complete order", custom_id: `order:complete:${reference}`},
-        {type: 2, style: 4, label: "Cancel order", custom_id: `order:cancel:${reference}`},
-    );
-  }
 
   const body = {
     embeds: [{
@@ -3011,24 +2975,6 @@ function buildDiscordOrderAlert(order, orderId, settings, flags) {
     allowed_mentions: {parse: []},
   };
 
-  // Already handled (Complete or Cancel was pressed): stamp the decision on the
-  // card and drop the buttons, so the same order cannot be actioned twice.
-  const resolved = flags && flags.resolved;
-  if (resolved) {
-    const completed = resolved.action === "complete";
-    const whenSeconds = Math.floor(Date.parse(resolved.at || "") / 1000);
-    body.embeds[0].color = completed ? 0x10b981 : 0xf43f5e;
-    body.embeds[0].title = `${completed ? "✅ Completed" : "🚫 Cancelled"} · Order #${shortRef}` +
-      (isTest ? " [TEST]" : "");
-    body.embeds[0].fields = (body.embeds[0].fields || []).concat([{
-      name: "Status",
-      value: `${completed ? "Completed" : "Cancelled"} by <@${resolved.by}>` +
-        (isNaN(whenSeconds) ? "" : ` · <t:${whenSeconds}:f>`),
-      inline: false,
-    }]);
-    body.components = [];
-  }
-
   // An optional mention (user or role id) is the only thing allowed to ping.
   const mention = String((settings && settings.mention) || "").trim();
   if (mention) {
@@ -3040,74 +2986,25 @@ function buildDiscordOrderAlert(order, orderId, settings, flags) {
   return body;
 }
 
-/** POST a message into a channel as the bot. Only app-authored messages can carry
- *  buttons Discord will route back to `discordInteractions`. */
-async function postDiscordBotMessage(botToken, channelId, body) {
-  const payload = {...body};
-  delete payload.username; // bot messages have no webhook-style username override
-  let response;
-  try {
-    response = await fetch(`${DISCORD_API_BASE}/channels/${channelId}/messages`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bot ${botToken}`,
-      },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(10000),
-    });
-  } catch (err) {
-    throw new Error(`Could not reach Discord: ${String((err && err.message) || err).slice(0, 300)}`);
-  }
-  if (!response.ok) {
-    const text = await response.text().catch(() => "");
-    throw new Error(`Discord rejected the message (HTTP ${response.status}): ${text.slice(0, 300)}`);
-  }
-  return {channel: "bot", status: response.status};
-}
-
 /**
- * A plain channel webhook cannot receive clicks, so any custom_id button on its
- * message is a dead button - drop those before sending the fallback.
- */
-function withoutInteractiveButtons(body) {
-  if (!Array.isArray(body.components)) return body;
-  const rows = body.components
-      .map((row) => ({...row, components: (row.components || []).filter((item) => !item.custom_id)}))
-      .filter((row) => row.components.length > 0);
-  const clone = {...body};
-  if (rows.length) clone.components = rows;
-  else delete clone.components;
-  return clone;
-}
-
-/**
- * Deliver one message to Discord. The bot wins whenever it is configured (it is
- * the only transport that can carry working buttons); otherwise the Secret
- * Manager webhook is used, exactly as before.
- * `?wait=true` makes a webhook return the created message (200) instead of an
+ * Deliver one message to the Discord channel webhook from Secret Manager.
+ * `?wait=true` makes Discord return the created message (200) instead of an
  * empty 204, so a rejection carries a body we can log. A hard 10s timeout so a
  * silent Discord cannot hold the function open.
  */
 async function sendOwnerDiscordAlert(settings, body) {
-  if (settings.botReady) {
-    return postDiscordBotMessage(settings.botToken, settings.ordersChannelId, body);
-  }
-
   const webhookUrl = String((settings && settings.webhookUrl) || "").trim();
   if (!isValidDiscordWebhook(webhookUrl)) {
-    throw new Error("No usable Discord destination - set DISCORD_ORDERS_WEBHOOK " +
-      "(or DISCORD_BOT_TOKEN + the orders channel id).");
+    throw new Error("No usable Discord webhook - set the DISCORD_ORDERS_WEBHOOK secret.");
   }
   const url = webhookUrl + (webhookUrl.includes("?") ? "&" : "?") + "wait=true";
-  const payload = withoutInteractiveButtons(body);
 
   let response;
   try {
     response = await fetch(url, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(payload),
+      body: JSON.stringify(body),
       signal: AbortSignal.timeout(10000),
     });
   } catch (err) {
@@ -3119,6 +3016,49 @@ async function sendOwnerDiscordAlert(settings, body) {
     throw new Error(`Discord rejected the alert (HTTP ${response.status}): ${text.slice(0, 300)}`);
   }
   return {channel: "webhook", status: response.status};
+}
+
+/**
+ * Claim the right to alert for one order, atomically.
+ *
+ * WHY THIS EXISTS (the duplicate-message bug, 2026-11-03): the trigger fires for
+ * EVERY write to the order document - including the ones this function and the
+ * confirmation-email function make a few milliseconds later. With a plain
+ * read-then-write claim, two invocations could both read "no claim yet" and both
+ * post, so a single paid order produced two identical Discord cards. Inside a
+ * transaction only the FIRST writer wins (the loser retries, sees the claim and
+ * backs off), so one paid order is always exactly one message.
+ *
+ * Returns the order data of the winning invocation, or null to say "someone else
+ * owns this / nothing to do".
+ */
+async function claimOwnerAlert(orderRef) {
+  return firestore.runTransaction(async (tx) => {
+    const snap = await tx.get(orderRef);
+    if (!snap.exists) return null;
+    const order = snap.data() || {};
+    if (order.paid !== true) return null;
+    if (order.ownerAlertSentAt) return null;
+
+    const attempts = Number(order.ownerAlertAttempts) || 0;
+    if (attempts >= 3) return null;
+    const lastAttemptMs = order.ownerAlertLastAttemptAt ?
+      Date.parse(order.ownerAlertLastAttemptAt) : 0;
+    if (lastAttemptMs && (Date.now() - lastAttemptMs) < 10 * 60 * 1000) return null;
+
+    // A claim that is still fresh means another invocation is posting right now.
+    const claimedMs = order.ownerAlertClaimedAt ? Date.parse(order.ownerAlertClaimedAt) : 0;
+    if (claimedMs && (Date.now() - claimedMs) < ALERT_CLAIM_TTL_MS) return null;
+
+    const now = new Date().toISOString();
+    tx.update(orderRef, {
+      ownerAlertStatus: "sending",
+      ownerAlertAttempts: attempts + 1,
+      ownerAlertLastAttemptAt: now,
+      ownerAlertClaimedAt: now,
+    });
+    return order;
+  });
 }
 
 /**
@@ -3143,69 +3083,60 @@ async function handleOwnerOrderAlert(event) {
     order.ozowIsTestNotification === true;
   if (isTest && !settings.includeTestOrders) return;
 
-  const attempts = Number(order.ownerAlertAttempts) || 0;
-  if (attempts >= 3) return;
-  const lastAttemptMs = order.ownerAlertLastAttemptAt ?
-    Date.parse(order.ownerAlertLastAttemptAt) : 0;
-  if (lastAttemptMs && (Date.now() - lastAttemptMs) < 10 * 60 * 1000) return;
-
   const orderId = (event.params && event.params.orderId) || order.orderId || "";
   const orderRef = snap.ref;
 
-  await orderRef.update({
-    ownerAlertStatus: "sending",
-    ownerAlertAttempts: attempts + 1,
-    ownerAlertLastAttemptAt: new Date().toISOString(),
-  });
+  // Exactly one invocation may post - see claimOwnerAlert().
+  const claimed = await claimOwnerAlert(orderRef);
+  if (!claimed) return;
 
   try {
-    const body = buildDiscordOrderAlert(order, orderId, settings, {
-      isTest: isTest,
-      interactive: settings.botReady,
-    });
+    const body = buildDiscordOrderAlert(claimed, orderId, settings, {isTest: isTest});
     const result = await sendOwnerDiscordAlert(settings, body);
+    // `ownerAlertSentAt` is the permanent guard: no later invocation can post.
     await orderRef.update({
       ownerAlertSentAt: new Date().toISOString(),
       ownerAlertStatus: "sent",
       ownerAlertChannel: `discord:${result.channel}`,
+      ownerAlertClaimedAt: admin.firestore.FieldValue.delete(),
       ownerAlertError: admin.firestore.FieldValue.delete(),
     });
     logger.info(`Owner alert sent to Discord for order ${orderId}.`);
   } catch (err) {
     logger.error(`Owner alert failed for order ${orderId}:`, err);
+    // Release the claim so the 10-minute back-off can retry (up to 3 attempts).
     await orderRef.update({
       ownerAlertStatus: "failed",
       ownerAlertError: String((err && err.message) || err).slice(0, 500),
+      ownerAlertClaimedAt: admin.firestore.FieldValue.delete(),
     });
   }
 }
 
 exports.onOrderPaidAlertOwner = onDocumentUpdated({
   document: "orders/{orderId}",
-  secrets: [discordOrdersWebhookSecret, discordBotTokenSecret, discordPublicKeySecret],
+  secrets: [discordOrdersWebhookSecret],
 }, handleOwnerOrderAlert);
 
 // Fallback for a paid order that is CREATED already paid (a gateway webhook that
 // arrives before the checkout callable finished writing the pending document).
 exports.onOrderPaidAlertOwnerCreated = onDocumentCreated({
   document: "orders/{orderId}",
-  secrets: [discordOrdersWebhookSecret, discordBotTokenSecret, discordPublicKeySecret],
+  secrets: [discordOrdersWebhookSecret],
 }, handleOwnerOrderAlert);
 
 /**
- * Admin: send a sample alert so the owner can confirm the Discord destination
- * works. Runs even while alerts are switched off, and reports which transport
- * was used (bot = the card carries working Complete/Cancel buttons).
+ * Admin: send a sample alert so the owner can confirm the Discord webhook works.
+ * Runs even while alerts are switched off.
  */
 exports.sendTestOrderAlert = onCall({
-  secrets: [discordOrdersWebhookSecret, discordBotTokenSecret, discordPublicKeySecret],
+  secrets: [discordOrdersWebhookSecret],
 }, async (request) => {
   await assertMasterAdmin(request);
   const settings = await getAlertSettings({includeDisabled: true});
   if (!settings) {
     throw new HttpsError("failed-precondition",
-        "No Discord destination is configured - set the DISCORD_ORDERS_WEBHOOK secret " +
-        "(or DISCORD_BOT_TOKEN plus the #orders channel id) first.");
+        "No Discord webhook is configured - set the DISCORD_ORDERS_WEBHOOK secret first.");
   }
   const sample = {
     orderId: "4821",
@@ -3220,260 +3151,13 @@ exports.sendTestOrderAlert = onCall({
     items: [{name: "Caribbean", size: "50ml", quantity: 1, price: 495}],
     yocoPaymentMode: "test",
   };
-  const body = buildDiscordOrderAlert(sample, sample.orderId, settings, {
-    isTest: true,
-    interactive: settings.botReady,
-  });
+  const body = buildDiscordOrderAlert(sample, sample.orderId, settings, {isTest: true});
   const result = await sendOwnerDiscordAlert(settings, body);
   return {
     success: true,
     channel: result.channel,
     status: result.status,
-    botReady: settings.botReady,
   };
-});
-
-// =====================================================================
-// DISCORD INTERACTIONS - the Complete / Cancel buttons on an order alert
-// =====================================================================
-// A plain channel webhook can never receive button clicks: only a message
-// authored by an APPLICATION does. So when DISCORD_BOT_TOKEN is configured the
-// alert is posted by the bot (see sendOwnerDiscordAlert) and Discord posts every
-// click to this HTTPS endpoint, signed with the app's key.
-//
-// Security:
-//  - every request is verified against DISCORD_PUBLIC_KEY (Ed25519 over
-//    `<timestamp><raw body>`); an unsigned or tampered request is 401.
-//  - if `ownerDiscordId` is set in Site Texts, only that user may press the
-//    buttons - anyone else gets a private "not allowed" reply.
-//  - the action is idempotent: an order already completed/cancelled refuses a
-//    second click instead of double-posting to the other channel.
-const DISCORD_EPHEMERAL = 64;
-// Ed25519 public keys travel as raw 32 bytes; Node wants DER/SPKI, so this is the
-// fixed AlgorithmIdentifier prefix (RFC 8410) glued in front of them.
-const ED25519_SPKI_PREFIX = Buffer.from("302a300506032b6570032100", "hex");
-
-function discordVerifyKey(publicKeyHex) {
-  const raw = Buffer.from(String(publicKeyHex || ""), "hex");
-  if (raw.length !== 32) return null;
-  try {
-    return crypto.createPublicKey({
-      key: Buffer.concat([ED25519_SPKI_PREFIX, raw]),
-      format: "der",
-      type: "spki",
-    });
-  } catch (err) {
-    return null;
-  }
-}
-
-/** Discord signs `<X-Signature-Timestamp>` + the raw request body. */
-function discordSignatureValid(publicKeyHex, signature, timestamp, rawBody) {
-  const key = discordVerifyKey(publicKeyHex);
-  if (!key || !signature || !timestamp) return false;
-  try {
-    const sig = Buffer.from(String(signature), "hex");
-    if (sig.length !== 64) return false;
-    return crypto.verify(
-        null,
-        Buffer.concat([Buffer.from(String(timestamp), "utf8"), rawBody]),
-        key,
-        sig,
-    );
-  } catch (err) {
-    return false;
-  }
-}
-
-/** A private reply only the clicker sees. */
-function discordEphemeral(text) {
-  return {type: 4, data: {content: text, flags: DISCORD_EPHEMERAL}};
-}
-
-/**
- * The card that lands in #completed-orders / #cancelled-orders: a permanent
- * record of what was decided, by whom and when.
- */
-function buildOrderDecisionMessage(order, orderId, action, userId, at) {
-  const shortRef = String(orderId).replace(/^EXTRAIT-/, "");
-  const completed = action === "complete";
-  const items = describeOrderItems(order);
-  const lines = items.map((item) => {
-    let line = `• ${item.name} · ${item.size} ×${item.quantity}`;
-    if (item.bottle) line += `\n    ↳ ${item.bottle}`;
-    if (item.scents && item.scents.length) line += `\n    ↳ ${item.scents.join(", ")}`;
-    return line;
-  });
-  const customer = [
-    String(order.customerName || "").trim(),
-    String(order.phone || order.phoneAlt || "").trim(),
-    String(order.email || order.emailAlt || "").trim(),
-  ].filter(Boolean).join("\n") || "—";
-  const fields = [
-    {name: "Customer", value: customer.slice(0, 1024), inline: true},
-    {
-      name: completed ? "Total collected" : "Paid (refund due)",
-      value: formatZarExact(order.total).replace(/\.00$/, ""),
-      inline: true,
-    },
-  ];
-  const address = String(order.address || "").trim();
-  if (completed && address) fields.push({name: "Delivered to", value: address.slice(0, 1024), inline: false});
-  const notes = String(order.instructions || "").trim();
-  if (notes) fields.push({name: "Notes", value: notes.slice(0, 1024), inline: false});
-
-  return {
-    embeds: [{
-      title: `${completed ? "✅ Completed" : "🚫 Cancelled"} · Order #${shortRef}`,
-      description: (lines.join("\n") || "• (no line items recorded)").slice(0, 2500),
-      color: completed ? 0x10b981 : 0xf43f5e,
-      fields: fields,
-      footer: {text: `Marked ${completed ? "complete" : "cancelled"} on Discord · Studio Extrait`},
-      timestamp: at,
-    }],
-    allowed_mentions: {parse: []},
-  };
-}
-
-/**
- * Apply a Complete / Cancel click to the order, then move a copy of the card into
- * #completed-orders or #cancelled-orders.
- *
- * Status mapping (kept inside the admin's existing pipeline so nothing in the
- * dashboard or the finance tab changes): complete -> "Delivered" +
- * `fulfilment: "completed"`, cancel -> "Cancelled" + `fulfilment: "cancelled"`.
- * `paid` is never touched - the money did arrive, so revenue reporting is
- * unaffected; stock is not put back automatically (do that in the admin).
- */
-async function applyOrderDecision(orderId, action, userId, cfg) {
-  const wanted = String(orderId);
-  let snap = await firestore.collection("orders").doc(wanted).get();
-  if (!snap.exists) {
-    const q = await firestore.collection("orders").where("orderId", "==", wanted).limit(1).get();
-    if (!q.empty) snap = q.docs[0];
-  }
-  if (!snap || !snap.exists) throw new Error(`order #${wanted} no longer exists`);
-
-  const order = snap.data() || {};
-  const completed = action === "complete";
-  const state = completed ? "completed" : "cancelled";
-  if (order.fulfilment === state) throw new Error(`order #${wanted} is already ${state}`);
-
-  const now = new Date().toISOString();
-  const update = {
-    fulfilment: state,
-    status: completed ? "Delivered" : "Cancelled",
-    updatedAt: now,
-  };
-  update[`${state}At`] = now;
-  update[`${state}By`] = `discord:${userId}`;
-  await snap.ref.update(update);
-
-  // The copy that becomes the permanent record in the archive channel.
-  const targetChannelId = completed ? cfg.completedChannelId : cfg.cancelledChannelId;
-  let moved = false;
-  if (cfg.botToken && /^\d{5,25}$/.test(String(targetChannelId || ""))) {
-    await postDiscordBotMessage(cfg.botToken, targetChannelId,
-        buildOrderDecisionMessage({...order, ...update}, wanted, action, userId, now));
-    moved = true;
-  } else {
-    logger.warn(`Order ${wanted} marked ${state}, but no ` +
-      `${completed ? "completed" : "cancelled"} channel id is configured - nothing moved.`);
-  }
-
-  logger.info(`Order ${wanted} marked ${state} from Discord by ${userId || "unknown"}.`);
-  return {
-    moved: moved,
-    state: state,
-    // The updated card, used to replace the original alert in place.
-    body: buildDiscordOrderAlert({...order, ...update}, wanted, cfg, {
-      interactive: false,
-      resolved: {action: action, by: userId, at: now},
-    }),
-  };
-}
-
-/** Discord's HTTP interactions endpoint (set as "Interactions Endpoint URL"). */
-exports.discordInteractions = onRequest({
-  secrets: [discordBotTokenSecret, discordPublicKeySecret],
-  invoker: "public", // Discord must be able to reach it; the signature is the gate
-}, async (req, res) => {
-  if (req.method !== "POST") {
-    res.status(405).send("Method Not Allowed");
-    return;
-  }
-
-  const cfg = await readAlertConfig();
-  if (!cfg.publicKey) {
-    logger.error("DISCORD_PUBLIC_KEY is not set - Discord interactions cannot be verified.");
-    res.status(500).json({error: "DISCORD_PUBLIC_KEY is not configured."});
-    return;
-  }
-
-  // The signature covers the RAW body, so parse nothing before verifying.
-  const rawBody = Buffer.isBuffer(req.rawBody) ?
-    req.rawBody : Buffer.from(JSON.stringify(req.body || {}), "utf8");
-  const signed = discordSignatureValid(
-      cfg.publicKey,
-      req.get("X-Signature-Ed25519"),
-      req.get("X-Signature-Timestamp"),
-      rawBody,
-  );
-  if (!signed) {
-    logger.warn("Rejected a Discord interaction with an invalid signature.");
-    res.status(401).json({error: "invalid request signature"});
-    return;
-  }
-
-  const payload = req.body || {};
-
-  // 1 = PING, the check Discord runs when the endpoint URL is saved.
-  if (payload.type === 1) {
-    res.status(200).json({type: 1});
-    return;
-  }
-
-  // 3 = MESSAGE_COMPONENT (a button click). Nothing else is expected here.
-  if (payload.type !== 3) {
-    res.status(200).json(discordEphemeral("That interaction is not supported."));
-    return;
-  }
-
-  try {
-    const data = payload.data || {};
-    const match = /^order:(complete|cancel):(.+)$/.exec(String(data.custom_id || ""));
-    if (!match) {
-      res.status(200).json(discordEphemeral("That button is no longer wired up."));
-      return;
-    }
-
-    const action = match[1];
-    const orderId = match[2];
-    const userId = String(
-        (payload.member && payload.member.user && payload.member.user.id) ||
-        (payload.user && payload.user.id) || "",
-    );
-
-    // Only the owner may action an order when their id is configured.
-    if (cfg.ownerDiscordId && userId !== cfg.ownerDiscordId) {
-      res.status(200).json(discordEphemeral("Only the store owner can update this order."));
-      return;
-    }
-
-    const result = await applyOrderDecision(orderId, action, userId, cfg);
-    res.status(200).json({
-      type: 7, // UPDATE_MESSAGE: replace the alert in place
-      data: {
-        embeds: result.body.embeds,
-        components: [],
-        allowed_mentions: {parse: []},
-      },
-    });
-  } catch (err) {
-    logger.error("Discord interaction failed:", err);
-    res.status(200).json(discordEphemeral(
-        `Could not update the order: ${String((err && err.message) || err).slice(0, 150)}`));
-  }
 });
 
 /**

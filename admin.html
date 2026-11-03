@@ -2232,35 +2232,6 @@
                     </div>
                   </div>
 
-                  <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-color);">
-                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.6;">
-                      <strong>Complete / Cancel buttons.</strong> A plain webhook cannot receive button clicks, so these need a
-                      Discord <em>bot</em>: set the <code>DISCORD_BOT_TOKEN</code> and <code>DISCORD_PUBLIC_KEY</code> secrets, invite
-                      the bot to the server, then paste the three channel ids below. With the bot in place the alert is posted
-                      <em>by the bot</em>, its <strong>Complete order</strong> / <strong>Cancel order</strong> buttons update the order
-                      and drop a copy of the card into the matching channel. Without the bot everything still works - the alert
-                      just carries link buttons only.
-                    </p>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
-                      <div class="form-group">
-                        <label>#orders channel ID</label>
-                        <input type="text" id="alertOrdersChannelId" class="form-input" placeholder="1234567890123456789">
-                      </div>
-                      <div class="form-group">
-                        <label>#completed-orders channel ID</label>
-                        <input type="text" id="alertCompletedChannelId" class="form-input" placeholder="1234567890123456789">
-                      </div>
-                      <div class="form-group">
-                        <label>#cancelled-orders channel ID</label>
-                        <input type="text" id="alertCancelledChannelId" class="form-input" placeholder="1234567890123456789">
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <label>Only this Discord user may press the buttons (optional - your own user ID)</label>
-                      <input type="text" id="alertOwnerDiscordId" class="form-input" placeholder="Right-click your name &rarr; Copy User ID (Developer Mode)">
-                    </div>
-                  </div>
-
                   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 18px;">
                     <button type="button" id="saveAlertBtn" onclick="handleSaveAlertSettings(event)" class="btn-action accent-btn" style="width: 100%; padding: 12px; font-weight: bold; font-family: inherit;">Save Alert Settings</button>
                     <button type="button" id="testAlertBtn" onclick="handleSendTestAlert(event)" class="btn-action" style="width: 100%; padding: 12px; font-weight: bold; font-family: inherit;">Send Test Alert</button>
