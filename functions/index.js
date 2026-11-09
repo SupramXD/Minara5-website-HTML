@@ -2921,7 +2921,8 @@ function buildDiscordOrderAlert(order, orderId, settings, flags) {
   const shortRef = reference.replace(/^EXTRAIT-/, "");
   const isTest = !!(flags && flags.isTest);
   const items = describeOrderItems(order);
-  const totalLabel = formatZarExact(order.total).replace(/\.00$/, "");
+  // R495.00 - the money figure, kept exact so the card reads like a receipt.
+  const exactTotal = formatZarExact(order.total);
 
   const gateway = String(order.paymentGateway || "").toLowerCase();
   const rail = String(order.ozowRail || "").toLowerCase();
@@ -2946,15 +2947,15 @@ function buildDiscordOrderAlert(order, orderId, settings, flags) {
   ].filter(Boolean).join("\n") || "—";
 
   const fields = [
-    {name: "Paid with", value: paymentLabel, inline: true},
-    {name: "Customer", value: customer.slice(0, 1024), inline: true},
+    {name: "💳 Paid with", value: paymentLabel, inline: true},
+    {name: "👤 Customer", value: customer.slice(0, 1024), inline: true},
   ];
   const address = String(order.address || "").trim();
-  if (address) fields.push({name: "Deliver to", value: address.slice(0, 1024), inline: false});
+  if (address) fields.push({name: "📦 Deliver to", value: address.slice(0, 1024), inline: false});
   const requestedDay = String(order.deliveryDate || "").trim();
-  if (requestedDay) fields.push({name: "Requested day", value: requestedDay.slice(0, 1024), inline: true});
+  if (requestedDay) fields.push({name: "📅 Requested day", value: requestedDay.slice(0, 1024), inline: true});
   const notes = String(order.instructions || "").trim();
-  if (notes) fields.push({name: "Notes", value: notes.slice(0, 1024), inline: false});
+  if (notes) fields.push({name: "📝 Notes", value: notes.slice(0, 1024), inline: false});
 
   const buttons = [{type: 2, style: 5, label: "Open admin panel", url: ALERT_ADMIN_URL}];
   const whatsapp = whatsappDigits(order.phone || order.phoneAlt);
@@ -2962,13 +2963,23 @@ function buildDiscordOrderAlert(order, orderId, settings, flags) {
     buttons.push({type: 2, style: 5, label: "WhatsApp customer", url: `https://wa.me/${whatsapp}`});
   }
 
+  // MONEY-FIRST CARD (Shopify-style). The owner reads this on a phone lock screen,
+  // and Discord shows the message CONTENT in that notification - so the content
+  // line is the one that has to say "money": 💰 + the exact amount + the order
+  // number. The embed repeats it in green with the receipt detail underneath.
+  const testTag = isTest ? "[TEST] " : "";
+  const moneyLine = isTest ?
+    `🧪 **${exactTotal} test payment** · no real money` :
+    `🟢 **${exactTotal} paid** · money received 💰`;
+
   const body = {
+    content: `${testTag}💰 New order · ${exactTotal} · #${shortRef}`,
     embeds: [{
-      title: `${isTest ? "[TEST] " : ""}${totalLabel} paid · Order #${shortRef}`,
-      description: description,
-      color: 0x1106e8, // the site's money-blue
+      title: `${testTag}💰 New order #${shortRef}`,
+      description: `${moneyLine}\n\n${description}`,
+      color: isTest ? 0xF59E0B : 0x10B981, // green = real money, amber = test
       fields: fields,
-      footer: {text: `Studio Extrait · ${reference}`},
+      footer: {text: `Studio Extrait · paid in full · order ${reference}`},
       timestamp: new Date().toISOString(),
     }],
     components: [{type: 1, components: buttons}],
@@ -2978,7 +2989,7 @@ function buildDiscordOrderAlert(order, orderId, settings, flags) {
   // An optional mention (user or role id) is the only thing allowed to ping.
   const mention = String((settings && settings.mention) || "").trim();
   if (mention) {
-    body.content = mention;
+    body.content = `${mention} ${body.content}`;
     body.allowed_mentions = {parse: ["users", "roles"]};
   }
   const username = String((settings && settings.username) || "").trim();

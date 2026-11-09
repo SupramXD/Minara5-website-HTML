@@ -2267,7 +2267,9 @@
       position: fixed;
       left: 50%;
       transform: translate(-50%, 0);
-      width: 800px;
+      /* Must match logoHomeDesktopWidth in hero_settings.json (1200) so a failed
+         or late pre-paint init style can never resize the logo after paint. */
+      width: 1200px;
       z-index: 10;
       pointer-events: none;
       will-change: transform, top, position;

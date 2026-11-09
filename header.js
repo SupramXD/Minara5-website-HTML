@@ -130,6 +130,19 @@ function applyDynamicLogoStyles(settings) {
       img.loading-fade {
         transition: opacity 0.45s ease-in-out !important;
       }
+      /* THE STICKY BRAND WATERMARK MUST NEVER FADE IN.
+         index.html's pre-paint "minara-logo-init-style" block paints #logo before
+         the first frame. This stylesheet is injected later (header.js is the last
+         module in <body>), so the generic "img:not(.loaded)" rule used to blank the
+         logo for a frame and then fade it back over 0.45s - and its two <img>s
+         (mobile-logo / desktop-logo) finished at different times, which is the
+         "logo dips in and out / one replaces the other" flicker on load.
+         The watermark is positioned by home-main.js, never revealed, so it is
+         excluded here and its filter swap is instant. */
+      #logo img {
+        opacity: 1 !important;
+        transition: none !important;
+      }
       .center-logo {
         height: ${headerDHeight}px !important;
       }

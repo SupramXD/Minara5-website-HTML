@@ -143,15 +143,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    let desktopSpawn = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 44;
-    let mobileSpawn = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -100;
+    let desktopSpawn = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 50;
+    let mobileSpawn = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -95;
 
     if (hero && secondHero) {
       const firstHeroEnd = heroBottom + 45;
       const secondHeroStart = secondHero.offsetTop;
 
       if (!mobileView) {
-        const spawnPercent = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 44;
+        const spawnPercent = s.logoDesktopSpawn !== undefined ? s.logoDesktopSpawn : 50;
         const spawnPercent2 = s.logoDesktopSpawn2 !== undefined ? s.logoDesktopSpawn2 : 65;
 
         const spawnY = windowHeight * (spawnPercent / 100);
@@ -165,8 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
           desktopSpawn = y < ySwitch ? spawnPercent : spawnPercent2;
         }
       } else {
-        const spawnOffset = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -100;
-        const spawnOffset2 = s.logoMobileSpawn2 !== undefined ? s.logoMobileSpawn2 : 50;
+        const spawnOffset = s.logoMobileSpawn !== undefined ? s.logoMobileSpawn : -95;
+        const spawnOffset2 = s.logoMobileSpawn2 !== undefined ? s.logoMobileSpawn2 : 180;
 
         const spawnY = topbarHeight + spawnOffset;
         const spawnY2 = topbarHeight + spawnOffset2;
