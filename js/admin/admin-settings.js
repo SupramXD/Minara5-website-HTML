@@ -1084,7 +1084,7 @@
   // Bump this when the reviewed storefront copy changes: anything stored in
   // Firestore/localStorage from an older revision is replaced by the defaults in
   // loadCustomTextSettings(), so stale Site Texts can never beat the repo copy.
-  const CUSTOM_TEXT_REVISION = 20261029;
+  const CUSTOM_TEXT_REVISION = 20261123;
 
   window.loadCustomTextSettings = async function() {
     const defaultFeatures = [
@@ -1106,7 +1106,7 @@
       },
       {
         title: "IMPORTED FRENCH OILS",
-        description: "Proudly blended in South Africa using premium imported French oils. No shortcuts—just potent, high-yield ingredients formulated for maximum impact."
+        description: "Proudly blended in South Africa using premium imported French oils supplied by the Robertet Group. No shortcuts—just potent, high-yield ingredients formulated for maximum impact."
       },
       {
         title: "PROPERLY MACERATED",
